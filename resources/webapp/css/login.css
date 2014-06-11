@@ -1,0 +1,72 @@
+/*******************************************************************************
+ * Cloudgene: A graphical MapReduce interface for cloud computing
+ * 
+ * Copyright (C) 2010, 2011 Sebastian Schoenherr, Lukas Forer
+ *  
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *  
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+body {
+	background: #025587 url("../images/background.png") repeat-y center;
+}
+
+.logo {
+	position: relative;
+	top: 20px;
+	right: 10px;
+	/*left:50px;*/
+	float: right;
+}
+
+.logo p {
+	font: normal 12pt 'century gothic', arial, sans-serif;
+	padding-top: 0px;
+	padding-left: 8px;
+	color: #FFF;
+	letter-spacing: 0.1em;
+	text-decoration: none;
+}
+
+info,.success,.warning,.error,.validation {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	border: 1px solid;
+	margin: 10px 10px 10px 10px;
+	padding: 15px 15px 15px 50px;
+	background-repeat: no-repeat;
+	background-position: 10px 5px;
+}
+
+.info {
+	color: #00529B;
+	background-color: #BDE5F8;
+	background-image: url("../images/info.png");
+}
+
+.success {
+	color: #4F8A10;
+	background-color: #DFF2BF;
+	background-image: url("../images/success.png");
+}
+
+.warning {
+	color: #9F6000;
+	background-color: #FEEFB3;
+	background-image: url("../images/warning.png");
+}
+
+.error {
+	color: #D8000C;
+	background-color: #FFBABA;
+	background-image: url("../images/error.png");
+}

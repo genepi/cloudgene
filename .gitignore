@@ -1,0 +1,7 @@
+/target
+/config
+/data
+/hadoop-config
+/tmp
+/cloudgene-cluster.log
+/version.txt

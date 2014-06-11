@@ -1,0 +1,68 @@
+name: CloudBurst
+description: Highly Sensitive Short Read Mapping with MapReduce.
+version: 1.1.0
+website: http://sourceforge.net/apps/mediawiki/cloudburst-bio/
+author: Michael Schatz
+category: Genetics
+
+cluster:
+  image: us-east-1/ami-da0cf8b3
+  type: m1.large,m1.xlarge
+  ports: 80,50030,50070
+  service: hadoop
+  installMapred: true
+ 
+mapred:
+
+  jar: CloudBurst.jar
+  params: $reference $reads $output $min_read_len $max_read_len $k $allowdifferences $filteralignment 240 48 24 24 128 16
+  
+  inputs:
+    - id: reference
+      description: Reference Genome
+      type: hdfs-file
+      makeAbsolute: false
+
+    - id: reads
+      description: Reads
+      type: hdfs-file
+      makeAbsolute: false
+
+    - id: min_read_len
+      description: min length of reads
+      type: number
+      value: 36
+
+    - id: max_read_len
+      description: max length of reads
+      type: number
+      value: 36
+
+    - id: k
+      description: mismatches 
+      type: number
+      value: 3
+
+    - id: allowdifferences
+      description: Allow Differences
+      type: list
+      values:
+        0: mismatches only
+        1: indels as well
+      value: 0
+
+    - id: filteralignment
+      description: Filter Alignments
+      type: list
+      values:
+        0: all alignments
+        1: only report unambiguous best alignment
+      value: 1
+
+      
+  outputs:
+    - id: output
+      description: Output Folder
+      type: hdfs-folder
+      download: true
+      mergeOutput: false    

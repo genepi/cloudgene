@@ -1,0 +1,33 @@
+﻿04.01.2010
+==========
+ - enhancement: added Ext 3.0.3 compatibility
+
+31.05.2009
+==========
+ - fixed: dialog would be closable even if teh dialog state would be set to "disabled";
+added "beforeclose"-listener to prevent closing the dialog in case the dialog is busy
+ - fixed: loadmask-msg would not be rendered due to accessing an object property quoted
+ - fixed: typo in Header.js (closes google issue #1)
+ - enhancement: converted tabs to spaces
+
+03.05.2009
+==========
+ - enhancement: Updated component to work with Ext JS 3.0 while keeping backwards
+compatibility to Ext 2.*
+
+
+28.05.2008
+==========
+ - fixed: IE6 did not render the step-indicator images as expected, added style-rule
+in ext-ux-wiz.css (thanks to donssmith)
+ - fixed: IE6 complained about multiple OR conditions in Ext.ux.Wiz.initComponent
+
+26.05.2008
+==========
+ - fixed: IE complained about semicolon in examples/SimpleWizard.html
+ - fixed: removed "!important"-style-override in examples/SimpleWizard.html
+since IE doesn't like it
+ - fixed: quoted "default" in Ext.ux.Wiz.loadMaskConfig since it's a keyword in IE
+ - fixed: finish-event did not pass the expected arguments to its listeners
+ - enhancement: data returned by Ext.ux.Wiz.getWizardData now indexed by the
+ id's of the specific cards they represent

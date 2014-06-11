@@ -1,0 +1,136 @@
+<!-- 
+/*******************************************************************************
+ * Cloudgene: A graphical MapReduce interface for cloud computing
+ * 
+ * Copyright (C) 2010, 2011 Sebastian Schoenherr, Lukas Forer
+ *  
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by 
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *  
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <http://www.gnu.org/licenses/>.
+ ******************************************************************************/
+ -->
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
+<link rel="stylesheet" type="text/css"
+	href="libs/ext-3.4.0/resources/css/ext-all-notheme.css" />
+<link rel="stylesheet" type="text/css"
+	href="libs/ext-3.4.0/resources/css/xtheme-gray.css" />
+<link rel="stylesheet" type="text/css"
+	href="libs/ext-wiz/src/resources/css/ext-ux-wiz-genepi.css" />
+<link rel="stylesheet" type="text/css" href="css/style.css" />
+<link rel="shortcut icon" href="./img/extjs.ico" />
+<link rel="stylesheet" type="text/css" href="css/fileuploadfield.css" />
+
+<title>Cloudgene - MapReduce Interface</title>
+<script type="text/javascript"
+	src="libs/ext-3.4.0/adapter/ext/ext-base.js"></script>
+<script type="text/javascript" src="libs/ext-3.4.0/ext-all-debug.js"></script>
+<script type="text/javascript" src="libs/date.format.js"></script>
+
+<script type="text/javascript"
+	src="libs/ext-cardlayout/src/CardLayout.js">
+	
+</script>
+<script type="text/javascript" src="libs/ext-wiz/src/Wizard.js">
+	
+</script>
+<script type="text/javascript" src="libs/ext-wiz/src/Header.js">
+	
+</script>
+<script type="text/javascript" src="libs/ext-wiz/src/Card.js">
+	
+</script>
+
+
+<script type="text/javascript" src="javascript/views/JobTable.js"></script>
+
+<script type="text/javascript" src="javascript/utils/FileUploadField.js"></script>
+<script type="text/javascript" src="javascript/utils/HdfsFileDialog.js"></script>
+<script type="text/javascript" src="javascript/utils/HdfsFileField.js"></script>
+
+<script type="text/javascript"
+	src="javascript/wizards/ImportDataUpload.js"></script>
+<script type="text/javascript" src="javascript/wizards/ImportDataFtp.js"></script>
+<script type="text/javascript" src="javascript/wizards/ImportDataSftp.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/cards/SelectBucketCard.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/cards/S3TreeCard.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/cards/SelectSftpServerCard.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/cards/SftpTreeCard.js"></script>
+<script type="text/javascript"
+	src="javascript/dialogs/AwsCredentialDialog.js"></script>
+<script type="text/javascript" src="javascript/wizards/ImportDataS3.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/ImportDataHttp.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/ImportLocalFile.js"></script>
+<script type="text/javascript" src="javascript/wizards/cards/AppList.js"></script>
+<script type="text/javascript" src="javascript/wizards/ImportApp.js"></script>
+
+<script type="text/javascript" src="javascript/wizards/cards/ClusterDetails.js"></script>
+
+<script type="text/javascript"
+	src="javascript/dialogs/ConsoleDialog.js"></script>
+
+<script type="text/javascript"
+	src="javascript/dialogs/WorkspaceDialog.js"></script>
+	
+	
+<script type="text/javascript"
+	src="javascript/dialogs/PasswordDialog.js"></script>
+<script type="text/javascript"
+	src="javascript/dialogs/UserDialog.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/AccountSettings.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/Cluster.js"></script>
+
+<script type="text/javascript"
+	src="javascript/wizards/Users.js"></script>
+
+<script type="text/javascript"
+	src="javascript/wizards/cards/SubmitJobTool.js"></script>
+<script type="text/javascript"
+	src="javascript/wizards/cards/SubmitJobParameters.js"></script>
+<script type="text/javascript" src="javascript/wizards/SubmitJob.js"></script>
+
+<script type="text/javascript" src="javascript/views/Toolbar.js"></script>
+<script type="text/javascript" src="javascript/views/DetailsPanel.js"></script>
+<script type="text/javascript" src="javascript/views/MainPanel.js"></script>
+<script type="text/javascript" src="javascript/Main.js"></script>
+</head>
+
+<div class="header" id="header">
+	<div class="logo">
+		<img src="images/cloudgene.png" />
+	</div>
+	<div class="subtitle">MapReduce Interface</div>
+</div>
+
+<body>
+
+
+<!-- Fields required for history management -->
+<form id="history-form" class="x-hidden">
+    <input type="hidden" id="x-history-field" />
+    <iframe id="x-history-frame"></iframe>
+</form>
+
+
+</body>
+</html>

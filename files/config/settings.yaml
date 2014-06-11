@@ -1,0 +1,6 @@
+hadoopPath: /opt/hadoop
+appsPath: apps
+outputPath: output
+tempPath: tmp
+localWorkspace: workspace/local
+hdfsWorkspace: cloudgene

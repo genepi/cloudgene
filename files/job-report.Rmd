@@ -1,0 +1,38 @@
+# Job Statistics
+
+
+```{r echo=FALSE}
+
+suppressPackageStartupMessages(library(ggplot2))
+
+
+args <- commandArgs(trailingOnly = TRUE)
+
+statistics_filename <- args[2]
+
+
+statistics = read.table(statistics_filename, header = TRUE, sep="\t")
+
+```
+
+## Load Balancing
+
+
+```{r echo=FALSE,comment=""}
+
+p <- ggplot(statistics,aes(factor(type),seconds))
+p + geom_boxplot() + facet_wrap(~job,ncol = 1)
+
+```
+
+
+## Execution Time Tasks
+
+
+```{r echo=FALSE,comment="",results='asis',fig.width=11, fig.height=11}
+
+
+p <- ggplot(statistics,aes(id))
+p + geom_bar(aes(y=seconds,fill=type)) + coord_flip() + facet_wrap(~job,ncol = 1) + theme(axis.ticks = element_blank(), axis.text.y = element_blank())
+
+```

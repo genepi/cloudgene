@@ -1,0 +1,53 @@
+.ext-ux-wiz-Header {
+	
+	/*background-color:white;
+    background-image: url(../images/page.gif);
+	background-repeat: no-repeat;
+    background-position: right;*/
+
+	color: #ffffff;
+	background: #025587 url(../images/background.png) repeat-y;
+
+    
+    /*border-bottom:1px solid #99BBE8;*/
+}
+
+.ext-ux-wiz-Header-title {
+    font-weight: bold;
+    /*color: #fca800;*/
+    padding: 10px 5px 5px 8px;
+    font-size: 13px;
+}
+
+.ext-ux-wiz-Header-image {
+    position: absolute;
+    bottom: 20px;
+    right: 30px;
+    /*padding-top: 10px;
+    padding-right: 10px;*/
+}
+
+.ext-ux-wiz-Header-step {
+    text-align:left;
+    padding:0px 5px 5px 12px;
+}
+
+.ext-ux-wiz-Header-stepIndicator-container {
+    float:right;
+    margin-right:6px;
+    margin-top:8px;
+}
+
+.ext-ux-wiz-Header-stepIndicator {
+    margin-left:28px;
+    float:left;
+   /* background-image:url(../images/ext-ux-wiz-stepIndicator.png);
+    background-position:6px 0px;
+    background-repeat:repeat-x;*/
+    height:6px;
+    width:6px;
+}
+
+.ext-ux-wiz-Header-stepIndicator-active {
+    background-position:0px 0px !important;
+}

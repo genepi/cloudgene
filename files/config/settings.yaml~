@@ -1,0 +1,6 @@
+hadoopPath: /opt/hadoop
+appsPath: ../Minicloudmac2/dist
+outputPath: output
+tempPath: tmp
+localWorkspace: workspace/local
+hdfsWorkspace: cloudgene-workspace

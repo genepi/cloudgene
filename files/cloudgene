@@ -1,0 +1,51 @@
+#! /bin/bash
+
+MODE_CLUSTER="public"
+MODE_MAPRED="private"
+MODE_PARAM="--mode";
+
+DEFAULT_MODE=$MODE_CLUSTER
+
+
+if [ $# = 0 ]; then
+
+  MODE=$DEFAULT_MODE
+
+else
+  if [ $1 = $MODE_PARAM ]; then
+
+    MODE=$2
+
+    # Each "shift" loses parameter $1.
+    # "$@" then contains the remaining parameters.
+    shift
+    shift
+
+  else
+
+    MODE=$DEFAULT_MODE
+
+  fi
+
+fi
+
+
+
+if [ $MODE = $MODE_CLUSTER ] ; then
+
+  java -cp lib -jar cloudgene-cluster.jar "$@"
+
+elif  [ $MODE = $MODE_MAPRED ] ; then
+
+  hadoop jar cloudgene-mapred.jar "$@"
+
+else
+
+  echo "Usage: cloudgene --mode MODE"
+  echo "where MODE is one of:"
+  echo "  public               run cloudgene in public cloud mode"
+  echo "  private              run cloudgene on a private hadoop cluster"  
+  echo ""
+  exit 1
+
+fi
