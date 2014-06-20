@@ -42,8 +42,10 @@ public class Settings {
 	private String version;
 
 	private String name = "Cloudgene";
-	
+
 	private Map<String, String> mail;
+
+	public static int RETIRED_AFTER_SECS = 2 * 24 * 60 * 60;
 
 	public boolean isRemoveHdfsWorkspace() {
 		return removeHdfsWorkspace;
@@ -58,7 +60,7 @@ public class Settings {
 	private static final Log log = LogFactory.getLog(Settings.class);
 
 	private boolean streaming = true;
-	
+
 	private boolean removeHdfsWorkspace = false;
 
 	private Settings() {
@@ -278,11 +280,11 @@ public class Settings {
 	public void setMail(Map<String, String> mail) {
 		this.mail = mail;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

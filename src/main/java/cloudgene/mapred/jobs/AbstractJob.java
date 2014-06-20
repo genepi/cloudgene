@@ -42,6 +42,8 @@ abstract public class AbstractJob implements Runnable {
 
 	public static final int CANCELED = 6;
 
+	public static final int RETIRED = 7;
+
 	private String id;
 
 	private int state = WAITING;
@@ -73,9 +75,8 @@ abstract public class AbstractJob implements Runnable {
 	protected BufferedOutputStream stdOutStream;
 
 	private BufferedOutputStream logStream;
-	
-	protected CloudgeneContext context;
 
+	protected CloudgeneContext context;
 
 	public String getId() {
 		return id;
@@ -181,8 +182,7 @@ abstract public class AbstractJob implements Runnable {
 		this.outputParams = outputParams;
 	}
 
-	
-	public void afterSubmission(){
+	public void afterSubmission() {
 		try {
 
 			setup();
@@ -201,12 +201,11 @@ abstract public class AbstractJob implements Runnable {
 
 		}
 	}
-	
+
 	@Override
 	public void run() {
 
 		log.info("Running job!");
-
 
 		try {
 			setState(AbstractJob.RUNNING);
@@ -478,7 +477,7 @@ abstract public class AbstractJob implements Runnable {
 	abstract public boolean execute();
 
 	abstract public boolean executeSetup();
-	
+
 	abstract public boolean setup();
 
 	abstract public boolean before();

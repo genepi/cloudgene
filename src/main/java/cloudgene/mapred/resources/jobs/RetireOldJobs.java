@@ -14,8 +14,9 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.util.Settings;
 
-public class DeleteOldJobs extends ServerResource {
+public class RetireOldJobs extends ServerResource {
 
 	@Get
 	public Representation post(Representation entity, Variant variant) {
@@ -25,8 +26,6 @@ public class DeleteOldJobs extends ServerResource {
 
 		if (user != null) {
 
-			// delete job from database
-
 			if (!user.isAdmin()) {
 				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 				return new StringRepresentation("Access denied.");
@@ -34,19 +33,20 @@ public class DeleteOldJobs extends ServerResource {
 
 			JobDao dao = new JobDao();
 
-			List<AbstractJob> oldJobs = dao.findAllOldJobs(604800);
+			List<AbstractJob> oldJobs = dao.findAllOldJobs(Settings.RETIRED_AFTER_SECS);
 
 			for (AbstractJob job : oldJobs) {
 				job.cleanUp();
 
-				dao.delete(job);
+				job.setState(AbstractJob.RETIRED);
+				dao.update(job);
 
 				List<AbstractJob> jobs = new Vector<AbstractJob>();
 				jobs.add(job);
 
 			}
 
-			return new StringRepresentation(oldJobs.size() + " jobs deleted!");
+			return new StringRepresentation(oldJobs.size() + " jobs archived!");
 
 		} else {
 

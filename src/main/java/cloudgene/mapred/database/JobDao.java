@@ -193,12 +193,12 @@ public class JobDao extends Dao {
 		}
 	}
 
-	public List<AbstractJob> findAllFailed(long time) {
+	public List<AbstractJob> findAllCurrentJobs(long time) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where (state = 5 or state = 6) AND ");
+		sql.append("where state != 7 AND ");
 		sql.append("DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) > 0  ");
 
 		sql.append("order by start_time desc ");
@@ -207,7 +207,7 @@ public class JobDao extends Dao {
 
 		Object[] params = new Object[1];
 		params[0] = time;
-		
+
 		try {
 
 			UserDao dao = new UserDao();
@@ -241,72 +241,23 @@ public class JobDao extends Dao {
 		}
 	}
 
-	public List<AbstractJob> findAllComplete(long time) {
-
-		StringBuilder sql = new StringBuilder();
-		sql.append("select * ");
-		sql.append("from job ");
-		sql.append("where state = 4 AND ");
-		sql.append("DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) > 0  ");
-		sql.append("order by start_time desc ");
-
-		Object[] params = new Object[1];
-		params[0] = time;
-		
-		List<AbstractJob> result = new Vector<AbstractJob>();
-
-		try {
-
-			UserDao dao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
-
-				User user = dao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
-				result.add(job);
-			}
-			rs.close();
-
-			log.info("find all jobs successful. results: " + result.size());
-
-			return result;
-		} catch (SQLException e) {
-			log.error("find all jobs failed", e);
-			return null;
-		}
-	}
-	
-	
 	public List<AbstractJob> findAllOldJobs(int time) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) < 0  ");
+		sql.append("where  state != 7 AND DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) < 0  ");
 		sql.append("order by start_time desc ");
 
 		Object[] params = new Object[1];
 		params[0] = time;
-		
+
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
 		try {
 
 			UserDao dao = new UserDao();
 
-			
 			ResultSet rs = query(sql.toString(), params);
 			while (rs.next()) {
 
@@ -322,7 +273,50 @@ public class JobDao extends Dao {
 
 				User user = dao.findById(rs.getInt("user_id"));
 				job.setUser(user);
-				
+
+				result.add(job);
+			}
+			rs.close();
+
+			log.info("find all old jobs successful. results: " + result.size());
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find all old jobs failed", e);
+			return null;
+		}
+	}
+
+	public List<AbstractJob> findAllRetiredJobs() {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from job ");
+		sql.append("where state = 7 ");
+		sql.append("order by start_time desc ");
+
+		List<AbstractJob> result = new Vector<AbstractJob>();
+
+		try {
+
+			UserDao dao = new UserDao();
+
+			ResultSet rs = query(sql.toString());
+			while (rs.next()) {
+
+				int type = rs.getInt("type");
+
+				AbstractJob job = JobFactory.create(type);
+				job.setId(rs.getString("id"));
+				job.setName(rs.getString("name"));
+				job.setState(rs.getInt("state"));
+				job.setStartTime(rs.getLong("start_time"));
+				job.setEndTime(rs.getLong("end_time"));
+				job.setS3Url(rs.getString("s3_url"));
+
+				User user = dao.findById(rs.getInt("user_id"));
+				job.setUser(user);
+
 				result.add(job);
 			}
 			rs.close();

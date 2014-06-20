@@ -33,7 +33,7 @@ import cloudgene.mapred.resources.data.RenameFile;
 import cloudgene.mapred.resources.data.ValidateImport;
 import cloudgene.mapred.resources.jobs.CancelJob;
 import cloudgene.mapred.resources.jobs.DeleteJob;
-import cloudgene.mapred.resources.jobs.DeleteOldJobs;
+import cloudgene.mapred.resources.jobs.RetireOldJobs;
 import cloudgene.mapred.resources.jobs.DownloadResults;
 import cloudgene.mapred.resources.jobs.GetClusterDetails;
 import cloudgene.mapred.resources.jobs.GetJobDetails;
@@ -91,7 +91,7 @@ public class WebApp extends Application {
 		router.attach("/jobs/cancel", CancelJob.class);
 		router.attach("/jobs/submit", SubmitJob.class);
 
-		router.attach("/admin/delete-archive", DeleteOldJobs.class);
+		router.attach("/admin/delete-archive", RetireOldJobs.class);
 
 		
 		router.attach("/jobs/newsubmit", NewSubmitJob.class);

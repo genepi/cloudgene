@@ -18,6 +18,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Timer;
 
 public class GetJobs extends ServerResource {
@@ -99,7 +100,7 @@ public class GetJobs extends ServerResource {
 
 				}
 
-			} else if (state.equals("failed")) {
+			} else if (state.equals("current")) {
 
 				if (!user.isAdmin()) {
 					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -111,23 +112,10 @@ public class GetJobs extends ServerResource {
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
 						"job", "step" });
-				jobs = dao.findAllFailed(604800);
+				jobs = dao.findAllCurrentJobs(Settings.RETIRED_AFTER_SECS);
 
-			} else if (state.equals("complete")) {
 
-				if (!user.isAdmin()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation(
-							"The request requires administration rights.");
-				}
-
-				config.setExcludes(new String[] { "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step" });
-				jobs = dao.findAllComplete(604800);
-
-			} else if (state.equals("archive")) {
+			} else if (state.equals("oldjobs")) {
 
 				if (!user.isAdmin()) {
 					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -139,7 +127,22 @@ public class GetJobs extends ServerResource {
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
 						"job", "step" });
-				jobs = dao.findAllOldJobs(604800);
+				jobs = dao.findAllOldJobs(Settings.RETIRED_AFTER_SECS);
+				
+
+			} else if (state.equals("retired")) {
+
+				if (!user.isAdmin()) {
+					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+					return new StringRepresentation(
+							"The request requires administration rights.");
+				}
+
+				config.setExcludes(new String[] { "outputParams",
+						"inputParams", "output", "endTime", "startTime",
+						"error", "s3Url", "task", "config", "mapReduceJob",
+						"job", "step" });
+				jobs = dao.findAllRetiredJobs();				
 
 			} else {
 
