@@ -45,7 +45,7 @@ public class Settings {
 
 	private Map<String, String> mail;
 
-	public static int RETIRED_AFTER_SECS = 2 * 24 * 60 * 60;
+	public static int RETIRED_AFTER_SECS = 7 * 24 * 60 * 60;
 
 	public boolean isRemoveHdfsWorkspace() {
 		return removeHdfsWorkspace;
