@@ -78,16 +78,16 @@ public class DownloadResults extends ServerResource {
 			} else if (filename.endsWith(".html")) {
 				mediaType = MediaType.TEXT_HTML;
 			}
-
+			
 			Settings settings = Settings.getInstance();
-			String workspace = settings.getLocalWorkspace(user.getUsername());
-
-			String resultFile = FileUtil.path(workspace, "output", job.getId(),
-					id, filename);
+			String workspace = settings.getLocalWorkspace(job.getUser().getUsername());
 
 			DownloadDao dao = new DownloadDao();
 			Download download = dao.findByJobAndPath(jobId,
 					FileUtil.path(id, filename));
+
+			String resultFile = FileUtil.path(workspace, "output",
+					download.getPath());
 
 			if (download.getCount() > 0) {
 
