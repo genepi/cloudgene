@@ -1,5 +1,7 @@
 package cloudgene.mapred.steps;
 
+import genepi.io.FileUtil;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +18,6 @@ import org.apache.hadoop.mapred.RunningJob;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.HadoopUtil;
 import cloudgene.mapred.util.Settings;
 

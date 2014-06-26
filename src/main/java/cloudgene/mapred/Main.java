@@ -1,5 +1,7 @@
 package cloudgene.mapred;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -19,7 +21,6 @@ import cloudgene.mapred.database.DatabaseUpdater;
 import cloudgene.mapred.database.H2Connector;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 

@@ -1,5 +1,7 @@
 package cloudgene.mapred.util;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -288,5 +290,10 @@ public class Settings {
 	public String getName() {
 		return name;
 	}
-
+	
+	public String getTempFilename(String filename) {
+		String path = Settings.getInstance().getTempPath();
+		String name = FileUtil.getFilename(filename);
+		return FileUtil.path(path, name);
+	}
 }

@@ -1,5 +1,7 @@
 package cloudgene.mapred.wdl;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -14,7 +16,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import cloudgene.mapred.core.Category;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.Settings;
 
 import com.esotericsoftware.yamlbeans.YamlReader;

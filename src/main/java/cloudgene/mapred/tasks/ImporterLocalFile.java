@@ -1,5 +1,7 @@
 package cloudgene.mapred.tasks;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -14,7 +16,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.Settings;
 

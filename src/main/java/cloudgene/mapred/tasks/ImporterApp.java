@@ -1,5 +1,7 @@
 package cloudgene.mapred.tasks;
 
+import genepi.io.FileUtil;
+
 import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,7 +10,6 @@ import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.ZipUtil;
 
@@ -29,7 +30,7 @@ public class ImporterApp extends AbstractTask {
 	@Override
 	public boolean execute() {
 
-		String localFile = FileUtil.getTempFilename(url);
+		String localFile = Settings.getInstance().getTempFilename(url);
 		try {
 
 			String[] tiles = url.split("/");

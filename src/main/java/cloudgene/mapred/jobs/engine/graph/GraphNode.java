@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs.engine.graph;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,7 +16,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class GraphNode implements Runnable {

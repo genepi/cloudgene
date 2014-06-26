@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.jobs;
 
+import genepi.io.FileUtil;
+
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -13,7 +15,6 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.FileUtil;
 
 public class GetReport extends ServerResource {
 

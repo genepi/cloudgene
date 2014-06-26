@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.data;
 
+import genepi.io.FileUtil;
+
 import java.io.IOException;
 
 import org.json.JSONException;
@@ -22,7 +24,6 @@ import cloudgene.mapred.tasks.ImporterHttp;
 import cloudgene.mapred.tasks.ImporterLocalFile;
 import cloudgene.mapred.tasks.ImporterS3;
 import cloudgene.mapred.tasks.ImporterSftp;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.Settings;
 
 public class ImportFiles extends ServerResource {

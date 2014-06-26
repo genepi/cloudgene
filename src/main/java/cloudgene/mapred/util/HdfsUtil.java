@@ -1,5 +1,7 @@
 package cloudgene.mapred.util;
 
+import genepi.io.FileUtil;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;

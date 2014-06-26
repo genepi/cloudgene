@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.jobs;
 
+import genepi.io.FileUtil;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -17,7 +19,6 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.Settings;
 
 public class DownloadResults extends ServerResource {

@@ -1,12 +1,13 @@
 package cloudgene.mapred.jobs;
 
+import genepi.io.FileUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.tasks.ITask;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.Settings;
 
 public class TaskJob extends AbstractJob {

@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs;
 
+import genepi.io.FileUtil;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +22,6 @@ import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.export.ExportJob;
 import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.util.FileItem;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.RMarkdown;

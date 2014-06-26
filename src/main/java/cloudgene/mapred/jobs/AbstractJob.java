@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs;
 
+import genepi.io.FileUtil;
+
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -13,7 +15,6 @@ import java.util.Vector;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.FileUtil;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 

@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.data;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -23,7 +25,7 @@ import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.tasks.AbstractTask;
 import cloudgene.mapred.tasks.ImporterLocalFile;
-import cloudgene.mapred.util.FileUtil;
+import cloudgene.mapred.util.Settings;
 
 /**
  * Resource which has only one representation.
@@ -79,7 +81,7 @@ public class FileUploadRessource extends ServerResource {
 							}
 							try {
 
-								String tmpFile = FileUtil
+								String tmpFile = Settings.getInstance()
 										.getTempFilename(fileItem.getName());
 								file = new File(tmpFile);
 								fileItem.write(file);
