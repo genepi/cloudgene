@@ -99,7 +99,6 @@ public class WorkflowEngine implements Runnable {
 
 	}
 
-
 	public List<AbstractJob> getAllJobsInLongTimeQueue() {
 		return longTimeQueue.getAllJobs();
 	}
@@ -114,13 +113,17 @@ public class WorkflowEngine implements Runnable {
 
 	public List<AbstractJob> getJobsByUser(User user) {
 
-		List<AbstractJob> jobs =  shortTimeQueue.getJobsByUser(user);
-		jobs.addAll(longTimeQueue.getJobsByUser(user));		
+		List<AbstractJob> jobs = shortTimeQueue.getJobsByUser(user);
+		jobs.addAll(longTimeQueue.getJobsByUser(user));
 		return jobs;
 	}
 
 	public List<AbstractJob> getAllJobsInShortTimeQueue() {
 		return shortTimeQueue.getAllJobs();
+	}
+
+	public int getPositionInQueue(AbstractJob job) {
+		return longTimeQueue.getPositionInQueue(job);
 	}
 
 }

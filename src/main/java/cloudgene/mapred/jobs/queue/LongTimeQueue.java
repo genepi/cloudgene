@@ -156,4 +156,15 @@ public class LongTimeQueue implements Runnable {
 		return null;
 	}
 
+	public int getPositionInQueue(AbstractJob job) {
+
+		int index = queue.indexOf(job);
+
+		if (index < 0) {
+			return 0;
+		} else {
+			return index + 1 - threadPool.getActiveCount();
+		}
+	}
+
 }

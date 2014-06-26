@@ -66,6 +66,8 @@ abstract public class AbstractJob implements Runnable {
 
 	private boolean setupComplete = false;
 
+	private int positionInQueue = 0;
+
 	protected List<CloudgeneParameter> inputParams = new Vector<CloudgeneParameter>();
 
 	protected List<CloudgeneParameter> outputParams = new Vector<CloudgeneParameter>();
@@ -180,6 +182,14 @@ abstract public class AbstractJob implements Runnable {
 
 	public void setOutputParams(List<CloudgeneParameter> outputParams) {
 		this.outputParams = outputParams;
+	}
+
+	public void setPositionInQueue(int positionInQueue) {
+		this.positionInQueue = positionInQueue;
+	}
+
+	public int getPositionInQueue() {
+		return positionInQueue;
 	}
 
 	public void afterSubmission() {

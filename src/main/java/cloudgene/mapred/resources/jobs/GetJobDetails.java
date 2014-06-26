@@ -51,6 +51,9 @@ public class GetJobDetails extends ServerResource {
 						return new StringRepresentation("Access denied.");
 					}
 
+					int position =  WorkflowEngine.getInstance().getPositionInQueue(job);				
+					job.setPositionInQueue(position);
+					
 					JsonConfig config = new JsonConfig();
 					config.setExcludes(new String[] { "user", "task",
 							"mapReduceJob", "job", "step" });

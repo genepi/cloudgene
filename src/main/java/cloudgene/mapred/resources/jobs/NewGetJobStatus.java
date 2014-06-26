@@ -46,6 +46,9 @@ public class NewGetJobStatus extends ServerResource {
 					((CloudgeneJob) job).updateProgress();
 
 				}
+				
+				int position =  WorkflowEngine.getInstance().getPositionInQueue(job);				
+				job.setPositionInQueue(position);
 
 			}
 
