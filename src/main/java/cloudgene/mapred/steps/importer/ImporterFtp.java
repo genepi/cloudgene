@@ -1,5 +1,7 @@
 package cloudgene.mapred.steps.importer;
 
+import genepi.hadoop.HdfsUtil;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -13,7 +15,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 
 import cloudgene.mapred.util.FileItem;
-import cloudgene.mapred.util.HdfsUtil;
 
 public class ImporterFtp implements IImporter {
 

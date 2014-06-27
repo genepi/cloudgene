@@ -33,17 +33,16 @@ import cloudgene.mapred.resources.data.RenameFile;
 import cloudgene.mapred.resources.data.ValidateImport;
 import cloudgene.mapred.resources.jobs.CancelJob;
 import cloudgene.mapred.resources.jobs.DeleteJob;
-import cloudgene.mapred.resources.jobs.RetireOldJobs;
 import cloudgene.mapred.resources.jobs.DownloadResults;
 import cloudgene.mapred.resources.jobs.GetClusterDetails;
 import cloudgene.mapred.resources.jobs.GetJobDetails;
 import cloudgene.mapred.resources.jobs.GetJobStatus;
 import cloudgene.mapred.resources.jobs.GetJobs;
 import cloudgene.mapred.resources.jobs.GetLogs;
-import cloudgene.mapred.resources.jobs.GetReport;
 import cloudgene.mapred.resources.jobs.NewGetJobStatus;
 import cloudgene.mapred.resources.jobs.NewSubmitJob;
 import cloudgene.mapred.resources.jobs.RerunJob;
+import cloudgene.mapred.resources.jobs.RetireOldJobs;
 import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.jobs.SubmitJob;
 import cloudgene.mapred.resources.users.ActivateUser;
@@ -111,9 +110,6 @@ public class WebApp extends Application {
 		router.attach("/results/{job}/{id}/{filename}/{filename2}",
 				DownloadResults.class);
 		router.attach("/share/{username}/{hash}/{filename}", ShareResults.class);
-
-		router.attach("/reports/{id}", GetReport.class);
-		router.attach("/reports/{id}/{file}", GetReport.class);
 
 		router.attach("/logs/{id}", GetLogs.class);
 		router.attach("/logs/{id}/{file}", GetLogs.class);

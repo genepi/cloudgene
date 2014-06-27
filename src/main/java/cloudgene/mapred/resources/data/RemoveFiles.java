@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.data;
 
+import genepi.hadoop.HdfsUtil;
+
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -9,7 +11,6 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.Settings;
 
 public class RemoveFiles extends ServerResource {
@@ -32,7 +33,7 @@ public class RemoveFiles extends ServerResource {
 			String[] ids = form.getValuesArray("id");			
 			for (String id: ids){
 				String path = HdfsUtil.path(workspace, id);
-				HdfsUtil.deleteDirectory(path);
+				HdfsUtil.delete(path);
 			}
 			
 			representation = new StringRepresentation("Lukas");

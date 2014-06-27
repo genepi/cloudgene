@@ -1,5 +1,7 @@
 package cloudgene.mapred.tasks;
 
+import genepi.hadoop.HdfsUtil;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -27,7 +29,6 @@ import org.jets3t.service.multi.event.LookupACLEvent;
 import org.jets3t.service.multi.event.UpdateACLEvent;
 import org.jets3t.service.security.AWSCredentials;
 
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.Settings;
 
 public class ImporterS3 extends AbstractTask {

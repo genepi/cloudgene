@@ -1,5 +1,7 @@
 package cloudgene.mapred.util;
 
+import genepi.hadoop.HdfsUtil;
+
 import java.io.IOException;
 import java.util.Date;
 

@@ -20,6 +20,8 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
+		
+
 
 		<repository>
 			<name>jets3t</name>
@@ -135,6 +137,11 @@
 			<artifactId>genepi-io</artifactId>
 			<version>0.5.0</version>
 		</dependency>
+		<dependency>
+			<groupId>genepi-hadoop</groupId>
+			<artifactId>genepi-hadoop</artifactId>
+			<version>0.7.1</version>
+		</dependency>		
 		<dependency>
 			<groupId>com.esotericsoftware.yamlbeans</groupId>
 			<artifactId>yamlbeans</artifactId>

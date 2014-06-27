@@ -1,11 +1,6 @@
 package cloudgene.mapred.jobs.engine.plugins;
 
 import genepi.io.FileUtil;
-
-import java.io.IOException;
-import java.util.List;
-
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.wdl.WdlParameter;
 
 public class ParameterValue {

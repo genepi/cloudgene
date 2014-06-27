@@ -1,5 +1,6 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -8,7 +9,6 @@ import java.io.IOException;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.rscript.MyRScript;
 import cloudgene.mapred.util.rscript.RScript;
 import cloudgene.mapred.wdl.WdlStep;

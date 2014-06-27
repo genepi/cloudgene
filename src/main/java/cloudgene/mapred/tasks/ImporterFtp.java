@@ -1,5 +1,7 @@
 package cloudgene.mapred.tasks;
 
+import genepi.hadoop.HdfsUtil;
+
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
@@ -12,7 +14,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.Settings;
 
 public class ImporterFtp extends AbstractTask {

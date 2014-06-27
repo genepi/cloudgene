@@ -1,5 +1,6 @@
 package cloudgene.mapred.jobs;
 
+import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 import java.io.BufferedOutputStream;
@@ -23,8 +24,6 @@ import cloudgene.mapred.jobs.export.ExportJob;
 import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.util.FileItem;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.HdfsUtil;
-import cloudgene.mapred.util.RMarkdown;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -35,8 +34,6 @@ import cloudgene.mapred.wdl.WdlStep;
 public class CloudgeneJob extends AbstractJob {
 
 	private WdlMapReduce config;
-
-	private BufferedOutputStream reportStream;
 
 	private Executor executor;
 
@@ -188,8 +185,6 @@ public class CloudgeneJob extends AbstractJob {
 
 		try {
 
-			initJobStats();
-
 			log.info("job " + getId() + " submitted...");
 
 			// evaluate WDL derictives
@@ -197,22 +192,21 @@ public class CloudgeneJob extends AbstractJob {
 			WdlApp app = planner.evaluateWDL(config, context);
 
 			// needs importerStep??
-			/*boolean needsImporter = false;
-			for (CloudgeneParameter param : getInputParams()) {
-				if (ImporterFactory.needsImport(param.getValue())) {
-					needsImporter = true;
-				}
-			}
-
-			if (needsImporter) {
-
-				WdlStep importerStep = new WdlStep();
-				importerStep.setName("Data Import");
-				importerStep
-						.setClassname("cloudgene.mapred.steps.HdfsImporter");
-				app.getMapred().getSteps().add(0, importerStep);
-
-			}*/
+			/*
+			 * boolean needsImporter = false; for (CloudgeneParameter param :
+			 * getInputParams()) { if
+			 * (ImporterFactory.needsImport(param.getValue())) { needsImporter =
+			 * true; } }
+			 * 
+			 * if (needsImporter) {
+			 * 
+			 * WdlStep importerStep = new WdlStep();
+			 * importerStep.setName("Data Import"); importerStep
+			 * .setClassname("cloudgene.mapred.steps.HdfsImporter");
+			 * app.getMapred().getSteps().add(0, importerStep);
+			 * 
+			 * }
+			 */
 
 			boolean dag = config.getType().equals("dag");
 
@@ -241,11 +235,8 @@ public class CloudgeneJob extends AbstractJob {
 
 			if (!sccuessful) {
 				setError("Job Execution failed.");
-				closeJobStats();
 				return false;
 			}
-
-			closeJobStats();
 
 			setError(null);
 			return true;
@@ -253,7 +244,6 @@ public class CloudgeneJob extends AbstractJob {
 		} catch (Exception e) {
 			e.printStackTrace();
 			setError(e.getMessage());
-			closeJobStats();
 			return false;
 		}
 
@@ -297,15 +287,15 @@ public class CloudgeneJob extends AbstractJob {
 
 		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"output", getId()));
-		HdfsUtil.deleteDirectory(outputDirectory);
+		HdfsUtil.delete(outputDirectory);
 
 		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"temp", getId()));
-		HdfsUtil.deleteDirectory(tempDirectory);
+		HdfsUtil.delete(tempDirectory);
 
 		String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"input", getId()));
-		HdfsUtil.deleteDirectory(inputDirectory);
+		HdfsUtil.delete(inputDirectory);
 
 		return true;
 	}
@@ -319,15 +309,15 @@ public class CloudgeneJob extends AbstractJob {
 
 		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"output", getId()));
-		HdfsUtil.deleteDirectory(outputDirectory);
+		HdfsUtil.delete(outputDirectory);
 
 		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"temp", getId()));
-		HdfsUtil.deleteDirectory(tempDirectory);
+		HdfsUtil.delete(tempDirectory);
 
 		String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"input", getId()));
-		HdfsUtil.deleteDirectory(inputDirectory);
+		HdfsUtil.delete(inputDirectory);
 
 		// delete local folder
 		String localWorkspace = Settings.getInstance().getLocalWorkspace(
@@ -384,7 +374,7 @@ public class CloudgeneJob extends AbstractJob {
 									localOutputDirectory, out.getId() + ".zip");
 
 							if (out.isMergeOutput()) {
-
+								
 								HdfsUtil.compressAndMerge(zipName, hdfsPath,
 										out.isRemoveHeader());
 
@@ -438,7 +428,7 @@ public class CloudgeneJob extends AbstractJob {
 							HdfsUtil.exportFile(localOutputDirectory, hdfsPath);
 
 						} else {
-
+							
 							HdfsUtil.compressFile(localOutputDirectory,
 									hdfsPath);
 
@@ -633,29 +623,23 @@ public class CloudgeneJob extends AbstractJob {
 			}
 		}
 
-		// Write report
-		if (new File(getStatFile()).exists()) {
-			RMarkdown.convert("job-report.Rmd", getReportFile(),
-					new String[] { getStatFile() });
-		}
-
 		// Delete temporary directory
 		writeOutputln("Cleaning up temproary files...");
 		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
 				"output", getId(), "temp"));
 
-		HdfsUtil.deleteDirectory(tempDirectory);
+		HdfsUtil.delete(tempDirectory);
 
 		if (Settings.getInstance().isRemoveHdfsWorkspace()) {
 
 			writeOutputln("Cleaning up hdfs workspace files...");
 			String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
 					workspace, "output", getId()));
-			HdfsUtil.deleteDirectory(outputDirectory);
+			HdfsUtil.delete(outputDirectory);
 
 			String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
 					workspace, "input", getId()));
-			HdfsUtil.deleteDirectory(inputDirectory);
+			HdfsUtil.delete(inputDirectory);
 
 		}
 
@@ -680,63 +664,6 @@ public class CloudgeneJob extends AbstractJob {
 
 		return AbstractJob.MAPREDUCE;
 
-	}
-
-	protected void initJobStats() {
-
-		String header = "job\tid\ttype\tstart\tend\tseconds";
-
-		try {
-			reportStream = new BufferedOutputStream(new FileOutputStream(
-					getStatFile()));
-			reportStream.write(header.getBytes());
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	protected void closeJobStats() {
-
-		try {
-			reportStream.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	public String getStatFile() {
-
-		if (getUser() != null) {
-
-			String localWorkspace = Settings.getInstance().getLocalWorkspace(
-					getUser().getUsername());
-
-			return FileUtil.path(localWorkspace, "output", getId(),
-					"statistics.txt");
-
-		} else {
-
-			return "";
-		}
-	}
-
-	public String getReportFile() {
-
-		if (getUser() != null) {
-
-			String localWorkspace = Settings.getInstance().getLocalWorkspace(
-					getUser().getUsername());
-
-			return FileUtil.path(localWorkspace, "output", getId(),
-					"statistics.html");
-
-		} else {
-
-			return "";
-		}
 	}
 
 	@Override

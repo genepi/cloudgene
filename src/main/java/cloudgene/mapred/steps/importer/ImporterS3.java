@@ -1,5 +1,7 @@
 package cloudgene.mapred.steps.importer;
 
+import genepi.hadoop.HdfsUtil;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
@@ -15,11 +17,19 @@ import org.jets3t.service.model.StorageObject;
 import org.jets3t.service.multi.DownloadPackage;
 import org.jets3t.service.multi.StorageServiceEventListener;
 import org.jets3t.service.multi.ThreadedStorageService;
-import org.jets3t.service.multi.event.*;
+import org.jets3t.service.multi.event.CopyObjectsEvent;
+import org.jets3t.service.multi.event.CreateBucketsEvent;
+import org.jets3t.service.multi.event.CreateObjectsEvent;
+import org.jets3t.service.multi.event.DeleteObjectsEvent;
+import org.jets3t.service.multi.event.DownloadObjectsEvent;
+import org.jets3t.service.multi.event.GetObjectHeadsEvent;
+import org.jets3t.service.multi.event.GetObjectsEvent;
+import org.jets3t.service.multi.event.ListObjectsEvent;
+import org.jets3t.service.multi.event.LookupACLEvent;
+import org.jets3t.service.multi.event.UpdateACLEvent;
 import org.jets3t.service.security.AWSCredentials;
 
 import cloudgene.mapred.util.FileItem;
-import cloudgene.mapred.util.HdfsUtil;
 
 public class ImporterS3 implements IImporter {
 

@@ -1,6 +1,6 @@
 package cloudgene.mapred.resources.jobs;
 
-import genepi.io.FileUtil;
+import genepi.hadoop.HdfsUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +29,6 @@ import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;

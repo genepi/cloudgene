@@ -1,5 +1,6 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -9,7 +10,6 @@ import java.util.Vector;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.HdfsUtil;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class Command extends Hadoop {

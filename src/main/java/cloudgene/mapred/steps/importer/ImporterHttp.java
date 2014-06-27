@@ -1,5 +1,7 @@
 package cloudgene.mapred.steps.importer;
 
+import genepi.hadoop.HdfsUtil;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -15,7 +17,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IOUtils;
 
 import cloudgene.mapred.util.FileItem;
-import cloudgene.mapred.util.HdfsUtil;
 
 public class ImporterHttp implements IImporter {
 
