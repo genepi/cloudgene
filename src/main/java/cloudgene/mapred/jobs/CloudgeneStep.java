@@ -117,6 +117,11 @@ public abstract class CloudgeneStep {
 		message(message, Message.ERROR);
 	}
 
+	public void warning(String message) {
+		// println("[WARNING] " + message);
+		message(message, Message.WARNING);
+	}
+
 	public void beginTask(String name) {
 		Message status = new Message(this, Message.RUNNING, name);
 
