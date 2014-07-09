@@ -16,54 +16,55 @@ public class GetCounter extends ServerResource {
 	@Get
 	public Representation get() {
 
-
 		CounterDao dao = new CounterDao();
 		Map<String, Integer> counters = dao.getAll();
-		
-		//complete
+
+		// complete
 		String temp = "{\"complete\": {";
 		boolean first = true;
-		for (String key: counters.keySet()){
-			
-			if (!first){
-				temp +=",";
+		for (String key : counters.keySet()) {
+
+			if (!first) {
+				temp += ",";
 			}
-			
+
 			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
 			first = false;
 		}
 		temp += "},";
-		
-		//running
-		counters = WorkflowEngine.getInstance().getCounters(AbstractJob.RUNNING);
+
+		// running
+		counters = WorkflowEngine.getInstance()
+				.getCounters(AbstractJob.RUNNING);
 		temp += "\"running\": {";
 		first = true;
-		for (String key: counters.keySet()){
-			
-			if (!first){
-				temp +=",";
+		for (String key : counters.keySet()) {
+
+			if (!first) {
+				temp += ",";
 			}
-			
+
 			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
 			first = false;
 		}
 		temp += "},";
-		
-		//waiting
-		counters = WorkflowEngine.getInstance().getCounters(AbstractJob.WAITING);
+
+		// waiting
+		counters = WorkflowEngine.getInstance()
+				.getCounters(AbstractJob.WAITING);
 		temp += "\"waiting\": {";
 		first = true;
-		for (String key: counters.keySet()){
-			
-			if (!first){
-				temp +=",";
+		for (String key : counters.keySet()) {
+
+			if (!first) {
+				temp += ",";
 			}
-			
+
 			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
 			first = false;
 		}
 		temp += "}";
-		
+
 		temp += "}";
 
 		return new StringRepresentation(temp);
