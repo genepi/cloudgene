@@ -1,6 +1,8 @@
 package cloudgene.mapred.jobs;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
@@ -109,6 +111,25 @@ public class WorkflowEngine implements Runnable {
 			job = shortTimeQueue.getJobById(id);
 		}
 		return job;
+	}
+	
+	public Map<String, Integer> getCounters(int state){
+		Map<String, Integer> result = new HashMap<String, Integer>();
+		List<AbstractJob> jobs = longTimeQueue.getAllJobs();
+		for (AbstractJob job: jobs){
+			if (job.getState() == state){
+				Map<String, Integer> counters = job.getContext().getCounters();
+				for (String name: counters.keySet()){
+					Integer value = counters.get(name);
+					Integer oldvalue = result.get(name);
+					if (oldvalue == null) {
+						oldvalue = 0;
+					}
+					result.put(name, oldvalue + value);
+				}
+			}
+		}
+		return result;
 	}
 
 	public List<AbstractJob> getJobsByUser(User user) {

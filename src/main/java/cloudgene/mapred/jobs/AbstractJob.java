@@ -485,6 +485,10 @@ abstract public class AbstractJob implements Runnable {
 		return setupComplete;
 	}
 
+	public CloudgeneContext getContext() {
+		return context;
+	}
+
 	abstract public boolean execute();
 
 	abstract public boolean executeSetup();

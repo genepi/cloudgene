@@ -194,5 +194,9 @@ public class CloudgeneContext {
 
 		}
 	}
+	
+	public Map<String, Integer> getCounters(){
+		return counters;
+	}
 
 }

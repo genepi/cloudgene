@@ -8,6 +8,8 @@ import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.database.CounterDao;
+import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.WorkflowEngine;
 
 public class GetCounter extends ServerResource {
 
@@ -18,7 +20,8 @@ public class GetCounter extends ServerResource {
 		CounterDao dao = new CounterDao();
 		Map<String, Integer> counters = dao.getAll();
 		
-		String temp = "{";
+		//complete
+		String temp = "{\"complete\": {";
 		boolean first = true;
 		for (String key: counters.keySet()){
 			
@@ -29,6 +32,37 @@ public class GetCounter extends ServerResource {
 			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
 			first = false;
 		}
+		temp += "},";
+		
+		//running
+		counters = WorkflowEngine.getInstance().getCounters(AbstractJob.RUNNING);
+		temp += "\"running\": {";
+		first = true;
+		for (String key: counters.keySet()){
+			
+			if (!first){
+				temp +=",";
+			}
+			
+			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
+			first = false;
+		}
+		temp += "},";
+		
+		//waiting
+		counters = WorkflowEngine.getInstance().getCounters(AbstractJob.WAITING);
+		temp += "\"waiting\": {";
+		first = true;
+		for (String key: counters.keySet()){
+			
+			if (!first){
+				temp +=",";
+			}
+			
+			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
+			first = false;
+		}
+		temp += "}";
 		
 		temp += "}";
 
