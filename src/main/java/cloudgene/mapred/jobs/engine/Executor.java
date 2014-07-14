@@ -3,10 +3,14 @@ package cloudgene.mapred.jobs.engine;
 import java.util.List;
 import java.util.Vector;
 
+import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.CloudgeneJob;
+import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.cache.CacheDirectory;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.util.ParallelCalculation;
+import cloudgene.mapred.wdl.WdlParameter;
 
 public class Executor {
 
@@ -41,8 +45,7 @@ public class Executor {
 		return true;
 	}
 
-	private boolean executeNodesParallel(Graph graph,
-			List<GraphNode> nodes) {
+	private boolean executeNodesParallel(Graph graph, List<GraphNode> nodes) {
 
 		ParallelCalculation parallelCalculation = new ParallelCalculation();
 		parallelCalculation.setThreads(10);
@@ -55,28 +58,37 @@ public class Executor {
 		}
 
 		if (!parallelCalculation.run(threads)) {
+			for (GraphNode node : nodes) {
+				// export results
+				exportResults(graph, node);
+			}						
 			return false;
 		} else {
 			for (GraphNode node : nodes) {
-				//TODO: cache.addToCache(node, graph.getContext());
+				// TODO: cache.addToCache(node, graph.getContext());
+				// export results
+				exportResults(graph, node);
 			}
 			return true;
 		}
 
 	}
 
-	private boolean executeNodesSequential(Graph graph,
-			List<GraphNode> nodes) {
+	private boolean executeNodesSequential(Graph graph, List<GraphNode> nodes) {
 
 		for (GraphNode node : nodes) {
 
 			executableNode = node;
 
 			executableNode.run();
+			// export results
+			exportResults(graph, node);
+
 			if (!executableNode.isSuccessful()) {
 				return false;
 			}
-			//TODO: cache.addToCache(node, graph.getContext());
+			// TODO: cache.addToCache(node, graph.getContext());
+
 			graph.remove(node);
 		}
 
@@ -111,6 +123,21 @@ public class Executor {
 
 	public void setUseDag(boolean useDag) {
 		this.useDag = useDag;
+	}
+
+	private void exportResults(Graph graph, GraphNode node) {
+
+		CloudgeneJob job = (CloudgeneJob) graph.getContext().getJob();
+
+		for (CloudgeneParameter out : graph.getContext().getParameters()
+				.values()) {
+			if (out.isAutoExport() && node.getOutputs().contains(out.getName())) {
+				graph.getContext().println(
+						"Export parameter '" + out.getName() + "'...");
+				job.exportParameter(out);
+			}
+		}
+
 	}
 
 }

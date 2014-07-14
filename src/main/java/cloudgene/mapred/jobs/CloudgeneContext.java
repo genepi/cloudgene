@@ -1,11 +1,19 @@
 package cloudgene.mapred.jobs;
 
+import genepi.io.FileUtil;
+
+import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterDao;
+import cloudgene.mapred.util.FileItem;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailHelper;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlMapReduce;
@@ -194,9 +202,25 @@ public class CloudgeneContext {
 
 		}
 	}
-	
-	public Map<String, Integer> getCounters(){
+
+	public Map<String, Integer> getCounters() {
 		return counters;
+	}
+
+	public String createLinkToFile(String id) {
+
+		CloudgeneParameter out = getParameter(id);
+
+		if (out != null) {
+
+			return "<a href=\"/results/" + job.getId() + "/" + out.getName()
+					+ "/" + out.getName() + ".txt" + "\">" + out.getName()
+					+ ".txt" + "</a>";
+
+		} else {
+			return "[PARAMETER UNKOWN!]";
+		}
+
 	}
 
 }

@@ -156,6 +156,7 @@ public class GraphNode implements Runnable {
 
 		finish = true;
 		successful = true;
+
 	}
 
 	public boolean isSuccessful() {

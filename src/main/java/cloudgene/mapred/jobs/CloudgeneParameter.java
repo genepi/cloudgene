@@ -29,7 +29,15 @@ public class CloudgeneParameter {
 
 	private String jobId;
 
+	private boolean autoExport = false;
+
 	private boolean makeAbsolute = false;
+
+	private boolean zip = false;
+
+	private boolean mergeOutput = false;
+
+	private boolean removeHeader = true;
 
 	public CloudgeneParameter() {
 
@@ -44,6 +52,10 @@ public class CloudgeneParameter {
 		setDescription(parameter.getDescription());
 		setFormat(parameter.getFormat());
 		setMakeAbsolute(parameter.isMakeAbsolute());
+		setAutoExport(parameter.isAutoExport());
+		setZip(parameter.isZip());
+		setMergeOutput(parameter.isMergeOutput());
+		setRemoveHeader(parameter.isRemoveHeader());
 		files = new Vector<Download>();
 	}
 
@@ -141,6 +153,38 @@ public class CloudgeneParameter {
 
 	public void setMakeAbsolute(boolean absolute) {
 		this.makeAbsolute = absolute;
+	}
+
+	public void setAutoExport(boolean autoExport) {
+		this.autoExport = autoExport;
+	}
+
+	public boolean isAutoExport() {
+		return autoExport;
+	}
+
+	public void setZip(boolean zip) {
+		this.zip = zip;
+	}
+
+	public void setMergeOutput(boolean mergeOutput) {
+		this.mergeOutput = mergeOutput;
+	}
+
+	public void setRemoveHeader(boolean removeHeader) {
+		this.removeHeader = removeHeader;
+	}
+
+	public boolean isMergeOutput() {
+		return mergeOutput;
+	}
+
+	public boolean isRemoveHeader() {
+		return removeHeader;
+	}
+
+	public boolean isZip() {
+		return zip;
 	}
 
 }

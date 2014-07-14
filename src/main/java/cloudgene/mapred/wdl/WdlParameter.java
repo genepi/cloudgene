@@ -20,6 +20,8 @@ public abstract class WdlParameter {
 
 	private boolean download = true;
 
+	private boolean autoExport = false;
+
 	private boolean mergeOutput = true;
 
 	private boolean zip = true;
@@ -162,6 +164,14 @@ public abstract class WdlParameter {
 
 	public boolean isVisible() {
 		return visible;
+	}
+
+	public void setAutoExport(boolean autoExport) {
+		this.autoExport = autoExport;
+	}
+
+	public boolean isAutoExport() {
+		return autoExport;
 	}
 
 }

@@ -34,7 +34,8 @@ public class GetJobDetails extends ServerResource {
 
 			if (jobId != null) {
 
-				AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
+				AbstractJob job = WorkflowEngine.getInstance()
+						.getJobById(jobId);
 
 				if (job == null) {
 
@@ -51,12 +52,14 @@ public class GetJobDetails extends ServerResource {
 						return new StringRepresentation("Access denied.");
 					}
 
-					int position =  WorkflowEngine.getInstance().getPositionInQueue(job);				
+					int position = WorkflowEngine.getInstance()
+							.getPositionInQueue(job);
 					job.setPositionInQueue(position);
-					
+
 					JsonConfig config = new JsonConfig();
 					config.setExcludes(new String[] { "user", "task",
-							"mapReduceJob", "job", "step" });
+							"mapReduceJob", "job", "step", "context", "config",
+});
 
 					JSONObject object = JSONObject.fromObject(job, config);
 
