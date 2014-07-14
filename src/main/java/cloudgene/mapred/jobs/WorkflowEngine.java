@@ -113,17 +113,17 @@ public class WorkflowEngine implements Runnable {
 		return job;
 	}
 	
-	public Map<String, Integer> getCounters(int state){
-		Map<String, Integer> result = new HashMap<String, Integer>();
+	public Map<String, Long> getCounters(int state){
+		Map<String, Long> result = new HashMap<String, Long>();
 		List<AbstractJob> jobs = longTimeQueue.getAllJobs();
 		for (AbstractJob job: jobs){
 			if (job.getState() == state){
 				Map<String, Integer> counters = job.getContext().getCounters();
 				for (String name: counters.keySet()){
 					Integer value = counters.get(name);
-					Integer oldvalue = result.get(name);
+					Long oldvalue = result.get(name);
 					if (oldvalue == null) {
-						oldvalue = 0;
+						oldvalue = new Long(0);
 					}
 					result.put(name, oldvalue + value);
 				}

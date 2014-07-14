@@ -17,7 +17,7 @@ public class GetCounter extends ServerResource {
 	public Representation get() {
 
 		CounterDao dao = new CounterDao();
-		Map<String, Integer> counters = dao.getAll();
+		Map<String, Long> counters = dao.getAll();
 
 		// complete
 		String temp = "{\"complete\": {";

@@ -40,20 +40,20 @@ public class CounterDao extends Dao {
 		return true;
 	}
 
-	public Map<String, Integer> getAll() {
+	public Map<String, Long> getAll() {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select name, sum(value) ");
 		sql.append("from counters ");
 		sql.append("group by name");
 
-		Map<String, Integer> result = new HashMap<String, Integer>();
+		Map<String, Long> result = new HashMap<String, Long>();
 
 		try {
 
 			ResultSet rs = query(sql.toString());
 			while (rs.next()) {
-				result.put(rs.getString(1), rs.getInt(2));
+				result.put(rs.getString(1), rs.getLong(2));
 			}
 			rs.close();
 
