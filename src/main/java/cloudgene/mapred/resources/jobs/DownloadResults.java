@@ -17,6 +17,7 @@ import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
@@ -79,32 +80,57 @@ public class DownloadResults extends ServerResource {
 			} else if (filename.endsWith(".html")) {
 				mediaType = MediaType.TEXT_HTML;
 			}
-			
+
 			Settings settings = Settings.getInstance();
-			String workspace = settings.getLocalWorkspace(job.getUser().getUsername());
+			String workspace = settings.getLocalWorkspace(job.getUser()
+					.getUsername());
 
 			DownloadDao dao = new DownloadDao();
 			Download download = dao.findByJobAndPath(jobId,
 					FileUtil.path(id, filename));
 
-			String resultFile = FileUtil.path(workspace, "output",
-					download.getPath());
+			if (download == null) {
+				for (CloudgeneParameter param : job.getOutputParams()) {
+					if (param.isAutoExport()) {
+						if (param.getFiles() != null) {
+							for (Download download2 : param.getFiles()) {
+								if (download2.getPath().equals(
+										jobId + "/"
+												+ FileUtil.path(id, filename))) {
+									download = download2;
+								}
+							}
+						}
+					}
+				}
+			}
 
-			if (download.getCount() > 0) {
+			if (download != null) {
 
-				log.debug("Downloading file " + resultFile);
+				String resultFile = FileUtil.path(workspace, "output",
+						download.getPath());
 
-				download.decCount();
-				dao.update(download);
+				if (download.getCount() > 0) {
 
-				return new FileRepresentation(resultFile, mediaType);
+					log.debug("Downloading file " + resultFile);
+
+					download.decCount();
+					dao.update(download);
+
+					return new FileRepresentation(resultFile, mediaType);
+
+				} else {
+
+					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					return new StringRepresentation(
+							"number of max downloads exceeded.");
+
+				}
 
 			} else {
 
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation(
-						"number of max downloads exceeded.");
-
+				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+				return new StringRepresentation("download not found.");
 			}
 
 		} else {

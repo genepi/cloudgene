@@ -59,7 +59,7 @@ public class GetJobDetails extends ServerResource {
 					JsonConfig config = new JsonConfig();
 					config.setExcludes(new String[] { "user", "task",
 							"mapReduceJob", "job", "step", "context", "config",
-});
+							"parameter" });
 
 					JSONObject object = JSONObject.fromObject(job, config);
 

@@ -363,39 +363,6 @@ public class CloudgeneJob extends AbstractJob {
 
 			writeOutputln("Exporting data successful.");
 		}
-		
-		
-		for (CloudgeneParameter out : getOutputParams()) {
-
-			if (out.isDownload()) {
-				String n = FileUtil.path(localOutput, out.getName());
-
-				File f = new File(n);
-
-				if (f.exists() && f.isDirectory()) {
-
-					FileItem[] items = cloudgene.mapred.util.FileTree
-							.getFileTree(localOutput, out.getName());
-
-					List<Download> files = new Vector<Download>();
-
-					for (FileItem item : items) {
-						String hash = HashUtil.getMD5(item.getText()
-								+ item.getId() + item.getSize() + getId());
-						Download download = new Download();
-						download.setName(item.getText());
-						download.setPath(FileUtil.path(getId(), item.getId()));
-						download.setSize(item.getSize());
-						download.setHash(hash);
-						download.setParameter(out);
-						download.setCount(MAX_DOWNLOAD);
-						files.add(download);
-					}
-					Collections.sort(files);
-					out.setFiles(files);
-				}
-			}
-		}
 
 		// Delete temporary directory
 		writeOutputln("Cleaning up temproary files...");
@@ -512,6 +479,33 @@ public class CloudgeneJob extends AbstractJob {
 		}
 
 		out.setJobId(getId());
+
+		String n = FileUtil.path(localOutput, out.getName());
+
+		File f = new File(n);
+
+		if (f.exists() && f.isDirectory()) {
+
+			FileItem[] items = cloudgene.mapred.util.FileTree.getFileTree(
+					localOutput, out.getName());
+
+			List<Download> files = new Vector<Download>();
+
+			for (FileItem item : items) {
+				String hash = HashUtil.getMD5(item.getText() + item.getId()
+						+ item.getSize() + getId());
+				Download download = new Download();
+				download.setName(item.getText());
+				download.setPath(FileUtil.path(getId(), item.getId()));
+				download.setSize(item.getSize());
+				download.setHash(hash);
+				download.setParameter(out);
+				download.setCount(MAX_DOWNLOAD);
+				files.add(download);
+			}
+			Collections.sort(files);
+			out.setFiles(files);
+		}
 
 		return true;
 	}
