@@ -35,7 +35,7 @@ public class GetCounter extends ServerResource {
 
 		// running
 		counters = WorkflowEngine.getInstance()
-				.getCounters(AbstractJob.RUNNING);
+				.getCounters(AbstractJob.STATE_RUNNING);
 		temp += "\"running\": {";
 		first = true;
 		for (String key : counters.keySet()) {
@@ -51,7 +51,7 @@ public class GetCounter extends ServerResource {
 
 		// waiting
 		counters = WorkflowEngine.getInstance()
-				.getCounters(AbstractJob.WAITING);
+				.getCounters(AbstractJob.STATE_WAITING);
 		temp += "\"waiting\": {";
 		first = true;
 		for (String key : counters.keySet()) {

@@ -9,7 +9,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.MailHelper;
+import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 
 public class RegisterUser extends ServerResource {
@@ -57,7 +57,7 @@ public class RegisterUser extends ServerResource {
 				Settings settings = Settings.getInstance();
 
 				try {
-					MailHelper
+					MailUtil
 							.send(settings.getMail().get("smtp"),
 									settings.getMail().get("port"),
 									settings.getMail().get("user"),
@@ -73,7 +73,7 @@ public class RegisterUser extends ServerResource {
 											+ "\" system to confirm that your profile has now been registered.\n\nTo confirm your email address, please click on this activation link "
 											+ link);
 
-					MailHelper.send(settings.getMail().get("smtp"), settings
+					MailUtil.send(settings.getMail().get("smtp"), settings
 							.getMail().get("port"),
 							settings.getMail().get("user"), settings.getMail()
 									.get("password"),

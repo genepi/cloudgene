@@ -25,29 +25,37 @@ abstract public class AbstractJob implements Runnable {
 
 	private DateFormat formatter = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
 
-	public static final int MAPREDUCE = 1;
+	//types
+	
+	public static final int TYPE_MAPREDUCE = 1;
 
-	public static final int TASK = 2;
+	public static final int TYPE_TASK = 2;
 
-	public static final int LOCAL = 3;
+	public static final int TYPE_LOCAL = 3;
 
-	public static final int WAITING = 1;
+	//states
+	
+	public static final int STATE_WAITING = 1;
 
-	public static final int RUNNING = 2;
+	public static final int STATE_RUNNING = 2;
 
-	public static final int EXPORTING_DATA = 3;
+	public static final int STATE_EXPORTING = 3;
 
-	public static final int FINISHED = 4;
+	public static final int STATE_SUCCESS = 4;
 
-	public static final int ERROR = 5;
+	public static final int STATE_FAILED = 5;
 
-	public static final int CANCELED = 6;
+	public static final int STATE_CANCELED = 6;
 
-	public static final int RETIRED = 7;
+	public static final int STATE_RETIRED = 7;
 
+	public static final int STATE_SUCESS_AND_NOTIFICATION_SEND = 8;
+
+	//properties
+	
 	private String id;
 
-	private int state = WAITING;
+	private int state = STATE_WAITING;
 
 	private long startTime = 0;
 
@@ -205,7 +213,7 @@ abstract public class AbstractJob implements Runnable {
 
 			setEndTime(System.currentTimeMillis());
 
-			setState(AbstractJob.ERROR);
+			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
 			return;
@@ -219,7 +227,7 @@ abstract public class AbstractJob implements Runnable {
 		log.info("Running job!");
 
 		try {
-			setState(AbstractJob.RUNNING);
+			setState(AbstractJob.STATE_RUNNING);
 			setStartTime(System.currentTimeMillis());
 			writeLog("Details:");
 			writeLog("  Name: " + getName());
@@ -245,7 +253,7 @@ abstract public class AbstractJob implements Runnable {
 
 			if (!successfulBefore) {
 
-				setState(AbstractJob.ERROR);
+				setState(AbstractJob.STATE_FAILED);
 				log.error("Job " + getId() + ": job preparation failed.");
 				writeLog("Job preparation failed.");
 
@@ -263,7 +271,7 @@ abstract public class AbstractJob implements Runnable {
 					writeLog("Job executed successful.");
 					writeLog("Exporting Data...");
 
-					setState(AbstractJob.EXPORTING_DATA);
+					setState(AbstractJob.STATE_EXPORTING);
 
 					try {
 
@@ -273,7 +281,7 @@ abstract public class AbstractJob implements Runnable {
 
 							setEndTime(System.currentTimeMillis());
 
-							setState(AbstractJob.FINISHED);
+							setState(AbstractJob.STATE_SUCCESS);
 							log.info("Job " + getId()
 									+ ": data export successful.");
 							writeLog("Data export successful.");
@@ -282,7 +290,7 @@ abstract public class AbstractJob implements Runnable {
 
 							setEndTime(System.currentTimeMillis());
 
-							setState(AbstractJob.ERROR);
+							setState(AbstractJob.STATE_FAILED);
 							log.error("Job " + getId()
 									+ ": data export failed.");
 							writeLog("Data export failed.");
@@ -293,7 +301,7 @@ abstract public class AbstractJob implements Runnable {
 
 						setEndTime(System.currentTimeMillis());
 
-						setState(AbstractJob.ERROR);
+						setState(AbstractJob.STATE_FAILED);
 						log.error("Job " + getId() + ": data export failed.", e);
 						writeLog("Data export failed: "
 								+ e.getLocalizedMessage());
@@ -304,7 +312,7 @@ abstract public class AbstractJob implements Runnable {
 
 					setEndTime(System.currentTimeMillis());
 
-					setState(AbstractJob.ERROR);
+					setState(AbstractJob.STATE_FAILED);
 					log.error("Job " + getId() + ": execution failed. "
 							+ getError());
 					writeLog("Job execution failed: " + getError());
@@ -312,8 +320,8 @@ abstract public class AbstractJob implements Runnable {
 				}
 			}
 
-			if (getState() == AbstractJob.ERROR
-					|| getState() == AbstractJob.CANCELED) {
+			if (getState() == AbstractJob.STATE_FAILED
+					|| getState() == AbstractJob.STATE_CANCELED) {
 
 				writeLog("Cleaning up...");
 				onFailure();
@@ -328,7 +336,7 @@ abstract public class AbstractJob implements Runnable {
 
 			setEndTime(System.currentTimeMillis());
 
-			setState(AbstractJob.ERROR);
+			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
 			return;
@@ -342,11 +350,11 @@ abstract public class AbstractJob implements Runnable {
 
 		writeLog("Canceled by user.");
 
-		if (state == RUNNING) {
+		if (state == STATE_RUNNING) {
 			closeStdOutFiles();
 		}
 
-		setState(AbstractJob.CANCELED);
+		setState(AbstractJob.STATE_CANCELED);
 
 	}
 

@@ -71,7 +71,7 @@ public class WebApp extends Application {
 	/**
 	 * Creates a root Restlet that will receive all incoming calls.
 	 */
-		
+
 	@Override
 	public synchronized Restlet createInboundRoot() {
 		// Create a router Restlet that routes each call to a
@@ -92,7 +92,6 @@ public class WebApp extends Application {
 
 		router.attach("/admin/delete-archive", RetireOldJobs.class);
 
-		
 		router.attach("/jobs/newsubmit", NewSubmitJob.class);
 		router.attach("/jobs/newstate", NewGetJobStatus.class);
 
@@ -100,7 +99,6 @@ public class WebApp extends Application {
 
 		router.attach("/counters", GetCounter.class);
 
-		
 		router.attach("/cluster", GetClusterDetails.class);
 
 		// router.attach("/killAllJobs", KillAllJobs.class);
@@ -156,6 +154,9 @@ public class WebApp extends Application {
 
 		router.attach("/installApp", InstallApp.class);
 		router.attach("/getAppsFromRepo", GetAppsFromRepository.class);
+
+		router.attach("/console/log",
+				cloudgene.mapred.resources.console.GetLogs.class);
 
 		setStatusService(new CustomStatusService());
 

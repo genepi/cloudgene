@@ -127,7 +127,7 @@ public class TaskJob extends AbstractJob {
 
 	@Override
 	public int getType() {
-		return AbstractJob.TASK;
+		return AbstractJob.TYPE_TASK;
 	}
 
 }

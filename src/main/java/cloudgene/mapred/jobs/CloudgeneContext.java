@@ -1,20 +1,12 @@
 package cloudgene.mapred.jobs;
 
-import genepi.io.FileUtil;
-
-import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterDao;
-import cloudgene.mapred.util.FileItem;
-import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.MailHelper;
+import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlMapReduce;
 
@@ -153,7 +145,7 @@ public class CloudgeneContext {
 	public boolean sendMail(String subject, String body) throws Exception {
 		Settings settings = Settings.getInstance();
 
-		MailHelper.send(settings.getMail().get("smtp"),
+		MailUtil.send(settings.getMail().get("smtp"),
 				settings.getMail().get("port"), settings.getMail().get("user"),
 				settings.getMail().get("password"),
 				settings.getMail().get("name"), user.getMail(),

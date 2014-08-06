@@ -47,6 +47,11 @@ public class ImporterFtp implements IImporter {
 
 	@Override
 	public boolean importFiles() {
+		return importFiles(null);				
+	}
+	
+	@Override
+	public boolean importFiles(String extension) {
 
 		Configuration conf = new Configuration();
 		FileSystem fileSystem;

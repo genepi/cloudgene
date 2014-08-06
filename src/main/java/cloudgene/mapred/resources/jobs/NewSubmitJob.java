@@ -63,8 +63,8 @@ public class NewSubmitJob extends ServerResource {
 
 						// file parameter
 						// write local file
-						String tmpFile = Settings.getInstance().getTempFilename(item
-								.getName());
+						String tmpFile = Settings.getInstance()
+								.getTempFilename(item.getName());
 						File file = new File(tmpFile);
 						try {
 							item.write(file);
@@ -146,7 +146,7 @@ public class NewSubmitJob extends ServerResource {
 			}
 
 			WorkflowEngine queue = WorkflowEngine.getInstance();
-			String filename = Settings.getInstance().getApp();
+			String filename = Settings.getInstance().getApp(user);
 			WdlApp app = null;
 			try {
 				app = WdlReader.loadAppFromFile(filename);
@@ -160,7 +160,6 @@ public class NewSubmitJob extends ServerResource {
 				try {
 
 					CloudgeneJob job = new CloudgeneJob(app.getMapred());
-
 					job.setId(id);
 					job.setName(id);
 					job.setUser(user);

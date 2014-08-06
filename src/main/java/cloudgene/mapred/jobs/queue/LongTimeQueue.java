@@ -56,8 +56,8 @@ public class LongTimeQueue implements Runnable {
 
 	public void cancel(AbstractJob job) {
 
-		if (job.getState() == AbstractJob.RUNNING
-				|| job.getState() == AbstractJob.EXPORTING_DATA) {
+		if (job.getState() == AbstractJob.STATE_RUNNING
+				|| job.getState() == AbstractJob.STATE_EXPORTING) {
 
 			log.info("Long Time Queue: Cancel Job ...");
 
@@ -74,7 +74,7 @@ public class LongTimeQueue implements Runnable {
 
 		}
 
-		if (job.getState() == AbstractJob.WAITING) {
+		if (job.getState() == AbstractJob.STATE_WAITING) {
 
 			log.info("Long Time Queue: Cancel Job...");
 

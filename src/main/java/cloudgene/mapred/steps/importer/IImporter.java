@@ -7,6 +7,8 @@ import cloudgene.mapred.util.FileItem;
 public interface IImporter {
 
 	public boolean importFiles();
+	
+	public boolean importFiles(String extension);
 
 	public String getErrorMessage();
 

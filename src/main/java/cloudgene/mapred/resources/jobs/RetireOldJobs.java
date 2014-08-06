@@ -33,12 +33,12 @@ public class RetireOldJobs extends ServerResource {
 
 			JobDao dao = new JobDao();
 
-			List<AbstractJob> oldJobs = dao.findAllOldJobs(Settings.RETIRED_AFTER_SECS);
+			List<AbstractJob> oldJobs = dao.findAllOlderThan(Settings.RETIRE_AFTER_SECS);
 
 			for (AbstractJob job : oldJobs) {
 				job.cleanUp();
 
-				job.setState(AbstractJob.RETIRED);
+				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 
 				List<AbstractJob> jobs = new Vector<AbstractJob>();

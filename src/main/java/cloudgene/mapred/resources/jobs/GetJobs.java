@@ -64,7 +64,7 @@ public class GetJobs extends ServerResource {
 				config.setExcludes(new String[] { "outputParams",
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step","context" });
+						"job", "step", "context" });
 				// all jobs in queue
 				jobs = WorkflowEngine.getInstance().getAllJobsInLongTimeQueue();
 				for (AbstractJob job : jobs) {
@@ -86,7 +86,7 @@ public class GetJobs extends ServerResource {
 				config.setExcludes(new String[] { "outputParams",
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step","context" });
+						"job", "step", "context" });
 				// all jobs in queue
 				jobs = WorkflowEngine.getInstance()
 						.getAllJobsInShortTimeQueue();
@@ -111,9 +111,8 @@ public class GetJobs extends ServerResource {
 				config.setExcludes(new String[] { "outputParams",
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step","context" });
-				jobs = dao.findAllCurrentJobs(Settings.RETIRED_AFTER_SECS);
-
+						"job", "step", "context" });
+				jobs = dao.findAllYoungerThan(Settings.RETIRE_AFTER_SECS);
 
 			} else if (state.equals("oldjobs")) {
 
@@ -126,9 +125,8 @@ public class GetJobs extends ServerResource {
 				config.setExcludes(new String[] { "outputParams",
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step" ,"context"});
-				jobs = dao.findAllOldJobs(Settings.RETIRED_AFTER_SECS);
-				
+						"job", "step", "context" });
+				jobs = dao.findAllOlderThan(Settings.RETIRE_AFTER_SECS);
 
 			} else if (state.equals("retired")) {
 
@@ -141,15 +139,15 @@ public class GetJobs extends ServerResource {
 				config.setExcludes(new String[] { "outputParams",
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step","context" });
-				jobs = dao.findAllRetiredJobs();				
+						"job", "step", "context" });
+				jobs = dao.findAllByState(AbstractJob.STATE_RETIRED);
 
 			} else {
 
 				config.setExcludes(new String[] { "user", "outputParams",
 						"inputParams", "output", "endTime", "startTime",
 						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step","context" });
+						"job", "step", "context" });
 				// jobs in queue
 				jobs = WorkflowEngine.getInstance().getJobsByUser(user);
 				for (AbstractJob job : jobs) {

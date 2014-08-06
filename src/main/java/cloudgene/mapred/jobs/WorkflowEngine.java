@@ -48,12 +48,12 @@ public class WorkflowEngine implements Runnable {
 				if (job.isSetupComplete()) {
 
 					longTimeJobs.add(job);
-					job.setState(AbstractJob.WAITING);
+					job.setState(AbstractJob.STATE_WAITING);
 					longTimeQueue.submit(job);
 
 				} else {
 
-					job.setState(AbstractJob.ERROR);
+					job.setState(AbstractJob.STATE_FAILED);
 					// job.writeLog("Job execution failed: Setup Step failed.");
 					job.onFailure();
 					job.setStartTime(System.currentTimeMillis());

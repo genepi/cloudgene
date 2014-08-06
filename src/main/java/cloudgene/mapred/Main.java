@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.restlet.data.LocalReference;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.cron.CronJobScheduler;
 import cloudgene.mapred.database.DatabaseUpdater;
 import cloudgene.mapred.database.H2Connector;
 import cloudgene.mapred.database.UserDao;
@@ -191,6 +192,9 @@ public class Main {
 			FileUtil.createDirectory(settings.getTempPath());
 
 			new Thread(WorkflowEngine.getInstance()).start();
+			
+			CronJobScheduler scheduler = new CronJobScheduler();
+			scheduler.start();
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 

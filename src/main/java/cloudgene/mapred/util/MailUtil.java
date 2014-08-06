@@ -10,7 +10,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-public class MailHelper {
+public class MailUtil {
 
 	public static void send(final String smtp, final String port,
 			final String username, final String password, final String name,

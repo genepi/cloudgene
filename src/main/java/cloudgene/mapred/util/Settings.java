@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.core.User;
+
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
@@ -23,8 +25,6 @@ public class Settings {
 	private String rPath = "/usr/";
 
 	private String appsPath = "../cloudgene.tools";
-
-	private String app = null;
 
 	private String outputPath = "output";
 
@@ -48,7 +48,11 @@ public class Settings {
 
 	private Map<String, String> mail;
 
-	public static int RETIRED_AFTER_SECS = 7 * 24 * 60 * 60;
+	private Map<String, String> apps;
+
+	public static int RETIRE_AFTER_SECS = 7 * 24 * 60 * 60;
+
+	public static int NOTIFY_AFTER_SECS = 5 * 24 * 60 * 60;
 
 	public boolean isRemoveHdfsWorkspace() {
 		return removeHdfsWorkspace;
@@ -129,14 +133,6 @@ public class Settings {
 		return appsPath;
 	}
 
-	public String getApp() {
-		return app;
-	}
-
-	public void setApp(String app) {
-		this.app = app;
-	}
-
 	public void setAppsPath(String appsPath) {
 		this.appsPath = appsPath;
 	}
@@ -209,16 +205,21 @@ public class Settings {
 
 		if (!new File(appsPath).exists()) {
 
-			if (!new File(app).exists()) {
+			for (String app : apps.values()) {
 
-				log.error("appsPath '" + app + "' does not exist.");
+				if (!new File(app).exists()) {
 
-				return false;
-			} else {
+					log.error("file '" + app + "' does not exist.");
 
-				log.info("Using application " + app);
+					return false;
+				} else {
+
+					log.info("using application " + app);
+
+				}
 
 			}
+
 		}
 
 		String hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
@@ -284,6 +285,20 @@ public class Settings {
 		this.mail = mail;
 	}
 
+	public Map<String, String> getApps() {
+		return apps;
+	}
+
+	public void setApps(Map<String, String> apps) {
+		this.apps = apps;
+	}
+
+	public String getApp(User user) {
+
+		return apps.get(user.getRole().toLowerCase());
+
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -291,7 +306,7 @@ public class Settings {
 	public String getName() {
 		return name;
 	}
-	
+
 	public String getTempFilename(String filename) {
 		String path = Settings.getInstance().getTempPath();
 		String name = FileUtil.getFilename(filename);

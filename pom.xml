@@ -20,7 +20,7 @@
 				<updatePolicy>always</updatePolicy>
 			</snapshots>
 		</repository>
-		
+
 
 
 		<repository>
@@ -135,13 +135,13 @@
 		<dependency>
 			<groupId>genepi-io</groupId>
 			<artifactId>genepi-io</artifactId>
-			<version>0.5.0</version>
+			<version>0.6.3</version>
 		</dependency>
 		<dependency>
 			<groupId>genepi-hadoop</groupId>
 			<artifactId>genepi-hadoop</artifactId>
 			<version>0.7.1</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>com.esotericsoftware.yamlbeans</groupId>
 			<artifactId>yamlbeans</artifactId>
@@ -194,6 +194,16 @@
 			<version>0.1.51</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.quartz-scheduler</groupId>
+			<artifactId>quartz-jobs</artifactId>
+			<version>2.2.1</version>
+		</dependency>
 
 	</dependencies>
 

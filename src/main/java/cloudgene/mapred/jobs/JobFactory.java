@@ -5,11 +5,11 @@ public class JobFactory {
 	public static AbstractJob create(int type) {
 
 		switch (type) {
-		case AbstractJob.TASK:
+		case AbstractJob.TYPE_TASK:
 
 			return new TaskJob();
 
-		case AbstractJob.MAPREDUCE:
+		case AbstractJob.TYPE_MAPREDUCE:
 
 			return new CloudgeneJob();
 

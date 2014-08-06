@@ -56,7 +56,7 @@ public class ShortTimeQueue implements Runnable {
 
 	public void cancel(AbstractJob job) {
 
-		if (job.getState() == AbstractJob.RUNNING) {
+		if (job.getState() == AbstractJob.STATE_RUNNING) {
 
 			log.info("Short Time Queue: Cancel Job ...");
 
@@ -73,7 +73,7 @@ public class ShortTimeQueue implements Runnable {
 
 		}
 
-		if (job.getState() == AbstractJob.WAITING) {
+		if (job.getState() == AbstractJob.STATE_WAITING) {
 
 			log.info("Short Time Queue: Cancel Job...");
 

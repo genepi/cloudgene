@@ -52,10 +52,10 @@ public class ImporterSftp implements IImporter {
 		String server1 = server.replace("sftp://", "");
 		String split[] = server1.split("/", 2);
 		this.server = split[0].trim();
-		
-		if (split.length > 1){		
+
+		if (split.length > 1) {
 			workingDir = "/" + split[1].trim();
-		}else{
+		} else {
 			workingDir = "/";
 		}
 
@@ -63,13 +63,18 @@ public class ImporterSftp implements IImporter {
 
 	@Override
 	public boolean importFiles() {
+		return importFiles(null);
+	}
+
+	@Override
+	public boolean importFiles(String extension) {
 
 		Configuration conf = new Configuration();
 		FileSystem fileSystem;
 		try {
 			fileSystem = FileSystem.get(conf);
 			return importIntoHdfs(server, workingDir, username, password,
-					fileSystem, path, port);
+					fileSystem, path, port, extension);
 		} catch (IOException e) {
 			error = e.getMessage();
 			return false;
@@ -82,13 +87,12 @@ public class ImporterSftp implements IImporter {
 		}
 
 	}
-	
 
 	@SuppressWarnings("unchecked")
 	private boolean importIntoHdfs(String server, String workingDir,
 			String username, String password, FileSystem fileSystem,
-			String path, int port) throws IOException, JSchException,
-			SftpException {
+			String path, int port, String extension) throws IOException,
+			JSchException, SftpException {
 
 		Session session = null;
 		Channel channel = null;
@@ -148,20 +152,26 @@ public class ImporterSftp implements IImporter {
 						&& !((entry.getFilename().equals(".") || (entry
 								.getFilename().equals(".."))))) {
 
-					// path in hdfs
-					String[] tiles = entry.getFilename().split("/");
-					String name = tiles[tiles.length - 1];
+					if (extension == null
+							|| entry.getFilename().endsWith(extension)) {
 
-					String target = HdfsUtil.path(path, name);
+						// path in hdfs
+						String[] tiles = entry.getFilename().split("/");
+						String name = tiles[tiles.length - 1];
 
-					FSDataOutputStream out = fileSystem
-							.create(new Path(target));
+						String target = HdfsUtil.path(path, name);
 
-					t = new CountingOutputStream(out);
+						FSDataOutputStream out = fileSystem.create(new Path(
+								target));
 
-					channelSftp.get(workingDir + "/" + entry.getFilename(), t);
+						t = new CountingOutputStream(out);
 
-					IOUtils.closeStream(out);
+						channelSftp.get(workingDir + "/" + entry.getFilename(),
+								t);
+
+						IOUtils.closeStream(out);
+
+					}
 
 				}
 			}

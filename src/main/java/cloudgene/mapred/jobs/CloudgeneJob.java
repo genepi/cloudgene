@@ -584,7 +584,7 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public int getType() {
 
-		return AbstractJob.MAPREDUCE;
+		return AbstractJob.TYPE_MAPREDUCE;
 
 	}
 

@@ -54,7 +54,7 @@ public class GetAppParams extends ServerResource {
 
 		if (user != null) {
 
-			String filename = Settings.getInstance().getApp();
+			String filename = Settings.getInstance().getApp(user);
 
 			WdlApp app;
 			try {
