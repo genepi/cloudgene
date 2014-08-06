@@ -156,5 +156,10 @@ public abstract class CloudgeneStep {
 		logs.add(status);
 		return status;
 	}
+	
+	//dummy for beam serialization (setup --> property up!)
+	public CloudgeneContext getup(){
+		return null;
+	}
 
 }

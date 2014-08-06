@@ -48,7 +48,7 @@ public class UserDao extends Dao {
 
 			connection.commit();
 
-			log.info("insert user '" + user.getUsername() + "' successful.");
+			log.debug("insert user '" + user.getUsername() + "' successful.");
 
 		} catch (SQLException e) {
 			log.error("insert user '" + user.getUsername() + "' failed.", e);
@@ -89,7 +89,7 @@ public class UserDao extends Dao {
 
 			connection.commit();
 
-			log.info("update user '" + user.getUsername() + "' successful.");
+			log.debug("update user '" + user.getUsername() + "' successful.");
 
 		} catch (SQLException e) {
 			log.error("update user '" + user.getUsername() + "' failed.", e);
@@ -139,7 +139,7 @@ public class UserDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find user by username '" + user + "' successful.");
+			log.debug("find user by username '" + user + "' successful.");
 
 		} catch (SQLException e1) {
 
@@ -189,7 +189,7 @@ public class UserDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find user by id '" + id + "' successful.");
+			log.debug("find user by id '" + id + "' successful.");
 
 		} catch (SQLException e1) {
 
@@ -236,7 +236,7 @@ public class UserDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all user successful. size = " + result.size());
+			log.debug("find all user successful. size = " + result.size());
 
 		} catch (SQLException e1) {
 
@@ -259,7 +259,7 @@ public class UserDao extends Dao {
 
 			connection.commit();
 
-			log.info("delete user successful.");
+			log.debug("delete user successful.");
 
 		} catch (SQLException e) {
 			log.error("delete user failed", e);

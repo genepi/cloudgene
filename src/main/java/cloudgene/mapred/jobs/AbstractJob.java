@@ -25,16 +25,16 @@ abstract public class AbstractJob implements Runnable {
 
 	private DateFormat formatter = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
 
-	//types
-	
+	// types
+
 	public static final int TYPE_MAPREDUCE = 1;
 
 	public static final int TYPE_TASK = 2;
 
 	public static final int TYPE_LOCAL = 3;
 
-	//states
-	
+	// states
+
 	public static final int STATE_WAITING = 1;
 
 	public static final int STATE_RUNNING = 2;
@@ -51,8 +51,8 @@ abstract public class AbstractJob implements Runnable {
 
 	public static final int STATE_SUCESS_AND_NOTIFICATION_SEND = 8;
 
-	//properties
-	
+	// properties
+
 	private String id;
 
 	private int state = STATE_WAITING;
@@ -224,7 +224,7 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public void run() {
 
-		log.info("Running job!");
+		log.info("Job " + getId() + ": running.");
 
 		try {
 			setState(AbstractJob.STATE_RUNNING);
@@ -325,6 +325,7 @@ abstract public class AbstractJob implements Runnable {
 
 				writeLog("Cleaning up...");
 				onFailure();
+				log.info("Job " + getId() + ": cleanup successful.");
 				writeLog("Cleanup successful.");
 
 			}
@@ -349,6 +350,7 @@ abstract public class AbstractJob implements Runnable {
 		setEndTime(System.currentTimeMillis());
 
 		writeLog("Canceled by user.");
+		log.info("Job " + getId() + ": canceld by user.");
 
 		if (state == STATE_RUNNING) {
 			closeStdOutFiles();

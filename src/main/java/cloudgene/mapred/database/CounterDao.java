@@ -30,7 +30,7 @@ public class CounterDao extends Dao {
 			
 			connection.commit();
 
-			log.info("insert counter successful.");
+			log.debug("insert counter successful.");
 
 		} catch (SQLException e) {
 			log.error("insert counter failed.", e);
@@ -57,7 +57,7 @@ public class CounterDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find counters successful. results: " + result);
+			log.debug("find counters successful. results: " + result);
 
 			return result;
 		} catch (SQLException e) {

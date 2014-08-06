@@ -35,7 +35,7 @@ public class DownloadDao extends Dao {
 
 			connection.commit();
 
-			log.info("insert download successful.");
+			log.debug("insert download successful.");
 
 		} catch (SQLException e) {
 			log.error("insert download failed.", e);
@@ -59,7 +59,7 @@ public class DownloadDao extends Dao {
 
 			connection.commit();
 
-			log.info("update download successful.");
+			log.debug("update download successful.");
 
 		} catch (SQLException e) {
 			log.error("update download failed.", e);
@@ -98,7 +98,7 @@ public class DownloadDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all downloads successful. results: " + result.size());
+			log.debug("find all downloads successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -135,7 +135,7 @@ public class DownloadDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find download by hash successful. results: " + result);
+			log.debug("find download by hash successful. results: " + result);
 
 			return result;
 		} catch (SQLException e) {
@@ -172,7 +172,7 @@ public class DownloadDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find download by job " + job + " and path " + path + " successful. results: " + result);
+			log.debug("find download by job " + job + " and path " + path + " successful. results: " + result);
 
 			return result;
 		} catch (SQLException e) {

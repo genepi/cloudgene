@@ -182,7 +182,7 @@ public class CloudgeneJob extends AbstractJob {
 
 		try {
 
-			log.info("job " + getId() + " submitted...");
+			log.info("Job " + getId() + " submitted...");
 
 			// evaluate WDL derictives
 			Planner planner = new Planner();
@@ -543,13 +543,13 @@ public class CloudgeneJob extends AbstractJob {
 				boolean success = copyJob.execute();
 
 				if (!success) {
-					log.error("Exporting data failed.");
+					log.error("Job " + getId() + ": Exporting data failed.");
 					writeOutputln("Exporting data failed.");
 				}
 
 			} catch (Exception e) {
 
-				log.error("Exporting data failed.", e);
+				log.error("Job " + getId() + ": Exporting data failed.", e);
 				writeOutputln("Exporting data failed. " + e.getMessage());
 			}
 		}

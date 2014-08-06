@@ -41,7 +41,7 @@ public class GetLogs extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		String content = tail(new File("cloudgene.log"), 100);
+		String content = tail(new File("cloudgene.log"), 1000);
 
 		return new StringRepresentation(content);
 

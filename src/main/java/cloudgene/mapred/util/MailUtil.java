@@ -10,7 +10,12 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.logging.LogFactory;
+
 public class MailUtil {
+
+	private static final org.apache.commons.logging.Log log = LogFactory
+			.getLog(MailUtil.class);
 
 	public static void send(final String smtp, final String port,
 			final String username, final String password, final String name,
@@ -51,7 +56,7 @@ public class MailUtil {
 
 			Transport.send(message);
 
-			System.out.println("E-Mail sent to " + tos + ".");
+			log.debug("E-Mail sent to " + tos + ".");
 
 		} catch (MessagingException e) {
 			throw new Exception("mail could not be sent: " + e.getMessage());

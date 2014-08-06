@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
@@ -21,6 +22,9 @@ public class HadoopUtil {
 
 	private JobClient client = null;
 
+	private static final org.apache.commons.logging.Log log = LogFactory
+			.getLog(HadoopUtil.class);
+
 	public static HadoopUtil getInstance() {
 		if (instance == null) {
 			instance = new HadoopUtil();
@@ -33,7 +37,7 @@ public class HadoopUtil {
 		try {
 			client = new JobClient(job);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("JobClient init failed.", e);
 		}
 	}
 
@@ -53,7 +57,7 @@ public class HadoopUtil {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Kill All failed.", e);
 		}
 	}
 
@@ -76,7 +80,8 @@ public class HadoopUtil {
 			return result;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("get Running jobs failed.", e);
+
 		}
 
 		return result;
@@ -97,7 +102,8 @@ public class HadoopUtil {
 			return result;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Get Job failed.", e);
+
 		}
 
 		return result;
@@ -113,7 +119,7 @@ public class HadoopUtil {
 			return result;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Get Mapper failed.", e);
 		}
 
 		return result;
@@ -128,7 +134,7 @@ public class HadoopUtil {
 			return result;
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Get Reducer failed.", e);
 		}
 
 		return result;
@@ -140,8 +146,7 @@ public class HadoopUtil {
 
 			return client.getClusterStatus(true);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Get cluster details failed.", e);
 			return null;
 		}
 

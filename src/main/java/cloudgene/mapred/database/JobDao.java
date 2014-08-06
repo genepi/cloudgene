@@ -59,7 +59,7 @@ public class JobDao extends Dao {
 			}
 
 			connection.commit();
-			log.info("insert job '" + job.getId() + "' successful.");
+			log.debug("insert job '" + job.getId() + "' successful.");
 
 		} catch (SQLException e) {
 			log.error("insert job '" + job.getId() + "' failed.", e);
@@ -92,7 +92,7 @@ public class JobDao extends Dao {
 
 			connection.commit();
 
-			log.info("update job successful.");
+			log.debug("update job successful.");
 
 		} catch (SQLException e) {
 			log.error("update job '" + job.getId() + "' failed", e);
@@ -115,7 +115,7 @@ public class JobDao extends Dao {
 
 			connection.commit();
 
-			log.info("delete job '" + job.getId() + "' successful.");
+			log.debug("delete job '" + job.getId() + "' successful.");
 
 		} catch (SQLException e) {
 			log.error("delete job '" + job.getId() + "' failed", e);
@@ -184,7 +184,7 @@ public class JobDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all jobs successful. results: " + result.size());
+			log.debug("find all jobs successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -233,7 +233,7 @@ public class JobDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all jobs successful. results: " + result.size());
+			log.debug("find all jobs successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -280,7 +280,7 @@ public class JobDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all old jobs successful. results: " + result.size());
+			log.debug("find all old jobs successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -327,7 +327,7 @@ public class JobDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all old jobs successful. results: " + result.size());
+			log.debug("find all old jobs successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -373,7 +373,7 @@ public class JobDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all old jobs successful. results: " + result.size());
+			log.debug("find all old jobs successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -426,7 +426,7 @@ public class JobDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all jobs successful. results: " + result.size());
+			log.debug("find all jobs successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -500,9 +500,9 @@ public class JobDao extends Dao {
 			}
 
 			if (job != null) {
-				log.info("find job by id '" + id + "' successful.");
+				log.debug("find job by id '" + id + "' successful.");
 			} else {
-				log.info("job '" + id + "' not found");
+				log.debug("job '" + id + "' not found");
 			}
 
 			return job;

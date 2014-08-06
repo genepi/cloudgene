@@ -34,7 +34,7 @@ public class CacheDao extends Dao {
 
 			connection.commit();
 
-			log.info("insert cache directory successful.");
+			log.debug("insert cache directory successful.");
 
 		} catch (SQLException e) {
 			log.error("insert cache directory failed.", e);
@@ -71,7 +71,7 @@ public class CacheDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find chache entry by signature successful. result: "
+			log.debug("find chache entry by signature successful. result: "
 					+ signature);
 
 			return result;
@@ -107,7 +107,7 @@ public class CacheDao extends Dao {
 
 			connection.commit();
 
-			log.info("clear cache directory successful.");
+			log.debug("clear cache directory successful.");
 
 		} catch (SQLException e) {
 			log.error("clear cache directory failed.", e);

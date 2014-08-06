@@ -32,7 +32,7 @@ System.out.println(logMessage.getStep().getId());
 
 			connection.commit();
 
-			log.info("insert log messages successful.");
+			log.debug("insert log messages successful.");
 
 		} catch (SQLException e) {
 			log.error("insert log messages failed.", e);
@@ -70,7 +70,7 @@ System.out.println(logMessage.getStep().getId());
 			}
 			rs.close();
 
-			log.info("find all log messages successful. results: "
+			log.debug("find all log messages successful. results: "
 					+ result.size());
 
 			return result;

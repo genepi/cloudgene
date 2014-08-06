@@ -54,7 +54,7 @@ public class ParameterDao extends Dao {
 
 			connection.commit();
 
-			log.info("insert parameter '" + parameter.getId() + "' successful.");
+			log.debug("insert parameter '" + parameter.getId() + "' successful.");
 
 		} catch (SQLException e) {
 			log.error("insert parameter '" + parameter.getId() + "' failed.", e);
@@ -95,12 +95,12 @@ public class ParameterDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all input parameters for job '" + job.getId()
+			log.debug("find all input parameters for job '" + job.getId()
 					+ "' successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
-			log.info("find all input parameters for job '" + job.getId()
+			log.error("find all input parameters for job '" + job.getId()
 					+ "' failed.", e);
 			return null;
 		}
@@ -144,12 +144,12 @@ public class ParameterDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all output parameters for job '" + job.getId()
+			log.debug("find all output parameters for job '" + job.getId()
 					+ "' successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
-			log.info("find all output parameters for job '" + job.getId()
+			log.error("find all output parameters for job '" + job.getId()
 					+ "' failed.", e);
 			return null;
 		}

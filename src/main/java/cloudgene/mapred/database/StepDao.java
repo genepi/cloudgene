@@ -44,7 +44,7 @@ public class StepDao extends Dao {
 			
 			connection.commit();
 
-			log.info("insert step successful.");
+			log.debug("insert step successful.");
 
 		} catch (SQLException e) {
 			log.error("insert step failed.", e);
@@ -87,7 +87,7 @@ public class StepDao extends Dao {
 			}
 			rs.close();
 
-			log.info("find all log step successful. results: " + result.size());
+			log.debug("find all log step successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
