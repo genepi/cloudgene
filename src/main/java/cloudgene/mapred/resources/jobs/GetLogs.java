@@ -22,65 +22,60 @@ public class GetLogs extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
-			String id = (String) getRequest().getAttributes().get("id");
-			String file = (String) getRequest().getAttributes().get("file");
-			if (file != null){
-				id += "/" + file;
+		if (user == null) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
+		}
+
+		String id = (String) getRequest().getAttributes().get("id");
+		String file = (String) getRequest().getAttributes().get("file");
+		if (file != null) {
+			id += "/" + file;
+		}
+
+		JobDao jobDao = new JobDao();
+		AbstractJob job = jobDao.findById(id);
+
+		if (job == null) {
+			job = WorkflowEngine.getInstance().getJobById(id);
+		}
+
+		if (job != null) {
+
+			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation("Access denied.");
 			}
 
-			JobDao jobDao = new JobDao();
-			AbstractJob job = jobDao.findById(id);
+			// job.setUser(user);
 
-			if (job == null){
-				job = WorkflowEngine.getInstance().getJobById(id);
+			StringBuffer buffer = new StringBuffer();
+
+			String log = FileUtil.readFileAsString(job.getLogOutFile());
+			String output = FileUtil.readFileAsString(job.getStdOutFile());
+
+			buffer.append("<code><pre>");
+
+			if (!log.isEmpty()) {
+				buffer.append("job.txt:\n\n");
+				buffer.append(log);
+
 			}
-			
-			if (job != null) {
 
-				if (!user.isAdmin()
-						&& job.getUser().getId() != user.getId()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation("Access denied.");
-				}
-				
-				//job.setUser(user);
+			if (!output.isEmpty()) {
 
-				StringBuffer buffer = new StringBuffer();
+				buffer.append("\n\nstd.out:\n\n");
+				buffer.append(output);
 
-				String log = FileUtil.readFileAsString(job.getLogOutFile());
-				String output = FileUtil.readFileAsString(job.getStdOutFile());
-				
-				buffer.append("<code><pre>");
-				
-				if (!log.isEmpty()) {
-					buffer.append("job.txt:\n\n");
-					buffer.append(log);
-
-				}
-
-				if (!output.isEmpty()) {
-
-					buffer.append("\n\nstd.out:\n\n");
-					buffer.append(output);
-
-				}
-				buffer.append("</code></pre>");
-				return new StringRepresentation(buffer.toString());
-
-			} else {
-
-				
-				
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-				return new StringRepresentation("The request requires user authentication.");
 			}
+			buffer.append("</code></pre>");
+			return new StringRepresentation(buffer.toString());
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
-
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("log not found.");
 		}
 
 	}

@@ -23,64 +23,60 @@ public class NewGetJobStatus extends ServerResource {
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
-		Form form = new Form(entity);
-
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
-
-			String jobId = form.getFirstValue("job_id");
-
-			AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
-
-			if (job == null) {
-
-				JobDao dao = new JobDao();
-				job = dao.findById(jobId, false);
-
-			} else {
-
-				if (job instanceof CloudgeneJob) {
-
-					((CloudgeneJob) job).updateProgress();
-
-				}
-				
-				int position =  WorkflowEngine.getInstance().getPositionInQueue(job);				
-				job.setPositionInQueue(position);
-
-			}
-
-			if (job == null) {
-
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-				return new StringRepresentation("Job " + jobId + " not found.");
-
-			}
-
-			if (!user.isAdmin()
-					&& job.getUser().getId() != user.getId()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation("Access denied.");
-			}
-
-
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "user", "outputParams",
-					"inputParams", "output", "endTime", "startTime", "error",
-					"s3Url", "task", "config", "mapReduceJob", "job", "step","context" });
-			JSONObject object = JSONObject.fromObject(job, config);
-
-			return new StringRepresentation(object.toString());
-
-		} else {
+		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
 
 		}
+
+		Form form = new Form(entity);
+		String jobId = form.getFirstValue("job_id");
+
+		AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
+
+		if (job == null) {
+
+			JobDao dao = new JobDao();
+			job = dao.findById(jobId, false);
+
+		} else {
+
+			if (job instanceof CloudgeneJob) {
+
+				((CloudgeneJob) job).updateProgress();
+
+			}
+
+			int position = WorkflowEngine.getInstance().getPositionInQueue(job);
+			job.setPositionInQueue(position);
+
+		}
+
+		if (job == null) {
+
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Job " + jobId + " not found.");
+
+		}
+
+		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("Access denied.");
+		}
+
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "user", "outputParams",
+				"inputParams", "output", "endTime", "startTime", "error",
+				"s3Url", "task", "config", "mapReduceJob", "job", "step",
+				"context" });
+		JSONObject object = JSONObject.fromObject(job, config);
+
+		return new StringRepresentation(object.toString());
 
 	}
 

@@ -50,25 +50,19 @@ public class Settings {
 
 	private Map<String, String> apps;
 
-	public static int RETIRE_AFTER_SECS = 7 * 24 * 60 * 60;
+	private int retireAfter = 10;
 
-	public static int NOTIFY_AFTER_SECS = 5 * 24 * 60 * 60;
+	private int notificationAfter = 7;
 
-	public boolean isRemoveHdfsWorkspace() {
-		return removeHdfsWorkspace;
-	}
-
-	public void setRemoveHdfsWorkspace(boolean removeHdfsWorkspace) {
-		this.removeHdfsWorkspace = removeHdfsWorkspace;
-	}
-
-	private static Settings instance = null;
-
-	private static final Log log = LogFactory.getLog(Settings.class);
+	private boolean autoRetire = false;
 
 	private boolean streaming = true;
 
 	private boolean removeHdfsWorkspace = false;
+
+	private static Settings instance = null;
+
+	private static final Log log = LogFactory.getLog(Settings.class);
 
 	private Settings() {
 
@@ -103,6 +97,10 @@ public class Settings {
 			}
 
 		}
+
+		log.info("Auto retire: " + instance.isAutoRetire());
+		log.info("Retire jobs after " + instance.retireAfter + " days.");
+		log.info("Notify user after " + instance.notificationAfter + " days.");
 
 	}
 
@@ -199,6 +197,14 @@ public class Settings {
 
 	public void setRPath(String rPath) {
 		this.rPath = rPath;
+	}
+
+	public boolean isRemoveHdfsWorkspace() {
+		return removeHdfsWorkspace;
+	}
+
+	public void setRemoveHdfsWorkspace(boolean removeHdfsWorkspace) {
+		this.removeHdfsWorkspace = removeHdfsWorkspace;
 	}
 
 	public boolean testPaths() {
@@ -311,5 +317,37 @@ public class Settings {
 		String path = Settings.getInstance().getTempPath();
 		String name = FileUtil.getFilename(filename);
 		return FileUtil.path(path, name);
+	}
+
+	public void setNotificationAfter(int notificationAfter) {
+		this.notificationAfter = notificationAfter;
+	}
+
+	public int getNotificationAfter() {
+		return notificationAfter;
+	}
+
+	public int getNotificationAfterInSec() {
+		return notificationAfter * 24 * 60 * 60;
+	}
+
+	public void setRetireAfter(int retireAfter) {
+		this.retireAfter = retireAfter;
+	}
+
+	public int getRetireAfter() {
+		return retireAfter;
+	}
+
+	public int getRetireAfterInSec() {
+		return retireAfter * 24 * 60 * 60;
+	}
+
+	public void setAutoRetire(boolean autoRetire) {
+		this.autoRetire = autoRetire;
+	}
+
+	public boolean isAutoRetire() {
+		return autoRetire;
 	}
 }

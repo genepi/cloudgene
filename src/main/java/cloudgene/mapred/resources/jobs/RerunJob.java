@@ -27,81 +27,86 @@ public class RerunJob extends ServerResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		Form form = new Form(entity);
-
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
-		if (user != null) {
+		
+		if (user == null) {
 
-			// check aws credentials and s3 bucket
-			if (user.isExportToS3()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
-				if (!S3Util.checkBucket(user.getAwsKey(),
-						user.getAwsSecretKey(), user.getS3Bucket())) {
+		}
 
-					return new JSONAnswer(
-							"Your AWS-Credentials are wrong or your S3-Bucket doesn't exists.<br/><br/>Please update your AWS-Credentials.",
-							false);
+		// check aws credentials and s3 bucket
+		if (user.isExportToS3()) {
 
-				}
-
-			}
-
-			WorkflowEngine queue = WorkflowEngine.getInstance();
-
-			String jobId = form.getFirstValue("id");
-			if (jobId != null) {
-
-				JobDao dao = new JobDao();
-				AbstractJob oldJob = dao.findById(jobId);
-
-				String[] tiles = jobId.split("-");
-
-				String tool = tiles[0];
-				for (int i = 1; i < tiles.length - 2; i++) {
-					tool += "-" + tiles[i];
-				}
-			
-				WdlApp app = WdlReader.loadApp(tool);
-				if (app.getMapred() != null) {
-
-					try {
-
-						CloudgeneJob job = new CloudgeneJob(app.getMapred());
-
-						SimpleDateFormat sdf = new SimpleDateFormat(
-								"yyyyMMdd-HHmmss");
-						String name = tool + "-" + sdf.format(new Date());
-						job.setId(name);
-						job.setName(name);
-						job.setUser(user);
-
-						// parse params
-						for (CloudgeneParameter params : oldJob.getInputParams()) {
-							String key = params.getName();
-							String value = params.getValue();
-							job.setInputParam(key, value);
-
-						}
-						queue.submit(job);
-
-					} catch (Exception e) {
-
-						return new JSONAnswer(e.getMessage(), false);
-
-					}
-
-				}
+			if (!S3Util.checkBucket(user.getAwsKey(), user.getAwsSecretKey(),
+					user.getS3Bucket())) {
 
 				return new JSONAnswer(
-						"Your job was successfully added to the job queue.",
-						true);
+						"Your AWS-Credentials are wrong or your S3-Bucket doesn't exists.<br/><br/>Please update your AWS-Credentials.",
+						false);
+
 			}
 
 		}
 
-		getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-		return new StringRepresentation("error");
+		WorkflowEngine queue = WorkflowEngine.getInstance();
+
+		Form form = new Form(entity);
+		String jobId = form.getFirstValue("id");
+		if (jobId != null) {
+
+			JobDao dao = new JobDao();
+			AbstractJob oldJob = dao.findById(jobId);
+
+			String[] tiles = jobId.split("-");
+
+			String tool = tiles[0];
+			for (int i = 1; i < tiles.length - 2; i++) {
+				tool += "-" + tiles[i];
+			}
+
+			WdlApp app = WdlReader.loadApp(tool);
+			if (app.getMapred() != null) {
+
+				try {
+
+					CloudgeneJob job = new CloudgeneJob(app.getMapred());
+
+					SimpleDateFormat sdf = new SimpleDateFormat(
+							"yyyyMMdd-HHmmss");
+					String name = tool + "-" + sdf.format(new Date());
+					job.setId(name);
+					job.setName(name);
+					job.setUser(user);
+
+					// parse params
+					for (CloudgeneParameter params : oldJob.getInputParams()) {
+						String key = params.getName();
+						String value = params.getValue();
+						job.setInputParam(key, value);
+
+					}
+					queue.submit(job);
+
+				} catch (Exception e) {
+
+					return new JSONAnswer(e.getMessage(), false);
+
+				}
+
+			}
+
+			return new JSONAnswer(
+					"Your job was successfully added to the job queue.", true);
+		} else {
+
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Job " + jobId + " not found.");
+
+		}
 
 	}
 

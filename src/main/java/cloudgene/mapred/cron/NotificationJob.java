@@ -20,10 +20,13 @@ public class NotificationJob implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
+		Settings settings = Settings.getInstance();
+
 		JobDao dao = new JobDao();
 
-		List<AbstractJob> oldJobs = dao.findAllOlderThan(
-				Settings.NOTIFY_AFTER_SECS, AbstractJob.STATE_SUCCESS);
+		List<AbstractJob> oldJobs = dao
+				.findAllOlderThan(settings.getNotificationAfterInSec(),
+						AbstractJob.STATE_SUCCESS);
 
 		for (AbstractJob job : oldJobs) {
 
@@ -38,22 +41,23 @@ public class NotificationJob implements Job {
 
 			try {
 
-				Settings settings = Settings.getInstance();
 				MailUtil.send(settings.getMail().get("smtp"), settings
 						.getMail().get("port"), settings.getMail().get("user"),
 						settings.getMail().get("password"), settings.getMail()
 								.get("name"), job.getUser().getMail(), "["
 								+ settings.getName() + "] " + subject, body);
 
+				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
+				dao.update(job);
+
 				log.info("Sent notification for job " + job.getId() + ".");
 
 			} catch (Exception e) {
+
 				log.error("Sent notification for job " + job.getId()
 						+ " failed.", e);
-			}
 
-			job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
-			dao.update(job);
+			}
 
 		}
 

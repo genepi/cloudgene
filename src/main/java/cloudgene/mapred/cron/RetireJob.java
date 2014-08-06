@@ -20,19 +20,18 @@ public class RetireJob implements Job {
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
+		Settings settings = Settings.getInstance();
+
 		JobDao dao = new JobDao();
 
-		List<AbstractJob> oldJobs = dao
-				.findAllOlderThan(Settings.RETIRE_AFTER_SECS);
+		List<AbstractJob> oldJobs = dao.findAllOlderThan(settings
+				.getRetireAfterInSec());
 
 		for (AbstractJob job : oldJobs) {
 			job.cleanUp();
 
 			job.setState(AbstractJob.STATE_RETIRED);
 			dao.update(job);
-
-			List<AbstractJob> jobs = new Vector<AbstractJob>();
-			jobs.add(job);
 
 			log.info("Job " + job.getId() + " retired.");
 

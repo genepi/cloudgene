@@ -21,6 +21,8 @@ public class RetireOldJobs extends ServerResource {
 	@Get
 	public Representation post(Representation entity, Variant variant) {
 
+		Settings settings = Settings.getInstance();
+
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
@@ -33,7 +35,8 @@ public class RetireOldJobs extends ServerResource {
 
 			JobDao dao = new JobDao();
 
-			List<AbstractJob> oldJobs = dao.findAllOlderThan(Settings.RETIRE_AFTER_SECS);
+			List<AbstractJob> oldJobs = dao.findAllOlderThan(settings
+					.getRetireAfterInSec());
 
 			for (AbstractJob job : oldJobs) {
 				job.cleanUp();

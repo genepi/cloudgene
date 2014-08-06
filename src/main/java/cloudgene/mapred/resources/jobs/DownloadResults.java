@@ -34,111 +34,106 @@ public class DownloadResults extends ServerResource {
 
 		JobDao jobDao = new JobDao();
 
-		if (user != null) {
-
-			String jobId = (String) getRequest().getAttributes().get("job");
-			String id = (String) getRequest().getAttributes().get("id");
-
-			String filename = null;
-
-			if (getRequest().getAttributes().containsKey("filename")) {
-
-				filename = (String) getRequest().getAttributes()
-						.get("filename");
-
-			}
-
-			if (getRequest().getAttributes().containsKey("filename2")) {
-
-				jobId = (String) getRequest().getAttributes().get("job") + "/"
-						+ (String) getRequest().getAttributes().get("id");
-				id = (String) getRequest().getAttributes().get("filename");
-
-				filename = (String) getRequest().getAttributes().get(
-						"filename2");
-
-			}
-
-			AbstractJob job = jobDao.findById(jobId);
-
-			if (job == null) {
-				job = WorkflowEngine.getInstance().getJobById(jobId);
-			}
-
-			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation("Access denied.");
-			}
-
-			MediaType mediaType = MediaType.ALL;
-			if (filename.endsWith(".zip")) {
-				mediaType = MediaType.APPLICATION_ZIP;
-			} else if (filename.endsWith(".txt") || id.endsWith(".csv")) {
-				mediaType = MediaType.TEXT_PLAIN;
-			} else if (filename.endsWith(".pdf")) {
-				mediaType = MediaType.APPLICATION_PDF;
-			} else if (filename.endsWith(".html")) {
-				mediaType = MediaType.TEXT_HTML;
-			}
-
-			Settings settings = Settings.getInstance();
-			String workspace = settings.getLocalWorkspace(job.getUser()
-					.getUsername());
-
-			DownloadDao dao = new DownloadDao();
-			Download download = dao.findByJobAndPath(jobId,
-					FileUtil.path(id, filename));
-
-			if (download == null) {
-				for (CloudgeneParameter param : job.getOutputParams()) {
-					if (param.isAutoExport()) {
-						if (param.getFiles() != null) {
-							for (Download download2 : param.getFiles()) {
-								if (download2.getPath().equals(
-										jobId + "/"
-												+ FileUtil.path(id, filename))) {
-									download = download2;
-								}
-							}
-						}
-					}
-				}
-			}
-
-			if (download != null) {
-
-				String resultFile = FileUtil.path(workspace, "output",
-						download.getPath());
-
-				if (download.getCount() > 0) {
-
-					log.debug("Downloading file " + resultFile);
-
-					download.decCount();
-					dao.update(download);
-
-					return new FileRepresentation(resultFile, mediaType);
-
-				} else {
-
-					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return new StringRepresentation(
-							"number of max downloads exceeded.");
-
-				}
-
-			} else {
-
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-				return new StringRepresentation("download not found.");
-			}
-
-		} else {
+		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
 
+		}
+
+		String jobId = (String) getRequest().getAttributes().get("job");
+		String id = (String) getRequest().getAttributes().get("id");
+
+		String filename = null;
+
+		if (getRequest().getAttributes().containsKey("filename")) {
+
+			filename = (String) getRequest().getAttributes().get("filename");
+
+		}
+
+		if (getRequest().getAttributes().containsKey("filename2")) {
+
+			jobId = (String) getRequest().getAttributes().get("job") + "/"
+					+ (String) getRequest().getAttributes().get("id");
+			id = (String) getRequest().getAttributes().get("filename");
+
+			filename = (String) getRequest().getAttributes().get("filename2");
+
+		}
+
+		AbstractJob job = jobDao.findById(jobId);
+
+		if (job == null) {
+			job = WorkflowEngine.getInstance().getJobById(jobId);
+		}
+
+		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("Access denied.");
+		}
+
+		MediaType mediaType = MediaType.ALL;
+		if (filename.endsWith(".zip")) {
+			mediaType = MediaType.APPLICATION_ZIP;
+		} else if (filename.endsWith(".txt") || id.endsWith(".csv")) {
+			mediaType = MediaType.TEXT_PLAIN;
+		} else if (filename.endsWith(".pdf")) {
+			mediaType = MediaType.APPLICATION_PDF;
+		} else if (filename.endsWith(".html")) {
+			mediaType = MediaType.TEXT_HTML;
+		}
+
+		Settings settings = Settings.getInstance();
+		String workspace = settings.getLocalWorkspace(job.getUser()
+				.getUsername());
+
+		DownloadDao dao = new DownloadDao();
+		Download download = dao.findByJobAndPath(jobId,
+				FileUtil.path(id, filename));
+
+		if (download == null) {
+			for (CloudgeneParameter param : job.getOutputParams()) {
+				if (param.isAutoExport()) {
+					if (param.getFiles() != null) {
+						for (Download download2 : param.getFiles()) {
+							if (download2.getPath().equals(
+									jobId + "/" + FileUtil.path(id, filename))) {
+								download = download2;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (download != null) {
+
+			String resultFile = FileUtil.path(workspace, "output",
+					download.getPath());
+
+			if (download.getCount() > 0) {
+
+				log.debug("Downloading file " + resultFile);
+
+				download.decCount();
+				dao.update(download);
+
+				return new FileRepresentation(resultFile, mediaType);
+
+			} else {
+
+				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return new StringRepresentation(
+						"number of max downloads exceeded.");
+
+			}
+
+		} else {
+
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("download not found.");
 		}
 
 	}

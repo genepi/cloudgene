@@ -23,56 +23,51 @@ public class GetJobDetails extends ServerResource {
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
-		Form form = new Form(entity);
-
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			String jobId = form.getFirstValue("id");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
-			if (jobId != null) {
+		}
 
-				AbstractJob job = WorkflowEngine.getInstance()
-						.getJobById(jobId);
+		Form form = new Form(entity);
+		String jobId = form.getFirstValue("id");
 
-				if (job == null) {
+		if (jobId != null) {
 
-					JobDao dao = new JobDao();
-					job = dao.findById(jobId, true);
+			AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
 
+			if (job == null) {
+
+				JobDao dao = new JobDao();
+				job = dao.findById(jobId, true);
+
+			}
+
+			if (job != null) {
+
+				if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+					return new StringRepresentation("Access denied.");
 				}
 
-				if (job != null) {
+				int position = WorkflowEngine.getInstance().getPositionInQueue(
+						job);
+				job.setPositionInQueue(position);
 
-					if (!user.isAdmin()
-							&& job.getUser().getId() != user.getId()) {
-						setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-						return new StringRepresentation("Access denied.");
-					}
+				JsonConfig config = new JsonConfig();
+				config.setExcludes(new String[] { "user", "task",
+						"mapReduceJob", "job", "step", "context", "config",
+						"parameter" });
 
-					int position = WorkflowEngine.getInstance()
-							.getPositionInQueue(job);
-					job.setPositionInQueue(position);
+				JSONObject object = JSONObject.fromObject(job, config);
 
-					JsonConfig config = new JsonConfig();
-					config.setExcludes(new String[] { "user", "task",
-							"mapReduceJob", "job", "step", "context", "config",
-							"parameter" });
-
-					JSONObject object = JSONObject.fromObject(job, config);
-
-					return new StringRepresentation(object.toString(),
-							MediaType.APPLICATION_JSON);
-
-				} else {
-
-					setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-					return new StringRepresentation("Job " + jobId
-							+ " not found.");
-
-				}
+				return new StringRepresentation(object.toString(),
+						MediaType.APPLICATION_JSON);
 
 			} else {
 
@@ -83,11 +78,11 @@ public class GetJobDetails extends ServerResource {
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Job " + jobId + " not found.");
 
 		}
+
 	}
 
 }

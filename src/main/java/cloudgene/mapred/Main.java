@@ -28,7 +28,7 @@ import cloudgene.mapred.util.Settings;
 public class Main {
 
 	public static String VERSION = "1.0.7";
-	
+
 	private static final Log log = LogFactory.getLog(Main.class);
 
 	public static void main(String[] args) throws IOException {
@@ -98,8 +98,7 @@ public class Main {
 			System.exit(1);
 
 		}
-		
-		
+
 		// change??
 		if (connector.isNewDatabase()) {
 			File versionFile = new File("version.txt");
@@ -120,9 +119,9 @@ public class Main {
 			log.info("Database is uptodate");
 		}
 
-		//CacheDao dao3 = new CacheDao();
-		//dao3.clear();
-		
+		// CacheDao dao3 = new CacheDao();
+		// dao3.clear();
+
 		if (line.hasOption("add-user")) {
 
 			String username = line.getOptionValues("add-user")[0];
@@ -192,9 +191,12 @@ public class Main {
 			FileUtil.createDirectory(settings.getTempPath());
 
 			new Thread(WorkflowEngine.getInstance()).start();
-			
-			CronJobScheduler scheduler = new CronJobScheduler();
-			scheduler.start();
+
+			if (settings.isAutoRetire()) {
+				log.info("Start CronJobScheduler...");
+				CronJobScheduler scheduler = new CronJobScheduler();
+				scheduler.start();
+			}
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 

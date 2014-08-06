@@ -31,49 +31,48 @@ public class GetJobStatus extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			String jobId = form.getFirstValue("job_id");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
-			AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
+		}
 
-			if (job == null) {
+		String jobId = form.getFirstValue("job_id");
 
-				JobDao dao = new JobDao();
-				job = dao.findById(jobId, false);
+		AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
 
-			} else {
+		if (job == null) {
 
-				if (job instanceof CloudgeneJob) {
-
-					((CloudgeneJob) job).updateProgress();
-
-				}
-
-			}
-
-			if ( job == null){
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND );
-				return new StringRepresentation("Job " + jobId + " not found.");
-			}
-			
-			List<AbstractJob> jobs = new Vector<AbstractJob>();
-			jobs.add(job);
-
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "user", "outputParams",
-					"inputParams", "output", "endTime", "startTime", "error",
-					"s3Url", "task", "config","mapReduceJob","job","step" });
-			JSONArray jsonArray = JSONArray.fromObject(jobs, config);
-
-			return new StringRepresentation(jsonArray.toString());
+			JobDao dao = new JobDao();
+			job = dao.findById(jobId, false);
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			if (job instanceof CloudgeneJob) {
+
+				((CloudgeneJob) job).updateProgress();
+
+			}
 
 		}
+
+		if (job == null) {
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Job " + jobId + " not found.");
+		}
+
+		List<AbstractJob> jobs = new Vector<AbstractJob>();
+		jobs.add(job);
+
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "user", "outputParams",
+				"inputParams", "output", "endTime", "startTime", "error",
+				"s3Url", "task", "config", "mapReduceJob", "job", "step" });
+		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
+
+		return new StringRepresentation(jsonArray.toString());
 
 	}
 

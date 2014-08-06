@@ -19,7 +19,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Timer;
 
 public class GetJobs extends ServerResource {
 
@@ -30,169 +29,156 @@ public class GetJobs extends ServerResource {
 	@Get
 	public Representation getJobs() {
 
+		Settings settings = Settings.getInstance();
+
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
-
-			JobDao dao = new JobDao();
-
-			String state = "";
-			if (getQuery().getFirst("state") != null) {
-				state = getQuery().getFirst("state").getValue();
-			}
-
-			int limit = 10;
-
-			if (getRequestAttributes().get("limit") != null) {
-				limit = Integer.parseInt((String) getRequestAttributes().get(
-						"limit"));
-			}
-
-			List<AbstractJob> jobs = new Vector<AbstractJob>();
-
-			JsonConfig config = new JsonConfig();
-
-			if (state.equals("running-ltq")) {
-
-				if (!user.isAdmin()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation(
-							"The request requires administration rights.");
-				}
-
-				config.setExcludes(new String[] { "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context" });
-				// all jobs in queue
-				jobs = WorkflowEngine.getInstance().getAllJobsInLongTimeQueue();
-				for (AbstractJob job : jobs) {
-
-					if (job instanceof CloudgeneJob) {
-
-						((CloudgeneJob) job).updateProgress();
-
-					}
-				}
-			} else if (state.equals("running-stq")) {
-
-				if (!user.isAdmin()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation(
-							"The request requires administration rights.");
-				}
-
-				config.setExcludes(new String[] { "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context" });
-				// all jobs in queue
-				jobs = WorkflowEngine.getInstance()
-						.getAllJobsInShortTimeQueue();
-				for (AbstractJob job : jobs) {
-
-					if (job instanceof CloudgeneJob) {
-
-						((CloudgeneJob) job).updateProgress();
-
-					}
-
-				}
-
-			} else if (state.equals("current")) {
-
-				if (!user.isAdmin()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation(
-							"The request requires administration rights.");
-				}
-
-				config.setExcludes(new String[] { "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context" });
-				jobs = dao.findAllYoungerThan(Settings.RETIRE_AFTER_SECS);
-
-			} else if (state.equals("oldjobs")) {
-
-				if (!user.isAdmin()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation(
-							"The request requires administration rights.");
-				}
-
-				config.setExcludes(new String[] { "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context" });
-				jobs = dao.findAllOlderThan(Settings.RETIRE_AFTER_SECS);
-
-			} else if (state.equals("retired")) {
-
-				if (!user.isAdmin()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation(
-							"The request requires administration rights.");
-				}
-
-				config.setExcludes(new String[] { "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context" });
-				jobs = dao.findAllByState(AbstractJob.STATE_RETIRED);
-
-			} else {
-
-				config.setExcludes(new String[] { "user", "outputParams",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context" });
-				// jobs in queue
-				jobs = WorkflowEngine.getInstance().getJobsByUser(user);
-				for (AbstractJob job : jobs) {
-
-					if (job instanceof CloudgeneJob) {
-
-						((CloudgeneJob) job).updateProgress();
-
-					}
-
-				}
-
-				if (limit > 0) {
-					limit = limit - jobs.size();
-
-					// finished jobs
-					Timer.start();
-					List<AbstractJob> oldJobs = dao.findAllByUser(user, false,
-							limit);
-					Timer.stop();
-					jobs.addAll(oldJobs);
-
-				} else {
-
-					Timer.start();
-					List<AbstractJob> oldJobs = dao.findAllByUser(user, false,
-							0);
-					Timer.stop();
-					jobs.addAll(oldJobs);
-
-				}
-
-			}
-
-			JSONArray jsonArray = JSONArray.fromObject(jobs, config);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
+		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
+		}
+
+		JobDao dao = new JobDao();
+
+		String state = "";
+		if (getQuery().getFirst("state") != null) {
+			state = getQuery().getFirst("state").getValue();
+		}
+
+		int limit = 10;
+
+		if (getRequestAttributes().get("limit") != null) {
+			limit = Integer.parseInt((String) getRequestAttributes().get(
+					"limit"));
+		}
+
+		List<AbstractJob> jobs = new Vector<AbstractJob>();
+
+		JsonConfig config = new JsonConfig();
+
+		if (state.equals("running-ltq")) {
+
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires administration rights.");
+			}
+
+			config.setExcludes(new String[] { "outputParams", "inputParams",
+					"output", "endTime", "startTime", "error", "s3Url", "task",
+					"config", "mapReduceJob", "job", "step", "context" });
+			// all jobs in queue
+			jobs = WorkflowEngine.getInstance().getAllJobsInLongTimeQueue();
+			for (AbstractJob job : jobs) {
+
+				if (job instanceof CloudgeneJob) {
+
+					((CloudgeneJob) job).updateProgress();
+
+				}
+			}
+		} else if (state.equals("running-stq")) {
+
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires administration rights.");
+			}
+
+			config.setExcludes(new String[] { "outputParams", "inputParams",
+					"output", "endTime", "startTime", "error", "s3Url", "task",
+					"config", "mapReduceJob", "job", "step", "context" });
+			// all jobs in queue
+			jobs = WorkflowEngine.getInstance().getAllJobsInShortTimeQueue();
+			for (AbstractJob job : jobs) {
+
+				if (job instanceof CloudgeneJob) {
+
+					((CloudgeneJob) job).updateProgress();
+
+				}
+
+			}
+
+		} else if (state.equals("current")) {
+
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires administration rights.");
+			}
+
+			config.setExcludes(new String[] { "outputParams", "inputParams",
+					"output", "endTime", "startTime", "error", "s3Url", "task",
+					"config", "mapReduceJob", "job", "step", "context" });
+			jobs = dao.findAllYoungerThan(settings.getRetireAfterInSec());
+
+		} else if (state.equals("oldjobs")) {
+
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires administration rights.");
+			}
+
+			config.setExcludes(new String[] { "outputParams", "inputParams",
+					"output", "endTime", "startTime", "error", "s3Url", "task",
+					"config", "mapReduceJob", "job", "step", "context" });
+			jobs = dao.findAllOlderThan(settings.getRetireAfterInSec());
+
+		} else if (state.equals("retired")) {
+
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires administration rights.");
+			}
+
+			config.setExcludes(new String[] { "outputParams", "inputParams",
+					"output", "endTime", "startTime", "error", "s3Url", "task",
+					"config", "mapReduceJob", "job", "step", "context" });
+			jobs = dao.findAllByState(AbstractJob.STATE_RETIRED);
+
+		} else {
+
+			config.setExcludes(new String[] { "user", "outputParams",
+					"inputParams", "output", "endTime", "startTime", "error",
+					"s3Url", "task", "config", "mapReduceJob", "job", "step",
+					"context" });
+			// jobs in queue
+			jobs = WorkflowEngine.getInstance().getJobsByUser(user);
+			for (AbstractJob job : jobs) {
+
+				if (job instanceof CloudgeneJob) {
+
+					((CloudgeneJob) job).updateProgress();
+
+				}
+
+			}
+
+			if (limit > 0) {
+				limit = limit - jobs.size();
+
+				// finished jobs
+				List<AbstractJob> oldJobs = dao.findAllByUser(user, false,
+						limit);
+				jobs.addAll(oldJobs);
+
+			} else {
+
+				List<AbstractJob> oldJobs = dao.findAllByUser(user, false, 0);
+				jobs.addAll(oldJobs);
+
+			}
 
 		}
+
+		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
+
+		return new StringRepresentation(jsonArray.toString());
 
 	}
 
