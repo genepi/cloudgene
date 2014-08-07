@@ -155,7 +155,7 @@ public class WebApp extends Application {
 		router.attach("/installApp", InstallApp.class);
 		router.attach("/getAppsFromRepo", GetAppsFromRepository.class);
 
-		router.attach("/console/log",
+		router.attach("/console/logs/{logfile}",
 				cloudgene.mapred.resources.console.GetLogs.class);
 
 		setStatusService(new CustomStatusService());
