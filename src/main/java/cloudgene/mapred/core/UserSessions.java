@@ -65,14 +65,14 @@ public class UserSessions {
 		MessageDigest m = null;
 		try {
 			m = MessageDigest.getInstance("MD5");
+			m.update(s.getBytes(), 0, s.length());
+			String cookieValue = new BigInteger(1, m.digest()).toString(16);
+			return cookieValue;
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
-		m.update(s.getBytes(), 0, s.length());
-		String cookieValue = new BigInteger(1, m.digest()).toString(16);
-		return cookieValue;
+		return null;
 	}
 
 }

@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.users;
 
+import net.sf.json.JSONObject;
+
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -24,25 +26,34 @@ public class DeleteUser extends ServerResource {
 		if (user != null) {
 
 			String id = form.getFirstValue("id");
+
 			if (id != null) {
 
-				// delete job from database
+				if (!user.isAdmin()) {
+					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+					return new StringRepresentation("Access denied.");
+				}
+
+				// delete user from database
 				UserDao dao = new UserDao();
 				User user1 = dao.findById(Integer.parseInt(id));
 				dao.delete(user1);
 
-				return new StringRepresentation("OK");
+				JSONObject object = JSONObject.fromObject(user1);
+				return new StringRepresentation(object.toString());
 
 			} else {
-				
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND );
+
+				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 				return new StringRepresentation("Job " + id + " not found.");
-				
+
 			}
+
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
 	}

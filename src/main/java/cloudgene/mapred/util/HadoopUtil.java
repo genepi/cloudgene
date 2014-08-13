@@ -1,16 +1,27 @@
 package cloudgene.mapred.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapred.TaskCompletionEvent;
+import org.apache.hadoop.mapred.TaskLog;
 import org.apache.hadoop.mapred.TaskReport;
+import org.apache.hadoop.mapreduce.TaskCompletionEvent.Status;
 import org.apache.hadoop.util.VersionInfo;
 
 import cloudgene.mapred.core.User;
@@ -155,6 +166,104 @@ public class HadoopUtil {
 	public String getVersion() {
 
 		return VersionInfo.getVersion();
+
+	}
+
+	public void downloadFailedLogs(RunningJob runningJob, String folder) {
+
+		log.info("Downloading events...");
+
+		List<TaskCompletionEvent> completionEvents = new LinkedList<TaskCompletionEvent>();
+		try {
+			while (true) {
+				TaskCompletionEvent[] bunchOfEvents;
+				bunchOfEvents = runningJob.getTaskCompletionEvents(0);
+				if (bunchOfEvents == null || bunchOfEvents.length == 0) {
+					break;
+				}
+				completionEvents.addAll(Arrays.asList(bunchOfEvents));
+
+			}
+
+		} catch (Exception e) {
+			log.error("Downloading events failed.", e);
+			return;
+		}
+
+		log.info("Downloaded " + completionEvents.size() + " events.");
+
+		log.info("Downloading " + completionEvents.size() + " log files...");
+		for (TaskCompletionEvent taskCompletionEvent : completionEvents) {
+
+			if (taskCompletionEvent.getStatus() == Status.FAILED) {
+
+				StringBuilder logURL = new StringBuilder(
+						taskCompletionEvent.getTaskTrackerHttp());
+				logURL.append("/tasklog?attemptid=");
+				logURL.append(taskCompletionEvent.getTaskAttemptId().toString());
+				logURL.append("&plaintext=true");
+				logURL.append("&filter=" + TaskLog.LogName.STDOUT);
+
+				log.info("Downloading " + logURL + "...");
+
+				try {
+					URL url = new URL(logURL.toString());
+					HttpURLConnection conn = (HttpURLConnection) url
+							.openConnection();
+					BufferedInputStream in = new BufferedInputStream(
+							conn.getInputStream());
+
+					String local = folder + "/"
+							+ taskCompletionEvent.getTaskAttemptId().toString()
+							+ "_stdout.txt";
+
+					BufferedOutputStream out = new BufferedOutputStream(
+							new FileOutputStream(local));
+					IOUtils.copy(in, out);
+
+					IOUtils.closeQuietly(in);
+					IOUtils.closeQuietly(out);
+				} catch (Exception e) {
+					log.error("Downloading log files failed.", e);
+					return;
+				}
+
+				logURL = new StringBuilder(
+						taskCompletionEvent.getTaskTrackerHttp());
+				logURL.append("/tasklog?attemptid=");
+				logURL.append(taskCompletionEvent.getTaskAttemptId().toString());
+				logURL.append("&plaintext=true");
+				logURL.append("&filter=" + TaskLog.LogName.STDERR);
+
+				log.info("Downloading " + logURL + "...");
+
+				try {
+					URL url = new URL(logURL.toString());
+					HttpURLConnection conn = (HttpURLConnection) url
+							.openConnection();
+					BufferedInputStream in = new BufferedInputStream(
+							conn.getInputStream());
+
+					String local = folder + "/"
+							+ taskCompletionEvent.getTaskAttemptId().toString()
+							+ "_stderr.txt";
+
+					BufferedOutputStream out = new BufferedOutputStream(
+							new FileOutputStream(local));
+					IOUtils.copy(in, out);
+
+					IOUtils.closeQuietly(in);
+					IOUtils.closeQuietly(out);
+				} catch (Exception e) {
+					log.error("Downloading log files failed.", e);
+					return;
+				}
+
+			}
+
+		}
+
+		log.info("Downloading log files successful.");
 
 	}
 

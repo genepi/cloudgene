@@ -160,7 +160,6 @@ public class WebApp extends Application {
 
 		setStatusService(new CustomStatusService());
 
-		// clap protocol for usage in jar files
 		Directory dir = new Directory(getContext(), webRoot);
 		dir.setListingAllowed(false);
 

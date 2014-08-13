@@ -105,6 +105,7 @@ public abstract class Hadoop extends CloudgeneStep {
 
 		process.waitFor();
 		context.println("Exit Code: " + process.exitValue());
+
 		if (process.exitValue() != 0) {
 			return false;
 		} else {

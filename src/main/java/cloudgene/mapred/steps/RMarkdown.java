@@ -9,9 +9,9 @@ import java.io.IOException;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.rscript.MyRScript;
-import cloudgene.mapred.util.rscript.RScript;
+import cloudgene.mapred.util.MyRScript;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.command.Command;
 
 public class RMarkdown extends CloudgeneStep {
 
@@ -69,8 +69,8 @@ public class RMarkdown extends CloudgeneStep {
 				+ outputHtml + "\")");
 		script.save();
 
-		RScript rScript = new RScript();
-		rScript.setSilent(false);
+		Command rScript = new Command("/usr/bin/Rscript");
+		rScript.setSilent(true);
 
 		String[] argsForScript = new String[args.length + 1];
 		argsForScript[0] = "convert.R";
@@ -103,6 +103,8 @@ public class RMarkdown extends CloudgeneStep {
 		new File(outputHtml + ".md").delete();
 		new File("convert.R").delete();
 		RMarkdown.deleteFolder(new File(folder));
+
+		context.println(rScript.getStdOut());
 
 		return result;
 

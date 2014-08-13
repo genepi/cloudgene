@@ -1,4 +1,4 @@
-package cloudgene.mapred.util.rscript;
+package cloudgene.mapred.util;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

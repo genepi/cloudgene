@@ -147,7 +147,7 @@
 		<dependency>
 			<groupId>genepi-hadoop</groupId>
 			<artifactId>genepi-hadoop</artifactId>
-			<version>0.7.1</version>
+			<version>0.7.3</version>
 		</dependency>
 		<dependency>
 			<groupId>com.esotericsoftware.yamlbeans</groupId>

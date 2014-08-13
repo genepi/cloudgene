@@ -423,7 +423,6 @@ abstract public class AbstractJob implements Runnable {
 
 		} catch (IOException e) {
 
-			e.printStackTrace();
 		}
 
 	}
@@ -431,10 +430,12 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutput(String line) {
 
 		try {
+			
 			stdOutStream.write(line.getBytes());
 			stdOutStream.flush();
+			
 		} catch (IOException e) {
-			e.printStackTrace();
+			
 		}
 
 	}
@@ -442,12 +443,13 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutputln(String line) {
 
 		try {
+			
 			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
 			stdOutStream.write("\n".getBytes());
 			stdOutStream.flush();
+			
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 	}
@@ -455,12 +457,13 @@ abstract public class AbstractJob implements Runnable {
 	public void writeLog(String line) {
 
 		try {
+			
 			logStream.write((formatter.format(new Date()) + " ").getBytes());
 			logStream.write(line.getBytes());
 			logStream.write("\n".getBytes());
 			logStream.flush();
+			
 		} catch (IOException e) {
-			e.printStackTrace();
 		}
 
 	}
