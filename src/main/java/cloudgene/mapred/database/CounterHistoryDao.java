@@ -50,7 +50,7 @@ public class CounterHistoryDao extends Dao {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select time_stamp, name, value ");
 		sql.append("from counters_history ");
-		sql.append("order by time_stamp, name");
+		sql.append("order by time_stamp, name limit 720");
 
 		List<Map<String, String>> result = new Vector<Map<String, String>>();
 

@@ -64,6 +64,8 @@ public class Settings {
 
 	private static final Log log = LogFactory.getLog(Settings.class);
 
+	private boolean writeStatistics = true;
+
 	private Settings() {
 
 	}
@@ -101,6 +103,7 @@ public class Settings {
 		log.info("Auto retire: " + instance.isAutoRetire());
 		log.info("Retire jobs after " + instance.retireAfter + " days.");
 		log.info("Notify user after " + instance.notificationAfter + " days.");
+		log.info("Write statistics: " + instance.writeStatistics);
 
 	}
 
@@ -349,5 +352,13 @@ public class Settings {
 
 	public boolean isAutoRetire() {
 		return autoRetire;
+	}
+
+	public void setWriteStatistics(boolean writeStatistics) {
+		this.writeStatistics = writeStatistics;
+	}
+
+	public boolean isWriteStatistics() {
+		return writeStatistics;
 	}
 }

@@ -13,7 +13,8 @@ import org.quartz.Trigger;
 
 public class CronJobScheduler {
 
-	public void start(boolean autoRetire) throws SchedulerException {
+	public void start(boolean autoRetire, boolean writeStatistics)
+			throws SchedulerException {
 
 		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 
@@ -35,12 +36,17 @@ public class CronJobScheduler {
 
 		}
 
-		// Statistics (every 5 minutes)
-		JobDetail statisticsJob = newJob(StatisticsJob.class).withIdentity(
-				"stats", "jobs").build();
-		Trigger trigger = newTrigger().withIdentity("stats-trigger", "jobs")
-				.startNow().withSchedule(cronSchedule("0 0/5 * * * ?")).build();
-		sched.scheduleJob(statisticsJob, trigger);
+		if (writeStatistics) {
+
+			// Statistics (every 5 minutes)
+			JobDetail statisticsJob = newJob(StatisticsJob.class).withIdentity(
+					"stats", "jobs").build();
+			Trigger trigger = newTrigger()
+					.withIdentity("stats-trigger", "jobs").startNow()
+					.withSchedule(cronSchedule("0 0/5 * * * ?")).build();
+			sched.scheduleJob(statisticsJob, trigger);
+
+		}
 
 	}
 

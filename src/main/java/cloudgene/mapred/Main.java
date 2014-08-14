@@ -194,7 +194,8 @@ public class Main {
 
 			log.info("Start CronJobScheduler...");
 			CronJobScheduler scheduler = new CronJobScheduler();
-			scheduler.start(settings.isAutoRetire());
+			scheduler.start(settings.isAutoRetire(),
+					settings.isWriteStatistics());
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 
