@@ -24,7 +24,7 @@ public class ParameterDao extends Dao {
 		try {
 
 			Object[] params = new Object[8];
-			params[0] = parameter.getDescription();
+			params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
 			params[1] = parameter.getValue();
 			params[2] = parameter.isInput();
 			params[3] = parameter.getJob().getId();

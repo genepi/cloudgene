@@ -16,6 +16,7 @@ import cloudgene.mapred.resources.apps.GetAppParams;
 import cloudgene.mapred.resources.apps.GetApps;
 import cloudgene.mapred.resources.apps.GetAppsFromRepository;
 import cloudgene.mapred.resources.apps.InstallApp;
+import cloudgene.mapred.resources.console.GetStatistics;
 import cloudgene.mapred.resources.data.FileUploadRessource;
 import cloudgene.mapred.resources.data.GetBucketsPrivate;
 import cloudgene.mapred.resources.data.GetBucketsPublic;
@@ -63,6 +64,8 @@ import cloudgene.mapred.util.LoginFilter;
 public class WebApp extends Application {
 
 	private LocalReference webRoot;
+
+	public static String VERSION = "1.9.0";
 
 	public WebApp(LocalReference webRoot) {
 		this.webRoot = webRoot;
@@ -157,6 +160,8 @@ public class WebApp extends Application {
 
 		router.attach("/console/logs/{logfile}",
 				cloudgene.mapred.resources.console.GetLogs.class);
+
+		router.attach("/statistics", GetStatistics.class);
 
 		setStatusService(new CustomStatusService());
 

@@ -192,11 +192,9 @@ public class Main {
 
 			new Thread(WorkflowEngine.getInstance()).start();
 
-			if (settings.isAutoRetire()) {
-				log.info("Start CronJobScheduler...");
-				CronJobScheduler scheduler = new CronJobScheduler();
-				scheduler.start();
-			}
+			log.info("Start CronJobScheduler...");
+			CronJobScheduler scheduler = new CronJobScheduler();
+			scheduler.start(settings.isAutoRetire());
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 

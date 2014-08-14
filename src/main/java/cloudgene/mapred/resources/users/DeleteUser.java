@@ -31,7 +31,8 @@ public class DeleteUser extends ServerResource {
 
 				if (!user.isAdmin()) {
 					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation("Access denied.");
+					return new StringRepresentation(
+							"The request requires administration rights.");
 				}
 
 				// delete user from database

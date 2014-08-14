@@ -25,6 +25,12 @@ public class GetUsers extends ServerResource {
 
 		if (user != null) {
 
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires administration rights.");
+			}
+
 			UserDao dao = new UserDao();
 			List<User> users = dao.findAll();
 
@@ -37,8 +43,9 @@ public class GetUsers extends ServerResource {
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
 	}
