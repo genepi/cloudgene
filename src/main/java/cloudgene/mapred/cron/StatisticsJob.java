@@ -62,6 +62,8 @@ public class StatisticsJob implements Job {
 						: countersWaiting.get("chromosomes")));
 		daoHistory.insert(timestamp, "completeChromosomes", (counters
 				.get("chromosomes") == null ? 0 : counters.get("chromosomes")));
+		daoHistory.insert(timestamp, "completeJobs",
+				(counters.get("runs") == null ? 0 : counters.get("runs")));
 
 	}
 }
