@@ -9,7 +9,8 @@ import org.restlet.routing.VirtualHost;
 
 public class WebServer extends Component {
 
-	public WebServer(LocalReference webRoot, int port) throws Exception {
+	public WebServer(LocalReference webRoot, LocalReference webRoot2, int port)
+			throws Exception {
 
 		// ------------------
 		// Add the connectors
@@ -35,7 +36,7 @@ public class WebServer extends Component {
 		getClients().add(Protocol.CLAP);
 
 		VirtualHost host = new VirtualHost(getContext());
-		host.attach(new WebApp(webRoot));
+		host.attach(new WebApp(webRoot, webRoot2));
 		getHosts().add(host);
 
 	}

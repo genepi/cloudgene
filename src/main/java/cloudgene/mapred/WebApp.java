@@ -10,6 +10,8 @@ import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
 import cloudgene.mapred.representations.CustomStatusService;
+import cloudgene.mapred.resources.Index;
+import cloudgene.mapred.resources.Start;
 import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetAppDetails;
 import cloudgene.mapred.resources.apps.GetAppParams;
@@ -65,10 +67,13 @@ public class WebApp extends Application {
 
 	private LocalReference webRoot;
 
+	private LocalReference webRoot2;
+
 	public static String VERSION = "1.9.0";
 
-	public WebApp(LocalReference webRoot) {
+	public WebApp(LocalReference webRoot, LocalReference webRoot2) {
 		this.webRoot = webRoot;
+		this.webRoot2 = webRoot2;
 	}
 
 	/**
@@ -84,6 +89,9 @@ public class WebApp extends Application {
 				Redirector.MODE_SERVER_OUTBOUND);
 		TemplateRoute route = router.attach("/", redirector);
 		route.setMatchingMode(Template.MODE_EQUALS);
+
+		router.attach("/index.html", Index.class);
+		router.attach("/start.html", Start.class);
 
 		router.attach("/jobs", GetJobs.class);
 		router.attach("/jobs/state", GetJobStatus.class);
@@ -165,7 +173,13 @@ public class WebApp extends Application {
 
 		setStatusService(new CustomStatusService());
 
-		Directory dir = new Directory(getContext(), webRoot);
+		Directory dir = new Directory(getContext(), webRoot2);
+		dir.setListingAllowed(false);
+
+		route = router.attach("/static", dir);
+		route.setMatchingMode(Template.MODE_STARTS_WITH);
+
+		dir = new Directory(getContext(), webRoot);
 		dir.setListingAllowed(false);
 
 		route = router.attach("/", dir);

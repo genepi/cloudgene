@@ -138,6 +138,12 @@
 			<version>2.2.0</version>
 		</dependency>		
 		
+				<dependency>
+			<groupId>org.restlet.jee</groupId>
+			<artifactId>org.restlet.ext.freemarker</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		
 		
 		<dependency>
 			<groupId>genepi-io</groupId>

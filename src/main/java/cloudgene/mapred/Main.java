@@ -200,8 +200,9 @@ public class Main {
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 
 			LocalReference webroot = new LocalReference("clap://thread/webapp");
+			LocalReference webroot2 = new LocalReference("clap://thread/webapp");
 
-			new WebServer(webroot, port).start();
+			new WebServer(webroot, webroot2, port).start();
 
 		} catch (Exception e) {
 
