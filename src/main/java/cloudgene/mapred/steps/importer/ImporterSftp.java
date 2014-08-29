@@ -152,8 +152,23 @@ public class ImporterSftp implements IImporter {
 						&& !((entry.getFilename().equals(".") || (entry
 								.getFilename().equals(".."))))) {
 
-					if (extension == null
-							|| entry.getFilename().endsWith(extension)) {
+					boolean needImport = false;
+					if (extension == null) {
+						needImport = true;
+					}
+
+					if (!needImport) {
+						String[] exts = extension.split("|");
+						for (String ext : exts) {
+							if (!needImport) {
+								if (entry.getFilename().endsWith(ext)) {
+									needImport = true;
+								}
+							}
+						}
+					}
+
+					if (needImport) {
 
 						// path in hdfs
 						String[] tiles = entry.getFilename().split("/");
