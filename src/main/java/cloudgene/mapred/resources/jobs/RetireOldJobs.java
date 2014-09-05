@@ -39,8 +39,7 @@ public class RetireOldJobs extends ServerResource {
 					.getRetireAfterInSec());
 
 			for (AbstractJob job : oldJobs) {
-				job.cleanUp();
-
+				job.delete();
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 

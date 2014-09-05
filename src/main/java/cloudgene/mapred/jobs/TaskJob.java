@@ -73,12 +73,12 @@ public class TaskJob extends AbstractJob {
 
 		FileUtil.createDirectory(localOutputDirectory);
 
-		//setCurrentStep("Importing...");
+		// setCurrentStep("Importing...");
 
 		return task.execute();
 
 	}
-	
+
 	@Override
 	public boolean executeSetup() {
 		return true;
@@ -90,15 +90,21 @@ public class TaskJob extends AbstractJob {
 		return true;
 
 	}
-	
+
 	@Override
 	public boolean cleanUp() {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	@Override
 	public boolean onFailure() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean delete() {
 		// TODO Auto-generated method stub
 		return false;
 	}

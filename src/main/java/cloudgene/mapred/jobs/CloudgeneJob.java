@@ -278,44 +278,9 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean onFailure() {
 
-		// delete hdfs folders
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
+		cleanUp();
 
-		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"output", getId()));
-		HdfsUtil.delete(outputDirectory);
-
-		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"temp", getId()));
-		HdfsUtil.delete(tempDirectory);
-
-		String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"input", getId()));
-		HdfsUtil.delete(inputDirectory);
-
-		return true;
-	}
-
-	@Override
-	public boolean cleanUp() {
-
-		// delete hdfs folders
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
-
-		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"output", getId()));
-		HdfsUtil.delete(outputDirectory);
-
-		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"temp", getId()));
-		HdfsUtil.delete(tempDirectory);
-
-		String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"input", getId()));
-		HdfsUtil.delete(inputDirectory);
-
+		writeLog("Cleaning up local files...");
 		// delete local folder
 		String localWorkspace = Settings.getInstance().getLocalWorkspace(
 				getUser().getUsername());
@@ -325,11 +290,11 @@ public class CloudgeneJob extends AbstractJob {
 
 		FileUtil.deleteDirectory(localOutputDirectory);
 
-		return false;
+		return true;
 	}
 
 	@Override
-	public boolean after() {
+	public boolean delete() {
 
 		String workspace = Settings.getInstance().getHdfsWorkspace(
 				getUser().getUsername());
@@ -337,7 +302,62 @@ public class CloudgeneJob extends AbstractJob {
 		String localWorkspace = Settings.getInstance().getLocalWorkspace(
 				getUser().getUsername());
 
-		String localOutput = FileUtil.path(localWorkspace, "output", getId());
+		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
+				"output", getId()));
+		HdfsUtil.delete(outputDirectory);
+
+		String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
+				"input", getId()));
+		HdfsUtil.delete(inputDirectory);
+
+		String localOutputDirectory = FileUtil.path(localWorkspace, "output",
+				getId());
+
+		FileUtil.deleteDirectory(localOutputDirectory);
+
+		return true;
+	}
+
+	@Override
+	public boolean cleanUp() {
+
+		String workspace = Settings.getInstance().getHdfsWorkspace(
+				getUser().getUsername());
+
+		String localWorkspace = Settings.getInstance().getLocalWorkspace(
+				getUser().getUsername());
+
+		// delete hdfs temp folders
+		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
+				"temp", getId()));
+		writeLog("Cleaning up temproary hdfs files...");
+		HdfsUtil.delete(tempDirectory);
+
+		// delete hdfs workspace
+		if (Settings.getInstance().isRemoveHdfsWorkspace()) {
+
+			writeLog("Cleaning up hdfs files...");
+			String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
+					workspace, "output", getId()));
+			HdfsUtil.delete(outputDirectory);
+
+			String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
+					workspace, "input", getId()));
+			HdfsUtil.delete(inputDirectory);
+
+		}
+
+		// delete local temp folders
+		String tempDirectoryLocal = FileUtil.path(localWorkspace, "output",
+				getId(), "temp");
+		writeLog("Cleaning up temproary local files...");
+		FileUtil.deleteDirectory(tempDirectoryLocal);
+
+		return true;
+	}
+
+	@Override
+	public boolean after() {
 
 		if (!getUser().isExportToS3()) {
 			// create output zip file for hdfs folders
@@ -347,6 +367,9 @@ public class CloudgeneJob extends AbstractJob {
 					// export to local folder for faster download
 					exportParameter(out);
 				}
+
+				writeLog("Exporting data successful.");
+
 			}
 		} else {
 
@@ -361,30 +384,8 @@ public class CloudgeneJob extends AbstractJob {
 
 			}
 
-			writeOutputln("Exporting data successful.");
+			writeLog("Exporting data successful.");
 		}
-
-		// Delete temporary directory
-		writeOutputln("Cleaning up temproary files...");
-		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"output", getId(), "temp"));
-
-		HdfsUtil.delete(tempDirectory);
-
-		if (Settings.getInstance().isRemoveHdfsWorkspace()) {
-
-			writeOutputln("Cleaning up hdfs workspace files...");
-			String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
-					workspace, "output", getId()));
-			HdfsUtil.delete(outputDirectory);
-
-			String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
-					workspace, "input", getId()));
-			HdfsUtil.delete(inputDirectory);
-
-		}
-
-		writeOutputln("Clean up successful.");
 
 		return true;
 	}

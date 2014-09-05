@@ -25,9 +25,9 @@ public class MessageDao extends Dao {
 			Object[] params = new Object[4];
 			params[0] = System.currentTimeMillis();
 			params[1] = logMessage.getType();
-			params[2] = logMessage.getMessage();
+			params[2] = logMessage.getMessage().substring(0,
+					Math.min(logMessage.getMessage().length(), 1000));
 			params[3] = logMessage.getStep().getId();
-System.out.println(logMessage.getStep().getId());
 			update(sql.toString(), params);
 
 			connection.commit();

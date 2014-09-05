@@ -54,7 +54,6 @@ public class WorkflowEngine implements Runnable {
 				} else {
 
 					job.setState(AbstractJob.STATE_FAILED);
-					// job.writeLog("Job execution failed: Setup Step failed.");
 					job.onFailure();
 					job.setStartTime(System.currentTimeMillis());
 					job.setEndTime(System.currentTimeMillis());
@@ -112,14 +111,14 @@ public class WorkflowEngine implements Runnable {
 		}
 		return job;
 	}
-	
-	public Map<String, Long> getCounters(int state){
+
+	public Map<String, Long> getCounters(int state) {
 		Map<String, Long> result = new HashMap<String, Long>();
 		List<AbstractJob> jobs = longTimeQueue.getAllJobs();
-		for (AbstractJob job: jobs){
-			if (job.getState() == state){
+		for (AbstractJob job : jobs) {
+			if (job.getState() == state) {
 				Map<String, Integer> counters = job.getContext().getCounters();
-				for (String name: counters.keySet()){
+				for (String name : counters.keySet()) {
 					Integer value = counters.get(name);
 					Long oldvalue = result.get(name);
 					if (oldvalue == null) {

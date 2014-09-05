@@ -63,14 +63,6 @@ public class ShortTimeQueue implements Runnable {
 			job.cancel();
 			job.kill();
 
-			Future<?> future = futures.get(job);
-			future.cancel(true);
-
-			futures.remove(job);
-			queue.remove(job);
-
-			dao.insert(job);
-
 		}
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {

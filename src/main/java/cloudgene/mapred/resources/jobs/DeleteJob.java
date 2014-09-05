@@ -46,7 +46,7 @@ public class DeleteJob extends ServerResource {
 				return new StringRepresentation("Access denied.");
 			}
 
-			job.cleanUp();
+			job.delete();
 			dao.delete(job);
 
 			JsonConfig config = new JsonConfig();

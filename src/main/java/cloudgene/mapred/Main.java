@@ -202,7 +202,7 @@ public class Main {
 			LocalReference webroot = new LocalReference("clap://thread/webapp");
 			LocalReference webroot2 = new LocalReference("clap://thread/webapp");
 
-			new WebServer(webroot, webroot2, port).start();
+			new WebServer(webroot, webroot2, port, false, "", "").start();
 
 		} catch (Exception e) {
 

@@ -328,6 +328,12 @@ abstract public class AbstractJob implements Runnable {
 				log.info("Job " + getId() + ": cleanup successful.");
 				writeLog("Cleanup successful.");
 
+			} else {
+				writeLog("Cleaning up...");
+				cleanUp();
+				log.info("Job " + getId() + ": cleanup successful.");
+				writeLog("Cleanup successful.");
+
 			}
 
 			closeStdOutFiles();
@@ -340,6 +346,12 @@ abstract public class AbstractJob implements Runnable {
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
+
+			writeLog("Cleaning up...");
+			onFailure();
+			log.info("Job " + getId() + ": cleanup successful.");
+			writeLog("Cleanup successful.");
+
 			return;
 
 		}
@@ -352,9 +364,9 @@ abstract public class AbstractJob implements Runnable {
 		writeLog("Canceled by user.");
 		log.info("Job " + getId() + ": canceld by user.");
 
-		if (state == STATE_RUNNING) {
-			closeStdOutFiles();
-		}
+		/*
+		 * if (state == STATE_RUNNING) { closeStdOutFiles(); }
+		 */
 
 		setState(AbstractJob.STATE_CANCELED);
 
@@ -430,12 +442,12 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutput(String line) {
 
 		try {
-			
+
 			stdOutStream.write(line.getBytes());
 			stdOutStream.flush();
-			
+
 		} catch (IOException e) {
-			
+
 		}
 
 	}
@@ -443,12 +455,12 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutputln(String line) {
 
 		try {
-			
+
 			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
 			stdOutStream.write("\n".getBytes());
 			stdOutStream.flush();
-			
+
 		} catch (IOException e) {
 		}
 
@@ -457,12 +469,12 @@ abstract public class AbstractJob implements Runnable {
 	public void writeLog(String line) {
 
 		try {
-			
+
 			logStream.write((formatter.format(new Date()) + " ").getBytes());
 			logStream.write(line.getBytes());
 			logStream.write("\n".getBytes());
 			logStream.flush();
-			
+
 		} catch (IOException e) {
 		}
 
@@ -515,6 +527,8 @@ abstract public class AbstractJob implements Runnable {
 	abstract public boolean onFailure();
 
 	abstract public boolean cleanUp();
+
+	abstract public boolean delete();
 
 	abstract public int getType();
 

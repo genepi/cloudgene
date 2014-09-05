@@ -59,18 +59,10 @@ public class LongTimeQueue implements Runnable {
 		if (job.getState() == AbstractJob.STATE_RUNNING
 				|| job.getState() == AbstractJob.STATE_EXPORTING) {
 
-			log.info("Long Time Queue: Cancel Job ...");
+			log.info("Long Time Queue: Cancel Job " + job.getId() + "...");
 
-			job.cancel();
 			job.kill();
-
-			Future<?> future = futures.get(job);
-			future.cancel(true);
-
-			futures.remove(job);
-			queue.remove(job);
-
-			dao.insert(job);
+			job.cancel();
 
 		}
 

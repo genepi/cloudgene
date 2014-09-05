@@ -66,6 +66,12 @@ public class Settings {
 
 	private boolean writeStatistics = true;
 
+	private boolean https = false;
+
+	private String httpsKeystore = "";
+
+	private String httpsPassword = "";
+
 	private Settings() {
 
 	}
@@ -361,4 +367,29 @@ public class Settings {
 	public boolean isWriteStatistics() {
 		return writeStatistics;
 	}
+
+	public void setHttps(boolean https) {
+		this.https = https;
+	}
+
+	public boolean isHttps() {
+		return https;
+	}
+
+	public void setHttpsKeystore(String httpsKeystore) {
+		this.httpsKeystore = httpsKeystore;
+	}
+
+	public String getHttpsKeystore() {
+		return httpsKeystore;
+	}
+
+	public void setHttpsPassword(String httpsPassword) {
+		this.httpsPassword = httpsPassword;
+	}
+
+	public String getHttpsPassword() {
+		return httpsPassword;
+	}
+
 }
