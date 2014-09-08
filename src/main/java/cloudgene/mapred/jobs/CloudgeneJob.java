@@ -282,13 +282,15 @@ public class CloudgeneJob extends AbstractJob {
 
 		writeLog("Cleaning up local files...");
 		// delete local folder
-		String localWorkspace = Settings.getInstance().getLocalWorkspace(
-				getUser().getUsername());
-
-		String localOutputDirectory = FileUtil.path(localWorkspace, "output",
-				getId());
-
-		FileUtil.deleteDirectory(localOutputDirectory);
+		/*
+		 * String localWorkspace = Settings.getInstance().getLocalWorkspace(
+		 * getUser().getUsername());
+		 * 
+		 * String localOutputDirectory = FileUtil.path(localWorkspace, "output",
+		 * getId());
+		 * 
+		 * FileUtil.deleteDirectory(localOutputDirectory);
+		 */
 
 		return true;
 	}
