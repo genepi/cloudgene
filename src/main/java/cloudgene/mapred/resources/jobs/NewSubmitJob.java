@@ -1,6 +1,7 @@
 package cloudgene.mapred.resources.jobs;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -92,6 +93,9 @@ public class NewSubmitJob extends ServerResource {
 						String target = HdfsUtil.path(targetPath, entryName);
 
 						HdfsUtil.put(tmpFile, target);
+
+						// deletes temporary file
+						FileUtil.deleteFile(tmpFile);
 
 						if (props.containsKey(fieldName)) {
 							// folder

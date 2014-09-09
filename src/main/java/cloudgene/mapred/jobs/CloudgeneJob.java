@@ -469,7 +469,7 @@ public class CloudgeneJob extends AbstractJob {
 						filename));
 			}
 
-			if (out.isZip()) {
+			if (!out.isZip()) {
 
 				HdfsUtil.exportFile(localOutputDirectory, hdfsPath);
 
