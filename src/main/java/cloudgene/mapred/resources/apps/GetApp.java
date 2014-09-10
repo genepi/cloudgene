@@ -28,9 +28,18 @@ public class GetApp extends ServerResource {
 
 		if (user != null) {
 
-			String filename = Settings.getInstance().getApp(user);
+			Settings settings = Settings.getInstance();
 
-			
+			if (settings.isMaintenance() && !user.isAdmin()) {
+
+				setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+				return new StringRepresentation(
+						"This functionality is currently under maintenance.");
+
+			}
+
+			String filename = settings.getApp(user);
+
 			WdlApp app;
 			try {
 				app = WdlReader.loadAppFromFile(filename);
@@ -49,8 +58,9 @@ public class GetApp extends ServerResource {
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
 

@@ -1,10 +1,8 @@
-package cloudgene.mapred.resources.console;
+package cloudgene.mapred.resources.admin;
 
-import java.util.List;
-import java.util.Map;
+import net.sf.json.JSONObject;
 
-import net.sf.json.JSONArray;
-
+import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -13,16 +11,15 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.database.CounterHistoryDao;
+import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.Settings;
 
-public class GetStatistics extends ServerResource {
-
-	/**
-	 * Resource to get job status information
-	 */
+public class GetClusterDetails extends ServerResource {
 
 	@Get
-	public Representation getStatistics() {
+	public Representation get() {
+
+		Settings settings = Settings.getInstance();
 
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
@@ -39,13 +36,12 @@ public class GetStatistics extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		CounterHistoryDao dao = new CounterHistoryDao();
+		JSONObject object = new JSONObject();
+		object.put("maintenance", settings.isMaintenance());
+		object.put("blocked", !WorkflowEngine.getInstance().isRunning());
 
-		List<Map<String, String>> stats = dao.getAll();
-		JSONArray jsonArray = JSONArray.fromObject(stats);
-
-		return new StringRepresentation(jsonArray.toString());
+		return new StringRepresentation(object.toString(),
+				MediaType.APPLICATION_JSON);
 
 	}
-
 }

@@ -10,15 +10,23 @@ import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
 import cloudgene.mapred.representations.CustomStatusService;
+import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
+import cloudgene.mapred.resources.admin.BlockQueue;
+import cloudgene.mapred.resources.admin.EnterMaintenance;
+import cloudgene.mapred.resources.admin.ExitMaintenance;
+import cloudgene.mapred.resources.admin.GetClusterDetails;
+import cloudgene.mapred.resources.admin.GetHtmlSnippets;
+import cloudgene.mapred.resources.admin.GetStatistics;
+import cloudgene.mapred.resources.admin.OpenQueue;
+import cloudgene.mapred.resources.admin.UpdateHtmlSnippet;
 import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetAppDetails;
 import cloudgene.mapred.resources.apps.GetAppParams;
 import cloudgene.mapred.resources.apps.GetApps;
 import cloudgene.mapred.resources.apps.GetAppsFromRepository;
 import cloudgene.mapred.resources.apps.InstallApp;
-import cloudgene.mapred.resources.console.GetStatistics;
 import cloudgene.mapred.resources.data.FileUploadRessource;
 import cloudgene.mapred.resources.data.GetBucketsPrivate;
 import cloudgene.mapred.resources.data.GetBucketsPublic;
@@ -37,7 +45,6 @@ import cloudgene.mapred.resources.data.ValidateImport;
 import cloudgene.mapred.resources.jobs.CancelJob;
 import cloudgene.mapred.resources.jobs.DeleteJob;
 import cloudgene.mapred.resources.jobs.DownloadResults;
-import cloudgene.mapred.resources.jobs.GetClusterDetails;
 import cloudgene.mapred.resources.jobs.GetJobDetails;
 import cloudgene.mapred.resources.jobs.GetJobStatus;
 import cloudgene.mapred.resources.jobs.GetJobs;
@@ -69,7 +76,7 @@ public class WebApp extends Application {
 
 	private LocalReference webRoot2;
 
-	public static String VERSION = "1.9.0";
+	public static String VERSION = "1.9.1";
 
 	public WebApp(LocalReference webRoot, LocalReference webRoot2) {
 		this.webRoot = webRoot;
@@ -92,6 +99,7 @@ public class WebApp extends Application {
 
 		router.attach("/index.html", Index.class);
 		router.attach("/start.html", Start.class);
+		router.attach("/admin.html", Admin.class);
 
 		router.attach("/jobs", GetJobs.class);
 		router.attach("/jobs/state", GetJobStatus.class);
@@ -159,6 +167,14 @@ public class WebApp extends Application {
 		router.attach("/login", LoginUser.class);
 		router.attach("/logout", LogoutUser.class);
 
+		// Admin
+		router.attach("/admin/queue/open", OpenQueue.class);
+		router.attach("/admin/queue/block", BlockQueue.class);
+		router.attach("/admin/maintenance/enter", EnterMaintenance.class);
+		router.attach("/admin/maintenance/exit", ExitMaintenance.class);
+		router.attach("/admin/htmlsnippets", GetHtmlSnippets.class);
+		router.attach("/admin/htmlsnippets/update", UpdateHtmlSnippet.class);
+
 		router.attach("/updateUserSettings", UpdateUserSettings.class);
 		router.attach("/updateCredentials", UpdateCredentials.class);
 		router.attach("/updateUserPassword", UpdateUserPassword.class);
@@ -167,7 +183,7 @@ public class WebApp extends Application {
 		router.attach("/getAppsFromRepo", GetAppsFromRepository.class);
 
 		router.attach("/console/logs/{logfile}",
-				cloudgene.mapred.resources.console.GetLogs.class);
+				cloudgene.mapred.resources.admin.GetLogs.class);
 
 		router.attach("/statistics", GetStatistics.class);
 

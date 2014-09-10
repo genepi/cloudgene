@@ -3,11 +3,7 @@ package cloudgene.mapred.jobs.queue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,8 +14,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 
 public class ShortTimeQueue implements Runnable {
 
-	private BlockingQueue<Runnable> queueThreadPool;
-
 	private List<AbstractJob> queue;
 
 	private HashMap<AbstractJob, Future<?>> futures;
@@ -28,26 +22,21 @@ public class ShortTimeQueue implements Runnable {
 
 	private int THREADS = 5;
 
-	private ThreadPoolExecutor threadPool;
+	private Scheduler scheduler;
 
 	private static final Log log = LogFactory.getLog(ShortTimeQueue.class);
 
 	public ShortTimeQueue() {
 		futures = new HashMap<AbstractJob, Future<?>>();
 		queue = new Vector<AbstractJob>();
-
-		queueThreadPool = new ArrayBlockingQueue<Runnable>(100);
-
-		threadPool = new ThreadPoolExecutor(THREADS, THREADS, 10,
-				TimeUnit.SECONDS, queueThreadPool);
-
+		scheduler = new Scheduler(THREADS);
 		dao = new JobDao();
 
 	}
 
 	public void submit(AbstractJob job) {
 
-		Future<?> future = threadPool.submit(new SetupThread(job));
+		Future<?> future = scheduler.submit(new SetupThread(job));
 		futures.put(job, future);
 		queue.add(job);
 		log.info("Short Time Queue: Submit job...");
@@ -103,6 +92,24 @@ public class ShortTimeQueue implements Runnable {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void pause() {
+		log.info("Short Time Queue: Pause...");
+		scheduler.pause();
+	}
+
+	public void resume() {
+		log.info("Short Time Queue: Resume...");
+		scheduler.resume();
+	}
+
+	public boolean isRunning() {
+		return scheduler.isRunning();
+	}
+
+	public int getActiveCount() {
+		return scheduler.getActiveCount();
 	}
 
 	public List<AbstractJob> getJobsByUser(User user) {

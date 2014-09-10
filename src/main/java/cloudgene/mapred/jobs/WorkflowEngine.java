@@ -23,7 +23,10 @@ public class WorkflowEngine implements Runnable {
 
 	private JobDao dao;
 
+	private boolean running = false;
+
 	private List<AbstractJob> longTimeJobs = new Vector<AbstractJob>();
+
 	private List<AbstractJob> shortTimeJobs = new Vector<AbstractJob>();
 
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
@@ -97,11 +100,29 @@ public class WorkflowEngine implements Runnable {
 
 		new Thread(longTimeQueue).start();
 		new Thread(shortTimeQueue).start();
+		running = true;
 
 	}
 
-	public List<AbstractJob> getAllJobsInLongTimeQueue() {
-		return longTimeQueue.getAllJobs();
+	public void block() {
+		shortTimeQueue.pause();
+		longTimeQueue.pause();
+		running = false;
+	}
+
+	public void resume() {
+		shortTimeQueue.resume();
+		longTimeQueue.resume();
+		running = true;
+	}
+
+	public boolean isRunning() {
+		return running && shortTimeQueue.isRunning()
+				&& longTimeQueue.isRunning();
+	}
+
+	public int getActiveCount() {
+		return shortTimeQueue.getActiveCount() + longTimeQueue.getActiveCount();
 	}
 
 	public AbstractJob getJobById(String id) {
@@ -140,6 +161,10 @@ public class WorkflowEngine implements Runnable {
 
 	public List<AbstractJob> getAllJobsInShortTimeQueue() {
 		return shortTimeQueue.getAllJobs();
+	}
+
+	public List<AbstractJob> getAllJobsInLongTimeQueue() {
+		return longTimeQueue.getAllJobs();
 	}
 
 	public int getPositionInQueue(AbstractJob job) {

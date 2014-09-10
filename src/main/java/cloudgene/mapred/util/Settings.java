@@ -6,12 +6,15 @@ import genepi.io.FileUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.HtmlSnippetDao;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
@@ -71,6 +74,10 @@ public class Settings {
 	private String httpsKeystore = "";
 
 	private String httpsPassword = "";
+
+	private boolean maintenance = false;
+
+	private Map<String, String> htmlSnippets;
 
 	private Settings() {
 
@@ -392,4 +399,25 @@ public class Settings {
 		return httpsPassword;
 	}
 
+	public void setMaintenance(boolean maintenance) {
+		this.maintenance = maintenance;
+	}
+
+	public boolean isMaintenance() {
+		return maintenance;
+	}
+
+	public void reloadHtmlSnippets() {
+		HtmlSnippetDao dao = new HtmlSnippetDao();
+		List<HtmlSnippet> snippets = dao.findAll();
+
+		htmlSnippets = new HashMap<String, String>();
+		for (HtmlSnippet snippet : snippets) {
+			htmlSnippets.put(snippet.getKey(), snippet.getText());
+		}
+	}
+
+	public String getHtmlSnippet(String key) {
+		return htmlSnippets.get(key);
+	}
 }

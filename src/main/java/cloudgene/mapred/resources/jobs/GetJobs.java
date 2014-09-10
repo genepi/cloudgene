@@ -143,6 +143,14 @@ public class GetJobs extends ServerResource {
 
 		} else {
 
+			if (settings.isMaintenance() && !user.isAdmin()) {
+
+				setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+				return new StringRepresentation(
+						"This functionality is currently under maintenance.");
+
+			}
+
 			config.setExcludes(new String[] { "user", "outputParams",
 					"inputParams", "output", "endTime", "startTime", "error",
 					"s3Url", "task", "config", "mapReduceJob", "job", "step",

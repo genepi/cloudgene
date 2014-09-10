@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.console;
+package cloudgene.mapred.resources.admin;
 
 import java.io.File;
 import java.io.IOException;
