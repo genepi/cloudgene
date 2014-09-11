@@ -12,6 +12,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.Template;
 
 public class NotificationJob implements Job {
 
@@ -22,6 +23,8 @@ public class NotificationJob implements Job {
 
 		Settings settings = Settings.getInstance();
 
+		int days = settings.getRetireAfter() - settings.getNotificationAfter();
+
 		JobDao dao = new JobDao();
 
 		List<AbstractJob> oldJobs = dao
@@ -30,27 +33,25 @@ public class NotificationJob implements Job {
 
 		for (AbstractJob job : oldJobs) {
 
-			String subject = "Job " + job.getName()
-					+ " will be retired in 2 days";
-
-			String body = "Dear "
-					+ job.getUser().getFullName()
-					+ ",\nYour job will be retired in 2 days! All imputation results will be deleted at that time.\n\n"
-					+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/"
-					+ job.getName();
-
 			try {
 
-				MailUtil.send(settings.getMail().get("smtp"), settings
-						.getMail().get("port"), settings.getMail().get("user"),
-						settings.getMail().get("password"), settings.getMail()
-								.get("name"), job.getUser().getMail(), "["
-								+ settings.getName() + "] " + subject, body);
+				String subject = "[" + settings.getName() + "] Job "
+						+ job.getName() + " will be retired in " + days
+						+ " days";
+
+				String body = settings.getTemplate(Template.RETIRE_JOB_MAIL,
+						job.getUser().getFullName(), days, job.getName());
+
+				MailUtil.send(settings, job.getUser().getMail(), subject, body);
 
 				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
-				dao.update(job);
+				job.setDeletedOn(System.currentTimeMillis()
+						+ ((settings.getRetireAfterInSec() - settings
+								.getNotificationAfterInSec()) * 1000));
 
 				log.info("Sent notification for job " + job.getId() + ".");
+
+				dao.update(job);
 
 			} catch (Exception e) {
 
@@ -58,6 +59,36 @@ public class NotificationJob implements Job {
 						+ " failed.", e);
 
 			}
+
+		}
+
+		oldJobs = dao.findAllOlderThan(settings.getNotificationAfterInSec(),
+				AbstractJob.STATE_FAILED);
+
+		for (AbstractJob job : oldJobs) {
+
+			log.info("Job failed, no notification sent for job " + job.getId()
+					+ ".");
+			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
+			job.setDeletedOn(System.currentTimeMillis()
+					+ ((settings.getRetireAfterInSec() - settings
+							.getNotificationAfterInSec()) * 1000));
+			dao.update(job);
+
+		}
+
+		oldJobs = dao.findAllOlderThan(settings.getNotificationAfterInSec(),
+				AbstractJob.STATE_CANCELED);
+
+		for (AbstractJob job : oldJobs) {
+
+			log.info("Job failed, no notification sent for job " + job.getId()
+					+ ".");
+			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
+			job.setDeletedOn(System.currentTimeMillis()
+					+ ((settings.getRetireAfterInSec() - settings
+							.getNotificationAfterInSec()) * 1000));
+			dao.update(job);
 
 		}
 

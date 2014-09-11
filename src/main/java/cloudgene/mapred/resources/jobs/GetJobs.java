@@ -113,20 +113,7 @@ public class GetJobs extends ServerResource {
 			config.setExcludes(new String[] { "outputParams", "inputParams",
 					"output", "endTime", "startTime", "error", "s3Url", "task",
 					"config", "mapReduceJob", "job", "step", "context" });
-			jobs = dao.findAllYoungerThan(settings.getRetireAfterInSec());
-
-		} else if (state.equals("oldjobs")) {
-
-			if (!user.isAdmin()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation(
-						"The request requires administration rights.");
-			}
-
-			config.setExcludes(new String[] { "outputParams", "inputParams",
-					"output", "endTime", "startTime", "error", "s3Url", "task",
-					"config", "mapReduceJob", "job", "step", "context" });
-			jobs = dao.findAllOlderThan(settings.getRetireAfterInSec());
+			jobs = dao.findAllNotRetiredJobs();
 
 		} else if (state.equals("retired")) {
 
@@ -189,5 +176,4 @@ public class GetJobs extends ServerResource {
 		return new StringRepresentation(jsonArray.toString());
 
 	}
-
 }

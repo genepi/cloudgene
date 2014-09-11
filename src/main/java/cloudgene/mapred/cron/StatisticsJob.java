@@ -1,6 +1,5 @@
 package cloudgene.mapred.cron;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -16,9 +15,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 
 public class StatisticsJob implements Job {
-
-	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-			"yy-MM-dd HH:mm");
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {

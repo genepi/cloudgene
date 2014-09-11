@@ -19,6 +19,7 @@ public class NewUser extends ServerResource {
 
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
+
 		if (user != null) {
 
 			Form form = new Form(entity);

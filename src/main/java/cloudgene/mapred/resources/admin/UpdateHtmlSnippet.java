@@ -9,8 +9,8 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.database.HtmlSnippetDao;
-import cloudgene.mapred.util.HtmlSnippet;
+import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.util.Template;
 import cloudgene.mapred.util.Settings;
 
 public class UpdateHtmlSnippet extends ServerResource {
@@ -39,10 +39,10 @@ public class UpdateHtmlSnippet extends ServerResource {
 		String key = form.getFirstValue("key");
 		String text = form.getFirstValue("text");
 
-		HtmlSnippetDao dao = new HtmlSnippetDao();
-		dao.update(new HtmlSnippet(key, text));
+		TemplateDao dao = new TemplateDao();
+		dao.update(new Template(key, text));
 
-		Settings.getInstance().reloadHtmlSnippets();
+		Settings.getInstance().reloadTemplates();
 
 		return new StringRepresentation("OK.");
 	}

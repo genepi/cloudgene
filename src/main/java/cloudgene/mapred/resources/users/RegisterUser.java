@@ -11,6 +11,7 @@ import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.Template;
 
 public class RegisterUser extends ServerResource {
 
@@ -27,8 +28,6 @@ public class RegisterUser extends ServerResource {
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
-		// TODO: unique!!
-
 		if (username != null && !username.isEmpty()) {
 
 			if (newPassword.equals(confirmNewPassword)) {
@@ -36,7 +35,9 @@ public class RegisterUser extends ServerResource {
 				UserDao dao = new UserDao();
 
 				if (dao.findByUsername(username) != null) {
+
 					return new JSONAnswer("Username already exists.", false);
+
 				}
 
 				String key = HashUtil.getMD5(System.currentTimeMillis() + "");
@@ -56,30 +57,17 @@ public class RegisterUser extends ServerResource {
 
 				Settings settings = Settings.getInstance();
 
-				try {
-					MailUtil
-							.send(settings.getMail().get("smtp"),
-									settings.getMail().get("port"),
-									settings.getMail().get("user"),
-									settings.getMail().get("password"),
-									settings.getMail().get("name"),
-									mail,
-									"[" + settings.getName()
-											+ "] Signup activation",
-									"Dear "
-											+ fullname
-											+ ",\nThis email is sent automatically by the \""
-											+ settings.getName()
-											+ "\" system to confirm that your profile has now been registered.\n\nTo confirm your email address, please click on this activation link "
-											+ link);
+				String application = settings.getName();
+				String subject = "[" + application + "] Signup activation";
+				String body = settings.getTemplate(Template.REGISTER_MAIL,
+						fullname, application, link);
 
-					MailUtil.send(settings.getMail().get("smtp"), settings
-							.getMail().get("port"),
-							settings.getMail().get("user"), settings.getMail()
-									.get("password"),
-							settings.getMail().get("name"),
-							"lukas.forer@i-med.ac.at", "[" + settings.getName()
-									+ "] New user", "Username: " + username);
+				try {
+
+					MailUtil.send(settings, mail, subject, body);
+
+					MailUtil.notifyAdmin(settings, "[" + settings.getName()
+							+ "] New user", "Username: " + username);
 
 					dao.insert(newUser);
 
@@ -104,5 +92,4 @@ public class RegisterUser extends ServerResource {
 		}
 
 	}
-
 }

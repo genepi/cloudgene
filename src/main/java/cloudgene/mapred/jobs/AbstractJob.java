@@ -51,6 +51,8 @@ abstract public class AbstractJob implements Runnable {
 
 	public static final int STATE_SUCESS_AND_NOTIFICATION_SEND = 8;
 
+	public static final int STATE_FAILED_AND_NOTIFICATION_SEND = 9;
+
 	// properties
 
 	private String id;
@@ -64,6 +66,8 @@ abstract public class AbstractJob implements Runnable {
 	private String name;
 
 	private User user;
+
+	private long deletedOn = -1;
 
 	private String error = "";
 
@@ -175,6 +179,14 @@ abstract public class AbstractJob implements Runnable {
 
 	public int getReduce() {
 		return reduce;
+	}
+
+	public void setDeletedOn(long deletedOn) {
+		this.deletedOn = deletedOn;
+	}
+
+	public long getDeletedOn() {
+		return deletedOn;
 	}
 
 	public List<CloudgeneParameter> getInputParams() {

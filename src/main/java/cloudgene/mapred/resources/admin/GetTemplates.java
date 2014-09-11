@@ -12,10 +12,10 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.database.HtmlSnippetDao;
-import cloudgene.mapred.util.HtmlSnippet;
+import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.util.Template;
 
-public class GetHtmlSnippets extends ServerResource {
+public class GetTemplates extends ServerResource {
 
 	@Get
 	public Representation get() {
@@ -31,10 +31,10 @@ public class GetHtmlSnippets extends ServerResource {
 						"The request requires administration rights.");
 			}
 
-			HtmlSnippetDao dao = new HtmlSnippetDao();
-			List<HtmlSnippet> snippets = dao.findAll();
+			TemplateDao dao = new TemplateDao();
+			List<Template> templates = dao.findAll();
 
-			JSONArray jsonArray = JSONArray.fromObject(snippets);
+			JSONArray jsonArray = JSONArray.fromObject(templates);
 
 			return new StringRepresentation(jsonArray.toString());
 

@@ -55,27 +55,27 @@ public class GetAppDetails extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			Form form = new Form(entity);
-			// AppMetaData app = YamlLoader.loadApp(form.getFirstValue("tool"));
-
-			InfoObject infoObject = new InfoObject();
-
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-			infoObject.setJobName(form.getFirstValue("tool") + "-"
-					+ sdf.format(new Date()));
-
-			JSONArray jsonArray = JSONArray.fromObject(infoObject);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
+
+		Form form = new Form(entity);
+		// AppMetaData app = YamlLoader.loadApp(form.getFirstValue("tool"));
+
+		InfoObject infoObject = new InfoObject();
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+		infoObject.setJobName(form.getFirstValue("tool") + "-"
+				+ sdf.format(new Date()));
+
+		JSONArray jsonArray = JSONArray.fromObject(infoObject);
+
+		return new StringRepresentation(jsonArray.toString());
+
 	}
 
 }

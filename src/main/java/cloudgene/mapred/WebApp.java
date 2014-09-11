@@ -17,9 +17,11 @@ import cloudgene.mapred.resources.admin.BlockQueue;
 import cloudgene.mapred.resources.admin.EnterMaintenance;
 import cloudgene.mapred.resources.admin.ExitMaintenance;
 import cloudgene.mapred.resources.admin.GetClusterDetails;
-import cloudgene.mapred.resources.admin.GetHtmlSnippets;
+import cloudgene.mapred.resources.admin.GetTemplates;
 import cloudgene.mapred.resources.admin.GetStatistics;
 import cloudgene.mapred.resources.admin.OpenQueue;
+import cloudgene.mapred.resources.admin.StartNotification;
+import cloudgene.mapred.resources.admin.StartRetire;
 import cloudgene.mapred.resources.admin.UpdateHtmlSnippet;
 import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetAppDetails;
@@ -52,7 +54,6 @@ import cloudgene.mapred.resources.jobs.GetLogs;
 import cloudgene.mapred.resources.jobs.NewGetJobStatus;
 import cloudgene.mapred.resources.jobs.NewSubmitJob;
 import cloudgene.mapred.resources.jobs.RerunJob;
-import cloudgene.mapred.resources.jobs.RetireOldJobs;
 import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.jobs.SubmitJob;
 import cloudgene.mapred.resources.users.ActivateUser;
@@ -76,7 +77,7 @@ public class WebApp extends Application {
 
 	private LocalReference webRoot2;
 
-	public static String VERSION = "1.9.1";
+	public static String VERSION = "1.9.2";
 
 	public WebApp(LocalReference webRoot, LocalReference webRoot2) {
 		this.webRoot = webRoot;
@@ -108,8 +109,6 @@ public class WebApp extends Application {
 		router.attach("/jobs/rerun", RerunJob.class);
 		router.attach("/jobs/cancel", CancelJob.class);
 		router.attach("/jobs/submit", SubmitJob.class);
-
-		router.attach("/admin/delete-archive", RetireOldJobs.class);
 
 		router.attach("/jobs/newsubmit", NewSubmitJob.class);
 		router.attach("/jobs/newstate", NewGetJobStatus.class);
@@ -172,8 +171,11 @@ public class WebApp extends Application {
 		router.attach("/admin/queue/block", BlockQueue.class);
 		router.attach("/admin/maintenance/enter", EnterMaintenance.class);
 		router.attach("/admin/maintenance/exit", ExitMaintenance.class);
-		router.attach("/admin/htmlsnippets", GetHtmlSnippets.class);
+		router.attach("/admin/htmlsnippets", GetTemplates.class);
 		router.attach("/admin/htmlsnippets/update", UpdateHtmlSnippet.class);
+
+		router.attach("/admin/notification/start", StartNotification.class);
+		router.attach("/admin/retire/start", StartRetire.class);
 
 		router.attach("/updateUserSettings", UpdateUserSettings.class);
 		router.attach("/updateCredentials", UpdateCredentials.class);

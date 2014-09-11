@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.HtmlSnippetDao;
+import cloudgene.mapred.database.TemplateDao;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
@@ -53,9 +53,9 @@ public class Settings {
 
 	private Map<String, String> apps;
 
-	private int retireAfter = 10;
+	private int retireAfter = 6;
 
-	private int notificationAfter = 7;
+	private int notificationAfter = 4;
 
 	private boolean autoRetire = false;
 
@@ -77,7 +77,9 @@ public class Settings {
 
 	private boolean maintenance = false;
 
-	private Map<String, String> htmlSnippets;
+	private String adminMail = "lukas.forer@i-med.ac.at";
+
+	private Map<String, String> cacheTemplates;
 
 	private Settings() {
 
@@ -407,17 +409,46 @@ public class Settings {
 		return maintenance;
 	}
 
-	public void reloadHtmlSnippets() {
-		HtmlSnippetDao dao = new HtmlSnippetDao();
-		List<HtmlSnippet> snippets = dao.findAll();
+	public void reloadTemplates() {
+		TemplateDao dao = new TemplateDao();
+		List<Template> templates = dao.findAll();
 
-		htmlSnippets = new HashMap<String, String>();
-		for (HtmlSnippet snippet : snippets) {
-			htmlSnippets.put(snippet.getKey(), snippet.getText());
+		cacheTemplates = new HashMap<String, String>();
+		for (Template snippet : templates) {
+			cacheTemplates.put(snippet.getKey(), snippet.getText());
 		}
 	}
 
-	public String getHtmlSnippet(String key) {
-		return htmlSnippets.get(key);
+	public String getTemplate(String key) {
+
+		String template = cacheTemplates.get(key);
+
+		if (template != null) {
+			return template;
+		} else {
+			return "!" + key;
+		}
+
 	}
+
+	public String getTemplate(String key, Object... strings) {
+
+		String template = cacheTemplates.get(key);
+
+		if (template != null) {
+			return String.format(template, strings);
+		} else {
+			return "!" + key;
+		}
+
+	}
+
+	public void setAdminMail(String adminMail) {
+		this.adminMail = adminMail;
+	}
+
+	public String getAdminMail() {
+		return adminMail;
+	}
+
 }

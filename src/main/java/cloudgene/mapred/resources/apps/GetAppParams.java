@@ -27,24 +27,24 @@ public class GetAppParams extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		Form form = new Form(entity);
+		if (user == null) {
 
-		if (user != null) {
-
-			WdlApp app = WdlReader.loadApp(form.getFirstValue("tool"));
-
-			List<WdlParameter> params = app.getMapred().getInputs();
-
-			JSONArray jsonArray = JSONArray.fromObject(params);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
+
+		Form form = new Form(entity);
+
+		WdlApp app = WdlReader.loadApp(form.getFirstValue("tool"));
+
+		List<WdlParameter> params = app.getMapred().getInputs();
+
+		JSONArray jsonArray = JSONArray.fromObject(params);
+
+		return new StringRepresentation(jsonArray.toString());
+
 	}
 
 	@Get
@@ -52,30 +52,29 @@ public class GetAppParams extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			String filename = Settings.getInstance().getApp(user);
-
-			WdlApp app;
-			try {
-				app = WdlReader.loadAppFromFile(filename);
-			} catch (IOException e) {
-				e.printStackTrace();
-				return new StringRepresentation("Error");
-			}
-
-			List<WdlParameter> params = app.getMapred().getInputs();
-
-			JSONArray jsonArray = JSONArray.fromObject(params);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
+		String filename = Settings.getInstance().getApp(user);
+
+		WdlApp app;
+		try {
+			app = WdlReader.loadAppFromFile(filename);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new StringRepresentation("Error");
+		}
+
+		List<WdlParameter> params = app.getMapred().getInputs();
+
+		JSONArray jsonArray = JSONArray.fromObject(params);
+
+		return new StringRepresentation(jsonArray.toString());
+
 	}
 
 }

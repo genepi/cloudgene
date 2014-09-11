@@ -74,11 +74,11 @@ public class JobDao extends Dao {
 		sql.append("update job ");
 		sql.append("  set name = ?, state = ?, ");
 		sql.append("  start_time = ?, end_time = ?, ");
-		sql.append("  user_id = ?, s3_url = ?, type = ? ");
+		sql.append("  user_id = ?, s3_url = ?, type = ?, deleted_on = ? ");
 		sql.append("where id = ? ");
 		try {
 
-			Object[] params = new Object[8];
+			Object[] params = new Object[9];
 			params[0] = job.getName();
 			params[1] = job.getState();
 			params[2] = job.getStartTime();
@@ -86,7 +86,8 @@ public class JobDao extends Dao {
 			params[4] = job.getUser().getId();
 			params[5] = job.getS3Url();
 			params[6] = job.getType();
-			params[7] = job.getId();
+			params[7] = job.getDeletedOn();
+			params[8] = job.getId();
 
 			update(sql.toString(), params);
 
@@ -159,6 +160,7 @@ public class JobDao extends Dao {
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
 				job.setUser(user);
 
 				if (loadParameters) {
@@ -193,21 +195,18 @@ public class JobDao extends Dao {
 		}
 	}
 
-	public List<AbstractJob> findAllYoungerThan(long time) {
+	public List<AbstractJob> findAllNotRetiredJobs() {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where state != ? AND ");
-		sql.append("DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) > 0  ");
-
+		sql.append("where state != ? ");
 		sql.append("order by start_time desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[2];
+		Object[] params = new Object[1];
 		params[0] = AbstractJob.STATE_RETIRED;
-		params[1] = time;
 
 		try {
 
@@ -225,6 +224,7 @@ public class JobDao extends Dao {
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
 				job.setUser(user);
@@ -242,17 +242,66 @@ public class JobDao extends Dao {
 		}
 	}
 
-	public List<AbstractJob> findAllOlderThan(int time) {
+	public List<AbstractJob> findAllNotNotifiedJobs() {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where  state != ? AND DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) < 0  ");
+		sql.append("where state != ? AND state != ? AND state != ? ");
+		sql.append("order by start_time desc ");
+
+		List<AbstractJob> result = new Vector<AbstractJob>();
+
+		Object[] params = new Object[3];
+		params[0] = AbstractJob.STATE_RETIRED;
+		params[1] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;
+		params[2] = AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND;
+
+		try {
+
+			UserDao dao = new UserDao();
+
+			ResultSet rs = query(sql.toString(), params);
+			while (rs.next()) {
+
+				int type = rs.getInt("type");
+
+				AbstractJob job = JobFactory.create(type);
+				job.setId(rs.getString("id"));
+				job.setName(rs.getString("name"));
+				job.setState(rs.getInt("state"));
+				job.setStartTime(rs.getLong("start_time"));
+				job.setEndTime(rs.getLong("end_time"));
+				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
+
+				User user = dao.findById(rs.getInt("user_id"));
+				job.setUser(user);
+
+				result.add(job);
+			}
+			rs.close();
+
+			log.debug("find all jobs successful. results: " + result.size());
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find all jobs failed", e);
+			return null;
+		}
+	}
+
+	public List<AbstractJob> findAllNotifiedJobs() {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from job ");
+		sql.append("where  state = ? or state = ? ");
 		sql.append("order by start_time desc ");
 
 		Object[] params = new Object[2];
-		params[0] = AbstractJob.STATE_RETIRED;
-		params[1] = time;
+		params[0] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;
+		params[1] = AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND;
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -272,6 +321,7 @@ public class JobDao extends Dao {
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
 				job.setUser(user);
@@ -319,6 +369,7 @@ public class JobDao extends Dao {
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
 				job.setUser(user);
@@ -335,7 +386,7 @@ public class JobDao extends Dao {
 			return null;
 		}
 	}
-	
+
 	public List<AbstractJob> findAllByState(int state) {
 
 		StringBuilder sql = new StringBuilder();
@@ -365,6 +416,7 @@ public class JobDao extends Dao {
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
 				job.setUser(user);
@@ -413,6 +465,7 @@ public class JobDao extends Dao {
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
 				job.setUser(user);
+				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				List<CloudgeneParameter> outputParams = new Vector<CloudgeneParameter>();
 
@@ -470,6 +523,7 @@ public class JobDao extends Dao {
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
 				job.setS3Url(rs.getString("s3_url"));
+				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = userDao.findById(rs.getInt("user_id"));
 				job.setUser(user);

@@ -22,14 +22,20 @@ public class ActivateUser extends ServerResource {
 		if (user != null) {
 
 			if (user.getActivationCode().equals(code)) {
+
 				user.setActive(true);
 				dao.update(user);
 				return new JSONAnswer("User sucessfully created.", true);
+
 			} else {
+
 				return new JSONAnswer("Wrong activation code.", false);
+
 			}
 		} else {
+
 			return new JSONAnswer("Wrong username.", false);
+
 		}
 
 	}

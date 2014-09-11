@@ -17,16 +17,18 @@ public class KillAllJobs extends ServerResource {
 
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
-		if (user != null) {
-			HadoopUtil.getInstance().killAll(user);
-			return new StringRepresentation("Lukas");
 
-		} else {
+		if (user == null) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
+
+		HadoopUtil.getInstance().killAll(user);
+		return new StringRepresentation("Lukas");
+
 	}
 
 }

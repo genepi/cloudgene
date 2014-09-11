@@ -26,8 +26,6 @@ public class GetJobStatus extends ServerResource {
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
-		Form form = new Form(entity);
-
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
@@ -39,6 +37,7 @@ public class GetJobStatus extends ServerResource {
 
 		}
 
+		Form form = new Form(entity);
 		String jobId = form.getFirstValue("job_id");
 
 		AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);

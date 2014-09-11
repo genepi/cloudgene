@@ -17,6 +17,27 @@ public class MailUtil {
 	private static final org.apache.commons.logging.Log log = LogFactory
 			.getLog(MailUtil.class);
 
+	public static void notifyAdmin(Settings settings, String subject,
+			String text) throws Exception {
+
+		send(settings.getMail().get("smtp"), settings.getMail().get("port"),
+				settings.getMail().get("user"),
+				settings.getMail().get("password"),
+				settings.getMail().get("name"), settings.getAdminMail(),
+				subject, text);
+
+	}
+
+	public static void send(Settings settings, String tos, String subject,
+			String text) throws Exception {
+
+		send(settings.getMail().get("smtp"), settings.getMail().get("port"),
+				settings.getMail().get("user"),
+				settings.getMail().get("password"),
+				settings.getMail().get("name"), tos, subject, text);
+
+	}
+
 	public static void send(final String smtp, final String port,
 			final String username, final String password, final String name,
 			String tos, String subject, String text) throws Exception {

@@ -14,7 +14,7 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.HtmlSnippet;
+import cloudgene.mapred.util.Template;
 import cloudgene.mapred.util.Settings;
 import freemarker.template.Configuration;
 
@@ -43,12 +43,12 @@ public class Start extends ServerResource {
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", settings.getName());
-		data.put("footer", settings.getHtmlSnippet(HtmlSnippet.FOOTER));
+		data.put("footer", settings.getTemplate(Template.FOOTER));
 		data.put("username", user.getUsername());
 
 		if (settings.isMaintenance()) {
 			data.put("maintenaceMessage",
-					settings.getHtmlSnippet(HtmlSnippet.MAINTENANCE_MESSAGE));
+					settings.getTemplate(Template.MAINTENANCE_MESSAGE));
 		}
 
 		return new TemplateRepresentation("start.html", cfg, data,

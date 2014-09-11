@@ -24,30 +24,29 @@ public class GetAppsFromRepository extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			Repository repo = new Repository("http://cloudgene.uibk.ac.at/apps");
-			try {
-				repo.load();
-			} catch (YamlException e) {
-				e.printStackTrace();
-				return new StringRepresentation("error");
-			} catch (IOException e) {
-				e.printStackTrace();
-				return new StringRepresentation("error");
-			}
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
-			// TODO: exclude all extjstreeitem properties
-
-			JSONArray jsonArray = JSONArray.fromObject(repo.getApps());
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
 		}
+		Repository repo = new Repository("http://cloudgene.uibk.ac.at/apps");
+		try {
+			repo.load();
+		} catch (YamlException e) {
+			e.printStackTrace();
+			return new StringRepresentation("error");
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new StringRepresentation("error");
+		}
+
+		// TODO: exclude all extjstreeitem properties
+
+		JSONArray jsonArray = JSONArray.fromObject(repo.getApps());
+
+		return new StringRepresentation(jsonArray.toString());
 
 	}
 

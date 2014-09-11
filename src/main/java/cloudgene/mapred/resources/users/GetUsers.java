@@ -23,31 +23,30 @@ public class GetUsers extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
-
-			if (!user.isAdmin()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation(
-						"The request requires administration rights.");
-			}
-
-			UserDao dao = new UserDao();
-			List<User> users = dao.findAll();
-
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "password" });
-
-			JSONArray jsonArray = JSONArray.fromObject(users, config);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
+		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
 
 		}
+
+		if (!user.isAdmin()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires administration rights.");
+		}
+
+		UserDao dao = new UserDao();
+		List<User> users = dao.findAll();
+
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "password" });
+
+		JSONArray jsonArray = JSONArray.fromObject(users, config);
+
+		return new StringRepresentation(jsonArray.toString());
+
 	}
 
 }

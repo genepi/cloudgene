@@ -26,42 +26,39 @@ public class GetApp extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
-
-			Settings settings = Settings.getInstance();
-
-			if (settings.isMaintenance() && !user.isAdmin()) {
-
-				setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-				return new StringRepresentation(
-						"This functionality is currently under maintenance.");
-
-			}
-
-			String filename = settings.getApp(user);
-
-			WdlApp app;
-			try {
-				app = WdlReader.loadAppFromFile(filename);
-				WdlHeader meta = (WdlHeader) app;
-
-				JsonConfig config = new JsonConfig();
-				config.setExcludes(new String[] { "mapred", "installed",
-						"cluster" });
-				JSONObject jsonObject = JSONObject.fromObject(meta, config);
-
-				return new StringRepresentation(jsonObject.toString());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return new StringRepresentation("Error");
-			}
-
-		} else {
+		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
 
+		}
+
+		Settings settings = Settings.getInstance();
+
+		if (settings.isMaintenance() && !user.isAdmin()) {
+
+			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+			return new StringRepresentation(
+					"This functionality is currently under maintenance.");
+
+		}
+
+		String filename = settings.getApp(user);
+
+		WdlApp app;
+		try {
+			app = WdlReader.loadAppFromFile(filename);
+			WdlHeader meta = (WdlHeader) app;
+
+			JsonConfig config = new JsonConfig();
+			config.setExcludes(new String[] { "mapred", "installed", "cluster" });
+			JSONObject jsonObject = JSONObject.fromObject(meta, config);
+
+			return new StringRepresentation(jsonObject.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return new StringRepresentation("Error");
 		}
 
 	}

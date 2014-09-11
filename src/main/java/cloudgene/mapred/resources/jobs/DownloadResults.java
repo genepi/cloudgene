@@ -32,8 +32,6 @@ public class DownloadResults extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		JobDao jobDao = new JobDao();
-
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -63,6 +61,7 @@ public class DownloadResults extends ServerResource {
 
 		}
 
+		JobDao jobDao = new JobDao();
 		AbstractJob job = jobDao.findById(jobId);
 
 		if (job == null) {

@@ -22,27 +22,27 @@ public class GetUserDetails extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			UserDao dao = new UserDao();
-			User updatedUser = dao.findByUsername(user.getUsername());
-
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "password" });
-
-			JSONObject object = JSONObject.fromObject(updatedUser, config);
-
-			StringRepresentation representation = new StringRepresentation(
-					object.toString(), MediaType.APPLICATION_JSON);
-
-			return representation;
-
-		} else {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
+
+		UserDao dao = new UserDao();
+		User updatedUser = dao.findByUsername(user.getUsername());
+
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "password" });
+
+		JSONObject object = JSONObject.fromObject(updatedUser, config);
+
+		StringRepresentation representation = new StringRepresentation(
+				object.toString(), MediaType.APPLICATION_JSON);
+
+		return representation;
+
 	}
 
 }

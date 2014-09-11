@@ -24,21 +24,20 @@ public class GetApps extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
+		if (user == null) {
 
-			List<Category> apps = WdlReader.loadApps();
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "mapred", "installed", "cluster" });
-			JSONArray jsonArray = JSONArray.fromObject(apps, config);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
 		}
+
+		List<Category> apps = WdlReader.loadApps();
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
+		JSONArray jsonArray = JSONArray.fromObject(apps, config);
+
+		return new StringRepresentation(jsonArray.toString());
 
 	}
 

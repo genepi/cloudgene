@@ -8,13 +8,13 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.util.HtmlSnippet;
+import cloudgene.mapred.util.Template;
 
-public class HtmlSnippetDao extends Dao {
+public class TemplateDao extends Dao {
 
-	private static final Log log = LogFactory.getLog(HtmlSnippetDao.class);
+	private static final Log log = LogFactory.getLog(TemplateDao.class);
 
-	public boolean insert(HtmlSnippet snippet) {
+	public boolean insert(Template snippet) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("insert into html_snippets (key, text) ");
 		sql.append("values (?,?)");
@@ -39,7 +39,7 @@ public class HtmlSnippetDao extends Dao {
 		return true;
 	}
 
-	public boolean update(HtmlSnippet snippet) {
+	public boolean update(Template snippet) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("update html_snippets SET text = ? where key = ? ");
 
@@ -63,20 +63,20 @@ public class HtmlSnippetDao extends Dao {
 		return true;
 	}
 
-	public List<HtmlSnippet> findAll() {
+	public List<Template> findAll() {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from html_snippets ");
 
-		List<HtmlSnippet> result = new Vector<HtmlSnippet>();
+		List<Template> result = new Vector<Template>();
 
 		try {
 
 			ResultSet rs = query(sql.toString());
 			while (rs.next()) {
 
-				HtmlSnippet snippet = new HtmlSnippet(rs.getString("key"),
+				Template snippet = new Template(rs.getString("key"),
 						rs.getString("text"));
 
 				result.add(snippet);
@@ -93,7 +93,7 @@ public class HtmlSnippetDao extends Dao {
 		}
 	}
 
-	public HtmlSnippet findByKey(String key) {
+	public Template findByKey(String key) {
 
 		StringBuffer sql = new StringBuffer();
 
@@ -104,13 +104,13 @@ public class HtmlSnippetDao extends Dao {
 		Object[] params = new Object[1];
 		params[0] = key;
 
-		HtmlSnippet result = null;
+		Template result = null;
 
 		try {
 			ResultSet rs = query(sql.toString(), params);
 			while (rs.next()) {
 
-				result = new HtmlSnippet(rs.getString("key"),
+				result = new Template(rs.getString("key"),
 						rs.getString("text"));
 			}
 			rs.close();
