@@ -126,18 +126,13 @@ public class JobDao extends Dao {
 		return true;
 	}
 
-	public List<AbstractJob> findAllByUser(User user, boolean loadParameters,
-			int limit) {
+	public List<AbstractJob> findAllByUser(User user, boolean loadParameters) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where user_id = ? ");
 		sql.append("order by start_time desc ");
-
-		if (limit > 0) {
-			sql.append("limit " + limit);
-		}
 
 		Object[] params = new Object[1];
 		params[0] = user.getId();

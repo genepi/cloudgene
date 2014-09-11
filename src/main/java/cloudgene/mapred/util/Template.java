@@ -27,7 +27,7 @@ public class Template {
 
 			new Template(
 					RETIRE_JOB_MAIL,
-					"Dear %s,\nYour job will be retired in 2 days! All imputation results will be deleted at that time.\n\n"
+					"Dear %s,\nYour job will be retired in %s days! All imputation results will be deleted at that time.\n\n"
 							+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/%s")
 
 	};

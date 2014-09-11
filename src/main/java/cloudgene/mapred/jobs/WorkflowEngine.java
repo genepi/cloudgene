@@ -156,15 +156,52 @@ public class WorkflowEngine implements Runnable {
 
 		List<AbstractJob> jobs = shortTimeQueue.getJobsByUser(user);
 		jobs.addAll(longTimeQueue.getJobsByUser(user));
+
+		for (AbstractJob job : jobs) {
+
+			if (job instanceof CloudgeneJob) {
+
+				((CloudgeneJob) job).updateProgress();
+
+			}
+
+		}
+
 		return jobs;
 	}
 
 	public List<AbstractJob> getAllJobsInShortTimeQueue() {
+
+		List<AbstractJob> jobs = shortTimeQueue.getAllJobs();
+
+		for (AbstractJob job : jobs) {
+
+			if (job instanceof CloudgeneJob) {
+
+				((CloudgeneJob) job).updateProgress();
+
+			}
+
+		}
+
 		return shortTimeQueue.getAllJobs();
 	}
 
 	public List<AbstractJob> getAllJobsInLongTimeQueue() {
-		return longTimeQueue.getAllJobs();
+
+		List<AbstractJob> jobs = longTimeQueue.getAllJobs();
+
+		for (AbstractJob job : jobs) {
+
+			if (job instanceof CloudgeneJob) {
+
+				((CloudgeneJob) job).updateProgress();
+
+			}
+
+		}
+
+		return jobs;
 	}
 
 	public int getPositionInQueue(AbstractJob job) {
