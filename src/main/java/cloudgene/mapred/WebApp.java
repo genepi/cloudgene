@@ -170,8 +170,8 @@ public class WebApp extends Application {
 		router.attach("/admin/queue/block", BlockQueue.class);
 		router.attach("/admin/maintenance/enter", EnterMaintenance.class);
 		router.attach("/admin/maintenance/exit", ExitMaintenance.class);
-		router.attach("/admin/htmlsnippets", GetTemplates.class);
-		router.attach("/admin/htmlsnippets/update", UpdateHtmlSnippet.class);
+		router.attach("/admin/templates", GetTemplates.class);
+		router.attach("/admin/templates/update", UpdateHtmlSnippet.class);
 		router.attach("/admin/jobs", GetAllJobs.class);
 
 		router.attach("/admin/notification/start", StartNotification.class);
