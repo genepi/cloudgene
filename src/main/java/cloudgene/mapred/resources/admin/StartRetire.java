@@ -9,6 +9,7 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.cron.NotificationJob;
 import cloudgene.mapred.cron.RetireJob;
 
 public class StartRetire extends ServerResource {
@@ -32,9 +33,17 @@ public class StartRetire extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		RetireJob job = new RetireJob();
+		NotificationJob job = new NotificationJob();
 		try {
 			job.execute(null);
+		} catch (JobExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		RetireJob job2 = new RetireJob();
+		try {
+			job2.execute(null);
 		} catch (JobExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
