@@ -49,7 +49,8 @@ public class StartRetire extends ServerResource {
 			e.printStackTrace();
 		}
 
-		return new StringRepresentation("Retired jobs.");
+		return new StringRepresentation("NotificationJob:\n" + job.getMessage()
+				+ "\n\nRetireJob:\n" + job2.getMessage());
 
 	}
 

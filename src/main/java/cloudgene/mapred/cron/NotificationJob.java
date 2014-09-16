@@ -18,6 +18,8 @@ public class NotificationJob implements Job {
 
 	private static final Log log = LogFactory.getLog(NotificationJob.class);
 
+	private String message = "";
+
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
@@ -30,6 +32,8 @@ public class NotificationJob implements Job {
 		List<AbstractJob> oldJobs = dao
 				.findAllOlderThan(settings.getNotificationAfterInSec(),
 						AbstractJob.STATE_SUCCESS);
+
+		int send = 0;
 
 		for (AbstractJob job : oldJobs) {
 
@@ -50,7 +54,7 @@ public class NotificationJob implements Job {
 								.getNotificationAfterInSec()) * 1000));
 
 				log.info("Sent notification for job " + job.getId() + ".");
-
+				send++;
 				dao.update(job);
 
 			} catch (Exception e) {
@@ -65,6 +69,8 @@ public class NotificationJob implements Job {
 		oldJobs = dao.findAllOlderThan(settings.getNotificationAfterInSec(),
 				AbstractJob.STATE_FAILED);
 
+		int otherJobs = 0;
+
 		for (AbstractJob job : oldJobs) {
 
 			log.info("Job failed, no notification sent for job " + job.getId()
@@ -74,6 +80,7 @@ public class NotificationJob implements Job {
 					+ ((settings.getRetireAfterInSec() - settings
 							.getNotificationAfterInSec()) * 1000));
 			dao.update(job);
+			otherJobs++;
 
 		}
 
@@ -89,11 +96,19 @@ public class NotificationJob implements Job {
 					+ ((settings.getRetireAfterInSec() - settings
 							.getNotificationAfterInSec()) * 1000));
 			dao.update(job);
+			otherJobs++;
 
 		}
 
-		log.info(oldJobs.size() + " notifications sent.");
+		log.info(send + " notifications sent. " + otherJobs
+				+ " jobs marked without email ntofication.");
 
+		message = (send + " notifications sent. " + otherJobs + " jobs marked without email ntofication.");
+
+	}
+
+	public String getMessage() {
+		return message;
 	}
 
 }

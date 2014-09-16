@@ -15,6 +15,8 @@ public class RetireJob implements Job {
 
 	private static final Log log = LogFactory.getLog(RetireJob.class);
 
+	private String message = "";
+
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 
@@ -40,7 +42,12 @@ public class RetireJob implements Job {
 		}
 
 		log.info(deleted + " jobs retired.");
+		message = deleted + " jobs retired.";
 
+	}
+
+	public String getMessage() {
+		return message;
 	}
 
 }
