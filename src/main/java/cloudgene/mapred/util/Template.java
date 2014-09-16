@@ -18,7 +18,7 @@ public class Template {
 
 			new Template(
 					FOOTER,
-					"<p>powered by <a href=\"http://cloudgene.uibk.ac.at\">Cloudgene</a> supported by the <a href=\"http://www.nih.gov\">U.S. National Institutes of Health</a> and the <a href=\"http://www.fwf.ac.at\">FWF Austrian Science Fund</a></p>"),
+					"<p>powered by <a href=\"http://cloudgene.uibk.ac.at\">Cloudgene</a> and supported by the <a href=\"http://www.nih.gov\">U.S. National Institutes of Health</a> and the <a href=\"http://www.fwf.ac.at\">FWF Austrian Science Fund</a></p>"),
 
 			new Template(
 					REGISTER_MAIL,
@@ -27,7 +27,7 @@ public class Template {
 
 			new Template(
 					RETIRE_JOB_MAIL,
-					"Dear %s,\nYour job will be retired in %s days! All imputation results will be deleted at that time.\n\n"
+					"Dear %s,\nYour job retires in %s days! All imputation results will be deleted at that time.\n\n"
 							+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/%s")
 
 	};
