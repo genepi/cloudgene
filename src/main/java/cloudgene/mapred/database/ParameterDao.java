@@ -19,7 +19,7 @@ public class ParameterDao extends Dao {
 	public boolean insert(CloudgeneParameter parameter) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format, admin_only) ");
-		sql.append("values (?,?,?,?,?,?,?,?)");
+		sql.append("values (?,?,?,?,?,?,?,?,?)");
 
 		try {
 
