@@ -77,7 +77,7 @@ public class WebApp extends Application {
 
 	private LocalReference webRoot2;
 
-	public static String VERSION = "1.9.2";
+	public static String VERSION = "1.9.3";
 
 	public WebApp(LocalReference webRoot, LocalReference webRoot2) {
 		this.webRoot = webRoot;
