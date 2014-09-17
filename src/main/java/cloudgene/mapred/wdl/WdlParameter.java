@@ -34,6 +34,8 @@ public abstract class WdlParameter {
 
 	private boolean visible = true;
 
+	private boolean adminOnly = false;
+
 	public static final String LOCAL_FOLDER = "local-folder";
 
 	public static final String LOCAL_FILE = "local-file";
@@ -172,6 +174,14 @@ public abstract class WdlParameter {
 
 	public boolean isAutoExport() {
 		return autoExport;
+	}
+
+	public void setAdminOnly(boolean adminOnly) {
+		this.adminOnly = adminOnly;
+	}
+
+	public boolean isAdminOnly() {
+		return adminOnly;
 	}
 
 }

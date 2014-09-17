@@ -39,6 +39,8 @@ public class CloudgeneParameter {
 
 	private boolean removeHeader = true;
 
+	private boolean adminOnly = false;
+
 	public CloudgeneParameter() {
 
 	}
@@ -56,6 +58,7 @@ public class CloudgeneParameter {
 		setZip(parameter.isZip());
 		setMergeOutput(parameter.isMergeOutput());
 		setRemoveHeader(parameter.isRemoveHeader());
+		setAdminOnly(parameter.isAdminOnly());
 		files = new Vector<Download>();
 	}
 
@@ -185,6 +188,14 @@ public class CloudgeneParameter {
 
 	public boolean isZip() {
 		return zip;
+	}
+
+	public void setAdminOnly(boolean adminOnly) {
+		this.adminOnly = adminOnly;
+	}
+
+	public boolean isAdminOnly() {
+		return adminOnly;
 	}
 
 }

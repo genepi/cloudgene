@@ -18,13 +18,14 @@ public class ParameterDao extends Dao {
 
 	public boolean insert(CloudgeneParameter parameter) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format) ");
+		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format, admin_only) ");
 		sql.append("values (?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[8];
-			params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
+			Object[] params = new Object[9];
+			params[0] = parameter.getDescription().substring(0,
+					Math.min(parameter.getDescription().length(), 100));
 			params[1] = parameter.getValue();
 			params[2] = parameter.isInput();
 			params[3] = parameter.getJob().getId();
@@ -32,6 +33,7 @@ public class ParameterDao extends Dao {
 			params[5] = parameter.getName();
 			params[6] = parameter.isDownload();
 			params[7] = parameter.getFormat();
+			params[8] = parameter.isAdminOnly();
 
 			int paramId = updateAndGetKey(sql.toString(), params);
 
@@ -54,7 +56,8 @@ public class ParameterDao extends Dao {
 
 			connection.commit();
 
-			log.debug("insert parameter '" + parameter.getId() + "' successful.");
+			log.debug("insert parameter '" + parameter.getId()
+					+ "' successful.");
 
 		} catch (SQLException e) {
 			log.error("insert parameter '" + parameter.getId() + "' failed.", e);
@@ -135,6 +138,7 @@ public class ParameterDao extends Dao {
 				parameter.setDownload(rs.getBoolean("download"));
 				parameter.setFormat(rs.getString("format"));
 				parameter.setId(rs.getInt("id"));
+				parameter.setAdminOnly(rs.getBoolean("admin_only"));
 				List<Download> downloads = dao.findAllByParameter(parameter);
 				for (Download download : downloads) {
 					download.setUsername(job.getUser().getUsername());

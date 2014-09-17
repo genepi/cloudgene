@@ -1,5 +1,8 @@
 package cloudgene.mapred.resources.jobs;
 
+import java.util.List;
+import java.util.Vector;
+
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
@@ -16,6 +19,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.WorkflowEngine;
 
 public class GetJobDetails extends ServerResource {
@@ -55,10 +59,23 @@ public class GetJobDetails extends ServerResource {
 					return new StringRepresentation("Access denied.");
 				}
 
+				// finds position in queue
 				int position = WorkflowEngine.getInstance().getPositionInQueue(
 						job);
 				job.setPositionInQueue(position);
 
+				// removes outputs that are for admin only
+				List<CloudgeneParameter> adminParams = new Vector<>();
+				if (!user.isAdmin()) {
+					for (CloudgeneParameter param : job.getOutputParams()) {
+						if (param.isAdminOnly()) {
+							adminParams.add(param);
+						}
+					}
+				}
+				job.getOutputParams().removeAll(adminParams);
+
+				// excludes properties from json
 				JsonConfig config = new JsonConfig();
 				config.setExcludes(new String[] { "user", "task",
 						"mapReduceJob", "job", "step", "context", "config",
