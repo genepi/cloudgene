@@ -8,6 +8,8 @@ public class Template {
 
 	public static final String REGISTER_MAIL = "REGISTER_MAIL";
 
+	public static final String RECOVERY_MAIL = "RECOVERY_MAIL";
+	
 	public static final String RETIRE_JOB_MAIL = "RETIRE_JOB_MAIL";
 
 	public static final Template[] SNIPPETS = new Template[] {
@@ -28,8 +30,13 @@ public class Template {
 			new Template(
 					RETIRE_JOB_MAIL,
 					"Dear %s,\nYour job retires in %s days! All imputation results will be deleted at that time.\n\n"
-							+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/%s")
+							+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/%s"),
 
+			new Template(
+					RECOVERY_MAIL,
+					"Dear %s,\nThis email is sent automatically by the \"%s\" system.\n\n"
+							+ "To reset your password, please click on this link %s. ")			
+			
 	};
 
 	private String key;

@@ -60,12 +60,12 @@ public class UserDao extends Dao {
 
 	public boolean update(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?");
+		sql.append("update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ? ");
 		sql.append("where id = ?");
 
 		try {
 
-			Object[] params = new Object[13];
+			Object[] params = new Object[14];
 			params[0] = user.getUsername().toLowerCase();
 			params[1] = user.getPassword();
 			params[2] = user.getFullName();
@@ -83,7 +83,8 @@ public class UserDao extends Dao {
 			params[9] = user.getRole();
 			params[10] = user.isExportInputToS3();
 			params[11] = user.isActive();
-			params[12] = user.getId();
+			params[12] = user.getActivationCode();
+			params[13] = user.getId();
 
 			update(sql.toString(), params);
 
@@ -144,6 +145,56 @@ public class UserDao extends Dao {
 		} catch (SQLException e1) {
 
 			log.error("find user by username " + user + "' failed.", e1);
+
+		}
+		return result;
+	}
+
+	public User findByMail(String mail) {
+
+		StringBuffer sql = new StringBuffer();
+
+		sql.append("select * ");
+		sql.append("from user ");
+		sql.append("where mail = ?");
+
+		Object[] params = new Object[1];
+		params[0] = mail.toLowerCase();
+
+		User result = null;
+
+		try {
+			ResultSet rs = query(sql.toString(), params);
+			while (rs.next()) {
+				result = new User();
+				result.setId(rs.getInt("id"));
+				result.setUsername(rs.getString("username"));
+				result.setPassword(rs.getString("password"));
+				result.setFullName(rs.getString("full_name"));
+				if (rs.getString("aws_key") != null) {
+					result.setAwsKey(MySecretKey.decrypt(rs
+							.getString("aws_key")));
+				}
+				if (rs.getString("aws_secret_key") != null) {
+					result.setAwsSecretKey(MySecretKey.decrypt(rs
+							.getString("aws_secret_key")));
+				}
+				result.setSaveCredentials(rs.getBoolean("save_keys"));
+				result.setExportToS3(rs.getBoolean("export_to_s3"));
+				result.setS3Bucket(rs.getString("s3_bucket"));
+				result.setMail(rs.getString("mail"));
+				result.setRole(rs.getString("role"));
+				result.setExportInputToS3(rs.getBoolean("export_input_to_s3"));
+				result.setActivationCode(rs.getString("activation_code"));
+				result.setActive(rs.getBoolean("active"));
+			}
+			rs.close();
+
+			log.debug("find user by mail '" + mail + "' successful.");
+
+		} catch (SQLException e1) {
+
+			log.error("find user by mail " + mail + "' failed.", e1);
 
 		}
 		return result;
@@ -216,13 +267,14 @@ public class UserDao extends Dao {
 				user.setUsername(rs.getString("username"));
 				user.setPassword(rs.getString("password"));
 				user.setFullName(rs.getString("full_name"));
-				/*if (rs.getString("aws_key") != null && !rs.getString("aws_key").isEmpty()) {
-					user.setAwsKey(MySecretKey.decrypt(rs.getString("aws_key")));
-				}
-				if (rs.getString("aws_secret_key") != null) {
-					user.setAwsSecretKey(MySecretKey.decrypt(rs
-							.getString("aws_secret_key")));
-				}*/
+				/*
+				 * if (rs.getString("aws_key") != null &&
+				 * !rs.getString("aws_key").isEmpty()) {
+				 * user.setAwsKey(MySecretKey.decrypt(rs.getString("aws_key")));
+				 * } if (rs.getString("aws_secret_key") != null) {
+				 * user.setAwsSecretKey(MySecretKey.decrypt(rs
+				 * .getString("aws_secret_key"))); }
+				 */
 				user.setSaveCredentials(rs.getBoolean("save_keys"));
 				user.setExportToS3(rs.getBoolean("export_to_s3"));
 				user.setS3Bucket(rs.getString("s3_bucket"));

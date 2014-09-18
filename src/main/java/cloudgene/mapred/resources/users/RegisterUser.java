@@ -40,6 +40,12 @@ public class RegisterUser extends ServerResource {
 
 				}
 
+				if (dao.findByMail(mail) != null) {
+
+					return new JSONAnswer("E-Mail is already registered.", false);
+
+				}
+				
 				String key = HashUtil.getMD5(System.currentTimeMillis() + "");
 				User newUser = new User();
 				newUser.setUsername(username);

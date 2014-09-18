@@ -9,6 +9,8 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import com.sun.org.glassfish.external.statistics.annotations.Reset;
+
 import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
@@ -64,10 +66,12 @@ import cloudgene.mapred.resources.users.LoginUser;
 import cloudgene.mapred.resources.users.LogoutUser;
 import cloudgene.mapred.resources.users.NewUser;
 import cloudgene.mapred.resources.users.RegisterUser;
+import cloudgene.mapred.resources.users.ResetPassword;
 import cloudgene.mapred.resources.users.UpdateCredentials;
 import cloudgene.mapred.resources.users.UpdateUser;
 import cloudgene.mapred.resources.users.UpdateUser2;
 import cloudgene.mapred.resources.users.UpdateUserPassword;
+import cloudgene.mapred.resources.users.UpdateUserPassword2;
 import cloudgene.mapred.resources.users.UpdateUserSettings;
 import cloudgene.mapred.util.LoginFilter;
 
@@ -156,10 +160,13 @@ public class WebApp extends Application {
 		router.attach("/users", GetUsers.class);
 		router.attach("/users/new", NewUser.class);
 		router.attach("/users/register", RegisterUser.class);
-		router.attach("/users/activate/{user}/{code}", ActivateUser.class);
+		router.attach("/users/reset", ResetPassword.class);
+		router.attach("/users/activate/{user}/{code}", ActivateUser.class);		
 		router.attach("/users/delete", DeleteUser.class);
 		router.attach("/users/update", UpdateUser.class);
 		router.attach("/users/update2", UpdateUser2.class);
+		router.attach("/users/update-password", UpdateUserPassword2.class);
+
 		router.attach("/users/details", GetUserDetails.class);
 		router.attach("/login", LoginUser.class);
 		router.attach("/logout", LogoutUser.class);
