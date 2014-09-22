@@ -3,6 +3,9 @@ package cloudgene.mapred.jobs.engine.graph;
 import genepi.io.FileUtil;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -16,6 +19,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
+import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class GraphNode implements Runnable {
@@ -36,7 +40,7 @@ public class GraphNode implements Runnable {
 	private List<String> inputs;
 
 	private List<String> outputs;
-	
+
 	private long time;
 
 	public GraphNode(WdlStep step, CloudgeneContext context)
@@ -90,15 +94,39 @@ public class GraphNode implements Runnable {
 
 		// create instance
 
-		String jar = FileUtil.path(
-				new File(context.getWorkingDirectory()).getAbsolutePath(),
-				step.getJar());
+		String path = new File(context.getWorkingDirectory()).getAbsolutePath();
+		final String jar = FileUtil.path(path, step.getJar());
 
-		URL url = new File(jar).toURL();
-		URLClassLoader urlCl = new URLClassLoader(new URL[] { url },
-				CloudgeneJob.class.getClassLoader());
-		Class myClass = urlCl.loadClass(step.getClassname());
-		instance = (CloudgeneStep) myClass.newInstance();
+		try {
+
+			File file = new File(jar);
+
+			if (file.exists()) {
+
+				URL url = file.toURL();
+
+				URLClassLoader urlCl = new URLClassLoader(new URL[] { url },
+						CloudgeneJob.class.getClassLoader());
+				Class myClass = urlCl.loadClass(step.getClassname());
+				instance = (CloudgeneStep) myClass.newInstance();
+
+			} else {
+
+				instance = new ErrorStep(
+						"Error during initialization: Jar file '" + jar
+								+ "' not found.");
+
+			}
+
+		} catch (Exception e) {
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e.printStackTrace(printWriter);
+			String s = writer.toString();
+			instance = new ErrorStep("Error during initialization: " + s);
+
+		}
+
 		instance.setName(step.getName());
 		instance.setJob(job);
 	}
@@ -214,9 +242,9 @@ public class GraphNode implements Runnable {
 	public void setTime(long time) {
 		this.time = time;
 	}
-	
+
 	public long getExecutionTime() {
 		return time;
 	}
-	
+
 }
