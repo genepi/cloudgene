@@ -28,11 +28,14 @@ import org.restlet.resource.ServerResource;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.CloudgeneJob;
+import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlReader;
 
 public class NewSubmitJob extends ServerResource {
@@ -86,7 +89,8 @@ public class NewSubmitJob extends ServerResource {
 
 						// remove upload indentification!
 						String fieldName = item.getFieldName().replace(
-								"-upload", "");
+								"-upload", "").replace("input-",
+										"");;
 
 						String targetPath = HdfsUtil.path(workspace, "input",
 								id, fieldName);
@@ -121,12 +125,15 @@ public class NewSubmitJob extends ServerResource {
 				if (name == null) {
 
 					try {
+						if (item.getFieldName().startsWith("input-")) {
+							String key = item.getFieldName().replace("input-",
+									"");
+							String value = new String(item.get(), "UTF-8");
+							if (!props.containsKey(key)) {
+								// don't override uploaded files
+								props.put(key, value);
+							}
 
-						String value = new String(item.get(), "UTF-8");
-
-						if (!props.containsKey(item.getFieldName())) {
-							// don't override uploaded files
-							props.put(item.getFieldName(), value);
 						}
 
 					} catch (UnsupportedEncodingException e) {
@@ -135,6 +142,8 @@ public class NewSubmitJob extends ServerResource {
 				}
 
 			}
+
+			// checkboxes
 
 		}
 
@@ -172,16 +181,19 @@ public class NewSubmitJob extends ServerResource {
 				job.setName(id);
 				job.setUser(user);
 
-				Set<String> names = props.keySet();
-
-				// parse params
-				for (String paramName : names) {
-					if (paramName.startsWith("input-")) {
-						String key = paramName.replace("input-", "");
-						String value = props.get(paramName);
-						job.setInputParam(key, value);
+				
+				for (WdlParameter input: app.getMapred().getInputs()){
+					if (props.containsKey(input.getId())){
+						if (input.getType().equals("checkbox")){
+							job.setInputParam(input.getId(), input.getValues().get("true"));
+						}else{
+							job.setInputParam(input.getId(), props.get(input.getId()));
+						}
+					}else{
+						if (input.getType().equals("checkbox")){
+							job.setInputParam(input.getId(), input.getValues().get("false"));
+						}
 					}
-
 				}
 
 				queue.submit(job);
