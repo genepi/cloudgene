@@ -150,7 +150,7 @@ public class GraphNode implements Runnable {
 			// job.writeOutputln("cache = true");
 			// instance = new CachedCloudgeneStep(instance);
 			// } else {
-			job.writeOutputln("cache = false");
+			// job.writeOutputln("cache = false");
 			// }
 
 			instance.setup(context);
