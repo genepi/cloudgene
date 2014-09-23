@@ -92,6 +92,8 @@ abstract public class AbstractJob implements Runnable {
 	private BufferedOutputStream logStream;
 
 	protected CloudgeneContext context;
+	
+	private String logs;
 
 	public String getId() {
 		return id;
@@ -524,6 +526,14 @@ abstract public class AbstractJob implements Runnable {
 
 	public CloudgeneContext getContext() {
 		return context;
+	}
+	
+	public void setLogs(String logs) {
+		this.logs = logs;
+	}
+	
+	public String getLogs() {
+		return logs;
 	}
 
 	abstract public boolean execute();

@@ -80,6 +80,10 @@ public class GetJobDetails extends ServerResource {
 				config.setExcludes(new String[] { "user", "task",
 						"mapReduceJob", "job", "step", "context", "config",
 						"parameter" });
+				
+				if (user.isAdmin()){
+					job.setLogs("/logs/" + job.getId());
+				}
 
 				JSONObject object = JSONObject.fromObject(job, config);
 
