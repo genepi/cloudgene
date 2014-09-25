@@ -21,7 +21,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 
 public class Settings {
 
-	private String hadoopPath = "";
+	private String hadoopPath = "/usr/";
 
 	private String pigPath = "/home/hadoop/pig-0.10.0/";
 
@@ -85,6 +85,14 @@ public class Settings {
 		apps = new HashMap<String, String>();
 		apps.put("user", "sample/cloudgene.yaml");
 		apps.put("admin", "sample/cloudgene.yaml");
+
+		mail = new HashMap<String, String>();
+		mail.put("smtp", "localhost");
+		mail.put("port", "25");
+		mail.put("user", "");
+		mail.put("password", "");
+		mail.put("name", "noreply@cloudgene");
+
 	}
 
 	public void load(String filename) throws FileNotFoundException,
@@ -252,9 +260,10 @@ public class Settings {
 
 		if (!new File(hadoop).exists()) {
 
-			log.warn("hadoop '" + hadoop + "' does not exist. please change it.");
+			log.warn("hadoop '" + hadoop
+					+ "' does not exist. please change it.");
 
-			//return false;
+			// return false;
 
 		}
 		/*
