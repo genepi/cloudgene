@@ -76,6 +76,10 @@
 							<classpathPrefix>lib/</classpathPrefix>
 							<mainClass>cloudgene.mapred.Main</mainClass>
 						</manifest>
+						<manifestEntries>
+							<Version>${project.version}</Version>
+							<Build-Time>${maven.build.timestamp}</Build-Time>
+						</manifestEntries>						
 					</archive>
 				</configuration>
 
