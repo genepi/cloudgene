@@ -1,0 +1,207 @@
+<h2> <a href="#!pages/jobs">Jobs</a> / <%= job.attr('name') %></h2>
+
+<div class="tabbable">
+
+    <ul class="nav nav-tabs">
+                
+        <% if( !results ){  %>
+        		<li class="active">
+        	<% } else { %>
+				<li>        	
+        	<% } %>
+        
+          <a href="#!jobs/<%= job.attr('name') %>">
+            Details
+          </a>
+        </li>
+  
+  		<% if( job.attr('state') != '7' ){ %>
+  
+
+        	<% if(results ){  %>
+        		<li class="active">
+        	<% } else { %>
+				<li>        	
+        	<% } %>
+
+	        <a href="#!jobs/<%= job.attr('name') %>/results">
+	            Results
+	          </a>
+	        </li>
+
+        <% } %>
+         
+    </ul>
+    
+    <table class="table table-bordered">
+
+    	<tr>
+    		<td style="width: 150px;"><b>Started:</b></td>
+    		<td><%= prettyDate(job.attr('startTime')) %></td>
+    	</tr>		
+    	<tr>
+    		<td><b>Finished:</b></td>		
+    		<td><%= prettyDate(job.attr('endTime')) %></td>
+    	</tr>		
+    	<tr>
+    		<td><b>Execution Time:</b></td>			
+    		<td><%= prettyTime(job.attr('executionTime'), job.attr('state')); %></td>
+    	</tr>
+    	<tr>
+		<td><b>State:</b></td>			
+		<td>
+        		<% if( job.attr('state') == '1' ){ %>
+        			<span class="label" style="width: 50px">Waiting</span>
+        		<% } %>
+        		<% if( job.attr('state') == '2' ){ %>
+        			<span class="label label-info" style="width: 50px">Running</span>
+        		<% } %>		
+        		<% if( job.attr('state') == '3' ){ %>
+        			<span class="label label-info" style="width: 50px">Running</span>
+        		<% } %>				
+        		<% if( job.attr('state') == '4'  || job.attr('state') == '8'){ %>
+        			<span class="label label-success" style="width: 50px">Success</span>
+        		<% } %>
+        		<% if( job.attr('state') == '5' ){ %>
+        			<span class="label label-important" style="width: 50px">Failed</span>
+        		<% } %>		
+        		<% if( job.attr('state') == '6' ){ %>
+        		<span class="label label-important" style="width: 50px">Canceled</span>
+        		<% } %>
+        		<% if( job.attr('state') == '7' ){ %>
+        			<span class="label label-inverse" style="width: 50px">Retired</span>
+        		<% } %>	
+        				
+		</td>
+		</tr>
+		<% if( job.attr('logs') ){ %>
+    	<tr>
+    		<td><b>Logs:</b></td>		
+    		<td><a href="<%= job.attr('logs')  %>">View</td>
+    	</tr>
+    	<% } %>
+    					
+	<% if( job.attr('state') == '1' ){ %>
+	<tr>
+		<td><b>Queue Position:</b>	</td>
+		<td>
+        	<span class="badge"><%= job.attr('positionInQueue') %></span>
+		</td>	
+	</tr>
+	<% } %>
+	
+	
+		<tr>
+	<td><b>Actions:</b></td>
+		<td>
+
+		<div class="btn-group">
+				 <% if( job.attr('state') <= '3' ){ %>
+		  			<button class="btn" id="btn-cancel">Cancel</button>
+        		<% } %>
+        		<% if( job.attr('state') > '3' ){ %>
+		 			 <button class="btn" id="btn-delete">Delete</button>
+        		<% } %>				
+		</div>
+		
+		</td>	
+
+	</tr>
+	
+	
+    	</table>
+    	
+    	
+    <div class="tab-content">
+
+        	<% if( !results ){  %>
+    			<div class="tab-pane active" id="tab1">
+
+    	<% if( job.attr('state') == '7' ){ %>
+    	<p><i>This job is older than 7 days and is retired.	All results are deleted.</i></p>
+    	<% } %>
+    	
+    	<p><br></p>
+
+    	<table id="table-steps" class="table table-bordered" style="opacity: <%=  job.attr('state') == '7' ? '0.5' : '1.0' %>;">
+
+    	<tbody>
+    	<% job.attr('steps').each(function( step ) { %>
+    	    <tr>
+    	    	<td colspan="2"><b><%==step.attr('name') %></b></td>
+    	    </tr>
+    	<% step.attr('logMessages').each(function( log ) { %>
+
+    	    <tr  >
+    	        <td style="width: 40px;text-align:center;">
+    	        <% if( log.attr('type') == '0' ){ %>
+    	        <span class="label label-success" style="width: 20px"><i class="icon-ok icon-white"></i></span>
+    	        <% } %>
+    	        <% if( log.attr('type') == '1' ){ %>
+    	        <span class="label label-important" style="width: 20px"><i class="icon-remove icon-white"></i></span>
+    	        <% } %>	
+                <% if( log.attr('type') == '2' ){ %>
+    	        <span class="label label-warning" style="width: 20px"><i class="icon-eye-open icon-white"></i></span>
+    	        <% } %>	    	        
+    	        <% if( log.attr('type') == '3' && job.attr('state') != 6){ %>
+    	        <img src="assets/img/jobs/running.gif"/>
+    	        <% } %>
+    	        <% if( log.attr('type') == '3' && job.attr('state') == 6){ %>
+    	        <span class="label label-important" style="width: 20px"><i class="icon-remove icon-white"></i></span>
+    	        <% } %>	            	        
+    	        </td>
+    	        <td><%==log.attr('message').replace(/\n/g, "<br>") %></td>
+    	    </tr>
+    	<% }) %>
+    	<% }) %>    	
+    	   
+    	</tbody>
+    	</table>
+
+    	</div>
+      
+        	<% } %>      
+      
+      <% if( job.attr('state') != '7' ){ %>
+      
+        	<% if( results ){  %>
+	
+	    	<p><br></p>
+	
+
+    	<% job.attr('outputParams').each(function( param ) { %>
+	    <% if (param.attr('download') && param.attr('files').length > 0){ %>
+    	<table  class="table table-bordered">
+    	<tbody>
+    	<tr>
+	    	<td colspan="4"><b><%=param.attr('description') %></b></td>
+	    </tr>
+    	
+	    <% param.attr('files').each(function( output ) { %>
+
+    	    <tr>
+    	        <td><a href="results/<%=output.attr('path') %>" target="_blank"><%=output.attr('name') %></a></td>  	    
+    	    <td style="width: 100px;text-align:right;"><%=output.attr('size') %></td>
+    	        <td style="width: 16px;text-align:center;">
+    	       <span class="icon-share-alt" style="cursor: pointer;" title="Share Data..."
+    	         <%=output.attr('hash') ? " onclick=\"bootbox.animate(false); bootbox.alert('<h4>Share Data</h4>The private link for this file is:<br><br><pre><a target=\\\'_blank\\\' href=\\\'https://"+location.host+"/share/"+output.username+"/"  +output.hash+"/" + output.name + "\\\'>https://"+location.host+"/share/"+output.username+"/" + output.hash+"/" + output.name +"</a></pre>');\"" : ""%>
+               ></span>
+    	       </td>    	    
+    	    </tr>
+   	    
+    	<% }) %>
+	    </tbody>
+	    	</table>
+	    	    <% } %>	    	
+	    <% }) %>
+
+	
+	
+    	</div>
+    	        	<% } %>
+      	<% } %>  
+       </div>
+            
+	
+
+

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>2.0.0</version>
+	<version>1.9.3</version>
 
 	<repositories>
 		<repository>
@@ -252,4 +252,9 @@
 
 	</dependencies>
 
+	<name>Cloudgene</name>
+	<url>http://cloudgene.uibk.ac.at</url>
+	<organization>
+		<name>Lukas Forer and Sebastian Schoenherr</name>
+	</organization>
 </project>

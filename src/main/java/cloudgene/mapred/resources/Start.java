@@ -1,8 +1,10 @@
 package cloudgene.mapred.resources;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.restlet.data.LocalReference;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.ContextTemplateLoader;
@@ -12,10 +14,11 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
+import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.Template;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.Template;
 import freemarker.template.Configuration;
 
 public class Start extends ServerResource {
@@ -34,10 +37,13 @@ public class Start extends ServerResource {
 					"The request requires user authentication.");
 		}
 
+		WebApp app = (WebApp) getApplication();
+
 		Configuration cfg = new Configuration();
 
-		ContextTemplateLoader loader = new ContextTemplateLoader(getContext(),
-				"clap://thread/webapp");
+		ContextTemplateLoader loader = new ContextTemplateLoader(
+				getContext(),
+				LocalReference.createFileReference(new File(app.getRootFolder())));
 
 		cfg.setTemplateLoader(loader);
 

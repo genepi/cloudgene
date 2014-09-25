@@ -1,8 +1,10 @@
 package cloudgene.mapred.resources;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.restlet.data.LocalReference;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.ContextTemplateLoader;
@@ -12,6 +14,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 
+import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.util.Template;
@@ -34,18 +37,19 @@ public class Admin extends ServerResource {
 					"The request requires user authentication.");
 		}
 
-
 		if (!user.isAdmin()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires administration rights.");
-		}		
-		
-		
+		}
+
+		WebApp app = (WebApp) getApplication();
+
 		Configuration cfg = new Configuration();
 
-		ContextTemplateLoader loader = new ContextTemplateLoader(getContext(),
-				"clap://thread/webapp");
+		ContextTemplateLoader loader = new ContextTemplateLoader(
+				getContext(),
+				LocalReference.createFileReference(new File(app.getRootFolder())));
 
 		cfg.setTemplateLoader(loader);
 

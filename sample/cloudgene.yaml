@@ -1,0 +1,69 @@
+name: Hello Cloudgene
+description:  This is a simple Cloudgene startet template. 
+version: 1.0.1
+website: http://cloudgene.uibk.ac.at
+category: cloudgene
+
+cluster:
+
+  image: us-east-1/ami-da0cf8b3
+  type: m1.large,m1.xlarge
+  ports: 80,50030,50070
+  creationOnly: false
+  installMapred: true
+  initScript: install.sh
+  service: hadoop
+ 
+mapred:
+
+  steps:
+    - name: Hello Cloudgene
+      classname: cloudgene.template.SampleStep
+      jar: cloudgene-template.jar
+    
+  inputs:
+    
+     - id: checkbox
+       description: Checkbox
+       type: checkbox
+       values:
+         true: true
+         false: false
+
+    
+     - id: folder
+       description: HDF-Folder
+       type: hdfs-folder
+       required: false
+
+     - id: number
+       description: number
+       type: number
+       value: 2500000
+
+     - id: text
+       description: Text
+       type: text
+       value: chr20 20000050 20300000
+       required: false
+
+     - id: list
+       description: List
+       type: list
+       value: valueA
+       values:
+         valueA: Description valueA
+         valueB: Description valueB
+         valueC: Description valueC
+       required: false
+                           
+  outputs:
+
+    - id: stats
+      description: Statistics
+      type: hdfs-folder
+      download: true
+      temp: false
+      zip: false
+      removeHeader: true
+      mergeOutput: true

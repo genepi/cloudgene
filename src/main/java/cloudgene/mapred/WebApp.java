@@ -1,5 +1,7 @@
 package cloudgene.mapred;
 
+import java.io.File;
+
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.LocalReference;
@@ -77,15 +79,18 @@ import cloudgene.mapred.util.LoginFilter;
 
 public class WebApp extends Application {
 
+	private String root;
+	
 	private LocalReference webRoot;
 
 	private LocalReference webRoot2;
 
-	public static String VERSION = "1.9.3";
-
-	public WebApp(LocalReference webRoot, LocalReference webRoot2) {
-		this.webRoot = webRoot;
-		this.webRoot2 = webRoot2;
+	public WebApp(String root, String pages) {
+		this.webRoot = LocalReference
+				.createFileReference(new File(root));
+		this.root = root;
+		this.webRoot2 = LocalReference
+				.createFileReference(new File(pages));
 	}
 
 	/**
@@ -213,6 +218,10 @@ public class WebApp extends Application {
 		filter.setNext(router);
 
 		return filter;
+	}
+	
+	public String getRootFolder(){
+		return root;
 	}
 
 }

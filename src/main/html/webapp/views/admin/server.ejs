@@ -1,0 +1,66 @@
+<h2>Server</h2>
+
+<p>This page shows server states and provides administrative tasks.<br><br></p>
+
+
+<h4>Status</h4>
+
+<table class="table table-bordered">
+
+    	<tr>
+    		<td style="width: 150px;"><b>Mode:</b></td>
+    		<td>
+    		<% if (cluster.attr('maintenance')) { %>
+				<span class="label label-important">Maintenance Mode</span>
+    		<% } else { %>
+    			<span class="label label-success">Running</span>
+    		<% } %>
+    		</td>
+    	</tr>		
+
+    	<tr>
+    		<td style="width: 150px;"><b>Queue:</b></td>
+    		<td>
+    		
+    		<% if (cluster.attr('blocked')) { %>
+				<span class="label label-important">Blocked</span>
+    		<% } else { %>
+    			<span class="label label-success">Running</span>
+    		<% } %>    		
+    		
+    		</td>
+    	</tr>		
+
+</table>
+
+<hr>
+
+
+<h4>Maintenance Mode</h4>
+<p>Maintenance mode is for preventing any users other than administrators from submitting jobs. The front page will appear as normal when your site is in maintenance mode. Users will only see the maintenance mode message when they attempt to submit a job.</p>
+<p><i>Note: You can create a customized maintenance mode message by change the MAINTENANCE_MESSAGE variable (see Settings).</i></p>
+<br>
+<p>
+<a href="/admin/maintenance/enter" class="btn btn-danger">Enter Maintenance Mode</a>
+<a href="/admin/maintenance/exit" class="btn btn-success">Exit Maintenance Mode</a>
+</p>
+
+
+<hr>
+
+
+<h4>Queue</h4>
+<p>Blocks the queue. All running jobs are executed and all other jobs are waiting until the queue is manually opened.</p>
+<br>
+<p>
+<a href="/admin/queue/block" class="btn btn-danger">Block Queue</a>
+<a href="/admin/queue/open" class="btn btn-success">Open Queue</a>
+</p>
+
+
+<h4>Auto Retire</h4>
+<p>Retires old jobs and send notifications.</p>
+<br>
+<p>
+<a href="/admin/retire/start" class="btn btn-primary">Start Retire</a>
+</p>

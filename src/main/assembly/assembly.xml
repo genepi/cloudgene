@@ -32,6 +32,16 @@
             <directory>files</directory>
         </fileSet>
 
+        <fileSet>
+            <outputDirectory>/</outputDirectory>
+            <directory>src/main/html</directory>
+        </fileSet>
+
+        <fileSet>
+            <outputDirectory>/sample</outputDirectory>
+            <directory>sample</directory>
+        </fileSet>
+
     </fileSets>
 
 </assembly>

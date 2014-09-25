@@ -1,0 +1,62 @@
+<h2>Sign up</h2>
+<br>
+<div class="alert alert-error hide" id="error-message">
+<b>Registration failed.</b>
+<br>
+</div>
+
+<div class="alert alert-success hide" id="success-message">
+<b>Well done!</b> A mail with the activation code was send to your address.
+<br>
+</div>
+
+<form id="signon-form" class="form-horizontal" >
+
+    <div class="control-group">
+    	<label for="username" class="control-label">Username:</label>
+    	<div class="controls">
+    	<input name="username" type="text" data-required="true">
+    	<span class="help-block"></span>
+    	</div>
+    </div>
+    
+    
+    <div class="control-group">
+            <label for="full-name" class="control-label">Full Name:</label>
+            <div class="controls">
+            	<input name="full-name" type="text" data-required="true">
+            	<span class="help-block"></span>
+            </div>
+    </div>
+    
+    
+    <div class="control-group">        
+    	<label for="mail" class="control-label">E-Mail:</label>
+    	<div class="controls">
+    		<input name="mail" type="text" data-required="true">
+    		<span class="help-block"></span>
+    	</div>
+    </div>
+
+    <div class="control-group">        
+	<label for="mail" class="control-label">Password:</label>
+	<div class="controls">
+		<input name="new-password" type="password" data-required="true">
+		<span class="help-block"></span>
+	</div>
+    </div>
+
+    <div class="control-group">        
+	<label for="mail" class="control-label">Confirm password:</label>
+	<div class="controls">
+		<input name="confirm-new-password" type="password" data-required="true">
+		<span class="help-block"></span>
+	</div>
+    </div>
+    
+    <div class="controls">     
+    	<button id="save" class="btn btn-primary" data-loading-text="please wait...">Register</button>
+    </div>
+
+</form>
+

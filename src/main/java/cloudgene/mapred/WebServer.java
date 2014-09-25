@@ -9,7 +9,7 @@ import org.restlet.routing.VirtualHost;
 
 public class WebServer extends Component {
 
-	public WebServer(LocalReference webRoot, LocalReference webRoot2, int port,
+	public WebServer(String webRoot, String webRoot2, int port,
 			boolean useSSL, String keystore, String password) throws Exception {
 
 		// ------------------

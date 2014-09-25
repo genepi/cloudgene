@@ -1,1 +1,0 @@
-hadoop jar cloudgene-mapred.jar -port 8082 --add-user cloudgene cloud

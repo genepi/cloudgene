@@ -82,7 +82,9 @@ public class Settings {
 	private Map<String, String> cacheTemplates;
 
 	private Settings() {
-
+		apps = new HashMap<String, String>();
+		apps.put("user", "sample/cloudgene.yaml");
+		apps.put("admin", "sample/cloudgene.yaml");
 	}
 
 	public void load(String filename) throws FileNotFoundException,
@@ -250,9 +252,9 @@ public class Settings {
 
 		if (!new File(hadoop).exists()) {
 
-			log.error("hadoop '" + hadoop + "' does not exist.");
+			log.warn("hadoop '" + hadoop + "' does not exist. please change it.");
 
-			return false;
+			//return false;
 
 		}
 		/*
