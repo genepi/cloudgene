@@ -1,7 +1,9 @@
 package cloudgene.mapred.resources.apps;
 
 import java.io.IOException;
+import java.util.List;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
@@ -14,8 +16,10 @@ import org.restlet.resource.ServerResource;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
+import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 
 public class GetApp extends ServerResource {
@@ -54,6 +58,12 @@ public class GetApp extends ServerResource {
 			JsonConfig config = new JsonConfig();
 			config.setExcludes(new String[] { "mapred", "installed", "cluster" });
 			JSONObject jsonObject = JSONObject.fromObject(meta, config);
+			
+			List<WdlParameter> params = app.getMapred().getInputs();
+			JSONArray jsonArray = JSONArray.fromObject(params);
+			jsonObject.put("params", jsonArray);
+			jsonObject.put("submitButton", settings.getTemplate(Template.SUBMIT_BUTTON_TEXT));
+			
 
 			return new StringRepresentation(jsonObject.toString());
 		} catch (IOException e) {

@@ -9,8 +9,10 @@ public class Template {
 	public static final String REGISTER_MAIL = "REGISTER_MAIL";
 
 	public static final String RECOVERY_MAIL = "RECOVERY_MAIL";
-	
+
 	public static final String RETIRE_JOB_MAIL = "RETIRE_JOB_MAIL";
+
+	public static final String SUBMIT_BUTTON_TEXT = "SUBMIT_BUTTON_TEXT";
 
 	public static final Template[] SNIPPETS = new Template[] {
 
@@ -35,8 +37,10 @@ public class Template {
 			new Template(
 					RECOVERY_MAIL,
 					"Dear %s,\nThis email is sent automatically by the \"%s\" system.\n\n"
-							+ "To reset your password, please click on this link %s. ")			
-			
+							+ "To reset your password, please click on this link %s. "),
+
+			new Template(SUBMIT_BUTTON_TEXT, "Start Imputation")
+
 	};
 
 	private String key;
