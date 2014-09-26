@@ -19,6 +19,22 @@ public class Command extends Hadoop {
 
 		String[] params = step.getExec().split(" ");
 
+		File file = new File(params[0]);
+
+		if (!file.exists()) {
+			error("Command '"
+					+ file.getAbsolutePath()
+					+ "' was not found. Please set the correct path in the cloudgene.yaml file.");
+			return false;
+		}
+
+		if (!file.canExecute()) {
+			error("Command '"
+					+ file.getAbsolutePath()
+					+ "' was found but can not be executed. Please check the permissions.");
+			return false;
+		}
+
 		List<String> command = new Vector<String>();
 		for (String param : params) {
 

@@ -1,5 +1,7 @@
 package cloudgene.sample;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 
 import org.apache.hadoop.conf.Configuration;
@@ -36,21 +38,48 @@ public class SampleStep extends CloudgeneStep {
 
 		ok(state.toString());
 
-		String hadoop = settings.getHadoopPath();
+		String hadoopPath = Settings.getInstance().getHadoopPath();
 
-		if (new File(hadoop).exists()) {
-			ok("Hadoop Binary was found in " + hadoop);
-		} else {
-
-			if (hadoop.trim().isEmpty()) {
-				error("Hadoop Path was not set (set it here)");
-			} else {
-				error("Hadoop Binary was not found in  " + hadoop
-						+ " (change it here)");
-			}
-
+		if (hadoopPath.trim().isEmpty()) {
+			error("Hadoop Binary was not set. Please set the correct path in the admin panel.");
 			return false;
 		}
+
+		File path = new File(hadoopPath);
+
+		if (!path.exists()) {
+			error("Hadoop Binary <code>"
+					+ path
+					+ "</code> was not found. Please set the correct path in the admin panel.");
+			return false;
+		}
+
+		String hadoop = "";
+
+		if (path.isDirectory()) {
+			hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
+		} else {
+			hadoop = hadoopPath;
+		}
+
+		File file = new File(hadoop);
+
+		if (!file.exists()) {
+			error("Hadoop Binary <code>"
+					+ hadoop
+					+ "</code> was not found. Please set the correct path in the admin panel.");
+			return false;
+		}
+
+		if (!file.canExecute()) {
+			error("Hadoop Binary <code>"
+					+ hadoop
+					+ "</code> was found, but it can not be executed. Please check the permissions.");
+			return false;
+		}
+
+		ok("Hadoop Binary was found in <code>" + hadoop
+				+ "</code> and is executable.");
 
 		// TODO: write file to hdfs temp directory
 
@@ -71,8 +100,8 @@ public class SampleStep extends CloudgeneStep {
 
 				context.sendMail(subject, message);
 
-				ok("We have sent an email to <b>" + context.getUser().getMail()
-						+ "</b> with the password.");
+				ok("We have sent a test-email to <b>"
+						+ context.getUser().getMail() + "</b>.");
 
 			} catch (Exception e) {
 				error("Sending mail failed: " + e.getMessage());
@@ -86,7 +115,7 @@ public class SampleStep extends CloudgeneStep {
 
 		}
 
-		ok("Congratulations. Cloudgene works properly on your Hadoop Cluster!\nNow you can install applications (plese click here more details)");
+		ok("<b>Congratulations.</b> Cloudgene works properly on your Hadoop Cluster!");
 
 		return true;
 

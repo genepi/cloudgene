@@ -6,7 +6,6 @@ import genepi.io.FileUtil;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +18,10 @@ import cloudgene.mapred.database.TemplateDao;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
-import com.esotericsoftware.yamlbeans.YamlWriter;
 
 public class Settings {
 
-	private String hadoopPath = "/usr/";
+	private String hadoopPath = "/usr/bin/hadoop";
 
 	private String pigPath = "/home/hadoop/pig-0.10.0/";
 
@@ -133,7 +131,6 @@ public class Settings {
 		log.info("Write statistics: " + instance.writeStatistics);
 
 	}
-
 
 	public static Settings getInstance() {
 		if (instance == null) {

@@ -2,6 +2,7 @@ package cloudgene.mapred.steps;
 
 import genepi.io.FileUtil;
 
+import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
@@ -20,7 +21,36 @@ public class MapReduce extends Hadoop {
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
 		String hadoopPath = Settings.getInstance().getHadoopPath();
-		String hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
+
+		File path = new File(hadoopPath);
+
+		if (!path.exists()) {
+			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			return false;
+		}
+
+		String hadoop = "";
+
+		if (path.isDirectory()) {
+			hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
+		} else {
+			hadoop = hadoopPath;
+		}
+
+		File file = new File(hadoop);
+
+		if (!file.exists()) {
+			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			return false;
+		}
+
+		if (!file.canExecute()) {
+			error("Hadoop Binary was found ("
+					+ hadoop
+					+ ") but can not be executed. Please check the permissions.");
+			return false;
+		}
+
 		String streamingJar = Settings.getInstance().getStreamingJar();
 
 		// params
@@ -48,8 +78,8 @@ public class MapReduce extends Hadoop {
 
 			} else {
 
-				// throw new Exception(
-				// "Streaming mode is disabled.\nPlease specify the streaming-jar file in config/settings.yaml to run this job.");
+				error("Htreaming mode is disabled.\nPlease specify the streaming-jar file in config/settings.yaml to run this job..");
+				return false;
 
 			}
 

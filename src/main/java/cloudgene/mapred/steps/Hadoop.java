@@ -35,7 +35,35 @@ public abstract class Hadoop extends CloudgeneStep {
 			String... params) throws IOException, InterruptedException {
 
 		String hadoopPath = Settings.getInstance().getHadoopPath();
-		String hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
+
+		File path = new File(hadoopPath);
+
+		if (!path.exists()) {
+			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			return false;
+		}
+
+		String hadoop = "";
+
+		if (path.isDirectory()) {
+			hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
+		} else {
+			hadoop = hadoopPath;
+		}
+
+		File file = new File(hadoop);
+
+		if (!file.exists()) {
+			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			return false;
+		}
+
+		if (!file.canExecute()) {
+			error("Hadoop Binary was found ("
+					+ hadoop
+					+ ") but can not be executed. Please check the permissions.");
+			return false;
+		}
 
 		// hadoop jar or streaming
 		List<String> command = new Vector<String>();
