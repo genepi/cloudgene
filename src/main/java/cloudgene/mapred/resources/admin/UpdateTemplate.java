@@ -13,7 +13,7 @@ import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.util.Settings;
 
-public class UpdateHtmlSnippet extends ServerResource {
+public class UpdateTemplate extends ServerResource {
 
 	@Post
 	public Representation post(Representation entity) {

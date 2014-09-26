@@ -22,11 +22,13 @@ import cloudgene.mapred.resources.admin.EnterMaintenance;
 import cloudgene.mapred.resources.admin.ExitMaintenance;
 import cloudgene.mapred.resources.admin.GetAllJobs;
 import cloudgene.mapred.resources.admin.GetClusterDetails;
+import cloudgene.mapred.resources.admin.GetSettings;
 import cloudgene.mapred.resources.admin.GetStatistics;
 import cloudgene.mapred.resources.admin.GetTemplates;
 import cloudgene.mapred.resources.admin.OpenQueue;
 import cloudgene.mapred.resources.admin.StartRetire;
-import cloudgene.mapred.resources.admin.UpdateHtmlSnippet;
+import cloudgene.mapred.resources.admin.UpdateSettings;
+import cloudgene.mapred.resources.admin.UpdateTemplate;
 import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetAppDetails;
 import cloudgene.mapred.resources.apps.GetAppParams;
@@ -182,8 +184,11 @@ public class WebApp extends Application {
 		router.attach("/admin/maintenance/enter", EnterMaintenance.class);
 		router.attach("/admin/maintenance/exit", ExitMaintenance.class);
 		router.attach("/admin/templates", GetTemplates.class);
-		router.attach("/admin/templates/update", UpdateHtmlSnippet.class);
+		router.attach("/admin/templates/update", UpdateTemplate.class);
 		router.attach("/admin/jobs", GetAllJobs.class);
+		router.attach("/admin/settings", GetSettings.class);
+		router.attach("/admin/settings/update", UpdateSettings.class);
+
 
 		router.attach("/admin/retire/start", StartRetire.class);
 
