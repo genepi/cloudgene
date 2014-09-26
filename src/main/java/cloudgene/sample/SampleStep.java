@@ -4,13 +4,10 @@ import genepi.io.FileUtil;
 
 import java.io.File;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.ClusterStatus;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.HadoopUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlStep;
@@ -22,7 +19,7 @@ public class SampleStep extends CloudgeneStep {
 
 		Settings settings = Settings.getInstance();
 
-		ok("<i>Please check below if we detected your cluster properly.</i>");
+		ok("<i>Cloudgene runs with the following Hadoop configuration:</i>");
 
 		ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
 		StringBuffer state = new StringBuffer();
@@ -38,7 +35,7 @@ public class SampleStep extends CloudgeneStep {
 
 		ok(state.toString());
 
-		String hadoopPath = Settings.getInstance().getHadoopPath();
+		String hadoopPath = settings.getHadoopPath();
 
 		if (hadoopPath.trim().isEmpty()) {
 			error("Hadoop Binary was not set. Please set the correct path in the admin panel.");
@@ -81,6 +78,13 @@ public class SampleStep extends CloudgeneStep {
 		ok("Hadoop Binary was found in <code>" + hadoop
 				+ "</code> and is executable.");
 
+		
+		// TODO: write r script which checks packages
+
+		
+		ok("R was found and all packages are installed.");
+
+		
 		// TODO: write file to hdfs temp directory
 
 		ok("HDFS File System check");

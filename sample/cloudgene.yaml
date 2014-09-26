@@ -1,5 +1,5 @@
 name: Hello Cloudgene
-description:  This is a simple Cloudgene startet template. 
+description:  <p>This job tests your configuration in order to ensure that Cloudgene is able to communicate with your Hadoop Cluster.<br>If the job fails, please follow the error message and adapt your configuration until the job runs successfully.<br>Useful informations about the configuration can be found on our website <a href="http://cloudgene.uibk.ac.at">http://cloudgene.uibk.ac.at</a>.
 version: 1.0.1
 website: http://cloudgene.uibk.ac.at
 category: cloudgene
@@ -22,39 +22,37 @@ mapred:
     
   inputs:
     
-     - id: checkbox
-       description: Checkbox
-       type: checkbox
-       values:
-         true: true
-         false: false
+    - id: checkhadoop
+      description: Test Hadoop MapReduce
+      type: checkbox
+      value: true
+      values:
+        true: true
+        false: false
 
-    
-     - id: folder
-       description: HDF-Folder
-       type: hdfs-folder
-       required: false
+    - id: checkhdfs
+      description: Test Hadoop HDFS
+      type: checkbox
+      value: true
+      values:
+        true: true
+        false: false
+   
+    - id: checkr
+      description: Test RMarkdown
+      type: checkbox
+      value: true
+      values:
+        true: true
+        false: false  
 
-     - id: number
-       description: number
-       type: number
-       value: 2500000
-
-     - id: text
-       description: Text
-       type: text
-       value: chr20 20000050 20300000
-       required: false
-
-     - id: list
-       description: List
-       type: list
-       value: valueA
-       values:
-         valueA: Description valueA
-         valueB: Description valueB
-         valueC: Description valueC
-       required: false
+    - id: checkmail
+      description: Test Mail Server Configuration
+      type: checkbox
+      value: true
+      values:
+        true: true
+        false: false  
                            
   outputs:
 
