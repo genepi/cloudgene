@@ -1,6 +1,8 @@
 package cloudgene.mapred.resources.jobs;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,26 +63,24 @@ public class SubmitJob extends ServerResource {
 			WdlApp app = WdlReader.loadApp(tool);
 			if (app.getMapred() != null) {
 
-				CloudgeneJob job = new CloudgeneJob(app.getMapred());
-
-				String name = obj.get("job-name").toString();
-				String id = obj.get("job-id").toString();
-				job.setId(id);
-				job.setName(name);
-				job.setUser(user);
-
 				String[] names = JSONObject.getNames(obj);
 
+				Map<String, String> params = new HashMap<>();
 				// parse params
 				for (String paramName : names) {
 					if (paramName.startsWith("input-")) {
 						String key = paramName.replace("input-", "");
 						String value = obj.get(paramName).toString();
-						job.setInputParam(key, value);
+						params.put(key, value);
 					}
 
 				}
-
+				String name = obj.get("job-name").toString();
+				String id = obj.get("job-id").toString();
+				CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
+						params);
+				job.setId(id);
+				job.setName(name);
 				queue.submit(job);
 
 			}

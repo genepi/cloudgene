@@ -61,7 +61,7 @@ public class Executor {
 			for (GraphNode node : nodes) {
 				// export results
 				exportResults(graph, node);
-			}						
+			}
 			return false;
 		} else {
 			for (GraphNode node : nodes) {
@@ -129,8 +129,7 @@ public class Executor {
 
 		CloudgeneJob job = (CloudgeneJob) graph.getContext().getJob();
 
-		for (CloudgeneParameter out : graph.getContext().getParameters()
-				.values()) {
+		for (CloudgeneParameter out : job.getOutputParams()) {
 			if (out.isAutoExport() && node.getOutputs().contains(out.getName())) {
 				graph.getContext().println(
 						"Export parameter '" + out.getName() + "'...");

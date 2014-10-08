@@ -1,5 +1,6 @@
 package cloudgene.mapred.jobs.engine.graph;
 
+import genepi.hadoop.common.WorkflowStep;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -20,6 +21,7 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.steps.ErrorStep;
+import cloudgene.mapred.steps.ExternStep;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class GraphNode implements Runnable {
@@ -108,7 +110,20 @@ public class GraphNode implements Runnable {
 				URLClassLoader urlCl = new URLClassLoader(new URL[] { url },
 						CloudgeneJob.class.getClassLoader());
 				Class myClass = urlCl.loadClass(step.getClassname());
-				instance = (CloudgeneStep) myClass.newInstance();
+
+				Object object = myClass.newInstance();
+
+				if (object instanceof CloudgeneStep) {
+					instance = (CloudgeneStep) object;
+				} else if (object instanceof WorkflowStep) {
+					instance = new ExternStep((WorkflowStep) object);
+				} else {
+					instance = new ErrorStep(
+							"Error during initialization: class "
+									+ step.getClassname() + " ( "  + object.getClass().getSuperclass().getCanonicalName() + ") "
+									+ " has to extend CloudgeneStep or WorkflowStep. ");
+
+				}
 
 			} else {
 
@@ -135,6 +150,7 @@ public class GraphNode implements Runnable {
 	public void run() {
 
 		// JobDao dao = new JobDao();
+		context.setCurrentStep(instance);
 		job.getSteps().add(instance);
 		// dao.update(job);
 

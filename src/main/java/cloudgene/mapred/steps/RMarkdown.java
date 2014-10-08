@@ -1,24 +1,24 @@
 package cloudgene.mapred.steps;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.command.Command;
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
 
-import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.MyRScript;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.command.Command;
 
 public class RMarkdown extends CloudgeneStep {
 
 	@Override
-	public boolean run(WdlStep step, CloudgeneContext context) {
+	public boolean run(WdlStep step, WorkflowContext context) {
 
-		beginTask("Running Report Script...");
+		context.beginTask("Running Report Script...");
 
 		String wd = context.getWorkingDirectory();
 
@@ -38,10 +38,11 @@ public class RMarkdown extends CloudgeneStep {
 		int result = convert(FileUtil.path(wd, rmd), output, params, context);
 
 		if (result == 0) {
-			endTask("Execution successful.", Message.OK);
+			context.endTask("Execution successful.", Message.OK);
 			return true;
 		} else {
-			endTask("Execution failed. Please have a look at the logfile for details.",
+			context.endTask(
+					"Execution failed. Please have a look at the logfile for details.",
 					Message.ERROR);
 			return false;
 		}
@@ -49,7 +50,7 @@ public class RMarkdown extends CloudgeneStep {
 	}
 
 	public int convert(String rmdScript, String outputHtml, String[] args,
-			CloudgeneContext context) {
+			WorkflowContext context) {
 
 		context.println("Creating RMarkdown report from " + rmdScript + "...");
 

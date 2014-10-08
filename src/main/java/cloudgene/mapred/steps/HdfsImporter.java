@@ -1,6 +1,7 @@
 package cloudgene.mapred.steps;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.common.WorkflowContext;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.steps.importer.IImporter;
@@ -10,7 +11,7 @@ import cloudgene.mapred.wdl.WdlStep;
 public class HdfsImporter extends Hadoop {
 
 	@Override
-	public boolean run(WdlStep step, CloudgeneContext context) {
+	public boolean run(WdlStep step, WorkflowContext context) {
 
 		try {
 
@@ -35,12 +36,13 @@ public class HdfsImporter extends Hadoop {
 
 						String url = url2 + ";" + username + ";" + password;
 
-						String target = HdfsUtil.path(context.getHdfsTemp(),
+						String target = HdfsUtil.path(
+								((CloudgeneContext) context).getHdfsTemp(),
 								"importer", input);
 
 						try {
 
-							beginTask("Import File(s) " + url2 + "...");
+							context.beginTask("Import File(s) " + url2 + "...");
 
 							IImporter importer = ImporterFactory
 									.createImporter(url, target);
@@ -53,12 +55,12 @@ public class HdfsImporter extends Hadoop {
 
 									context.setInput(input, target);
 
-									endTask("Import File(s) " + url2
+									context.endTask("Import File(s) " + url2
 											+ " successful.", Message.OK);
 
 								} else {
 
-									endTask("Import File(s) " + url2
+									context.endTask("Import File(s) " + url2
 											+ " failed: "
 											+ importer.getErrorMessage(),
 											Message.ERROR);
@@ -69,7 +71,7 @@ public class HdfsImporter extends Hadoop {
 
 							} else {
 
-								endTask("Import File(s) " + url2
+								context.endTask("Import File(s) " + url2
 										+ " failed: Protocol not supported",
 										Message.ERROR);
 
@@ -78,7 +80,7 @@ public class HdfsImporter extends Hadoop {
 							}
 
 						} catch (Exception e) {
-							endTask("Import File(s) " + url2 + " failed: "
+							context.endTask("Import File(s) " + url2 + " failed: "
 									+ e.toString(), Message.ERROR);
 							return false;
 						}

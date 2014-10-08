@@ -1,6 +1,6 @@
 package cloudgene.mapred.steps;
 
-import cloudgene.mapred.jobs.CloudgeneContext;
+import genepi.hadoop.common.WorkflowContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
 
@@ -13,8 +13,8 @@ public class ErrorStep extends CloudgeneStep{
 	}
 	
 	@Override
-	public boolean run(WdlStep step, CloudgeneContext context) {
-		error(errorMessage);
+	public boolean run(WdlStep step, WorkflowContext context) {
+		context.error(errorMessage);
 		return false;
 	}
 

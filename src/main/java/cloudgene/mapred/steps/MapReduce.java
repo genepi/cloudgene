@@ -1,5 +1,6 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -18,14 +19,14 @@ public class MapReduce extends Hadoop {
 	}
 
 	@Override
-	public boolean run(WdlStep step, CloudgeneContext context) {
+	public boolean run(WdlStep step, WorkflowContext context) {
 
 		String hadoopPath = Settings.getInstance().getHadoopPath();
 
 		File path = new File(hadoopPath);
 
 		if (!path.exists()) {
-			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			context.error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
 			return false;
 		}
 
@@ -40,12 +41,12 @@ public class MapReduce extends Hadoop {
 		File file = new File(hadoop);
 
 		if (!file.exists()) {
-			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			context.error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
 			return false;
 		}
 
 		if (!file.canExecute()) {
-			error("Hadoop Binary was found ("
+			context.error("Hadoop Binary was found ("
 					+ hadoop
 					+ ") but can not be executed. Please check the permissions.");
 			return false;
@@ -78,7 +79,7 @@ public class MapReduce extends Hadoop {
 
 			} else {
 
-				error("Htreaming mode is disabled.\nPlease specify the streaming-jar file in config/settings.yaml to run this job..");
+				context.error("Htreaming mode is disabled.\nPlease specify the streaming-jar file in config/settings.yaml to run this job..");
 				return false;
 
 			}
@@ -128,13 +129,13 @@ public class MapReduce extends Hadoop {
 		}
 
 		try {
-			beginTask("Running Hadoop Job...");
+			context.beginTask("Running Hadoop Job...");
 			boolean successful = executeCommand(command, context);
 			if (successful) {
-				endTask("Execution successful.", Message.OK);
+				context.endTask("Execution successful.", Message.OK);
 				return true;
 			} else {
-				endTask("Execution failed. Please have a look at the logfile for details.",
+				context.endTask("Execution failed. Please have a look at the logfile for details.",
 						Message.ERROR);
 				return false;
 			}

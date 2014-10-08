@@ -6,11 +6,13 @@ import genepi.io.FileUtil;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CacheDao;
 import cloudgene.mapred.jobs.cache.CacheDirectory;
 import cloudgene.mapred.jobs.engine.Executor;
@@ -18,7 +20,6 @@ import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.export.ExportJob;
-import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.util.FileItem;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.S3Util;
@@ -32,6 +33,8 @@ public class CloudgeneJob extends AbstractJob {
 
 	private WdlMapReduce config;
 
+	private String workingDirectory;
+
 	private Executor executor;
 
 	private int MAX_DOWNLOAD = 10;
@@ -40,19 +43,37 @@ public class CloudgeneJob extends AbstractJob {
 
 	public CloudgeneJob() {
 		super();
+
 	}
 
-	public CloudgeneJob(WdlMapReduce config) throws Exception {
+	public void loadConfig(WdlMapReduce config) {
 
 		this.config = config;
+		workingDirectory = config.getPath();
+
+	}
+
+	public CloudgeneJob(User user, String id, WdlMapReduce config,
+			Map<String, String> params) throws Exception {
+
+		this.config = config;
+		setId(id);
+		setUser(user);
+		this.workingDirectory = config.getPath();
 
 		// init parameters
 		inputParams = new Vector<CloudgeneParameter>();
 		for (WdlParameter input : config.getInputs()) {
 			CloudgeneParameter newInput = new CloudgeneParameter(input);
 			newInput.setJob(this);
+
+			if (params.containsKey(input.getId())) {
+				newInput.setValue(params.get(input.getId()));
+			}
+
 			inputParams.add(newInput);
 		}
+
 		outputParams = new Vector<CloudgeneParameter>();
 		for (WdlParameter output : config.getOutputs()) {
 			CloudgeneParameter newOutput = new CloudgeneParameter(output);
@@ -60,121 +81,17 @@ public class CloudgeneJob extends AbstractJob {
 			outputParams.add(newOutput);
 		}
 
-		// init Cloudgene context
-		context = new CloudgeneContext(config, this);
-	}
-
-	public void setInputParam(String id, String param) {
-
-		for (int i = 0; i < inputParams.size(); i++) {
-			CloudgeneParameter inputParam = inputParams.get(i);
-
-			if (inputParam.getName().equalsIgnoreCase(id)) {
-
-				if (isHdfsInput(i) && !ImporterFactory.needsImport(param)) {
-					String workspace = Settings.getInstance().getHdfsWorkspace(
-							getUser().getUsername());
-					if (param != null && !param.isEmpty()) {
-						if (HdfsUtil.isAbsolute(param)) {
-							context.setInput(id, param);
-						} else {
-							String path = HdfsUtil.path(workspace, param);
-							if (inputParam.isMakeAbsolute()) {
-								context.setInput(id,
-										HdfsUtil.makeAbsolute(path));
-							} else {
-								context.setInput(id, path);
-							}
-						}
-					} else {
-
-						context.setInput(id, "");
-
-					}
-
-				} else {
-					context.setInput(id, param);
-				}
-
-				// change it..
-				inputParam.setValue(context.getInput(id));
-
-				return;
-			}
-		}
-
-	}
-
-	private void setOutputParam(String id, String param) {
-		context.setOutput(id, param);
 	}
 
 	@Override
 	public boolean setup() {
 
-		// set output directory, temp directory & jobname
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
-
-		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"output", getId(), "temp"));
-
-		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"output", getId()));
-
-		String localWorkspace = new File(Settings.getInstance()
-				.getLocalWorkspace(getUser().getUsername())).getAbsolutePath();
-
-		String localOutputDirectory = new File(FileUtil.path(localWorkspace,
-				"output", getId())).getAbsolutePath();
-
-		FileUtil.createDirectory(localOutputDirectory);
-
-		String localTempDirectory = new File(FileUtil.path(localWorkspace,
-				"output", getId(), "temp")).getAbsolutePath();
-
-		FileUtil.createDirectory(localTempDirectory);
-
-		// create output directories
-		for (int i = 0; i < config.getOutputs().size(); i++) {
-
-			WdlParameter param = config.getOutputs().get(i);
-			if (param.getType().equals(WdlParameter.HDFS_FILE)
-					| param.getType().equals(WdlParameter.HDFS_FOLDER)) {
-				if (param.isTemp()) {
-					setOutputParam(param.getId(),
-							HdfsUtil.path(tempDirectory, param.getId()));
-				} else {
-					setOutputParam(param.getId(),
-							HdfsUtil.path(outputDirectory, param.getId()));
-				}
-			}
-
-			if (param.getType().equals(WdlParameter.LOCAL_FILE)) {
-				FileUtil.createDirectory(FileUtil.path(localOutputDirectory,
-						param.getId()));
-				setOutputParam(param.getId(), FileUtil.path(
-						localOutputDirectory, param.getId(), param.getId()));
-			}
-
-			if (param.getType().equals(WdlParameter.LOCAL_FOLDER)) {
-				setOutputParam(param.getId(),
-						FileUtil.path(localOutputDirectory, param.getId()));
-				FileUtil.createDirectory(FileUtil.path(localOutputDirectory,
-						param.getId()));
-			}
-
-		}
-
-		// set output directory, temp directory & jobname
-
-		context.setHdfsTemp(tempDirectory);
-		context.setHdfsOutput(outputDirectory);
-		context.setLocalTemp(localTempDirectory);
-		context.setLocalOutput(localOutputDirectory);
-		context.setUser(getUser());
+		context = new CloudgeneContext(this);
+		context.updateInputParameters();
+		context.setupOutputParameters();
 
 		return true;
+
 	}
 
 	@Override
@@ -240,6 +157,7 @@ public class CloudgeneJob extends AbstractJob {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;
 		}
@@ -265,6 +183,7 @@ public class CloudgeneJob extends AbstractJob {
 		} else {
 
 			return true;
+
 		}
 	}
 
@@ -298,24 +217,11 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean delete() {
 
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
-
-		String localWorkspace = Settings.getInstance().getLocalWorkspace(
-				getUser().getUsername());
-
-		String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"output", getId()));
-		HdfsUtil.delete(outputDirectory);
-
-		String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"input", getId()));
-		HdfsUtil.delete(inputDirectory);
-
-		String localOutputDirectory = FileUtil.path(localWorkspace, "output",
-				getId());
-
-		FileUtil.deleteDirectory(localOutputDirectory);
+		HdfsUtil.delete(context.getHdfsTemp());
+		HdfsUtil.delete(context.getHdfsOutput());
+		HdfsUtil.delete(context.getHdfsInput());
+		FileUtil.deleteDirectory(context.getLocalTemp());
+		FileUtil.deleteDirectory(context.getLocalOutput());
 
 		return true;
 	}
@@ -323,37 +229,21 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean cleanUp() {
 
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
-
-		String localWorkspace = Settings.getInstance().getLocalWorkspace(
-				getUser().getUsername());
-
 		// delete hdfs temp folders
-		String tempDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-				"temp", getId()));
 		writeLog("Cleaning up temproary hdfs files...");
-		HdfsUtil.delete(tempDirectory);
+		HdfsUtil.delete(context.getHdfsTemp());
 
 		// delete hdfs workspace
 		if (Settings.getInstance().isRemoveHdfsWorkspace()) {
-
 			writeLog("Cleaning up hdfs files...");
-			String outputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
-					workspace, "output", getId()));
-			HdfsUtil.delete(outputDirectory);
-
-			String inputDirectory = HdfsUtil.makeAbsolute(HdfsUtil.path(
-					workspace, "input", getId()));
-			HdfsUtil.delete(inputDirectory);
-
+			HdfsUtil.delete(context.getHdfsOutput());
+			HdfsUtil.delete(context.getHdfsInput());
 		}
 
 		// delete local temp folders
-		String tempDirectoryLocal = FileUtil.path(localWorkspace, "output",
-				getId(), "temp");
+
 		writeLog("Cleaning up temproary local files...");
-		FileUtil.deleteDirectory(tempDirectoryLocal);
+		FileUtil.deleteDirectory(context.getLocalTemp());
 
 		return true;
 	}
@@ -573,15 +463,12 @@ public class CloudgeneJob extends AbstractJob {
 
 	}
 
-	public WdlMapReduce getConfig() {
-		return config;
+	public String getWorkingDirectory() {
+		return workingDirectory;
 	}
 
-	private boolean isHdfsInput(int index) {
-		return config.getInputs().get(index).getType()
-				.equals(WdlParameter.HDFS_FILE)
-				|| config.getInputs().get(index).getType()
-						.equals(WdlParameter.HDFS_FOLDER);
+	public WdlMapReduce getConfig() {
+		return config;
 	}
 
 	@Override

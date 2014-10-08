@@ -1,5 +1,6 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.BufferedReader;
@@ -16,7 +17,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.RunningJob;
 
-import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.util.HadoopUtil;
 import cloudgene.mapred.util.Settings;
@@ -31,15 +31,15 @@ public abstract class Hadoop extends CloudgeneStep {
 
 	protected int reduce = 0;
 
-	protected boolean executeJar(CloudgeneContext context, String jar,
-			String... params) throws IOException, InterruptedException {
+	protected boolean executeJar(WorkflowContext context, String jar, String... params)
+			throws IOException, InterruptedException {
 
 		String hadoopPath = Settings.getInstance().getHadoopPath();
 
 		File path = new File(hadoopPath);
 
 		if (!path.exists()) {
-			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			context.error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
 			return false;
 		}
 
@@ -54,12 +54,12 @@ public abstract class Hadoop extends CloudgeneStep {
 		File file = new File(hadoop);
 
 		if (!file.exists()) {
-			error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
+			context.error("Hadoop Binary was not found. Please set the correct path in the admin panel.");
 			return false;
 		}
 
 		if (!file.canExecute()) {
-			error("Hadoop Binary was found ("
+			context.error("Hadoop Binary was found ("
 					+ hadoop
 					+ ") but can not be executed. Please check the permissions.");
 			return false;
@@ -77,13 +77,13 @@ public abstract class Hadoop extends CloudgeneStep {
 		return executeCommand(command, context);
 	}
 
-	protected boolean executeCommand(List<String> command,
-			CloudgeneContext context) throws IOException, InterruptedException {
+	protected boolean executeCommand(List<String> command, WorkflowContext context)
+			throws IOException, InterruptedException {
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
 
 			String cmd = command.get(j).replaceAll("\\$job_id",
-					context.getJob().getId());
+					context.getJobId());
 			command.set(j, cmd);
 		}
 
@@ -113,14 +113,13 @@ public abstract class Hadoop extends CloudgeneStep {
 			if (matcher.find()) {
 				// write statistics from old job
 				jobId = matcher.group(1).trim();
-				log.info("Job " + context.getJob().getId() + " -> HadoopJob "
-						+ jobId);
+				log.info("Job " + context.getJobId() + " -> HadoopJob " + jobId);
 			} else {
 				Matcher matcher2 = pattern2.matcher(line);
 				if (matcher2.find()) {
 					jobId = matcher2.group(1).trim();
-					log.info("Job " + context.getJob().getId()
-							+ " -> HadoopJob " + jobId);
+					log.info("Job " + context.getJobId() + " -> HadoopJob "
+							+ jobId);
 				}
 			}
 

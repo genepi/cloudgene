@@ -2,6 +2,8 @@ package cloudgene.mapred.resources.jobs;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
@@ -73,22 +75,21 @@ public class RerunJob extends ServerResource {
 
 				try {
 
-					CloudgeneJob job = new CloudgeneJob(app.getMapred());
+					Map<String, String> newParams = new HashMap<String, String>();
+					for (CloudgeneParameter params : oldJob.getInputParams()) {
+						String key = params.getName();
+						String value = params.getValue();
+						newParams.put(key, value);
 
+					}
+
+					CloudgeneJob job = new CloudgeneJob(user, jobId,
+							app.getMapred(), newParams);
 					SimpleDateFormat sdf = new SimpleDateFormat(
 							"yyyyMMdd-HHmmss");
 					String name = tool + "-" + sdf.format(new Date());
 					job.setId(name);
 					job.setName(name);
-					job.setUser(user);
-
-					// parse params
-					for (CloudgeneParameter params : oldJob.getInputParams()) {
-						String key = params.getName();
-						String value = params.getValue();
-						job.setInputParam(key, value);
-
-					}
 					queue.submit(job);
 
 				} catch (Exception e) {

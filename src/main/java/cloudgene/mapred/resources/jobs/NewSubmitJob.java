@@ -88,9 +88,9 @@ public class NewSubmitJob extends ServerResource {
 								.getUsername());
 
 						// remove upload indentification!
-						String fieldName = item.getFieldName().replace(
-								"-upload", "").replace("input-",
-										"");;
+						String fieldName = item.getFieldName()
+								.replace("-upload", "").replace("input-", "");
+						;
 
 						String targetPath = HdfsUtil.path(workspace, "input",
 								id, fieldName);
@@ -176,26 +176,28 @@ public class NewSubmitJob extends ServerResource {
 
 			try {
 
-				CloudgeneJob job = new CloudgeneJob(app.getMapred());
-				job.setId(id);
-				job.setName(id);
-				job.setUser(user);
+				Map<String, String> params = new HashMap<>();
 
-				
-				for (WdlParameter input: app.getMapred().getInputs()){
-					if (props.containsKey(input.getId())){
-						if (input.getType().equals("checkbox")){
-							job.setInputParam(input.getId(), input.getValues().get("true"));
-						}else{
-							job.setInputParam(input.getId(), props.get(input.getId()));
+				for (WdlParameter input : app.getMapred().getInputs()) {
+					if (props.containsKey(input.getId())) {
+						if (input.getType().equals("checkbox")) {
+							params.put(input.getId(),
+									input.getValues().get("true"));
+						} else {
+							params.put(input.getId(), props.get(input.getId()));
 						}
-					}else{
-						if (input.getType().equals("checkbox")){
-							job.setInputParam(input.getId(), input.getValues().get("false"));
+					} else {
+						if (input.getType().equals("checkbox")) {
+							params.put(input.getId(),
+									input.getValues().get("false"));
 						}
 					}
 				}
 
+				CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
+						params);
+				job.setId(id);
+				job.setName(id);
 				queue.submit(job);
 
 			} catch (Exception e) {

@@ -1,11 +1,11 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.util.List;
 import java.util.Vector;
 
-import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlStep;
@@ -13,7 +13,7 @@ import cloudgene.mapred.wdl.WdlStep;
 public class PigHadoop extends Hadoop {
 
 	@Override
-	public boolean run(WdlStep step, CloudgeneContext context) {
+	public boolean run(WdlStep step, WorkflowContext context) {
 
 		String pigPath = Settings.getInstance().getPigPath();
 		String pig = FileUtil.path(pigPath, "bin", "pig");
@@ -35,13 +35,13 @@ public class PigHadoop extends Hadoop {
 		}
 
 		try {
-			beginTask("Running Pig Script...");
+			context.beginTask("Running Pig Script...");
 			boolean successful = executeCommand(command, context);
 			if (successful) {
-				endTask("Execution successful.", Message.OK);
+				context.endTask("Execution successful.", Message.OK);
 				return true;
 			} else {
-				endTask("Execution failed. Please have a look at the logfile for details.",
+				context.endTask("Execution failed. Please have a look at the logfile for details.",
 						Message.ERROR);
 				return false;
 			}
