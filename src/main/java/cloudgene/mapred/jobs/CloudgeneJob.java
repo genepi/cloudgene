@@ -309,7 +309,7 @@ public class CloudgeneJob extends AbstractJob {
 			if (out.isZip()) {
 
 				String zipName = FileUtil.path(localOutputDirectory,
-						out.getId() + ".zip");
+						out.getName() + ".zip");
 
 				if (out.isMergeOutput()) {
 
