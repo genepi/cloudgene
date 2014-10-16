@@ -228,9 +228,6 @@ public class CloudgeneJob extends AbstractJob {
 		String hdfsWorkspace = Settings.getInstance().getHdfsWorkspace(
 				getUser().getUsername());
 
-		String hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
-				"output", getId(), "temp"));
-
 		String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
 				"output", getId()));
 
@@ -240,7 +237,6 @@ public class CloudgeneJob extends AbstractJob {
 		FileUtil.deleteDirectory(localOutput);
 		FileUtil.deleteDirectory(localTemp);
 
-		HdfsUtil.delete(hdfsTemp);
 		HdfsUtil.delete(hdfsOutput);
 		HdfsUtil.delete(hdfsInput);
 
