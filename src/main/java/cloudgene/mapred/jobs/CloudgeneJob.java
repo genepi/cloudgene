@@ -199,9 +199,10 @@ public class CloudgeneJob extends AbstractJob {
 
 		cleanUp();
 
-		writeLog("Cleaning up local files...");
 		// delete local folder
 		/*
+		 * writeLog("Cleaning up local files...");
+		 * 
 		 * String localWorkspace = Settings.getInstance().getLocalWorkspace(
 		 * getUser().getUsername());
 		 * 
@@ -217,11 +218,31 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean delete() {
 
-		HdfsUtil.delete(context.getHdfsTemp());
-		HdfsUtil.delete(context.getHdfsOutput());
-		HdfsUtil.delete(context.getHdfsInput());
-		FileUtil.deleteDirectory(context.getLocalTemp());
-		FileUtil.deleteDirectory(context.getLocalOutput());
+		String localWorkspace = Settings.getInstance().getLocalWorkspace(
+				getUser().getUsername());
+
+		String localOutput = FileUtil.path(localWorkspace, "output", getId());
+
+		String localTemp = FileUtil.path(localWorkspace, "output", getId());
+
+		String hdfsWorkspace = Settings.getInstance().getHdfsWorkspace(
+				getUser().getUsername());
+
+		String hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
+				"output", getId(), "temp"));
+
+		String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
+				"output", getId()));
+
+		String hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
+				"input", getId()));
+
+		FileUtil.deleteDirectory(localOutput);
+		FileUtil.deleteDirectory(localTemp);
+
+		HdfsUtil.delete(hdfsTemp);
+		HdfsUtil.delete(hdfsOutput);
+		HdfsUtil.delete(hdfsInput);
 
 		return true;
 	}

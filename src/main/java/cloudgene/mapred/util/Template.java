@@ -26,7 +26,7 @@ public class Template {
 
 			new Template(
 					REGISTER_MAIL,
-					"Dear %s,\nThis email is sent automatically by the \"%s\" system to confirm that your profile has now been registered.\n\n"
+					"Dear %s,\nThis email has been sent automatically by the \"%s\" system to confirm that your profile has now been registered.\n\n"
 							+ "To confirm your email address, please click on this activation link %s"),
 
 			new Template(
@@ -36,7 +36,7 @@ public class Template {
 
 			new Template(
 					RECOVERY_MAIL,
-					"Dear %s,\nThis email is sent automatically by the \"%s\" system.\n\n"
+					"Dear %s,\nThis email has been sent automatically by the \"%s\" system.\n\n"
 							+ "To reset your password, please click on this link %s. "),
 
 			new Template(SUBMIT_BUTTON_TEXT, "Start Imputation")
