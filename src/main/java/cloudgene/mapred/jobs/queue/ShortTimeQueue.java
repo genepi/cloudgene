@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs.queue;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -12,7 +14,11 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 
+import com.esotericsoftware.yamlbeans.YamlWriter;
+
 public class ShortTimeQueue implements Runnable {
+
+	public static String QUEUE_FILENAME = "qc.queue";
 
 	private List<AbstractJob> queue;
 
@@ -23,6 +29,8 @@ public class ShortTimeQueue implements Runnable {
 	private int THREADS = 5;
 
 	private Scheduler scheduler;
+
+	private boolean persistent = true;
 
 	private static final Log log = LogFactory.getLog(ShortTimeQueue.class);
 
@@ -40,6 +48,7 @@ public class ShortTimeQueue implements Runnable {
 		futures.put(job, future);
 		queue.add(job);
 		log.info("Short Time Queue: Submit job...");
+		save();
 
 	}
 
@@ -52,6 +61,7 @@ public class ShortTimeQueue implements Runnable {
 			job.cancel();
 			job.kill();
 
+			save();
 		}
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {
@@ -63,6 +73,8 @@ public class ShortTimeQueue implements Runnable {
 			queue.remove(job);
 			futures.remove(job);
 			dao.insert(job);
+
+			save();
 		}
 
 	}
@@ -84,6 +96,10 @@ public class ShortTimeQueue implements Runnable {
 			for (AbstractJob job : complete) {
 				futures.remove(job);
 				onComplete(job);
+			}
+
+			if (complete.size() > 0) {
+				save();
 			}
 
 			try {
@@ -172,6 +188,25 @@ public class ShortTimeQueue implements Runnable {
 			job.setSetupComplete(result);
 			log.info("Short Time Queue: Job " + job.getId()
 					+ " finished. Result: " + result);
+		}
+
+	}
+
+	protected void save() {
+
+		if (persistent) {
+
+			try {
+				YamlWriter writer = new YamlWriter(new FileWriter(
+						QUEUE_FILENAME));
+				writer.write(getAllJobs());
+				writer.close();
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		}
 
 	}

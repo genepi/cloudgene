@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs.queue;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -12,7 +14,11 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 
+import com.esotericsoftware.yamlbeans.YamlWriter;
+
 public class LongTimeQueue implements Runnable {
+
+	public static String QUEUE_FILENAME = "imputation.queue";
 
 	private List<AbstractJob> queue;
 
@@ -23,6 +29,8 @@ public class LongTimeQueue implements Runnable {
 	private int THREADS = 10;
 
 	private Scheduler scheduler;
+
+	private boolean persistent = true;
 
 	private static final Log log = LogFactory.getLog(LongTimeQueue.class);
 
@@ -41,6 +49,7 @@ public class LongTimeQueue implements Runnable {
 		futures.put(job, future);
 		queue.add(job);
 		log.info("Long Time Queue: Submit job...");
+		save();
 
 	}
 
@@ -53,6 +62,7 @@ public class LongTimeQueue implements Runnable {
 
 			job.kill();
 			job.cancel();
+			save();
 
 		}
 
@@ -65,6 +75,8 @@ public class LongTimeQueue implements Runnable {
 			queue.remove(job);
 			futures.remove(job);
 			dao.insert(job);
+
+			save();
 		}
 
 	}
@@ -87,6 +99,10 @@ public class LongTimeQueue implements Runnable {
 
 			for (AbstractJob job : complete) {
 				futures.remove(job);
+			}
+
+			if (complete.size() > 0) {
+				save();
 			}
 
 			try {
@@ -167,4 +183,21 @@ public class LongTimeQueue implements Runnable {
 		}
 	}
 
+	protected void save() {
+
+		if (persistent) {
+
+			try {
+				YamlWriter writer = new YamlWriter(new FileWriter(
+						QUEUE_FILENAME));
+				writer.write(getAllJobs());
+				writer.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		}
+
+	}
 }
