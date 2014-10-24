@@ -6,6 +6,9 @@ import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -92,7 +95,7 @@ abstract public class AbstractJob implements Runnable {
 	private BufferedOutputStream logStream;
 
 	protected CloudgeneContext context;
-	
+
 	private String logs;
 
 	public String getId() {
@@ -315,10 +318,29 @@ abstract public class AbstractJob implements Runnable {
 
 						setEndTime(System.currentTimeMillis());
 
+						Writer writer = new StringWriter();
+						PrintWriter printWriter = new PrintWriter(writer);
+						e.printStackTrace(printWriter);
+						String s = writer.toString();
+
 						setState(AbstractJob.STATE_FAILED);
 						log.error("Job " + getId() + ": data export failed.", e);
 						writeLog("Data export failed: "
-								+ e.getLocalizedMessage());
+								+ e.getLocalizedMessage() + "\n" + s);
+
+					} catch (Error e) {
+
+						setEndTime(System.currentTimeMillis());
+
+						Writer writer = new StringWriter();
+						PrintWriter printWriter = new PrintWriter(writer);
+						e.printStackTrace(printWriter);
+						String s = writer.toString();
+
+						setState(AbstractJob.STATE_FAILED);
+						log.error("Job " + getId() + ": data export failed.", e);
+						writeLog("Data export failed: "
+								+ e.getLocalizedMessage() + "\n" + s);
 
 					}
 
@@ -359,7 +381,14 @@ abstract public class AbstractJob implements Runnable {
 
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
-			writeLog("Initialization failed: " + e1.getLocalizedMessage());
+
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e1.printStackTrace(printWriter);
+			String s = writer.toString();
+
+			writeLog("Initialization failed: " + e1.getLocalizedMessage()
+					+ "\n" + s);
 
 			writeLog("Cleaning up...");
 			onFailure();
@@ -367,6 +396,26 @@ abstract public class AbstractJob implements Runnable {
 			writeLog("Cleanup successful.");
 
 			return;
+
+		} catch (Error e) {
+
+			setEndTime(System.currentTimeMillis());
+
+			setState(AbstractJob.STATE_FAILED);
+			log.error("Job " + getId() + ": initialization failed.", e);
+
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e.printStackTrace(printWriter);
+			String s = writer.toString();
+
+			writeLog("Initialization failed: " + e.getLocalizedMessage() + "\n"
+					+ s);
+
+			writeLog("Cleaning up...");
+			onFailure();
+			log.info("Job " + getId() + ": cleanup successful.");
+			writeLog("Cleanup successful.");
 
 		}
 	}
@@ -527,11 +576,11 @@ abstract public class AbstractJob implements Runnable {
 	public CloudgeneContext getContext() {
 		return context;
 	}
-	
+
 	public void setLogs(String logs) {
 		this.logs = logs;
 	}
-	
+
 	public String getLogs() {
 		return logs;
 	}
