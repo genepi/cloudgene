@@ -36,10 +36,18 @@ public class ShortTimeQueue implements Runnable {
 
 	public void submit(AbstractJob job) {
 
-		Future<?> future = scheduler.submit(new SetupThread(job));
-		futures.put(job, future);
-		queue.add(job);
-		log.info("Short Time Queue: Submit job...");
+		synchronized (futures) {
+
+			synchronized (queue) {
+
+				Future<?> future = scheduler.submit(new SetupThread(job));
+				futures.put(job, future);
+				queue.add(job);
+				log.info("Short Time Queue: Submit job...");
+
+			}
+
+		}
 
 	}
 
@@ -56,41 +64,67 @@ public class ShortTimeQueue implements Runnable {
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {
 
-			log.info("Short Time Queue: Cancel Job...");
+			synchronized (futures) {
 
-			job.cancel();
+				synchronized (queue) {
+					scheduler.kill(job);
+					job.setStartTime(System.currentTimeMillis());
+					job.cancel();
+					queue.remove(job);
+					futures.remove(job);
+					dao.insert(job);
+					log.info("Short Time Queue: Cancel Job...");
+				}
 
-			queue.remove(job);
-			futures.remove(job);
-			dao.insert(job);
+			}
 		}
 
 	}
 
 	@Override
 	public void run() {
+
 		while (true) {
-			List<AbstractJob> complete = new Vector<AbstractJob>();
-			for (AbstractJob job : futures.keySet()) {
-				Future<?> future = futures.get(job);
-				if (future.isDone() || future.isCancelled()) {
-					log.info("Short Time Queue: Job " + job.getId()
-							+ ": finished");
-					queue.remove(job);
-					complete.add(job);
-				}
-			}
-
-			for (AbstractJob job : complete) {
-				futures.remove(job);
-				onComplete(job);
-			}
-
 			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+
+				synchronized (futures) {
+
+					List<AbstractJob> complete = new Vector<AbstractJob>();
+
+					synchronized (queue) {
+
+						for (AbstractJob job : futures.keySet()) {
+							Future<?> future = futures.get(job);
+							if (future.isDone() || future.isCancelled()) {
+								log.info("Short Time Queue: Job " + job.getId()
+										+ ": finished");
+								queue.remove(job);
+								complete.add(job);
+							}
+
+						}
+
+					}
+
+					for (AbstractJob job : complete) {
+						futures.remove(job);
+						onComplete(job);
+					}
+
+				}
+
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			} catch (Exception e) {
+
+				log.warn("Short Time Queue: Concurrency Exception!! ");
+
 			}
+
 		}
 	}
 
@@ -116,10 +150,14 @@ public class ShortTimeQueue implements Runnable {
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		for (AbstractJob job : queue) {
+		synchronized (queue) {
 
-			if (job.getUser().getId() == user.getId()) {
-				result.add(job);
+			for (AbstractJob job : queue) {
+
+				if (job.getUser().getId() == user.getId()) {
+					result.add(job);
+				}
+
 			}
 
 		}
@@ -131,9 +169,13 @@ public class ShortTimeQueue implements Runnable {
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		for (AbstractJob job : queue) {
+		synchronized (queue) {
 
-			result.add(job);
+			for (AbstractJob job : queue) {
+
+				result.add(job);
+
+			}
 
 		}
 
@@ -142,10 +184,14 @@ public class ShortTimeQueue implements Runnable {
 
 	public AbstractJob getJobById(String id) {
 
-		for (AbstractJob job : queue) {
+		synchronized (queue) {
 
-			if (job.getId().equals(id)) {
-				return job;
+			for (AbstractJob job : queue) {
+
+				if (job.getId().equals(id)) {
+					return job;
+				}
+
 			}
 
 		}

@@ -241,6 +241,10 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public void run() {
 
+		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED){
+			return;
+		}
+		
 		log.info("Job " + getId() + ": running.");
 
 		try {

@@ -24,6 +24,10 @@ public class Scheduler {
 	public Future submit(Runnable runnable) {
 		return executor.submit(runnable);
 	}
+	
+	public void kill(Runnable runnable) {
+		 executor.remove(runnable);
+	}
 
 	public boolean isRunning() {
 		return executor.isRunning();

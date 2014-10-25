@@ -30,17 +30,24 @@ public class LongTimeQueue implements Runnable {
 		futures = new HashMap<AbstractJob, Future<?>>();
 		queue = new Vector<AbstractJob>();
 		scheduler = new Scheduler(THREADS);
-
 		dao = new JobDao();
 
 	}
 
 	public void submit(AbstractJob job) {
 
-		Future<?> future = scheduler.submit(job);
-		futures.put(job, future);
-		queue.add(job);
-		log.info("Long Time Queue: Submit job...");
+		synchronized (futures) {
+
+			synchronized (queue) {
+
+				Future<?> future = scheduler.submit(job);
+				futures.put(job, future);
+				queue.add(job);
+				log.info("Long Time Queue: Submit job...");
+
+			}
+
+		}
 
 	}
 
@@ -58,13 +65,19 @@ public class LongTimeQueue implements Runnable {
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {
 
-			log.info("Long Time Queue: Cancel Job...");
+			synchronized (futures) {
 
-			job.cancel();
+				synchronized (queue) {
+					scheduler.kill(job);
+					job.setStartTime(System.currentTimeMillis());
+					job.cancel();
+					queue.remove(job);
+					futures.remove(job);
+					dao.insert(job);
+					log.info("Long Time Queue: Cancel Job...");
+				}
 
-			queue.remove(job);
-			futures.remove(job);
-			dao.insert(job);
+			}
 		}
 
 	}
@@ -72,28 +85,46 @@ public class LongTimeQueue implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-
-			List<AbstractJob> complete = new Vector<AbstractJob>();
-			for (AbstractJob job : futures.keySet()) {
-				Future<?> future = futures.get(job);
-				if (future.isDone() || future.isCancelled()) {
-					log.info("Long Time Queue: Job " + job.getId()
-							+ ": finished");
-					dao.insert(job);
-					queue.remove(job);
-					complete.add(job);
-				}
-			}
-
-			for (AbstractJob job : complete) {
-				futures.remove(job);
-			}
-
 			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+
+				synchronized (futures) {
+
+					List<AbstractJob> complete = new Vector<AbstractJob>();
+
+					synchronized (queue) {
+
+						for (AbstractJob job : futures.keySet()) {
+							Future<?> future = futures.get(job);
+							if (future.isDone() || future.isCancelled()) {
+								log.info("Long Time Queue: Job " + job.getId()
+										+ ": finished");
+								dao.insert(job);
+								queue.remove(job);
+								complete.add(job);
+							}
+
+						}
+
+					}
+
+					for (AbstractJob job : complete) {
+						futures.remove(job);
+					}
+
+				}
+
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+
+			} catch (Exception e) {
+
+				log.warn("Long Time Queue: Concurrency Exception!! ");
+
 			}
+
 		}
 	}
 
@@ -119,10 +150,14 @@ public class LongTimeQueue implements Runnable {
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		for (AbstractJob job : queue) {
+		synchronized (queue) {
 
-			if (job.getUser().getId() == user.getId()) {
-				result.add(job);
+			for (AbstractJob job : queue) {
+
+				if (job.getUser().getId() == user.getId()) {
+					result.add(job);
+				}
+
 			}
 
 		}
@@ -134,9 +169,13 @@ public class LongTimeQueue implements Runnable {
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		for (AbstractJob job : queue) {
+		synchronized (queue) {
 
-			result.add(job);
+			for (AbstractJob job : queue) {
+
+				result.add(job);
+
+			}
 
 		}
 
@@ -145,10 +184,14 @@ public class LongTimeQueue implements Runnable {
 
 	public AbstractJob getJobById(String id) {
 
-		for (AbstractJob job : queue) {
+		synchronized (queue) {
 
-			if (job.getId().equals(id)) {
-				return job;
+			for (AbstractJob job : queue) {
+
+				if (job.getId().equals(id)) {
+					return job;
+				}
+
 			}
 
 		}
@@ -158,12 +201,16 @@ public class LongTimeQueue implements Runnable {
 
 	public int getPositionInQueue(AbstractJob job) {
 
-		int index = queue.indexOf(job);
+		synchronized (queue) {
 
-		if (index < 0) {
-			return 0;
-		} else {
-			return index + 1 - scheduler.getActiveCount();
+			int index = queue.indexOf(job);
+
+			if (index < 0) {
+				return 0;
+			} else {
+				return index + 1 - scheduler.getActiveCount();
+			}
+
 		}
 	}
 
