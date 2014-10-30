@@ -11,8 +11,6 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
-import com.sun.org.glassfish.external.statistics.annotations.Reset;
-
 import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
