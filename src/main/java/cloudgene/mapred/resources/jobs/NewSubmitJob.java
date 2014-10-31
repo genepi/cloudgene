@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
@@ -28,17 +27,19 @@ import org.restlet.resource.ServerResource;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
-import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlReader;
 
 public class NewSubmitJob extends ServerResource {
+
+	public static final int MAX_RUNNING_JOBS = 20;
+
+	public static final int MAX_RUNNING_JOBS_PER_USER = 2;
 
 	@Post
 	public Representation post(Representation entity) {
@@ -51,6 +52,38 @@ public class NewSubmitJob extends ServerResource {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
+
+		}
+
+		WorkflowEngine queue = WorkflowEngine.getInstance();
+
+		if (queue.getActiveCount() > MAX_RUNNING_JOBS) {
+
+			JSONObject answer = new JSONObject();
+			try {
+				answer.put("success", false);
+				answer.put("message", "More than " + MAX_RUNNING_JOBS
+						+ "  jobs are currently in the queue.");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			return new StringRepresentation(answer.toString());
+
+		}
+
+		if (queue.getJobsByUser(user).size() > MAX_RUNNING_JOBS_PER_USER) {
+
+			JSONObject answer = new JSONObject();
+			try {
+				answer.put("success", false);
+				answer.put("message", "Only "
+						+ MAX_RUNNING_JOBS_PER_USER
+						+ " jobs per user can be executed simultaneously.");
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			return new StringRepresentation(answer.toString());
 
 		}
 
@@ -162,7 +195,6 @@ public class NewSubmitJob extends ServerResource {
 
 		}
 
-		WorkflowEngine queue = WorkflowEngine.getInstance();
 		String filename = Settings.getInstance().getApp(user);
 		WdlApp app = null;
 		try {

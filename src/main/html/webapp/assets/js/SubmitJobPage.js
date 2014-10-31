@@ -110,12 +110,17 @@ SubmitJobPage = can.Control({
 						page : 'jobs'
 					});
 				} else {
-					$("#waiting-text").html("error!!!");
+					$("#waiting-dialog").modal('hide');
+					new ErrorPage("#content", {
+						status : "",
+						message : answer.message
+					});
+					
 				}
 			},
 
 			error : function(answer) {
-				$("#waiting-text").html("error!!!");
+				$("#waiting-text").html(answer.message);
 			},
 
 			uploadProgress : function(event, position, total, percentComplete) {

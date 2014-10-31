@@ -288,7 +288,7 @@ function buildHdfsFolder(element, param) {
 		if (!textarea.attr("value").trim().toString().startsWith("sftp://") && !textarea.attr("value").trim().toString().startsWith("http://") && !textarea.attr("value").trim().toString().startsWith("https://") && !textarea.attr("value").trim().toString().startsWith("ftp://")) {
 			errorText.show();
 			errorText.empty();
-			errorText.append("<b>Error: </b> The URLs auf your datasets is not valid and cannot be loaded.");
+			errorText.append("<b>Error: </b> The URLs of your datasets is not valid and cannot be loaded.");
 			return;
 		}
 
