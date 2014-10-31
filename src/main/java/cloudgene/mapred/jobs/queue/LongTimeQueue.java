@@ -20,7 +20,7 @@ public class LongTimeQueue implements Runnable {
 
 	private JobDao dao;
 
-	private int THREADS = 10;
+	private int THREADS = 5;
 
 	private Scheduler scheduler;
 
