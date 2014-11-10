@@ -156,7 +156,7 @@ public class CloudgeneJob extends AbstractJob {
 			return true;
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;
@@ -174,9 +174,27 @@ public class CloudgeneJob extends AbstractJob {
 			try {
 				GraphNode node = new GraphNode(step, context);
 				node.run();
-				return node.isSuccessful();
+				boolean result = node.isSuccessful();
+
+				if (result) {
+					return true;
+				} else {
+					setState(AbstractJob.STATE_FAILED);
+					onFailure();
+					setStartTime(System.currentTimeMillis());
+					setEndTime(System.currentTimeMillis());
+					setError("Job Execution failed.");
+					return false;
+				}
+
 			} catch (Exception e) {
+				setState(AbstractJob.STATE_FAILED);
+				onFailure();
+				setStartTime(System.currentTimeMillis());
+				setEndTime(System.currentTimeMillis());
 				e.printStackTrace();
+				writeOutput(e.getMessage());
+				setError(e.getMessage());
 				return false;
 			}
 
@@ -198,19 +216,6 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean onFailure() {
 
 		cleanUp();
-
-		// delete local folder
-		/*
-		 * writeLog("Cleaning up local files...");
-		 * 
-		 * String localWorkspace = Settings.getInstance().getLocalWorkspace(
-		 * getUser().getUsername());
-		 * 
-		 * String localOutputDirectory = FileUtil.path(localWorkspace, "output",
-		 * getId());
-		 * 
-		 * FileUtil.deleteDirectory(localOutputDirectory);
-		 */
 
 		return true;
 	}

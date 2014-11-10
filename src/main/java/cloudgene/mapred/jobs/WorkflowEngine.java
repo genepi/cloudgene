@@ -3,31 +3,29 @@ package cloudgene.mapred.jobs;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.jobs.queue.LongTimeQueue;
-import cloudgene.mapred.jobs.queue.ShortTimeQueue;
+import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
 
 	static WorkflowEngine instance = null;
 
-	private LongTimeQueue longTimeQueue;
+	public static final int THREADS_LTQ = 5;
 
-	private ShortTimeQueue shortTimeQueue;
+	public static final int THREADS_STQ = 5;
+
+	private Queue longTimeQueue;
+
+	private Queue shortTimeQueue;
 
 	private JobDao dao;
 
 	private boolean running = false;
-
-	private List<AbstractJob> longTimeJobs = new Vector<AbstractJob>();
-
-	private List<AbstractJob> shortTimeJobs = new Vector<AbstractJob>();
 
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
 
@@ -41,25 +39,24 @@ public class WorkflowEngine implements Runnable {
 	private WorkflowEngine() {
 
 		dao = new JobDao();
-		longTimeQueue = new LongTimeQueue();
-		shortTimeQueue = new ShortTimeQueue() {
 
+		shortTimeQueue = new Queue("ShortTimeQueue", THREADS_STQ) {
+
+			@Override
+			public Runnable createRunnable(AbstractJob job) {
+				return new SetupThread(job);
+			}
+
+			@Override
 			public void onComplete(AbstractJob job) {
-
-				shortTimeJobs.remove(job);
 
 				if (job.isSetupComplete()) {
 
-					longTimeJobs.add(job);
 					job.setState(AbstractJob.STATE_WAITING);
 					longTimeQueue.submit(job);
 
 				} else {
 
-					job.setState(AbstractJob.STATE_FAILED);
-					job.onFailure();
-					job.setStartTime(System.currentTimeMillis());
-					job.setEndTime(System.currentTimeMillis());
 					dao.insert(job);
 
 					log.info("Setup failed for Job " + job.getId()
@@ -70,26 +67,39 @@ public class WorkflowEngine implements Runnable {
 
 		};
 
+		longTimeQueue = new Queue("LongTimeQueue", THREADS_LTQ) {
+
+			@Override
+			public Runnable createRunnable(AbstractJob job) {
+				return job;
+			}
+
+			@Override
+			public void onComplete(AbstractJob job) {
+
+				dao.insert(job);
+
+			}
+
+		};
+
 	}
 
 	public void submit(AbstractJob job) {
 
 		job.afterSubmission();
-
-		shortTimeJobs.add(job);
 		shortTimeQueue.submit(job);
 
 	}
 
 	public void cancel(AbstractJob job) {
 
-		if (shortTimeJobs.contains(job)) {
-			shortTimeJobs.remove(job);
+		if (shortTimeQueue.isInQueue(job)) {
+			job.setStartTime(System.currentTimeMillis());
 			shortTimeQueue.cancel(job);
 		}
 
-		if (longTimeJobs.contains(job)) {
-			longTimeJobs.remove(job);
+		if (longTimeQueue.isInQueue(job)) {
 			longTimeQueue.cancel(job);
 		}
 
@@ -206,6 +216,26 @@ public class WorkflowEngine implements Runnable {
 
 	public int getPositionInQueue(AbstractJob job) {
 		return longTimeQueue.getPositionInQueue(job);
+	}
+
+	class SetupThread implements Runnable {
+
+		private AbstractJob job;
+
+		public SetupThread(AbstractJob job) {
+			this.job = job;
+		}
+
+		@Override
+		public void run() {
+			log.info("Start iput validation for job " + job.getId() + "...");
+			boolean result = job.executeSetup();
+			job.setSetupComplete(result);
+			log.info("Input Validation for job " + job.getId()
+					+ " finished. Result: " + result);
+
+		}
+
 	}
 
 }

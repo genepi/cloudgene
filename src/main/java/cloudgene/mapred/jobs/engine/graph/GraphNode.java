@@ -124,7 +124,7 @@ public class GraphNode implements Runnable {
 									+ " has to extend CloudgeneStep or WorkflowStep. ");
 
 				}
-
+				
 			} else {
 
 				instance = new ErrorStep(

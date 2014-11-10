@@ -9,29 +9,25 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 
-public class LongTimeQueue implements Runnable {
+public abstract class Queue implements Runnable {
 
 	private List<AbstractJob> queue;
 
 	private HashMap<AbstractJob, Future<?>> futures;
 
-	private JobDao dao;
-
-	private int THREADS = 10;
-
 	private Scheduler scheduler;
 
-	private static final Log log = LogFactory.getLog(LongTimeQueue.class);
+	private String name = "";
 
-	public LongTimeQueue() {
+	private static final Log log = LogFactory.getLog(Queue.class);
+
+	public Queue(String name, int threads) {
 		futures = new HashMap<AbstractJob, Future<?>>();
 		queue = new Vector<AbstractJob>();
-		scheduler = new Scheduler(THREADS);
-		dao = new JobDao();
-
+		scheduler = new Scheduler(threads);
+		this.name = name;
 	}
 
 	public void submit(AbstractJob job) {
@@ -40,10 +36,12 @@ public class LongTimeQueue implements Runnable {
 
 			synchronized (queue) {
 
-				Future<?> future = scheduler.submit(job);
+				Runnable runnable = createRunnable(job);
+
+				Future<?> future = scheduler.submit(runnable);
 				futures.put(job, future);
 				queue.add(job);
-				log.info("Long Time Queue: Submit job...");
+				log.info(name + ": Submit job...");
 
 			}
 
@@ -56,11 +54,11 @@ public class LongTimeQueue implements Runnable {
 		if (job.getState() == AbstractJob.STATE_RUNNING
 				|| job.getState() == AbstractJob.STATE_EXPORTING) {
 
-			log.info("Long Time Queue: Cancel Job " + job.getId() + "...");
+			log.info(name + ": Cancel Job " + job.getId() + "...");
 
 			job.kill();
 			job.cancel();
-
+			
 		}
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {
@@ -69,12 +67,11 @@ public class LongTimeQueue implements Runnable {
 
 				synchronized (queue) {
 					scheduler.kill(job);
-					job.setStartTime(System.currentTimeMillis());
 					job.cancel();
 					queue.remove(job);
 					futures.remove(job);
-					dao.insert(job);
-					log.info("Long Time Queue: Cancel Job...");
+					onComplete(job);
+					log.info(name + ": Cancel Job...");
 				}
 
 			}
@@ -89,28 +86,27 @@ public class LongTimeQueue implements Runnable {
 
 				synchronized (futures) {
 
-					List<AbstractJob> complete = new Vector<AbstractJob>();
-
 					synchronized (queue) {
+
+						List<AbstractJob> complete = new Vector<AbstractJob>();
 
 						for (AbstractJob job : futures.keySet()) {
 							Future<?> future = futures.get(job);
 							if (future.isDone() || future.isCancelled()) {
-								log.info("Long Time Queue: Job " + job.getId()
+								log.info(name + ": Job " + job.getId()
 										+ ": finished");
-								dao.insert(job);
 								queue.remove(job);
 								complete.add(job);
 							}
 
 						}
 
-					}
+						for (AbstractJob job : complete) {
+							onComplete(job);
+							futures.remove(job);
+						}
 
-					for (AbstractJob job : complete) {
-						futures.remove(job);
 					}
-
 				}
 
 				try {
@@ -121,7 +117,7 @@ public class LongTimeQueue implements Runnable {
 
 			} catch (Exception e) {
 
-				log.warn("Long Time Queue: Concurrency Exception!! ");
+				log.warn(name + ": Concurrency Exception!! ");
 
 			}
 
@@ -129,12 +125,12 @@ public class LongTimeQueue implements Runnable {
 	}
 
 	public void pause() {
-		log.info("Long Time Queue: Pause...");
+		log.info(name + ": Pause...");
 		scheduler.pause();
 	}
 
 	public void resume() {
-		log.info("Long Time Queue: Resume...");
+		log.info(name + ": Resume...");
 		scheduler.resume();
 	}
 
@@ -213,5 +209,18 @@ public class LongTimeQueue implements Runnable {
 
 		}
 	}
+
+	public boolean isInQueue(AbstractJob job) {
+
+		synchronized (queue) {
+
+			return queue.contains(job);
+
+		}
+	}
+
+	abstract public void onComplete(AbstractJob job);
+
+	abstract public Runnable createRunnable(AbstractJob job);
 
 }
