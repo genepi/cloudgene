@@ -156,7 +156,7 @@ public class CloudgeneJob extends AbstractJob {
 			return true;
 
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;
@@ -315,46 +315,51 @@ public class CloudgeneJob extends AbstractJob {
 			String localOutputDirectory = FileUtil.path(localOutput,
 					out.getName());
 
-			FileUtil.createDirectory(localOutputDirectory);
+			if (HdfsUtil.exists(localOutputDirectory)) {
 
-			String filename = context.getOutput(out.getName());
-			String hdfsPath = null;
-			if (filename.startsWith("hdfs://") || filename.startsWith("file:/")) {
-				hdfsPath = filename;
+				FileUtil.createDirectory(localOutputDirectory);
 
-			} else {
-
-				hdfsPath = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-						filename));
-			}
-
-			if (out.isZip()) {
-
-				String zipName = FileUtil.path(localOutputDirectory,
-						out.getName() + ".zip");
-
-				if (out.isMergeOutput()) {
-
-					HdfsUtil.compressAndMerge(zipName, hdfsPath,
-							out.isRemoveHeader());
+				String filename = context.getOutput(out.getName());
+				String hdfsPath = null;
+				if (filename.startsWith("hdfs://")
+						|| filename.startsWith("file:/")) {
+					hdfsPath = filename;
 
 				} else {
 
-					HdfsUtil.compress(zipName, hdfsPath);
-
+					hdfsPath = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
+							filename));
 				}
 
-			} else {
+				if (out.isZip()) {
 
-				if (out.isMergeOutput()) {
+					String zipName = FileUtil.path(localOutputDirectory,
+							out.getName() + ".zip");
 
-					HdfsUtil.exportDirectoryAndMerge(localOutputDirectory,
-							out.getName(), hdfsPath, out.isRemoveHeader());
+					if (out.isMergeOutput()) {
+
+						HdfsUtil.compressAndMerge(zipName, hdfsPath,
+								out.isRemoveHeader());
+
+					} else {
+
+						HdfsUtil.compress(zipName, hdfsPath);
+
+					}
 
 				} else {
 
-					HdfsUtil.exportDirectory(localOutputDirectory,
-							out.getName(), hdfsPath);
+					if (out.isMergeOutput()) {
+
+						HdfsUtil.exportDirectoryAndMerge(localOutputDirectory,
+								out.getName(), hdfsPath, out.isRemoveHeader());
+
+					} else {
+
+						HdfsUtil.exportDirectory(localOutputDirectory,
+								out.getName(), hdfsPath);
+
+					}
 
 				}
 

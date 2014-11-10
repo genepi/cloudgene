@@ -40,25 +40,6 @@ public class JobDao extends Dao {
 
 			connection.commit();
 
-			ParameterDao dao = new ParameterDao();
-
-			for (CloudgeneParameter parameter : job.getInputParams()) {
-				parameter.setJobId(job.getId());
-				dao.insert(parameter);
-			}
-			for (CloudgeneParameter parameter : job.getOutputParams()) {
-				parameter.setJobId(job.getId());
-				dao.insert(parameter);
-			}
-
-			if (job.getSteps() != null) {
-				StepDao dao2 = new StepDao();
-				for (CloudgeneStep step : job.getSteps()) {
-					dao2.insert(step);
-				}
-			}
-
-			connection.commit();
 			log.debug("insert job '" + job.getId() + "' successful.");
 
 		} catch (SQLException e) {
@@ -126,13 +107,13 @@ public class JobDao extends Dao {
 		return true;
 	}
 
-	public List<AbstractJob> findAllByUser(User user, boolean loadParameters) {
+	public List<AbstractJob> findAllByUser(User user) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where user_id = ? ");
-		sql.append("order by start_time desc ");
+		sql.append("order by id desc ");
 
 		Object[] params = new Object[1];
 		params[0] = user.getId();
@@ -140,8 +121,6 @@ public class JobDao extends Dao {
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
 		try {
-
-			ParameterDao dao = new ParameterDao();
 
 			ResultSet rs = query(sql.toString(), params);
 			while (rs.next()) {
@@ -157,27 +136,8 @@ public class JobDao extends Dao {
 				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 				job.setUser(user);
-
-				if (loadParameters) {
-					List<CloudgeneParameter> inputParams = dao
-							.findAllInputByJob(job);
-					List<CloudgeneParameter> outputParams = dao
-							.findAllOutputByJob(job);
-					job.setInputParams(inputParams);
-					job.setOutputParams(outputParams);
-
-				}
-
-				if (job instanceof CloudgeneJob) {
-
-					StepDao stepDao = new StepDao();
-					List<CloudgeneStep> steps = stepDao
-							.findAllByJob((CloudgeneJob) job);
-					job.setSteps(steps);
-
-				}
-
 				result.add(job);
+
 			}
 			rs.close();
 
@@ -196,7 +156,7 @@ public class JobDao extends Dao {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where state != ? ");
-		sql.append("order by start_time desc ");
+		sql.append("order by id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -243,7 +203,7 @@ public class JobDao extends Dao {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where state != ? AND state != ? AND state != ? ");
-		sql.append("order by start_time desc ");
+		sql.append("order by id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -292,7 +252,7 @@ public class JobDao extends Dao {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where  state = ? or state = ? ");
-		sql.append("order by start_time desc ");
+		sql.append("order by id desc ");
 
 		Object[] params = new Object[2];
 		params[0] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;
@@ -340,7 +300,7 @@ public class JobDao extends Dao {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where  state = ? AND DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) < 0  ");
-		sql.append("order by start_time desc ");
+		sql.append("order by id desc ");
 
 		Object[] params = new Object[2];
 		params[0] = state;
@@ -388,7 +348,7 @@ public class JobDao extends Dao {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("where state = ? ");
-		sql.append("order by start_time desc ");
+		sql.append("order by id desc ");
 
 		Object[] params = new Object[1];
 		params[0] = state;
@@ -425,60 +385,6 @@ public class JobDao extends Dao {
 			return result;
 		} catch (SQLException e) {
 			log.error("find all old jobs failed", e);
-			return null;
-		}
-	}
-
-	public List<AbstractJob> findAllByUserAndFormat(User user, String format) {
-
-		StringBuilder sql = new StringBuilder();
-		sql.append("select j.type, j.id, j.name, j.state, j.start_time, j.end_time, j.s3_url, p.value ");
-		sql.append("from job j ");
-		sql.append("join parameter p on j.id = p.job_id ");
-		sql.append("where user_id = ? and format = ? and j.state = ? and p.input = false ");
-		sql.append("order by start_time desc ");
-
-		Object[] params = new Object[3];
-		params[0] = user.getId();
-		params[1] = format;
-		params[2] = AbstractJob.STATE_SUCCESS;
-
-		List<AbstractJob> result = new Vector<AbstractJob>();
-
-		try {
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
-				job.setUser(user);
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				List<CloudgeneParameter> outputParams = new Vector<CloudgeneParameter>();
-
-				CloudgeneParameter parameter = new CloudgeneParameter();
-				parameter.setValue(rs.getString("value"));
-				outputParams.add(parameter);
-
-				job.setOutputParams(outputParams);
-
-				result.add(job);
-			}
-			rs.close();
-
-			log.debug("find all jobs successful. results: " + result.size());
-
-			return result;
-		} catch (SQLException e) {
-			log.error("find all jobs failed", e);
 			return null;
 		}
 	}
@@ -520,25 +426,26 @@ public class JobDao extends Dao {
 				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
-				User user = userDao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
 				if (loadParams) {
+					
+					User user = userDao.findById(rs.getInt("user_id"));
+					job.setUser(user);
+					
 					List<CloudgeneParameter> inputParams = dao
 							.findAllInputByJob(job);
 					List<CloudgeneParameter> outputParams = dao
 							.findAllOutputByJob(job);
 					job.setInputParams(inputParams);
 					job.setOutputParams(outputParams);
-				}
 
-				if (job instanceof CloudgeneJob) {
+					if (job instanceof CloudgeneJob) {
 
-					StepDao stepDao = new StepDao();
-					List<CloudgeneStep> steps = stepDao
-							.findAllByJob((CloudgeneJob) job);
-					job.setSteps(steps);
+						StepDao stepDao = new StepDao();
+						List<CloudgeneStep> steps = stepDao
+								.findAllByJob((CloudgeneJob) job);
+						job.setSteps(steps);
 
+					}
 				}
 
 			}

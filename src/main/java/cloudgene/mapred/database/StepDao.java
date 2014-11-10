@@ -33,14 +33,6 @@ public class StepDao extends Dao {
 
 			int id = updateAndGetKey(sql.toString(), params);
 			step.setId(id);
-
-			MessageDao dao = new MessageDao();
-			if (step.getLogMessages() != null) {
-				for (Message logMessage : step.getLogMessages()) {
-					dao.insert(logMessage);
-				}
-			}
-
 			
 			connection.commit();
 

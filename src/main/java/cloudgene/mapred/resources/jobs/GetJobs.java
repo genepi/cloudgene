@@ -15,7 +15,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
 
 public class GetJobs extends ServerResource {
@@ -47,13 +46,13 @@ public class GetJobs extends ServerResource {
 		}
 
 		// jobs in queue
-		WorkflowEngine engine = WorkflowEngine.getInstance();
-		List<AbstractJob> jobs = engine.getJobsByUser(user);
+		//WorkflowEngine engine = WorkflowEngine.getInstance();
+		//List<AbstractJob> jobs = engine.getJobsByUser(user);
 
 		// complete jobs
 		JobDao dao = new JobDao();
-		List<AbstractJob> oldJobs = dao.findAllByUser(user, false);
-		jobs.addAll(oldJobs);
+		List<AbstractJob> jobs = dao.findAllByUser(user);
+		//jobs.addAll(oldJobs);
 
 		// exclude unused parameters
 		JsonConfig config = new JsonConfig();

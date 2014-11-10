@@ -39,7 +39,6 @@ import cloudgene.mapred.resources.data.GetBucketsPublic;
 import cloudgene.mapred.resources.data.GetCounter;
 import cloudgene.mapred.resources.data.GetFileList;
 import cloudgene.mapred.resources.data.GetFolderList;
-import cloudgene.mapred.resources.data.GetFormatsList;
 import cloudgene.mapred.resources.data.GetLocalFiles;
 import cloudgene.mapred.resources.data.GetMyBuckets;
 import cloudgene.mapred.resources.data.GetSftpFiles;
@@ -52,7 +51,6 @@ import cloudgene.mapred.resources.jobs.CancelJob;
 import cloudgene.mapred.resources.jobs.DeleteJob;
 import cloudgene.mapred.resources.jobs.DownloadResults;
 import cloudgene.mapred.resources.jobs.GetJobDetails;
-import cloudgene.mapred.resources.jobs.GetJobStatus;
 import cloudgene.mapred.resources.jobs.GetJobs;
 import cloudgene.mapred.resources.jobs.GetLogs;
 import cloudgene.mapred.resources.jobs.NewGetJobStatus;
@@ -111,7 +109,6 @@ public class WebApp extends Application {
 		router.attach("/admin.html", Admin.class);
 
 		router.attach("/jobs", GetJobs.class);
-		router.attach("/jobs/state", GetJobStatus.class);
 		router.attach("/jobs/details", GetJobDetails.class);
 		router.attach("/jobs/delete", DeleteJob.class);
 		router.attach("/jobs/rerun", RerunJob.class);
@@ -136,7 +133,6 @@ public class WebApp extends Application {
 		router.attach("/logs/{id}/{file}", GetLogs.class);
 
 		router.attach("/hdfs/files", GetFileList.class);
-		router.attach("/hdfs/format/{format}", GetFormatsList.class);
 		router.attach("/hdfs/folders", GetFolderList.class);
 		router.attach("/hdfs/import", ImportFiles.class);
 		router.attach("/hdfs/upload", FileUploadRessource.class);

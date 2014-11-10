@@ -36,23 +36,7 @@ public class ParameterDao extends Dao {
 			params[8] = parameter.isAdminOnly();
 
 			int paramId = updateAndGetKey(sql.toString(), params);
-
-			// insert daos
-
-			if (!parameter.isInput() && parameter.isDownload()) {
-
-				if (((CloudgeneParameter) parameter).getFiles() != null) {
-
-					DownloadDao dao = new DownloadDao();
-					for (Download download : parameter.getFiles()) {
-						download.setParameterId(paramId);
-						download.setParameter(parameter);
-						dao.insert(download);
-					}
-
-				}
-
-			}
+			parameter.setId(paramId);
 
 			connection.commit();
 

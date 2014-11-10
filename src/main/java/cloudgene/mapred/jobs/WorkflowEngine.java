@@ -8,7 +8,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.MessageDao;
+import cloudgene.mapred.database.ParameterDao;
+import cloudgene.mapred.database.StepDao;
 import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
@@ -53,14 +57,50 @@ public class WorkflowEngine implements Runnable {
 				if (job.isSetupComplete()) {
 
 					job.setState(AbstractJob.STATE_WAITING);
+					dao.update(job);
 					longTimeQueue.submit(job);
 
 				} else {
 
-					dao.insert(job);
-
 					log.info("Setup failed for Job " + job.getId()
 							+ ". Not added to Long Time Queue.");
+
+					dao.update(job);
+
+					for (CloudgeneParameter parameter : job.getOutputParams()) {
+
+						if (parameter.isDownload()) {
+
+							if (((CloudgeneParameter) parameter).getFiles() != null) {
+
+								DownloadDao downloadDao = new DownloadDao();
+								for (Download download : parameter.getFiles()) {
+									download.setParameterId(parameter.getId());
+									download.setParameter(parameter);
+									downloadDao.insert(download);
+								}
+
+							}
+
+						}
+
+					}
+
+					if (job.getSteps() != null) {
+						StepDao dao2 = new StepDao();
+						for (CloudgeneStep step : job.getSteps()) {
+							dao2.insert(step);
+
+							MessageDao messageDao = new MessageDao();
+							if (step.getLogMessages() != null) {
+								for (Message logMessage : step.getLogMessages()) {
+									messageDao.insert(logMessage);
+								}
+							}
+
+						}
+					}
+
 				}
 
 			}
@@ -77,7 +117,40 @@ public class WorkflowEngine implements Runnable {
 			@Override
 			public void onComplete(AbstractJob job) {
 
-				dao.insert(job);
+				dao.update(job);
+				for (CloudgeneParameter parameter : job.getOutputParams()) {
+
+					if (parameter.isDownload()) {
+
+						if (((CloudgeneParameter) parameter).getFiles() != null) {
+
+							DownloadDao downloadDao = new DownloadDao();
+							for (Download download : parameter.getFiles()) {
+								download.setParameterId(parameter.getId());
+								download.setParameter(parameter);
+								downloadDao.insert(download);
+							}
+
+						}
+
+					}
+
+				}
+
+				if (job.getSteps() != null) {
+					StepDao dao2 = new StepDao();
+					for (CloudgeneStep step : job.getSteps()) {
+						dao2.insert(step);
+
+						MessageDao messageDao = new MessageDao();
+						if (step.getLogMessages() != null) {
+							for (Message logMessage : step.getLogMessages()) {
+								messageDao.insert(logMessage);
+							}
+						}
+
+					}
+				}
 
 			}
 
@@ -86,6 +159,20 @@ public class WorkflowEngine implements Runnable {
 	}
 
 	public void submit(AbstractJob job) {
+
+		dao.insert(job);
+
+		ParameterDao dao = new ParameterDao();
+
+		for (CloudgeneParameter parameter : job.getInputParams()) {
+			parameter.setJobId(job.getId());
+			dao.insert(parameter);
+		}
+
+		for (CloudgeneParameter parameter : job.getOutputParams()) {
+			parameter.setJobId(job.getId());
+			dao.insert(parameter);
+		}
 
 		job.afterSubmission();
 		shortTimeQueue.submit(job);
@@ -238,4 +325,11 @@ public class WorkflowEngine implements Runnable {
 
 	}
 
+	public boolean isInQueue(AbstractJob job) {
+		if (!shortTimeQueue.isInQueue(job)) {
+			return longTimeQueue.isInQueue(job);
+		} else {
+			return true;
+		}
+	}
 }

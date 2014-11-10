@@ -589,6 +589,13 @@ abstract public class AbstractJob implements Runnable {
 		return logs;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+	
+		return ((AbstractJob) obj).getId().equals(id);
+		
+	}
+	
 	abstract public boolean execute();
 
 	abstract public boolean executeSetup();
