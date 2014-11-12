@@ -74,8 +74,6 @@ abstract public class AbstractJob implements Runnable {
 
 	private String error = "";
 
-	private String s3Url = "";
-
 	private int map = -1;
 
 	private int reduce = -1;
@@ -160,14 +158,6 @@ abstract public class AbstractJob implements Runnable {
 
 	public void setError(String error) {
 		this.error = error;
-	}
-
-	public void setS3Url(String s3Url) {
-		this.s3Url = s3Url;
-	}
-
-	public String getS3Url() {
-		return s3Url;
 	}
 
 	public void setMap(int map) {

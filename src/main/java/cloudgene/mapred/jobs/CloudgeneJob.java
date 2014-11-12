@@ -273,32 +273,16 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean after() {
 
-		if (!getUser().isExportToS3()) {
-			// create output zip file for hdfs folders
-			for (CloudgeneParameter out : getOutputParams()) {
+		// create output zip file for hdfs folders
+		for (CloudgeneParameter out : getOutputParams()) {
 
-				if (out.isDownload() && !out.isAutoExport()) {
-					// export to local folder for faster download
-					exportParameter(out);
-				}
-
-				writeLog("Exporting data successful.");
-
-			}
-		} else {
-
-			// export to s3
-
-			setS3Url("s3n://" + getUser().getS3Bucket() + "/" + getId());
-
-			for (WdlParameter out : config.getOutputs()) {
-				if (out.isDownload()) {
-					copyParameterToS3(out);
-				}
-
+			if (out.isDownload() && !out.isAutoExport()) {
+				// export to local folder for faster download
+				exportParameter(out);
 			}
 
 			writeLog("Exporting data successful.");
+
 		}
 
 		return true;

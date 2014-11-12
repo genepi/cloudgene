@@ -33,7 +33,7 @@ public class JobDao extends Dao {
 			params[3] = job.getStartTime();
 			params[4] = job.getEndTime();
 			params[5] = job.getUser().getId();
-			params[6] = job.getS3Url();
+			params[6] = "";
 			params[7] = job.getType();
 
 			update(sql.toString(), params);
@@ -65,7 +65,7 @@ public class JobDao extends Dao {
 			params[2] = job.getStartTime();
 			params[3] = job.getEndTime();
 			params[4] = job.getUser().getId();
-			params[5] = job.getS3Url();
+			params[5] = "";
 			params[6] = job.getType();
 			params[7] = job.getDeletedOn();
 			params[8] = job.getId();
@@ -133,7 +133,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 				job.setUser(user);
 				result.add(job);
@@ -178,7 +177,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
@@ -227,7 +225,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
@@ -275,7 +272,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
@@ -323,7 +319,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
@@ -370,7 +365,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				User user = dao.findById(rs.getInt("user_id"));
@@ -423,7 +417,6 @@ public class JobDao extends Dao {
 				job.setState(rs.getInt("state"));
 				job.setStartTime(rs.getLong("start_time"));
 				job.setEndTime(rs.getLong("end_time"));
-				job.setS3Url(rs.getString("s3_url"));
 				job.setDeletedOn(rs.getLong("deleted_on"));
 
 				if (loadParams) {

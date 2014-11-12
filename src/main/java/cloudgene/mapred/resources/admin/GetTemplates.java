@@ -23,28 +23,25 @@ public class GetTemplates extends ServerResource {
 		UserSessions sessions = UserSessions.getInstance();
 		User user = sessions.getUserByRequest(getRequest());
 
-		if (user != null) {
-
-			if (!user.isAdmin()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation(
-						"The request requires administration rights.");
-			}
-
-			TemplateDao dao = new TemplateDao();
-			List<Template> templates = dao.findAll();
-
-			JSONArray jsonArray = JSONArray.fromObject(templates);
-
-			return new StringRepresentation(jsonArray.toString());
-
-		} else {
-
+		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation(
 					"The request requires user authentication.");
-
 		}
+
+		if (!user.isAdmin()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires administration rights.");
+		}
+
+		TemplateDao dao = new TemplateDao();
+		List<Template> templates = dao.findAll();
+
+		JSONArray jsonArray = JSONArray.fromObject(templates);
+
+		return new StringRepresentation(jsonArray.toString());
+
 	}
 
 }

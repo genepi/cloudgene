@@ -18,7 +18,7 @@ import cloudgene.mapred.database.CounterHistoryDao;
 public class GetStatistics extends ServerResource {
 
 	/**
-	 * Resource to get job status information
+	 * Resource to get statistics
 	 */
 
 	@Get
@@ -41,7 +41,7 @@ public class GetStatistics extends ServerResource {
 
 		CounterHistoryDao dao = new CounterHistoryDao();
 
-		List<Map<String, String>> stats = dao.getAll();
+		List<Map<String, String>> stats = dao.getAll(720);
 		JSONArray jsonArray = JSONArray.fromObject(stats);
 
 		return new StringRepresentation(jsonArray.toString());
