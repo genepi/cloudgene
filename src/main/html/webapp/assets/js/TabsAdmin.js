@@ -67,6 +67,13 @@ TabsAdmin = can.Control({
 			this.page = new AdminHomePage("#content");
 			break;
 
+		case "admin-piggene":
+			$("#content").hide();
+			$("#content").html(can.view('/views/admin/piggene.ejs'));
+			$("#content").fadeIn();
+
+			break;
+			
 		case "admin-logs":
 			$("#content").hide();
 			$("#content").html(can.view('/views/admin/logs.ejs'));

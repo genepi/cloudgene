@@ -40,7 +40,9 @@ public class GetSettings extends BaseResource {
 		object.put("mail-user", getSettings().getMail().get("user"));
 		object.put("mail-password", getSettings().getMail().get("password"));
 		object.put("mail-name", getSettings().getMail().get("name"));
+		object.put("piggene", getSettings().getPiggene());
 
+		
 		return new StringRepresentation(object.toString());
 
 	}

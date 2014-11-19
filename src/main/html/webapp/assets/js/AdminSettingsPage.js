@@ -54,6 +54,7 @@ AdminSettingsPage = can
 				this.settings.attr('mail-user',this.element.find("[name='mail-user']").val());
 				this.settings.attr('mail-password',this.element.find("[name='mail-password']").val());
 				this.settings.attr('mail-name',this.element.find("[name='mail-name']").val());
+				this.settings.attr('piggene',this.element.find("[name='piggene']").val());
 
 				
 				this.settings.save();

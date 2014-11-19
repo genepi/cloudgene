@@ -50,6 +50,7 @@ public class Admin extends BaseResource {
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());
+		data.put("piggene", getSettings().getPiggene());
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 
 		return new TemplateRepresentation("admin.html", cfg, data,

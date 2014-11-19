@@ -77,6 +77,8 @@ public class Settings {
 
 	private String adminMail = "lukas.forer@i-med.ac.at";
 
+	private String piggene = null;
+
 	private Settings() {
 		apps = new HashMap<String, String>();
 		apps.put("user", "sample/cloudgene.yaml");
@@ -409,6 +411,14 @@ public class Settings {
 
 	public String getAdminMail() {
 		return adminMail;
+	}
+
+	public void setPiggene(String piggene) {
+		this.piggene = piggene;
+	}
+
+	public String getPiggene() {
+		return piggene;
 	}
 
 }
