@@ -17,9 +17,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.RunningJob;
 
+import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.util.HadoopUtil;
-import cloudgene.mapred.util.Settings;
 
 public abstract class Hadoop extends CloudgeneStep {
 
@@ -31,11 +31,11 @@ public abstract class Hadoop extends CloudgeneStep {
 
 	protected int reduce = 0;
 
-	protected boolean executeJar(WorkflowContext context, String jar, String... params)
-			throws IOException, InterruptedException {
+	protected boolean executeJar(CloudgeneContext context, String jar,
+			String... params) throws IOException, InterruptedException {
 
-		String hadoopPath = Settings.getInstance().getHadoopPath();
-
+		String hadoopPath = context.getSettings().getHadoopPath();
+		
 		File path = new File(hadoopPath);
 
 		if (!path.exists()) {
@@ -77,8 +77,8 @@ public abstract class Hadoop extends CloudgeneStep {
 		return executeCommand(command, context);
 	}
 
-	protected boolean executeCommand(List<String> command, WorkflowContext context)
-			throws IOException, InterruptedException {
+	protected boolean executeCommand(List<String> command,
+			WorkflowContext context) throws IOException, InterruptedException {
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
 

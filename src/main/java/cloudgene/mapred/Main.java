@@ -23,11 +23,12 @@ import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.cron.CronJobScheduler;
-import cloudgene.mapred.database.DatabaseUpdater;
+import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.H2Connector;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.DatabaseUpdater;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
@@ -35,12 +36,14 @@ import cloudgene.mapred.util.Template;
 
 public class Main {
 
-	private static final Log log = LogFactory.getLog(Main.class);
+	//private static final Log log = LogFactory.getLog(Main.class);
 
 	public static final String VERSION = "1.9.5";
 
 	public static void main(String[] args) throws IOException {
 
+		System.out.println("hjehehe");
+				
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
 
@@ -49,6 +52,8 @@ public class Main {
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 
+			System.out.println("OKOKOKOKOKOK");
+			
 		} else {
 
 			if (new File("log4j.properties").exists()) {
@@ -56,10 +61,24 @@ public class Main {
 
 				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 				Engine.getInstance().setLoggerFacade(loggerFacade);
+				
+				System.out.println("OKOKOKOKOKOK <------");
+				
 			}
 
 		}
+		
+		Log log = LogFactory.getLog(Main.class);
 
+		ClassLoader cl1 = Thread.currentThread().getContextClassLoader();  
+		   
+		while(cl1 != null)  
+		{  
+		   URL loc = cl1.getResource("log4j.properties");  
+		   System.out.println("Search and destroy --> " + loc);  
+		   cl1 = cl1.getParent();  
+		}  
+		
 		log.info("Cloudgene " + VERSION);
 
 		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
@@ -105,10 +124,14 @@ public class Main {
 
 		}
 
-		H2Connector connector = H2Connector.getInstance();
+		H2Connector connector = new H2Connector("data/mapred", "mapred",
+				"mapred", false);
+
+		Database database = new Database();
+
 		try {
 
-			connector.connect();
+			database.connect(connector);
 
 			log.info("Establish connection successful");
 
@@ -139,11 +162,39 @@ public class Main {
 			log.info("Database is uptodate.");
 		}
 
+		// load config
+		Settings settings = null;
+		if (new File("config/settings.yaml").exists()) {
+
+			settings = Settings.load("config/settings.yaml");
+
+		} else {
+
+			log.warn("Config file not found. (config/settings.yaml).");
+			log.info("This is a fresh installation of Cloudgene. Init config with sample application.");
+
+		}
+
+		if (!settings.testPaths()) {
+
+			try {
+				database.disconnect();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			System.exit(1);
+		}
+
+		// create directories
+		FileUtil.createDirectory(settings.getTempPath());
+
 		String username = "admin";
 		String password = "admin1978";
 
 		// insert user
-		UserDao dao = new UserDao();
+		UserDao dao = new UserDao(database);
 		User user = dao.findByUsername(username);
 		if (user == null) {
 			user = new User();
@@ -159,7 +210,7 @@ public class Main {
 		}
 
 		// inser messages
-		TemplateDao htmlSnippetDao = new TemplateDao();
+		TemplateDao htmlSnippetDao = new TemplateDao(database);
 
 		for (Template defaultSnippet : Template.SNIPPETS) {
 
@@ -177,45 +228,17 @@ public class Main {
 
 		try {
 
-			// load config
-
-			Settings settings = Settings.getInstance();
-
-			if (new File("config/settings.yaml").exists()) {
-
-				settings.load("config/settings.yaml");
-				// reload!
-				settings = Settings.getInstance();
-
-			} else {
-
-				log.warn("Config file not found. (config/settings.yaml).");
-				log.info("This is a fresh installation of Cloudgene. Init config with sample application.");
-
-			}
-
-			if (!settings.testPaths()) {
-
-				H2Connector.getInstance().disconnect();
-
-				System.exit(1);
-			}
-
-			// create directories
-			FileUtil.createDirectory(settings.getTempPath());
-
-			// load templates into memory
-			settings.reloadTemplates();
-
-			new Thread(WorkflowEngine.getInstance()).start();
-
-			log.info("Start CronJobScheduler...");
-			CronJobScheduler scheduler = new CronJobScheduler();
-			scheduler.start(settings.isAutoRetire(),
-					settings.isWriteStatistics());
+			// start workflow engine
+			WorkflowEngine engine = new WorkflowEngine(database);
+			new Thread(engine).start();
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 
+			PropertyConfigurator.configure("config/log4j.properties");
+
+			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
+			Engine.getInstance().setLoggerFacade(loggerFacade);
+			
 			log.info("Starting web server at port " + port);
 
 			String webAppFolder = "";
@@ -236,10 +259,22 @@ public class Main {
 				pagesFolder = "sample/pages";
 			}
 
-			new WebServer(webAppFolder, pagesFolder, port, settings.isHttps(),
-					settings.getHttpsKeystore(), settings.getHttpsPassword())
-					.start();
+			WebServer server = new WebServer();
+			server.setPort(port);
+			server.setRootDirectory(webAppFolder);
+			server.setPagesDirectory(pagesFolder);
+			if (settings.isHttps()) {
+				String keystore = settings.getHttpsKeystore();
+				String phrase = settings.getHttpsPassword();
+				server.setHttpsCertificate(keystore, phrase);
+			}
+			server.setDatabase(database);
+			server.setSettings(settings);
+			server.setWorkflowEngine(engine);
+			server.setSessions(new UserSessions());
 
+			server.start();
+			
 		} catch (Exception e) {
 
 			log.error("Can't launch the web server.\nAn unexpected "
@@ -247,7 +282,7 @@ public class Main {
 
 			try {
 
-				H2Connector.getInstance().disconnect();
+				database.disconnect();
 
 			} catch (SQLException e1) {
 

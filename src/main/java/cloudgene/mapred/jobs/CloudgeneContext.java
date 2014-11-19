@@ -13,6 +13,7 @@ import java.util.Vector;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterDao;
+import cloudgene.mapred.resources.admin.GetSettings;
 import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
@@ -26,7 +27,12 @@ public class CloudgeneContext extends WorkflowContext {
 	private String hdfsInput;
 	private String localOutput;
 	private String workingDirectory;
+	
 	private String workspace;
+
+	//private String localWorkspace;
+	
+	private Settings settings;
 
 	private CloudgeneStep step;
 
@@ -37,6 +43,8 @@ public class CloudgeneContext extends WorkflowContext {
 	private Map<String, CloudgeneParameter> outputParameters;
 
 	private Map<String, Integer> counters = new HashMap<String, Integer>();
+
+	private Map<String, Boolean> submitCounters = new HashMap<String, Boolean>();
 
 	private AbstractJob job;
 
@@ -52,8 +60,7 @@ public class CloudgeneContext extends WorkflowContext {
 		setData("cloudgene.user.mail", user.getMail());
 		setData("cloudgene.user.name", user.getFullName());
 
-		workspace = Settings.getInstance().getHdfsWorkspace(
-				job.getUser().getUsername());
+		workspace = job.getHdfsWorkspace();
 
 		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
 				job.getId(), "temp"));
@@ -64,8 +71,7 @@ public class CloudgeneContext extends WorkflowContext {
 		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "input",
 				job.getId()));
 
-		String localWorkspace = new File(Settings.getInstance()
-				.getLocalWorkspace(job.getUser().getUsername()))
+		String localWorkspace = new File(job.getLocalWorkspace())
 				.getAbsolutePath();
 
 		localOutput = new File(FileUtil.path(localWorkspace, "output",
@@ -85,6 +91,8 @@ public class CloudgeneContext extends WorkflowContext {
 		for (CloudgeneParameter param : job.getOutputParams()) {
 			outputParameters.put(param.getName(), param);
 		}
+
+		settings = job.getSettings();
 
 	}
 
@@ -254,6 +262,10 @@ public class CloudgeneContext extends WorkflowContext {
 		}
 	}
 
+	public Settings getSettings() {
+		return settings;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -355,7 +367,7 @@ public class CloudgeneContext extends WorkflowContext {
 	 */
 
 	public boolean sendMail(String subject, String body) throws Exception {
-		Settings settings = Settings.getInstance();
+		Settings settings = getSettings();
 
 		MailUtil.send(settings.getMail().get("smtp"),
 				settings.getMail().get("port"), settings.getMail().get("user"),
@@ -414,14 +426,15 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void submitCounter(String name) {
 
-		Integer value = counters.get(name);
+		submitCounters.put(name, true);
+	}
 
-		if (value != null) {
-
-			CounterDao dao = new CounterDao();
-			dao.insert(name, value, job);
-
+	public Map<String, Integer> getSubmittedCounters() {
+		Map<String, Integer> result = new HashMap<String, Integer>();
+		for (String counter : submitCounters.keySet()) {
+			result.put(counter, counters.get(counter));
 		}
+		return result;
 	}
 
 	/*

@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.apps;
 
+import genepi.io.FileUtil;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -15,17 +17,18 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 
-public class GetAppParams extends ServerResource {
+public class GetAppParams extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -37,7 +40,8 @@ public class GetAppParams extends ServerResource {
 
 		Form form = new Form(entity);
 
-		WdlApp app = WdlReader.loadApp(form.getFirstValue("tool"));
+		WdlApp app = WdlReader.loadApp(FileUtil.path(getSettings()
+				.getAppsPath(), form.getFirstValue("tool")));
 
 		List<WdlParameter> params = app.getMapred().getInputs();
 
@@ -49,8 +53,8 @@ public class GetAppParams extends ServerResource {
 
 	@Get
 	public Representation get(Representation entity) {
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -59,7 +63,7 @@ public class GetAppParams extends ServerResource {
 					"The request requires user authentication.");
 
 		}
-		String filename = Settings.getInstance().getApp(user);
+		String filename = getSettings().getApp(user);
 
 		WdlApp app;
 		try {

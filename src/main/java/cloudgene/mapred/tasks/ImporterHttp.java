@@ -84,8 +84,8 @@ public class ImporterHttp extends AbstractTask {
 		// path in hdfs
 		String[] tiles = weburl.split("/");
 		String name = tiles[tiles.length - 1];
-		Settings settings = Settings.getInstance();
-		String workspace = settings.getHdfsWorkspace(job.getUser().getUsername());
+
+		String workspace = HdfsUtil.path(job.getSettings().getHdfsWorkspace(), job.getUser().getUsername());
 		String target = HdfsUtil.path(workspace, path, name);
 
 		FSDataOutputStream out = fileSystem.create(new Path(target));

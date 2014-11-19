@@ -6,21 +6,19 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetLogs extends ServerResource {
+public class GetLogs extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -34,11 +32,11 @@ public class GetLogs extends ServerResource {
 			id += "/" + file;
 		}
 
-		JobDao jobDao = new JobDao();
+		JobDao jobDao = new JobDao(getDatabase());
 		AbstractJob job = jobDao.findById(id);
 
 		if (job == null) {
-			job = WorkflowEngine.getInstance().getJobById(id);
+			job = getWorkflowEngine().getJobById(id);
 		}
 
 		if (job != null) {
@@ -52,8 +50,13 @@ public class GetLogs extends ServerResource {
 
 			StringBuffer buffer = new StringBuffer();
 
-			String log = FileUtil.readFileAsString(job.getLogOutFile());
-			String output = FileUtil.readFileAsString(job.getStdOutFile());
+			String workspace = FileUtil.path(getSettings().getLocalWorkspace(),
+					job.getUser().getUsername());
+
+			String log = FileUtil.readFileAsString(FileUtil.path(workspace,
+					job.getLogOutFile()));
+			String output = FileUtil.readFileAsString(FileUtil.path(workspace,
+					job.getStdOutFile()));
 
 			buffer.append("<code><pre>");
 

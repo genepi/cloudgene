@@ -9,15 +9,13 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetJobs extends ServerResource {
+public class GetJobs extends BaseResource {
 
 	/**
 	 * Resource to get job status information
@@ -26,10 +24,7 @@ public class GetJobs extends ServerResource {
 	@Get
 	public Representation getJobs() {
 
-		Settings settings = Settings.getInstance();
-
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -37,7 +32,7 @@ public class GetJobs extends ServerResource {
 					"The request requires user authentication.");
 		}
 
-		if (settings.isMaintenance() && !user.isAdmin()) {
+		if (getSettings().isMaintenance() && !user.isAdmin()) {
 
 			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
 			return new StringRepresentation(
@@ -46,13 +41,13 @@ public class GetJobs extends ServerResource {
 		}
 
 		// jobs in queue
-		//WorkflowEngine engine = WorkflowEngine.getInstance();
-		//List<AbstractJob> jobs = engine.getJobsByUser(user);
+		// WorkflowEngine engine = WorkflowEngine.getInstance();
+		// List<AbstractJob> jobs = engine.getJobsByUser(user);
 
 		// complete jobs
-		JobDao dao = new JobDao();
+		JobDao dao = new JobDao(getDatabase());
 		List<AbstractJob> jobs = dao.findAllByUser(user);
-		//jobs.addAll(oldJobs);
+		// jobs.addAll(oldJobs);
 
 		// exclude unused parameters
 		JsonConfig config = new JsonConfig();

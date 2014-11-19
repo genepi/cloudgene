@@ -65,8 +65,7 @@ public class TaskJob extends AbstractJob {
 	@Override
 	public boolean execute() {
 
-		String localWorkspace = Settings.getInstance().getLocalWorkspace(
-				getUser().getUsername());
+		String localWorkspace = getLocalWorkspace();
 
 		String localOutputDirectory = FileUtil.path(localWorkspace, "output",
 				getId());
@@ -99,12 +98,6 @@ public class TaskJob extends AbstractJob {
 
 	@Override
 	public boolean onFailure() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean delete() {
 		// TODO Auto-generated method stub
 		return false;
 	}

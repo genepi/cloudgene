@@ -21,7 +21,7 @@ import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TaskCompletionEvent;
 import org.apache.hadoop.mapred.TaskLog;
 import org.apache.hadoop.mapred.TaskReport;
-import org.apache.hadoop.mapreduce.TaskCompletionEvent.Status;
+//import org.apache.hadoop.mapreduce.TaskCompletionEvent.Status;
 import org.apache.hadoop.util.VersionInfo;
 
 import cloudgene.mapred.core.User;
@@ -195,7 +195,7 @@ public class HadoopUtil {
 		log.info("Downloading " + completionEvents.size() + " log files...");
 		for (TaskCompletionEvent taskCompletionEvent : completionEvents) {
 
-			if (taskCompletionEvent.getStatus() == Status.FAILED) {
+		/*	if (taskCompletionEvent.getStatus() == Status.FAILED) {
 
 				StringBuilder logURL = new StringBuilder(
 						taskCompletionEvent.getTaskTrackerHttp());
@@ -259,7 +259,7 @@ public class HadoopUtil {
 					return;
 				}
 
-			}
+			}*/
 
 		}
 

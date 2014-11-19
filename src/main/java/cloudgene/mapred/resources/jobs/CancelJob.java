@@ -6,20 +6,17 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.BaseResource;
 
-public class CancelJob extends ServerResource {
+public class CancelJob extends BaseResource {
 
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -32,31 +29,27 @@ public class CancelJob extends ServerResource {
 		Form form = new Form(entity);
 		String id = form.getFirstValue("id");
 
-		if (id != null) {
-
-			AbstractJob job = WorkflowEngine.getInstance().getJobById(id);
-
-			if (job != null) {
-
-				if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-					return new StringRepresentation("Access denied.");
-				}
-
-				WorkflowEngine.getInstance().cancel(job);
-				return new StringRepresentation("Job " + id + " canceled.");
-
-			} else {
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-				return new StringRepresentation("Job " + id + " not found.");
-			}
-
-		} else {
+		if (id == null) {
 
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + id + " not found.");
+			return new StringRepresentation("No Job id specified.");
 
 		}
+
+		AbstractJob job = getWorkflowEngine().getJobById(id);
+
+		if (job == null) {
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Job " + id + " not found.");
+		}
+
+		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("Access denied.");
+		}
+
+		getWorkflowEngine().cancel(job);
+		return new StringRepresentation("Job " + id + " canceled.");
 
 	}
 

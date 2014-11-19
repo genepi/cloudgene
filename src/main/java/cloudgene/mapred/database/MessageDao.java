@@ -8,12 +8,19 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 
-public class MessageDao extends Dao {
+public class MessageDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(MessageDao.class);
+
+	public MessageDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(Message logMessage) {
 		StringBuilder sql = new StringBuilder();
@@ -30,8 +37,6 @@ public class MessageDao extends Dao {
 			params[3] = logMessage.getStep().getId();
 			update(sql.toString(), params);
 
-			connection.commit();
-
 			log.debug("insert log messages successful.");
 
 		} catch (SQLException e) {
@@ -42,6 +47,7 @@ public class MessageDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Message> findAllByStep(CloudgeneStep step) {
 
 		StringBuilder sql = new StringBuilder();
@@ -57,18 +63,7 @@ public class MessageDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				Message status = new Message();
-				status.setTime(rs.getLong("time"));
-				status.setStep(step);
-				status.setType(rs.getInt("type"));
-				status.setMessage(rs.getString("message"));
-
-				result.add(status);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new MessageMapper(step));
 
 			log.debug("find all log messages successful. results: "
 					+ result.size());
@@ -78,6 +73,26 @@ public class MessageDao extends Dao {
 			log.error("find all log messages failed", e);
 			return null;
 		}
+	}
+
+	class MessageMapper implements IRowMapper {
+
+		private CloudgeneStep step;
+
+		public MessageMapper(CloudgeneStep step) {
+			this.step = step;
+		}
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			Message message = new Message();
+			message.setTime(rs.getLong("time"));
+			message.setStep(step);
+			message.setType(rs.getInt("type"));
+			message.setMessage(rs.getString("message"));
+			return message;
+		}
+
 	}
 
 }

@@ -8,19 +8,18 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.BucketItem;
 import cloudgene.mapred.util.BucketTree;
 
-public class GetBucketsPublic extends ServerResource {
+public class GetBucketsPublic extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+
+		User user = getUser(getRequest());
 
 		StringRepresentation representation = null;
 

@@ -10,15 +10,14 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetAllJobs extends ServerResource {
+public class GetAllJobs extends BaseResource {
 
 	/**
 	 * Resource to get job status information
@@ -27,8 +26,7 @@ public class GetAllJobs extends ServerResource {
 	@Get
 	public Representation getJobs() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -47,8 +45,8 @@ public class GetAllJobs extends ServerResource {
 			state = getQuery().getFirst("state").getValue();
 		}
 
-		WorkflowEngine engine = WorkflowEngine.getInstance();
-		JobDao dao = new JobDao();
+		WorkflowEngine engine = getWorkflowEngine();
+		JobDao dao = new JobDao(getDatabase());
 		List<AbstractJob> jobs = new Vector<AbstractJob>();
 
 		switch (state) {
@@ -67,10 +65,10 @@ public class GetAllJobs extends ServerResource {
 
 			jobs = dao.findAllNotRetiredJobs();
 			List<AbstractJob> toRemove = new Vector<AbstractJob>();
-			for (AbstractJob job: jobs){
-				if (engine.isInQueue(job)){
+			for (AbstractJob job : jobs) {
+				if (engine.isInQueue(job)) {
 					toRemove.add(job);
-				}				
+				}
 			}
 			jobs.removeAll(toRemove);
 			break;

@@ -240,9 +240,7 @@ public class ImporterS3 extends AbstractTask {
 
 				if (!object.isDirectoryPlaceholder()) {
 
-					Settings settings = Settings.getInstance();
-					String workspace = settings.getHdfsWorkspace(job.getUser()
-							.getUsername());
+					String workspace = HdfsUtil.path(job.getSettings().getHdfsWorkspace(), job.getUser().getUsername());
 
 					String target = "";
 

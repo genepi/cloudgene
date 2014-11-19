@@ -1,7 +1,6 @@
 package cloudgene.mapred.steps;
 
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.steps.importer.IImporter;
@@ -11,7 +10,7 @@ import cloudgene.mapred.wdl.WdlStep;
 public class HdfsImporter extends Hadoop {
 
 	@Override
-	public boolean run(WdlStep step, WorkflowContext context) {
+	public boolean run(WdlStep step, CloudgeneContext context) {
 
 		try {
 

@@ -63,8 +63,6 @@ public class Settings {
 
 	private boolean removeHdfsWorkspace = false;
 
-	private static Settings instance = null;
-
 	private static final Log log = LogFactory.getLog(Settings.class);
 
 	private boolean writeStatistics = true;
@@ -78,8 +76,6 @@ public class Settings {
 	private boolean maintenance = false;
 
 	private String adminMail = "lukas.forer@i-med.ac.at";
-
-	private Map<String, String> cacheTemplates;
 
 	private Settings() {
 		apps = new HashMap<String, String>();
@@ -95,48 +91,43 @@ public class Settings {
 
 	}
 
-	public void load(String filename) throws FileNotFoundException,
+	public static Settings load(String filename) throws FileNotFoundException,
 			YamlException {
 
 		YamlReader reader = new YamlReader(new FileReader(filename));
 
-		instance = reader.read(Settings.class);
+		Settings settings = reader.read(Settings.class);
 
 		// auto-search
 
-		if (instance.streamingJar.isEmpty()
-				|| !(new File(instance.streamingJar).exists())) {
+		if (settings.streamingJar.isEmpty()
+				|| !(new File(settings.streamingJar).exists())) {
 
 			String version = HadoopUtil.getInstance().getVersion();
 			String jar = "hadoop-streaming-" + version + ".jar";
-			instance.streamingJar = FileUtil.path(instance.hadoopPath,
+			settings.streamingJar = FileUtil.path(settings.hadoopPath,
 					"contrib", "streaming", jar);
 
-			if (new File(instance.streamingJar).exists()) {
+			if (new File(settings.streamingJar).exists()) {
 
-				log.info("Found streamingJar at " + instance.streamingJar + "");
-				instance.streaming = true;
+				log.info("Found streamingJar at " + settings.streamingJar + "");
+				settings.streaming = true;
 
 			} else {
 
 				log.warn("Streaming Jar could not be found automatically. Please specify it in config/settings.yaml. Streaming mode is disabled.");
-				instance.streaming = false;
+				settings.streaming = false;
 			}
 
 		}
 
-		log.info("Auto retire: " + instance.isAutoRetire());
-		log.info("Retire jobs after " + instance.retireAfter + " days.");
-		log.info("Notify user after " + instance.notificationAfter + " days.");
-		log.info("Write statistics: " + instance.writeStatistics);
+		log.info("Auto retire: " + settings.isAutoRetire());
+		log.info("Retire jobs after " + settings.retireAfter + " days.");
+		log.info("Notify user after " + settings.notificationAfter + " days.");
+		log.info("Write statistics: " + settings.writeStatistics);
 
-	}
+		return settings;
 
-	public static Settings getInstance() {
-		if (instance == null) {
-			instance = new Settings();
-		}
-		return instance;
 	}
 
 	public String getHadoopPath() {
@@ -183,20 +174,12 @@ public class Settings {
 		return localWorkspace;
 	}
 
-	public String getLocalWorkspace(String username) {
-		return HdfsUtil.path(localWorkspace, username);
-	}
-
 	public void setLocalWorkspace(String localWorkspace) {
 		this.localWorkspace = localWorkspace;
 	}
 
 	public String getHdfsWorkspace() {
 		return hdfsWorkspace;
-	}
-
-	public String getHdfsWorkspace(String username) {
-		return HdfsUtil.path(hdfsWorkspace, username);
 	}
 
 	public void setHdfsWorkspace(String hdfsWorkspace) {
@@ -343,7 +326,7 @@ public class Settings {
 	}
 
 	public String getTempFilename(String filename) {
-		String path = Settings.getInstance().getTempPath();
+		String path = getTempPath();
 		String name = FileUtil.getFilename(filename);
 		return FileUtil.path(path, name);
 	}
@@ -418,40 +401,6 @@ public class Settings {
 
 	public boolean isMaintenance() {
 		return maintenance;
-	}
-
-	public void reloadTemplates() {
-		TemplateDao dao = new TemplateDao();
-		List<Template> templates = dao.findAll();
-
-		cacheTemplates = new HashMap<String, String>();
-		for (Template snippet : templates) {
-			cacheTemplates.put(snippet.getKey(), snippet.getText());
-		}
-	}
-
-	public String getTemplate(String key) {
-
-		String template = cacheTemplates.get(key);
-
-		if (template != null) {
-			return template;
-		} else {
-			return "!" + key;
-		}
-
-	}
-
-	public String getTemplate(String key, Object... strings) {
-
-		String template = cacheTemplates.get(key);
-
-		if (template != null) {
-			return String.format(template, strings);
-		} else {
-			return "!" + key;
-		}
-
 	}
 
 	public void setAdminMail(String adminMail) {

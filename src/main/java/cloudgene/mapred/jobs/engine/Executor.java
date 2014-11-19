@@ -14,15 +14,15 @@ import cloudgene.mapred.wdl.WdlParameter;
 
 public class Executor {
 
-	private CacheDirectory cache;
+	//private CacheDirectory cache;
 
 	private GraphNode executableNode;
 
 	private boolean useDag = false;
 
-	public Executor(CacheDirectory cache) {
+	/*public Executor(CacheDirectory cache) {
 		this.cache = cache;
-	}
+	}*/
 
 	public boolean execute(Graph graph) {
 

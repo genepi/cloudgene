@@ -42,14 +42,34 @@ JobListPage = can.Control({
 	},
 
 	'.icon-trash click' : function(el, ev) {
+		var that = this;
 
 		job = el.parent().parent().data('job');
 		bootbox.animate(false);
 		bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id')
 				+ "</b>?", function(result) {
 			if (result) {
-				job.destroy();
+			
+				$("a[data-handler='1']").button('loading');
+				$("a[data-handler='0']").hide('hide');
+
+				var that = this;
+				
+				job.destroy(function() {
+					// go to jobs page
+					bootbox.hideAll();
+				}, function(message) {
+					// show error message
+					new ErrorPage(that.element, {
+						status : message.statusText,
+						message : message.responseText
+					});
+				});
+
+				return false;
+				
 			}
+
 		});
 
 	},
@@ -62,7 +82,23 @@ JobListPage = can.Control({
 				+ "</b>?", function(result) {
 			if (result) {
 				// cancel
-				job.save();
+
+				$("a[data-handler='1']").button('loading');
+				$("a[data-handler='0']").hide('hide');
+				
+				job.save(function() {
+					// go to jobs page
+					bootbox.hideAll();
+				}, function(message) {
+					// show error message
+					new ErrorPage(that.element, {
+						status : message.statusText,
+						message : message.responseText
+					});
+				});
+
+				return false;
+				
 			}
 		});
 

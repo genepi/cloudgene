@@ -4,23 +4,31 @@ import java.util.List;
 import java.util.Map;
 
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterDao;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 
 public class StatisticsJob implements Job {
 
 	@Override
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+	public void execute(JobExecutionContext context)
+			throws JobExecutionException {
 
-		List<AbstractJob> jobs = WorkflowEngine.getInstance()
-				.getAllJobsInLongTimeQueue();
+		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
+		WebApp application = (WebApp) dataMap.get("application");
+		WorkflowEngine engine = application.getWorkflowEngine();
+		Database database = application.getDatabase();
+
+		List<AbstractJob> jobs = engine.getAllJobsInLongTimeQueue();
 		long countWaiting = 0;
 		long countRunning = 0;
 
@@ -33,20 +41,20 @@ public class StatisticsJob implements Job {
 			}
 		}
 
-		Map<String, Long> countersRunning = WorkflowEngine.getInstance()
+		Map<String, Long> countersRunning = engine
 				.getCounters(AbstractJob.STATE_RUNNING);
-		Map<String, Long> countersWaiting = WorkflowEngine.getInstance()
+		Map<String, Long> countersWaiting = engine
 				.getCounters(AbstractJob.STATE_WAITING);
 
-		CounterDao dao = new CounterDao();
+		CounterDao dao = new CounterDao(database);
 		Map<String, Long> counters = dao.getAll();
 
-		UserDao daoUser = new UserDao();
+		UserDao daoUser = new UserDao(database);
 		List<User> users = daoUser.findAll();
 
 		long timestamp = System.currentTimeMillis();
 
-		CounterHistoryDao daoHistory = new CounterHistoryDao();
+		CounterHistoryDao daoHistory = new CounterHistoryDao(database);
 		daoHistory.insert(timestamp, "users", users.size());
 		daoHistory.insert(timestamp, "runningJobs", countRunning);
 		daoHistory.insert(timestamp, "waitingJobs", countWaiting);

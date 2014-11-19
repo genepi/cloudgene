@@ -1,6 +1,5 @@
 package cloudgene.mapred.steps;
 
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -19,9 +18,9 @@ public class MapReduce extends Hadoop {
 	}
 
 	@Override
-	public boolean run(WdlStep step, WorkflowContext context) {
+	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String hadoopPath = Settings.getInstance().getHadoopPath();
+		String hadoopPath = context.getSettings().getHadoopPath();
 
 		File path = new File(hadoopPath);
 
@@ -52,7 +51,7 @@ public class MapReduce extends Hadoop {
 			return false;
 		}
 
-		String streamingJar = Settings.getInstance().getStreamingJar();
+		String streamingJar = context.getSettings().getStreamingJar();
 
 		// params
 		String paramsString = step.getParams();
@@ -73,13 +72,13 @@ public class MapReduce extends Hadoop {
 
 			// streaming
 
-			if (Settings.getInstance().isStreaming()) {
+			if (context.getSettings().isStreaming()) {
 
 				command.add(streamingJar);
 
 			} else {
 
-				context.error("Htreaming mode is disabled.\nPlease specify the streaming-jar file in config/settings.yaml to run this job..");
+				context.error("Streaming mode is disabled.\nPlease specify the streaming-jar file in config/settings.yaml to run this job..");
 				return false;
 
 			}

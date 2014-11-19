@@ -1,24 +1,21 @@
 package cloudgene.mapred.resources.admin;
 
-import org.quartz.JobExecutionException;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.cron.NotificationJob;
-import cloudgene.mapred.cron.RetireJob;
+import cloudgene.mapred.cron.CleanUpTasks;
+import cloudgene.mapred.util.BaseResource;
 
-public class StartRetire extends ServerResource {
+public class StartRetire extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
+
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -33,24 +30,12 @@ public class StartRetire extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		NotificationJob job = new NotificationJob();
-		try {
-			job.execute(null);
-		} catch (JobExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		int notifications = CleanUpTasks.sendNotifications(getWebApp());
+		int retired = CleanUpTasks.executeRetire(getDatabase(), getSettings());
 
-		RetireJob job2 = new RetireJob();
-		try {
-			job2.execute(null);
-		} catch (JobExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return new StringRepresentation("NotificationJob:\n" + job.getMessage()
-				+ "\n\nRetireJob:\n" + job2.getMessage());
+		return new StringRepresentation("NotificationJob:\n" + notifications
+				+ " notifications sent." + "\n\nRetireJob:\n" + retired
+				+ " jobs retired.");
 
 	}
 

@@ -1,4 +1,4 @@
-package cloudgene.mapred.database;
+package cloudgene.mapred.database.util;
 
 import genepi.io.FileUtil;
 
@@ -22,7 +22,7 @@ public class DatabaseUpdater {
 
 	protected static final Log log = LogFactory.getLog(DatabaseUpdater.class);
 
-	private H2Connector connector;
+	private DatabaseConnector connector;
 
 	private String oldVersion;
 
@@ -36,7 +36,7 @@ public class DatabaseUpdater {
 
 	private boolean localFile = false;
 
-	public DatabaseUpdater(H2Connector connector, String filename,
+	public DatabaseUpdater(DatabaseConnector connector, String filename,
 			String updateFile, String currentVersion, boolean localFile) {
 
 		this.connector = connector;

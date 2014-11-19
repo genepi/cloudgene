@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.jobs;
 
+import genepi.io.FileUtil;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,28 +12,26 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 
-public class RerunJob extends ServerResource {
+public class RerunJob extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
-		
+		User user = getUser(getRequest());
+
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -54,13 +54,13 @@ public class RerunJob extends ServerResource {
 
 		}
 
-		WorkflowEngine queue = WorkflowEngine.getInstance();
+		WorkflowEngine queue = getWorkflowEngine();
 
 		Form form = new Form(entity);
 		String jobId = form.getFirstValue("id");
 		if (jobId != null) {
 
-			JobDao dao = new JobDao();
+			JobDao dao = new JobDao(getDatabase());
 			AbstractJob oldJob = dao.findById(jobId);
 
 			String[] tiles = jobId.split("-");
@@ -70,7 +70,7 @@ public class RerunJob extends ServerResource {
 				tool += "-" + tiles[i];
 			}
 
-			WdlApp app = WdlReader.loadApp(tool);
+			WdlApp app = WdlReader.loadApp(FileUtil.path(getSettings().getAppsPath(), tool));
 			if (app.getMapred() != null) {
 
 				try {

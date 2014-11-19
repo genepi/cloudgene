@@ -11,10 +11,8 @@ import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.TaskJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -24,9 +22,9 @@ import cloudgene.mapred.tasks.ImporterHttp;
 import cloudgene.mapred.tasks.ImporterLocalFile;
 import cloudgene.mapred.tasks.ImporterS3;
 import cloudgene.mapred.tasks.ImporterSftp;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
-public class ImportFiles extends ServerResource {
+public class ImportFiles extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
@@ -36,10 +34,10 @@ public class ImportFiles extends ServerResource {
 		try {
 			JsonRepresentation represent = new JsonRepresentation(entity);
 
-			UserSessions sessions = UserSessions.getInstance();
-			User user = sessions.getUserByRequest(getRequest());
+			User user = getUser(getRequest());
+
 			JSONObject obj = represent.getJsonObject();
-			
+
 			if (user != null) {
 
 				String server = obj.get("server").toString();
@@ -88,13 +86,12 @@ public class ImportFiles extends ServerResource {
 
 				} else if (server.startsWith("sftp://")) {
 
-					task = new ImporterSftp(server, username, password, path, port);
+					task = new ImporterSftp(server, username, password, path,
+							port);
 
 				} else {
-
-					String filename = FileUtil.path(Settings.getInstance()
-							.getLocalWorkspace(user.getUsername()), server);
-
+					String filename = FileUtil.path(getSettings()
+							.getLocalWorkspace(), user.getUsername(), server);
 					task = new ImporterLocalFile(filename, path, false);
 				}
 
@@ -103,8 +100,8 @@ public class ImportFiles extends ServerResource {
 				job.setName(job.getId());
 				job.setUser(user);
 
-				WorkflowEngine queue = WorkflowEngine.getInstance();
-				queue.submit(job);
+				WorkflowEngine engine = getWorkflowEngine();
+				engine.submit(job);
 
 				// Response
 

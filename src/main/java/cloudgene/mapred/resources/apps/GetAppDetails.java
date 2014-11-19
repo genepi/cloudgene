@@ -14,8 +14,9 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetAppDetails extends ServerResource {
+public class GetAppDetails extends BaseResource {
 
 	public class InfoObject {
 
@@ -52,8 +53,7 @@ public class GetAppDetails extends ServerResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 

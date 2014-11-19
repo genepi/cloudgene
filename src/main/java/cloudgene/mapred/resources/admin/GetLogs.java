@@ -3,29 +3,20 @@ package cloudgene.mapred.resources.admin;
 import java.io.File;
 import java.io.IOException;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlHeader;
-import cloudgene.mapred.wdl.WdlReader;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetLogs extends ServerResource {
+public class GetLogs extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 

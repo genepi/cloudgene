@@ -4,19 +4,17 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HadoopUtil;
 
-public class KillAllJobs extends ServerResource {
+public class KillAllJobs extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 

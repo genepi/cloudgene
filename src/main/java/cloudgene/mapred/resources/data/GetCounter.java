@@ -5,18 +5,18 @@ import java.util.Map;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.database.CounterDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetCounter extends ServerResource {
+public class GetCounter extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		CounterDao dao = new CounterDao();
+		CounterDao dao = new CounterDao(getDatabase());
 		Map<String, Long> counters = dao.getAll();
 
 		// complete
@@ -34,8 +34,7 @@ public class GetCounter extends ServerResource {
 		temp += "},";
 
 		// running
-		counters = WorkflowEngine.getInstance()
-				.getCounters(AbstractJob.STATE_RUNNING);
+		counters = getWorkflowEngine().getCounters(AbstractJob.STATE_RUNNING);
 		temp += "\"running\": {";
 		first = true;
 		for (String key : counters.keySet()) {
@@ -50,8 +49,7 @@ public class GetCounter extends ServerResource {
 		temp += "},";
 
 		// waiting
-		counters = WorkflowEngine.getInstance()
-				.getCounters(AbstractJob.STATE_WAITING);
+		counters = getWorkflowEngine().getCounters(AbstractJob.STATE_WAITING);
 		temp += "\"waiting\": {";
 		first = true;
 		for (String key : counters.keySet()) {

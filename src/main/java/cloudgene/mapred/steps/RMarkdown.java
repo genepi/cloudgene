@@ -8,6 +8,7 @@ import genepi.io.FileUtil;
 import java.io.File;
 import java.io.IOException;
 
+import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.MyRScript;
@@ -16,7 +17,7 @@ import cloudgene.mapred.wdl.WdlStep;
 public class RMarkdown extends CloudgeneStep {
 
 	@Override
-	public boolean run(WdlStep step, WorkflowContext context) {
+	public boolean run(WdlStep step, CloudgeneContext context) {
 
 		context.beginTask("Running Report Script...");
 

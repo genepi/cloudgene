@@ -8,16 +8,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.CounterDao;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.MessageDao;
 import cloudgene.mapred.database.ParameterDao;
 import cloudgene.mapred.database.StepDao;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
-
-	static WorkflowEngine instance = null;
 
 	public static final int THREADS_LTQ = 5;
 
@@ -31,18 +31,14 @@ public class WorkflowEngine implements Runnable {
 
 	private boolean running = false;
 
+	private Database database;
+
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
 
-	public static WorkflowEngine getInstance() {
-		if (instance == null) {
-			instance = new WorkflowEngine();
-		}
-		return instance;
-	}
+	public WorkflowEngine(Database mdatabase) {
+		this.database = mdatabase;
 
-	private WorkflowEngine() {
-
-		dao = new JobDao();
+		dao = new JobDao(database);
 
 		shortTimeQueue = new Queue("ShortTimeQueue", THREADS_STQ) {
 
@@ -73,7 +69,8 @@ public class WorkflowEngine implements Runnable {
 
 							if (((CloudgeneParameter) parameter).getFiles() != null) {
 
-								DownloadDao downloadDao = new DownloadDao();
+								DownloadDao downloadDao = new DownloadDao(
+										database);
 								for (Download download : parameter.getFiles()) {
 									download.setParameterId(parameter.getId());
 									download.setParameter(parameter);
@@ -87,11 +84,11 @@ public class WorkflowEngine implements Runnable {
 					}
 
 					if (job.getSteps() != null) {
-						StepDao dao2 = new StepDao();
+						StepDao dao2 = new StepDao(database);
 						for (CloudgeneStep step : job.getSteps()) {
 							dao2.insert(step);
 
-							MessageDao messageDao = new MessageDao();
+							MessageDao messageDao = new MessageDao(database);
 							if (step.getLogMessages() != null) {
 								for (Message logMessage : step.getLogMessages()) {
 									messageDao.insert(logMessage);
@@ -124,7 +121,7 @@ public class WorkflowEngine implements Runnable {
 
 						if (((CloudgeneParameter) parameter).getFiles() != null) {
 
-							DownloadDao downloadDao = new DownloadDao();
+							DownloadDao downloadDao = new DownloadDao(database);
 							for (Download download : parameter.getFiles()) {
 								download.setParameterId(parameter.getId());
 								download.setParameter(parameter);
@@ -138,16 +135,30 @@ public class WorkflowEngine implements Runnable {
 				}
 
 				if (job.getSteps() != null) {
-					StepDao dao2 = new StepDao();
+					StepDao dao2 = new StepDao(database);
 					for (CloudgeneStep step : job.getSteps()) {
 						dao2.insert(step);
 
-						MessageDao messageDao = new MessageDao();
+						MessageDao messageDao = new MessageDao(database);
 						if (step.getLogMessages() != null) {
 							for (Message logMessage : step.getLogMessages()) {
 								messageDao.insert(logMessage);
 							}
 						}
+
+					}
+				}
+
+				// write all submitted counters into database
+				for (String name : job.getContext().getSubmittedCounters()
+						.keySet()) {
+					Integer value = job.getContext().getSubmittedCounters()
+							.get(name);
+
+					if (value != null) {
+
+						CounterDao dao = new CounterDao(database);
+						dao.insert(name, value, job);
 
 					}
 				}
@@ -162,7 +173,7 @@ public class WorkflowEngine implements Runnable {
 
 		dao.insert(job);
 
-		ParameterDao dao = new ParameterDao();
+		ParameterDao dao = new ParameterDao(database);
 
 		for (CloudgeneParameter parameter : job.getInputParams()) {
 			parameter.setJobId(job.getId());

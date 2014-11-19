@@ -10,27 +10,24 @@ import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
-public class DownloadResults extends ServerResource {
+public class DownloadResults extends BaseResource {
 
 	private static final Log log = LogFactory.getLog(DownloadResults.class);
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -61,11 +58,11 @@ public class DownloadResults extends ServerResource {
 
 		}
 
-		JobDao jobDao = new JobDao();
+		JobDao jobDao = new JobDao(getDatabase());
 		AbstractJob job = jobDao.findById(jobId);
 
 		if (job == null) {
-			job = WorkflowEngine.getInstance().getJobById(jobId);
+			job = getWorkflowEngine().getJobById(jobId);
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
@@ -84,11 +81,10 @@ public class DownloadResults extends ServerResource {
 			mediaType = MediaType.TEXT_HTML;
 		}
 
-		Settings settings = Settings.getInstance();
-		String workspace = settings.getLocalWorkspace(job.getUser()
-				.getUsername());
+		String workspace = FileUtil.path(getSettings().getLocalWorkspace(),
+				user.getUsername());
 
-		DownloadDao dao = new DownloadDao();
+		DownloadDao dao = new DownloadDao(getDatabase());
 		Download download = dao.findByJobAndPath(jobId,
 				FileUtil.path(id, filename));
 

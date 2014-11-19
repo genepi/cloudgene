@@ -1,6 +1,9 @@
 package cloudgene.mapred;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.restlet.Application;
 import org.restlet.Restlet;
@@ -11,6 +14,10 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
@@ -31,8 +38,6 @@ import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetAppDetails;
 import cloudgene.mapred.resources.apps.GetAppParams;
 import cloudgene.mapred.resources.apps.GetApps;
-import cloudgene.mapred.resources.apps.GetAppsFromRepository;
-import cloudgene.mapred.resources.apps.InstallApp;
 import cloudgene.mapred.resources.data.FileUploadRessource;
 import cloudgene.mapred.resources.data.GetBucketsPrivate;
 import cloudgene.mapred.resources.data.GetBucketsPublic;
@@ -73,21 +78,30 @@ import cloudgene.mapred.resources.users.UpdateUserPassword;
 import cloudgene.mapred.resources.users.UpdateUserPassword2;
 import cloudgene.mapred.resources.users.UpdateUserSettings;
 import cloudgene.mapred.util.LoginFilter;
+import cloudgene.mapred.util.Settings;
 
 public class WebApp extends Application {
 
 	private String root;
-	
+
 	private LocalReference webRoot;
 
 	private LocalReference webRoot2;
 
+	private Database database;
+
+	private Settings settings;
+
+	private UserSessions sessions;
+
+	private WorkflowEngine workflowEngine;
+
+	private Map<String, String> cacheTemplates;
+
 	public WebApp(String root, String pages) {
-		this.webRoot = LocalReference
-				.createFileReference(new File(root));
+		this.webRoot = LocalReference.createFileReference(new File(root));
 		this.root = root;
-		this.webRoot2 = LocalReference
-				.createFileReference(new File(pages));
+		this.webRoot2 = LocalReference.createFileReference(new File(pages));
 	}
 
 	/**
@@ -160,7 +174,7 @@ public class WebApp extends Application {
 		router.attach("/users/new", NewUser.class);
 		router.attach("/users/register", RegisterUser.class);
 		router.attach("/users/reset", ResetPassword.class);
-		router.attach("/users/activate/{user}/{code}", ActivateUser.class);		
+		router.attach("/users/activate/{user}/{code}", ActivateUser.class);
 		router.attach("/users/delete", DeleteUser.class);
 		router.attach("/users/update", UpdateUser.class);
 		router.attach("/users/update2", UpdateUser2.class);
@@ -181,15 +195,11 @@ public class WebApp extends Application {
 		router.attach("/admin/settings", GetSettings.class);
 		router.attach("/admin/settings/update", UpdateSettings.class);
 
-
 		router.attach("/admin/retire/start", StartRetire.class);
 
 		router.attach("/updateUserSettings", UpdateUserSettings.class);
 		router.attach("/updateCredentials", UpdateCredentials.class);
 		router.attach("/updateUserPassword", UpdateUserPassword.class);
-
-		router.attach("/installApp", InstallApp.class);
-		router.attach("/getAppsFromRepo", GetAppsFromRepository.class);
 
 		router.attach("/console/logs/{logfile}",
 				cloudgene.mapred.resources.admin.GetLogs.class);
@@ -211,14 +221,80 @@ public class WebApp extends Application {
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
 		String[] protectedFiles = { "/start.html" };
-		LoginFilter filter = new LoginFilter("/", protectedFiles);
+		LoginFilter filter = new LoginFilter("/", protectedFiles, getSessions());
 		filter.setNext(router);
 
 		return filter;
 	}
-	
-	public String getRootFolder(){
+
+	public String getRootFolder() {
 		return root;
+	}
+
+	public Database getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(Database database) {
+		this.database = database;
+	}
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public void setSettings(Settings settings) {
+		this.settings = settings;
+	}
+
+	public UserSessions getSessions() {
+		return sessions;
+	}
+
+	public void setSessions(UserSessions sessions) {
+		this.sessions = sessions;
+	}
+
+	public WorkflowEngine getWorkflowEngine() {
+		return workflowEngine;
+	}
+
+	public void setWorkflowEngine(WorkflowEngine workflowEngine) {
+		this.workflowEngine = workflowEngine;
+	}
+
+	public void reloadTemplates() {
+		TemplateDao dao = new TemplateDao(database);
+		List<cloudgene.mapred.util.Template> templates = dao.findAll();
+
+		cacheTemplates = new HashMap<String, String>();
+		for (cloudgene.mapred.util.Template snippet : templates) {
+			cacheTemplates.put(snippet.getKey(), snippet.getText());
+		}
+	}
+
+	public String getTemplate(String key) {
+
+		String template = cacheTemplates.get(key);
+
+		if (template != null) {
+			return template;
+		} else {
+			return "!" + key;
+		}
+
+	}
+
+	public String getTemplate(String key, Object... strings) {
+
+		String template = cacheTemplates.get(key);
+
+		if (template != null) {
+			return String.format(template, strings);
+		} else {
+			return "!" + key;
+		}
+
 	}
 
 }

@@ -2,15 +2,44 @@ package cloudgene.mapred;
 
 import java.io.File;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.Component;
-import org.restlet.data.LocalReference;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
 
+import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.cron.CronJobScheduler;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.Settings;
+
 public class WebServer extends Component {
 
-	public WebServer(String webRoot, String webRoot2, int port,
-			boolean useSSL, String keystore, String password) throws Exception {
+	private Database database;
+
+	private Settings settings;
+
+	private UserSessions sessions;
+
+	private int port;
+
+	private String keystore;
+
+	private String password;
+
+	private boolean useSSL = false;
+
+	private String rootDirectory = "";
+
+	private String pagesDirectory = "";
+
+	private WorkflowEngine workflowEngine;
+
+	private static final Log log = LogFactory.getLog(WebServer.class);
+
+	@Override
+	public synchronized void start() throws Exception {
 
 		// ------------------
 		// Add the connectors
@@ -40,8 +69,71 @@ public class WebServer extends Component {
 		getClients().add(Protocol.CLAP);
 
 		VirtualHost host = new VirtualHost(getContext());
-		host.attach(new WebApp(webRoot, webRoot2));
+
+		WebApp webapp = new WebApp(rootDirectory, pagesDirectory);
+		webapp.setSettings(settings);
+		webapp.setSessions(sessions);
+		webapp.setDatabase(database);
+		webapp.setWorkflowEngine(workflowEngine);
+		webapp.reloadTemplates();
+		host.attach(webapp);
 		getHosts().add(host);
 
+		log.info("Start CronJobScheduler...");
+		CronJobScheduler scheduler = new CronJobScheduler(webapp);
+		scheduler.start();
+
+		super.start();
 	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public void setHttpsCertificate(String keystore, String password) {
+		useSSL = true;
+		this.keystore = keystore;
+		this.password = password;
+	}
+
+	public void setRootDirectory(String rootDirectory) {
+		this.rootDirectory = rootDirectory;
+	}
+
+	public void setPagesDirectory(String pagesDirectory) {
+		this.pagesDirectory = pagesDirectory;
+	}
+
+	public Database getDatabase() {
+		return database;
+	}
+
+	public void setDatabase(Database database) {
+		this.database = database;
+	}
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public void setSettings(Settings settings) {
+		this.settings = settings;
+	}
+
+	public UserSessions getSessions() {
+		return sessions;
+	}
+
+	public void setSessions(UserSessions sessions) {
+		this.sessions = sessions;
+	}
+
+	public WorkflowEngine getWorkflowEngine() {
+		return workflowEngine;
+	}
+
+	public void setWorkflowEngine(WorkflowEngine workflowEngine) {
+		this.workflowEngine = workflowEngine;
+	}
+
 }

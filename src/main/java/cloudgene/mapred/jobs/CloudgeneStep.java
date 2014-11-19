@@ -50,7 +50,7 @@ public abstract class CloudgeneStep {
 
 	}
 
-	abstract public boolean run(WdlStep step, WorkflowContext context);
+	abstract public boolean run(WdlStep step, CloudgeneContext context);
 
 	public int getMapProgress() {
 		return 0;

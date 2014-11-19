@@ -8,14 +8,21 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.steps.EmptyStep;
 
-public class StepDao extends Dao {
+public class StepDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(StepDao.class);
+
+	public StepDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(CloudgeneStep step) {
 		StringBuilder sql = new StringBuilder();
@@ -31,10 +38,8 @@ public class StepDao extends Dao {
 			params[3] = System.currentTimeMillis();
 			params[4] = step.getJob().getId();
 
-			int id = updateAndGetKey(sql.toString(), params);
+			int id = insert(sql.toString(), params);
 			step.setId(id);
-			
-			connection.commit();
 
 			log.debug("insert step successful.");
 
@@ -46,6 +51,7 @@ public class StepDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<CloudgeneStep> findAllByJob(CloudgeneJob job) {
 
 		StringBuilder sql = new StringBuilder();
@@ -61,23 +67,8 @@ public class StepDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				CloudgeneStep step = new EmptyStep();
-				step.setId(rs.getInt("id"));
-				step.setName(rs.getString("name"));
-
-				// step.setState(rs.getInt("state"));
-				step.setJob(job);
-
-				MessageDao dao = new MessageDao();
-				List<Message> logMessages = dao.findAllByStep(step);
-				step.setLogMessages(logMessages);
-
-				result.add(step);
-			}
-			rs.close();
+			result = query(sql.toString(), params,
+					new CloudgeneStepMapper(true));
 
 			log.debug("find all log step successful. results: " + result.size());
 
@@ -86,6 +77,35 @@ public class StepDao extends Dao {
 			log.error("find all log step failed", e);
 			return null;
 		}
+	}
+
+	class CloudgeneStepMapper implements IRowMapper {
+
+		private boolean loadMessages;
+
+		private MessageDao messageDao;
+
+		public CloudgeneStepMapper(boolean loadMessages) {
+			this.loadMessages = loadMessages;
+			messageDao = new MessageDao(database);
+		}
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+
+			CloudgeneStep step = new EmptyStep();
+			step.setId(rs.getInt("id"));
+			step.setName(rs.getString("name"));
+
+			if (loadMessages) {
+				List<Message> logMessages = messageDao.findAllByStep(step);
+				step.setLogMessages(logMessages);
+			}
+
+			return step;
+
+		}
+
 	}
 
 }

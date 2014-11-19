@@ -40,7 +40,7 @@ public class ImporterFtp extends AbstractTask {
 			String path) {
 
 		setName("import-ftp");
-		
+
 		this.username = username.trim();
 		this.password = password;
 		this.path = path;
@@ -174,10 +174,8 @@ public class ImporterFtp extends AbstractTask {
 					// path in hdfs
 					String[] tiles = ftpFile.getName().split("/");
 					String name = tiles[tiles.length - 1];
-
-					Settings settings = Settings.getInstance();
-					String workspace = settings.getHdfsWorkspace(job.getUser()
-							.getUsername());
+					
+					String workspace = HdfsUtil.path(job.getSettings().getHdfsWorkspace(), job.getUser().getUsername());
 
 					String target = HdfsUtil.path(workspace, path, name);
 

@@ -9,21 +9,19 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
-public class UpdateSettings extends ServerResource {
+public class UpdateSettings extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
+
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -49,17 +47,15 @@ public class UpdateSettings extends ServerResource {
 		String mailPassword = form.getFirstValue("mail-password");
 		String mailName = form.getFirstValue("mail-name");
 
-		Settings settings = Settings.getInstance();
-
-		settings.setHadoopPath(hadoopPath);
-		settings.setName(name);
-		settings.getApps().put("user", userApp);
-		settings.getApps().put("admin", adminApp);
-		settings.getMail().put("smtp", mailSmtp);
-		settings.getMail().put("port", mailPort);
-		settings.getMail().put("user", mailUser);
-		settings.getMail().put("password", mailPassword);
-		settings.getMail().put("name", mailName);
+		getSettings().setHadoopPath(hadoopPath);
+		getSettings().setName(name);
+		getSettings().getApps().put("user", userApp);
+		getSettings().getApps().put("admin", adminApp);
+		getSettings().getMail().put("smtp", mailSmtp);
+		getSettings().getMail().put("port", mailPort);
+		getSettings().getMail().put("user", mailUser);
+		getSettings().getMail().put("password", mailPassword);
+		getSettings().getMail().put("name", mailName);
 
 		try {
 
@@ -67,7 +63,7 @@ public class UpdateSettings extends ServerResource {
 
 			YamlWriter writer = new YamlWriter(new FileWriter(FileUtil.path(
 					"config", "settings.yaml")));
-			writer.write(settings);
+			writer.write(getSettings());
 			writer.close();
 
 		} catch (Exception e) {

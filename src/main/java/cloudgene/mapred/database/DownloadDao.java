@@ -8,12 +8,19 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
 
-public class DownloadDao extends Dao {
+public class DownloadDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(DownloadDao.class);
+
+	public DownloadDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(Download download) {
 		StringBuilder sql = new StringBuilder();
@@ -32,8 +39,6 @@ public class DownloadDao extends Dao {
 			params[6] = download.getParameter().getId();
 
 			update(sql.toString(), params);
-
-			connection.commit();
 
 			log.debug("insert download successful.");
 
@@ -57,8 +62,6 @@ public class DownloadDao extends Dao {
 
 			update(sql.toString(), params);
 
-			connection.commit();
-
 			log.debug("update download successful.");
 
 		} catch (SQLException e) {
@@ -69,6 +72,7 @@ public class DownloadDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Download> findAllByParameter(CloudgeneParameter parameter) {
 
 		StringBuilder sql = new StringBuilder();
@@ -84,21 +88,10 @@ public class DownloadDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
+			result = query(sql.toString(), params, new DownloadMapper());
 
-				Download download = new Download();
-				download.setCount(rs.getInt("count"));
-				download.setHash(rs.getString("hash"));
-				download.setName(rs.getString("name"));
-				download.setPath(rs.getString("path"));
-				download.setSize(rs.getString("size"));
-				download.setParameterId(rs.getInt("parameter_id"));
-				result.add(download);
-			}
-			rs.close();
-
-			log.debug("find all downloads successful. results: " + result.size());
+			log.debug("find all downloads successful. results: "
+					+ result.size());
 
 			return result;
 		} catch (SQLException e) {
@@ -122,18 +115,8 @@ public class DownloadDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				result = new Download();
-				result.setCount(rs.getInt("count"));
-				result.setHash(rs.getString("hash"));
-				result.setName(rs.getString("name"));
-				result.setPath(rs.getString("path"));
-				result.setSize(rs.getString("size"));
-				result.setParameterId(rs.getInt("parameter_id"));
-			}
-			rs.close();
+			result = (Download) queryForObject(sql.toString(), params,
+					new DownloadMapper());
 
 			log.debug("find download by hash successful. results: " + result);
 
@@ -143,7 +126,7 @@ public class DownloadDao extends Dao {
 			return null;
 		}
 	}
-	
+
 	public Download findByJobAndPath(String job, String path) {
 
 		StringBuilder sql = new StringBuilder();
@@ -159,26 +142,33 @@ public class DownloadDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
+			result = (Download) queryForObject(sql.toString(), params,
+					new DownloadMapper());
 
-				result = new Download();
-				result.setCount(rs.getInt("count"));
-				result.setHash(rs.getString("hash"));
-				result.setName(rs.getString("name"));
-				result.setPath(rs.getString("path"));
-				result.setSize(rs.getString("size"));
-				result.setParameterId(rs.getInt("parameter_id"));
-			}
-			rs.close();
-
-			log.debug("find download by job " + job + " and path " + path + " successful. results: " + result);
+			log.debug("find download by job " + job + " and path " + path
+					+ " successful. results: " + result);
 
 			return result;
 		} catch (SQLException e) {
 			log.error("find download by job and path failed.", e);
 			return null;
 		}
+	}
+
+	class DownloadMapper implements IRowMapper {
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			Download result = new Download();
+			result.setCount(rs.getInt("count"));
+			result.setHash(rs.getString("hash"));
+			result.setName(rs.getString("name"));
+			result.setPath(rs.getString("path"));
+			result.setSize(rs.getString("size"));
+			result.setParameterId(rs.getInt("parameter_id"));
+			return result;
+		}
+
 	}
 
 }

@@ -7,32 +7,28 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
-public class NewFolder extends ServerResource {
+public class NewFolder extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		StringRepresentation representation = null;
 
 		if (user != null) {
 
-			Settings settings = Settings.getInstance();
-			String workspace = settings.getHdfsWorkspace(user.getUsername());
-
+			String workspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), user.getUsername());
+			
 			Form form = new Form(entity);
 
 			String id = form.getFirstValue("id");
 			String parent = form.getFirstValue("parent");
-			String path = HdfsUtil.path(workspace, parent,id);
+			String path = HdfsUtil.path(workspace, parent, id);
 			HdfsUtil.createDirectory(path);
 
 			representation = new StringRepresentation("Lukas");
@@ -42,8 +38,9 @@ public class NewFolder extends ServerResource {
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
 

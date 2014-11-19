@@ -8,13 +8,20 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
 
-public class ParameterDao extends Dao {
+public class ParameterDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(ParameterDao.class);
+
+	public ParameterDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(CloudgeneParameter parameter) {
 		StringBuilder sql = new StringBuilder();
@@ -35,10 +42,8 @@ public class ParameterDao extends Dao {
 			params[7] = parameter.getFormat();
 			params[8] = parameter.isAdminOnly();
 
-			int paramId = updateAndGetKey(sql.toString(), params);
+			int paramId = insert(sql.toString(), params);
 			parameter.setId(paramId);
-
-			connection.commit();
 
 			log.debug("insert parameter '" + parameter.getId()
 					+ "' successful.");
@@ -51,6 +56,7 @@ public class ParameterDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<CloudgeneParameter> findAllInputByJob(AbstractJob job) {
 
 		StringBuilder sql = new StringBuilder();
@@ -65,22 +71,8 @@ public class ParameterDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				CloudgeneParameter parameter = new CloudgeneParameter();
-				parameter.setDescription(rs.getString("name"));
-				parameter.setValue(rs.getString("value"));
-				parameter.setName(rs.getString("variable"));
-				parameter.setInput(rs.getBoolean("input"));
-				parameter.setJobId(rs.getString("job_id"));
-				parameter.setType(rs.getString("type"));
-				parameter.setDownload(rs.getBoolean("download"));
-				parameter.setFormat(rs.getString("format"));
-				parameter.setId(rs.getInt("id"));
-				result.add(parameter);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new ParameterMapper(job,
+					false));
 
 			log.debug("find all input parameters for job '" + job.getId()
 					+ "' successful. results: " + result.size());
@@ -93,6 +85,7 @@ public class ParameterDao extends Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<CloudgeneParameter> findAllOutputByJob(AbstractJob job) {
 
 		StringBuilder sql = new StringBuilder();
@@ -107,30 +100,8 @@ public class ParameterDao extends Dao {
 
 		try {
 
-			DownloadDao dao = new DownloadDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				CloudgeneParameter parameter = new CloudgeneParameter();
-				parameter.setDescription(rs.getString("name"));
-				parameter.setName(rs.getString("variable"));
-				parameter.setValue(rs.getString("value"));
-				parameter.setInput(rs.getBoolean("input"));
-				parameter.setJobId(rs.getString("job_id"));
-				parameter.setType(rs.getString("type"));
-				parameter.setDownload(rs.getBoolean("download"));
-				parameter.setFormat(rs.getString("format"));
-				parameter.setId(rs.getInt("id"));
-				parameter.setAdminOnly(rs.getBoolean("admin_only"));
-				List<Download> downloads = dao.findAllByParameter(parameter);
-				for (Download download : downloads) {
-					download.setUsername(job.getUser().getUsername());
-				}
-				parameter.setFiles(downloads);
-				result.add(parameter);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new ParameterMapper(job,
+					true));
 
 			log.debug("find all output parameters for job '" + job.getId()
 					+ "' successful. results: " + result.size());
@@ -141,6 +112,50 @@ public class ParameterDao extends Dao {
 					+ "' failed.", e);
 			return null;
 		}
+	}
+
+	class ParameterMapper implements IRowMapper {
+
+		private boolean loadDownloads;
+
+		private DownloadDao downloadDao;
+
+		private AbstractJob job;
+
+		public ParameterMapper(AbstractJob job, boolean loadDownloads) {
+			this.loadDownloads = loadDownloads;
+			this.job = job;
+			downloadDao = new DownloadDao(database);
+		}
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			CloudgeneParameter parameter = new CloudgeneParameter();
+			parameter.setDescription(rs.getString("name"));
+			parameter.setValue(rs.getString("value"));
+			parameter.setName(rs.getString("variable"));
+			parameter.setInput(rs.getBoolean("input"));
+			parameter.setJobId(rs.getString("job_id"));
+			parameter.setType(rs.getString("type"));
+			parameter.setDownload(rs.getBoolean("download"));
+			parameter.setFormat(rs.getString("format"));
+			parameter.setId(rs.getInt("id"));
+			parameter.setAdminOnly(rs.getBoolean("admin_only"));
+			if (loadDownloads) {
+
+				List<Download> downloads = downloadDao
+						.findAllByParameter(parameter);
+				for (Download download : downloads) {
+					download.setUsername(job.getUser().getUsername());
+				}
+				parameter.setFiles(downloads);
+
+			}
+
+			return parameter;
+
+		}
+
 	}
 
 }

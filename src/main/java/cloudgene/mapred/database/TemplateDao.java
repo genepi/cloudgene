@@ -8,11 +8,18 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.util.Template;
 
-public class TemplateDao extends Dao {
+public class TemplateDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(TemplateDao.class);
+
+	public TemplateDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(Template snippet) {
 		StringBuilder sql = new StringBuilder();
@@ -26,8 +33,6 @@ public class TemplateDao extends Dao {
 			params[1] = snippet.getText();
 
 			update(sql.toString(), params);
-
-			connection.commit();
 
 			log.debug("insert html snippet successful.");
 
@@ -51,8 +56,6 @@ public class TemplateDao extends Dao {
 
 			update(sql.toString(), params);
 
-			connection.commit();
-
 			log.debug("update html snippet successful.");
 
 		} catch (SQLException e) {
@@ -63,6 +66,7 @@ public class TemplateDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Template> findAll() {
 
 		StringBuilder sql = new StringBuilder();
@@ -73,15 +77,7 @@ public class TemplateDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString());
-			while (rs.next()) {
-
-				Template snippet = new Template(rs.getString("key"),
-						rs.getString("text"));
-
-				result.add(snippet);
-			}
-			rs.close();
+			result = query(sql.toString(), new TemplateMapper());
 
 			log.debug("find all html snippets successful. results: "
 					+ result.size());
@@ -107,13 +103,8 @@ public class TemplateDao extends Dao {
 		Template result = null;
 
 		try {
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				result = new Template(rs.getString("key"),
-						rs.getString("text"));
-			}
-			rs.close();
+			result = (Template) queryForObject(sql.toString(), params,
+					new TemplateMapper());
 
 			log.debug("find html snippet by key '" + key + "' successful.");
 
@@ -123,6 +114,15 @@ public class TemplateDao extends Dao {
 
 		}
 		return result;
+	}
+
+	class TemplateMapper implements IRowMapper {
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			return new Template(rs.getString("key"), rs.getString("text"));
+		}
+
 	}
 
 }

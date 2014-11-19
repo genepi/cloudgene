@@ -8,11 +8,18 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.AbstractJob;
 
-public class CounterDao extends Dao {
+public class CounterDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(CounterDao.class);
+
+	public CounterDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(String name, int value, AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
@@ -27,8 +34,6 @@ public class CounterDao extends Dao {
 			params[2] = value;
 
 			update(sql.toString(), params);
-			
-			connection.commit();
 
 			log.debug("insert counter successful.");
 
@@ -40,6 +45,7 @@ public class CounterDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Map<String, Long> getAll() {
 
 		StringBuilder sql = new StringBuilder();
@@ -51,11 +57,7 @@ public class CounterDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString());
-			while (rs.next()) {
-				result.put(rs.getString(1), rs.getLong(2));
-			}
-			rs.close();
+			result = queryForMap(sql.toString(), new CounterMapper());
 
 			log.debug("find counters successful. results: " + result);
 
@@ -63,8 +65,22 @@ public class CounterDao extends Dao {
 		} catch (SQLException e) {
 			log.error("find all counters failed", e);
 		}
-		
+
 		return result;
+	}
+
+	class CounterMapper implements IRowMapMapper {
+
+		@Override
+		public Object getRowKey(ResultSet rs, int row) throws SQLException {
+			return rs.getString(1);
+		}
+
+		@Override
+		public Object getRowValue(ResultSet rs, int row) throws SQLException {
+			return rs.getLong(2);
+		}
+
 	}
 
 }

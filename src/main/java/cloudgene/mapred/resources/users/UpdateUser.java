@@ -5,21 +5,19 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 
-public class UpdateUser extends ServerResource {
+public class UpdateUser extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -37,7 +35,7 @@ public class UpdateUser extends ServerResource {
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
-		UserDao dao = new UserDao();
+		UserDao dao = new UserDao(getDatabase());
 		User newUser = dao.findById(Integer.parseInt(id));
 
 		if (username != null && !username.isEmpty()) {

@@ -11,20 +11,11 @@ import org.restlet.Request;
 
 public class UserSessions {
 
-	private static UserSessions instance;
-
 	private Map<String, User> users;
 
 	public static final String COOKIE_NAME = "emi_session_id";
 
-	public static UserSessions getInstance() {
-		if (instance == null) {
-			instance = new UserSessions();
-		}
-		return instance;
-	}
-
-	private UserSessions() {
+	public UserSessions() {
 		users = new HashMap<String, User>();
 	}
 

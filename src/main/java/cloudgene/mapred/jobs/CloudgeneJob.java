@@ -55,7 +55,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	public CloudgeneJob(User user, String id, WdlMapReduce config,
 			Map<String, String> params) throws Exception {
-
+	
 		this.config = config;
 		setId(id);
 		setUser(user);
@@ -129,8 +129,8 @@ public class CloudgeneJob extends AbstractJob {
 
 			// load cache
 
-			CacheDao dao = new CacheDao();
-			CacheDirectory directory = new CacheDirectory(dao);
+			// CacheDao dao = new CacheDao();
+			// CacheDirectory directory = new CacheDirectory(dao);
 
 			// optimize dag
 			/*
@@ -143,7 +143,7 @@ public class CloudgeneJob extends AbstractJob {
 			 */
 
 			// execute optimzed dag
-			executor = new Executor(directory);
+			executor = new Executor();
 			executor.setUseDag(dag);
 			boolean sccuessful = executor.execute(graph);
 
@@ -221,34 +221,6 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	@Override
-	public boolean delete() {
-
-		String localWorkspace = Settings.getInstance().getLocalWorkspace(
-				getUser().getUsername());
-
-		String localOutput = FileUtil.path(localWorkspace, "output", getId());
-
-		String localTemp = FileUtil.path(localWorkspace, "output", getId());
-
-		String hdfsWorkspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
-
-		String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
-				"output", getId()));
-
-		String hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace,
-				"input", getId()));
-
-		FileUtil.deleteDirectory(localOutput);
-		FileUtil.deleteDirectory(localTemp);
-
-		HdfsUtil.delete(hdfsOutput);
-		HdfsUtil.delete(hdfsInput);
-
-		return true;
-	}
-
-	@Override
 	public boolean cleanUp() {
 
 		// delete hdfs temp folders
@@ -256,7 +228,7 @@ public class CloudgeneJob extends AbstractJob {
 		HdfsUtil.delete(context.getHdfsTemp());
 
 		// delete hdfs workspace
-		if (Settings.getInstance().isRemoveHdfsWorkspace()) {
+		if (isRemoveHdfsWorkspace()) {
 			writeLog("Cleaning up hdfs files...");
 			HdfsUtil.delete(context.getHdfsOutput());
 			HdfsUtil.delete(context.getHdfsInput());
@@ -291,8 +263,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean exportParameter(CloudgeneParameter out) {
 
 		String localOutput = context.getLocalOutput();
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
+		String workspace = getHdfsWorkspace();
 
 		if (out.getType().equals(WdlParameter.HDFS_FOLDER)) {
 
@@ -417,8 +388,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean copyParameterToS3(WdlParameter out) {
 		String filename = context.getOutput(out.getId());
 
-		String workspace = Settings.getInstance().getHdfsWorkspace(
-				getUser().getUsername());
+		String workspace = getHdfsWorkspace();
 
 		if (out.getType().equals(WdlParameter.HDFS_FOLDER)
 				|| out.getType().equals(WdlParameter.HDFS_FILE)) {

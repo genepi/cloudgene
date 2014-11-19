@@ -5,21 +5,19 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
-import cloudgene.mapred.util.Settings;
 
-public class UpdateTemplate extends ServerResource {
+public class UpdateTemplate extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
+
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -39,10 +37,10 @@ public class UpdateTemplate extends ServerResource {
 		String key = form.getFirstValue("key");
 		String text = form.getFirstValue("text");
 
-		TemplateDao dao = new TemplateDao();
+		TemplateDao dao = new TemplateDao(getDatabase());
 		dao.update(new Template(key, text));
 
-		Settings.getInstance().reloadTemplates();
+		getWebApp().reloadTemplates();
 
 		return new StringRepresentation("OK.");
 	}

@@ -4,15 +4,15 @@ import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 
-public class LoginUser extends ServerResource {
+public class LoginUser extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
@@ -22,14 +22,14 @@ public class LoginUser extends ServerResource {
 		String password = form.getFirstValue("loginPassword");
 		password = HashUtil.getMD5(password);
 
-		UserDao dao = new UserDao();
+		UserDao dao = new UserDao(getDatabase());
 		User user = dao.findByUsername(username);
 
 		if (user != null) {
 			if (user.getPassword().equals(password) && user.isActive()) {
 
 				// create session
-				UserSessions sessions = UserSessions.getInstance();
+				UserSessions sessions = getUserSessions();
 				String token = sessions.loginUser(user);
 				// set cookie
 				CookieSetting cookie = new CookieSetting(

@@ -9,19 +9,17 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetUsers extends ServerResource {
+public class GetUsers extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -37,7 +35,7 @@ public class GetUsers extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		UserDao dao = new UserDao();
+		UserDao dao = new UserDao(getDatabase());
 		List<User> users = dao.findAll();
 
 		JsonConfig config = new JsonConfig();

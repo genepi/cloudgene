@@ -148,9 +148,9 @@ public class ImporterLocalFile extends AbstractTask {
 				String entryName = zipentry.getName();
 
 				if (!zipentry.isDirectory()) {
-					Settings settings = Settings.getInstance();
-					String hdfsWorkspace = settings.getHdfsWorkspace(job
-							.getUser().getUsername());
+
+					String hdfsWorkspace = HdfsUtil.path(job.getSettings().getHdfsWorkspace(), job.getUser().getUsername());
+
 					writeOutput("Extracting File " + entryName + "...");
 
 					String target = HdfsUtil.path(hdfsWorkspace, folder,
@@ -192,9 +192,9 @@ public class ImporterLocalFile extends AbstractTask {
 				FileInputStream in = new FileInputStream(filename);
 
 				String entryName = FileUtil.getFilename(filename);
-				Settings settings = Settings.getInstance();
-				String workspace = settings.getHdfsWorkspace(job.getUser()
-						.getUsername());
+
+				String workspace = HdfsUtil.path(job.getSettings().getHdfsWorkspace(), job.getUser().getUsername());
+
 				String target = HdfsUtil.path(workspace, folder, entryName);
 
 				FSDataOutputStream out = filesystem.create(new Path(target));

@@ -10,22 +10,19 @@ import org.restlet.ext.freemarker.ContextTemplateLoader;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
-import cloudgene.mapred.util.Settings;
 import freemarker.template.Configuration;
 
-public class Index extends ServerResource {
+public class Index extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		Settings settings = Settings.getInstance();
+		WebApp app = (WebApp) getApplication();
 
-		WebApp app = (WebApp)getApplication();
-		
 		Configuration cfg = new Configuration();
 
 		ContextTemplateLoader loader = new ContextTemplateLoader(
@@ -33,14 +30,15 @@ public class Index extends ServerResource {
 				LocalReference.createFileReference(new File(app.getRootFolder())));
 
 		cfg.setTemplateLoader(loader);
-		
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("appname", settings.getName());
-		data.put("footer", settings.getTemplate(Template.FOOTER));
 
-		if (settings.isMaintenance()) {
+		Map<String, Object> data = new HashMap<String, Object>();
+		data.put("appname", getSettings().getName());
+		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
+
+		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage",
-					settings.getTemplate(Template.MAINTENANCE_MESSAGE));
+					getWebApp()
+							.getTemplate(Template.MAINTENANCE_MESSAGE));
 		}
 
 		return new TemplateRepresentation("index.html", cfg, data,

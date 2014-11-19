@@ -18,8 +18,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.Main;
+import cloudgene.mapred.database.util.DatabaseConnector;
 
-public class H2Connector {
+public class H2Connector implements DatabaseConnector{
 
 	protected static final Log log = LogFactory.getLog(H2Connector.class);
 
@@ -30,14 +31,6 @@ public class H2Connector {
 	private String password;
 	private boolean multiuser = false;
 	private boolean exists = false;
-
-	private static H2Connector instance = null;
-
-	public static H2Connector getInstance() {
-		if (instance == null)
-			instance = new H2Connector("data/mapred", "mapred", "mapred", false);
-		return instance;
-	}
 
 	public H2Connector(String path, String user, String password,
 			boolean multiuser) {

@@ -2,19 +2,17 @@ package cloudgene.mapred.resources.users;
 
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 
-public class ResetPassword extends ServerResource {
+public class ResetPassword extends BaseResource {
 
 	@Post
 	public Representation get(Representation entity) {
@@ -28,7 +26,7 @@ public class ResetPassword extends ServerResource {
 
 		}
 
-		UserDao dao = new UserDao();
+		UserDao dao = new UserDao(getDatabase());
 		User user = dao.findByUsername(username);
 
 		if (user == null) {
@@ -46,18 +44,19 @@ public class ResetPassword extends ServerResource {
 
 			// send email with activation code
 
-			Settings settings = Settings.getInstance();
-			String application = settings.getName();
+			String application = getSettings().getName();
 			String subject = "[" + application + "] Password recocery";
-			String body = settings.getTemplate(Template.RECOVERY_MAIL,
-					user.getFullName(), application, link);
+			String body = getWebApp().getTemplate(
+					Template.RECOVERY_MAIL, user.getFullName(), application,
+					link);
 
 			try {
 
-				MailUtil.send(settings, user.getMail(), subject, body);
+				MailUtil.send(getSettings(), user.getMail(), subject, body);
 
-				MailUtil.notifyAdmin(settings, "[" + settings.getName()
-						+ "] Password Recovery", "Username: " + username);
+				MailUtil.notifyAdmin(getSettings(), "["
+						+ getSettings().getName() + "] Password Recovery",
+						"Username: " + username);
 
 				return new JSONAnswer("Email sent to " + user.getMail()
 						+ " with instructions on how to reset your password.",

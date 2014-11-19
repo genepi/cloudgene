@@ -22,20 +22,18 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.S3Util;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 
-public class NewSubmitJob extends ServerResource {
+public class NewSubmitJob extends BaseResource {
 
 	public static final int MAX_RUNNING_JOBS = 20;
 
@@ -44,8 +42,7 @@ public class NewSubmitJob extends ServerResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -55,9 +52,9 @@ public class NewSubmitJob extends ServerResource {
 
 		}
 
-		WorkflowEngine queue = WorkflowEngine.getInstance();
+		WorkflowEngine engine = getWorkflowEngine();
 
-		if (queue.getActiveCount() > MAX_RUNNING_JOBS) {
+		if (engine.getActiveCount() > MAX_RUNNING_JOBS) {
 
 			JSONObject answer = new JSONObject();
 			try {
@@ -72,13 +69,12 @@ public class NewSubmitJob extends ServerResource {
 
 		}
 
-		if (queue.getJobsByUser(user).size() > MAX_RUNNING_JOBS_PER_USER) {
+		if (engine.getJobsByUser(user).size() > MAX_RUNNING_JOBS_PER_USER) {
 
 			JSONObject answer = new JSONObject();
 			try {
 				answer.put("success", false);
-				answer.put("message", "Only "
-						+ MAX_RUNNING_JOBS_PER_USER
+				answer.put("message", "Only " + MAX_RUNNING_JOBS_PER_USER
 						+ " jobs per user can be executed simultaneously.");
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -90,6 +86,10 @@ public class NewSubmitJob extends ServerResource {
 		// tring tool = "minimac/new-simple";// props.get("tool");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String id = "job-" + sdf.format(new Date());// props.get("job-name");
+		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
+				user.getUsername());
+		String localWorkspace = FileUtil.path(
+				getSettings().getLocalWorkspace(), user.getUsername());
 
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -105,7 +105,7 @@ public class NewSubmitJob extends ServerResource {
 
 					// file parameter
 					// write local file
-					String tmpFile = Settings.getInstance().getTempFilename(
+					String tmpFile = getSettings().getTempFilename(
 							item.getName());
 					File file = new File(tmpFile);
 					try {
@@ -116,17 +116,13 @@ public class NewSubmitJob extends ServerResource {
 					// import into hdfs
 					if (file.exists()) {
 						String entryName = item.getName();
-						Settings settings = Settings.getInstance();
-						String workspace = settings.getHdfsWorkspace(user
-								.getUsername());
 
 						// remove upload indentification!
 						String fieldName = item.getFieldName()
 								.replace("-upload", "").replace("input-", "");
-						;
 
-						String targetPath = HdfsUtil.path(workspace, "input",
-								id, fieldName);
+						String targetPath = HdfsUtil.path(hdfsWorkspace,
+								"input", id, fieldName);
 
 						String target = HdfsUtil.path(targetPath, entryName);
 
@@ -195,7 +191,7 @@ public class NewSubmitJob extends ServerResource {
 
 		}
 
-		String filename = Settings.getInstance().getApp(user);
+		String filename = getSettings().getApp(user);
 		WdlApp app = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);
@@ -230,7 +226,12 @@ public class NewSubmitJob extends ServerResource {
 						params);
 				job.setId(id);
 				job.setName(id);
-				queue.submit(job);
+				job.setLocalWorkspace(localWorkspace);
+				job.setHdfsWorkspace(hdfsWorkspace);
+				job.setSettings(getSettings());
+				job.setRemoveHdfsWorkspace(getSettings()
+						.isRemoveHdfsWorkspace());
+				engine.submit(job);
 
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -12,24 +12,19 @@ import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
-import cloudgene.mapred.util.Settings;
 import freemarker.template.Configuration;
 
-public class Admin extends ServerResource {
+public class Admin extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		Settings settings = Settings.getInstance();
-		UserSessions sessions = UserSessions.getInstance();
-
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -54,8 +49,8 @@ public class Admin extends ServerResource {
 		cfg.setTemplateLoader(loader);
 
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("appname", settings.getName());
-		data.put("footer", settings.getTemplate(Template.FOOTER));
+		data.put("appname", getSettings().getName());
+		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 
 		return new TemplateRepresentation("admin.html", cfg, data,
 				MediaType.TEXT_HTML);

@@ -4,20 +4,19 @@ import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 
-public class UpdateCredentials extends ServerResource {
+public class UpdateCredentials extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
+
 		if (user != null) {
 
 			Form form = new Form(entity);
@@ -33,14 +32,14 @@ public class UpdateCredentials extends ServerResource {
 
 				user.setSaveCredentials(true);
 
-				UserDao dao = new UserDao();
+				UserDao dao = new UserDao(getDatabase());
 				dao.update(user);
 
 			} else {
 
 				user.setSaveCredentials(false);
 
-				UserDao dao = new UserDao();
+				UserDao dao = new UserDao(getDatabase());
 				dao.update(user);
 
 			}

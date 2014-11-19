@@ -1,6 +1,5 @@
 package cloudgene.mapred.steps;
 
-import genepi.hadoop.common.WorkflowContext;
 import genepi.hadoop.common.WorkflowStep;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -40,7 +39,7 @@ public class ExternStep extends CloudgeneStep {
 	}
 
 	@Override
-	public boolean run(WdlStep step, WorkflowContext context) {
+	public boolean run(WdlStep step, CloudgeneContext context) {
 		return workflowStep.run(context);
 	}
 

@@ -6,19 +6,16 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetSettings extends ServerResource {
+public class GetSettings extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -33,18 +30,16 @@ public class GetSettings extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		Settings settings = Settings.getInstance();
-
 		JSONObject object = new JSONObject();
-		object.put("name", settings.getName());
-		object.put("hadoopPath", settings.getHadoopPath());
-		object.put("userApp", settings.getApps().get("user"));
-		object.put("adminApp", settings.getApps().get("admin"));
-		object.put("mail-smtp", settings.getMail().get("smtp"));
-		object.put("mail-port", settings.getMail().get("port"));
-		object.put("mail-user", settings.getMail().get("user"));
-		object.put("mail-password", settings.getMail().get("password"));
-		object.put("mail-name", settings.getMail().get("name"));
+		object.put("name", getSettings().getName());
+		object.put("hadoopPath", getSettings().getHadoopPath());
+		object.put("userApp", getSettings().getApps().get("user"));
+		object.put("adminApp", getSettings().getApps().get("admin"));
+		object.put("mail-smtp", getSettings().getMail().get("smtp"));
+		object.put("mail-port", getSettings().getMail().get("port"));
+		object.put("mail-user", getSettings().getMail().get("user"));
+		object.put("mail-password", getSettings().getMail().get("password"));
+		object.put("mail-name", getSettings().getMail().get("name"));
 
 		return new StringRepresentation(object.toString());
 

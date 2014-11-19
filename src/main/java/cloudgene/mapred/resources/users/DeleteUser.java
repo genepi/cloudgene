@@ -7,21 +7,19 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.util.BaseResource;
 
-public class DeleteUser extends ServerResource {
+public class DeleteUser extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
 		Form form = new Form(entity);
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -44,7 +42,7 @@ public class DeleteUser extends ServerResource {
 		if (id != null) {
 
 			// delete user from database
-			UserDao dao = new UserDao();
+			UserDao dao = new UserDao(getDatabase());
 			User user1 = dao.findById(Integer.parseInt(id));
 			dao.delete(user1);
 

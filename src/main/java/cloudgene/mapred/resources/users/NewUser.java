@@ -4,21 +4,19 @@ import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 
-public class NewUser extends ServerResource {
+public class NewUser extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user != null) {
 
@@ -40,7 +38,7 @@ public class NewUser extends ServerResource {
 					newUser.setRole(role);
 					newUser.setPassword(HashUtil.getMD5(newPassword));
 
-					UserDao dao = new UserDao();
+					UserDao dao = new UserDao(getDatabase());
 					dao.insert(newUser);
 
 					return new JSONAnswer("User sucessfully created.", true);

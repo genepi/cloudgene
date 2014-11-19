@@ -1,53 +1,26 @@
 package cloudgene.mapred.cron;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.WebApp;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.util.Settings;
 
 public class RetireJob implements Job {
 
-	private static final Log log = LogFactory.getLog(RetireJob.class);
-
-	private String message = "";
-
 	@Override
-	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+	public void execute(JobExecutionContext context)
+			throws JobExecutionException {
 
-		JobDao dao = new JobDao();
+		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
+		WebApp application = (WebApp) dataMap.get("application");
+		Database database = application.getDatabase();
+		Settings settings = application.getSettings();
 
-		List<AbstractJob> oldJobs = dao.findAllNotifiedJobs();
-
-		int deleted = 0;
-		for (AbstractJob job : oldJobs) {
-
-			if (job.getDeletedOn() < System.currentTimeMillis()) {
-
-				job.delete();
-
-				job.setState(AbstractJob.STATE_RETIRED);
-				dao.update(job);
-
-				log.info("Job " + job.getId() + " retired.");
-				deleted++;
-
-			}
-
-		}
-
-		log.info(deleted + " jobs retired.");
-		message = deleted + " jobs retired.";
-
-	}
-
-	public String getMessage() {
-		return message;
+		CleanUpTasks.executeRetire(database, settings);
 	}
 
 }

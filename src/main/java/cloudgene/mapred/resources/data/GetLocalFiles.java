@@ -1,5 +1,6 @@
 package cloudgene.mapred.resources.data;
 
+import genepi.io.FileUtil;
 import net.sf.json.JSONArray;
 
 import org.restlet.data.Form;
@@ -7,20 +8,17 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.FileItem;
-import cloudgene.mapred.util.Settings;
 
-public class GetLocalFiles extends ServerResource {
+public class GetLocalFiles extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		Form form = new Form(entity);
 		String node = form.getFirstValue("node");
@@ -29,8 +27,7 @@ public class GetLocalFiles extends ServerResource {
 
 		if (user != null) {
 
-			Settings settings = Settings.getInstance();
-			String workspace = settings.getLocalWorkspace(user.getUsername());
+			String workspace = FileUtil.path(getSettings().getLocalWorkspace(), user.getUsername());
 
 			String rootNode = null;
 			if (node.equals("root")) {
@@ -50,8 +47,9 @@ public class GetLocalFiles extends ServerResource {
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED );
-			return new StringRepresentation("The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation(
+					"The request requires user authentication.");
 
 		}
 

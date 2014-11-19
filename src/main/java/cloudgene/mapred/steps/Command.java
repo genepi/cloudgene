@@ -1,7 +1,6 @@
 package cloudgene.mapred.steps;
 
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -16,7 +15,7 @@ import cloudgene.mapred.wdl.WdlStep;
 public class Command extends Hadoop {
 
 	@Override
-	public boolean run(WdlStep step, WorkflowContext context) {
+	public boolean run(WdlStep step, CloudgeneContext context) {
 
 		String[] params = step.getExec().split(" ");
 

@@ -13,22 +13,20 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.BaseResource;
 
-public class GetJobDetails extends ServerResource {
+public class GetJobDetails extends BaseResource {
 
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 
@@ -43,11 +41,11 @@ public class GetJobDetails extends ServerResource {
 
 		if (jobId != null) {
 
-			AbstractJob job = WorkflowEngine.getInstance().getJobById(jobId);
+			AbstractJob job = getWorkflowEngine().getJobById(jobId);
 
 			if (job == null) {
 
-				JobDao dao = new JobDao();
+				JobDao dao = new JobDao(getDatabase());
 				job = dao.findById(jobId, true);
 
 			}
@@ -60,7 +58,7 @@ public class GetJobDetails extends ServerResource {
 				}
 
 				// finds position in queue
-				int position = WorkflowEngine.getInstance().getPositionInQueue(
+				int position = getWorkflowEngine().getPositionInQueue(
 						job);
 				job.setPositionInQueue(position);
 
@@ -80,8 +78,8 @@ public class GetJobDetails extends ServerResource {
 				config.setExcludes(new String[] { "user", "task",
 						"mapReduceJob", "job", "step", "context", "config",
 						"parameter" });
-				
-				if (user.isAdmin()){
+
+				if (user.isAdmin()) {
 					job.setLogs("/logs/" + job.getId());
 				}
 

@@ -6,11 +6,18 @@ import java.sql.SQLException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.cache.CacheEntry;
 
-public class CacheDao extends Dao {
+public class CacheDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(CacheDao.class);
+
+	public CacheDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(CacheEntry entry) {
 		StringBuilder sql = new StringBuilder();
@@ -31,8 +38,6 @@ public class CacheDao extends Dao {
 			params[8] = entry.getOutput();
 
 			update(sql.toString(), params);
-
-			connection.commit();
 
 			log.debug("insert cache directory successful.");
 
@@ -55,21 +60,11 @@ public class CacheDao extends Dao {
 		params[0] = signature;
 
 		CacheEntry result = null;
-		
+
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-				result = new CacheEntry();
-				result.setExecutionTime(rs.getLong("execution_time"));
-				result.setCreatedOn(rs.getLong("created_on"));
-				result.setLastUsedOn(rs.getLong("last_used_on"));
-				result.setOutput(rs.getString("output"));
-				result.setSignature(rs.getString("signature"));
-				result.setSize(rs.getLong("size"));
-				result.setUsed(rs.getInt("used"));
-			}
-			rs.close();
+			result = (CacheEntry) queryForObject(sql.toString(), params,
+					new CacheEntryMapper());
 
 			log.debug("find chache entry by signature successful. result: "
 					+ signature);
@@ -97,15 +92,13 @@ public class CacheDao extends Dao {
 		return -1;
 
 	}
-	
-	public boolean clear(){
+
+	public boolean clear() {
 		StringBuilder sql = new StringBuilder();
 		sql.append("delete from cache_entries");
-		try{
+		try {
 
 			update(sql.toString(), new Object[0]);
-
-			connection.commit();
 
 			log.debug("clear cache directory successful.");
 
@@ -115,6 +108,23 @@ public class CacheDao extends Dao {
 		}
 
 		return true;
+	}
+
+	class CacheEntryMapper implements IRowMapper {
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			CacheEntry result = new CacheEntry();
+			result.setExecutionTime(rs.getLong("execution_time"));
+			result.setCreatedOn(rs.getLong("created_on"));
+			result.setLastUsedOn(rs.getLong("last_used_on"));
+			result.setOutput(rs.getString("output"));
+			result.setSignature(rs.getString("signature"));
+			result.setSize(rs.getLong("size"));
+			result.setUsed(rs.getInt("used"));
+			return result;
+		}
+
 	}
 
 }

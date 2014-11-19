@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import cloudgene.mapred.core.Category;
-import cloudgene.mapred.util.Settings;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
@@ -31,10 +30,10 @@ public class WdlReader {
 
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred",
 				WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"steps", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"inputs", WdlParameterInput.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
+				WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
+				WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
 				"outputs", WdlParameterOutput.class);
 
@@ -53,10 +52,10 @@ public class WdlReader {
 
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred",
 				WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"steps", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"inputs", WdlParameterInput.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
+				WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
+				WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
 				"outputs", WdlParameterOutput.class);
 
@@ -74,10 +73,10 @@ public class WdlReader {
 
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred",
 				WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"steps", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"inputs", WdlParameterInput.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
+				WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
+				WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
 				"outputs", WdlParameterOutput.class);
 
@@ -125,9 +124,7 @@ public class WdlReader {
 
 	public static WdlApp loadApp(String name) {
 
-		Settings settings = Settings.getInstance();
-
-		File dir = new File(FileUtil.path(settings.getAppsPath(), name));
+		File dir = new File(name);
 
 		File manifest = null;
 
@@ -137,8 +134,7 @@ public class WdlReader {
 					"cloudgene.yaml"));
 		} else {
 			// new style
-			manifest = new File(FileUtil.path(settings.getAppsPath(), name)
-					+ ".yaml");
+			manifest = new File(name + ".yaml");
 		}
 
 		if (manifest.exists()) {
@@ -155,11 +151,9 @@ public class WdlReader {
 
 	}
 
-	public static List<Category> loadApps() {
+	public static List<Category> loadApps(String appPath) {
 
-		Settings settings = Settings.getInstance();
-
-		File folder = new File(settings.getAppsPath());
+		File folder = new File(appPath);
 		File[] listOfFiles = folder.listFiles();
 
 		String filename = "";
@@ -220,8 +214,8 @@ public class WdlReader {
 								meta.setId(dir.getName() + "/"
 										+ (file.getName()).replace(".yaml", ""));
 
-								List<WdlHeader> listApps = categories
-										.get(meta.getCategory());
+								List<WdlHeader> listApps = categories.get(meta
+										.getCategory());
 								if (listApps == null) {
 									listApps = new Vector<WdlHeader>();
 									categories

@@ -58,14 +58,12 @@ body {
 							<li role="presentation"><a role="menuitem" tabindex="-1"
 								href="#!pages/profile"> <i class="icon-user"></i> Profile
 							</a></li>
-							<li role="presentation" class="divider"></li>
-							<#if admin == true>
-								<li role="presentation"><a role="menuitem" tabindex="-1"
+							<li role="presentation" class="divider"></li> <#if admin == true>
+							<li role="presentation"><a role="menuitem" tabindex="-1"
 								href="/admin.html"> <i class="icon-cog"></i> Admin Panel
-							</a></li>								
-								<li role="presentation" class="divider"></li>
-							</#if>
-							
+							</a></li>
+							<li role="presentation" class="divider"></li> </#if>
+
 							<li role="presentation"><a role="menuitem" tabindex="-1"
 								href="/logout"> <i class="icon-off"></i> Logout
 							</a></li>
@@ -93,9 +91,9 @@ body {
 	<script src="assets/js/lib/date.format.js"></script>
 	<script src="assets/js/lib/jquery.js"></script>
 	<script src="assets/js/lib/jquery.form.js"></script>
-	<script src="assets/js/lib/bootstrap.js"></script>	
+	<script src="assets/js/lib/bootstrap.js"></script>
 	<script src="assets/js/lib/bootbox.min.js"></script>
-	<script src="assets/js/lib/can.jquery.js"></script>	
+	<script src="assets/js/lib/can.jquery.js"></script>
 	<script src="assets/js/lib/bootstrap-fileupload.js"></script>
 	<script src="assets/js/lib/jquery.dataTables.min.js"></script>
 	<script src="assets/js/lib/bootstrap-switch.min.js"></script>
@@ -103,6 +101,8 @@ body {
 
 
 	<!-- Pages and Controllers -->
+
+	<script src="assets/js/WaitingPage.js"></script>
 	<script src="assets/js/SubmitJobPage.js"></script>
 	<script src="assets/js/FormBuilder.js"></script>
 	<script src="assets/js/Helpers.js"></script>
@@ -110,28 +110,49 @@ body {
 	<script src="assets/js/CounterList.js"></script>
 	<script src="assets/js/HomePage.js"></script>
 	<script src="assets/js/ErrorPage.js"></script>
-	<script src="assets/js/Error404Page.js"></script>	
+	<script src="assets/js/Error404Page.js"></script>
 	<script src="assets/js/StaticPage.js"></script>
-	<script src="assets/js/UpdateProfilePage.js"></script>	
+	<script src="assets/js/UpdateProfilePage.js"></script>
 	<script src="assets/js/JobListPage.js"></script>
 	<script src="assets/js/JobDetailsPage.js"></script>
 	<script src="assets/js/Tabs.js"></script>
 
 
 	<script>
-		$(document).ready(function() {
-			tabs = new Tabs("#tabfolder");
-			if (window.location.hash == '') {
-				tabs.activate("run");
-				tabs.show("run");
-			}
+		var app;
 
-			can.route.ready()
+		$(document)
+				.ready(
+						function() {
 
-			//default route!
-			//can.route("pages/:page", {page: "home"});
-			//can.route.attr({page: "home"});
-		});
+							app = app
+									|| (function() {
+										var process = $('<div id="process" class="modal hide" tabindex="-1" data-backdrop="static" style="width: 80px;  margin-left:-40px; height: 80px;  margin-top:100px;"><div class="modal-header"><h1>lf</h1></div><div class="modal-body"><img src="assets/img/spinner.gif"/></div></div>');
+										return {
+											showProcess : function() {
+												process.modal('show');
+											},
+											hideProcess : function() {
+												process.modal('hide');
+											},
+
+										};
+									})();
+
+							tabs = new Tabs("#tabfolder");
+							if (window.location.hash == '') {
+								tabs.activate("run");
+								tabs.show("run");
+							}
+
+							can.route.ready()
+
+							
+							
+							//default route!
+							//can.route("pages/:page", {page: "home"});
+							//can.route.attr({page: "home"});
+						});
 	</script>
 
 </body>

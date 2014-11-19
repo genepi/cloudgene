@@ -1,5 +1,6 @@
 package cloudgene.mapred.database;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -12,12 +13,19 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class CounterHistoryDao extends Dao {
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
+
+public class CounterHistoryDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(CounterHistoryDao.class);
 
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
 			"yy-MM-dd HH:mm");
+
+	public CounterHistoryDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(long timestamp, String name, long value) {
 		StringBuilder sql = new StringBuilder();
@@ -32,8 +40,6 @@ public class CounterHistoryDao extends Dao {
 			params[2] = value;
 
 			update(sql.toString(), params);
-
-			connection.commit();
 
 			log.debug("insert counter history successful.");
 
@@ -82,6 +88,12 @@ public class CounterHistoryDao extends Dao {
 		}
 
 		return result;
+	}
+
+	protected ResultSet query(String sql) throws SQLException {
+		PreparedStatement statement = getConnection().prepareStatement(sql);
+
+		return statement.executeQuery();
 	}
 
 }

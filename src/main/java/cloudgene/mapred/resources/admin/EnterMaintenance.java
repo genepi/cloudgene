@@ -4,21 +4,19 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
-import cloudgene.mapred.util.Settings;
 
-public class EnterMaintenance extends ServerResource {
+public class EnterMaintenance extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
+
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -33,14 +31,14 @@ public class EnterMaintenance extends ServerResource {
 					"The request requires administration rights.");
 		}
 
-		Settings.getInstance().setMaintenance(true);
+		getSettings().setMaintenance(true);
 
-		TemplateDao dao = new TemplateDao();
+		TemplateDao dao = new TemplateDao(getDatabase());
 		dao.update(new Template(
 				Template.MAINTENANCE_MESSAGE,
 				"Sorry, our service is currently under maintenance. Imputation Server is expected to be down until <b>Tuesday 08:00 AM EDT</b>."));
 
-		Settings.getInstance().reloadTemplates();
+		getWebApp().reloadTemplates();
 
 		return new StringRepresentation("Enter Maintenance mode.");
 

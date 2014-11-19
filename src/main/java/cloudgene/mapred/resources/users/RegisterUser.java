@@ -3,17 +3,16 @@ package cloudgene.mapred.resources.users;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 
-public class RegisterUser extends ServerResource {
+public class RegisterUser extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
@@ -32,7 +31,7 @@ public class RegisterUser extends ServerResource {
 
 			if (newPassword.equals(confirmNewPassword)) {
 
-				UserDao dao = new UserDao();
+				UserDao dao = new UserDao(getDatabase());
 
 				if (dao.findByUsername(username) != null) {
 
@@ -42,10 +41,11 @@ public class RegisterUser extends ServerResource {
 
 				if (dao.findByMail(mail) != null) {
 
-					return new JSONAnswer("E-Mail is already registered.", false);
+					return new JSONAnswer("E-Mail is already registered.",
+							false);
 
 				}
-				
+
 				String key = HashUtil.getMD5(System.currentTimeMillis() + "");
 				User newUser = new User();
 				newUser.setUsername(username);
@@ -61,19 +61,18 @@ public class RegisterUser extends ServerResource {
 
 				// send email with activation code
 
-				Settings settings = Settings.getInstance();
-
-				String application = settings.getName();
+				String application = getSettings().getName();
 				String subject = "[" + application + "] Signup activation";
-				String body = settings.getTemplate(Template.REGISTER_MAIL,
+				String body = getWebApp().getTemplate(Template.REGISTER_MAIL,
 						fullname, application, link);
 
 				try {
 
-					MailUtil.send(settings, mail, subject, body);
+					MailUtil.send(getSettings(), mail, subject, body);
 
-					MailUtil.notifyAdmin(settings, "[" + settings.getName()
-							+ "] New user", "Username: " + username);
+					MailUtil.notifyAdmin(getSettings(), "["
+							+ getSettings().getName() + "] New user",
+							"Username: " + username);
 
 					dao.insert(newUser);
 

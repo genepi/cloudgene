@@ -15,6 +15,7 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
@@ -22,14 +23,13 @@ import cloudgene.mapred.wdl.WdlHeader;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 
-public class GetApp extends ServerResource {
+public class GetApp extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
-
+		User user = getUser(getRequest());
+		
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -38,9 +38,7 @@ public class GetApp extends ServerResource {
 
 		}
 
-		Settings settings = Settings.getInstance();
-
-		if (settings.isMaintenance() && !user.isAdmin()) {
+		if (getSettings().isMaintenance() && !user.isAdmin()) {
 
 			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
 			return new StringRepresentation(
@@ -48,7 +46,7 @@ public class GetApp extends ServerResource {
 
 		}
 
-		String filename = settings.getApp(user);
+		String filename = getSettings().getApp(user);
 
 		WdlApp app;
 		try {
@@ -62,7 +60,7 @@ public class GetApp extends ServerResource {
 			List<WdlParameter> params = app.getMapred().getInputs();
 			JSONArray jsonArray = JSONArray.fromObject(params);
 			jsonObject.put("params", jsonArray);
-			jsonObject.put("submitButton", settings.getTemplate(Template.SUBMIT_BUTTON_TEXT));
+			jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
 			
 
 			return new StringRepresentation(jsonObject.toString());

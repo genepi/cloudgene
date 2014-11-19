@@ -9,15 +9,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.JobFactory;
 
-public class JobDao extends Dao {
+public class JobDao extends JdbcDataAccessObject {
 
 	private static final Log log = LogFactory.getLog(JobDao.class);
+
+	public JobDao(Database database) {
+		super(database);
+	}
 
 	public boolean insert(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
@@ -37,8 +44,6 @@ public class JobDao extends Dao {
 			params[7] = job.getType();
 
 			update(sql.toString(), params);
-
-			connection.commit();
 
 			log.debug("insert job '" + job.getId() + "' successful.");
 
@@ -72,8 +77,6 @@ public class JobDao extends Dao {
 
 			update(sql.toString(), params);
 
-			connection.commit();
-
 			log.debug("update job successful.");
 
 		} catch (SQLException e) {
@@ -95,8 +98,6 @@ public class JobDao extends Dao {
 
 			update(sql.toString(), params);
 
-			connection.commit();
-
 			log.debug("delete job '" + job.getId() + "' successful.");
 
 		} catch (SQLException e) {
@@ -107,6 +108,7 @@ public class JobDao extends Dao {
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllByUser(User user) {
 
 		StringBuilder sql = new StringBuilder();
@@ -122,23 +124,7 @@ public class JobDao extends Dao {
 
 		try {
 
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-				job.setUser(user);
-				result.add(job);
-
-			}
-			rs.close();
+			result = query(sql.toString(), params, new JobMapper(false, false));
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -149,6 +135,7 @@ public class JobDao extends Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllNotRetiredJobs() {
 
 		StringBuilder sql = new StringBuilder();
@@ -164,27 +151,7 @@ public class JobDao extends Dao {
 
 		try {
 
-			UserDao dao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				User user = dao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
-				result.add(job);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new JobMapper(true, false));
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -195,6 +162,7 @@ public class JobDao extends Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllNotNotifiedJobs() {
 
 		StringBuilder sql = new StringBuilder();
@@ -212,27 +180,7 @@ public class JobDao extends Dao {
 
 		try {
 
-			UserDao dao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				User user = dao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
-				result.add(job);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new JobMapper(true, false));
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -243,6 +191,7 @@ public class JobDao extends Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllNotifiedJobs() {
 
 		StringBuilder sql = new StringBuilder();
@@ -259,27 +208,7 @@ public class JobDao extends Dao {
 
 		try {
 
-			UserDao dao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				User user = dao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
-				result.add(job);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new JobMapper(true, false));
 
 			log.debug("find all old jobs successful. results: " + result.size());
 
@@ -290,6 +219,7 @@ public class JobDao extends Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllOlderThan(int time, int state) {
 
 		StringBuilder sql = new StringBuilder();
@@ -306,27 +236,7 @@ public class JobDao extends Dao {
 
 		try {
 
-			UserDao dao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				User user = dao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
-				result.add(job);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new JobMapper(true, false));
 
 			log.debug("find all old jobs successful. results: " + result.size());
 
@@ -337,6 +247,7 @@ public class JobDao extends Dao {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllByState(int state) {
 
 		StringBuilder sql = new StringBuilder();
@@ -352,27 +263,7 @@ public class JobDao extends Dao {
 
 		try {
 
-			UserDao dao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				AbstractJob job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				User user = dao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-
-				result.add(job);
-			}
-			rs.close();
+			result = query(sql.toString(), params, new JobMapper(true, false));
 
 			log.debug("find all old jobs successful. results: " + result.size());
 
@@ -403,46 +294,8 @@ public class JobDao extends Dao {
 
 		try {
 
-			ParameterDao dao = new ParameterDao();
-			UserDao userDao = new UserDao();
-
-			ResultSet rs = query(sql.toString(), params);
-			while (rs.next()) {
-
-				int type = rs.getInt("type");
-
-				job = JobFactory.create(type);
-				job.setId(rs.getString("id"));
-				job.setName(rs.getString("name"));
-				job.setState(rs.getInt("state"));
-				job.setStartTime(rs.getLong("start_time"));
-				job.setEndTime(rs.getLong("end_time"));
-				job.setDeletedOn(rs.getLong("deleted_on"));
-
-				if (loadParams) {
-					
-					User user = userDao.findById(rs.getInt("user_id"));
-					job.setUser(user);
-					
-					List<CloudgeneParameter> inputParams = dao
-							.findAllInputByJob(job);
-					List<CloudgeneParameter> outputParams = dao
-							.findAllOutputByJob(job);
-					job.setInputParams(inputParams);
-					job.setOutputParams(outputParams);
-
-					if (job instanceof CloudgeneJob) {
-
-						StepDao stepDao = new StepDao();
-						List<CloudgeneStep> steps = stepDao
-								.findAllByJob((CloudgeneJob) job);
-						job.setSteps(steps);
-
-					}
-				}
-
-			}
-			rs.close();
+			job = (AbstractJob) queryForObject(sql.toString(), params,
+					new JobMapper(true, true));
 
 			if (job instanceof CloudgeneJob) {
 				((CloudgeneJob) job).updateProgress();
@@ -460,4 +313,65 @@ public class JobDao extends Dao {
 			return null;
 		}
 	}
+
+	class JobMapper implements IRowMapper {
+
+		private boolean loadUser;
+
+		private boolean loadDetails;
+
+		private UserDao userDao;
+
+		private ParameterDao parameterDao;
+
+		private StepDao stepDao;
+
+		public JobMapper(boolean loadUser, boolean loadDetails) {
+			this.loadUser = loadUser;
+			this.loadDetails = loadDetails;
+			userDao = new UserDao(database);
+			parameterDao = new ParameterDao(database);
+			stepDao = new StepDao(database);
+		}
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			int type = rs.getInt("type");
+			AbstractJob job = JobFactory.create(type);
+			job.setId(rs.getString("id"));
+			job.setName(rs.getString("name"));
+			job.setState(rs.getInt("state"));
+			job.setStartTime(rs.getLong("start_time"));
+			job.setEndTime(rs.getLong("end_time"));
+			job.setDeletedOn(rs.getLong("deleted_on"));
+
+			if (loadUser) {
+
+				User user = userDao.findById(rs.getInt("user_id"));
+				job.setUser(user);
+			}
+
+			if (loadDetails) {
+
+				List<CloudgeneParameter> inputParams = parameterDao
+						.findAllInputByJob(job);
+				List<CloudgeneParameter> outputParams = parameterDao
+						.findAllOutputByJob(job);
+				job.setInputParams(inputParams);
+				job.setOutputParams(outputParams);
+
+				if (job instanceof CloudgeneJob) {
+
+					List<CloudgeneStep> steps = stepDao
+							.findAllByJob((CloudgeneJob) job);
+					job.setSteps(steps);
+
+				}
+			}
+
+			return job;
+		}
+
+	}
+
 }

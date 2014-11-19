@@ -1,7 +1,5 @@
 package cloudgene.mapred.resources.data;
 
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -15,30 +13,28 @@ import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.TaskJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.tasks.AbstractTask;
 import cloudgene.mapred.tasks.ImporterLocalFile;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 
 /**
  * Resource which has only one representation.
  * 
  */
-public class FileUploadRessource extends ServerResource {
+public class FileUploadRessource extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
 
 		try {
-			UserSessions sessions = UserSessions.getInstance();
-			User user = sessions.getUserByRequest(getRequest());
+
+			User user = getUser(getRequest());
 
 			File file = null;
 			String path = "";
@@ -81,8 +77,8 @@ public class FileUploadRessource extends ServerResource {
 							}
 							try {
 
-								String tmpFile = Settings.getInstance()
-										.getTempFilename(fileItem.getName());
+								String tmpFile = getSettings().getTempFilename(
+										fileItem.getName());
 								file = new File(tmpFile);
 								fileItem.write(file);
 
@@ -94,8 +90,8 @@ public class FileUploadRessource extends ServerResource {
 								job.setName(job.getId());
 								job.setUser(user);
 
-								WorkflowEngine queue = WorkflowEngine.getInstance();
-								queue.submit(job);
+								WorkflowEngine engine = getWorkflowEngine();
+								engine.submit(job);
 
 							} catch (Exception e) {
 								e.printStackTrace();

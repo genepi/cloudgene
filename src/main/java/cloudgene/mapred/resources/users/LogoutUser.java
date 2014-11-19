@@ -1,15 +1,13 @@
 package cloudgene.mapred.resources.users;
 
-
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 
-
-public class LogoutUser extends ServerResource {
+public class LogoutUser extends BaseResource {
 
 	@Get
 	public Representation get() {
@@ -20,7 +18,7 @@ public class LogoutUser extends ServerResource {
 
 		// logout and remove cookie
 		if (token != null) {
-			UserSessions sessions = UserSessions.getInstance();
+			UserSessions sessions = getUserSessions();
 			sessions.logoutUserByToken(token);
 			getRequest().getCookies().removeAll(UserSessions.COOKIE_NAME);
 		}

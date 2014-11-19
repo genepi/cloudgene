@@ -44,10 +44,14 @@ JobDetailsPage = can.Control({
 		bootbox.confirm("Are you sure you want to delete <b>"
 				+ that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
+				
+				$("a[data-handler='1']").button('loading');
+				$("a[data-handler='0']").hide('hide');
+				
 				that.job.destroy(function() {
 					// go to jobs page
-					Dialog.hidePleaseWait();
-					window.location.hash = "!pages/jobs";
+					bootbox.hideAll();
+ 					window.location.hash = "!pages/jobs";
 				}, function(message) {
 					// show error message
 					new ErrorPage(that.element, {
@@ -56,6 +60,8 @@ JobDetailsPage = can.Control({
 					});
 				});
 
+				return false;
+				
 			}
 		});
 
@@ -69,8 +75,13 @@ JobDetailsPage = can.Control({
 		bootbox.confirm("Are you sure you want to cancel <b>"
 				+ that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
+				
+				$("a[data-handler='1']").button('loading');
+				$("a[data-handler='0']").hide('hide');
+				
 				that.job.save(function() {
-					// go to jobs page
+					bootbox.hideAll();
+
 					window.location.hash = "!pages/jobs";
 				}, function(message) {
 					// show error message
@@ -80,6 +91,8 @@ JobDetailsPage = can.Control({
 					});
 				});
 
+				return false;
+				
 			}
 		});
 

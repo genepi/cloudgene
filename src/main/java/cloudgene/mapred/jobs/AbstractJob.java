@@ -94,7 +94,15 @@ abstract public class AbstractJob implements Runnable {
 
 	protected CloudgeneContext context;
 
+	private Settings settings;
+
 	private String logs;
+
+	private boolean removeHdfsWorkspace;
+
+	private String localWorkspace;
+
+	private String hdfsWorkspace;
 
 	public String getId() {
 		return id;
@@ -231,10 +239,11 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public void run() {
 
-		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED){
+		if (state == AbstractJob.STATE_CANCELED
+				|| state == AbstractJob.STATE_FAILED) {
 			return;
 		}
-		
+
 		log.info("Job " + getId() + ": running.");
 
 		try {
@@ -443,8 +452,7 @@ abstract public class AbstractJob implements Runnable {
 
 		if (getUser() != null) {
 
-			String localWorkspace = Settings.getInstance().getLocalWorkspace(
-					getUser().getUsername());
+			String localWorkspace = getLocalWorkspace();
 
 			String directory = FileUtil.path(localWorkspace, "output", getId());
 			FileUtil.createDirectory(directory);
@@ -457,8 +465,7 @@ abstract public class AbstractJob implements Runnable {
 
 		if (getUser() != null) {
 
-			String localWorkspace = Settings.getInstance().getLocalWorkspace(
-					getUser().getUsername());
+			String localWorkspace = getLocalWorkspace();
 
 			return FileUtil.path(localWorkspace, "output", getId(), "std.out");
 
@@ -472,8 +479,7 @@ abstract public class AbstractJob implements Runnable {
 
 		if (getUser() != null) {
 
-			String localWorkspace = Settings.getInstance().getLocalWorkspace(
-					getUser().getUsername());
+			String localWorkspace = getLocalWorkspace();
 
 			return FileUtil.path(localWorkspace, "output", getId(), "job.txt");
 
@@ -581,11 +587,43 @@ abstract public class AbstractJob implements Runnable {
 
 	@Override
 	public boolean equals(Object obj) {
-	
+
 		return ((AbstractJob) obj).getId().equals(id);
-		
+
 	}
-	
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public void setSettings(Settings settings) {
+		this.settings = settings;
+	}
+
+	public boolean isRemoveHdfsWorkspace() {
+		return removeHdfsWorkspace;
+	}
+
+	public void setRemoveHdfsWorkspace(boolean removeHdfsWorkspace) {
+		this.removeHdfsWorkspace = removeHdfsWorkspace;
+	}
+
+	public String getLocalWorkspace() {
+		return localWorkspace;
+	}
+
+	public void setLocalWorkspace(String localWorkspace) {
+		this.localWorkspace = localWorkspace;
+	}
+
+	public String getHdfsWorkspace() {
+		return hdfsWorkspace;
+	}
+
+	public void setHdfsWorkspace(String hdfsWorkspace) {
+		this.hdfsWorkspace = hdfsWorkspace;
+	}
+
 	abstract public boolean execute();
 
 	abstract public boolean executeSetup();
@@ -600,11 +638,10 @@ abstract public class AbstractJob implements Runnable {
 
 	abstract public boolean cleanUp();
 
-	abstract public boolean delete();
-
 	abstract public int getType();
 
 	public void kill() {
 
 	}
+
 }

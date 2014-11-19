@@ -1,6 +1,5 @@
 package cloudgene.mapred.resources.data;
 
-
 import net.sf.json.JSONArray;
 
 import org.restlet.data.Form;
@@ -8,19 +7,17 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.FileItem;
 
-public class GetSftpFiles extends ServerResource {
-	
+public class GetSftpFiles extends BaseResource {
+
 	@Post
 	public Representation post(Representation entity) {
 
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		Form form = new Form(entity);
 		String node = form.getFirstValue("path");
@@ -28,7 +25,6 @@ public class GetSftpFiles extends ServerResource {
 		String password = form.getFirstValue("sftppass");
 		String host = form.getFirstValue("sftphost");
 		int port = Integer.parseInt(form.getFirstValue("sftpport"));
-		
 
 		StringRepresentation representation = null;
 
@@ -44,8 +40,9 @@ public class GetSftpFiles extends ServerResource {
 					items = cloudgene.mapred.util.SftpFileTree.getSftpFileTree(
 							node, host, username, password, port);
 				} catch (Exception e) {
-					StringRepresentation error = new StringRepresentation(e.getMessage());
-					getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST );
+					StringRepresentation error = new StringRepresentation(
+							e.getMessage());
+					getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 					getResponse().setEntity(error);
 					return error;
 

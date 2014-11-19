@@ -12,24 +12,19 @@ import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
 import freemarker.template.Configuration;
 
-public class Start extends ServerResource {
+public class Start extends BaseResource {
 
 	@Get
 	public Representation get() {
 
-		Settings settings = Settings.getInstance();
-
-		UserSessions sessions = UserSessions.getInstance();
-		User user = sessions.getUserByRequest(getRequest());
+		User user = getUser(getRequest());
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -48,14 +43,15 @@ public class Start extends ServerResource {
 		cfg.setTemplateLoader(loader);
 
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("appname", settings.getName());
+		data.put("appname", getSettings().getName());
 		data.put("admin", user.isAdmin());
-		data.put("footer", settings.getTemplate(Template.FOOTER));
+		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 		data.put("username", user.getUsername());
 
-		if (settings.isMaintenance()) {
+		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage",
-					settings.getTemplate(Template.MAINTENANCE_MESSAGE));
+					getWebApp()
+							.getTemplate(Template.MAINTENANCE_MESSAGE));
 		}
 
 		return new TemplateRepresentation("start.html", cfg, data,

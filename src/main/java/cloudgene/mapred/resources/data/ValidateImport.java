@@ -22,7 +22,7 @@ public class ValidateImport extends ServerResource {
 	public Representation validateImport(Representation entity) {
 
 		Form form = new Form(entity);
-		
+
 		String input = form.getFirstValue("input").trim();
 
 		List<FileItem> results = new Vector<FileItem>();
