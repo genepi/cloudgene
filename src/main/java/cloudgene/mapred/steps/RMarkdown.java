@@ -92,6 +92,13 @@ public class RMarkdown extends CloudgeneStep {
 					argsForScript[i + 1] = args[i];
 				}
 
+				try {
+					context.println("Number of lines: " + FileUtil.getLineCount(localFile));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
 			} else {
 
 				argsForScript[i + 1] = args[i];
@@ -100,13 +107,19 @@ public class RMarkdown extends CloudgeneStep {
 		}
 
 		rScript.setParams(argsForScript);
+		rScript.saveStdErr(FileUtil.path(folder, "std.err"));
+		rScript.saveStdOut(FileUtil.path(folder, "std.out"));
+
 		int result = rScript.execute();
 
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.err")));
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.out")));
+		
 		new File(outputHtml + ".md").delete();
 		new File("convert.R").delete();
+	
 		RMarkdown.deleteFolder(new File(folder));
-
-		context.println(rScript.getStdOut());
+			
 
 		return result;
 
