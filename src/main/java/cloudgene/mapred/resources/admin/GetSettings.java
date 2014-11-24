@@ -33,8 +33,8 @@ public class GetSettings extends BaseResource {
 		JSONObject object = new JSONObject();
 		object.put("name", getSettings().getName());
 		object.put("hadoopPath", getSettings().getHadoopPath());
-		object.put("userApp", getSettings().getApps().get("user"));
-		object.put("adminApp", getSettings().getApps().get("admin"));
+		object.put("userApp", getSettings().getApps().get("user").getFilename());
+		object.put("adminApp", getSettings().getApps().get("admin").getFilename());
 		object.put("mail-smtp", getSettings().getMail().get("smtp"));
 		object.put("mail-port", getSettings().getMail().get("port"));
 		object.put("mail-user", getSettings().getMail().get("user"));

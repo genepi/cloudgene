@@ -9,13 +9,12 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
-import cloudgene.mapred.core.Category;
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.Settings;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
@@ -151,105 +150,109 @@ public class WdlReader {
 
 	}
 
-	public static List<Category> loadApps(String appPath) {
+	public static List<WdlHeader> loadApps(User user, Settings setttings) {
 
-		File folder = new File(appPath);
-		File[] listOfFiles = folder.listFiles();
+		List<WdlHeader> listApps = new Vector<WdlHeader>();
 
-		String filename = "";
+		String appPath = "apps";
 
-		List<Category> result = new Vector<Category>();
+		if (new File(appPath).exists()) {
 
-		Map<String, List<WdlHeader>> categories = new HashMap<String, List<WdlHeader>>();
+			File folder = new File(appPath);
+			File[] listOfFiles = folder.listFiles();
 
-		for (int i = 0; i < listOfFiles.length; i++) {
+			String filename = "";
 
-			File dir = listOfFiles[i];
-			filename = FileUtil.path(dir.getAbsolutePath(), "cloudgene.yaml");
-			File manifest = new File(filename);
+			for (int i = 0; i < listOfFiles.length; i++) {
 
-			// old style
+				File dir = listOfFiles[i];
+				filename = FileUtil.path(dir.getAbsolutePath(),
+						"cloudgene.yaml");
+				File manifest = new File(filename);
 
-			if (dir.isDirectory() && manifest.exists()) {
-				filename = manifest.getAbsolutePath();
-				try {
+				// old style
 
-					WdlApp app = loadAppFromFile(filename);
+				if (dir.isDirectory() && manifest.exists()) {
+					filename = manifest.getAbsolutePath();
+					try {
 
-					WdlHeader meta = (WdlHeader) app;
+						WdlApp app = loadAppFromFile(filename);
 
-					if (meta != null && app.getMapred() != null) {
+						WdlHeader meta = (WdlHeader) app;
 
-						meta.setId(dir.getName());
+						if (meta != null && app.getMapred() != null) {
+							meta.setId(dir.getName());
+							listApps.add(meta);
 
-						List<WdlHeader> listApps = categories.get(meta
-								.getCategory());
-						if (listApps == null) {
-							listApps = new Vector<WdlHeader>();
-							categories.put(meta.getCategory(), listApps);
 						}
-						listApps.add(meta);
-
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
-				} catch (Exception e) {
+
+				}
+
+				// new style: all other yaml files.
+				if (dir.isDirectory()) {
+					File[] filesInDir = dir.listFiles();
+					for (File file : filesInDir) {
+						if (file.getName().endsWith(".yaml")
+								&& !file.getName().equals("cloudgene.yaml")) {
+							try {
+								filename = file.getAbsolutePath();
+								WdlApp app = loadAppFromFile(filename);
+
+								WdlHeader meta = (WdlHeader) app;
+
+								if (meta != null && app.getMapred() != null) {
+
+									meta.setId(dir.getName());
+									listApps.add(meta);
+
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+
+		}
+
+		for (String id : setttings.getApps().keySet()) {
+
+			// todo: check permissions!!
+
+			Application application = setttings.getApps().get(id);
+
+			boolean using = true;
+
+			if (!user.isAdmin()) {
+
+				if (!application.getPermission().equals("user")) {
+					using = false;
+				}
+			}
+
+			if (using) {
+
+				String filename = application.getFilename();
+
+				try {
+					WdlApp app = loadAppFromFile(filename);
+					WdlHeader meta = (WdlHeader) app;
+					app.setId(id);
+					listApps.add(meta);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 
 			}
 
-			// new style: all other yaml files.
-			if (dir.isDirectory()) {
-				File[] filesInDir = dir.listFiles();
-				for (File file : filesInDir) {
-					if (file.getName().endsWith(".yaml")
-							&& !file.getName().equals("cloudgene.yaml")) {
-						try {
-							filename = file.getAbsolutePath();
-							WdlApp app = loadAppFromFile(filename);
-
-							WdlHeader meta = (WdlHeader) app;
-
-							if (meta != null && app.getMapred() != null) {
-
-								meta.setId(dir.getName() + "/"
-										+ (file.getName()).replace(".yaml", ""));
-
-								List<WdlHeader> listApps = categories.get(meta
-										.getCategory());
-								if (listApps == null) {
-									listApps = new Vector<WdlHeader>();
-									categories
-											.put(meta.getCategory(), listApps);
-								}
-								listApps.add(meta);
-
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
 		}
 
-		for (String text : categories.keySet()) {
-			Category tool = new Category();
-			tool.setText(text);
-			tool.setLeaf(false);
-
-			List<WdlHeader> listApps = categories.get(text);
-			WdlHeader[] children = new WdlHeader[listApps.size()];
-			for (int i = 0; i < listApps.size(); i++) {
-				children[i] = listApps.get(i);
-			}
-			tool.setChildren(children);
-			result.add(tool);
-
-		}
-
-		Collections.sort(result);
-
-		return result;
+		return listApps;
 
 	}
 

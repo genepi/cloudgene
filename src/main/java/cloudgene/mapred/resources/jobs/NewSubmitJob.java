@@ -93,13 +93,17 @@ public class NewSubmitJob extends BaseResource {
 
 		Map<String, String> props = new HashMap<String, String>();
 
-		String filename = getSettings().getApp(user);
+		String tool = (String) getRequest().getAttributes().get("tool");
+
+		String filename = getSettings().getApp(tool);
 		WdlApp app = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e1) {
+
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Tool '" + tool + "' not found.");
+
 		}
 
 		if (MediaType.MULTIPART_FORM_DATA.equals(entity.getMediaType(), true)) {
@@ -135,8 +139,9 @@ public class NewSubmitJob extends BaseResource {
 						for (WdlParameter input : app.getMapred().getInputs()) {
 							if (input.getId().equals(fieldName)) {
 								hdfs = (input.getType().equals(
-										WdlParameter.HDFS_FOLDER) || input.getType().equals(
-												WdlParameter.HDFS_FILE)) ;
+										WdlParameter.HDFS_FOLDER) || input
+										.getType().equals(
+												WdlParameter.HDFS_FILE));
 							}
 						}
 
@@ -164,41 +169,46 @@ public class NewSubmitJob extends BaseResource {
 							}
 
 						} else {
-							
-				
-							
+
 							String targetPath = FileUtil.path(localWorkspace,
-									"input", id, fieldName);						
-				
-							System.out.println("-------->> OKOKOKOKOKOKO  " + targetPath);
-							
-							FileUtil.createDirectory(FileUtil.path(localWorkspace,
-									"input"));
-							
-							FileUtil.createDirectory(FileUtil.path(localWorkspace,
-									"input", id));
-							
-							FileUtil.createDirectory(FileUtil.path(localWorkspace,
-									"input", id, fieldName));
-							
+									"input", id, fieldName);
+
+							System.out.println("-------->> OKOKOKOKOKOKO  "
+									+ targetPath);
+
+							FileUtil.createDirectory(FileUtil.path(
+									localWorkspace, "input"));
+
+							FileUtil.createDirectory(FileUtil.path(
+									localWorkspace, "input", id));
+
+							FileUtil.createDirectory(FileUtil.path(
+									localWorkspace, "input", id, fieldName));
+
 							String target = FileUtil
 									.path(targetPath, entryName);
-							
+
 							FileUtil.copy(tmpFile, target);
-							
+
 							// deletes temporary file
 							FileUtil.deleteFile(tmpFile);
-							
+
 							if (props.containsKey(fieldName)) {
 								// folder
-								props.put(fieldName,
-										new File(FileUtil.path(localWorkspace, "input", id, fieldName)).getAbsolutePath());
+								props.put(
+										fieldName,
+										new File(FileUtil.path(localWorkspace,
+												"input", id, fieldName))
+												.getAbsolutePath());
 							} else {
 								// file
-								props.put(fieldName, new File(FileUtil.path(localWorkspace, "input", id,
-										fieldName, entryName)).getAbsolutePath());
+								props.put(
+										fieldName,
+										new File(FileUtil.path(localWorkspace,
+												"input", id, fieldName,
+												entryName)).getAbsolutePath());
 							}
-							
+
 						}
 
 					}
@@ -283,6 +293,7 @@ public class NewSubmitJob extends BaseResource {
 				job.setSettings(getSettings());
 				job.setRemoveHdfsWorkspace(getSettings()
 						.isRemoveHdfsWorkspace());
+				job.setApplication(app.getName() + " " + app.getVersion());
 				engine.submit(job);
 
 			} catch (Exception e) {

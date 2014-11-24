@@ -7,8 +7,6 @@ AdminHomePage = can.Control({
 		element.html(can.view('/views/admin/home.ejs'));
 		element.fadeIn();
 		
-		new CounterList("#counter");
-
 		$.getJSON("/statistics", function(mydata) {
 
 			Morris.Area({

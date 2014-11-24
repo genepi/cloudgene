@@ -5,6 +5,14 @@ Tabs = can.Control({
 		this.page = null;
 	},
 
+	'run/:app route' : function(data) {
+		
+		console.log("ldsdsadsa");
+		this.activate('run');	
+		this.page = new SubmitJobPage("#content", {tool: data.app});
+	},
+	
+	
 	'pages/:page route' : function(data) {
 		this.activate(data.page);
 		this.show(data.page);
@@ -28,6 +36,7 @@ Tabs = can.Control({
 		this.page = this.options.detailsPage;
 	},
 	
+
 	'recovery/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
 			status : "27",
@@ -52,10 +61,10 @@ Tabs = can.Control({
 		// activated li
 		this.element.find('li').each(function() {
 			li = $(this);
-			li.attr('class', '');
+			li.removeClass('active', '');
 			$(this).find('a').each(function() {
 				if ($(this).attr('id') == id) {
-					li.attr('class', 'active');
+					li.addClass('active');
 				}
 			});
 		});

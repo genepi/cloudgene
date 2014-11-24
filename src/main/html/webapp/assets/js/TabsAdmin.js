@@ -41,10 +41,10 @@ TabsAdmin = can.Control({
 		// activated li
 		this.element.find('li').each(function() {
 			li = $(this);
-			li.attr('class', '');
+			li.removeClass('active', '');
 			$(this).find('a').each(function() {
 				if ($(this).attr('id') == id) {
-					li.attr('class', 'active');
+					li.addClass('active');
 				}
 			});
 		});

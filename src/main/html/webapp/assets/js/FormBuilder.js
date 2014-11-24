@@ -1,4 +1,4 @@
-function buildForm(element, params, submitButtonText) {
+function buildForm(application, element, params, submitButtonText) {
 
 	labelOpen = false;
 	labelGroup = null;
@@ -55,13 +55,23 @@ function buildForm(element, params, submitButtonText) {
 
 	});
 
+	// hidden field for application name
+	inputField = $("<input></input>");
+	inputField.attr("type", "hidden");
+	inputField.attr("name", "tool");
+	inputField.attr("value", application);
+	
+	$(element).append(inputField);
+
+	
 	// submit-button
 	divGroup = $("<div></div>");
 	divGroup.attr("class", "control-group");
 
 	divControls = $("<div></div>");
 	divControls.attr("class", "controls");
-
+	
+	
 	buildSubmitButton(divControls, submitButtonText);
 
 	divGroup.append(divControls);

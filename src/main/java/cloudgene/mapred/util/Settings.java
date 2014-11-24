@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 
+import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
@@ -51,7 +52,7 @@ public class Settings {
 
 	private Map<String, String> mail;
 
-	private Map<String, String> apps;
+	private Map<String, Application> apps;
 
 	private int retireAfter = 6;
 
@@ -80,9 +81,9 @@ public class Settings {
 	private String piggene = null;
 
 	private Settings() {
-		apps = new HashMap<String, String>();
-		apps.put("user", "sample/cloudgene.yaml");
-		apps.put("admin", "sample/cloudgene.yaml");
+		apps = new HashMap<String, Application>();
+		apps.put("test2", new Application("user", "sample/cloudgene.yaml"));
+		apps.put("test", new Application("admin", "sample/cloudgene.yaml"));
 
 		mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
@@ -96,8 +97,11 @@ public class Settings {
 	public static Settings load(String filename) throws FileNotFoundException,
 			YamlException {
 
-		YamlReader reader = new YamlReader(new FileReader(filename));
-
+		YamlConfig config = new YamlConfig();
+		config.setPropertyElementType(Settings.class, "apps", Application.class);
+		
+		YamlReader reader = new YamlReader(new FileReader(filename), config);
+		
 		Settings settings = reader.read(Settings.class);
 
 		// auto-search
@@ -148,13 +152,11 @@ public class Settings {
 		return pigPath;
 	}
 
-	public String getAppsPath() {
-		return appsPath;
-	}
-
-	public void setAppsPath(String appsPath) {
-		this.appsPath = appsPath;
-	}
+	/*
+	 * public String getAppsPath() { return appsPath; }
+	 * 
+	 * public void setAppsPath(String appsPath) { this.appsPath = appsPath; }
+	 */
 
 	public String getOutputPath() {
 		return outputPath;
@@ -224,9 +226,9 @@ public class Settings {
 
 		if (!new File(appsPath).exists()) {
 
-			for (String app : apps.values()) {
+			for (Application app : apps.values()) {
 
-				if (!new File(app).exists()) {
+				if (!new File(app.getFilename()).exists()) {
 
 					log.error("file '" + app + "' does not exist.");
 
@@ -305,17 +307,29 @@ public class Settings {
 		this.mail = mail;
 	}
 
-	public Map<String, String> getApps() {
+	public Map<String, Application> getApps() {
 		return apps;
 	}
 
-	public void setApps(Map<String, String> apps) {
+	public void setApps(Map<String, Application> apps) {
 		this.apps = apps;
 	}
 
-	public String getApp(User user) {
+	public String getApp(String id) {
 
-		return apps.get(user.getRole().toLowerCase());
+		Application app = apps.get(id);
+		
+		if (app != null){
+		
+		return app.getFilename();
+		}else{
+			
+			String filename = FileUtil.path("apps",id,
+					"cloudgene.yaml");
+			
+			return filename;
+			
+		}
 
 	}
 

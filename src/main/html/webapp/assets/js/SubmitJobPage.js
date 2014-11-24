@@ -1,13 +1,6 @@
-//model
-JobParameter = can.Model({
-	findAll : 'GET /apps/params'
-}, {
-
-});
-
-//controller
+//Model
 Application = can.Model({
-	findOne : 'GET /app'
+	findOne : 'POST /app'
 }, {
 
 });
@@ -17,12 +10,12 @@ SubmitJobPage = can.Control({
 
 	"init" : function(element, options) {
 		
-		Application.findOne({}, function(details) {
+		Application.findOne({tool:options.tool}, function(details) {
 			element.hide();
 			element.html(can.view('/views/run.ejs', {
 				details : details
 			}))
-			buildForm("#parameters", details.params, details.submitButton)
+			buildForm(options.tool, "#parameters", details.params, details.submitButton)
 			element.fadeIn();
 			
 		}, function(message) {
@@ -36,6 +29,8 @@ SubmitJobPage = can.Control({
 
 	'submit' : function(tr) {
 
+		tool = this.element.find('tool');
+		
 		console.log("submit job...");
 		
 		// ---- listboxes

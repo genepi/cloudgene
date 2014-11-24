@@ -72,6 +72,8 @@ abstract public class AbstractJob implements Runnable {
 
 	private long deletedOn = -1;
 
+	private String application;
+
 	private String error = "";
 
 	private int map = -1;
@@ -622,6 +624,14 @@ abstract public class AbstractJob implements Runnable {
 
 	public void setHdfsWorkspace(String hdfsWorkspace) {
 		this.hdfsWorkspace = hdfsWorkspace;
+	}
+
+	public void setApplication(String application) {
+		this.application = application;
+	}
+
+	public String getApplication() {
+		return application;
 	}
 
 	abstract public boolean execute();

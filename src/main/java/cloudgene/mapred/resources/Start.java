@@ -2,6 +2,7 @@ package cloudgene.mapred.resources;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.restlet.data.LocalReference;
@@ -17,6 +18,8 @@ import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
+import cloudgene.mapred.wdl.WdlHeader;
+import cloudgene.mapred.wdl.WdlReader;
 import freemarker.template.Configuration;
 
 public class Start extends BaseResource {
@@ -42,11 +45,14 @@ public class Start extends BaseResource {
 
 		cfg.setTemplateLoader(loader);
 
+		List<WdlHeader> apps = WdlReader.loadApps(user, getSettings());
+		
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());
 		data.put("admin", user.isAdmin());
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 		data.put("username", user.getUsername());
+		data.put("apps", apps);
 
 		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage",

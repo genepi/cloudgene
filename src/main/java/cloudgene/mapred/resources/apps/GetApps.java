@@ -1,7 +1,5 @@
 package cloudgene.mapred.resources.apps;
 
-import genepi.io.FileUtil;
-
 import java.util.List;
 
 import net.sf.json.JSONArray;
@@ -11,12 +9,10 @@ import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
-import cloudgene.mapred.core.Category;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.wdl.WdlHeader;
 import cloudgene.mapred.wdl.WdlReader;
 
 public class GetApps extends BaseResource {
@@ -34,7 +30,7 @@ public class GetApps extends BaseResource {
 
 		}
 
-		List<Category> apps = WdlReader.loadApps(getSettings().getAppsPath());
+		List<WdlHeader> apps = WdlReader.loadApps(user, getSettings());
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
 		JSONArray jsonArray = JSONArray.fromObject(apps, config);

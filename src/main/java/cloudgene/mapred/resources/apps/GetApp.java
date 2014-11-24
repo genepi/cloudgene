@@ -1,22 +1,19 @@
 package cloudgene.mapred.resources.apps;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
+import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
+import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
@@ -25,11 +22,11 @@ import cloudgene.mapred.wdl.WdlReader;
 
 public class GetApp extends BaseResource {
 
-	@Get
-	public Representation get() {
+	@Post
+	public Representation post(Representation entity) {
 
 		User user = getUser(getRequest());
-		
+
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
@@ -46,28 +43,36 @@ public class GetApp extends BaseResource {
 
 		}
 
-		String filename = getSettings().getApp(user);
+		Form form = new Form(entity);
 
-		WdlApp app;
+		String tool = form.getFirstValue("tool");
+
+		String filename = getSettings().getApp(tool);
+		WdlApp app = null;
+		WdlHeader meta = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);
-			WdlHeader meta = (WdlHeader) app;
+			meta = (WdlHeader) app;
+			meta.setId(tool);
 
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "mapred", "installed", "cluster" });
-			JSONObject jsonObject = JSONObject.fromObject(meta, config);
-			
-			List<WdlParameter> params = app.getMapred().getInputs();
-			JSONArray jsonArray = JSONArray.fromObject(params);
-			jsonObject.put("params", jsonArray);
-			jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
-			
+		} catch (Exception e1) {
 
-			return new StringRepresentation(jsonObject.toString());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return new StringRepresentation("Error");
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Tool '" + tool + "' not found.");
+
 		}
+
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
+		JSONObject jsonObject = JSONObject.fromObject(meta, config);
+
+		List<WdlParameter> params = app.getMapred().getInputs();
+		JSONArray jsonArray = JSONArray.fromObject(params);
+		jsonObject.put("params", jsonArray);
+		jsonObject.put("submitButton",
+				getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
+
+		return new StringRepresentation(jsonObject.toString());
 
 	}
 

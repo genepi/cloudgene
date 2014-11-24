@@ -43,9 +43,29 @@ body {
 		<div class="navbar-inner">
 			<div class="container">
 				<a id="home" class="brand" href="#!pages/home"> ${appname} </a>
-				<ul class="nav" role="navigation" id="tabfolder">
+				<ul class="nav pull-left"  id="tabfolder">
 					<li><a id="home" href="#!pages/home"> Home </a></li>
-					<li><a id="run" href="#!pages/run"> Run </a></li>
+					
+					<#if apps?size == 1>
+										<li class=""><a id="run" href="#!run/${apps[0].id}"> Run </a></li>
+					
+					<#else>
+					<li class="dropdown">
+					  <a class="dropdown-toggle" id="run" role="button" data-toggle="dropdown"> Run <b class="caret"></b></a>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="run">
+	
+							<#list apps as app>
+	
+							<li role="presentation">
+								<a role="menuitem" tabindex="-1" href="#!run/${app.id}"> ${app.name}</a>
+							</li>
+	
+							</#list>  							
+							
+						</ul>
+					</li>
+					</#if>
+					
 					<li class=""><a id="jobs" href="#!pages/jobs"> Jobs </a></li>
 					<li><a id="help" href="#!pages/help"> Help </a></li>
 					<li><a id="contact" href="#!pages/contact"> Contact </a></li>
@@ -107,7 +127,6 @@ body {
 	<script src="assets/js/FormBuilder.js"></script>
 	<script src="assets/js/Helpers.js"></script>
 	<script src="assets/js/UserLoginForm.js"></script>
-	<script src="assets/js/CounterList.js"></script>
 	<script src="assets/js/HomePage.js"></script>
 	<script src="assets/js/ErrorPage.js"></script>
 	<script src="assets/js/Error404Page.js"></script>
@@ -141,8 +160,8 @@ body {
 
 							tabs = new Tabs("#tabfolder");
 							if (window.location.hash == '') {
-								tabs.activate("run");
-								tabs.show("run");
+								tabs.activate("home");
+								tabs.show("home");
 							}
 
 							can.route.ready()

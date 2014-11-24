@@ -35,8 +35,6 @@ import cloudgene.mapred.resources.admin.StartRetire;
 import cloudgene.mapred.resources.admin.UpdateSettings;
 import cloudgene.mapred.resources.admin.UpdateTemplate;
 import cloudgene.mapred.resources.apps.GetApp;
-import cloudgene.mapred.resources.apps.GetAppDetails;
-import cloudgene.mapred.resources.apps.GetAppParams;
 import cloudgene.mapred.resources.apps.GetApps;
 import cloudgene.mapred.resources.data.FileUploadRessource;
 import cloudgene.mapred.resources.data.GetBucketsPrivate;
@@ -60,7 +58,6 @@ import cloudgene.mapred.resources.jobs.GetJobs;
 import cloudgene.mapred.resources.jobs.GetLogs;
 import cloudgene.mapred.resources.jobs.NewGetJobStatus;
 import cloudgene.mapred.resources.jobs.NewSubmitJob;
-import cloudgene.mapred.resources.jobs.RerunJob;
 import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.users.ActivateUser;
 import cloudgene.mapred.resources.users.DeleteUser;
@@ -125,10 +122,9 @@ public class WebApp extends Application {
 		router.attach("/jobs", GetJobs.class);
 		router.attach("/jobs/details", GetJobDetails.class);
 		router.attach("/jobs/delete", DeleteJob.class);
-		router.attach("/jobs/rerun", RerunJob.class);
 		router.attach("/jobs/cancel", CancelJob.class);
 
-		router.attach("/jobs/newsubmit", NewSubmitJob.class);
+		router.attach("/jobs/newsubmit/{tool}", NewSubmitJob.class);
 		router.attach("/jobs/newstate", NewGetJobStatus.class);
 
 		router.attach("/counters", GetCounter.class);
@@ -166,8 +162,6 @@ public class WebApp extends Application {
 
 		router.attach("/app", GetApp.class);
 		router.attach("/apps", GetApps.class);
-		router.attach("/apps/details", GetAppDetails.class);
-		router.attach("/apps/params", GetAppParams.class);
 
 		// Users
 		router.attach("/users", GetUsers.class);

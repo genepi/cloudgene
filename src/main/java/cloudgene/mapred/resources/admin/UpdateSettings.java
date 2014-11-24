@@ -11,6 +11,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 
 import com.esotericsoftware.yamlbeans.YamlWriter;
@@ -50,8 +51,9 @@ public class UpdateSettings extends BaseResource {
 
 		getSettings().setHadoopPath(hadoopPath);
 		getSettings().setName(name);
-		getSettings().getApps().put("user", userApp);
-		getSettings().getApps().put("admin", adminApp);
+		getSettings().getApps().put("user", new Application("user", userApp));
+		getSettings().getApps()
+				.put("admin", new Application("admin", adminApp));
 		getSettings().getMail().put("smtp", mailSmtp);
 		getSettings().getMail().put("port", mailPort);
 		getSettings().getMail().put("user", mailUser);

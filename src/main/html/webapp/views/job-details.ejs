@@ -80,6 +80,13 @@
     		<td><a href="<%= job.attr('logs')  %>">View</td>
     	</tr>
     	<% } %>
+
+		
+    	<tr>
+    		<td><b>Application:</b></td>		
+    		<td><%= job.attr('application') %></td>
+    	</tr>
+
     					
 	<% if( job.attr('state') == '1' ){ %>
 	<tr>
