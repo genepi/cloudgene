@@ -62,7 +62,7 @@ public class Planner {
 			e.printStackTrace();
 			System.exit(1);
 		}
-
+		
 		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(),
 				sw.toString());
 

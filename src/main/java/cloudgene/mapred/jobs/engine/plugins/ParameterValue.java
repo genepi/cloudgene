@@ -1,6 +1,12 @@
 package cloudgene.mapred.jobs.engine.plugins;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+
+import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import genepi.io.WildCardFileFilter;
 import cloudgene.mapred.wdl.WdlParameter;
 
 public class ParameterValue {
@@ -18,9 +24,9 @@ public class ParameterValue {
 		return value;
 	}
 
-	/*public String[] listFiles(String ext) {
+	public String[] listFiles(String ext) {
 
-		//if (parameter.getType().equals(Parameter.HDFS_FOLDER)) {
+		if (parameter.getType().equals(WdlParameter.HDFS_FOLDER)) {
 			List<String> files = null;
 			try {
 				files = HdfsUtil.getFiles(value, ext);
@@ -35,15 +41,33 @@ public class ParameterValue {
 				System.exit(1);
 				return null;
 			}
-		/*}
-
-		if (parameter.getType().equals(Parameter.LOCAL_FOLDER)) {
-
 		}
 
-		return new String[] { value };*/
+		if (parameter.getType().equals(WdlParameter.LOCAL_FOLDER)) {
 
-	/*}*/
+			System.out.println("---> " + value);
+			
+			return getFiles(value, ext);
+			
+		}
+
+		return new String[] { value };
+
+	}
+	
+	
+	private static String[] getFiles(String path, String ext) {
+		File dir = new File(path);
+		File[] files = dir.listFiles(new WildCardFileFilter(ext));
+
+		String[] names = new String[files.length];
+
+		for (int i = 0; i < names.length; ++i) {
+			names[i] = files[i].getName();
+		}
+
+		return names;
+	}
 	
 	public String getName(){
 		

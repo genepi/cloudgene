@@ -389,6 +389,11 @@ public class CloudgeneContext extends WorkflowContext {
 		return inputParameters.keySet();
 	}
 
+	public Set<String> getOutputs() {
+		return outputParameters.keySet();
+	}
+
+	
 	public void setInput(String input, String value) {
 
 		CloudgeneParameter parameter = inputParameters.get(input);

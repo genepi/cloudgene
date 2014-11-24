@@ -56,7 +56,7 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select time_stamp, name, value ");
 		sql.append("from counters_history ");
-		sql.append("order by time_stamp desc, name limit " + limit);
+		sql.append("order by time_stamp desc, name");
 
 		List<Map<String, String>> result = new Vector<Map<String, String>>();
 

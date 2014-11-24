@@ -30,7 +30,7 @@ function buildForm(element, params, submitButtonText) {
 				buildNumber(divControls, param);
 			} else if (param.type == "hdfs-file") {
 				buildHdfsFile(divControls, param);
-			} else if (param.type == "hdfs-folder") {
+			} else if (param.type == "hdfs-folder" || param.type == "local-folder") {
 				buildHdfsFolder(divControls, param);
 			} else if (param.type == "checkbox") {
 				buildCheckbox(divControls, param);

@@ -78,6 +78,11 @@ public class GraphNode implements Runnable {
 			// rscript
 			step.setClassname("cloudgene.mapred.steps.RMarkdown");
 
+		} else if (step.getTemplate() != null) {
+
+			// template step
+			step.setClassname("cloudgene.mapred.steps.TemplateStep");
+
 		} else if (step.getClassname() != null) {
 
 			// custom class
@@ -120,11 +125,15 @@ public class GraphNode implements Runnable {
 				} else {
 					instance = new ErrorStep(
 							"Error during initialization: class "
-									+ step.getClassname() + " ( "  + object.getClass().getSuperclass().getCanonicalName() + ") "
+									+ step.getClassname()
+									+ " ( "
+									+ object.getClass().getSuperclass()
+											.getCanonicalName()
+									+ ") "
 									+ " has to extend CloudgeneStep or WorkflowStep. ");
 
 				}
-				
+
 			} else {
 
 				instance = new ErrorStep(

@@ -93,6 +93,15 @@ public class NewSubmitJob extends BaseResource {
 
 		Map<String, String> props = new HashMap<String, String>();
 
+		String filename = getSettings().getApp(user);
+		WdlApp app = null;
+		try {
+			app = WdlReader.loadAppFromFile(filename);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
 		if (MediaType.MULTIPART_FORM_DATA.equals(entity.getMediaType(), true)) {
 
 			List<FileItem> items = parseRequest();
@@ -121,25 +130,77 @@ public class NewSubmitJob extends BaseResource {
 						String fieldName = item.getFieldName()
 								.replace("-upload", "").replace("input-", "");
 
-						String targetPath = HdfsUtil.path(hdfsWorkspace,
-								"input", id, fieldName);
+						boolean hdfs = false;
 
-						String target = HdfsUtil.path(targetPath, entryName);
-
-						HdfsUtil.put(tmpFile, target);
-
-						// deletes temporary file
-						FileUtil.deleteFile(tmpFile);
-
-						if (props.containsKey(fieldName)) {
-							// folder
-							props.put(fieldName,
-									HdfsUtil.path("input", id, fieldName));
-						} else {
-							// file
-							props.put(fieldName, HdfsUtil.path("input", id,
-									fieldName, entryName));
+						for (WdlParameter input : app.getMapred().getInputs()) {
+							if (input.getId().equals(fieldName)) {
+								hdfs = (input.getType().equals(
+										WdlParameter.HDFS_FOLDER) || input.getType().equals(
+												WdlParameter.HDFS_FILE)) ;
+							}
 						}
+
+						if (hdfs) {
+
+							String targetPath = HdfsUtil.path(hdfsWorkspace,
+									"input", id, fieldName);
+
+							String target = HdfsUtil
+									.path(targetPath, entryName);
+
+							HdfsUtil.put(tmpFile, target);
+
+							// deletes temporary file
+							FileUtil.deleteFile(tmpFile);
+
+							if (props.containsKey(fieldName)) {
+								// folder
+								props.put(fieldName,
+										HdfsUtil.path("input", id, fieldName));
+							} else {
+								// file
+								props.put(fieldName, HdfsUtil.path("input", id,
+										fieldName, entryName));
+							}
+
+						} else {
+							
+				
+							
+							String targetPath = FileUtil.path(localWorkspace,
+									"input", id, fieldName);						
+				
+							System.out.println("-------->> OKOKOKOKOKOKO  " + targetPath);
+							
+							FileUtil.createDirectory(FileUtil.path(localWorkspace,
+									"input"));
+							
+							FileUtil.createDirectory(FileUtil.path(localWorkspace,
+									"input", id));
+							
+							FileUtil.createDirectory(FileUtil.path(localWorkspace,
+									"input", id, fieldName));
+							
+							String target = FileUtil
+									.path(targetPath, entryName);
+							
+							FileUtil.copy(tmpFile, target);
+							
+							// deletes temporary file
+							FileUtil.deleteFile(tmpFile);
+							
+							if (props.containsKey(fieldName)) {
+								// folder
+								props.put(fieldName,
+										new File(FileUtil.path(localWorkspace, "input", id, fieldName)).getAbsolutePath());
+							} else {
+								// file
+								props.put(fieldName, new File(FileUtil.path(localWorkspace, "input", id,
+										fieldName, entryName)).getAbsolutePath());
+							}
+							
+						}
+
 					}
 
 				}
@@ -189,15 +250,6 @@ public class NewSubmitJob extends BaseResource {
 						false);
 			}
 
-		}
-
-		String filename = getSettings().getApp(user);
-		WdlApp app = null;
-		try {
-			app = WdlReader.loadAppFromFile(filename);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 
 		if (app.getMapred() != null) {

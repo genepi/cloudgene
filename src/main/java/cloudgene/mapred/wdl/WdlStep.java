@@ -1,5 +1,7 @@
 package cloudgene.mapred.wdl;
 
+import java.util.HashMap;
+import java.util.Map;
 
 public class WdlStep {
 
@@ -19,6 +21,8 @@ public class WdlStep {
 
 	private String rmd;
 
+	private String template;
+
 	private String output;
 
 	private String job;
@@ -30,6 +34,8 @@ public class WdlStep {
 	private boolean cache = false;
 
 	private String generates = "";
+
+	private Map<String, String> mapping = new HashMap<String, String>();
 
 	public String getJar() {
 		return jar;
@@ -141,6 +147,22 @@ public class WdlStep {
 
 	public String getGenerates() {
 		return generates;
+	}
+
+	public void setTemplate(String template) {
+		this.template = template;
+	}
+
+	public String getTemplate() {
+		return template;
+	}
+
+	public void setMapping(Map<String, String> mapping) {
+		this.mapping = mapping;
+	}
+
+	public Map<String, String> getMapping() {
+		return mapping;
 	}
 
 }
