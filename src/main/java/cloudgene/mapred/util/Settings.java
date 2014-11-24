@@ -81,12 +81,17 @@ public class Settings {
 
 	private String piggene = null;
 
-	private Map<String, Application> indexApps = new HashMap<String, Application>();
+	private Map<String, Application> indexApps;
 
 	private Settings() {
+
 		apps = new Vector<Application>();
-		apps.add(new Application("test2", "user", "sample/cloudgene.yaml"));
-		apps.add(new Application("test", "admin", "sample/cloudgene.yaml"));
+		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
+
+		indexApps = new HashMap<String, Application>();
+		for (Application app : apps) {
+			indexApps.put(app.getId(), app);
+		}
 
 		mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
@@ -329,6 +334,7 @@ public class Settings {
 		if (app != null) {
 
 			return app.getFilename();
+
 		} else {
 
 			String filename = FileUtil.path("apps", id, "cloudgene.yaml");
