@@ -219,11 +219,7 @@ public class WdlReader {
 
 		}
 
-		for (String id : setttings.getApps().keySet()) {
-
-			// todo: check permissions!!
-
-			Application application = setttings.getApps().get(id);
+		for (Application application : setttings.getApps()) {
 
 			boolean using = true;
 
@@ -241,7 +237,7 @@ public class WdlReader {
 				try {
 					WdlApp app = loadAppFromFile(filename);
 					WdlHeader meta = (WdlHeader) app;
-					app.setId(id);
+					app.setId(application.getId());
 					listApps.add(meta);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

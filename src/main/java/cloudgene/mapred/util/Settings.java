@@ -9,6 +9,7 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +53,7 @@ public class Settings {
 
 	private Map<String, String> mail;
 
-	private Map<String, Application> apps;
+	private List<Application> apps;
 
 	private int retireAfter = 6;
 
@@ -80,10 +81,12 @@ public class Settings {
 
 	private String piggene = null;
 
+	private Map<String, Application> indexApps = new HashMap<String, Application>();
+
 	private Settings() {
-		apps = new HashMap<String, Application>();
-		apps.put("test2", new Application("user", "sample/cloudgene.yaml"));
-		apps.put("test", new Application("admin", "sample/cloudgene.yaml"));
+		apps = new Vector<Application>();
+		apps.add(new Application("test2", "user", "sample/cloudgene.yaml"));
+		apps.add(new Application("test", "admin", "sample/cloudgene.yaml"));
 
 		mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
@@ -99,9 +102,9 @@ public class Settings {
 
 		YamlConfig config = new YamlConfig();
 		config.setPropertyElementType(Settings.class, "apps", Application.class);
-		
+
 		YamlReader reader = new YamlReader(new FileReader(filename), config);
-		
+
 		Settings settings = reader.read(Settings.class);
 
 		// auto-search
@@ -226,7 +229,7 @@ public class Settings {
 
 		if (!new File(appsPath).exists()) {
 
-			for (Application app : apps.values()) {
+			for (Application app : apps) {
 
 				if (!new File(app.getFilename()).exists()) {
 
@@ -307,28 +310,31 @@ public class Settings {
 		this.mail = mail;
 	}
 
-	public Map<String, Application> getApps() {
+	public List<Application> getApps() {
 		return apps;
 	}
 
-	public void setApps(Map<String, Application> apps) {
+	public void setApps(List<Application> apps) {
 		this.apps = apps;
+		indexApps = new HashMap<String, Application>();
+		for (Application app : apps) {
+			indexApps.put(app.getId(), app);
+		}
 	}
 
 	public String getApp(String id) {
 
-		Application app = apps.get(id);
-		
-		if (app != null){
-		
-		return app.getFilename();
-		}else{
-			
-			String filename = FileUtil.path("apps",id,
-					"cloudgene.yaml");
-			
+		Application app = indexApps.get(id);
+
+		if (app != null) {
+
+			return app.getFilename();
+		} else {
+
+			String filename = FileUtil.path("apps", id, "cloudgene.yaml");
+
 			return filename;
-			
+
 		}
 
 	}

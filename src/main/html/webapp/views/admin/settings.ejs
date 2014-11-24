@@ -35,25 +35,41 @@ This page enables to customize your Cloudgene installation and to connect it wit
 
 
 
-<h4>Application</h4>
+<h4>Applications</h4>
 
 
 <p>Some nice text about applications....</p>
 
-        
-            <div class="control-group">
-    	<label for="loginUsername" class="control-label">User Application:</label>
-    	<div class="controls">
-    	<input name="userApp" type="text" data-required="true" value="<%= settings.attr('userApp') %>">
-    	</div>
-    </div>
 
-            <div class="control-group">
-    	<label for="loginUsername" class="control-label">Admin Application:</label>
-    	<div class="controls">
-    	<input name="adminApp" type="text" data-required="true" value="<%= settings.attr('adminApp') %>">
-    	</div>
-    </div>
+<table class="table table-striped table-bordered" id="templates">
+<thead>
+<tr>
+	<th style="width: 150px;">Id</th>
+	<th>YamlFile</th>
+	<th style="width: 80px;">Permissions</th>
+
+</tr>	
+</thead>
+<tbody>
+<% settings.attr('apps').each(function( app ) { %>
+    
+    <tr >
+		<td>
+			<%= app.attr('id') %>
+		</td>
+           		
+		<td>
+			<%= app.attr('filename') %>
+		</td>
+		<td>
+			<%= app.attr('permission') %>
+		</td>
+	
+    </tr>
+<% }) %>
+</tbody>
+</table>
+
 
 <hr>
 

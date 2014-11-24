@@ -51,9 +51,6 @@ public class UpdateSettings extends BaseResource {
 
 		getSettings().setHadoopPath(hadoopPath);
 		getSettings().setName(name);
-		getSettings().getApps().put("user", new Application("user", userApp));
-		getSettings().getApps()
-				.put("admin", new Application("admin", adminApp));
 		getSettings().getMail().put("smtp", mailSmtp);
 		getSettings().getMail().put("port", mailPort);
 		getSettings().getMail().put("user", mailUser);
