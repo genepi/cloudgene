@@ -58,8 +58,7 @@ public class GetJobDetails extends BaseResource {
 				}
 
 				// finds position in queue
-				int position = getWorkflowEngine().getPositionInQueue(
-						job);
+				int position = getWorkflowEngine().getPositionInQueue(job);
 				job.setPositionInQueue(position);
 
 				// removes outputs that are for admin only
@@ -75,9 +74,13 @@ public class GetJobDetails extends BaseResource {
 
 				// excludes properties from json
 				JsonConfig config = new JsonConfig();
-				config.setExcludes(new String[] { "user", "task",
-						"mapReduceJob", "job", "step", "context", "config",
-						"parameter" });
+				config.setExcludes(new String[] { "user",
+						"inputParams", "output", "endTime", "startTime",
+						"error", "s3Url", "task", "config", "mapReduceJob",
+						"job", "step", "context", "hdfsWorkspace",
+						"localWorkspace", "logOutFiles",
+						"removedHdfsWorkspace", "settings", "setupComplete",
+						"stdOutFile", "workingDirectory" });
 
 				if (user.isAdmin()) {
 					job.setLogs("/logs/" + job.getId());

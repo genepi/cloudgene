@@ -1,6 +1,5 @@
 package cloudgene.mapred.util;
 
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -13,9 +12,6 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.TemplateDao;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;

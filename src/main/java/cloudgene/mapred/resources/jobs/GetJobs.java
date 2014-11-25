@@ -54,7 +54,9 @@ public class GetJobs extends BaseResource {
 		config.setExcludes(new String[] { "user", "outputParams",
 				"inputParams", "output", "endTime", "startTime", "error",
 				"s3Url", "task", "config", "mapReduceJob", "job", "step",
-				"context" });
+				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
+				"logs", "removedHdfsWorkspace", "settings", "setupComplete",
+				"stdOutFile", "steps", "workingDirectory" });
 
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 
