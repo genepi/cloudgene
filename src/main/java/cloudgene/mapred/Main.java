@@ -42,8 +42,7 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		System.out.println("hjehehe");
-				
+			
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
 
@@ -52,8 +51,7 @@ public class Main {
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 
-			System.out.println("OKOKOKOKOKOK");
-			
+		
 		} else {
 
 			if (new File("log4j.properties").exists()) {
@@ -61,9 +59,7 @@ public class Main {
 
 				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 				Engine.getInstance().setLoggerFacade(loggerFacade);
-				
-				System.out.println("OKOKOKOKOKOK <------");
-				
+								
 			}
 
 		}
@@ -173,6 +169,8 @@ public class Main {
 			log.warn("Config file not found. (config/settings.yaml).");
 			log.info("This is a fresh installation of Cloudgene. Init config with sample application.");
 
+			settings = new Settings();
+			
 		}
 
 		if (!settings.testPaths()) {

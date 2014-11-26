@@ -297,7 +297,7 @@ public class JobDao extends JdbcDataAccessObject {
 		try {
 
 			job = (AbstractJob) queryForObject(sql.toString(), params,
-					new JobMapper(true, true));
+					new JobMapper(true, loadParams));
 
 			if (job instanceof CloudgeneJob) {
 				((CloudgeneJob) job).updateProgress();

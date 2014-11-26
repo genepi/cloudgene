@@ -55,7 +55,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	public CloudgeneJob(User user, String id, WdlMapReduce config,
 			Map<String, String> params) throws Exception {
-	
+
 		this.config = config;
 		setId(id);
 		setUser(user);
@@ -270,21 +270,20 @@ public class CloudgeneJob extends AbstractJob {
 			String localOutputDirectory = FileUtil.path(localOutput,
 					out.getName());
 
-			if (HdfsUtil.exists(localOutputDirectory)) {
+			FileUtil.createDirectory(localOutputDirectory);
 
-				FileUtil.createDirectory(localOutputDirectory);
+			String filename = context.getOutput(out.getName());
+			String hdfsPath = null;
+			if (filename.startsWith("hdfs://") || filename.startsWith("file:/")) {
+				hdfsPath = filename;
 
-				String filename = context.getOutput(out.getName());
-				String hdfsPath = null;
-				if (filename.startsWith("hdfs://")
-						|| filename.startsWith("file:/")) {
-					hdfsPath = filename;
+			} else {
 
-				} else {
+				hdfsPath = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
+						filename));
+			}
 
-					hdfsPath = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace,
-							filename));
-				}
+			if (HdfsUtil.exists(hdfsPath)) {
 
 				if (out.isZip()) {
 
@@ -383,65 +382,6 @@ public class CloudgeneJob extends AbstractJob {
 		}
 
 		return true;
-	}
-
-	public boolean copyParameterToS3(WdlParameter out) {
-		String filename = context.getOutput(out.getId());
-
-		String workspace = getHdfsWorkspace();
-
-		if (out.getType().equals(WdlParameter.HDFS_FOLDER)
-				|| out.getType().equals(WdlParameter.HDFS_FILE)) {
-
-			String hdfsPath = null;
-			if (filename.startsWith("hdfs://")) {
-				hdfsPath = filename;
-			} else {
-				hdfsPath = HdfsUtil.path(workspace, filename);
-			}
-
-			/** set job specific attributes */
-			try {
-
-				ExportJob copyJob = new ExportJob("Copy data to s3");
-				copyJob.setInput(hdfsPath);
-				copyJob.setAwsKey(getUser().getAwsKey());
-				copyJob.setAwsSecretKey(getUser().getAwsSecretKey());
-				copyJob.setS3Bucket(getUser().getS3Bucket());
-				copyJob.setDirectory(FileUtil.path(getId(), out.getId()));
-				copyJob.setOutput(hdfsPath + "_temp");
-				writeOutputln("Copy data from " + hdfsPath + " to s3n://"
-						+ getUser().getS3Bucket() + "/"
-						+ FileUtil.path(getId(), out.getId()));
-
-				boolean success = copyJob.execute();
-
-				if (!success) {
-					log.error("Job " + getId() + ": Exporting data failed.");
-					writeOutputln("Exporting data failed.");
-				}
-
-			} catch (Exception e) {
-
-				log.error("Job " + getId() + ": Exporting data failed.", e);
-				writeOutputln("Exporting data failed. " + e.getMessage());
-			}
-		}
-
-		if (out.getType().equals(WdlParameter.LOCAL_FILE)) {
-
-			S3Util.copyFile(getUser().getAwsKey(), getUser().getAwsSecretKey(),
-					getUser().getS3Bucket(), getId(), filename);
-		}
-
-		if (out.getType().equals(WdlParameter.LOCAL_FOLDER)) {
-
-			S3Util.copyDirectory(getUser().getAwsKey(), getUser()
-					.getAwsSecretKey(), getUser().getS3Bucket(), getId(),
-					filename);
-		}
-		return true;
-
 	}
 
 	public String getWorkingDirectory() {

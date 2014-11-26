@@ -68,10 +68,14 @@ public class NewGetJobStatus extends BaseResource {
 		}
 
 		JsonConfig config = new JsonConfig();
+	
 		config.setExcludes(new String[] { "user", "outputParams",
 				"inputParams", "output", "endTime", "startTime", "error",
 				"s3Url", "task", "config", "mapReduceJob", "job", "step",
-				"context" });
+				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
+				"logs", "removedHdfsWorkspace", "settings", "setupComplete",
+				"stdOutFile", "workingDirectory", "context","user" });
+	
 		JSONObject object = JSONObject.fromObject(job, config);
 
 		return new StringRepresentation(object.toString());

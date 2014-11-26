@@ -21,7 +21,7 @@ public class Settings {
 
 	private String hadoopPath = "/usr/bin/hadoop";
 
-	private String pigPath = "/home/hadoop/pig-0.10.0/";
+	private String pigPath = "/usr/";
 
 	private String rPath = "/usr/";
 
@@ -79,7 +79,7 @@ public class Settings {
 
 	private Map<String, Application> indexApps;
 
-	private Settings() {
+	public Settings() {
 
 		apps = new Vector<Application>();
 		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));

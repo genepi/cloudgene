@@ -74,14 +74,13 @@ public class GetJobDetails extends BaseResource {
 
 				// excludes properties from json
 				JsonConfig config = new JsonConfig();
-				config.setExcludes(new String[] { "user",
-						"inputParams", "output", "endTime", "startTime",
-						"error", "s3Url", "task", "config", "mapReduceJob",
-						"job", "step", "context", "hdfsWorkspace",
-						"localWorkspace", "logOutFiles",
-						"removedHdfsWorkspace", "settings", "setupComplete",
-						"stdOutFile", "workingDirectory" });
-
+				config.setExcludes(new String[] { "user", "inputParams",
+						"output", "endTime", "startTime", "error", "s3Url",
+						"task", "config", "mapReduceJob", "job", "step",
+						"context", "hdfsWorkspace", "localWorkspace",
+						"logOutFiles", "removedHdfsWorkspace", "settings",
+						"setupComplete", "stdOutFile", "workingDirectory","parameter"  });
+				
 				if (user.isAdmin()) {
 					job.setLogs("/logs/" + job.getId());
 				}
