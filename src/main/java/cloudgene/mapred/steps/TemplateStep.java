@@ -27,8 +27,9 @@ public class TemplateStep extends CloudgeneStep {
 		String templatePath = step.getTemplate();
 		String outputPath = step.getOutput();
 
-		File templateFile = new File(templatePath);
-		File outputFile = new File(outputPath);
+		String wd = context.getWorkingDirectory();
+
+		File templateFile = new File(FileUtil.path(wd, templatePath));
 
 		if (!templateFile.exists()) {
 			context.error("Template " + templateFile.getAbsolutePath()
@@ -57,13 +58,13 @@ public class TemplateStep extends CloudgeneStep {
 		try {
 
 			StringWriter sw = new StringWriter();
-			
+
 			Template template = Velocity.getTemplate(templateFile
 					.getAbsolutePath());
 			template.merge(context2, sw);
 
 			FileUtil.writeStringBufferToFile(outputPath, sw.getBuffer());
-			
+
 			context.ok("Created file " + outputPath + ".");
 
 			return true;
