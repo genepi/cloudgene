@@ -126,6 +126,7 @@ public class NewSubmitJob extends BaseResource {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+					
 					// import into hdfs
 					if (file.exists()) {
 						String entryName = item.getName();

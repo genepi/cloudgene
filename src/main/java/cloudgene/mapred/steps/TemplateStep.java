@@ -63,6 +63,8 @@ public class TemplateStep extends CloudgeneStep {
 					.getAbsolutePath());
 			template.merge(context2, sw);
 
+			FileUtil.createDirectory(new File(outputPath).getParentFile().getAbsolutePath());
+			
 			FileUtil.writeStringBufferToFile(outputPath, sw.getBuffer());
 
 			context.ok("Created file " + outputPath + ".");

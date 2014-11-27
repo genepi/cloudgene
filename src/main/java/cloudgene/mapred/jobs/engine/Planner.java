@@ -31,7 +31,7 @@ public class Planner {
 
 	public WdlApp evaluateWDL(WdlMapReduce config, CloudgeneContext context)
 			throws Exception {
-		
+
 		Velocity.setProperty("file.resource.loader.path", "/");
 		VelocityContext context2 = new VelocityContext();
 
@@ -47,12 +47,14 @@ public class Planner {
 					new ParameterValue(param, context.getOutput(param.getId())));
 		}
 
+		context2.put("workdir",
+				new File(context.getWorkingDirectory()).getAbsolutePath());
+
 		File manifest = new File(config.getManifestFile());
 
 		StringWriter sw = null;
 		try {
 
-			
 			Template template = Velocity
 					.getTemplate(manifest.getAbsolutePath());
 			sw = new StringWriter();
@@ -62,7 +64,7 @@ public class Planner {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		
+
 		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(),
 				sw.toString());
 
@@ -105,7 +107,7 @@ public class Planner {
 						}
 					}
 				}
-				
+
 				for (WdlParameter param : config.getInputs()) {
 					if (stepConsumesParameter(node.getStep(), param, context)) {
 						node.addInput(param.getId());

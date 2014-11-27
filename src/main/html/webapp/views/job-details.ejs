@@ -187,7 +187,16 @@
 	    <% param.attr('files').each(function( output ) { %>
 
     	    <tr>
-    	        <td><a href="results/<%=output.attr('path') %>" target="_blank"><%=output.attr('name') %></a></td>  	    
+    	        <td><a href="results/<%=output.attr('path') %>" target="_blank"><%=output.attr('name') %></a>
+    	        
+    	        <% if( output.attr('name').endsWith('png') ){ %>
+    	        
+    	        <p>
+    	        	<img src="results/<%=output.attr('path') %>" />
+    	        </p>
+    	        <% } %>
+    	        
+    	        </td>  	    
     	    <td style="width: 100px;text-align:right;"><%=output.attr('size') %></td>
     	        <td style="width: 16px;text-align:center;">
     	       <span class="icon-share-alt" style="cursor: pointer;" title="Share Data..."
