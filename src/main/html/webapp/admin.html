@@ -106,7 +106,13 @@ body {
 
 
 	<script>
+	
+	String.prototype.endsWith = function (s) {
+		  return this.length >= s.length && this.substr(this.length - s.length) == s;
+		}
+	
 		$(document).ready(function() {
+		
 			tabs = new TabsAdmin("#tabfolder");
 			if (window.location.hash == '') {
 				tabs.activate("admin-home");

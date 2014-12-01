@@ -8,7 +8,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -25,7 +28,7 @@ public class ImporterHttp implements IImporter {
 	private String path;
 
 	private CountingOutputStream t;
-	
+
 	private String error;
 
 	public ImporterHttp(String url, String path) {
@@ -56,9 +59,9 @@ public class ImporterHttp implements IImporter {
 
 	@Override
 	public boolean importFiles() {
-		return importFiles(null);				
+		return importFiles(null);
 	}
-	
+
 	@Override
 	public boolean importFiles(String extension) {
 
@@ -102,8 +105,16 @@ public class ImporterHttp implements IImporter {
 
 	@Override
 	public List<FileItem> getFiles() {
-		// TODO Auto-generated method stub
-		return null;
+		List<FileItem> items = new Vector<FileItem>();
+		FileItem file = new FileItem();
+		file.setText(FilenameUtils.getName(url));
+		file.setPath("/");
+		file.setId("/");
+		file.setLeaf(true);
+		file.setCls("file");
+		file.setSize(FileUtils.byteCountToDisplaySize(getFileSize()));
+		items.add(file);
+		return items;
 	}
 
 	@Override

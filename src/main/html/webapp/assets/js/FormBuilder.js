@@ -155,7 +155,7 @@ function buildHdfsFolder(element, param) {
 	option = $("<option></option>");
 	option.attr("value", "http");
 	option.text("URLs (HTTP) ");
-	//select.append(option);
+	select.append(option);
 
 	option = $("<option></option>");
 	option.attr("value", "sftp");
@@ -215,14 +215,14 @@ function buildHdfsFolder(element, param) {
 
 	var divDialogHeader = $("<div></div>");
 	divDialogHeader.attr("class", "modal-header");
-	divDialogHeader.append('<h4 class="modal-title" id="myModalLabel">Secure File Transfer Protocol (SFTP)</h4>');
+	divDialogHeader.append('<h4 class="modal-title" id="protocol-title">Secure File Transfer Protocol (SFTP)</h4>');
 	divDialogContent.append(divDialogHeader);
 
 	var divDialogBody = $("<div></div>");
 	divDialogBody.attr("class", "modal-body");
 	divDialogContent.append(divDialogBody);
 
-	var helpText = $("<p></p>");
+	var helpText = $("<p id=\"help-text\"></p>");
 	helpText.attr("class", "text");
 	helpText.text("Please enter your SFTP connection informations.");
 	divDialogBody.append(helpText);
@@ -260,7 +260,7 @@ function buildHdfsFolder(element, param) {
 	textarea.attr("style", "height: 120px; width: 500px;");
 	divDialogBody.append(textarea);
 
-	divDialogBody.append('<p class="muted"><i>e.g. sftp://192.168.71.201/home/user/data/</i>');
+	divDialogBody.append('<p class="muted" id="example-text"><i>e.g. sftp://192.168.71.201/home/user/data/</i>');
 
 	var errorText = $("<div></div>");
 	errorText.attr("class", "alert alert-error");
@@ -288,12 +288,16 @@ function buildHdfsFolder(element, param) {
 
 		errorText.hide();
 
+		 if (!username.attr("display") == 'none'){
+		
 		if (textarea.attr("value").trim() == '' || username.attr("value").trim() == '' || password.attr("value").trim() == '') {
 			errorText.show();
 			errorText.empty();
 			errorText.append("<b>Error: </b> Please enter username, password and the URLs auf your datasets.");
 			return;
 		}
+		
+	}
 
 		if (!textarea.attr("value").trim().toString().startsWith("sftp://") && !textarea.attr("value").trim().toString().startsWith("http://") && !textarea.attr("value").trim().toString().startsWith("https://") && !textarea.attr("value").trim().toString().startsWith("ftp://")) {
 			errorText.show();
@@ -369,10 +373,17 @@ function buildHdfsFolder(element, param) {
 		if ($(this).val() == 'sftp') {
 			$('#' + param.id + '-extern-login').show();
 			$('#' + param.id + '-lf').text("sftp://");
+			$('#protocol-title').text("Secure File Transfer Protocol (SFTP)");
+			$('#help-text').text("Please enter your SFTP connection informations.");
+			$('#example-text').text('e.g. sftp://192.168.71.201/home/user/data/');
 		}
+		
 		if ($(this).val() == 'http') {
 			$('#' + param.id + '-extern-login').hide();
 			$('#' + param.id + '-lf').text("http://");
+			$('#protocol-title').text("Download data from web");
+			$('#help-text').text("Please enter your URLs.");
+			$('#example-text').text('e.g. http://www.example.com/test-data.txt');
 		}
 		if ($(this).val() == 'ftp') {
 			$('#' + param.id + '-extern-login').show();
