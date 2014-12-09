@@ -29,6 +29,7 @@ public class ParameterValue {
 		if (parameter.getType().equals(WdlParameter.HDFS_FOLDER)) {
 			List<String> files = null;
 			try {
+
 				files = HdfsUtil.getFiles(value, ext);
 				String[] result = new String[files.size()];
 				for (int i = 0; i < files.size(); i++) {
@@ -36,42 +37,51 @@ public class ParameterValue {
 				}
 				return result;
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-				System.exit(1);
-				return null;
+				String[] result = new String[1];
+				result[0] = FileUtil.getFilename(value);
+				;
+				return result;
 			}
 		}
 
 		if (parameter.getType().equals(WdlParameter.LOCAL_FOLDER)) {
 
 			System.out.println("---> " + value);
-			
+
 			return getFiles(value, ext);
-			
+
 		}
 
 		return new String[] { value };
 
 	}
-	
-	
+
 	private static String[] getFiles(String path, String ext) {
 		File dir = new File(path);
 		File[] files = dir.listFiles(new WildCardFileFilter(ext));
 
-		String[] names = new String[files.length];
+		if (files != null) {
 
-		for (int i = 0; i < names.length; ++i) {
-			names[i] = files[i].getName();
+			String[] names = new String[files.length];
+
+			for (int i = 0; i < names.length; ++i) {
+				names[i] = files[i].getName();
+			}
+			return names;
+
+			
+		} else {
+			String[] names = new String[1];
+			names[0] = FileUtil.getFilename(path);
+			return names;
+
 		}
-
-		return names;
 	}
-	
-	public String getName(){
-		
+
+	public String getName() {
+
 		return FileUtil.getFilename(value);
-		
+
 	}
 }

@@ -126,7 +126,7 @@ public class NewSubmitJob extends BaseResource {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					
+
 					// import into hdfs
 					if (file.exists()) {
 						String entryName = item.getName();
@@ -136,6 +136,7 @@ public class NewSubmitJob extends BaseResource {
 								.replace("-upload", "").replace("input-", "");
 
 						boolean hdfs = false;
+						boolean folder = false;
 
 						for (WdlParameter input : app.getMapred().getInputs()) {
 							if (input.getId().equals(fieldName)) {
@@ -143,6 +144,10 @@ public class NewSubmitJob extends BaseResource {
 										WdlParameter.HDFS_FOLDER) || input
 										.getType().equals(
 												WdlParameter.HDFS_FILE));
+								folder = (input.getType()
+										.equals(WdlParameter.HDFS_FOLDER))
+										|| (input.getType()
+												.equals(WdlParameter.LOCAL_FOLDER));
 							}
 						}
 
@@ -159,7 +164,7 @@ public class NewSubmitJob extends BaseResource {
 							// deletes temporary file
 							FileUtil.deleteFile(tmpFile);
 
-							if (props.containsKey(fieldName)) {
+							if (folder) {
 								// folder
 								props.put(fieldName,
 										HdfsUtil.path("input", id, fieldName));
@@ -194,7 +199,7 @@ public class NewSubmitJob extends BaseResource {
 							// deletes temporary file
 							FileUtil.deleteFile(tmpFile);
 
-							if (props.containsKey(fieldName)) {
+							if (folder) {
 								// folder
 								props.put(
 										fieldName,
