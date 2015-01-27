@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +22,9 @@ import org.apache.hadoop.mapred.RunningJob;
 import org.apache.hadoop.mapred.TaskCompletionEvent;
 import org.apache.hadoop.mapred.TaskLog;
 import org.apache.hadoop.mapred.TaskReport;
+import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapreduce.TaskCompletionEvent.Status;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.VersionInfo;
 
 import cloudgene.mapred.core.User;
@@ -105,11 +108,17 @@ public class HadoopUtil {
 	}
 
 	public RunningJob getJob(String id) {
-
 		RunningJob result = null;
 		try {
+			JobStatus[] activeJobs = client.jobsToComplete();
 
-			result = client.getJob(id);
+			for (JobStatus js : activeJobs) {
+				if (js.getJobID().equals(JobID.forName(id))) {
+					result = client.getJob(js.getJobID());
+					break;
+				}
+			}
+
 			return result;
 
 		} catch (IOException e) {
