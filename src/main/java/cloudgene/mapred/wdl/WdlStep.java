@@ -16,6 +16,8 @@ public class WdlStep {
 	private String exec;
 
 	private String pig;
+	
+	private String spark;
 
 	private String rmd;
 
@@ -141,6 +143,14 @@ public class WdlStep {
 
 	public String getGenerates() {
 		return generates;
+	}
+
+	public String getSpark() {
+		return spark;
+	}
+
+	public void setSpark(String spark) {
+		this.spark = spark;
 	}
 
 }

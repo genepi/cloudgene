@@ -24,6 +24,8 @@ public class Settings {
 	private String hadoopPath = "/usr/bin/hadoop";
 
 	private String pigPath = "/home/hadoop/pig-0.10.0/";
+	
+	private String sparkPath = "/usr/bin/spark-submit";
 
 	private String rPath = "/usr/";
 
@@ -460,6 +462,14 @@ public class Settings {
 
 	public String getAdminMail() {
 		return adminMail;
+	}
+
+	public String getSparkPath() {
+		return sparkPath;
+	}
+
+	public void setSparkPath(String sparkPath) {
+		this.sparkPath = sparkPath;
 	}
 
 }

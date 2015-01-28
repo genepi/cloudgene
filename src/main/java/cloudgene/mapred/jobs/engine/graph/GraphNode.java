@@ -73,7 +73,13 @@ public class GraphNode implements Runnable {
 			// pig script
 			step.setClassname("cloudgene.mapred.steps.PigHadoop");
 
-		} else if (step.getRmd() != null) {
+		}
+		if (step.getSpark() != null) {
+
+			// spark
+			step.setClassname("cloudgene.mapred.steps.SparkStep");
+
+		}else if (step.getRmd() != null) {
 
 			// rscript
 			step.setClassname("cloudgene.mapred.steps.RMarkdown");

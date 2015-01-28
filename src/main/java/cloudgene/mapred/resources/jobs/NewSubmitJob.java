@@ -113,6 +113,7 @@ public class NewSubmitJob extends ServerResource {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+					item.delete();
 					// import into hdfs
 					if (file.exists()) {
 						String entryName = item.getName();
