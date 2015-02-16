@@ -13,6 +13,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
+import cloudgene.mapred.Main;
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
@@ -50,6 +51,7 @@ public class Admin extends BaseResource {
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());
+		data.put("version", Main.VERSION);
 		data.put("piggene", getSettings().getPiggene());
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 
