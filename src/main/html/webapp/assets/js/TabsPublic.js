@@ -99,7 +99,7 @@ TabsPublic = can.Control({
 			break;
 
 		case "recovery":
-			this.page = new NewPasswordPage("#content");
+			this.page = new NewPasswordPage("#content", {data:data});
 			break;
 
 		case "help":

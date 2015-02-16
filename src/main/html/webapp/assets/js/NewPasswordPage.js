@@ -66,6 +66,8 @@ NewPasswordPage = can
 					}
 				});
 
+				return false;
+
 			}
 
 		});
