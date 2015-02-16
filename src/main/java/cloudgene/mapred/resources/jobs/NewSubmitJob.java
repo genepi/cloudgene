@@ -23,6 +23,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
+import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -299,7 +300,8 @@ public class NewSubmitJob extends BaseResource {
 				job.setSettings(getSettings());
 				job.setRemoveHdfsWorkspace(getSettings()
 						.isRemoveHdfsWorkspace());
-				job.setApplication(app.getName() + " " + app.getVersion());
+				job.setApplication(app.getName() + " " + app.getVersion()
+						+ " / Cloudgene " + Main.VERSION);
 				engine.submit(job);
 
 			} catch (Exception e) {
