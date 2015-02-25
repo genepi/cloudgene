@@ -24,7 +24,7 @@ public class Settings {
 	private String hadoopPath = "/usr/bin/hadoop";
 
 	private String pigPath = "/home/hadoop/pig-0.10.0/";
-	
+
 	private String sparkPath = "/usr/bin/spark-submit";
 
 	private String rPath = "/usr/";
@@ -58,6 +58,12 @@ public class Settings {
 	private int retireAfter = 6;
 
 	private int notificationAfter = 4;
+
+	private int threadsQueue = 5;
+
+	private int maxRunningJobs = 20;
+
+	private int maxRunningJobsPerUser = 2;
 
 	private boolean autoRetire = false;
 
@@ -470,6 +476,30 @@ public class Settings {
 
 	public void setSparkPath(String sparkPath) {
 		this.sparkPath = sparkPath;
+	}
+
+	public void setThreadsQueue(int threadsQueue) {
+		this.threadsQueue = threadsQueue;
+	}
+
+	public int getThreadsQueue() {
+		return threadsQueue;
+	}
+	
+	public int getMaxRunningJobs() {
+		return maxRunningJobs;
+	}
+
+	public void setMaxRunningJobs(int maxRunningJobs) {
+		this.maxRunningJobs = maxRunningJobs;
+	}
+
+	public int getMaxRunningJobsPerUser() {
+		return maxRunningJobsPerUser;
+	}
+
+	public void setMaxRunningJobsPerUser(int maxRunningJobsPerUser) {
+		this.maxRunningJobsPerUser = maxRunningJobsPerUser;
 	}
 
 }

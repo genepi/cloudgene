@@ -39,6 +39,9 @@ public class GetClusterDetails extends ServerResource {
 		JSONObject object = new JSONObject();
 		object.put("maintenance", settings.isMaintenance());
 		object.put("blocked", !WorkflowEngine.getInstance().isRunning());
+		object.put("threads", settings.getThreadsQueue());
+		object.put("max_jobs", settings.getMaxRunningJobs());
+		object.put("max_jobs_user", settings.getMaxRunningJobsPerUser());
 
 		return new StringRepresentation(object.toString(),
 				MediaType.APPLICATION_JSON);

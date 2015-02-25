@@ -12,6 +12,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.queue.LongTimeQueue;
 import cloudgene.mapred.jobs.queue.ShortTimeQueue;
+import cloudgene.mapred.util.Settings;
 
 public class WorkflowEngine implements Runnable {
 
@@ -40,9 +41,14 @@ public class WorkflowEngine implements Runnable {
 
 	private WorkflowEngine() {
 
+		Settings settings = Settings.getInstance();
+
+		int ltqThreadst = settings.getThreadsQueue();
+		int stqThreadst = settings.getThreadsQueue();
+
 		dao = new JobDao();
-		longTimeQueue = new LongTimeQueue();
-		shortTimeQueue = new ShortTimeQueue() {
+		longTimeQueue = new LongTimeQueue(ltqThreadst);
+		shortTimeQueue = new ShortTimeQueue(stqThreadst) {
 
 			public void onComplete(AbstractJob job) {
 

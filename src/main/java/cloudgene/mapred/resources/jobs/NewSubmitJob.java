@@ -37,10 +37,6 @@ import cloudgene.mapred.wdl.WdlReader;
 
 public class NewSubmitJob extends ServerResource {
 
-	public static final int MAX_RUNNING_JOBS = 20;
-
-	public static final int MAX_RUNNING_JOBS_PER_USER = 2;
-
 	@Post
 	public Representation post(Representation entity) {
 
@@ -56,14 +52,16 @@ public class NewSubmitJob extends ServerResource {
 		}
 
 		WorkflowEngine queue = WorkflowEngine.getInstance();
+		Settings settings = Settings.getInstance();
 
-		if (queue.getActiveCount() > MAX_RUNNING_JOBS) {
+		if (queue.getActiveCount() > settings.getMaxRunningJobs()) {
 
 			JSONObject answer = new JSONObject();
 			try {
 				answer.put("success", false);
-				answer.put("message", "More than " + MAX_RUNNING_JOBS
-						+ "  jobs are currently in the queue.");
+				answer.put("message",
+						"More than " + settings.getMaxRunningJobs()
+								+ "  jobs are currently in the queue.");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -72,14 +70,17 @@ public class NewSubmitJob extends ServerResource {
 
 		}
 
-		if (queue.getJobsByUser(user).size() > MAX_RUNNING_JOBS_PER_USER) {
+		if (queue.getJobsByUser(user).size() > settings
+				.getMaxRunningJobsPerUser()) {
 
 			JSONObject answer = new JSONObject();
 			try {
 				answer.put("success", false);
-				answer.put("message", "Only "
-						+ MAX_RUNNING_JOBS_PER_USER
-						+ " jobs per user can be executed simultaneously.");
+				answer.put(
+						"message",
+						"Only "
+								+ settings.getMaxRunningJobsPerUser()
+								+ " jobs per user can be executed simultaneously.");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -117,7 +118,6 @@ public class NewSubmitJob extends ServerResource {
 					// import into hdfs
 					if (file.exists()) {
 						String entryName = item.getName();
-						Settings settings = Settings.getInstance();
 						String workspace = settings.getHdfsWorkspace(user
 								.getUsername());
 

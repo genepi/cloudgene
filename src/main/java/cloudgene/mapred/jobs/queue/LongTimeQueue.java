@@ -20,16 +20,14 @@ public class LongTimeQueue implements Runnable {
 
 	private JobDao dao;
 
-	private int THREADS = 5;
-
 	private Scheduler scheduler;
 
 	private static final Log log = LogFactory.getLog(LongTimeQueue.class);
 
-	public LongTimeQueue() {
+	public LongTimeQueue(int threads) {
 		futures = new HashMap<AbstractJob, Future<?>>();
 		queue = new Vector<AbstractJob>();
-		scheduler = new Scheduler(THREADS);
+		scheduler = new Scheduler(threads);
 		dao = new JobDao();
 
 	}
