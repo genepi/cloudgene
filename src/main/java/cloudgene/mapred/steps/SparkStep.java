@@ -30,7 +30,7 @@ public class SparkStep extends Hadoop {
 
 		command.add(pigPath);
 		command.add("--class");
-		command.add(step.getClassname());
+		command.add(step.getMainClass());
 		command.add("--master");
 		command.add("yarn");
 		command.add(step.getSpark());

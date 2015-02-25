@@ -27,6 +27,8 @@ public class WdlStep {
 
 	private String classname;
 
+	private String mainClass;
+	
 	private int id;
 
 	private boolean cache = false;
@@ -151,6 +153,15 @@ public class WdlStep {
 
 	public void setSpark(String spark) {
 		this.spark = spark;
+	}
+
+
+	public String getMainClass() {
+		return mainClass;
+	}
+
+	public void setMainClass(String mainClass) {
+		this.mainClass = mainClass;
 	}
 
 }
