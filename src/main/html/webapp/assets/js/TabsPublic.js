@@ -65,10 +65,10 @@ TabsPublic = can.Control({
 		// activated li
 		this.element.find('li').each(function() {
 			li = $(this);
-			li.attr('class', '');
+			li.removeClass('active', '');
 			$(this).find('a').each(function() {
 				if ($(this).attr('id') == id) {
-					li.attr('class', 'active');
+					li.addClass('active');
 				}
 			});
 		});
@@ -99,7 +99,7 @@ TabsPublic = can.Control({
 			break;
 
 		case "recovery":
-			this.page = new NewPasswordPage("#content");
+			this.page = new NewPasswordPage("#content", {data:data});
 			break;
 
 		case "help":
