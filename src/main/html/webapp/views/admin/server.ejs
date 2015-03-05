@@ -5,10 +5,14 @@
 	<br>
 </p>
 
-
 <h4>Status</h4>
 
 <table class="table table-bordered">
+
+<tr>
+		<td style="width: 150px;"><b>Version:</b></td>
+		<td><%= cluster.attr('version') %> (built by <%= cluster.attr('built_by') %> on <%= cluster.attr('built_time') %>)</td>
+	</tr>
 
 	<tr>
 		<td style="width: 150px;"><b>Mode:</b></td>
