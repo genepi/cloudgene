@@ -36,13 +36,12 @@ import cloudgene.mapred.util.Template;
 
 public class Main {
 
-	//private static final Log log = LogFactory.getLog(Main.class);
+	// private static final Log log = LogFactory.getLog(Main.class);
 
 	public static final String VERSION = "1.9.6";
 
 	public static void main(String[] args) throws IOException {
 
-			
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
 
@@ -51,7 +50,6 @@ public class Main {
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 
-		
 		} else {
 
 			if (new File("log4j.properties").exists()) {
@@ -59,22 +57,21 @@ public class Main {
 
 				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 				Engine.getInstance().setLoggerFacade(loggerFacade);
-								
+
 			}
 
 		}
-		
+
 		Log log = LogFactory.getLog(Main.class);
 
-		ClassLoader cl1 = Thread.currentThread().getContextClassLoader();  
-		   
-		while(cl1 != null)  
-		{  
-		   URL loc = cl1.getResource("log4j.properties");  
-		   System.out.println("Search and destroy --> " + loc);  
-		   cl1 = cl1.getParent();  
-		}  
-		
+		ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
+
+		while (cl1 != null) {
+			URL loc = cl1.getResource("log4j.properties");
+			System.out.println("Search and destroy --> " + loc);
+			cl1 = cl1.getParent();
+		}
+
 		log.info("Cloudgene " + VERSION);
 
 		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
@@ -170,7 +167,7 @@ public class Main {
 			log.info("This is a fresh installation of Cloudgene. Init config with sample application.");
 
 			settings = new Settings();
-			
+
 		}
 
 		if (!settings.testPaths()) {
@@ -227,7 +224,8 @@ public class Main {
 		try {
 
 			// start workflow engine
-			WorkflowEngine engine = new WorkflowEngine(database);
+			WorkflowEngine engine = new WorkflowEngine(database,
+					settings.getThreadsQueue(), settings.getThreadsQueue());
 			new Thread(engine).start();
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
@@ -236,7 +234,7 @@ public class Main {
 
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
-			
+
 			log.info("Starting web server at port " + port);
 
 			String webAppFolder = "";
@@ -272,7 +270,7 @@ public class Main {
 			server.setSessions(new UserSessions());
 
 			server.start();
-			
+
 		} catch (Exception e) {
 
 			log.error("Can't launch the web server.\nAn unexpected "

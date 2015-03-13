@@ -23,22 +23,18 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.S3Util;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 
 public class NewSubmitJob extends BaseResource {
-
-	public static final int MAX_RUNNING_JOBS = 20;
-
-	public static final int MAX_RUNNING_JOBS_PER_USER = 2;
 
 	@Post
 	public Representation post(Representation entity) {
@@ -55,13 +51,16 @@ public class NewSubmitJob extends BaseResource {
 
 		WorkflowEngine engine = getWorkflowEngine();
 
-		if (engine.getActiveCount() > MAX_RUNNING_JOBS) {
+		Settings settings = getSettings();
+
+		if (engine.getActiveCount() > settings.getMaxRunningJobs()) {
 
 			JSONObject answer = new JSONObject();
 			try {
 				answer.put("success", false);
-				answer.put("message", "More than " + MAX_RUNNING_JOBS
-						+ "  jobs are currently in the queue.");
+				answer.put("message",
+						"More than " + settings.getMaxRunningJobs()
+								+ "  jobs are currently in the queue.");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -70,13 +69,17 @@ public class NewSubmitJob extends BaseResource {
 
 		}
 
-		if (engine.getJobsByUser(user).size() > MAX_RUNNING_JOBS_PER_USER) {
+		if (engine.getJobsByUser(user).size() > settings
+				.getMaxRunningJobsPerUser()) {
 
 			JSONObject answer = new JSONObject();
 			try {
 				answer.put("success", false);
-				answer.put("message", "Only " + MAX_RUNNING_JOBS_PER_USER
-						+ " jobs per user can be executed simultaneously.");
+				answer.put(
+						"message",
+						"Only "
+								+ settings.getMaxRunningJobsPerUser()
+								+ " jobs per user can be executed simultaneously.");
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -300,8 +303,7 @@ public class NewSubmitJob extends BaseResource {
 				job.setSettings(getSettings());
 				job.setRemoveHdfsWorkspace(getSettings()
 						.isRemoveHdfsWorkspace());
-				job.setApplication(app.getName() + " " + app.getVersion()
-						+ " / Cloudgene " + Main.VERSION);
+				job.setApplication(app.getName() + " " + app.getVersion());
 				engine.submit(job);
 
 			} catch (Exception e) {

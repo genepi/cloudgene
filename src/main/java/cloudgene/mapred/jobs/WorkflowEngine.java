@@ -19,10 +19,6 @@ import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
 
-	public static final int THREADS_LTQ = 5;
-
-	public static final int THREADS_STQ = 5;
-
 	private Queue longTimeQueue;
 
 	private Queue shortTimeQueue;
@@ -35,12 +31,12 @@ public class WorkflowEngine implements Runnable {
 
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
 
-	public WorkflowEngine(Database mdatabase) {
+	public WorkflowEngine(Database mdatabase, int ltqThreads, int stqThreads) {
 		this.database = mdatabase;
 
 		dao = new JobDao(database);
 
-		shortTimeQueue = new Queue("ShortTimeQueue", THREADS_STQ) {
+		shortTimeQueue = new Queue("ShortTimeQueue", stqThreads) {
 
 			@Override
 			public Runnable createRunnable(AbstractJob job) {
@@ -104,7 +100,7 @@ public class WorkflowEngine implements Runnable {
 
 		};
 
-		longTimeQueue = new Queue("LongTimeQueue", THREADS_LTQ) {
+		longTimeQueue = new Queue("LongTimeQueue", ltqThreads) {
 
 			@Override
 			public Runnable createRunnable(AbstractJob job) {
