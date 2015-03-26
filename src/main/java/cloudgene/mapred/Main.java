@@ -43,6 +43,10 @@ public class Main implements Daemon {
 
 	public static final String VERSION = "1.9.7";
 
+	private Database database;
+
+	private WebServer server;
+
 	private String[] args = new String[] {};
 
 	@Override
@@ -124,7 +128,7 @@ public class Main implements Daemon {
 		H2Connector connector = new H2Connector("data/mapred", "mapred",
 				"mapred", false);
 
-		Database database = new Database();
+		database = new Database();
 
 		try {
 
@@ -153,7 +157,8 @@ public class Main implements Daemon {
 			log.info("Database needs update.");
 			if (!askimedUpdater.update()) {
 				log.error("Updating database failed.");
-				return;
+				database.disconnect();
+				System.exit(1);
 			}
 		} else {
 			log.info("Database is uptodate.");
@@ -176,14 +181,9 @@ public class Main implements Daemon {
 
 		if (!settings.testPaths()) {
 
-			try {
-				database.disconnect();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			database.disconnect();
 			System.exit(1);
+
 		}
 
 		// create directories
@@ -259,7 +259,7 @@ public class Main implements Daemon {
 				pagesFolder = "sample/pages";
 			}
 
-			WebServer server = new WebServer();
+			server = new WebServer();
 			server.setPort(port);
 			server.setRootDirectory(webAppFolder);
 			server.setPagesDirectory(pagesFolder);
@@ -280,15 +280,7 @@ public class Main implements Daemon {
 			log.error("Can't launch the web server.\nAn unexpected "
 					+ "exception occured:", e);
 
-			try {
-
-				database.disconnect();
-
-			} catch (SQLException e1) {
-
-				log.error("An unexpected " + "exception occured:", e);
-
-			}
+			database.disconnect();
 
 			System.exit(1);
 
@@ -303,8 +295,8 @@ public class Main implements Daemon {
 
 	@Override
 	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-
+		server.stop();
+		database.disconnect();
 	}
 
 	public static void main(String[] args) throws Exception {

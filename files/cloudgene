@@ -1,0 +1,111 @@
+#! /bin/sh
+#  /etc/init.d/mydaemon
+
+### BEGIN INIT INFO
+# Provides:          mydaemon
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Short-Description: Starts the MyDaemon service
+# Description:       This file is used to start the daemon
+#                    and should be placed in /etc/init.d
+### END INIT INFO
+
+# Author:   LF and SS
+# Url:      cloudgene.uibk.ac.at
+# Date:     2015
+
+NAME="cloudgene"
+DESC="Cloudgene Webservice"
+
+# The path to Jsvc
+EXEC=`which jsvc`
+
+# The path to the folder containing MyDaemon.jar
+FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+echo $FILE_PATH
+
+export JAVA_HOME=/usr/lib/jvm/java-7-oracle
+
+
+HADOOP_CLASS_PATH=`hadoop classpath`
+
+# Our classpath including our jar file
+CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"
+
+# The fully qualified name of the class to execute
+CLASS="cloudgene.mapred.Main"
+
+# Any command line arguments to be passed to the our Java Daemon implementations init() method 
+ARGS=""
+
+
+# The file that will contain our process identification number (pid) for other scripts/programs that need to access it.
+PID="/var/run/$NAME.pid"
+
+# System.out writes to this file...
+LOG_OUT="$FILE_PATH/log/$NAME.out"
+
+# System.err writes to this file...
+LOG_ERR="$FILE_PATH/err/$NAME.err"
+
+jsvc_exec()
+{   
+
+
+    cd $FILE_PATH
+    $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
+echo $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
+}
+
+case "$1" in
+    start)
+        if [ -f "$PID" ]; then
+
+            echo "Daemon is running, no action taken"
+
+        else
+
+            echo "Starting the $DESC..."        
+        
+            # Start the service
+            jsvc_exec
+        
+            echo "The $DESC has started."
+        fi
+    ;;
+    stop)
+        if [ -f "$PID" ]; then
+            echo "Stopping the $DESC..."
+        
+            # Stop the service
+            jsvc_exec "-stop"       
+        
+            echo "The $DESC has stopped."
+        else
+            echo "Daemon not running, no action taken"
+            exit 1
+        fi
+    ;;
+    restart)
+        if [ -f "$PID" ]; then
+            
+            echo "Restarting the $DESC..."
+            
+            # Stop the service
+            jsvc_exec "-stop"
+            
+            # Start the service
+            jsvc_exec
+            
+            echo "The $DESC has restarted."
+        else
+            echo "Daemon not running, no action taken"
+            exit 1
+        fi
+            ;;
+    *)
+    echo "Usage: /etc/init.d/$NAME {start|stop|restart}" >&2
+    exit 3
+    ;;
+esac
