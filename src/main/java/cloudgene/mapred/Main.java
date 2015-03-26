@@ -16,6 +16,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
+import org.apache.commons.daemon.DaemonInitException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
@@ -34,13 +37,23 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 
-public class Main {
+public class Main implements Daemon {
 
 	// private static final Log log = LogFactory.getLog(Main.class);
 
-	public static final String VERSION = "1.9.6";
+	public static final String VERSION = "1.9.7";
 
-	public static void main(String[] args) throws IOException {
+	private String[] args = new String[] {};
+
+	@Override
+	public void init(DaemonContext context) throws DaemonInitException,
+			Exception {
+		args = context.getArguments();
+
+	}
+
+	@Override
+	public void start() throws Exception {
 
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
@@ -64,16 +77,7 @@ public class Main {
 
 		Log log = LogFactory.getLog(Main.class);
 
-		ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
-
-		while (cl1 != null) {
-			URL loc = cl1.getResource("log4j.properties");
-			System.out.println("Search and destroy --> " + loc);
-			cl1 = cl1.getParent();
-		}
-
 		log.info("Cloudgene " + VERSION);
-
 		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
 		try {
 			URL url = cl.findResource("META-INF/MANIFEST.MF");
@@ -289,5 +293,22 @@ public class Main {
 			System.exit(1);
 
 		}
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void stop() throws Exception {
+		// TODO Auto-generated method stub
+
+	}
+
+	public static void main(String[] args) throws Exception {
+		Main main = new Main();
+		main.start();
 	}
 }
