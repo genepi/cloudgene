@@ -7,11 +7,6 @@ import genepi.io.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
-
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -31,21 +26,17 @@ public class RMarkdown extends CloudgeneStep {
 		String rmd = step.getRmd();
 		String output = step.getOutput();
 		String paramsString = step.getParams();
+		String[] params = paramsString.split(" ");
 
-		String[] params = new String[0];
-
-		if (paramsString != null) {
-
-			params = paramsString.split(" ");
-
-		}
-
+		context.println("Running script " + step.getRmd() + "...");
+		context.println("Working Directory: " + wd);
+		context.println("Output: " + output);
+		context.println("Parameters:");
 		for (String param : params) {
 			context.println("  " + param);
 		}
 
-		int result = convert(FileUtil.path(wd, rmd), output, params, context,
-				step);
+		int result = convert(FileUtil.path(wd, rmd), output, params, context);
 
 		if (result == 0) {
 			context.endTask("Execution successful.", Message.OK);
@@ -60,7 +51,7 @@ public class RMarkdown extends CloudgeneStep {
 	}
 
 	public int convert(String rmdScript, String outputHtml, String[] args,
-			CloudgeneContext context, WdlStep step) {
+			WorkflowContext context) {
 
 		context.println("Creating RMarkdown report from " + rmdScript + "...");
 
@@ -75,8 +66,7 @@ public class RMarkdown extends CloudgeneStep {
 		script.append("library(knitr)");
 		script.append("opts_chunk$set(fig.path='" + folder + "')");
 		script.append("library(markdown)");
-		script.append("knit(\"" + rmdScript + "_temp" + "\", \"" + outputHtml
-				+ ".md\")");
+		script.append("knit(\"" + rmdScript + "\", \"" + outputHtml + ".md\")");
 		script.append("markdownToHTML(\"" + outputHtml + ".md\", \""
 				+ outputHtml + "\")");
 		script.save();
@@ -103,13 +93,12 @@ public class RMarkdown extends CloudgeneStep {
 				}
 
 				try {
-					context.println("Number of lines: "
-							+ FileUtil.getLineCount(localFile));
+					context.println("Number of lines: " + FileUtil.getLineCount(localFile));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
+				
 			} else {
 
 				argsForScript[i + 1] = args[i];
@@ -121,75 +110,18 @@ public class RMarkdown extends CloudgeneStep {
 		rScript.saveStdErr(FileUtil.path(folder, "std.err"));
 		rScript.saveStdOut(FileUtil.path(folder, "std.out"));
 
-		// create rmd temp file
-		Velocity.setProperty("file.resource.loader.path", "/");
-		VelocityContext context2 = new VelocityContext();
+		int result = rScript.execute();
 
-		// add input values to context
-		for (String param : context.getInputs()) {
-			context2.put(param, context.getInput(param));
-		}
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.err")));
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.out")));
+		
+		new File(outputHtml + ".md").delete();
+		new File("convert.R").delete();
+	
+		RMarkdown.deleteFolder(new File(folder));
+			
 
-		// add output values to context
-		for (String param : context.getOutputs()) {
-			context2.put(param, context.getOutput(param));
-		}
-
-		int i = 0;
-		// add mapping values to context
-		for (String variable : step.getMapping().keySet()) {
-			i++;
-			String value = step.getMapping().get(variable);
-			// checkout hdfs file
-			if (value.startsWith("hdfs://")) {
-
-				String localFile = FileUtil.path(folder, "local_file_" + i);
-				context.println("Check out file " + value + "...");
-				try {
-					HdfsUtil.checkOut(value, localFile);
-					context2.put(variable, localFile);
-				} catch (IOException e) {
-					context.println(e.getMessage());
-					context2.put(variable, value);
-				}
-
-			} else {
-
-				context2.put(variable, value);
-
-			}
-
-		}
-
-		try {
-
-			StringWriter sw = new StringWriter();
-
-			Template template = Velocity.getTemplate(new File(rmdScript)
-					.getAbsolutePath());
-			template.merge(context2, sw);
-
-			FileUtil.writeStringBufferToFile(rmdScript + "_temp",
-					sw.getBuffer());
-
-			int result = rScript.execute();
-
-			context.println(FileUtil.readFileAsString(FileUtil.path(folder,
-					"std.err")));
-			context.println(FileUtil.readFileAsString(FileUtil.path(folder,
-					"std.out")));
-
-			new File(outputHtml + ".md").delete();
-			new File("convert.R").delete();
-
-			RMarkdown.deleteFolder(new File(folder));
-
-			return result;
-		} catch (Exception e) {
-			context.error(e.toString());
-		}
-
-		return 1;
+		return result;
 
 	}
 
