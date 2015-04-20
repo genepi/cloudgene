@@ -2,7 +2,8 @@
 User = can.Model({
 	findOne : 'GET /users/details',
 	destroy : 'POST /users/delete',
-	findAll : 'GET /users'
+	findAll : 'GET /users',
+	update  : 'POST /users/changegroup',
 }, {});
 
 UpdateProfilePage = can

@@ -2,7 +2,13 @@
 User = can.Model({
 	findOne : 'GET /users/details',
 	destroy : 'POST /users/delete',
+	update : 'POST /users/changegroup',
 	findAll : 'GET /users'
+}, {});
+
+// model
+Group = can.Model({
+	findAll : 'GET /admin/groups',
 }, {});
 
 // controller
@@ -41,20 +47,49 @@ AdminUsersPage = can
 
 			'.icon-pencil click' : function(el, ev) {
 
-				user = el.parent().parent().data('user');
-				var oldText = user.attr('role');
-				bootbox
-						.confirm(
-								'<h4> Change role of '
-										+ user.attr('username')
-										+ '</h4><form><input type="text"class="field span2" id="message" name="message" value="'
-										+ oldText + '">'
-										+ '</imput></form>', function(result) {
-									if (result) {
-										var text = $('#message').val();
-										user.attr('role', text);
-										user.save();
-									}
+				Group
+						.findAll(
+								{},
+								function(groups) {
+
+									user = el.parent().parent().data('user');
+									var role = user.attr('role');
+									
+									var options = '';
+									groups.forEach(function(group, index) {
+										if (group.attr('name') === role){
+											options = options + '<option selected>'+group.attr('name')+'</option>';
+										}else{
+											options = options + '<option>'+group.attr('name')+'</option>';
+										}
+									});
+									
+									
+									bootbox
+											.confirm(
+													'<h4> Change role of '
+															+ user
+																	.attr('username')
+															+ '</h4><form><select class="field span2" id="message" name="message">'
+															+ options
+															+ '</select>'
+															+ '</form>',
+													function(result) {
+														if (result) {
+															var text = $(
+																	'#message')
+																	.val();
+															user.attr('role',
+																	text);
+															user.save();
+														}
+													});
+
+								}, function(message) {
+									new ErrorPage(that.element, {
+										status : message.statusText,
+										message : message.responseText
+									});
 								});
 
 			}
