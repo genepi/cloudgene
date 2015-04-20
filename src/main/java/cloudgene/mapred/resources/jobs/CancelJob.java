@@ -1,5 +1,8 @@
 package cloudgene.mapred.resources.jobs;
 
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -49,7 +52,15 @@ public class CancelJob extends BaseResource {
 		}
 
 		getWorkflowEngine().cancel(job);
-		return new StringRepresentation("Job " + id + " canceled.");
+
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "user", "outputParams",
+				"inputParams", "output", "endTime", "startTime", "error",
+				"s3Url", "task", "config", "mapReduceJob", "job", "step",
+				"context" });
+		JSONObject object = JSONObject.fromObject(job, config);
+
+		return new StringRepresentation(object.toString());
 
 	}
 

@@ -75,6 +75,7 @@ JobListPage = can.Control({
 	},
 
 	'.icon-remove click' : function(el, ev) {
+		var that = this;
 
 		job = el.parent().parent().data('job');
 		bootbox.animate(false);
