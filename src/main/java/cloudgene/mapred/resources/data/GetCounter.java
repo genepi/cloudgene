@@ -2,6 +2,8 @@ package cloudgene.mapred.resources.data;
 
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -16,56 +18,34 @@ public class GetCounter extends BaseResource {
 	@Get
 	public Representation get() {
 
-		CounterDao dao = new CounterDao(getDatabase());
-		Map<String, Long> counters = dao.getAll();
-
+		JSONObject jsonCounters = new JSONObject();
+		
 		// complete
-		String temp = "{\"complete\": {";
-		boolean first = true;
+		Map<String, Long> counters = getWorkflowEngine().getCounters(
+				AbstractJob.STATE_SUCCESS);	
+		JSONObject jsonComplete = new JSONObject();	
 		for (String key : counters.keySet()) {
-
-			if (!first) {
-				temp += ",";
-			}
-
-			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
-			first = false;
+			jsonComplete.put(key, counters.get(key));
 		}
-		temp += "},";
+		jsonCounters.put("complete", jsonComplete);
 
 		// running
 		counters = getWorkflowEngine().getCounters(AbstractJob.STATE_RUNNING);
-		temp += "\"running\": {";
-		first = true;
+		JSONObject jsonRunning = new JSONObject();	
 		for (String key : counters.keySet()) {
-
-			if (!first) {
-				temp += ",";
-			}
-
-			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
-			first = false;
+			jsonRunning.put(key, counters.get(key));
 		}
-		temp += "},";
+		jsonCounters.put("running", jsonRunning);
 
 		// waiting
 		counters = getWorkflowEngine().getCounters(AbstractJob.STATE_WAITING);
-		temp += "\"waiting\": {";
-		first = true;
+		JSONObject jsonWaiting= new JSONObject();	
 		for (String key : counters.keySet()) {
-
-			if (!first) {
-				temp += ",";
-			}
-
-			temp += "\"" + key + "\": \"" + counters.get(key) + "\"";
-			first = false;
+			jsonWaiting.put(key, counters.get(key));
 		}
-		temp += "}";
+		jsonCounters.put("waiting", jsonWaiting);
 
-		temp += "}";
-
-		return new StringRepresentation(temp);
+		return new StringRepresentation(jsonCounters.toString());
 
 	}
 

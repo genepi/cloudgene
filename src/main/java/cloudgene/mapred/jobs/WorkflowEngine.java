@@ -25,14 +25,23 @@ public class WorkflowEngine implements Runnable {
 
 	private JobDao dao;
 
+	private CounterDao counterDao;
+
 	private boolean running = false;
 
 	private Database database;
+
+	private Map<String, Long> counters;
 
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
 
 	public WorkflowEngine(Database mdatabase, int ltqThreads, int stqThreads) {
 		this.database = mdatabase;
+
+		log.info("Init Counters....");
+
+		counterDao = new CounterDao(database);
+		counters = counterDao.getAll();
 
 		dao = new JobDao(database);
 
@@ -153,6 +162,14 @@ public class WorkflowEngine implements Runnable {
 
 					if (value != null) {
 
+						Long counterValue = counters.get(name);
+						if (counterValue == null) {
+							counterValue = 0L + value;
+						} else {
+							counterValue = counterValue + value;
+						}
+						counters.put(name, counterValue);
+
 						CounterDao dao = new CounterDao(database);
 						dao.insert(name, value, job);
 
@@ -238,22 +255,31 @@ public class WorkflowEngine implements Runnable {
 	}
 
 	public Map<String, Long> getCounters(int state) {
-		Map<String, Long> result = new HashMap<String, Long>();
-		List<AbstractJob> jobs = longTimeQueue.getAllJobs();
-		for (AbstractJob job : jobs) {
-			if (job.getState() == state) {
-				Map<String, Integer> counters = job.getContext().getCounters();
-				for (String name : counters.keySet()) {
-					Integer value = counters.get(name);
-					Long oldvalue = result.get(name);
-					if (oldvalue == null) {
-						oldvalue = new Long(0);
+
+		if (state == AbstractJob.STATE_SUCCESS) {
+
+			return counters;
+
+		} else {
+
+			Map<String, Long> result = new HashMap<String, Long>();
+			List<AbstractJob> jobs = longTimeQueue.getAllJobs();
+			for (AbstractJob job : jobs) {
+				if (job.getState() == state) {
+					Map<String, Integer> counters = job.getContext()
+							.getCounters();
+					for (String name : counters.keySet()) {
+						Integer value = counters.get(name);
+						Long oldvalue = result.get(name);
+						if (oldvalue == null) {
+							oldvalue = new Long(0);
+						}
+						result.put(name, oldvalue + value);
 					}
-					result.put(name, oldvalue + value);
 				}
 			}
+			return result;
 		}
-		return result;
 	}
 
 	public List<AbstractJob> getJobsByUser(User user) {
