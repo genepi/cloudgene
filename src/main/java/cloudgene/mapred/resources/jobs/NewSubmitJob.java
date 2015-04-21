@@ -53,7 +53,7 @@ public class NewSubmitJob extends BaseResource {
 
 		Settings settings = getSettings();
 
-		if (engine.getActiveCount() > settings.getMaxRunningJobs()) {
+		if (engine.getActiveCount() >= settings.getMaxRunningJobs()) {
 
 			JSONObject answer = new JSONObject();
 			try {
@@ -69,7 +69,7 @@ public class NewSubmitJob extends BaseResource {
 
 		}
 
-		if (engine.getJobsByUser(user).size() > settings
+		if (engine.getJobsByUser(user).size() >= settings
 				.getMaxRunningJobsPerUser()) {
 
 			JSONObject answer = new JSONObject();
