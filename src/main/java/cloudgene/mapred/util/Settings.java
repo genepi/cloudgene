@@ -13,6 +13,8 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.core.User;
+
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
@@ -331,13 +333,20 @@ public class Settings {
 		}
 	}
 
-	public String getApp(String id) {
+	public String getApp(User user, String id) {
 
 		Application app = indexApps.get(id);
 
 		if (app != null) {
 
-			return app.getFilename();
+			if (user.isAdmin()
+					|| app.getPermission().toLowerCase()
+							.equals(user.getRole().toLowerCase())) {
+
+				return app.getFilename();
+			} else {
+				return null;
+			}
 
 		} else {
 
@@ -450,7 +459,7 @@ public class Settings {
 	public String getPiggene() {
 		return piggene;
 	}
-	
+
 	public String getSparkPath() {
 		return sparkPath;
 	}
@@ -466,7 +475,7 @@ public class Settings {
 	public int getThreadsQueue() {
 		return threadsQueue;
 	}
-	
+
 	public int getMaxRunningJobs() {
 		return maxRunningJobs;
 	}

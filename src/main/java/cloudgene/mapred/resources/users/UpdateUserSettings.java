@@ -10,6 +10,7 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
@@ -87,6 +88,9 @@ public class UpdateUserSettings extends BaseResource {
 				UserDao dao = new UserDao(getDatabase());
 				dao.update(user);
 
+				UserSessions sessions = getUserSessions();
+				sessions.updateUser(user);
+				
 				return new JSONAnswer("Password sucessfully updated.", true);
 
 			} catch (JSONException e) {

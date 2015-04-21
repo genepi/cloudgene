@@ -99,7 +99,7 @@ public class NewSubmitJob extends BaseResource {
 
 		String tool = (String) getRequest().getAttributes().get("tool");
 
-		String filename = getSettings().getApp(tool);
+		String filename = getSettings().getApp(user, tool);
 		WdlApp app = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);

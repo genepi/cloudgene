@@ -44,6 +44,16 @@ public class UserSessions {
 
 	}
 
+	public void updateUser(User user) {
+
+		for (String token : users.keySet()) {
+			if (users.get(token).getUsername().equals(user.getUsername())) {
+				users.put(token, user);
+			}
+		}
+
+	}
+
 	private String generateToken() {
 		// get current Time
 		long currentTime = System.currentTimeMillis();

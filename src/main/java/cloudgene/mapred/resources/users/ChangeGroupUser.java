@@ -9,6 +9,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.BaseResource;
 
@@ -47,6 +48,9 @@ public class ChangeGroupUser extends BaseResource {
 			user1.setRole(form.getFirstValue("role"));
 			dao.update(user1);
 
+			UserSessions sessions = getUserSessions();
+			sessions.updateUser(user1);
+			
 			JSONObject object = JSONObject.fromObject(user1);
 			return new StringRepresentation(object.toString());
 
