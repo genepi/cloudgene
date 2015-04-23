@@ -58,7 +58,7 @@ public abstract class Queue implements Runnable {
 
 			job.kill();
 			job.cancel();
-			
+
 		}
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {
@@ -81,6 +81,9 @@ public abstract class Queue implements Runnable {
 
 	@Override
 	public void run() {
+
+		List<AbstractJob> complete = new Vector<AbstractJob>();
+
 		while (true) {
 			try {
 
@@ -88,7 +91,7 @@ public abstract class Queue implements Runnable {
 
 					synchronized (queue) {
 
-						List<AbstractJob> complete = new Vector<AbstractJob>();
+						complete.clear();
 
 						for (AbstractJob job : futures.keySet()) {
 							Future<?> future = futures.get(job);

@@ -304,6 +304,7 @@ public class NewSubmitJob extends BaseResource {
 				job.setRemoveHdfsWorkspace(getSettings()
 						.isRemoveHdfsWorkspace());
 				job.setApplication(app.getName() + " " + app.getVersion());
+				job.setApplicationId(tool);
 				engine.submit(job);
 
 			} catch (Exception e) {

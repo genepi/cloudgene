@@ -58,6 +58,7 @@ import cloudgene.mapred.resources.jobs.GetJobs;
 import cloudgene.mapred.resources.jobs.GetLogs;
 import cloudgene.mapred.resources.jobs.NewGetJobStatus;
 import cloudgene.mapred.resources.jobs.NewSubmitJob;
+import cloudgene.mapred.resources.jobs.RestartJob;
 import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.users.ActivateUser;
 import cloudgene.mapred.resources.users.ChangeGroupUser;
@@ -125,7 +126,9 @@ public class WebApp extends Application {
 		router.attach("/jobs/details", GetJobDetails.class);
 		router.attach("/jobs/delete", DeleteJob.class);
 		router.attach("/jobs/cancel", CancelJob.class);
+		router.attach("/jobs/restart", RestartJob.class);
 
+		
 		router.attach("/jobs/newsubmit/{tool}", NewSubmitJob.class);
 		router.attach("/jobs/newstate", NewGetJobStatus.class);
 

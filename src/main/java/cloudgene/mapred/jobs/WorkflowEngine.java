@@ -45,6 +45,17 @@ public class WorkflowEngine implements Runnable {
 
 		dao = new JobDao(database);
 
+		List<AbstractJob> deadJobs = dao
+				.findAllByState(AbstractJob.STATE_WAITING);
+		deadJobs.addAll(dao.findAllByState(AbstractJob.STATE_RUNNING));
+		deadJobs.addAll(dao.findAllByState(AbstractJob.STATE_EXPORTING));
+
+		for (AbstractJob job : deadJobs) {
+			log.info("lost control over job " + job.getId() + " -> Dead");
+			job.setState(AbstractJob.STATE_DEAD);
+			dao.update(job);
+		}
+
 		shortTimeQueue = new Queue("ShortTimeQueue", stqThreads) {
 
 			@Override
@@ -68,14 +79,14 @@ public class WorkflowEngine implements Runnable {
 
 					dao.update(job);
 
+					DownloadDao downloadDao = new DownloadDao(database);
+
 					for (CloudgeneParameter parameter : job.getOutputParams()) {
 
 						if (parameter.isDownload()) {
 
 							if (((CloudgeneParameter) parameter).getFiles() != null) {
 
-								DownloadDao downloadDao = new DownloadDao(
-										database);
 								for (Download download : parameter.getFiles()) {
 									download.setParameterId(parameter.getId());
 									download.setParameter(parameter);
@@ -120,13 +131,14 @@ public class WorkflowEngine implements Runnable {
 			public void onComplete(AbstractJob job) {
 
 				dao.update(job);
+				DownloadDao downloadDao = new DownloadDao(database);
+
 				for (CloudgeneParameter parameter : job.getOutputParams()) {
 
 					if (parameter.isDownload()) {
 
 						if (((CloudgeneParameter) parameter).getFiles() != null) {
 
-							DownloadDao downloadDao = new DownloadDao(database);
 							for (Download download : parameter.getFiles()) {
 								download.setParameterId(parameter.getId());
 								download.setParameter(parameter);
@@ -170,8 +182,7 @@ public class WorkflowEngine implements Runnable {
 						}
 						counters.put(name, counterValue);
 
-						CounterDao dao = new CounterDao(database);
-						dao.insert(name, value, job);
+						counterDao.insert(name, value, job);
 
 					}
 				}
@@ -197,6 +208,21 @@ public class WorkflowEngine implements Runnable {
 			parameter.setJobId(job.getId());
 			dao.insert(parameter);
 		}
+
+		job.afterSubmission();
+		shortTimeQueue.submit(job);
+
+	}
+
+	public void restart(AbstractJob job) {
+
+		// TODO: delete old results!
+		for (CloudgeneParameter parameter : job.getOutputParams()) {
+
+		}
+
+		job.setState(AbstractJob.STATE_WAITING);
+		dao.update(job);
 
 		job.afterSubmission();
 		shortTimeQueue.submit(job);

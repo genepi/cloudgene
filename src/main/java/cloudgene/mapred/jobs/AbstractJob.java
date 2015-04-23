@@ -56,6 +56,8 @@ abstract public class AbstractJob implements Runnable {
 
 	public static final int STATE_FAILED_AND_NOTIFICATION_SEND = 9;
 
+	public static final int STATE_DEAD = -1;
+
 	// properties
 
 	private String id;
@@ -73,6 +75,8 @@ abstract public class AbstractJob implements Runnable {
 	private long deletedOn = -1;
 
 	private String application;
+
+	private String applicationId;
 
 	private String error = "";
 
@@ -632,6 +636,14 @@ abstract public class AbstractJob implements Runnable {
 
 	public String getApplication() {
 		return application;
+	}
+
+	public void setApplicationId(String applicationId) {
+		this.applicationId = applicationId;
+	}
+
+	public String getApplicationId() {
+		return applicationId;
 	}
 
 	abstract public boolean execute();

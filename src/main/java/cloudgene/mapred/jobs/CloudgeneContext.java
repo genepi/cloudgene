@@ -143,6 +143,12 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void setupOutputParameters() {
 
+		// cleanup (need when job is restarted!)
+		FileUtil.deleteDirectory(getLocalTemp());
+		FileUtil.deleteDirectory(getLocalOutput());
+		HdfsUtil.delete(getHdfsOutput());
+		HdfsUtil.delete(getHdfsTemp());
+
 		// create output directories
 		FileUtil.createDirectory(getLocalTemp());
 		FileUtil.createDirectory(getLocalOutput());
