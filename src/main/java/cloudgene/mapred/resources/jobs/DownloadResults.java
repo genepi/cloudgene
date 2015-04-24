@@ -82,7 +82,7 @@ public class DownloadResults extends BaseResource {
 		}
 
 		String workspace = FileUtil.path(getSettings().getLocalWorkspace(),
-				user.getUsername());
+				job.getUser().getUsername());
 
 		DownloadDao dao = new DownloadDao(getDatabase());
 		Download download = dao.findByJobAndPath(jobId,
