@@ -93,6 +93,10 @@ TabsPublic = can.Control({
 		case "register":
 			this.page = new RegisterUserPage("#content");
 			break;
+			
+		case "login":
+			this.page = new UserLoginForm("#content");
+			break;			
 
 		case "reset-password":
 			this.page = new ResetPasswordPage("#content");
