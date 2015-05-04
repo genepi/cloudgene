@@ -31,6 +31,8 @@ public class WdlMapReduce {
 
 	private WdlStep setup = null;
 
+	private WdlStep onFailure = null;
+
 	public String getJar() {
 		return jar;
 	}
@@ -133,6 +135,14 @@ public class WdlMapReduce {
 
 	public WdlStep getSetup() {
 		return setup;
+	}
+
+	public void setOnFailure(WdlStep onFailure) {
+		this.onFailure = onFailure;
+	}
+
+	public WdlStep getOnFailure() {
+		return onFailure;
 	}
 
 }

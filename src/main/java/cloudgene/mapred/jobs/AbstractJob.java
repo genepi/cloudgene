@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.wdl.WdlStep;
 
 abstract public class AbstractJob implements Runnable {
 

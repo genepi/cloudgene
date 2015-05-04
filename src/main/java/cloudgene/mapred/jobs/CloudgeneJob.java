@@ -167,6 +167,8 @@ public class CloudgeneJob extends AbstractJob {
 
 			if (!sccuessful) {
 				setError("Job Execution failed.");
+				GraphNode failedNode = executor.getCurrentNode();
+				executeFailureStep(failedNode.getStep());
 				return false;
 			}
 
@@ -198,6 +200,7 @@ public class CloudgeneJob extends AbstractJob {
 					return true;
 				} else {
 					setState(AbstractJob.STATE_FAILED);
+					executeFailureStep(step);
 					onFailure();
 					setStartTime(System.currentTimeMillis());
 					setEndTime(System.currentTimeMillis());
@@ -207,6 +210,7 @@ public class CloudgeneJob extends AbstractJob {
 
 			} catch (Exception e) {
 				setState(AbstractJob.STATE_FAILED);
+				executeFailureStep(step);
 				onFailure();
 				setStartTime(System.currentTimeMillis());
 				setEndTime(System.currentTimeMillis());
@@ -232,6 +236,40 @@ public class CloudgeneJob extends AbstractJob {
 
 	@Override
 	public boolean onFailure() {
+		
+		cleanUp();
+
+		return true;
+	}
+
+	public boolean executeFailureStep(WdlStep failedStep) {
+
+		WdlStep step = getConfig().getOnFailure();
+
+		if (step != null) {
+
+			try {
+				writeLog("Executing onFailure... ");
+				GraphNode node = new GraphNode(step, context);
+				context.setData("cloudgene.failedStep", failedStep);
+				node.run();
+				boolean result = node.isSuccessful();
+				if (result) {
+					writeLog("Executed onFailure successful.");
+					return true;
+				} else {
+					writeLog("onFailure execution failed.");
+					return false;
+				}
+
+			} catch (Exception e) {
+				writeLog("onFailure execution failed.");
+				writeLog(e.getMessage());
+				setError(e.getMessage());
+				return false;
+			}
+
+		}
 
 		cleanUp();
 

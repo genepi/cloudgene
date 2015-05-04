@@ -12,8 +12,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.CounterDao;
-import cloudgene.mapred.resources.admin.GetSettings;
 import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
@@ -379,6 +377,19 @@ public class CloudgeneContext extends WorkflowContext {
 				settings.getMail().get("port"), settings.getMail().get("user"),
 				settings.getMail().get("password"),
 				settings.getMail().get("name"), user.getMail(),
+				"[" + settings.getName() + "] " + subject, body);
+
+		return true;
+
+	}
+	
+	public boolean sendMail(String to, String subject, String body) throws Exception {
+		Settings settings = getSettings();
+
+		MailUtil.send(settings.getMail().get("smtp"),
+				settings.getMail().get("port"), settings.getMail().get("user"),
+				settings.getMail().get("password"),
+				settings.getMail().get("name"), to,
 				"[" + settings.getName() + "] " + subject, body);
 
 		return true;

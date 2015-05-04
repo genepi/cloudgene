@@ -138,5 +138,9 @@ public class Executor {
 		}
 
 	}
+	
+	public GraphNode getCurrentNode(){
+		return executableNode;
+	}
 
 }
