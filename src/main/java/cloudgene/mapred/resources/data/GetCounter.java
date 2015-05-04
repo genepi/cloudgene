@@ -36,15 +36,14 @@ public class GetCounter extends BaseResource {
 		for (String key : counters.keySet()) {
 			jsonRunning.put(key, counters.get(key));
 		}
-		jsonRunning.put("chromosomes", 2345264);
 		jsonCounters.put("running", jsonRunning);
+
 		// waiting
 		counters = getWorkflowEngine().getCounters(AbstractJob.STATE_WAITING);
 		JSONObject jsonWaiting= new JSONObject();	
 		for (String key : counters.keySet()) {
 			jsonWaiting.put(key, counters.get(key));
 		}
-		jsonWaiting.put("chromosomes", 132123);
 		jsonCounters.put("waiting", jsonWaiting);
 
 		UserDao dao = new UserDao(getDatabase());		
