@@ -21,7 +21,7 @@ UserLoginForm = can.Control({
 
 					// login
 					var redirect = 'start.html';
-					window.location = redirect + window.location.hash
+					window.location = redirect;
 
 				} else {
 					// shows error
