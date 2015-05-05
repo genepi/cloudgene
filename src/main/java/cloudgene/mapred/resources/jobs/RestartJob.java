@@ -58,9 +58,9 @@ public class RestartJob extends BaseResource {
 		}
 
 		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
-				user.getUsername());
+				job.getUser().getUsername());
 		String localWorkspace = FileUtil.path(
-				getSettings().getLocalWorkspace(), user.getUsername());
+				getSettings().getLocalWorkspace(), job.getUser().getUsername());
 
 		job.setLocalWorkspace(localWorkspace);
 		job.setHdfsWorkspace(hdfsWorkspace);
@@ -68,7 +68,7 @@ public class RestartJob extends BaseResource {
 		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 
 		String tool = job.getApplicationId();
-		String filename = getSettings().getApp(user, tool);
+		String filename = getSettings().getApp(job.getUser(), tool);
 		WdlApp app = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);
