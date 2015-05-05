@@ -20,7 +20,7 @@ UserLoginForm = can.Control({
 				if (data.success == true) {
 
 					// login
-					var redirect = 'start.html';
+					var redirect = 'start.html#!run/';
 					window.location = redirect;
 
 				} else {

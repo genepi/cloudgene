@@ -168,10 +168,11 @@ body {
 								tabs.show("home");
 							}
 
-							can.route.ready()
+							can.route("run/:app", {app: "${apps[0].id}"});
 
+							can.route.ready();
 							
-							
+
 							//default route!
 							//can.route("pages/:page", {page: "home"});
 							//can.route.attr({page: "home"});
