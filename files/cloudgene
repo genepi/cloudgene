@@ -23,8 +23,6 @@ EXEC=`which jsvc`
 # The path to the folder containing MyDaemon.jar
 FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-echo $FILE_PATH
-
 export JAVA_HOME=/usr/lib/jvm/java-7-oracle
 
 
@@ -51,11 +49,8 @@ LOG_ERR="$FILE_PATH/err/$NAME.err"
 
 jsvc_exec()
 {   
-
-
     cd $FILE_PATH
     $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
-echo $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
 }
 
 case "$1" in
