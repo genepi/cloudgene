@@ -23,8 +23,7 @@ EXEC=`which jsvc`
 # The path to the folder containing MyDaemon.jar
 FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-export JAVA_HOME=/usr/lib/jvm/java-7-oracle
-
+export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 
 HADOOP_CLASS_PATH=`hadoop classpath`
 
