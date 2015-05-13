@@ -55,8 +55,9 @@ public class GetJobs extends BaseResource {
 				"inputParams", "output", "endTime", "startTime", "error",
 				"s3Url", "task", "config", "mapReduceJob", "job", "step",
 				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
-				"logs", "removedHdfsWorkspace", "settings", "setupComplete",
-				"stdOutFile", "steps", "workingDirectory" });
+				"logs", "removeHdfsWorkspace", "settings", "setupComplete",
+				"stdOutFile", "steps", "workingDirectory", "application",
+				"map", "reduce", "logOutFile", "deletedOn" });
 
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 

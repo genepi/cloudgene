@@ -53,7 +53,7 @@ public class NewSubmitJob extends BaseResource {
 
 		Settings settings = getSettings();
 
-		if (engine.getActiveCount() > settings.getMaxRunningJobs()) {
+		if (engine.getActiveCount() >= settings.getMaxRunningJobs()) {
 
 			JSONObject answer = new JSONObject();
 			try {
@@ -69,7 +69,7 @@ public class NewSubmitJob extends BaseResource {
 
 		}
 
-		if (engine.getJobsByUser(user).size() > settings
+		if (engine.getJobsByUser(user).size() >= settings
 				.getMaxRunningJobsPerUser()) {
 
 			JSONObject answer = new JSONObject();
@@ -99,7 +99,7 @@ public class NewSubmitJob extends BaseResource {
 
 		String tool = (String) getRequest().getAttributes().get("tool");
 
-		String filename = getSettings().getApp(tool);
+		String filename = getSettings().getApp(user, tool);
 		WdlApp app = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);
@@ -304,6 +304,7 @@ public class NewSubmitJob extends BaseResource {
 				job.setRemoveHdfsWorkspace(getSettings()
 						.isRemoveHdfsWorkspace());
 				job.setApplication(app.getName() + " " + app.getVersion());
+				job.setApplicationId(tool);
 				engine.submit(job);
 
 			} catch (Exception e) {

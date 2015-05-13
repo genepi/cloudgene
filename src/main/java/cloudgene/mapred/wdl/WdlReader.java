@@ -225,7 +225,8 @@ public class WdlReader {
 
 			if (!user.isAdmin()) {
 
-				if (!application.getPermission().equals("user")) {
+				if (!application.getPermission().toLowerCase()
+						.equals(user.getRole().toLowerCase())) {
 					using = false;
 				}
 			}

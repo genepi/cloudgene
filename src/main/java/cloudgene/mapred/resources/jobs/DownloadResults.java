@@ -62,6 +62,15 @@ public class DownloadResults extends BaseResource {
 		AbstractJob job = jobDao.findById(jobId);
 
 		if (job == null) {
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("job not found.");
+
+		}
+
+		// job is running -> load it from queue
+		if (job.getState() == AbstractJob.STATE_WAITING
+				|| job.getState() == AbstractJob.STATE_RUNNING
+				|| job.getState() == AbstractJob.STATE_EXPORTING) {
 			job = getWorkflowEngine().getJobById(jobId);
 		}
 
@@ -81,8 +90,8 @@ public class DownloadResults extends BaseResource {
 			mediaType = MediaType.TEXT_HTML;
 		}
 
-		String workspace = FileUtil.path(getSettings().getLocalWorkspace(),
-				user.getUsername());
+		String workspace = FileUtil.path(getSettings().getLocalWorkspace(), job
+				.getUser().getUsername());
 
 		DownloadDao dao = new DownloadDao(getDatabase());
 		Download download = dao.findByJobAndPath(jobId,

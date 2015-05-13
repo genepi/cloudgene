@@ -85,10 +85,10 @@ public class GetAllJobs extends BaseResource {
 				"output", "endTime", "startTime", "error", "s3Url", "task",
 				"config", "mapReduceJob", "job", "step", "context",
 				"hdfsWorkspace", "localWorkspace", "logOutFiles", "logs",
-				"removedHdfsWorkspace", "settings", "setupComplete",
+				"removeHdfsWorkspace", "settings", "setupComplete",
 				"stdOutFile", "steps", "workingDirectory", "activationCode",
 				"active", "admin", "awsKey", "awsSecretKey", "exportInputToS3",
-				"exportToS3", "password", "s3Bucket", "saveCredentials" });
+				"exportToS3", "password", "s3Bucket", "saveCredentials","map","reduce" });
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 
 		return new StringRepresentation(jsonArray.toString());

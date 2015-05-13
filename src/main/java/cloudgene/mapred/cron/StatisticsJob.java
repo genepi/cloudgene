@@ -45,9 +45,8 @@ public class StatisticsJob implements Job {
 				.getCounters(AbstractJob.STATE_RUNNING);
 		Map<String, Long> countersWaiting = engine
 				.getCounters(AbstractJob.STATE_WAITING);
-
-		CounterDao dao = new CounterDao(database);
-		Map<String, Long> counters = dao.getAll();
+		Map<String, Long> countersComplete = engine
+				.getCounters(AbstractJob.STATE_SUCCESS);
 
 		UserDao daoUser = new UserDao(database);
 		List<User> users = daoUser.findAll();
@@ -64,10 +63,11 @@ public class StatisticsJob implements Job {
 		daoHistory.insert(timestamp, "waitingChromosomes",
 				(countersWaiting.get("chromosomes") == null ? 0
 						: countersWaiting.get("chromosomes")));
-		daoHistory.insert(timestamp, "completeChromosomes", (counters
-				.get("chromosomes") == null ? 0 : counters.get("chromosomes")));
-		daoHistory.insert(timestamp, "completeJobs",
-				(counters.get("runs") == null ? 0 : counters.get("runs")));
+		daoHistory.insert(timestamp, "completeChromosomes",
+				(countersComplete.get("chromosomes") == null ? 0
+						: countersComplete.get("chromosomes")));
+		daoHistory.insert(timestamp, "completeJobs", (countersComplete
+				.get("runs") == null ? 0 : countersComplete.get("runs")));
 
 	}
 }

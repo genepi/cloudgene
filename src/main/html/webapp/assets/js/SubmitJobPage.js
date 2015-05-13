@@ -9,7 +9,7 @@ Application = can.Model({
 SubmitJobPage = can.Control({
 
 	"init" : function(element, options) {
-		
+		that = this;
 		Application.findOne({tool:options.tool}, function(details) {
 			element.hide();
 			element.html(can.view('/views/run.ejs', {

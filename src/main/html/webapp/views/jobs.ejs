@@ -23,6 +23,11 @@
     <tr <%= (tr) -> can.data(tr, 'job', job) %> >
        
     		<td style="width: 80px;text-align:center;">
+
+        		<% if( job.attr('state') == '-1' ){ %>
+        			<span class="label label-inverse" style="width: 50px">&dagger; Dead</span>
+        		<% } %>		
+
         		<% if( job.attr('state') == '1' ){ %>
         			<span class="label" style="width: 50px">Waiting</span>       		
         		<% } %>
@@ -71,12 +76,12 @@
 			<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>
 		</td>
 		<td>
-        		<% if( job.attr('state') <= '3' ){ %>
+        		<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
         			<span class="icon-remove" style="cursor: pointer;"></span>
         		<% } %>
-        		<% if( job.attr('state') > '3' ){ %>
+        		<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
         		<span class="icon-trash" style="cursor: pointer;"></span>
-        		<% } %>		
+        		<% } %>			
 		</td>
     </tr>
 <% }) %>

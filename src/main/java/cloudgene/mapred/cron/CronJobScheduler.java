@@ -29,7 +29,6 @@ public class CronJobScheduler {
 		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 
 		Scheduler sched = schedFact.getScheduler();
-
 		sched.start();
 
 		if (settings.isAutoRetire()) {

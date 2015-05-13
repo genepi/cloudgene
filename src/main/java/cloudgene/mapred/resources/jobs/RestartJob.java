@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.jobs;
 
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
@@ -7,17 +9,20 @@ import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.representation.Variant;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.wdl.WdlApp;
+import cloudgene.mapred.wdl.WdlReader;
 
-public class CancelJob extends BaseResource {
+public class RestartJob extends BaseResource {
 
 	@Post
-	protected Representation post(Representation entity, Variant variant) {
+	public Representation post(Representation entity) {
 
 		User user = getUser(getRequest());
 
@@ -39,7 +44,8 @@ public class CancelJob extends BaseResource {
 
 		}
 
-		AbstractJob job = getWorkflowEngine().getJobById(id);
+		JobDao dao = new JobDao(getDatabase());
+		AbstractJob job = dao.findById(id);
 
 		if (job == null) {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
@@ -51,7 +57,31 @@ public class CancelJob extends BaseResource {
 			return new StringRepresentation("Access denied.");
 		}
 
-		getWorkflowEngine().cancel(job);
+		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
+				job.getUser().getUsername());
+		String localWorkspace = FileUtil.path(
+				getSettings().getLocalWorkspace(), job.getUser().getUsername());
+
+		job.setLocalWorkspace(localWorkspace);
+		job.setHdfsWorkspace(hdfsWorkspace);
+		job.setSettings(getSettings());
+		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
+
+		String tool = job.getApplicationId();
+		String filename = getSettings().getApp(job.getUser(), tool);
+		WdlApp app = null;
+		try {
+			app = WdlReader.loadAppFromFile(filename);
+		} catch (Exception e1) {
+
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Tool '" + tool + "' not found.");
+
+		}
+
+		((CloudgeneJob) job).loadConfig(app.getMapred());
+
+		getWorkflowEngine().restart(job);
 
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "user", "outputParams",

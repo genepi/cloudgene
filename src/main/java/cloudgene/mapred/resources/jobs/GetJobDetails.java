@@ -70,6 +70,13 @@ public class GetJobDetails extends BaseResource {
 						}
 					}
 				}
+
+				// remove all outputs that are not downloadable
+				for (CloudgeneParameter param : job.getOutputParams()) {
+					if (!param.isDownload()) {
+						adminParams.add(param);
+					}
+				}
 				job.getOutputParams().removeAll(adminParams);
 
 				// excludes properties from json
@@ -78,9 +85,13 @@ public class GetJobDetails extends BaseResource {
 						"output", "endTime", "startTime", "error", "s3Url",
 						"task", "config", "mapReduceJob", "job", "step",
 						"context", "hdfsWorkspace", "localWorkspace",
-						"logOutFiles", "removedHdfsWorkspace", "settings",
-						"setupComplete", "stdOutFile", "workingDirectory","parameter"  });
-				
+						"logOutFiles", "removeHdfsWorkspace", "settings",
+						"setupComplete", "stdOutFile", "workingDirectory",
+						"parameter", "logOutFile", "map", "reduce",
+						"mapProgress", "reduceProgress", "jobId",
+						"makeAbsolute", "mergeOutput", "removeHeader", "value",
+						"autoExport", "adminOnly", "download", "tip" });
+
 				if (user.isAdmin()) {
 					job.setLogs("/logs/" + job.getId());
 				}

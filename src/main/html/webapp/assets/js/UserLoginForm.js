@@ -20,8 +20,8 @@ UserLoginForm = can.Control({
 				if (data.success == true) {
 
 					// login
-					var redirect = 'start.html';
-					window.location = redirect + window.location.hash
+					var redirect = 'start.html#!run/';
+					window.location = redirect;
 
 				} else {
 					// shows error

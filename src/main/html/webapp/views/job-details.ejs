@@ -50,6 +50,11 @@
     	<tr>
 		<td><b>State:</b></td>			
 		<td>
+		
+		    	<% if( job.attr('state') == '-1' ){ %>
+        			<span class="label label-inverse" style="width: 50px">&dagger; Dead</span>
+        		<% } %>	
+		
         		<% if( job.attr('state') == '1' ){ %>
         			<span class="label" style="width: 50px">Waiting</span>
         		<% } %>
@@ -103,7 +108,10 @@
 		<td>
 
 		<div class="btn-group">
-				 <% if( job.attr('state') <= '3' ){ %>
+		 		<% if( job.attr('state') == '-1'){ %>
+		  			<button class="btn" id="btn-restart">Restart</button>
+        		<% } %>
+				 <% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
 		  			<button class="btn" id="btn-cancel">Cancel</button>
         		<% } %>
         		<% if( job.attr('state') > '3' ){ %>
@@ -120,6 +128,12 @@
     	
     	
     <div class="tab-content">
+
+
+ 		<% if( job.attr('state') == '-1'){ %>
+ 			<p><br></p>
+ 			<p><i>Our service terminated unexpected and we lost your job. We will restart your job as soon as possible!</i></p>  
+ 		<% } %>
 
         	<% if( !results ){  %>
     			<div class="tab-pane active" id="tab1">
@@ -140,7 +154,8 @@
     	<% step.attr('logMessages').each(function( log ) { %>
 
     	    <tr  >
-    	        <td style="width: 40px;text-align:center;">
+    	        <td style="width: 40px;text-align:center;">    	        
+    	        
     	        <% if( log.attr('type') == '0' ){ %>
     	        <span class="label label-success" style="width: 20px"><i class="icon-ok icon-white"></i></span>
     	        <% } %>
@@ -177,7 +192,7 @@
 	
 
     	<% job.attr('outputParams').each(function( param ) { %>
-	    <% if (param.attr('download') && param.attr('files').length > 0){ %>
+	    <% if (param.attr('files').length > 0){ %>
     	<table  class="table table-bordered">
     	<tbody>
     	<tr>

@@ -47,7 +47,7 @@ public class GetApp extends BaseResource {
 
 		String tool = form.getFirstValue("tool");
 
-		String filename = getSettings().getApp(tool);
+		String filename = getSettings().getApp(user, tool);
 		WdlApp app = null;
 		WdlHeader meta = null;
 		try {

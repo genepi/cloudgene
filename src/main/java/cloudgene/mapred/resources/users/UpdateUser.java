@@ -7,6 +7,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
@@ -48,6 +49,9 @@ public class UpdateUser extends BaseResource {
 
 				dao.update(newUser);
 
+				UserSessions sessions = getUserSessions();
+				sessions.updateUser(newUser);
+				
 			} else {
 
 				return new JSONAnswer("Please check your passwords.", false);

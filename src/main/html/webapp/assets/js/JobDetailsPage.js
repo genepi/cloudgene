@@ -1,8 +1,7 @@
 // Job Details Model
-JobDetails = can.Model({
+JobDetails = can.Model.extend({
 	findOne : 'POST /jobs/details',
-	destroy : 'POST /jobs/delete',
-	update : 'POST /jobs/cancel'
+	update : 'POST /jobs/{action}'
 }, {});
 
 // Job Details Page Controller
@@ -44,14 +43,15 @@ JobDetailsPage = can.Control({
 		bootbox.confirm("Are you sure you want to delete <b>"
 				+ that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
-				
+
 				$("a[data-handler='1']").button('loading');
 				$("a[data-handler='0']").hide('hide');
-				
-				that.job.destroy(function() {
+
+				that.job.attr('action', 'delete')
+				that.job.save(function() {
 					// go to jobs page
 					bootbox.hideAll();
- 					window.location.hash = "!pages/jobs";
+					window.location.hash = "!pages/jobs";
 				}, function(message) {
 					// show error message
 					new ErrorPage(that.element, {
@@ -61,7 +61,7 @@ JobDetailsPage = can.Control({
 				});
 
 				return false;
-				
+
 			}
 		});
 
@@ -75,10 +75,10 @@ JobDetailsPage = can.Control({
 		bootbox.confirm("Are you sure you want to cancel <b>"
 				+ that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
-				
+
 				$("a[data-handler='1']").button('loading');
 				$("a[data-handler='0']").hide('hide');
-				
+				that.job.attr('action', 'cancel')
 				that.job.save(function() {
 					bootbox.hideAll();
 
@@ -92,12 +92,39 @@ JobDetailsPage = can.Control({
 				});
 
 				return false;
-				
+
 			}
 		});
 
 	},
-	
+
+	'#btn-restart click' : function(el, ev) {
+		var that = this;
+		bootbox.animate(false);
+		bootbox.confirm("Are you sure you want to restart <b>"
+				+ that.job.attr('id') + "</b>?", function(result) {
+			if (result) {
+
+				$("a[data-handler='1']").button('loading');
+				$("a[data-handler='0']").hide('hide');
+				that.job.attr('action', 'restart')
+				that.job.save(function() {
+					bootbox.hideAll();
+
+					window.location.hash = "!pages/jobs";
+				}, function(message) {
+					// show error message
+					new ErrorPage(that.element, {
+						status : message.statusText,
+						message : message.responseText
+					});
+				});
+
+				return false;
+
+			}
+		});
+	},
 
 	// refresh if job is running
 
@@ -136,7 +163,7 @@ JobDetailsPage = can.Control({
 						status : message.statusText,
 						message : message.responseText
 					});
-					
+
 				});
 
 			}

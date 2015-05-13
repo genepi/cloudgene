@@ -58,9 +58,12 @@ import cloudgene.mapred.resources.jobs.GetJobs;
 import cloudgene.mapred.resources.jobs.GetLogs;
 import cloudgene.mapred.resources.jobs.NewGetJobStatus;
 import cloudgene.mapred.resources.jobs.NewSubmitJob;
+import cloudgene.mapred.resources.jobs.RestartJob;
 import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.users.ActivateUser;
+import cloudgene.mapred.resources.users.ChangeGroupUser;
 import cloudgene.mapred.resources.users.DeleteUser;
+import cloudgene.mapred.resources.users.GetGroups;
 import cloudgene.mapred.resources.users.GetUserDetails;
 import cloudgene.mapred.resources.users.GetUsers;
 import cloudgene.mapred.resources.users.LoginUser;
@@ -123,7 +126,9 @@ public class WebApp extends Application {
 		router.attach("/jobs/details", GetJobDetails.class);
 		router.attach("/jobs/delete", DeleteJob.class);
 		router.attach("/jobs/cancel", CancelJob.class);
+		router.attach("/jobs/restart", RestartJob.class);
 
+		
 		router.attach("/jobs/newsubmit/{tool}", NewSubmitJob.class);
 		router.attach("/jobs/newstate", NewGetJobStatus.class);
 
@@ -170,6 +175,9 @@ public class WebApp extends Application {
 		router.attach("/users/reset", ResetPassword.class);
 		router.attach("/users/activate/{user}/{code}", ActivateUser.class);
 		router.attach("/users/delete", DeleteUser.class);
+		router.attach("/users/changegroup}", ChangeGroupUser.class);
+		router.attach("/admin/groups}", GetGroups.class);
+
 		router.attach("/users/update", UpdateUser.class);
 		router.attach("/users/update2", UpdateUser2.class);
 		router.attach("/users/update-password", UpdateUserPassword2.class);
