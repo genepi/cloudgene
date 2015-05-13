@@ -1,5 +1,5 @@
 #! /bin/bash
-#  /etc/init.d/mydaemon
+#  Cloudgene Daemon
 
 ### BEGIN INIT INFO
 # Provides:          mydaemon
@@ -17,24 +17,26 @@
 NAME="cloudgene"
 DESC="Cloudgene Webservice"
 
-# The path to Jsvc
+# can also be set from command line
+user=hadoop
+
+# The path to jsvc
 EXEC=`which jsvc`
 
 # The path to the folder containing MyDaemon.jar
 FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-export JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
-
+# Hadoop path with all jars
 HADOOP_CLASS_PATH=`hadoop classpath`
+
+# set JAVA PATH
+JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 
 # Our classpath including our jar file
 CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"
 
 # The fully qualified name of the class to execute
 CLASS="cloudgene.mapred.Main"
-
-# Any command line arguments to be passed to the our Java Daemon implementations init() method 
-ARGS=""
 
 
 # The file that will contain our process identification number (pid) for other scripts/programs that need to access it.
@@ -46,19 +48,95 @@ LOG_OUT="$FILE_PATH/log/$NAME.out"
 # System.err writes to this file...
 LOG_ERR="$FILE_PATH/err/$NAME.err"
 
-jsvc_exec()
-{   
-    cd $FILE_PATH
-    $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
+
+# display the script usage
+function usage {
+  echo "Cloudgene as a Daemon"
+  echo "Available actions : status, start/stop/restart"
+  echo "Usage :"
+  echo "   sudo $NAME -a start -u <user>"
+
 }
 
-case "$1" in
+# APP running
+function is_app_running {
+
+
+  JSVC_PID_FILE="/var/run/$NAME.pid"
+  if [[ -s $JSVC_PID_FILE ]]; then
+    PID=`cat $JSVC_PID_FILE`
+    ps "$PID" > /dev/null
+    if [[ $? -eq 0 ]]; then
+      log "Application is running with pid $PID"
+      return 0
+    else
+      log "Application is not running"
+      rm -f $JSVC_PID_FILE
+      return 1
+    fi
+  else
+    log "Application is not running"
+    return 1    
+  fi
+}
+
+# log (echo) the given message only if we are not in the "quiet" mode
+function log {
+  if [[ ! $QUIET && -n $1 ]]; then
+    if [[ $PRINT_TIME ]]; then
+      TIME=`date +%T.%2N`" "
+    else
+      TIME=""
+    fi
+    echo "$TIME$1"
+  fi
+}
+
+
+jsvc_exec() 
+{   
+    cd $FILE_PATH
+    $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -debug -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
+}
+
+
+while getopts ":a:u:j:" opt; do
+  case $opt in
+ a)
+      ACTION=$OPTARG
+      ;;
+    u)
+       echo "-u was triggered, Parameter: $OPTARG" >&2
+       user=$OPTARG
+      ;;
+    j)
+       echo "-j was triggered, Parameter: $OPTARG" >&2
+       JAVA_HOME=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+    *)
+      echo "Option -$OPTARG requires an argument."
+      usage
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument."
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+case "$ACTION" in
     start)
-        if [ -f "$PID" ]; then
-
-            echo "Daemon is running, no action taken"
-
-        else
+       
+ 		if is_app_running; then
+  			  log "Application is already running, not starting it"
+	
+		else
+			
 
             echo "Starting the $DESC..."        
         
@@ -98,8 +176,11 @@ case "$1" in
             exit 1
         fi
             ;;
-    *)
-    echo "Usage: /etc/init.d/$NAME {start|stop|restart}" >&2
+ status) 
+    is_app_running
+    ;;
+	*)
+    echo "Usage: $NAME {start|stop|restart}" >&2
     exit 3
     ;;
 esac
