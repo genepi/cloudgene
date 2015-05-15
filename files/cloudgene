@@ -17,9 +17,6 @@
 NAME="cloudgene"
 DESC="Cloudgene Webservice"
 
-# can also be set from command line
-user=hadoop
-
 # The path to jsvc
 EXEC=`which jsvc`
 
@@ -30,13 +27,16 @@ FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 HADOOP_CLASS_PATH=`hadoop classpath`
 
 # set JAVA PATH
-JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+JAVA_HOME="/opt/jdk1.7.0_25/"
 
 # Our classpath including our jar file
 CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"
 
 # The fully qualified name of the class to execute
 CLASS="cloudgene.mapred.Main"
+
+# can also be set from command line
+user=""
 
 
 # The file that will contain our process identification number (pid) for other scripts/programs that need to access it.
@@ -51,14 +51,26 @@ LOG_ERR="$FILE_PATH/err/$NAME.err"
 
 # display the script usage
 function usage {
-  echo "Cloudgene as a Daemon"
-  echo "Available actions : status, start/stop/restart"
+  echo "Man Page - Cloudgene as a Daemon"
+  echo "Available actions : start/stop/restart/status"
   echo "Usage :"
-  echo "   sudo $NAME -a start -u <user>"
+  echo "  $0 -a start [-u] [-j] [-d]"
+  echo "     start Cloudgene"
+  echo "  $0 -a stop [-u] [-j] [-d]"
+  echo "     stop Cloudgene"
+  echo "  $0 -a restart [-u] [-j] [-d]"
+  echo "     restart Cloudgene"
+  echo "  $0 -a status [-u] [-j] [-d]"
+  echo "     status of Cloudgene"
+  echo "Options : "
+  echo "   -u:  Hadoop user to start Cloudgene; default is hadoop"
+  echo "   -j:  full java-path without bin (e.g. /opt/jdk1.7.0_25/); default is detected automatically"
+  echo "   -d : debug mode: print anything"
+  echo "   -d : print this site"
 
 }
 
-# APP running
+# check if APP is running
 function is_app_running {
 
 
@@ -67,16 +79,29 @@ function is_app_running {
     PID=`cat $JSVC_PID_FILE`
     ps "$PID" > /dev/null
     if [[ $? -eq 0 ]]; then
-      log "Application is running with pid $PID"
+      log "Cloudgene is running with pid $PID"
       return 0
     else
-      log "Application is not running"
+      log "Cloudgene is not running"
       rm -f $JSVC_PID_FILE
       return 1
     fi
   else
-    log "Application is not running"
+    log "Cloudgene is not running"
     return 1    
+  fi
+}
+
+# some basic checks. improvement required
+function check_setup {
+  if [[ -z $JAVA_HOME ]]; then
+    log "Missing JAVA_HOME variable"
+    return 1
+  elif [[ -z $user ]]; then
+  log "No Cloudgene user set"
+  return 1
+  else
+   return 0
   fi
 }
 
@@ -92,36 +117,53 @@ function log {
   fi
 }
 
-
+# main function
 jsvc_exec() 
 {   
-    cd $FILE_PATH
+    if ! check_setup; then
+  	log "Cloudgene not started!"
+   	return 1
+    else
+   	cd $FILE_PATH
+	if [[ $DEBUG ]]; then
     $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -debug -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
+	else
+	 $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
+    fi
+    fi
 }
 
 
-while getopts ":a:u:j:" opt; do
+while getopts ":a:u:j:dh" opt; do
   case $opt in
  a)
       ACTION=$OPTARG
       ;;
-    u)
-       echo "-u was triggered, Parameter: $OPTARG" >&2
+	u)
+       echo "starting Cloudgene with user: $OPTARG" >&2
        user=$OPTARG
       ;;
-    j)
-       echo "-j was triggered, Parameter: $OPTARG" >&2
+	j)
+       echo "setting JAVA_HOME to : $OPTARG" >&2
        JAVA_HOME=$OPTARG
       ;;
-    \?)
+    d)
+       echo "starting daemon in debug mode" >&2
+       DEBUG=YES
+      ;;
+	h)
+      usage
+      exit 0
+      ;;
+	\?)
       echo "Invalid option: -$OPTARG" >&2
       ;;
-    *)
+	*)
       echo "Option -$OPTARG requires an argument."
       usage
       exit 1
       ;;
-    :)
+	:)
       echo "Option -$OPTARG requires an argument."
       usage
       exit 1
@@ -137,13 +179,9 @@ case "$ACTION" in
 	
 		else
 			
-
             echo "Starting the $DESC..."        
-        
             # Start the service
             jsvc_exec
-        
-            echo "The $DESC has started."
         fi
     ;;
     stop)
@@ -155,7 +193,7 @@ case "$ACTION" in
         
             echo "The $DESC has stopped."
         else
-            echo "Daemon not running, no action taken"
+            echo "Cloudgene not running, no action taken"
             exit 1
         fi
     ;;
@@ -180,7 +218,8 @@ case "$ACTION" in
     is_app_running
     ;;
 	*)
-    echo "Usage: $NAME {start|stop|restart}" >&2
-    exit 3
+    usage
     ;;
 esac
+
+exit $?
