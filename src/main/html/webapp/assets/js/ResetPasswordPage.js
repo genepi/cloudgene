@@ -4,7 +4,7 @@ ResetPasswordPage = can.Control({
 
 	"init" : function(element, options) {
 		element.hide();
-		element.html(can.view('/views/reset-password.ejs'));
+		element.html(can.view('views/reset-password.ejs'));
 		element.fadeIn();
 	},
 
@@ -13,7 +13,7 @@ ResetPasswordPage = can.Control({
 		username = this.element.find("[name='username']");
 
 		$.ajax({
-			url : "/users/reset",
+			url : "users/reset",
 			type : "POST",
 			data : this.element.find("#reset-form").serialize(),
 			dataType : 'json',

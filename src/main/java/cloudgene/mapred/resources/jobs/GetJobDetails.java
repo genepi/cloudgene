@@ -93,7 +93,7 @@ public class GetJobDetails extends BaseResource {
 						"autoExport", "adminOnly", "download", "tip" });
 
 				if (user.isAdmin()) {
-					job.setLogs("/logs/" + job.getId());
+					job.setLogs("logs/" + job.getId());
 				}
 
 				JSONObject object = JSONObject.fromObject(job, config);

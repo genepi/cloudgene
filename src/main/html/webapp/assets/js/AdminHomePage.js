@@ -4,10 +4,10 @@ AdminHomePage = can.Control({
 
 	"init" : function(element, options) {
 		element.hide();
-		element.html(can.view('/views/admin/home.ejs'));
+		element.html(can.view('views/admin/home.ejs'));
 		element.fadeIn();
 		
-		$.getJSON("/statistics", function(mydata) {
+		$.getJSON("statistics", function(mydata) {
 
 			Morris.Area({
 				element : 'morris-area-chart3',

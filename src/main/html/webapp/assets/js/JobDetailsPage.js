@@ -1,7 +1,7 @@
 // Job Details Model
 JobDetails = can.Model.extend({
-	findOne : 'POST /jobs/details',
-	update : 'POST /jobs/{action}'
+	findOne : 'POST jobs/details',
+	update : 'POST jobs/{action}'
 }, {});
 
 // Job Details Page Controller
@@ -18,7 +18,7 @@ JobDetailsPage = can.Control({
 			id : options.jobId
 		}, function(job) {
 
-			that.element.html(can.view('/views/job-details.ejs', {
+			that.element.html(can.view('views/job-details.ejs', {
 				job : job,
 				results : options.results
 			}));
@@ -152,7 +152,7 @@ JobDetailsPage = can.Control({
 
 					if (this.active) {
 
-						that.element.html(can.view('/views/job-details.ejs', {
+						that.element.html(can.view('views/job-details.ejs', {
 							job : job
 						}));
 					}

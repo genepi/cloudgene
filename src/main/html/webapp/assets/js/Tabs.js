@@ -7,7 +7,6 @@ Tabs = can.Control({
 
 	'run/:app route' : function(data) {
 		
-		console.log("ldsdsadsa");
 		this.activate('run');	
 		this.page = new SubmitJobPage("#content", {tool: data.app});
 	},
@@ -88,11 +87,11 @@ Tabs = can.Control({
 			break;
 
 		case "help":
-			this.page = new StaticPage("#content", {template: '/static/help.ejs'});
+			this.page = new StaticPage("#content", {template: 'static/help.ejs'});
 			break;
 
 		case "contact":
-			this.page = new StaticPage("#content", {template: '/static/contact.ejs'});
+			this.page = new StaticPage("#content", {template: 'static/contact.ejs'});
 			break;
 
 		case "profile":

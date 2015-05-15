@@ -1,6 +1,6 @@
 //Model
 Application = can.Model({
-	findOne : 'POST /app'
+	findOne : 'POST app'
 }, {
 
 });
@@ -12,7 +12,7 @@ SubmitJobPage = can.Control({
 		that = this;
 		Application.findOne({tool:options.tool}, function(details) {
 			element.hide();
-			element.html(can.view('/views/run.ejs', {
+			element.html(can.view('views/run.ejs', {
 				details : details
 			}))
 			buildForm(options.tool, "#parameters", details.params, details.submitButton)

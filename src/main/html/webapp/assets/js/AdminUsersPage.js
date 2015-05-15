@@ -1,14 +1,14 @@
 //model
 User = can.Model({
-	findOne : 'GET /users/details',
-	destroy : 'POST /users/delete',
-	update : 'POST /users/changegroup',
-	findAll : 'GET /users'
+	findOne : 'GET users/details',
+	destroy : 'POST users/delete',
+	update : 'POST users/changegroup',
+	findAll : 'GET users'
 }, {});
 
 // model
 Group = can.Model({
-	findAll : 'GET /admin/groups',
+	findAll : 'GET admin/groups',
 }, {});
 
 // controller
@@ -21,7 +21,7 @@ AdminUsersPage = can
 					state : "failed"
 				}, function(users) {
 					that.element
-							.html(can.view('/views/admin/users.ejs', users));
+							.html(can.view('views/admin/users.ejs', users));
 					$("#content").fadeIn();
 				}, function(message) {
 					new ErrorPage(that.element, {

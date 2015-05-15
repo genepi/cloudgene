@@ -16,11 +16,14 @@ public class LoginFilter extends Filter {
 
 	private UserSessions sessions;
 
-	public LoginFilter(String loginPage, String[] protectedRequests,
-			UserSessions sessions) {
+	private String prefix = "";
+
+	public LoginFilter(String loginPage, String prefix,
+			String[] protectedRequests, UserSessions sessions) {
 		this.loginPage = loginPage;
 		this.protectedRequests = protectedRequests;
 		this.sessions = sessions;
+		this.prefix = prefix;
 	}
 
 	@Override
@@ -28,13 +31,15 @@ public class LoginFilter extends Filter {
 
 		String path = request.getResourceRef().getPath();
 
-		if (path.toLowerCase().equals(loginPage)) {
+		System.out.println(path.toLowerCase());
+		
+		if (path.toLowerCase().equals(prefix + loginPage)) {
 			String token = request.getCookies().getFirstValue(
 					UserSessions.COOKIE_NAME);
 			if (token != null) {
 				User user = sessions.getUserByToken(token);
 				if (user != null) {
-					response.redirectTemporary("/start.html");
+					response.redirectTemporary(prefix + "/start.html");
 					return STOP;
 				}
 			}
@@ -46,12 +51,12 @@ public class LoginFilter extends Filter {
 					UserSessions.COOKIE_NAME);
 
 			if (token == null) {
-				response.redirectTemporary(loginPage);
+				response.redirectTemporary(prefix + loginPage);
 				return STOP;
 			} else {
 				User user = sessions.getUserByToken(token);
 				if (user == null) {
-					response.redirectTemporary(loginPage);
+					response.redirectTemporary(prefix + loginPage);
 					return STOP;
 				}
 			}

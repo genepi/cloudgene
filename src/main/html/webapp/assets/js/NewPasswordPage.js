@@ -5,7 +5,7 @@ NewPasswordPage = can
 
 			"init" : function(element, options) {
 				element.hide();
-				element.html(can.view('/views/update-password.ejs', {
+				element.html(can.view('views/update-password.ejs', {
 					data : options.data
 				}));
 				element.fadeIn();
@@ -32,7 +32,7 @@ NewPasswordPage = can
 				}
 
 				$.ajax({
-					url : "/users/update-password",
+					url : "users/update-password",
 					type : "POST",
 					data : this.element.find("#update-password-form")
 							.serialize(),

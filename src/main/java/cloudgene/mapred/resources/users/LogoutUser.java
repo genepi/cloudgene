@@ -23,7 +23,7 @@ public class LogoutUser extends BaseResource {
 			getRequest().getCookies().removeAll(UserSessions.COOKIE_NAME);
 		}
 
-		getResponse().redirectTemporary("/");
+		getResponse().redirectTemporary("index.html");
 
 		return representation;
 	}

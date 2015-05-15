@@ -89,6 +89,8 @@ public class Settings {
 
 	private Map<String, Application> indexApps;
 
+	private String urlPrefix = "";
+
 	public Settings() {
 
 		apps = new Vector<Application>();
@@ -490,6 +492,14 @@ public class Settings {
 
 	public void setMaxRunningJobsPerUser(int maxRunningJobsPerUser) {
 		this.maxRunningJobsPerUser = maxRunningJobsPerUser;
+	}
+
+	public void setUrlPrefix(String urlPrefix) {
+		this.urlPrefix = urlPrefix;
+	}
+
+	public String getUrlPrefix() {
+		return urlPrefix;
 	}
 
 }
