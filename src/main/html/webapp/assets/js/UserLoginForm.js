@@ -2,7 +2,7 @@ UserLoginForm = can.Control({
 
 	"init" : function(element, options) {
 		element.hide();
-		element.html(can.view("/views/login.ejs"));
+		element.html(can.view("views/login.ejs"));
 		element.fadeIn();
 	},
 
@@ -12,7 +12,7 @@ UserLoginForm = can.Control({
 		username = this.element.find("[name='loginUsername']");
 
 		$.ajax({
-			url : "/login",
+			url : "login",
 			type : "POST",
 			data : this.element.find("#signin-form").serialize(),
 			dataType : 'json',

@@ -5,7 +5,7 @@ RegisterUserPage = can
 
 			"init" : function(element, options) {
 				element.hide();
-				element.html(can.view("/views/register.ejs"));
+				element.html(can.view("views/register.ejs"));
 				element.fadeIn();
 			},
 
@@ -85,7 +85,7 @@ RegisterUserPage = can
 				$('#save').button('loading');
 
 				$.ajax({
-					url : "/users/register",
+					url : "users/register",
 					type : "POST",
 					data : this.element.find("#signon-form").serialize(),
 					dataType : 'json',

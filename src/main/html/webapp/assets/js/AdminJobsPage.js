@@ -1,16 +1,16 @@
 //model
 Job = can.Model({
-	findAll : 'GET /{mode}jobs',
-	findOne : 'POST /jobs/newstate',
-	destroy : 'POST /jobs/delete',
-	update : 'POST /jobs/cancel'
+	findAll : 'GET {mode}jobs',
+	findOne : 'POST jobs/newstate',
+	destroy : 'POST jobs/delete',
+	update : 'POST jobs/cancel'
 }, {});
 
 // controller
 AdminJobsPage = can.Control({
 
 	"init" : function(element, options) {
-		element.html(can.view('/views/admin/jobs.ejs'));
+		element.html(can.view('views/admin/jobs.ejs'));
 		element.fadeIn();
 		
 		this.loadJobs(
@@ -28,7 +28,7 @@ AdminJobsPage = can.Control({
 			state : mySate
 		}, function(jobs) {
 			console.log("ok");
-			$(element).html(can.view('/views/admin/jobs-list.ejs', jobs));
+			$(element).html(can.view('views/admin/jobs-list.ejs', jobs));
 		}, function(message) {
 			new ErrorPage(that.element, {
 				status : message.statusText,

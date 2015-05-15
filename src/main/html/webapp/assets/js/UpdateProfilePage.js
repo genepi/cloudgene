@@ -1,9 +1,9 @@
 //model
 User = can.Model({
-	findOne : 'GET /users/details',
-	destroy : 'POST /users/delete',
-	findAll : 'GET /users',
-	update  : 'POST /users/changegroup',
+	findOne : 'GET users/details',
+	destroy : 'POST users/delete',
+	findAll : 'GET users',
+	update  : 'POST users/changegroup',
 }, {});
 
 UpdateProfilePage = can
@@ -12,7 +12,7 @@ UpdateProfilePage = can
 			"init" : function(element, options) {
 				element.hide();
 				User.findOne({}, function(user) {
-					element.html(can.view('/views/profile.ejs', {
+					element.html(can.view('views/profile.ejs', {
 						user : user
 					}));
 					element.fadeIn();
@@ -50,7 +50,7 @@ UpdateProfilePage = can
 				}
 
 				$.ajax({
-					url : "/users/update2",
+					url : "users/update2",
 					type : "POST",
 					data : this.element.find("#account-form").serialize(),
 					dataType : 'json',

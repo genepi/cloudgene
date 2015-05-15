@@ -1,17 +1,17 @@
 //model
 Template = can.Model({
-	findAll : 'GET /admin/templates',
-	findOne : 'POST /admin/templates',
-	destroy : 'POST /admin/templates/delete',
-	create : 'POST /admin/templates/update',
-	update : 'POST /admin/templates/update'
+	findAll : 'GET admin/templates',
+	findOne : 'POST admin/templates',
+	destroy : 'POST admin/templates/delete',
+	create : 'POST admin/templates/update',
+	update : 'POST admin/templates/update'
 }, {});
 
 // model
 Settings = can.Model({
-	findOne : 'GET /admin/settings',
-	create : 'POST /admin/settings/update',
-	update : 'POST /admin/settings/update'
+	findOne : 'GET admin/settings',
+	create : 'POST admin/settings/update',
+	update : 'POST admin/settings/update'
 }, {});
 
 // controller
@@ -24,7 +24,7 @@ AdminSettingsPage = can
 
 					Settings.findOne({}, function(settings) {
 
-						that.element.html(can.view('/views/admin/settings.ejs',
+						that.element.html(can.view('views/admin/settings.ejs',
 								{
 									snippets : snippets,
 									settings : settings
