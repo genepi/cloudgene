@@ -11,6 +11,7 @@
 ### END INIT INFO
 
 # Author:   LF and SS
+# CREDITS to https://github.com/vbehar/bade/
 # Url:      cloudgene.uibk.ac.at
 # Date:     2015
 
@@ -36,7 +37,8 @@ CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"
 CLASS="cloudgene.mapred.Main"
 
 # can also be set from command line
-user=""
+user="hadoop"
+port="8082"
 
 
 # The file that will contain our process identification number (pid) for other scripts/programs that need to access it.
@@ -52,28 +54,28 @@ LOG_ERR="$FILE_PATH/err/$NAME.err"
 # display the script usage
 function usage {
   echo "Man Page - Cloudgene as a Daemon"
-  echo "Available actions : start/stop/restart/status"
+  echo "built for with jsvc (Apache Commons Daemon) 1.0.15-dev"
+  echo "Available actions : start | stop | restart | status"
   echo "Usage :"
-  echo "  $0 -a start [-u] [-j] [-d]"
+  echo "  $0 -a start [-u] [-j] [-d] [-h]"
   echo "     start Cloudgene"
-  echo "  $0 -a stop [-u] [-j] [-d]"
+  echo "  $0 -a stop [-u] [-j] [-d] [-h]"
   echo "     stop Cloudgene"
-  echo "  $0 -a restart [-u] [-j] [-d]"
+  echo "  $0 -a restart [-u] [-j] [-d] [-h]"
   echo "     restart Cloudgene"
-  echo "  $0 -a status [-u] [-j] [-d]"
+  echo "  $0 -a status [-u] [-j] [-d] [-h]"
   echo "     status of Cloudgene"
   echo "Options : "
   echo "   -u:  Hadoop user to start Cloudgene; default is hadoop"
-  echo "   -j:  full java-path without bin (e.g. /opt/jdk1.7.0_25/); default is detected automatically"
-  echo "   -d : debug mode: print anything"
-  echo "   -d : print this site"
+  echo "   -p:  Cloudgene port; default is 8082"
+  echo "   -j:  full java-path without bin (e.g. /opt/jdk1.7.0_25/); detected automatically if not set"
+  echo "   -d : debug mode: print anything and log everything on commandline"
+  echo "   -h : print this site"
 
 }
 
 # check if APP is running
 function is_app_running {
-
-
   JSVC_PID_FILE="/var/run/$NAME.pid"
   if [[ -s $JSVC_PID_FILE ]]; then
     PID=`cat $JSVC_PID_FILE`
@@ -100,6 +102,9 @@ function check_setup {
   elif [[ -z $user ]]; then
   log "No Cloudgene user set"
   return 1
+  elif [[ -z $port ]]; then
+  log "No port set"
+  return 1
   else
    return 0
   fi
@@ -118,23 +123,24 @@ function log {
 }
 
 # main function
+# main function
 jsvc_exec() 
 {   
     if ! check_setup; then
   	log "Cloudgene not started!"
    	return 1
+    elif [ $DEBUG ]
+    then
+        echo "DEBUG MODE"
+        $EXEC -cwd $FILE_PATH -nodetach -home $JAVA_HOME -cp $CLASS_PATH -debug -user $user -pidfile $PID $1 $CLASS --port $port 
     else
-   	cd $FILE_PATH
-	if [[ $DEBUG ]]; then
-    $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -debug -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
-	else
-	 $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS $ARGS
-    fi
+        echo "logging to" $LOG_OUT
+        $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS --port $port
     fi
 }
 
 
-while getopts ":a:u:j:dh" opt; do
+while getopts ":a:u:j:p:dh" opt; do
   case $opt in
  a)
       ACTION=$OPTARG
@@ -149,7 +155,11 @@ while getopts ":a:u:j:dh" opt; do
       ;;
     d)
        echo "starting daemon in debug mode" >&2
-       DEBUG=YES
+	   DEBUG=YES
+      ;;
+    p)
+       echo "starting Cloudgene on port:: $OPTARG" >&2
+       port=$OPTARG
       ;;
 	h)
       usage
@@ -191,7 +201,7 @@ case "$ACTION" in
             # Stop the service
             jsvc_exec "-stop"       
         
-            echo "The $DESC has stopped."
+            echo "The $DESC has been stopped."
         else
             echo "Cloudgene not running, no action taken"
             exit 1
@@ -204,11 +214,11 @@ case "$ACTION" in
             
             # Stop the service
             jsvc_exec "-stop"
-            
+
             # Start the service
             jsvc_exec
             
-            echo "The $DESC has restarted."
+            echo "The $DESC has been restarted."
         else
             echo "Daemon not running, no action taken"
             exit 1
