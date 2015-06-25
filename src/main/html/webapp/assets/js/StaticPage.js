@@ -8,7 +8,7 @@ StaticPage = can.Control({
 			view = can.view(options.template);
 			element.html(view);
 		}catch(e){
-			element.html(can.view('/views/error.ejs', {
+			element.html(can.view('views/error.ejs', {
 				error : {
 					statusText : "404",
 					responseText : "Page " + options.template + " not found."

@@ -16,6 +16,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.daemon.Daemon;
+import org.apache.commons.daemon.DaemonContext;
+import org.apache.commons.daemon.DaemonInitException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
@@ -34,13 +37,27 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 
-public class Main {
+public class Main implements Daemon {
 
 	// private static final Log log = LogFactory.getLog(Main.class);
 
 	public static final String VERSION = "1.9.9";
 
-	public static void main(String[] args) throws IOException {
+	private Database database;
+
+	private WebServer server;
+
+	private String[] args = new String[] {};
+
+	@Override
+	public void init(DaemonContext context) throws DaemonInitException,
+			Exception {
+		args = context.getArguments();
+
+	}
+
+	@Override
+	public void start() throws Exception {
 
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
@@ -64,16 +81,7 @@ public class Main {
 
 		Log log = LogFactory.getLog(Main.class);
 
-		ClassLoader cl1 = Thread.currentThread().getContextClassLoader();
-
-		while (cl1 != null) {
-			URL loc = cl1.getResource("log4j.properties");
-			System.out.println("Search and destroy --> " + loc);
-			cl1 = cl1.getParent();
-		}
-
 		log.info("Cloudgene " + VERSION);
-
 		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
 		try {
 			URL url = cl.findResource("META-INF/MANIFEST.MF");
@@ -120,7 +128,7 @@ public class Main {
 		H2Connector connector = new H2Connector("data/mapred", "mapred",
 				"mapred", false);
 
-		Database database = new Database();
+		database = new Database();
 
 		try {
 
@@ -149,7 +157,8 @@ public class Main {
 			log.info("Database needs update.");
 			if (!askimedUpdater.update()) {
 				log.error("Updating database failed.");
-				return;
+				database.disconnect();
+				System.exit(1);
 			}
 		} else {
 			log.info("Database is uptodate.");
@@ -172,14 +181,9 @@ public class Main {
 
 		if (!settings.testPaths()) {
 
-			try {
-				database.disconnect();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
+			database.disconnect();
 			System.exit(1);
+
 		}
 
 		// create directories
@@ -255,7 +259,7 @@ public class Main {
 				pagesFolder = "sample/pages";
 			}
 
-			WebServer server = new WebServer();
+			server = new WebServer();
 			server.setPort(port);
 			server.setRootDirectory(webAppFolder);
 			server.setPagesDirectory(pagesFolder);
@@ -276,18 +280,27 @@ public class Main {
 			log.error("Can't launch the web server.\nAn unexpected "
 					+ "exception occured:", e);
 
-			try {
-
-				database.disconnect();
-
-			} catch (SQLException e1) {
-
-				log.error("An unexpected " + "exception occured:", e);
-
-			}
+			database.disconnect();
 
 			System.exit(1);
 
 		}
+	}
+
+	@Override
+	public void destroy() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void stop() throws Exception {
+		server.stop();
+		database.disconnect();
+	}
+
+	public static void main(String[] args) throws Exception {
+		Main main = new Main();
+		main.start();
 	}
 }

@@ -1,5 +1,6 @@
 package cloudgene.sample;
 
+import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.hadoop.common.WorkflowStep;
 import genepi.io.FileUtil;
@@ -84,7 +85,11 @@ public class SampleStep extends WorkflowStep {
 
 		// TODO: write file to hdfs temp directory
 
-		context.ok("HDFS File System check");
+		HdfsUtil.delete("cloudgene-test/test-file.txt");
+		FileUtil.writeStringBufferToFile("lf.txt", new StringBuffer("lf-yeah!"));
+		HdfsUtil.put("lf.txt", "cloudgene-test/test-file.txt");
+
+		context.ok("HDFS File System check (check if file cloudgene-test/test-file.txt exists in hdfs!)");
 
 		// TODO: write file to local temp directory
 
@@ -120,5 +125,4 @@ public class SampleStep extends WorkflowStep {
 		return true;
 
 	}
-
 }

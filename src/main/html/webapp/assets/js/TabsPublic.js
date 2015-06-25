@@ -8,12 +8,12 @@ TabsPublic = can.Control({
 		this.activate('register');
 
 		$.ajax({
-			url : "/users/activate/" + data.user + "/" + data.key,
+			url : "users/activate/" + data.user + "/" + data.key,
 			type : "GET",
 			data : $(this).serialize(),
 			dataType : 'json',
 			success : function(data) {
-				$("#content").hide().html(can.view('/views/activate.ejs', {
+				$("#content").hide().html(can.view('views/activate.ejs', {
 					data : data
 				})).fadeIn();
 			},
@@ -86,7 +86,7 @@ TabsPublic = can.Control({
 		case "activate":
 
 			this.page = new StaticPage("#content", {
-				template : '/views/activate.ejs'
+				template : 'views/activate.ejs'
 			});
 			break;
 
@@ -108,13 +108,13 @@ TabsPublic = can.Control({
 
 		case "help":
 			this.page = new StaticPage("#content", {
-				template : '/static/help.ejs'
+				template : 'static/help.ejs'
 			});
 			break;
 
 		case "contact":
 			this.page = new StaticPage("#content", {
-				template : '/static/contact.ejs'
+				template : 'static/contact.ejs'
 			});
 			break;
 

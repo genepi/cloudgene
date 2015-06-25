@@ -1,7 +1,7 @@
 // Static Page Controller
 
 Counter = can.Model({
-	findOne : 'GET /counters'
+	findOne : 'GET counters'
 }, {
 
 });
@@ -13,7 +13,7 @@ HomePage = can.Control({
 		that = this;
 		Counter.findOne({}, function(counter) {
 			that.element.hide();
-			that.element.html(can.view('/static/home.ejs',{counter: counter, loggedIn: !options.login}));
+			that.element.html(can.view('static/home.ejs',{counter: counter, loggedIn: !options.login}));
 			that.element.fadeIn();
 			if (options.login) {
 				new UserLoginForm("#login-form");

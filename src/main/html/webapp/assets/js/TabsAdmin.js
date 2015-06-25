@@ -69,25 +69,25 @@ TabsAdmin = can.Control({
 
 		case "admin-piggene":
 			$("#content").hide();
-			$("#content").html(can.view('/views/admin/piggene.ejs'));
+			$("#content").html(can.view('views/admin/piggene.ejs'));
 			$("#content").fadeIn();
 
 			break;
 			
 		case "admin-logs":
 			$("#content").hide();
-			$("#content").html(can.view('/views/admin/logs.ejs'));
+			$("#content").html(can.view('views/admin/logs.ejs'));
 			$("#content").fadeIn();
-			$("#log-cloudgene").load("/console/logs/cloudgene.log");
-			$("#log-access").load("/console/logs/access.log");
+			$("#log-cloudgene").load("console/logs/cloudgene.log");
+			$("#log-access").load("console/logs/access.log");
 			$("#log-jobs").load(
-					"/console/logs/jobs.log",
+					"console/logs/jobs.log",
 					function(response, status, xhr) {
 
 						if (status == "error") {
 							var msg = "Sorry but there was an error: ";
 							$("#content").hide().html(
-									can.view('/views/error.ejs', {
+									can.view('views/error.ejs', {
 										error : {
 											statusText : xhr.statusText,
 											responseText : xhr.responseText

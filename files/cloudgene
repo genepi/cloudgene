@@ -1,0 +1,235 @@
+#! /bin/bash
+#  Cloudgene Daemon
+
+### BEGIN INIT INFO
+# Provides:          mydaemon
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Short-Description: Starts the MyDaemon service
+# Description:       This file is used to start the daemon
+#                    and should be placed in /etc/init.d
+### END INIT INFO
+
+# Author:   LF and SS
+# CREDITS to https://github.com/vbehar/bade/
+# Url:      cloudgene.uibk.ac.at
+# Date:     2015
+
+NAME="cloudgene"
+DESC="Cloudgene Webservice"
+
+# The path to jsvc
+EXEC=`which jsvc`
+
+# The path to the folder containing MyDaemon.jar
+FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+# Hadoop path with all jars
+HADOOP_CLASS_PATH=`hadoop classpath`
+
+# set JAVA PATH
+JAVA_HOME="/opt/jdk1.7.0_25/"
+
+# Our classpath including our jar file
+CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"
+
+# The fully qualified name of the class to execute
+CLASS="cloudgene.mapred.Main"
+
+# can also be set from command line
+user="hadoop"
+port="8082"
+
+
+# The file that will contain our process identification number (pid) for other scripts/programs that need to access it.
+PID="/var/run/$NAME.pid"
+
+# System.out writes to this file...
+LOG_OUT="$FILE_PATH/log/$NAME.out"
+
+# System.err writes to this file...
+LOG_ERR="$FILE_PATH/err/$NAME.err"
+
+
+# display the script usage
+function usage {
+  echo "Man Page - Cloudgene as a Daemon"
+  echo "built for with jsvc (Apache Commons Daemon) 1.0.15-dev"
+  echo "Available actions : start | stop | restart | status"
+  echo "Usage :"
+  echo "  $0 -a start [-u] [-j] [-d] [-h]"
+  echo "     start Cloudgene"
+  echo "  $0 -a stop [-u] [-j] [-d] [-h]"
+  echo "     stop Cloudgene"
+  echo "  $0 -a restart [-u] [-j] [-d] [-h]"
+  echo "     restart Cloudgene"
+  echo "  $0 -a status [-u] [-j] [-d] [-h]"
+  echo "     status of Cloudgene"
+  echo "Options : "
+  echo "   -u:  Hadoop user to start Cloudgene; default is hadoop"
+  echo "   -p:  Cloudgene port; default is 8082"
+  echo "   -j:  full java-path without bin (e.g. /opt/jdk1.7.0_25/); detected automatically if not set"
+  echo "   -d : debug mode: print anything and log everything on commandline"
+  echo "   -h : print this site"
+
+}
+
+# check if APP is running
+function is_app_running {
+  JSVC_PID_FILE="/var/run/$NAME.pid"
+  if [[ -s $JSVC_PID_FILE ]]; then
+    PID=`cat $JSVC_PID_FILE`
+    ps "$PID" > /dev/null
+    if [[ $? -eq 0 ]]; then
+      log "Cloudgene is running with pid $PID"
+      return 0
+    else
+      log "Cloudgene is not running"
+      rm -f $JSVC_PID_FILE
+      return 1
+    fi
+  else
+    log "Cloudgene is not running"
+    return 1    
+  fi
+}
+
+# some basic checks. improvement required
+function check_setup {
+  if [[ -z $JAVA_HOME ]]; then
+    log "Missing JAVA_HOME variable"
+    return 1
+  elif [[ -z $user ]]; then
+  log "No Cloudgene user set"
+  return 1
+  elif [[ -z $port ]]; then
+  log "No port set"
+  return 1
+  else
+   return 0
+  fi
+}
+
+# log (echo) the given message only if we are not in the "quiet" mode
+function log {
+  if [[ ! $QUIET && -n $1 ]]; then
+    if [[ $PRINT_TIME ]]; then
+      TIME=`date +%T.%2N`" "
+    else
+      TIME=""
+    fi
+    echo "$TIME$1"
+  fi
+}
+
+# main function
+# main function
+jsvc_exec() 
+{   
+    if ! check_setup; then
+  	log "Cloudgene not started!"
+   	return 1
+    elif [ $DEBUG ]
+    then
+        echo "DEBUG MODE"
+        $EXEC -cwd $FILE_PATH -nodetach -home $JAVA_HOME -cp $CLASS_PATH -debug -user $user -pidfile $PID $1 $CLASS --port $port 
+    else
+        echo "logging to" $LOG_OUT
+        $EXEC -cwd $FILE_PATH -home $JAVA_HOME -cp $CLASS_PATH -outfile $LOG_OUT -user $user -errfile $LOG_ERR -pidfile $PID $1 $CLASS --port $port
+    fi
+}
+
+
+while getopts ":a:u:j:p:dh" opt; do
+  case $opt in
+ a)
+      ACTION=$OPTARG
+      ;;
+	u)
+       echo "starting Cloudgene with user: $OPTARG" >&2
+       user=$OPTARG
+      ;;
+	j)
+       echo "setting JAVA_HOME to : $OPTARG" >&2
+       JAVA_HOME=$OPTARG
+      ;;
+    d)
+       echo "starting daemon in debug mode" >&2
+	   DEBUG=YES
+      ;;
+    p)
+       echo "starting Cloudgene on port:: $OPTARG" >&2
+       port=$OPTARG
+      ;;
+	h)
+      usage
+      exit 0
+      ;;
+	\?)
+      echo "Invalid option: -$OPTARG" >&2
+      ;;
+	*)
+      echo "Option -$OPTARG requires an argument."
+      usage
+      exit 1
+      ;;
+	:)
+      echo "Option -$OPTARG requires an argument."
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+case "$ACTION" in
+    start)
+       
+ 		if is_app_running; then
+  			  log "Application is already running, not starting it"
+	
+		else
+			
+            echo "Starting the $DESC..."        
+            # Start the service
+            jsvc_exec
+        fi
+    ;;
+    stop)
+        if [ -f "$PID" ]; then
+            echo "Stopping the $DESC..."
+        
+            # Stop the service
+            jsvc_exec "-stop"       
+        
+            echo "The $DESC has been stopped."
+        else
+            echo "Cloudgene not running, no action taken"
+            exit 1
+        fi
+    ;;
+    restart)
+        if [ -f "$PID" ]; then
+            
+            echo "Restarting the $DESC..."
+            
+            # Stop the service
+            jsvc_exec "-stop"
+
+            # Start the service
+            jsvc_exec
+            
+            echo "The $DESC has been restarted."
+        else
+            echo "Daemon not running, no action taken"
+            exit 1
+        fi
+            ;;
+ status) 
+    is_app_running
+    ;;
+	*)
+    usage
+    ;;
+esac
+
+exit $?

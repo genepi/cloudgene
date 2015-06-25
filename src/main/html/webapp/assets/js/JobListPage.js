@@ -1,9 +1,9 @@
 //model
 Job = can.Model({
-	findAll : 'GET /{mode}jobs',
-	findOne : 'POST /jobs/newstate',
-	destroy : 'POST /jobs/delete',
-	update : 'POST /jobs/cancel'
+	findAll : 'GET {mode}jobs',
+	findOne : 'POST jobs/newstate',
+	destroy : 'POST jobs/delete',
+	update : 'POST jobs/cancel'
 }, {});
 
 // controller
@@ -23,7 +23,7 @@ JobListPage = can.Control({
 					that.options.refreshers.push(refresher);
 				}
 			});
-			that.element.html(can.view('/views/jobs.ejs', jobs));
+			that.element.html(can.view('views/jobs.ejs', jobs));
 			that.element.find("#job-list").dataTable({
 				paging : true,
 				ordering : false,

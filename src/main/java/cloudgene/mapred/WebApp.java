@@ -110,120 +110,131 @@ public class WebApp extends Application {
 
 	@Override
 	public synchronized Restlet createInboundRoot() {
+
+		String prefix = settings.getUrlPrefix();
+
 		// Create a router Restlet that routes each call to a
 		Router router = new Router(getContext());
-		String target = "riap://host/index.html";
+		String target = prefix + "/index.html";
 		Redirector redirector = new Redirector(getContext(), target,
-				Redirector.MODE_SERVER_OUTBOUND);
-		TemplateRoute route = router.attach("/", redirector);
+				Redirector.MODE_CLIENT_PERMANENT);
+		TemplateRoute route = router.attach(prefix, redirector);
 		route.setMatchingMode(Template.MODE_EQUALS);
 
-		router.attach("/index.html", Index.class);
-		router.attach("/start.html", Start.class);
-		router.attach("/admin.html", Admin.class);
+		route = router.attach(prefix + "/", redirector);
+		route.setMatchingMode(Template.MODE_EQUALS);
 
-		router.attach("/jobs", GetJobs.class);
-		router.attach("/jobs/details", GetJobDetails.class);
-		router.attach("/jobs/delete", DeleteJob.class);
-		router.attach("/jobs/cancel", CancelJob.class);
-		router.attach("/jobs/restart", RestartJob.class);
+		router.attach(prefix + "/index.html", Index.class);
+		router.attach(prefix + "/start.html", Start.class);
+		router.attach(prefix + "/admin.html", Admin.class);
 
-		
-		router.attach("/jobs/newsubmit/{tool}", NewSubmitJob.class);
-		router.attach("/jobs/newstate", NewGetJobStatus.class);
+		router.attach(prefix + "/jobs", GetJobs.class);
+		router.attach(prefix + "/jobs/details", GetJobDetails.class);
+		router.attach(prefix + "/jobs/delete", DeleteJob.class);
+		router.attach(prefix + "/jobs/cancel", CancelJob.class);
+		router.attach(prefix + "/jobs/restart", RestartJob.class);
 
-		router.attach("/counters", GetCounter.class);
+		router.attach(prefix + "/jobs/newsubmit/{tool}", NewSubmitJob.class);
+		router.attach(prefix + "/jobs/newstate", NewGetJobStatus.class);
 
-		router.attach("/cluster", GetClusterDetails.class);
+		router.attach(prefix + "/counters", GetCounter.class);
+
+		router.attach(prefix + "/cluster", GetClusterDetails.class);
 
 		// router.attach("/killAllJobs", KillAllJobs.class);
 
-		router.attach("/results/{job}/{id}", DownloadResults.class);
-		router.attach("/results/{job}/{id}/{filename}", DownloadResults.class);
-		router.attach("/results/{job}/{id}/{filename}/{filename2}",
+		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
+		router.attach(prefix + "/results/{job}/{id}/{filename}",
 				DownloadResults.class);
-		router.attach("/share/{username}/{hash}/{filename}", ShareResults.class);
+		router.attach(prefix + "/results/{job}/{id}/{filename}/{filename2}",
+				DownloadResults.class);
+		router.attach(prefix + "/share/{username}/{hash}/{filename}",
+				ShareResults.class);
 
-		router.attach("/logs/{id}", GetLogs.class);
-		router.attach("/logs/{id}/{file}", GetLogs.class);
+		router.attach(prefix + "/logs/{id}", GetLogs.class);
+		router.attach(prefix + "/logs/{id}/{file}", GetLogs.class);
 
-		router.attach("/hdfs/files", GetFileList.class);
-		router.attach("/hdfs/folders", GetFolderList.class);
-		router.attach("/hdfs/import", ImportFiles.class);
-		router.attach("/hdfs/upload", FileUploadRessource.class);
-		router.attach("/hdfs/delete", RemoveFiles.class);
-		router.attach("/hdfs/new", NewFolder.class);
-		router.attach("/hdfs/rename", RenameFile.class);
+		router.attach(prefix + "/hdfs/files", GetFileList.class);
+		router.attach(prefix + "/hdfs/folders", GetFolderList.class);
+		router.attach(prefix + "/hdfs/import", ImportFiles.class);
+		router.attach(prefix + "/hdfs/upload", FileUploadRessource.class);
+		router.attach(prefix + "/hdfs/delete", RemoveFiles.class);
+		router.attach(prefix + "/hdfs/new", NewFolder.class);
+		router.attach(prefix + "/hdfs/rename", RenameFile.class);
 
-		router.attach("/local/files", GetLocalFiles.class);
+		router.attach(prefix + "/local/files", GetLocalFiles.class);
 
-		router.attach("/sftp/files", GetSftpFiles.class);
+		router.attach(prefix + "/sftp/files", GetSftpFiles.class);
 
-		router.attach("/import/validate", ValidateImport.class);
+		router.attach(prefix + "/import/validate", ValidateImport.class);
 
-		router.attach("/buckets/public", GetBucketsPublic.class);
-		router.attach("/buckets/private", GetBucketsPrivate.class);
-		router.attach("/buckets/my", GetMyBuckets.class);
+		router.attach(prefix + "/buckets/public", GetBucketsPublic.class);
+		router.attach(prefix + "/buckets/private", GetBucketsPrivate.class);
+		router.attach(prefix + "/buckets/my", GetMyBuckets.class);
 
-		router.attach("/app", GetApp.class);
-		router.attach("/apps", GetApps.class);
+		router.attach(prefix + "/app", GetApp.class);
+		router.attach(prefix + "/apps", GetApps.class);
 
 		// Users
-		router.attach("/users", GetUsers.class);
-		router.attach("/users/new", NewUser.class);
-		router.attach("/users/register", RegisterUser.class);
-		router.attach("/users/reset", ResetPassword.class);
-		router.attach("/users/activate/{user}/{code}", ActivateUser.class);
-		router.attach("/users/delete", DeleteUser.class);
-		router.attach("/users/changegroup}", ChangeGroupUser.class);
-		router.attach("/admin/groups}", GetGroups.class);
+		router.attach(prefix + "/users", GetUsers.class);
+		router.attach(prefix + "/users/new", NewUser.class);
+		router.attach(prefix + "/users/register", RegisterUser.class);
+		router.attach(prefix + "/users/reset", ResetPassword.class);
+		router.attach(prefix + "/users/activate/{user}/{code}",
+				ActivateUser.class);
+		router.attach(prefix + "/users/delete", DeleteUser.class);
+		router.attach(prefix + "/users/changegroup}", ChangeGroupUser.class);
+		router.attach(prefix + "/admin/groups}", GetGroups.class);
 
-		router.attach("/users/update", UpdateUser.class);
-		router.attach("/users/update2", UpdateUser2.class);
-		router.attach("/users/update-password", UpdateUserPassword2.class);
+		router.attach(prefix + "/users/update", UpdateUser.class);
+		router.attach(prefix + "/users/update2", UpdateUser2.class);
+		router.attach(prefix + "/users/update-password",
+				UpdateUserPassword2.class);
 
-		router.attach("/users/details", GetUserDetails.class);
-		router.attach("/login", LoginUser.class);
-		router.attach("/logout", LogoutUser.class);
+		router.attach(prefix + "/users/details", GetUserDetails.class);
+		router.attach(prefix + "/login", LoginUser.class);
+		router.attach(prefix + "/logout", LogoutUser.class);
 
 		// Admin
-		router.attach("/admin/queue/open", OpenQueue.class);
-		router.attach("/admin/queue/block", BlockQueue.class);
-		router.attach("/admin/maintenance/enter", EnterMaintenance.class);
-		router.attach("/admin/maintenance/exit", ExitMaintenance.class);
-		router.attach("/admin/templates", GetTemplates.class);
-		router.attach("/admin/templates/update", UpdateTemplate.class);
-		router.attach("/admin/jobs", GetAllJobs.class);
-		router.attach("/admin/settings", GetSettings.class);
-		router.attach("/admin/settings/update", UpdateSettings.class);
+		router.attach(prefix + "/admin/queue/open", OpenQueue.class);
+		router.attach(prefix + "/admin/queue/block", BlockQueue.class);
+		router.attach(prefix + "/admin/maintenance/enter",
+				EnterMaintenance.class);
+		router.attach(prefix + "/admin/maintenance/exit", ExitMaintenance.class);
+		router.attach(prefix + "/admin/templates", GetTemplates.class);
+		router.attach(prefix + "/admin/templates/update", UpdateTemplate.class);
+		router.attach(prefix + "/admin/jobs", GetAllJobs.class);
+		router.attach(prefix + "/admin/settings", GetSettings.class);
+		router.attach(prefix + "/admin/settings/update", UpdateSettings.class);
 
-		router.attach("/admin/retire/start", StartRetire.class);
+		router.attach(prefix + "/admin/retire/start", StartRetire.class);
 
-		router.attach("/updateUserSettings", UpdateUserSettings.class);
-		router.attach("/updateCredentials", UpdateCredentials.class);
-		router.attach("/updateUserPassword", UpdateUserPassword.class);
+		router.attach(prefix + "/updateUserSettings", UpdateUserSettings.class);
+		router.attach(prefix + "/updateCredentials", UpdateCredentials.class);
+		router.attach(prefix + "/updateUserPassword", UpdateUserPassword.class);
 
-		router.attach("/console/logs/{logfile}",
+		router.attach(prefix + "/console/logs/{logfile}",
 				cloudgene.mapred.resources.admin.GetLogs.class);
 
-		router.attach("/statistics", GetStatistics.class);
+		router.attach(prefix + "/statistics", GetStatistics.class);
 
 		setStatusService(new CustomStatusService());
 
 		Directory dir = new Directory(getContext(), webRoot2);
 		dir.setListingAllowed(false);
 
-		route = router.attach("/static", dir);
+		route = router.attach(prefix + "/static", dir);
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
 		dir = new Directory(getContext(), webRoot);
 		dir.setListingAllowed(false);
 
-		route = router.attach("/", dir);
+		route = router.attach(prefix + "/", dir);
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
-		String[] protectedFiles = { "/start.html" };
-		LoginFilter filter = new LoginFilter("/", protectedFiles, getSessions());
+		String[] protectedFiles = { prefix + "/start.html" };
+		LoginFilter filter = new LoginFilter("/index.html", prefix,
+				protectedFiles, getSessions());
 		filter.setNext(router);
 
 		return filter;
