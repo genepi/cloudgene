@@ -61,8 +61,7 @@ public class Planner {
 			template.merge(context2, sw);
 
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw e;
 		}
 
 		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(),
