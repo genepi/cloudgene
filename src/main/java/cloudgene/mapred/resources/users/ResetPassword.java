@@ -45,7 +45,7 @@ public class ResetPassword extends BaseResource {
 			// send email with activation code
 
 			String application = getSettings().getName();
-			String subject = "[" + application + "] Password recocery";
+			String subject = "[" + application + "] Password Recovery";
 			String body = getWebApp().getTemplate(
 					Template.RECOVERY_MAIL, user.getFullName(), application,
 					link);
