@@ -209,13 +209,6 @@
 			<version>1.06</version>
 		</dependency>
 
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-client</artifactId>
-			<version>2.5.0-cdh5.3.0</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
 			<artifactId>velocity</artifactId>
