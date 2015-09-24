@@ -28,7 +28,7 @@ function buildForm(application, element, params, submitButtonText) {
 				buildList(divControls, param);
 			} else if (param.type == "number") {
 				buildNumber(divControls, param);
-			} else if (param.type == "hdfs-file") {
+			} else if (param.type == "hdfs-file" || param.type == "local-folder") {
 				buildHdfsFile(divControls, param);
 			} else if (param.type == "hdfs-folder" || param.type == "local-folder") {
 				buildHdfsFolder(divControls, param);
