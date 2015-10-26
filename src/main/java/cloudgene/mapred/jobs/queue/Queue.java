@@ -17,6 +17,8 @@ public abstract class Queue implements Runnable {
 
 	private HashMap<AbstractJob, Future<?>> futures;
 
+	private HashMap<AbstractJob, Runnable> runnables;
+	
 	private Scheduler scheduler;
 
 	private String name = "";
@@ -25,6 +27,7 @@ public abstract class Queue implements Runnable {
 
 	public Queue(String name, int threads) {
 		futures = new HashMap<AbstractJob, Future<?>>();
+		runnables = new HashMap<AbstractJob, Runnable>();
 		queue = new Vector<AbstractJob>();
 		scheduler = new Scheduler(threads);
 		this.name = name;
@@ -37,7 +40,9 @@ public abstract class Queue implements Runnable {
 			synchronized (queue) {
 
 				Runnable runnable = createRunnable(job);
-
+				runnables.put(job, runnable);
+				
+				
 				Future<?> future = scheduler.submit(runnable);
 				futures.put(job, future);
 				queue.add(job);
@@ -66,7 +71,10 @@ public abstract class Queue implements Runnable {
 			synchronized (futures) {
 
 				synchronized (queue) {
-					scheduler.kill(job);
+					Runnable runnable = runnables.get(job);
+					if (runnable != null){
+						scheduler.kill(runnable);
+					}
 					job.cancel();
 					queue.remove(job);
 					futures.remove(job);

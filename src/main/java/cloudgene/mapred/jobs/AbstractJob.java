@@ -20,7 +20,6 @@ import org.apache.commons.logging.LogFactory;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.wdl.WdlStep;
 
 abstract public class AbstractJob implements Runnable {
 
@@ -595,6 +594,10 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public boolean equals(Object obj) {
 
+		if (!(obj instanceof AbstractJob)){
+			return false;
+		}
+		
 		return ((AbstractJob) obj).getId().equals(id);
 
 	}
