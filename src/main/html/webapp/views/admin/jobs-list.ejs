@@ -4,7 +4,8 @@
 	<th>Job</th>
 	<th style="width: 100px;">Username</th>
 	<th style="width: 150px;">Execution Time</th>
-	<th style="width: 180px;">Valid until</th>		
+	<th style="width: 180px;">Valid until</th>
+	<th style="width: 16px;"></th>		
 	<th style="width: 16px;"></th>
 	<th style="width: 16px;"></th>
 </tr>	
@@ -68,7 +69,12 @@
         <% } else { %>
         	<td></td>
         <% } %>	
-		
+
+		<td>
+        		<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
+        		<a href="/admin/jobs/<%= job.attr('id') %>/reset"><span class="icon-time" style="cursor: pointer;"></span></a>
+        		<% } %>		
+		</td>
 		<td>		
 			<a href="/logs/<%= job.attr('id') %>" target="_blank">	<span class="icon-file" style="cursor: pointer;"></span></a>
 		</td>

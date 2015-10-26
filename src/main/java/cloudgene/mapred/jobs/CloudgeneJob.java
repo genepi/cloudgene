@@ -37,7 +37,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	private Executor executor;
 
-	private int MAX_DOWNLOAD = 10;
+	public static final int MAX_DOWNLOAD = 10;
 
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
 
