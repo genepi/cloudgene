@@ -184,4 +184,21 @@ public abstract class WdlParameter {
 		return adminOnly;
 	}
 
+	public boolean isFileOrFolder() {
+		return (getType().equals(WdlParameter.HDFS_FILE)
+				|| getType().equals(WdlParameter.HDFS_FOLDER)
+				|| getType().equals(WdlParameter.LOCAL_FILE) || getType()
+				.equals(WdlParameter.LOCAL_FOLDER));
+	}
+
+	public boolean isHdfs() {
+		return (getType().equals(WdlParameter.HDFS_FOLDER) || getType().equals(
+				WdlParameter.HDFS_FILE));
+	}
+
+	public boolean isFolder() {
+		return (getType().equals(WdlParameter.HDFS_FOLDER))
+				|| (getType().equals(WdlParameter.LOCAL_FOLDER));
+	}
+
 }
