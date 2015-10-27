@@ -5,18 +5,18 @@ import genepi.io.FileUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemIterator;
+import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.util.Streams;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
@@ -28,7 +28,6 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
@@ -97,7 +96,7 @@ public class NewSubmitJob extends BaseResource {
 
 		Map<String, String> props = new HashMap<String, String>();
 
-		String tool = (String) getRequest().getAttributes().get("tool");
+		String tool = getAttribute("tool");
 
 		String filename = getSettings().getApp(user, tool);
 		WdlApp app = null;
@@ -110,12 +109,14 @@ public class NewSubmitJob extends BaseResource {
 
 		}
 
-		if (MediaType.MULTIPART_FORM_DATA.equals(entity.getMediaType(), true)) {
-
-			List<FileItem> items = parseRequest();
+		try {
+			FileItemIterator iterator = parseRequest(entity);
 
 			// uploaded files
-			for (FileItem item : items) {
+			while (iterator.hasNext()) {
+
+				FileItemStream item = iterator.next();
+
 				String name = item.getName();
 
 				if (name != null) {
@@ -126,7 +127,8 @@ public class NewSubmitJob extends BaseResource {
 							item.getName());
 					File file = new File(tmpFile);
 					try {
-						item.write(file);
+						FileUtils
+								.copyInputStreamToFile(item.openStream(), file);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -183,9 +185,6 @@ public class NewSubmitJob extends BaseResource {
 							String targetPath = FileUtil.path(localWorkspace,
 									"input", id, fieldName);
 
-							System.out.println("-------->> OKOKOKOKOKOKO  "
-									+ targetPath);
-
 							FileUtil.createDirectory(FileUtil.path(
 									localWorkspace, "input"));
 
@@ -223,53 +222,25 @@ public class NewSubmitJob extends BaseResource {
 
 					}
 
-				}
+				} else {
 
-			}
+					if (item.getFieldName().startsWith("input-")) {
+						String key = item.getFieldName().replace("input-", "");
 
-			// normal parameter
-			for (FileItem item : items) {
-
-				String name = item.getName();
-
-				if (name == null) {
-
-					try {
-						if (item.getFieldName().startsWith("input-")) {
-							String key = item.getFieldName().replace("input-",
-									"");
-							String value = new String(item.get(), "UTF-8");
-							if (!props.containsKey(key)) {
-								// don't override uploaded files
-								props.put(key, value);
-							}
-
+						String value = Streams.asString(item.openStream());
+						if (!props.containsKey(key)) {
+							// don't override uploaded files
+							props.put(key, value);
 						}
 
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
 					}
+
 				}
 
 			}
 
-			// checkboxes
-
-		}
-
-		// Form form = new Form(entity);
-
-		// check aws credentials and s3 bucket
-		if (user.isExportToS3()) {
-
-			if (!S3Util.checkBucket(user.getAwsKey(), user.getAwsSecretKey(),
-					user.getS3Bucket())) {
-
-				return new JSONAnswer(
-						"Your AWS-Credentials are wrong or your S3-Bucket doesn't exists.<br/><br/>Please update your AWS-Credentials.",
-						false);
-			}
-
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		if (app.getMapred() != null) {
@@ -329,8 +300,9 @@ public class NewSubmitJob extends BaseResource {
 
 	}
 
-	private List<FileItem> parseRequest() {
-		List<FileItem> items = null;
+	private FileItemIterator parseRequest(Representation entity)
+			throws FileUploadException, IOException {
+
 		// 1/ Create a factory for disk-based file items
 		DiskFileItemFactory factory = new DiskFileItemFactory();
 		factory.setSizeThreshold(1000240);
@@ -340,12 +312,8 @@ public class NewSubmitJob extends BaseResource {
 		// generates FileItems.
 		RestletFileUpload upload = new RestletFileUpload(factory);
 
-		try {
-			items = upload.parseRequest(getRequest());
-		} catch (FileUploadException e2) {
-			e2.printStackTrace();
-		}
-		return items;
+		return upload.getItemIterator(entity);
+
 	}
 
 }
