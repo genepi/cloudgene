@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.9.9</version>
+	<version>1.10.0</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -11,23 +11,24 @@
 			<url>http://maven.restlet.org</url>
 		</repository>
 
-		<repository>
-			<id>genepi-hadoop</id>
-			<url>https://raw.github.com/genepi/maven/genepi-hadoop</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
+	<repository>
+    <id>genepi-hadoop</id>
+    <url>https://raw.github.com/genepi/maven-repository/mvn-repo/</url>
+    <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+    </snapshots>
+</repository>
 
-		<repository>
-			<id>genepi-io</id>
-			<url>https://raw.github.com/genepi/maven/genepi-io</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
+
+<repository>
+    <id>genepi-io</id>
+    <url>https://raw.github.com/genepi/maven-repository/genepi-io</url>
+    <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+    </snapshots>
+</repository>
 
 
 

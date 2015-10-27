@@ -53,12 +53,7 @@ public class Main implements Daemon {
 	public void init(DaemonContext context) throws DaemonInitException,
 			Exception {
 		args = context.getArguments();
-
-	}
-
-	@Override
-	public void start() throws Exception {
-
+		
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
 
@@ -285,6 +280,13 @@ public class Main implements Daemon {
 			System.exit(1);
 
 		}
+
+	}
+
+	@Override
+	public void start() throws Exception {
+
+	
 	}
 
 	@Override

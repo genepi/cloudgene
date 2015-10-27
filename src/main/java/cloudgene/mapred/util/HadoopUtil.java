@@ -23,7 +23,6 @@ import org.apache.hadoop.mapred.TaskCompletionEvent;
 import org.apache.hadoop.mapred.TaskLog;
 import org.apache.hadoop.mapred.TaskReport;
 import org.apache.hadoop.mapred.JobID;
-import org.apache.hadoop.mapreduce.TaskCompletionEvent.Status;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.VersionInfo;
 
