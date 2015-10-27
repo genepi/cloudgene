@@ -32,6 +32,7 @@ import cloudgene.mapred.resources.admin.GetStatistics;
 import cloudgene.mapred.resources.admin.GetTemplates;
 import cloudgene.mapred.resources.admin.OpenQueue;
 import cloudgene.mapred.resources.admin.ResetDownloads;
+import cloudgene.mapred.resources.admin.RestartServer;
 import cloudgene.mapred.resources.admin.StartRetire;
 import cloudgene.mapred.resources.admin.UpdateSettings;
 import cloudgene.mapred.resources.admin.UpdateTemplate;
@@ -208,7 +209,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin/jobs", GetAllJobs.class);
 		router.attach(prefix + "/admin/settings", GetSettings.class);
 		router.attach(prefix + "/admin/settings/update", UpdateSettings.class);
-
+		router.attach(prefix + "/admin/server/restart", RestartServer.class);
 		
 		router.attach(prefix + "/admin/retire/start", StartRetire.class);
 
