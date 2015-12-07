@@ -39,7 +39,7 @@ public class GetStatistics extends BaseResource {
 
 		CounterHistoryDao dao = new CounterHistoryDao(getDatabase());
 
-		List<Map<String, String>> stats = dao.getAll(720);
+		List<Map<String, String>> stats = dao.getAll(2*720);
 		JSONArray jsonArray = JSONArray.fromObject(stats);
 
 		return new StringRepresentation(jsonArray.toString());

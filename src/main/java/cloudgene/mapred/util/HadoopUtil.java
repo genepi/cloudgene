@@ -14,6 +14,9 @@ import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.FsStatus;
+import org.apache.hadoop.hdfs.DistributedFileSystem;
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
@@ -162,6 +165,25 @@ public class HadoopUtil {
 		}
 
 	}
+
+	public boolean isInSafeMode() {
+		try {
+			FileSystem fs = client.getFs();
+
+			if (fs instanceof DistributedFileSystem) {
+				DistributedFileSystem dfs = (DistributedFileSystem) fs;
+				FsStatus ds = dfs.getStatus();
+				return dfs.isInSafeMode();
+
+			} else {
+				return false;
+			}
+		} catch (IOException e) {
+			log.error("Get safe mode failed.", e);
+			return false;
+		}
+	}
+
 
 	public String getVersion() {
 

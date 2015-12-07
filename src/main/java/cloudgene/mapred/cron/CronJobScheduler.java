@@ -60,6 +60,14 @@ public class CronJobScheduler {
 
 		}
 
+		// Alerts (every 1 minutes)
+		JobDetail alerJobDetail = newJob(AlertJob.class).withIdentity("alerts",
+				"jobs").build();
+		alerJobDetail.getJobDataMap().put("application", app);
+		Trigger trigger = newTrigger().withIdentity("alert-trigger", "jobs")
+				.startNow().withSchedule(cronSchedule("0 0/1 * * * ?")).build();
+		sched.scheduleJob(alerJobDetail, trigger);
+
 	}
 
 	private void runJobDailyAt(Scheduler scheduler, String triggerName,

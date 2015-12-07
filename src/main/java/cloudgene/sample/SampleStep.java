@@ -34,8 +34,18 @@ public class SampleStep extends WorkflowStep {
 			state.append(tracker + "\n");
 		}
 
+		String filename = context.getInput("testfile");
+		context.ok(FileUtil.readFileAsString(filename));
+		
 		context.ok(state.toString());
-
+context.beginTask("waiting....");
+		try {
+			Thread.sleep(100000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		String hadoopPath = settings.getHadoopPath();
 
 		if (hadoopPath.trim().isEmpty()) {
