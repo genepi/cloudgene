@@ -20,18 +20,6 @@
     </snapshots>
 </repository>
 
-
-<repository>
-    <id>genepi-io</id>
-    <url>https://raw.github.com/genepi/maven-repository/genepi-io</url>
-    <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-    </snapshots>
-</repository>
-
-
-
 		<repository>
 			<name>jets3t</name>
 			<id>jets3t</id>
@@ -195,9 +183,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>genepi-io</groupId>
+			<groupId>genepi</groupId>
 			<artifactId>genepi-io</artifactId>
-			<version>0.6.4</version>
+			<version>1.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>genepi</groupId>
