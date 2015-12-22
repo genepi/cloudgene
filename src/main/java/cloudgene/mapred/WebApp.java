@@ -38,19 +38,7 @@ import cloudgene.mapred.resources.admin.UpdateSettings;
 import cloudgene.mapred.resources.admin.UpdateTemplate;
 import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetApps;
-import cloudgene.mapred.resources.data.FileUploadRessource;
-import cloudgene.mapred.resources.data.GetBucketsPrivate;
-import cloudgene.mapred.resources.data.GetBucketsPublic;
 import cloudgene.mapred.resources.data.GetCounter;
-import cloudgene.mapred.resources.data.GetFileList;
-import cloudgene.mapred.resources.data.GetFolderList;
-import cloudgene.mapred.resources.data.GetLocalFiles;
-import cloudgene.mapred.resources.data.GetMyBuckets;
-import cloudgene.mapred.resources.data.GetSftpFiles;
-import cloudgene.mapred.resources.data.ImportFiles;
-import cloudgene.mapred.resources.data.NewFolder;
-import cloudgene.mapred.resources.data.RemoveFiles;
-import cloudgene.mapred.resources.data.RenameFile;
 import cloudgene.mapred.resources.data.ValidateImport;
 import cloudgene.mapred.resources.jobs.CancelJob;
 import cloudgene.mapred.resources.jobs.DeleteJob;
@@ -156,23 +144,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/logs/{id}", GetLogs.class);
 		router.attach(prefix + "/logs/{id}/{file}", GetLogs.class);
 
-		router.attach(prefix + "/hdfs/files", GetFileList.class);
-		router.attach(prefix + "/hdfs/folders", GetFolderList.class);
-		router.attach(prefix + "/hdfs/import", ImportFiles.class);
-		router.attach(prefix + "/hdfs/upload", FileUploadRessource.class);
-		router.attach(prefix + "/hdfs/delete", RemoveFiles.class);
-		router.attach(prefix + "/hdfs/new", NewFolder.class);
-		router.attach(prefix + "/hdfs/rename", RenameFile.class);
-
-		router.attach(prefix + "/local/files", GetLocalFiles.class);
-
-		router.attach(prefix + "/sftp/files", GetSftpFiles.class);
-
 		router.attach(prefix + "/import/validate", ValidateImport.class);
-
-		router.attach(prefix + "/buckets/public", GetBucketsPublic.class);
-		router.attach(prefix + "/buckets/private", GetBucketsPrivate.class);
-		router.attach(prefix + "/buckets/my", GetMyBuckets.class);
 
 		router.attach(prefix + "/app", GetApp.class);
 		router.attach(prefix + "/apps", GetApps.class);
@@ -210,7 +182,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin/settings", GetSettings.class);
 		router.attach(prefix + "/admin/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/admin/server/restart", RestartServer.class);
-		
+
 		router.attach(prefix + "/admin/retire/start", StartRetire.class);
 
 		router.attach(prefix + "/updateUserSettings", UpdateUserSettings.class);

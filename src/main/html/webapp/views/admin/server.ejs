@@ -9,9 +9,10 @@
 
 <table class="table table-bordered">
 
-<tr>
+	<tr>
 		<td style="width: 150px;"><b>Version:</b></td>
-		<td><%= cluster.attr('version') %> (built by <%= cluster.attr('built_by') %> on <%= cluster.attr('built_time') %>)</td>
+		<td><%= cluster.attr('version') %> (built by <%=
+			cluster.attr('built_by') %> on <%= cluster.attr('built_time') %>)</td>
 	</tr>
 
 	<tr>
@@ -32,11 +33,6 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;"><b>Datanodes:</b></td>
-		<td><%= cluster.attr('datanodes') %></td>
-	</tr>
-
-	<tr>
 		<td style="width: 150px;"><b>Threads Queue:</b></td>
 		<td><%= cluster.attr('threads') %></td>
 	</tr>
@@ -51,6 +47,26 @@
 		<td><%= cluster.attr('max_jobs_user') %></td>
 	</tr>
 
+</table>
+
+<hr>
+
+<h4>Hadoop</h4>
+
+<table class="table table-bordered">
+
+	<tr>
+		<td style="width: 150px;"><b>Mode:</b></td>
+		<td><% if (cluster.attr('safemode')) { %> <span
+			class="label label-important">SAFEMODE!</span> <% } else { %> <span
+			class="label label-success">Running</span> <% } %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;"><b>Details:</b></td>
+		<td><pre><%== cluster.attr('cluster') %></pre></td>
+	</tr>
 </table>
 
 <hr>

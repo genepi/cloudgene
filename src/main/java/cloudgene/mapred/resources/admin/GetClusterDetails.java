@@ -8,6 +8,7 @@ import java.util.jar.Manifest;
 
 import net.sf.json.JSONObject;
 
+import org.apache.hadoop.mapred.ClusterStatus;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -18,6 +19,7 @@ import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.HadoopUtil;
 
 public class GetClusterDetails extends BaseResource {
 
@@ -58,11 +60,29 @@ public class GetClusterDetails extends BaseResource {
 			// handle
 		}
 
+		object.put("safemode", HadoopUtil.getInstance().isInSafeMode());
+		
 		object.put("maintenance", getSettings().isMaintenance());
 		object.put("blocked", !getWorkflowEngine().isRunning());
 		object.put("threads", getSettings().getThreadsQueue());
 		object.put("max_jobs", getSettings().getMaxRunningJobs());
 		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
+
+		ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
+		StringBuffer state = new StringBuffer();
+		state.append("State: " + cluster.getJobTrackerStatus().toString()
+				+ "\n");
+		state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
+		state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
+		state.append("Nodes\n");
+		for (String tracker : cluster.getActiveTrackerNames()) {
+			state.append("  " + tracker + "\n");
+		}
+		state.append("Blacklist:\n");
+		for (String tracker : cluster.getBlacklistedTrackerNames()) {
+			state.append("  " + tracker + "\n");
+		}
+		object.put("cluster", state.toString());
 
 		return new StringRepresentation(object.toString(),
 				MediaType.APPLICATION_JSON);

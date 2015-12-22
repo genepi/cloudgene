@@ -21,47 +21,52 @@ public class CancelJob extends BaseResource {
 
 		User user = getUser(getRequest());
 
-		if (user == null) {
+		try {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			if (user == null) {
 
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation(
+						"The request requires user authentication.");
+
+			}
+
+			Form form = new Form(entity);
+			String id = form.getFirstValue("id");
+
+			if (id == null) {
+
+				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+				return new StringRepresentation("No Job id specified.");
+
+			}
+
+			AbstractJob job = getWorkflowEngine().getJobById(id);
+
+			if (job == null) {
+				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+				return new StringRepresentation("Job " + id + " not found.");
+			}
+
+			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation("Access denied.");
+			}
+
+			getWorkflowEngine().cancel(job);
+
+			JsonConfig config = new JsonConfig();
+			config.setExcludes(new String[] { "user", "outputParams",
+					"inputParams", "output", "endTime", "startTime", "error",
+					"s3Url", "task", "config", "mapReduceJob", "job", "step",
+					"context" });
+			JSONObject object = JSONObject.fromObject(job, config);
+
+			return new StringRepresentation(object.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new StringRepresentation("");
 		}
-
-		Form form = new Form(entity);
-		String id = form.getFirstValue("id");
-
-		if (id == null) {
-
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("No Job id specified.");
-
-		}
-
-		AbstractJob job = getWorkflowEngine().getJobById(id);
-
-		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + id + " not found.");
-		}
-
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("Access denied.");
-		}
-
-		getWorkflowEngine().cancel(job);
-
-		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "user", "outputParams",
-				"inputParams", "output", "endTime", "startTime", "error",
-				"s3Url", "task", "config", "mapReduceJob", "job", "step",
-				"context" });
-		JSONObject object = JSONObject.fromObject(job, config);
-
-		return new StringRepresentation(object.toString());
-
 	}
 
 }

@@ -127,7 +127,7 @@ TabsPublic = can.Control({
 			break;
 
 		default:
-			this.page = new Error404Page("#content");
+			this.page = new StaticPage("#content", {template: 'static/'+ id + '.ejs'});
 			break;
 		}
 
