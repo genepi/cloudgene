@@ -1,0 +1,14 @@
+site_name: Cloudgene Apps
+theme: readthedocs
+pages:
+- Index: index.md
+- Getting started: getting-started.md
+- Installation: installation.md
+- Creating applications: creating-applications.md
+- application.yaml: application-yaml.md
+
+
+markdown_extensions:
+    - toc:
+        permalink:
+    - admonition:
