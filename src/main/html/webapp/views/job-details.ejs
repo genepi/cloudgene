@@ -1,5 +1,10 @@
 <h2> <a href="#!pages/jobs">Jobs</a> / <%= job.attr('name') %></h2>
 
+<% if( job.attr('public')){ %>
+		<div class="alert alert-info">Please bookmark this page to monitor your job and to download your results! </div>
+		</#if>
+<% } %>
+
 <div class="tabbable">
 
     <ul class="nav nav-tabs">

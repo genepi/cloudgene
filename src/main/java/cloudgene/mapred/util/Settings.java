@@ -95,7 +95,8 @@ public class Settings {
 
 		apps = new Vector<Application>();
 		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
-
+		apps.add(new Application("hello", "public", "sample/cloudgene-public.yaml"));
+		
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
 			indexApps.put(app.getId(), app);
@@ -341,6 +342,15 @@ public class Settings {
 
 		if (app != null) {
 
+			if (user == null){
+				if (app.getPermission().toLowerCase().equals("public")){
+					System.out.println("App: " + app.getFilename());
+					return app.getFilename();
+				}else{
+					return null;
+				}
+			}
+			
 			if (user.isAdmin()
 					|| app.getPermission().toLowerCase()
 							.equals(user.getRole().toLowerCase())) {

@@ -24,6 +24,13 @@ TabsPublic = can.Control({
 		});
 	},
 
+	'run/:app route' : function(data) {
+		
+		this.activate('run');	
+		this.page = new SubmitJobPage("#content", {tool: data.app});
+	},
+	
+	
 	'pages/:page route' : function(data) {
 		this.activate(data.page);
 		this.show(data.page);
@@ -38,20 +45,25 @@ TabsPublic = can.Control({
 		this.activate(data.page);
 		this.show(data.page);
 	},
+	
+	'jobs/:job/results route' : function(data) {
+		this.activate('jobs');
+		this.options.detailsPage = new JobDetailsPage("#content", {
+			jobId : data.job,
+			results : true
+		});
+		this.page = this.options.detailsPage;
+	},
 
 	'jobs/:job route' : function(data) {
-		this.page = new ErrorPage("#content", {
-			status : "401",
-			message : "The request requires user authentication."
+		this.activate('jobs');
+		this.options.detailsPage = new JobDetailsPage("#content", {
+			jobId : data.job,
+			results : false
 		});
+		this.page = this.options.detailsPage;
 	},
 
-	'jobs/:job/results route' : function(data) {
-		this.page = new ErrorPage("#content", {
-			status : "401",
-			message : "The request requires user authentication."
-		});
-	},
 
 	activate : function(id) {
 

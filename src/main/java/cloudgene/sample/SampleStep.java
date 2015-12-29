@@ -40,7 +40,7 @@ public class SampleStep extends WorkflowStep {
 		context.ok(state.toString());
 context.beginTask("waiting....");
 		try {
-			Thread.sleep(100000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -105,6 +105,16 @@ context.beginTask("waiting....");
 
 		context.ok("Local File System check");
 
+		String outputFolder = context.getOutput("stats");
+		
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "1.txt"), new StringBuffer("file 1"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "2.txt"), new StringBuffer("file 2"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "3.txt"), new StringBuffer("file 3"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "4.txt"), new StringBuffer("file 4"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "5.txt"), new StringBuffer("file 5"));
+		
+		
+		/*
 		// Mail Server....
 		String mail = context.get("cloudgene.user.mail");
 		if (mail != null) {
@@ -129,7 +139,7 @@ context.beginTask("waiting....");
 			return false;
 
 		}
-
+*/
 		context.ok("<b>Congratulations.</b> Cloudgene works properly on your Hadoop Cluster!");
 
 		return true;

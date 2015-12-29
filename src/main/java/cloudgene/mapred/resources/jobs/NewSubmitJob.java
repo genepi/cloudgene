@@ -24,10 +24,12 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
@@ -35,18 +37,41 @@ import cloudgene.mapred.wdl.WdlReader;
 
 public class NewSubmitJob extends BaseResource {
 
+	boolean publicMode = false;
+	
 	@Post
 	public Representation post(Representation entity) {
-
+try{
 		User user = getUser(getRequest());
+		String tool = getAttribute("tool");
 
-		if (user == null) {
+		String filename = getSettings().getApp(user, tool);
+		WdlApp app = null;
+		try {
+			app = WdlReader.loadAppFromFile(filename);
+		} catch (Exception e1) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Tool '" + tool + "' not found or the request requires user authentication.");
 
 		}
+		
+		if (user == null){
+			
+			publicMode = true;
+			
+			UserDao dao = new UserDao(getDatabase());
+			user = dao.findByUsername("public");
+			if (user == null) {
+				user = new User();
+				user.setUsername("public");
+				String password = HashUtil.getMD5("public-password");
+				user.setPassword(password);
+				user.setRole("public");
+				dao.insert(user);
+			}
+		}
+		
 
 		WorkflowEngine engine = getWorkflowEngine();
 
@@ -89,25 +114,17 @@ public class NewSubmitJob extends BaseResource {
 		// tring tool = "minimac/new-simple";// props.get("tool");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String id = "job-" + sdf.format(new Date());// props.get("job-name");
+		
+		if (publicMode){
+			id = HashUtil.getMD5(id+"-lukas");
+		}
+		
 		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
 				user.getUsername());
 		String localWorkspace = FileUtil.path(
 				getSettings().getLocalWorkspace(), user.getUsername());
 
 		Map<String, String> props = new HashMap<String, String>();
-
-		String tool = getAttribute("tool");
-
-		String filename = getSettings().getApp(user, tool);
-		WdlApp app = null;
-		try {
-			app = WdlReader.loadAppFromFile(filename);
-		} catch (Exception e1) {
-
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Tool '" + tool + "' not found.");
-
-		}
 
 		try {
 			FileItemIterator iterator = parseRequest(entity);
@@ -288,15 +305,18 @@ public class NewSubmitJob extends BaseResource {
 
 		JSONObject answer = new JSONObject();
 		try {
-			answer.put("id", id);
+			answer.put("id", id);	
 			answer.put("success", true);
 			answer.put("message",
 					"Your job was successfully added to the job queue.");
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}		return new StringRepresentation(answer.toString());
+}catch(Exception e){
+	e.printStackTrace();
+	return new StringRepresentation("");
+}
 
-		return new StringRepresentation(answer.toString());
 
 	}
 

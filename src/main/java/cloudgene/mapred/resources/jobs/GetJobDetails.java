@@ -16,6 +16,7 @@ import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -23,18 +24,11 @@ import cloudgene.mapred.util.BaseResource;
 
 public class GetJobDetails extends BaseResource {
 
+	private boolean publicMode = false;
+	
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
-		User user = getUser(getRequest());
-
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
 
 		Form form = new Form(entity);
 		String jobId = form.getFirstValue("id");
@@ -52,6 +46,16 @@ public class GetJobDetails extends BaseResource {
 
 			if (job != null) {
 
+				User user = getUser(getRequest());
+
+				//public mode
+				if (user == null) {
+					UserDao dao = new UserDao(getDatabase());
+					user = dao.findByUsername("public");
+					publicMode = true; 
+				}
+
+				
 				if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
 					setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 					return new StringRepresentation("Access denied.");
@@ -97,6 +101,9 @@ public class GetJobDetails extends BaseResource {
 				}
 
 				JSONObject object = JSONObject.fromObject(job, config);
+				if (publicMode){
+					object.put("public", publicMode);
+				}
 
 				return new StringRepresentation(object.toString(),
 						MediaType.APPLICATION_JSON);

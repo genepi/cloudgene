@@ -14,6 +14,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
@@ -26,16 +27,6 @@ public class DownloadResults extends BaseResource {
 
 	@Get
 	public Representation get() {
-
-		User user = getUser(getRequest());
-
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
 
 		String jobId = (String) getRequest().getAttributes().get("job");
 		String id = (String) getRequest().getAttributes().get("id");
@@ -72,6 +63,14 @@ public class DownloadResults extends BaseResource {
 				|| job.getState() == AbstractJob.STATE_RUNNING
 				|| job.getState() == AbstractJob.STATE_EXPORTING) {
 			job = getWorkflowEngine().getJobById(jobId);
+		}
+
+		User user = getUser(getRequest());
+
+		// public mode
+		if (user == null) {
+			UserDao dao = new UserDao(getDatabase());
+			user = dao.findByUsername("public");
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {

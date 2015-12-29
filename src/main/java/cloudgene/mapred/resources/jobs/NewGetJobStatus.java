@@ -12,6 +12,7 @@ import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -24,13 +25,6 @@ public class NewGetJobStatus extends BaseResource {
 
 		User user = getUser(getRequest());
 
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
 
 		Form form = new Form(entity);
 		String jobId = form.getFirstValue("job_id");
@@ -62,6 +56,12 @@ public class NewGetJobStatus extends BaseResource {
 
 		}
 
+		//public mode
+		if (user == null) {
+			UserDao dao = new UserDao(getDatabase());
+			user = dao.findByUsername("public");					
+		}
+		
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation("Access denied.");

@@ -27,22 +27,6 @@ public class GetApp extends BaseResource {
 
 		User user = getUser(getRequest());
 
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
-
-		if (getSettings().isMaintenance() && !user.isAdmin()) {
-
-			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-			return new StringRepresentation(
-					"This functionality is currently under maintenance.");
-
-		}
-
 		Form form = new Form(entity);
 
 		String tool = form.getFirstValue("tool");
@@ -58,10 +42,18 @@ public class GetApp extends BaseResource {
 		} catch (Exception e1) {
 
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Tool '" + tool + "' not found.");
+			return new StringRepresentation("Tool '" + tool + "' not found or the request requires user authentication..");
 
 		}
 
+		if (getSettings().isMaintenance() &&( user == null || !user.isAdmin())) {
+
+			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+			return new StringRepresentation(
+					"This functionality is currently under maintenance.");
+
+		}
+		
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
 		JSONObject jsonObject = JSONObject.fromObject(meta, config);
