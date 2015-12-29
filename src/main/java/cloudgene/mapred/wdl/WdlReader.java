@@ -234,7 +234,9 @@ public class WdlReader {
 				}
 			} else {
 
-				if (!user.isAdmin()) {
+				if (!user.isAdmin()
+						&& !application.getPermission().toLowerCase()
+								.equals("public")) {
 
 					if (!application.getPermission().toLowerCase()
 							.equals(user.getRole().toLowerCase())) {
