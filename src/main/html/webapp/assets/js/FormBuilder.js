@@ -401,7 +401,10 @@ function buildList(element, param) {
 	var defaultSelection = false;
 	var select = $("<select></select>");
 	select.attr("name", param.id);
-
+	if (param.readOnly){
+		select.attr("disabled", "true");
+	}
+	
 	if (param.required) {
 		select.attr("data-required", "true");
 	}
@@ -435,6 +438,9 @@ function buildText(element, param) {
 	input.attr("name", param.id);
 	input.attr("type", "text");
 	input.attr("value", param.value);
+	if (param.readOnly){
+		input.attr("disabled", "true");
+	}
 	if (param.required) {
 		input.attr("data-required", "true");
 	}
@@ -450,6 +456,10 @@ function buildCheckbox(element, param) {
 	input.attr("name", param.id);
 	input.attr("type", "checkbox");
 	input.attr("value", param.value);
+	if (param.readOnly){
+		input.attr("disabled", "true");
+	}
+	
 	if (param.values["true"] == param.value) {
 		input.attr("checked", "true");
 	}
