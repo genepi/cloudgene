@@ -3,6 +3,7 @@ package cloudgene.mapred;
 import genepi.io.FileUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -25,6 +26,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
+import com.esotericsoftware.yamlbeans.YamlException;
+
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.H2Connector;
@@ -46,13 +49,8 @@ public class Main implements Daemon {
 	private Database database;
 
 	private WebServer server;
-
-	private String[] args = new String[] {};
-
-	@Override
-	public void init(DaemonContext context) throws DaemonInitException,
-			Exception {
-		args = context.getArguments();
+	
+	public void runCloudgene(String[] args) throws Exception{
 		
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
@@ -282,6 +280,13 @@ public class Main implements Daemon {
 		}
 
 	}
+	
+	@Override
+	public void init(DaemonContext context) throws DaemonInitException,
+			Exception {
+		String[] args = context.getArguments();
+		runCloudgene(args);
+	}
 
 	@Override
 	public void start() throws Exception {
@@ -303,6 +308,6 @@ public class Main implements Daemon {
 
 	public static void main(String[] args) throws Exception {
 		Main main = new Main();
-		main.start();
+		main.runCloudgene(args);
 	}
 }
