@@ -37,7 +37,12 @@ function buildForm(application, element, params, submitButtonText) {
 			} else if (param.type == "number" || param.type == "text") {
 				buildText(divControls, param);
 			}
-			divControls.append('<span class="help-block"></span>');
+			
+			if(param.type == "hdfs-folder" || param.type == "local-folder"){
+				divControls.append('<span class="help-block">Multiple files can be selected by using the <span class="label">ctrl</span> / <span class="label">cmd</span> or <span class="label">shift</span> keys.</span>');	
+			}else{			
+				divControls.append('<span class="help-block"></span>');
+			}
 
 			divGroup.append(divControls);
 
