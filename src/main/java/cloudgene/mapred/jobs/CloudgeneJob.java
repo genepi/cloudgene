@@ -19,10 +19,8 @@ import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
-import cloudgene.mapred.jobs.export.ExportJob;
 import cloudgene.mapred.util.FileItem;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlMapReduce;
@@ -236,7 +234,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	@Override
 	public boolean onFailure() {
-		
+
 		cleanUp();
 
 		return true;

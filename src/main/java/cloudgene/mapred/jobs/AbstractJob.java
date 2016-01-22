@@ -18,7 +18,6 @@ import java.util.Vector;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 
 abstract public class AbstractJob implements Runnable {
@@ -382,8 +381,7 @@ abstract public class AbstractJob implements Runnable {
 			}
 
 			closeStdOutFiles();
-
-			exportStdOutToS3();
+			
 		} catch (Exception e1) {
 
 			setEndTime(System.currentTimeMillis());
@@ -545,20 +543,6 @@ abstract public class AbstractJob implements Runnable {
 			logStream.flush();
 
 		} catch (IOException e) {
-		}
-
-	}
-
-	private void exportStdOutToS3() {
-
-		// export to s3
-		if (getUser().isExportToS3()) {
-
-			S3Util.copyFile(getUser().getAwsKey(), getUser().getAwsSecretKey(),
-					getUser().getS3Bucket(), getId(), getLogOutFile());
-
-			S3Util.copyFile(getUser().getAwsKey(), getUser().getAwsSecretKey(),
-					getUser().getS3Bucket(), getId(), getStdOutFile());
 		}
 
 	}

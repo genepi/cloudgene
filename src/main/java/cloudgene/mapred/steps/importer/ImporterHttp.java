@@ -110,8 +110,6 @@ public class ImporterHttp implements IImporter {
 		file.setText(FilenameUtils.getName(url));
 		file.setPath("/");
 		file.setId("/");
-		file.setLeaf(true);
-		file.setCls("file");
 		file.setSize(FileUtils.byteCountToDisplaySize(getFileSize()));
 		items.add(file);
 		return items;

@@ -271,8 +271,6 @@ public class ImporterSftp implements IImporter {
 					item.setText(entry.getFilename());
 					item.setPath("/");
 					item.setId("/");
-					item.setLeaf(true);
-					item.setCls("file");
 					item.setSize(FileUtils.byteCountToDisplaySize(entry
 							.getAttrs().getSize()));
 
