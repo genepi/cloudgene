@@ -21,12 +21,11 @@ import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 
 public class CloudgeneTestCase extends TestCase {
-	
+
 	protected User user;
 
 	protected Settings settings = new Settings();
 
-	
 	public Database createDatabase() throws SQLException {
 
 		H2Connector connector = new H2Connector("test-database/mapred",
@@ -87,17 +86,15 @@ public class CloudgeneTestCase extends TestCase {
 		return engine;
 	}
 
-	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> params)
+	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
 			throws Exception {
 
 		String id = "test_" + System.currentTimeMillis();
 
-		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(),
-				user.getUsername(), id);
-		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(),
-				user.getUsername(), id);
+		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
+		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), params);
+		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

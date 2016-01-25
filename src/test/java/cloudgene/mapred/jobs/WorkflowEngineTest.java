@@ -19,10 +19,10 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true.yaml");
 
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("input", "input-file");
-		
-		AbstractJob job = createJobFromWdl(app, params);
+		Map<String, String> inputs = new HashMap<String, String>();
+		inputs.put("input", "input-file");
+
+		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
 		while (job.isRunning()) {
 			Thread.sleep(1000);
@@ -31,7 +31,7 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
-	
+
 	public void testReturnFalseStep() throws Exception {
 
 		WorkflowEngine engine = startWorkflowEngine();
@@ -42,7 +42,7 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
-		
+
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
 		while (job.isRunning()) {
@@ -59,11 +59,12 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 		Thread engineThread = new Thread(engine);
 		engineThread.start();
 
-		WdlApp app = WdlReader.loadAppFromFile("test-data/return-exception.yaml");
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/return-exception.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
-		
+
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
 		while (job.isRunning()) {
@@ -73,18 +74,19 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
-	
+
 	public void testWriteTextToFileJob() throws Exception {
 
 		WorkflowEngine engine = startWorkflowEngine();
 		Thread engineThread = new Thread(engine);
 		engineThread.start();
 
-		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file.yaml");
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/write-text-to-file.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "lukas_text");
-		
+
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
 		while (job.isRunning()) {
@@ -94,13 +96,13 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 
 		String outputFilename = job.getContext().getOutput("output");
 		String content = FileUtil.readFileAsString(outputFilename);
-		
+
 		System.out.println(FileUtil.readFileAsString(job.getStdOutFile()));
-		
+
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_SUCCESS);
 	}
-	
+
 	public void testJobWithWrongParams() throws Exception {
 
 		WorkflowEngine engine = startWorkflowEngine();
@@ -111,7 +113,7 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("wrong-param-name", "input-file");
-		
+
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
 		while (job.isRunning()) {
@@ -120,7 +122,5 @@ public class WorkflowEngineTest extends CloudgeneTestCase {
 		engineThread.stop();
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
-	
 
-	
 }
