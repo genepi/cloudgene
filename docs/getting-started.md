@@ -1,138 +1,98 @@
+
 # Getting started
 
-This section describes how to use the cgapps commandline utility to install and start Cloudgene applications. Before you start, please read the Installation guide. cgapps is running on Linux and Mac OS X. Windows is currently not supported.
-
-!!! note "For Mac OS X users":
-    You have to open the __Docker Quickstart Terminal__ and enter all cgapps commands in this terminal window. Thus, all applications are started inside the Docker Machine.
-
-----
-
-## Install an application
-
-Install applications with the `pull` command. cgapps installs all applications to `~/.cgapps`.
-
-```bash
-$ cgapps pull <app>
-```
-
-The app parameter is a shorthand name of the application and has to be in the form maintainer/application (e.g. lukfor/wordcount).
-
-```bash
-$ cgapps pull lukfor/wordcount
-
-Download application lukfor/wordcount...
-Install application lukfor/wordcount...
-Pull Docker Image seppinho/mtdna-server...
-Pull Docker Image seppinho/mtdna-server [DONE]
-Update to version 1.1.0 successful. You can start it by typing:
-  cg-apps start lukfor/wordcount
-```
-
-An online repository of all available applications and their shorthand can be found here.
-
----
-
-## List all installed applications
-
-A list of all installed applications can be shown with the `list` command:
-
-```bash
-$ cgapps list
-
-APPLICATION                    VERSION       DEPENDENCIES        STATUS
-lukfor/wordcount               0.0.4         Hadoop MRv1
-lukfor/cloudburst              1.1.0         Hadoop MRv1
-----------------------
-```
-
-This list prints the name and the version of an application and shows you if an application is currently running.
-
----
-
-## Start an application
-
-You can start an installed application by using the `start` command followed by the application name:
-
-```bash
-$ cgapps start lukfor/wordcount
-
-------------------------------------------------------------------------
-Starting development container for application lukfor/wordcount
-------------------------------------------------------------------------
-Running lukfor/wordcount in docker container seppinho/mtdna-server...
-Application Mounting:
-  /home/lukas/.cgapps/lukfor/wordcount/app:/opt/mtdna-server/app
-  /home/lukas/.cgapps/lukfor/wordcount/config:/opt/mtdna-server/config
-  /home/lukas/.cgapps/lukfor/wordcount/data:/opt/mtdna-server/data
-  /home/lukas/.cgapps/lukfor/wordcount/workspace:/opt/mtdna-server/workspace
-  /home/lukas/.cgapps/lukfor/wordcount/pages:/opt/mtdna-server/pages
-Starting container /hopeful_sammet...
-Executing initial script...
-Starting container [OK]
-Docker Container: /hopeful_sammet
-lukfor/wordcount is listening at http://localhost:32727
-```
-
-cgapps starts the needed docker container and connects it with the selected Cloudgene application. If all works correctly, then you should see a web address on which Cloudgene is now running. In this example, Cloudgene is available on http://localhost:32727.
+This page helps you to install, configure and running Cloudgene on your own Hadoop MapReduce cluster. Step by step tutorials about the installation of Hadoop can be found on this page.
 
 
-cgapps choose a free random port on which the web-interface is listening (in this example port 32727). If you prefer to start an application on a specific port (for example on port 8085), then you can do this by using the `--port` option:
+## Requirements
 
-```bash
-$ cgapps start lukfor/wordcount --port 8085
-```
+Cloudgene requires the following software packages in order to work properly.
+
+*   Apache Hadoop (MRv1, CDH4 or CDH5)
+*   Java 1.7
+*   Optional: R (packages: RMarkdown, knitr, ggplot2)
 
 
----
+## Download and Installation
 
-## List all running applications
+Download the latest version from our download page:
 
-A list of all running applications can be shown with the `list` command:
+    mkdir cloudgene
+    cd cloudgene
+    wget http://cloudgene.uibk.ac.at/downloads/cloudgene.latest.zip
 
-```bash
-$ cgapps list
 
-APPLICATION                    VERSION       DEPENDENCIES        STATUS
-lukfor/cloudburst              1.1.0         Hadoop MRv1
-----------------------
-lukfor/wordcount               0.0.4         Hadoop-MRv1         http://localhost:32720 /desperate_ritchie
+Extract the zip file and change the permissions of the executables:
 
-```
+    unzip cloudgene.latest.zip
+    chmod +x start.sh state.sh stop.sh
 
-This list prints the name and the version of an application and shows you if an application is currently running.
 
----
+Now you are ready to start and configure Cloudgene.
 
-## Use an application
 
-Open the link provided by the `start` or the `list` (e.g. http://localhost:32727) in your browser and you'll see the Cloudgene interface:
 
-![Cloudgene Web-Interface](images/cloudgene.png)
+## Running Cloudgene
 
-The default username of every application is __admin__ with password __admin1978__.
+Start Cloudgene by entering the following command:
 
----
+    ./start.sh
 
-## Shutdown an application
 
-You can stop a running application by using the `stop` command followed by the application name:
+Check if Cloudgene is running properly:
 
-```bash
-$ cgapps stop lukfor/wordcount
-```
+    ./state.sh
 
-All executed jobs and created user accounts are stored outside the container. __Thus, you can restart your application anytime and can access all the created result files.__
 
----
+Cloudgene can be stopped with the following command:
 
-## Remove an application
+    ./stop.sh
 
-An installed application can be removed with the `remove` command:
 
-```bash
-$ cgapps remove lukfor/wordcount
-```
----
+
+
+## Configuration
+
+1.  Open your browser and navigate to `http://localhost:8085`.
+
+2.  Login as admin with the default admin password (admin1978)
+
+3.  Change your password immediately (click on Profile or go to `http://localhost:8082/start.html#!pages/profile`)
+
+4.  Go to Admin-Panel and set the path to your Hadoop Installation. If you installed Hadoop using the ClouderaManager the path of your Hadoop Binary is normally `/usr/bin/hadoop`. You can check this by enter `which hadoop` on the commandline and you get the full path.
+
+    ![enter image description here][1]
+
+5.  Next, configure the mail server used by Cloudgene to send notifications and activation links:
+
+    ![enter image description here][2]
+
+
+
+## Verifying your Installation
+
+Cloudgene is delivered with a preconfigured application which can be used to test that Cloudgene detects your Hadoop cluster and works properly. To run this test, please follow this steps:
+
+1.  Click on Run and the following formular appears:
+
+    ![enter image description here][3]
+
+2.  Click on "Validate my Configuration" in order to ensure that Cloudgene is able to communicate with your Hadoop Cluster.
+
+3.  If the job fails, please read the error message and adapt your configuration until the job runs successfully.
+
+4.  Now you are ready to use Cloudgene!
+
+
 ## What's next?
 
-Please have a look at the developer documentation or visit our application repository to explore all available Cloudgene applications.
+Please have a look at the documentation, for a detailed information including the user guide, a list of supported applications and tutorials on how to integrate and deploy your own applications:
+
+*   Install your first Application
+*   Developer Guide
+
+
+
+ [1]: http://cloudgene.uibk.ac.at/wp-content/uploads/2014/09/hadoop.png
+ [2]: http://cloudgene.uibk.ac.at/wp-content/uploads/2014/09/smtp.png
+ [3]: http://cloudgene.uibk.ac.at/wp-content/uploads/2014/09/check.png
