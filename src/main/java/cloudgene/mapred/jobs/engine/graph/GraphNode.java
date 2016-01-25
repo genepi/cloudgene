@@ -164,10 +164,8 @@ public class GraphNode implements Runnable {
 	@Override
 	public void run() {
 
-		// JobDao dao = new JobDao();
 		context.setCurrentStep(instance);
 		job.getSteps().add(instance);
-		// dao.update(job);
 
 		job.writeOutputln("------------------------------------------------------");
 		job.writeOutputln(step.getName());
@@ -176,13 +174,6 @@ public class GraphNode implements Runnable {
 		long start = System.currentTimeMillis();
 
 		try {
-
-			// if (step.isCache()) {
-			// job.writeOutputln("cache = true");
-			// instance = new CachedCloudgeneStep(instance);
-			// } else {
-			// job.writeOutputln("cache = false");
-			// }
 
 			instance.setup(context);
 			boolean successful = instance.run(step, context);

@@ -16,7 +16,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.jobs.JobFactory;
 
 public class JobDao extends JdbcDataAccessObject {
 
@@ -44,7 +43,7 @@ public class JobDao extends JdbcDataAccessObject {
 			params[7] = job.getType();
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
-			
+
 			update(sql.toString(), params);
 
 			log.debug("insert job '" + job.getId() + "' successful.");
@@ -341,7 +340,7 @@ public class JobDao extends JdbcDataAccessObject {
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
 			int type = rs.getInt("type");
-			AbstractJob job = JobFactory.create(type);
+			AbstractJob job = new CloudgeneJob();
 			job.setId(rs.getString("id"));
 			job.setName(rs.getString("name"));
 			job.setState(rs.getInt("state"));

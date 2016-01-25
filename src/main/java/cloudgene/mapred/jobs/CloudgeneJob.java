@@ -13,15 +13,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.CacheDao;
-import cloudgene.mapred.jobs.cache.CacheDirectory;
 import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.util.FileItem;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlMapReduce;
 import cloudgene.mapred.wdl.WdlParameter;
@@ -41,7 +38,6 @@ public class CloudgeneJob extends AbstractJob {
 
 	public CloudgeneJob() {
 		super();
-
 	}
 
 	public void loadConfig(WdlMapReduce config) {

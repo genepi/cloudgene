@@ -1,4 +1,4 @@
-site_name: Cloudgene Apps
+site_name: Cloudgene v2.0.0
 theme: readthedocs
 pages:
 - Index: index.md

@@ -3,26 +3,17 @@ package cloudgene.mapred.jobs.engine;
 import java.util.List;
 import java.util.Vector;
 
-import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
-import cloudgene.mapred.jobs.cache.CacheDirectory;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.util.ParallelCalculation;
-import cloudgene.mapred.wdl.WdlParameter;
 
 public class Executor {
-
-	//private CacheDirectory cache;
 
 	private GraphNode executableNode;
 
 	private boolean useDag = false;
-
-	/*public Executor(CacheDirectory cache) {
-		this.cache = cache;
-	}*/
 
 	public boolean execute(Graph graph) {
 

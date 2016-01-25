@@ -2,7 +2,6 @@ package cloudgene.mapred.wdl;
 
 public class WdlHeader {
 
-	private boolean installed = false;
 	private String source = "";
 	private String description;
 	private String version;
@@ -24,9 +23,6 @@ public class WdlHeader {
 		return null;
 	}
 
-	public boolean isInstalled() {
-		return installed;
-	}
 
 	public String getText() {
 		return getName();
@@ -34,10 +30,6 @@ public class WdlHeader {
 
 	public void setText(String text) {
 		setName(text);
-	}
-
-	public void setInstalled(boolean installed) {
-		this.installed = installed;
 	}
 
 	public String getSource() {

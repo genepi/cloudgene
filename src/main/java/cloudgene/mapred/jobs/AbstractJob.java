@@ -267,6 +267,8 @@ abstract public class AbstractJob implements Runnable {
 						+ context.get(parameter.getName()));
 			}
 
+			//TODO: check if all input parameters are set
+			
 			writeLog("  Outputs:");
 			for (CloudgeneParameter parameter : outputParams) {
 				writeLog("    " + parameter.getDescription() + ": "
@@ -381,7 +383,7 @@ abstract public class AbstractJob implements Runnable {
 			}
 
 			closeStdOutFiles();
-			
+
 		} catch (Exception e1) {
 
 			setEndTime(System.currentTimeMillis());
@@ -578,10 +580,10 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public boolean equals(Object obj) {
 
-		if (!(obj instanceof AbstractJob)){
+		if (!(obj instanceof AbstractJob)) {
 			return false;
 		}
-		
+
 		return ((AbstractJob) obj).getId().equals(id);
 
 	}
@@ -632,6 +634,11 @@ abstract public class AbstractJob implements Runnable {
 
 	public String getApplicationId() {
 		return applicationId;
+	}
+
+	public boolean isRunning() {
+		return (state == STATE_WAITING) || (state == STATE_RUNNING)
+				|| (state == STATE_EXPORTING);
 	}
 
 	abstract public boolean execute();
