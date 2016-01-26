@@ -96,6 +96,7 @@ public class DownloadResults extends BaseResource {
 		Download download = dao.findByJobAndPath(jobId,
 				FileUtil.path(id, filename));
 
+		//job is running and not in database --> download possible of autoexport params
 		if (download == null) {
 			for (CloudgeneParameter param : job.getOutputParams()) {
 				if (param.isAutoExport()) {

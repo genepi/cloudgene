@@ -10,7 +10,6 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
 
 public class GetLogs extends BaseResource {
@@ -39,47 +38,44 @@ public class GetLogs extends BaseResource {
 			job = getWorkflowEngine().getJobById(id);
 		}
 
-		if (job != null) {
-
-			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation("Access denied.");
-			}
-
-			// job.setUser(user);
-
-			StringBuffer buffer = new StringBuffer();
-
-			String workspace = FileUtil.path(getSettings().getLocalWorkspace(),
-					job.getUser().getUsername());
-
-			String log = FileUtil.readFileAsString(FileUtil.path(workspace,
-					job.getLogOutFile()));
-			String output = FileUtil.readFileAsString(FileUtil.path(workspace,
-					job.getStdOutFile()));
-
-			buffer.append("<code><pre>");
-
-			if (!log.isEmpty()) {
-				buffer.append("job.txt:\n\n");
-				buffer.append(log);
-
-			}
-
-			if (!output.isEmpty()) {
-
-				buffer.append("\n\nstd.out:\n\n");
-				buffer.append(output);
-
-			}
-			buffer.append("</code></pre>");
-			return new StringRepresentation(buffer.toString());
-
-		} else {
-
+		if (job == null) {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("log not found.");
+			return new StringRepresentation("job '" + id + "' not found.");
 		}
+
+		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("Access denied.");
+		}
+
+		// job.setUser(user);
+
+		StringBuffer buffer = new StringBuffer();
+
+		String workspace = FileUtil.path(getSettings().getLocalWorkspace(), job
+				.getUser().getUsername());
+
+		String log = FileUtil.readFileAsString(FileUtil.path(workspace,
+				job.getLogOutFile()));
+		String output = FileUtil.readFileAsString(FileUtil.path(workspace,
+				job.getStdOutFile()));
+
+		buffer.append("<code><pre>");
+
+		if (!log.isEmpty()) {
+			buffer.append("job.txt:\n\n");
+			buffer.append(log);
+
+		}
+
+		if (!output.isEmpty()) {
+
+			buffer.append("\n\nstd.out:\n\n");
+			buffer.append(output);
+
+		}
+		buffer.append("</code></pre>");
+		return new StringRepresentation(buffer.toString());
 
 	}
 

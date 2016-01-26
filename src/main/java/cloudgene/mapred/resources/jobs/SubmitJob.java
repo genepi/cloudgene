@@ -30,12 +30,13 @@ import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
+import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 
-public class NewSubmitJob extends BaseResource {
+public class SubmitJob extends BaseResource {
 
 	boolean publicMode = false;
 
@@ -59,20 +60,11 @@ public class NewSubmitJob extends BaseResource {
 
 			}
 
+			// change to public mode
 			if (user == null) {
-
 				publicMode = true;
+				user = PublicUser.getUser(getDatabase());
 
-				UserDao dao = new UserDao(getDatabase());
-				user = dao.findByUsername("public");
-				if (user == null) {
-					user = new User();
-					user.setUsername("public");
-					String password = HashUtil.getMD5("public-password");
-					user.setPassword(password);
-					user.setRole("public");
-					dao.insert(user);
-				}
 			}
 
 			WorkflowEngine engine = getWorkflowEngine();
@@ -114,9 +106,8 @@ public class NewSubmitJob extends BaseResource {
 
 			}
 
-			// tring tool = "minimac/new-simple";// props.get("tool");
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-			String id = "job-" + sdf.format(new Date());// props.get("job-name");
+			String id = "job-" + sdf.format(new Date());
 
 			if (publicMode) {
 				id = HashUtil.getMD5(id + "-lukas");

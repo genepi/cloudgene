@@ -15,10 +15,9 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
 
-public class NewGetJobStatus extends BaseResource {
+public class GetJobStatus extends BaseResource {
 
 	@Post
 	protected Representation post(Representation entity, Variant variant) {

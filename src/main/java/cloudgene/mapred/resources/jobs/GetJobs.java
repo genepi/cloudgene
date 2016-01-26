@@ -18,7 +18,7 @@ import cloudgene.mapred.util.BaseResource;
 public class GetJobs extends BaseResource {
 
 	/**
-	 * Resource to get job status information
+	 * Resource to get a list of all jobs for authenticated user.
 	 */
 
 	@Get
@@ -40,14 +40,9 @@ public class GetJobs extends BaseResource {
 
 		}
 
-		// jobs in queue
-		// WorkflowEngine engine = WorkflowEngine.getInstance();
-		// List<AbstractJob> jobs = engine.getJobsByUser(user);
-
-		// complete jobs
+		// find all jobs by user
 		JobDao dao = new JobDao(getDatabase());
 		List<AbstractJob> jobs = dao.findAllByUser(user);
-		// jobs.addAll(oldJobs);
 
 		// exclude unused parameters
 		JsonConfig config = new JsonConfig();

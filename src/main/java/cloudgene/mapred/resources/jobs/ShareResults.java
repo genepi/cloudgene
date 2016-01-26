@@ -10,14 +10,10 @@ import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
 
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
-import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.Settings;
 
 public class ShareResults extends BaseResource {
 
