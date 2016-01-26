@@ -27,15 +27,12 @@ public class GetJobs extends BaseResource {
 		User user = getUser(getRequest());
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return error401("The request requires user authentication.");
 		}
 
 		if (getSettings().isMaintenance() && !user.isAdmin()) {
 
-			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-			return new StringRepresentation(
+			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE,
 					"This functionality is currently under maintenance.");
 
 		}

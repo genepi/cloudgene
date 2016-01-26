@@ -2,7 +2,6 @@ package cloudgene.mapred.resources.jobs;
 
 import genepi.io.FileUtil;
 
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -20,9 +19,7 @@ public class GetLogs extends BaseResource {
 		User user = getUser(getRequest());
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return error401("The request requires user authentication.");
 		}
 
 		String id = (String) getRequest().getAttributes().get("id");
@@ -39,16 +36,13 @@ public class GetLogs extends BaseResource {
 		}
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("job '" + id + "' not found.");
+			return error404("Job " + id + " not found.");
 		}
+
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("Access denied.");
+			return error403("Access denied.");
 		}
-
-		// job.setUser(user);
 
 		StringBuffer buffer = new StringBuffer();
 

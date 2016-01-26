@@ -4,11 +4,9 @@ import java.util.List;
 import java.util.Vector;
 
 import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -19,6 +17,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PublicUser;
 
 public class GetJobDetails extends BaseResource {
@@ -29,26 +28,24 @@ public class GetJobDetails extends BaseResource {
 	protected Representation post(Representation entity, Variant variant) {
 
 		Form form = new Form(entity);
-		String jobId = form.getFirstValue("id");
+		String id = form.getFirstValue("id");
 
-		if (jobId == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + jobId + " not found.");
+		if (id == null) {
+			return error404("No job id specified.");
 		}
 
 		// running job is in workflow engine
-		AbstractJob job = getWorkflowEngine().getJobById(jobId);
+		AbstractJob job = getWorkflowEngine().getJobById(id);
 
 		if (job == null) {
 			// finished job is in database
 			JobDao dao = new JobDao(getDatabase());
-			job = dao.findById(jobId, true);
+			job = dao.findById(id, true);
 
 		}
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + jobId + " not found.");
+			return error404("Job " + id + " not found.");
 		}
 
 		User user = getUser(getRequest());
@@ -61,8 +58,7 @@ public class GetJobDetails extends BaseResource {
 
 		// check permissions
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("Access denied.");
+			return error403("Access denied.");
 		}
 
 		// finds position in queue
@@ -87,24 +83,12 @@ public class GetJobDetails extends BaseResource {
 		}
 		job.getOutputParams().removeAll(adminParams);
 
-		// excludes properties from json
-		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "user", "inputParams", "output",
-				"endTime", "startTime", "error", "s3Url", "task", "config",
-				"mapReduceJob", "job", "step", "context", "hdfsWorkspace",
-				"localWorkspace", "logOutFiles", "removeHdfsWorkspace",
-				"settings", "setupComplete", "stdOutFile", "workingDirectory",
-				"parameter", "logOutFile", "map", "reduce", "mapProgress",
-				"reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-				"removeHeader", "value", "autoExport", "adminOnly", "download",
-				"tip" });
-
-		//set log if user is admin
+		// set log if user is admin
 		if (user.isAdmin()) {
 			job.setLogs("logs/" + job.getId());
 		}
 
-		JSONObject object = JSONObject.fromObject(job, config);
+		JSONObject object = JSONConverter.fromJob(job);
 		if (publicMode) {
 			object.put("public", publicMode);
 		}

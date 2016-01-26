@@ -1,10 +1,8 @@
 package cloudgene.mapred.resources.jobs;
 
 import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 import org.restlet.data.Form;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -16,6 +14,7 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.JSONConverter;
 
 public class GetJobStatus extends BaseResource {
 
@@ -24,16 +23,15 @@ public class GetJobStatus extends BaseResource {
 
 		User user = getUser(getRequest());
 
-
 		Form form = new Form(entity);
-		String jobId = form.getFirstValue("job_id");
+		String id = form.getFirstValue("job_id");
 
-		AbstractJob job =getWorkflowEngine().getJobById(jobId);
+		AbstractJob job = getWorkflowEngine().getJobById(id);
 
 		if (job == null) {
 
 			JobDao dao = new JobDao(getDatabase());
-			job = dao.findById(jobId, false);
+			job = dao.findById(id, false);
 
 		} else {
 
@@ -49,36 +47,23 @@ public class GetJobStatus extends BaseResource {
 		}
 
 		if (job == null) {
-
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + jobId + " not found.");
-
+			return error404("Job " + id + " not found.");
 		}
 
-		//public mode
+		// public mode
 		if (user == null) {
 			UserDao dao = new UserDao(getDatabase());
-			user = dao.findByUsername("public");					
-		}
-		
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("Access denied.");
+			user = dao.findByUsername("public");
 		}
 
-		JsonConfig config = new JsonConfig();
-	
-		config.setExcludes(new String[] { "user", "outputParams",
-				"inputParams", "output", "endTime", "startTime", "error",
-				"s3Url", "task", "config", "mapReduceJob", "job", "step",
-				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
-				"logs", "removedHdfsWorkspace", "settings", "setupComplete",
-				"stdOutFile", "workingDirectory", "context","user" });
-	
-		JSONObject object = JSONObject.fromObject(job, config);
+		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
+			return error403("Access denied.");
+		}
+
+		JSONObject object = JSONConverter.fromJob(job);
 
 		return new StringRepresentation(object.toString());
 
-	} 
+	}
 
 }

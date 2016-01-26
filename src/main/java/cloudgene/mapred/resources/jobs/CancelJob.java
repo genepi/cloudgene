@@ -1,10 +1,8 @@
 package cloudgene.mapred.resources.jobs;
 
 import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 import org.restlet.data.Form;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -13,6 +11,7 @@ import org.restlet.resource.Post;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.JSONConverter;
 
 public class CancelJob extends BaseResource {
 
@@ -24,48 +23,36 @@ public class CancelJob extends BaseResource {
 		try {
 
 			if (user == null) {
-
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation(
-						"The request requires user authentication.");
-
+				return error401("The request requires user authentication.");
 			}
 
 			Form form = new Form(entity);
 			String id = form.getFirstValue("id");
 
 			if (id == null) {
-
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-				return new StringRepresentation("No Job id specified.");
-
+				return error404("No job id specified.");
 			}
 
 			AbstractJob job = getWorkflowEngine().getJobById(id);
 
 			if (job == null) {
-				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-				return new StringRepresentation("Job " + id + " not found.");
+				return error404("Job " + id + " not found.");
 			}
 
 			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation("Access denied.");
+				return error403("Access denied.");
 			}
 
 			getWorkflowEngine().cancel(job);
 
-			JsonConfig config = new JsonConfig();
-			config.setExcludes(new String[] { "user", "outputParams",
-					"inputParams", "output", "endTime", "startTime", "error",
-					"s3Url", "task", "config", "mapReduceJob", "job", "step",
-					"context" });
-			JSONObject object = JSONObject.fromObject(job, config);
+			JSONObject object = JSONConverter.fromJob(job);
 
 			return new StringRepresentation(object.toString());
+
 		} catch (Exception e) {
-			e.printStackTrace();
-			return new StringRepresentation("");
+
+			return error400(e.getMessage());
+
 		}
 	}
 

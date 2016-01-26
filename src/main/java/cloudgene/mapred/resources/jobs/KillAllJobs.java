@@ -1,6 +1,5 @@
 package cloudgene.mapred.resources.jobs;
 
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -17,11 +16,7 @@ public class KillAllJobs extends BaseResource {
 		User user = getUser(getRequest());
 
 		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
+			return error401("The request requires user authentication.");
 		}
 
 		HadoopUtil.getInstance().killAll(user);

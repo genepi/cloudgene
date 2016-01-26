@@ -5,10 +5,8 @@ import genepi.io.FileUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.database.DownloadDao;
@@ -30,9 +28,7 @@ public class ShareResults extends BaseResource {
 		Download download = dao.findByHash(hash);
 
 		if (download == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("download file file not..");
-
+			return error400("download not found.");
 		}
 
 		MediaType mediaType = MediaType.ALL;
@@ -63,8 +59,7 @@ public class ShareResults extends BaseResource {
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return new StringRepresentation("number of max downloads exceeded.");
+			return error400("number of max downloads exceeded.");
 
 		}
 

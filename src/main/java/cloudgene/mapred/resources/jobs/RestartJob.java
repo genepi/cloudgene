@@ -3,10 +3,8 @@ package cloudgene.mapred.resources.jobs;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 import org.restlet.data.Form;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
@@ -16,6 +14,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 
@@ -27,34 +26,25 @@ public class RestartJob extends BaseResource {
 		User user = getUser(getRequest());
 
 		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
+			return error401("The request requires user authentication.");
 		}
 
 		Form form = new Form(entity);
 		String id = form.getFirstValue("id");
 
 		if (id == null) {
-
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("No Job id specified.");
-
+			return error404("No job id specified.");
 		}
 
 		JobDao dao = new JobDao(getDatabase());
 		AbstractJob job = dao.findById(id);
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + id + " not found.");
+			return error404("Job " + id + " not found.");
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("Access denied.");
+			return error403("Access denied.");
 		}
 
 		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
@@ -67,15 +57,16 @@ public class RestartJob extends BaseResource {
 		job.setSettings(getSettings());
 		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 
-		String tool = job.getApplicationId();
-		String filename = getSettings().getApp(job.getUser(), tool);
+		String application = job.getApplicationId();
+		String filename = getSettings().getApp(job.getUser(), application);
 		WdlApp app = null;
 		try {
 			app = WdlReader.loadAppFromFile(filename);
 		} catch (Exception e1) {
 
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Tool '" + tool + "' not found.");
+			return error400("Application '"
+					+ application
+					+ "' not found or the request requires user authentication.");
 
 		}
 
@@ -83,12 +74,7 @@ public class RestartJob extends BaseResource {
 
 		getWorkflowEngine().restart(job);
 
-		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "user", "outputParams",
-				"inputParams", "output", "endTime", "startTime", "error",
-				"s3Url", "task", "config", "mapReduceJob", "job", "step",
-				"context" });
-		JSONObject object = JSONObject.fromObject(job, config);
+		JSONObject object = JSONConverter.fromJob(job);
 
 		return new StringRepresentation(object.toString());
 

@@ -5,10 +5,8 @@ import genepi.io.FileUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
@@ -18,7 +16,6 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
 
 public class DownloadResults extends BaseResource {
@@ -53,9 +50,7 @@ public class DownloadResults extends BaseResource {
 		AbstractJob job = jobDao.findById(jobId);
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("job not found.");
-
+			return error404("Job " + id + " not found.");
 		}
 
 		// job is running -> load it from queue
@@ -74,8 +69,7 @@ public class DownloadResults extends BaseResource {
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("Access denied.");
+			return error403("Access denied.");
 		}
 
 		MediaType mediaType = MediaType.ALL;
@@ -96,7 +90,8 @@ public class DownloadResults extends BaseResource {
 		Download download = dao.findByJobAndPath(jobId,
 				FileUtil.path(id, filename));
 
-		//job is running and not in database --> download possible of autoexport params
+		// job is running and not in database --> download possible of
+		// autoexport params
 		if (download == null) {
 			for (CloudgeneParameter param : job.getOutputParams()) {
 				if (param.isAutoExport()) {
@@ -128,16 +123,13 @@ public class DownloadResults extends BaseResource {
 
 			} else {
 
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation(
-						"number of max downloads exceeded.");
+				return error400("number of max downloads exceeded.");
 
 			}
 
 		} else {
 
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("download not found.");
+			return error400("download not found.");
 		}
 
 	}
