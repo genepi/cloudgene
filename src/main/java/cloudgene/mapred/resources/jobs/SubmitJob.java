@@ -35,85 +35,95 @@ public class SubmitJob extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
-
-		User user = getUser(getRequest());
-		String tool = getAttribute("tool");
-
-		String filename = getSettings().getApp(user, tool);
-		WdlApp app = null;
 		try {
-			app = WdlReader.loadAppFromFile(filename);
-		} catch (Exception e1) {
+			User user = getUser(getRequest());
+			String tool = getAttribute("tool");
 
-			return error404("Application '"
-					+ tool
-					+ "' not found or the request requires user authentication.");
+			String filename = getSettings().getApp(user, tool);
+			WdlApp app = null;
+			try {
+				app = WdlReader.loadAppFromFile(filename);
+			} catch (Exception e1) {
 
-		}
+				return error404("Application '"
+						+ tool
+						+ "' not found or the request requires user authentication.");
 
-		if (app.getMapred() == null) {
-			return error404("Application '" + tool + "' has no mapred section.");
-		}
-
-		WorkflowEngine engine = getWorkflowEngine();
-		Settings settings = getSettings();
-
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-		String id = "job-" + sdf.format(new Date());
-
-		if (user != null) {
-			// private mode
-
-			int maxPerUser = settings.getMaxRunningJobsPerUser();
-			if (engine.getJobsByUser(user).size() >= maxPerUser) {
-				return error400("Only " + maxPerUser
-						+ " jobs per user can be executed simultaneously.");
 			}
 
-		} else {
+			if (app.getMapred() == null) {
+				return error404("Application '" + tool
+						+ "' has no mapred section.");
+			}
 
-			// public mode
-			user = PublicUser.getUser(getDatabase());
-			id = HashUtil.getMD5(id + "-lukas");
+			WorkflowEngine engine = getWorkflowEngine();
+			Settings settings = getSettings();
 
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+			String id = "job-" + sdf.format(new Date());
+
+			if (user != null) {
+				// private mode
+
+				int maxPerUser = settings.getMaxRunningJobsPerUser();
+				if (engine.getJobsByUser(user).size() >= maxPerUser) {
+					return error400("Only " + maxPerUser
+							+ " jobs per user can be executed simultaneously.");
+				}
+
+			} else {
+
+				// public mode
+				user = PublicUser.getUser(getDatabase());
+				id = HashUtil.getMD5(id + "-lukas");
+
+			}
+
+			int maxJobs = settings.getMaxRunningJobs();
+			if (engine.getActiveCount() >= maxJobs) {
+				return error400("More than " + maxJobs
+						+ "  jobs are currently in the queue.");
+			}
+
+			String hdfsWorkspace = HdfsUtil.path(getSettings()
+					.getHdfsWorkspace(), id);
+			String localWorkspace = FileUtil.path(getSettings()
+					.getLocalWorkspace(), id);
+			FileUtil.createDirectory(localWorkspace);
+
+			Map<String, String> inputParams = parseAndUpdateInputParams(entity,
+					app, hdfsWorkspace, localWorkspace);
+
+			if (inputParams == null) {
+				return error400("Error during input parameter parsing.");
+			}
+
+			CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
+					inputParams);
+			job.setId(id);
+			job.setName(id);
+			job.setLocalWorkspace(localWorkspace);
+			job.setHdfsWorkspace(hdfsWorkspace);
+			job.setSettings(getSettings());
+			job.setRemoveHdfsWorkspace(false);
+			job.setApplication(app.getName() + " " + app.getVersion());
+			job.setApplicationId(tool);
+
+			engine.submit(job);
+
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("id", id);
+			return ok("Your job was successfully added to the job queue.",
+					params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return error400(e.getMessage());
 		}
-
-		int maxJobs = settings.getMaxRunningJobs();
-		if (engine.getActiveCount() >= maxJobs) {
-			return error400("More than " + maxJobs
-					+ "  jobs are currently in the queue.");
-		}
-
-		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
-				user.getUsername());
-		String localWorkspace = FileUtil.path(
-				getSettings().getLocalWorkspace(), user.getUsername());
-
-		Map<String, String> inputParams = parseAndUpdateInputParams(entity,
-				app, hdfsWorkspace, localWorkspace, id);
-
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
-				inputParams);
-		job.setId(id);
-		job.setName(id);
-		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
-		job.setSettings(getSettings());
-		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
-		job.setApplication(app.getName() + " " + app.getVersion());
-		job.setApplicationId(tool);
-
-		engine.submit(job);
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("id", id);
-		return ok("Your job was successfully added to the job queue.", params);
-
 	}
 
 	private Map<String, String> parseAndUpdateInputParams(
 			Representation entity, WdlApp app, String hdfsWorkspace,
-			String localWorkspace, String id) {
+			String localWorkspace) {
 		Map<String, String> props = new HashMap<String, String>();
 
 		try {
@@ -133,98 +143,76 @@ public class SubmitJob extends BaseResource {
 					String tmpFile = getSettings().getTempFilename(
 							item.getName());
 					File file = new File(tmpFile);
-					try {
-						FileUtils
-								.copyInputStreamToFile(item.openStream(), file);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+
+					FileUtils.copyInputStreamToFile(item.openStream(), file);
 
 					// import into hdfs
-					if (file.exists()) {
-						String entryName = item.getName();
+					String entryName = item.getName();
 
-						// remove upload indentification!
-						String fieldName = item.getFieldName()
-								.replace("-upload", "").replace("input-", "");
+					// remove upload indentification!
+					String fieldName = item.getFieldName()
+							.replace("-upload", "").replace("input-", "");
 
-						boolean hdfs = false;
-						boolean folder = false;
+					boolean hdfs = false;
+					boolean folder = false;
 
-						for (WdlParameter input : app.getMapred().getInputs()) {
-							if (input.getId().equals(fieldName)) {
-								hdfs = (input.getType().equals(
-										WdlParameter.HDFS_FOLDER) || input
-										.getType().equals(
-												WdlParameter.HDFS_FILE));
-								folder = (input.getType()
-										.equals(WdlParameter.HDFS_FOLDER))
-										|| (input.getType()
-												.equals(WdlParameter.LOCAL_FOLDER));
-							}
+					for (WdlParameter input : app.getMapred().getInputs()) {
+						if (input.getId().equals(fieldName)) {
+							hdfs = (input.getType().equals(
+									WdlParameter.HDFS_FOLDER) || input
+									.getType().equals(WdlParameter.HDFS_FILE));
+							folder = (input.getType()
+									.equals(WdlParameter.HDFS_FOLDER))
+									|| (input.getType()
+											.equals(WdlParameter.LOCAL_FOLDER));
+						}
+					}
+
+					if (hdfs) {
+
+						String targetPath = HdfsUtil.path(hdfsWorkspace,
+								fieldName);
+
+						String target = HdfsUtil.path(targetPath, entryName);
+
+						HdfsUtil.put(tmpFile, target);
+
+						// deletes temporary file
+						FileUtil.deleteFile(tmpFile);
+
+						if (folder) {
+							// folder
+							props.put(fieldName, HdfsUtil.path(fieldName));
+						} else {
+							// file
+							props.put(fieldName,
+									HdfsUtil.path(fieldName, entryName));
 						}
 
-						if (hdfs) {
+					} else {
 
-							String targetPath = HdfsUtil.path(hdfsWorkspace,
-									"input", id, fieldName);
+						// copy to workspace in temp directory
 
-							String target = HdfsUtil
-									.path(targetPath, entryName);
+						String targetPath = FileUtil.path(localWorkspace,
+								"temp", fieldName);
 
-							HdfsUtil.put(tmpFile, target);
+						FileUtil.createDirectory(targetPath);
 
-							// deletes temporary file
-							FileUtil.deleteFile(tmpFile);
+						String target = FileUtil.path(targetPath, entryName);
 
-							if (folder) {
-								// folder
-								props.put(fieldName,
-										HdfsUtil.path("input", id, fieldName));
-							} else {
-								// file
-								props.put(fieldName, HdfsUtil.path("input", id,
-										fieldName, entryName));
-							}
+						FileUtil.copy(tmpFile, target);
 
+						// deletes temporary file
+						FileUtil.deleteFile(tmpFile);
+
+						if (folder) {
+							// folder
+							props.put(fieldName,
+									new File(targetPath).getAbsolutePath());
 						} else {
-
-							String targetPath = FileUtil.path(localWorkspace,
-									"input", id, fieldName);
-
-							FileUtil.createDirectory(FileUtil.path(
-									localWorkspace, "input"));
-
-							FileUtil.createDirectory(FileUtil.path(
-									localWorkspace, "input", id));
-
-							FileUtil.createDirectory(FileUtil.path(
-									localWorkspace, "input", id, fieldName));
-
-							String target = FileUtil
-									.path(targetPath, entryName);
-
-							FileUtil.copy(tmpFile, target);
-
-							// deletes temporary file
-							FileUtil.deleteFile(tmpFile);
-
-							if (folder) {
-								// folder
-								props.put(
-										fieldName,
-										new File(FileUtil.path(localWorkspace,
-												"input", id, fieldName))
-												.getAbsolutePath());
-							} else {
-								// file
-								props.put(
-										fieldName,
-										new File(FileUtil.path(localWorkspace,
-												"input", id, fieldName,
-												entryName)).getAbsolutePath());
-							}
-
+							// file
+							props.put(fieldName,
+									new File(target).getAbsolutePath());
 						}
 
 					}
@@ -248,6 +236,7 @@ public class SubmitJob extends BaseResource {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			return null;
 		}
 
 		Map<String, String> params = new HashMap<String, String>();

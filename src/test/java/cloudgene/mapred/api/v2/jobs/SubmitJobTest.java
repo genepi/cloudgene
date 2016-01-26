@@ -168,7 +168,7 @@ public class SubmitJobTest extends ApiTestCase {
 		waitForJob(id);
 
 		// TODO: change!
-		Thread.sleep(50000);
+		Thread.sleep(5000);
 
 		// get details
 		JSONObject result = getJobDetails(id);

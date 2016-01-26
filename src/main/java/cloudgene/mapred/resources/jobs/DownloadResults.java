@@ -83,9 +83,6 @@ public class DownloadResults extends BaseResource {
 			mediaType = MediaType.TEXT_HTML;
 		}
 
-		String workspace = FileUtil.path(getSettings().getLocalWorkspace(), job
-				.getUser().getUsername());
-
 		DownloadDao dao = new DownloadDao(getDatabase());
 		Download download = dao.findByJobAndPath(jobId,
 				FileUtil.path(id, filename));
@@ -109,8 +106,8 @@ public class DownloadResults extends BaseResource {
 
 		if (download != null) {
 
-			String resultFile = FileUtil.path(workspace, "output",
-					download.getPath());
+			String resultFile = FileUtil.path(
+					getSettings().getLocalWorkspace(), download.getPath());
 
 			if (download.getCount() > 0) {
 

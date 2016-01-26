@@ -48,9 +48,9 @@ public class RestartJob extends BaseResource {
 		}
 
 		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
-				job.getUser().getUsername());
+				id);
 		String localWorkspace = FileUtil.path(
-				getSettings().getLocalWorkspace(), job.getUser().getUsername());
+				getSettings().getLocalWorkspace(), id);
 
 		job.setLocalWorkspace(localWorkspace);
 		job.setHdfsWorkspace(hdfsWorkspace);

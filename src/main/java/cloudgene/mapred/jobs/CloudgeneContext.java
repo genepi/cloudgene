@@ -58,25 +58,16 @@ public class CloudgeneContext extends WorkflowContext {
 
 		workspace = job.getHdfsWorkspace();
 
-		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
-				job.getId(), "temp"));
+		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "temp"));
 
-		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
-				job.getId()));
+		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
 
-		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "input",
-				job.getId()));
+		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
 
-		String localWorkspace = new File(job.getLocalWorkspace())
+		localOutput = new File(job.getLocalWorkspace()).getAbsolutePath();
+
+		localTemp = new File(FileUtil.path(job.getLocalWorkspace(), "temp"))
 				.getAbsolutePath();
-
-		localOutput = new File(FileUtil.path(localWorkspace, "output",
-				job.getId())).getAbsolutePath();
-
-		FileUtil.createDirectory(localOutput);
-
-		localTemp = new File(FileUtil.path(localWorkspace, "output",
-				job.getId(), "temp")).getAbsolutePath();
 
 		inputParameters = new HashMap<String, CloudgeneParameter>();
 		for (CloudgeneParameter param : job.getInputParams()) {
@@ -139,15 +130,9 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void setupOutputParameters() {
 
-		// cleanup (need when job is restarted!)
-		FileUtil.deleteDirectory(getLocalTemp());
-		FileUtil.deleteDirectory(getLocalOutput());
-		HdfsUtil.delete(getHdfsOutput());
-		HdfsUtil.delete(getHdfsTemp());
-
 		// create output directories
-		FileUtil.createDirectory(getLocalTemp());
 		FileUtil.createDirectory(getLocalOutput());
+		FileUtil.createDirectory(getLocalTemp());
 
 		// create output directories
 		for (CloudgeneParameter param : outputParameters.values()) {
@@ -167,14 +152,18 @@ public class CloudgeneContext extends WorkflowContext {
 				if (!HdfsUtil.isAbsolute(value)) {
 					value = HdfsUtil.makeAbsolute(value);
 				}
-
+				//delete (needed for restart)
+				HdfsUtil.delete(value);
 				param.setValue(value);
 				break;
 
+				//TODO: temp support for local files
 			case WdlParameter.LOCAL_FILE:
 				String folder = FileUtil
 						.path(getLocalOutput(), param.getName());
 				String filename = FileUtil.path(folder, param.getName());
+				//delete and create (needed for restart)
+				FileUtil.deleteDirectory(folder);
 				FileUtil.createDirectory(folder);
 				param.setValue(filename);
 				break;
@@ -182,6 +171,8 @@ public class CloudgeneContext extends WorkflowContext {
 			case WdlParameter.LOCAL_FOLDER:
 				String folder2 = FileUtil.path(getLocalOutput(),
 						param.getName());
+				//delete and create (needed for restart)
+				FileUtil.deleteDirectory(folder2);
 				FileUtil.createDirectory(folder2);
 				param.setValue(folder2);
 				break;

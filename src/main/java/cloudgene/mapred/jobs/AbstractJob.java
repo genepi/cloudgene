@@ -224,10 +224,9 @@ abstract public class AbstractJob implements Runnable {
 	public void afterSubmission() {
 		try {
 
-			setup();
-
-			initLocalDirectories();
 			initStdOutFiles();
+
+			setup();
 
 		} catch (Exception e1) {
 
@@ -267,8 +266,8 @@ abstract public class AbstractJob implements Runnable {
 						+ context.get(parameter.getName()));
 			}
 
-			//TODO: check if all input parameters are set
-			
+			// TODO: check if all input parameters are set
+
 			writeLog("  Outputs:");
 			for (CloudgeneParameter parameter : outputParams) {
 				writeLog("    " + parameter.getDescription() + ": "
@@ -454,45 +453,14 @@ abstract public class AbstractJob implements Runnable {
 
 	}
 
-	private void initLocalDirectories() {
-
-		if (getUser() != null) {
-
-			String localWorkspace = getLocalWorkspace();
-
-			String directory = FileUtil.path(localWorkspace, "output", getId());
-			FileUtil.createDirectory(directory);
-
-		}
-
-	}
-
 	public String getStdOutFile() {
 
-		if (getUser() != null) {
-
-			String localWorkspace = getLocalWorkspace();
-
-			return FileUtil.path(localWorkspace, "output", getId(), "std.out");
-
-		} else {
-
-			return "";
-		}
+		return FileUtil.path(localWorkspace, "std.out");
 	}
 
 	public String getLogOutFile() {
 
-		if (getUser() != null) {
-
-			String localWorkspace = getLocalWorkspace();
-
-			return FileUtil.path(localWorkspace, "output", getId(), "job.txt");
-
-		} else {
-
-			return "";
-		}
+		return FileUtil.path(localWorkspace, "job.txt");
 	}
 
 	private void closeStdOutFiles() {

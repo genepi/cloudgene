@@ -72,7 +72,7 @@ public class WorkflowEngineTest extends TestCase {
 
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
-	
+
 	public void testReturnTrueInSetupStep() throws Exception {
 
 		WdlApp app = WdlReader
@@ -89,7 +89,7 @@ public class WorkflowEngineTest extends TestCase {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
-	
+
 	public void testReturnFalseInSetupStep() throws Exception {
 
 		WdlApp app = WdlReader
@@ -123,14 +123,13 @@ public class WorkflowEngineTest extends TestCase {
 
 		Settings settings = TestEnvironment.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
-		String outputFilename = FileUtil.path(settings.getLocalWorkspace(),
-				"no-user", "output", path);
-		String content = FileUtil.readFileAsString(outputFilename);
+		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
+		String content = FileUtil.readFileAsString(filename);
 
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_SUCCESS);
 	}
-	
+
 	public void testWriteTextToFileOnFailureInStepJob() throws Exception {
 
 		WdlApp app = WdlReader
@@ -147,14 +146,13 @@ public class WorkflowEngineTest extends TestCase {
 		Thread.sleep(4000);
 		Settings settings = TestEnvironment.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
-		String outputFilename = FileUtil.path(settings.getLocalWorkspace(),
-				"no-user", "output", path);
-		String content = FileUtil.readFileAsString(outputFilename);
+		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
+		String content = FileUtil.readFileAsString(filename);
 
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
-	
+
 	public void testWriteTextToFileOnFailureInSetupJob() throws Exception {
 
 		WdlApp app = WdlReader
@@ -170,32 +168,28 @@ public class WorkflowEngineTest extends TestCase {
 		}
 
 		Thread.sleep(4000);
-		
+
 		Settings settings = TestEnvironment.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
-		String outputFilename = FileUtil.path(settings.getLocalWorkspace(),
-				"no-user", "output", path);
-		String content = FileUtil.readFileAsString(outputFilename);
+		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
+		String content = FileUtil.readFileAsString(filename);
 
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
-	
 
-	/*public void testJobWithWrongParams() throws Exception {
-
-		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true.yaml");
-
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("wrong-param-name", "input-file");
-
-		CloudgeneJob job = createJobFromWdl(app, params);
-		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
-		}
-		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
-	}*/
+	/*
+	 * public void testJobWithWrongParams() throws Exception {
+	 * 
+	 * WdlApp app = WdlReader.loadAppFromFile("test-data/return-true.yaml");
+	 * 
+	 * Map<String, String> params = new HashMap<String, String>();
+	 * params.put("wrong-param-name", "input-file");
+	 * 
+	 * CloudgeneJob job = createJobFromWdl(app, params); engine.submit(job);
+	 * while (job.isRunning()) { Thread.sleep(1000); }
+	 * assertEquals(job.getState(), AbstractJob.STATE_FAILED); }
+	 */
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
 			throws Exception {
@@ -205,10 +199,9 @@ public class WorkflowEngineTest extends TestCase {
 
 		String id = "test_" + System.currentTimeMillis();
 
-		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(),
-				"no-user");
-		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(),
-				"no-user");
+		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
+		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
+		FileUtil.createDirectory(localWorkspace);
 
 		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputs);
 		job.setId(id);

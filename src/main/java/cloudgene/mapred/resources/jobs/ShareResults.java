@@ -42,10 +42,7 @@ public class ShareResults extends BaseResource {
 			mediaType = MediaType.TEXT_HTML;
 		}
 
-		String workspace = FileUtil.path(getSettings().getLocalWorkspace(),
-				username);
-
-		String resultFile = FileUtil.path(workspace, "output",
+		String resultFile = FileUtil.path(getSettings().getLocalWorkspace(),
 				download.getPath());
 
 		if (download.getCount() > 0) {
