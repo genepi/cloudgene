@@ -267,8 +267,8 @@ abstract public class AbstractJob implements Runnable {
 						+ context.get(parameter.getName()));
 			}
 
-			// TODO: check if all input parameters are set
-
+			//TODO: check if all input parameters are set
+			
 			writeLog("  Outputs:");
 			for (CloudgeneParameter parameter : outputParams) {
 				writeLog("    " + parameter.getDescription() + ": "
@@ -456,6 +456,15 @@ abstract public class AbstractJob implements Runnable {
 
 	private void initLocalDirectories() {
 
+		if (getUser() != null) {
+
+			String localWorkspace = getLocalWorkspace();
+
+			String directory = FileUtil.path(localWorkspace, "output", getId());
+			FileUtil.createDirectory(directory);
+
+		}
+
 	}
 
 	public String getStdOutFile() {
@@ -464,7 +473,7 @@ abstract public class AbstractJob implements Runnable {
 
 			String localWorkspace = getLocalWorkspace();
 
-			return FileUtil.path(localWorkspace, "std.out");
+			return FileUtil.path(localWorkspace, "output", getId(), "std.out");
 
 		} else {
 
@@ -478,7 +487,7 @@ abstract public class AbstractJob implements Runnable {
 
 			String localWorkspace = getLocalWorkspace();
 
-			return FileUtil.path(localWorkspace,  "job.txt");
+			return FileUtil.path(localWorkspace, "output", getId(), "job.txt");
 
 		} else {
 
@@ -503,10 +512,6 @@ abstract public class AbstractJob implements Runnable {
 
 		try {
 
-			if (stdOutStream == null) {
-				initStdOutFiles();
-			}
-
 			stdOutStream.write(line.getBytes());
 			stdOutStream.flush();
 
@@ -520,9 +525,6 @@ abstract public class AbstractJob implements Runnable {
 
 		try {
 
-			if (stdOutStream == null) {
-				initStdOutFiles();
-			}
 			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
 			stdOutStream.write("\n".getBytes());
@@ -536,10 +538,6 @@ abstract public class AbstractJob implements Runnable {
 	public void writeLog(String line) {
 
 		try {
-
-			if (logStream == null) {
-				initStdOutFiles();
-			}
 
 			logStream.write((formatter.format(new Date()) + " ").getBytes());
 			logStream.write(line.getBytes());

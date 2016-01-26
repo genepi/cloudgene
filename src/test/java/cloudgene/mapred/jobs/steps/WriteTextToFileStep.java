@@ -11,6 +11,7 @@ public class WriteTextToFileStep extends WorkflowStep {
 
 		String filename = context.getOutput("output");
 		String text = context.getInput("inputtext");
+		System.out.println("output: " + filename);
 		try{
 		FileUtil.writeStringBufferToFile(filename, new StringBuffer(text));
 		}catch(Exception e){

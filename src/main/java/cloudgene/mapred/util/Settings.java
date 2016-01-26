@@ -333,6 +333,7 @@ public class Settings {
 		this.apps = apps;
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
+			log.info("Register application " + app.getId());
 			indexApps.put(app.getId(), app);
 		}
 	}

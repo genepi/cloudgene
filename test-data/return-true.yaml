@@ -21,7 +21,6 @@ mapred:
 
     - id: output
       description: Statistics
-      autoExport: true
       type: local-file
       download: true
       temp: false

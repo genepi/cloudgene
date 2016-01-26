@@ -25,11 +25,11 @@ public class CloudgeneContext extends WorkflowContext {
 	private String hdfsInput;
 	private String localOutput;
 	private String workingDirectory;
-
+	
 	private String workspace;
 
-	// private String localWorkspace;
-
+	//private String localWorkspace;
+	
 	private Settings settings;
 
 	private CloudgeneStep step;
@@ -60,22 +60,25 @@ public class CloudgeneContext extends WorkflowContext {
 
 		workspace = job.getHdfsWorkspace();
 
-		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "temp"));
+		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
+				job.getId(), "temp"));
 
-		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output"));
+		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
+				job.getId()));
 
-		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "input"));
+		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "input",
+				job.getId()));
 
 		String localWorkspace = new File(job.getLocalWorkspace())
 				.getAbsolutePath();
 
-		localOutput = new File(FileUtil.path(localWorkspace, "output"))
-				.getAbsolutePath();
+		localOutput = new File(FileUtil.path(localWorkspace, "output",
+				job.getId())).getAbsolutePath();
 
 		FileUtil.createDirectory(localOutput);
 
-		localTemp = new File(FileUtil.path(localWorkspace, "temp"))
-				.getAbsolutePath();
+		localTemp = new File(FileUtil.path(localWorkspace, "output",
+				job.getId(), "temp")).getAbsolutePath();
 
 		inputParameters = new HashMap<String, CloudgeneParameter>();
 		for (CloudgeneParameter param : job.getInputParams()) {
@@ -379,16 +382,15 @@ public class CloudgeneContext extends WorkflowContext {
 		return true;
 
 	}
-
-	public boolean sendMail(String to, String subject, String body)
-			throws Exception {
+	
+	public boolean sendMail(String to, String subject, String body) throws Exception {
 		Settings settings = getSettings();
 
 		MailUtil.send(settings.getMail().get("smtp"),
 				settings.getMail().get("port"), settings.getMail().get("user"),
 				settings.getMail().get("password"),
-				settings.getMail().get("name"), to, "[" + settings.getName()
-						+ "] " + subject, body);
+				settings.getMail().get("name"), to,
+				"[" + settings.getName() + "] " + subject, body);
 
 		return true;
 
@@ -408,6 +410,7 @@ public class CloudgeneContext extends WorkflowContext {
 		return outputParameters.keySet();
 	}
 
+	
 	public void setInput(String input, String value) {
 
 		CloudgeneParameter parameter = inputParameters.get(input);

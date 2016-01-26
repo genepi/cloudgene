@@ -102,6 +102,7 @@ public class WebApp extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		String prefix = settings.getUrlPrefix();
+		System.out.println("Prefix: " + prefix);
 
 		// Create a router Restlet that routes each call to a
 		Router router = new Router(getContext());
@@ -119,13 +120,13 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		router.attach(prefix + "/jobs", GetJobs.class);
-		router.attach(prefix + "/jobs/details", GetJobDetails.class);
-		router.attach(prefix + "/jobs/delete", DeleteJob.class);
-		router.attach(prefix + "/jobs/cancel", CancelJob.class);
+		router.attach(prefix + "/jobs/details", GetJobDetails.class); //todo: job_id in url
+		router.attach(prefix + "/jobs/delete", DeleteJob.class);  //todo: job_id in url
+		router.attach(prefix + "/jobs/cancel", CancelJob.class); 
 		router.attach(prefix + "/jobs/restart", RestartJob.class);
 
 		router.attach(prefix + "/jobs/newsubmit/{tool}", NewSubmitJob.class);
-		router.attach(prefix + "/jobs/newstate", NewGetJobStatus.class);
+		router.attach(prefix + "/jobs/newstate", NewGetJobStatus.class);  //todo: job_id in url
 
 		router.attach(prefix + "/counters", GetCounter.class);
 
@@ -133,16 +134,17 @@ public class WebApp extends Application {
 
 		// router.attach("/killAllJobs", KillAllJobs.class);
 
-		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
+		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);  //todo: jobs/job_id/results/...
 		router.attach(prefix + "/results/{job}/{id}/{filename}",
 				DownloadResults.class);
 		router.attach(prefix + "/results/{job}/{id}/{filename}/{filename2}",
 				DownloadResults.class);
+		
 		router.attach(prefix + "/share/{username}/{hash}/{filename}",
 				ShareResults.class);
 
-		router.attach(prefix + "/logs/{id}", GetLogs.class);
-		router.attach(prefix + "/logs/{id}/{file}", GetLogs.class);
+		router.attach(prefix + "/logs/{id}", GetLogs.class); //todo: jobs/job_id/logs/...
+		router.attach(prefix + "/logs/{id}/{file}", GetLogs.class); //todo: jobs/job_id/logs/...
 
 		router.attach(prefix + "/import/validate", ValidateImport.class);
 

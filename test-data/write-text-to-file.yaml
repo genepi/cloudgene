@@ -20,7 +20,6 @@ mapred:
 
     - id: output
       description: OutputFile
-      autoExport: true
       type: local-file
       download: true
       temp: false
