@@ -25,11 +25,9 @@ public class CloudgeneContext extends WorkflowContext {
 	private String hdfsInput;
 	private String localOutput;
 	private String workingDirectory;
-	
+
 	private String workspace;
 
-	//private String localWorkspace;
-	
 	private Settings settings;
 
 	private CloudgeneStep step;
@@ -193,12 +191,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getInput(java.lang.String)
-	 */
-
 	public String getInput(String param) {
 
 		if (inputParameters.get(param) != null) {
@@ -214,12 +206,6 @@ public class CloudgeneContext extends WorkflowContext {
 		return job.getId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getOutput(java.lang.String)
-	 */
-
 	public String getOutput(String param) {
 
 		if (outputParameters.get(param) != null) {
@@ -234,29 +220,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getParameter(java.lang.String)
-	 */
-	/*
-	 * @Override public CloudgeneParameter getParameter(String id) {
-	 * 
-	 * CloudgeneParameter parameter = inputParameters.get(id);
-	 * 
-	 * if (parameter != null) { return parameter; }
-	 * 
-	 * return outputParameters.get(id);
-	 * 
-	 * }
-	 */
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#get(java.lang.String)
-	 */
-
 	public String get(String param) {
 		String result = getInput(param);
 		if (result == null) {
@@ -270,31 +233,13 @@ public class CloudgeneContext extends WorkflowContext {
 		return settings;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getHdfsTemp()
-	 */
-
 	public String getHdfsTemp() {
 		return hdfsTemp;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getLocalTemp()
-	 */
-
 	public String getLocalTemp() {
 		return localTemp;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getHdfsOutput()
-	 */
 
 	public String getHdfsOutput() {
 		return hdfsOutput;
@@ -304,31 +249,13 @@ public class CloudgeneContext extends WorkflowContext {
 		return hdfsInput;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getLocalOutput()
-	 */
-
 	public String getLocalOutput() {
 		return localOutput;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#println(java.lang.String)
-	 */
-
 	public void println(String line) {
 		job.writeOutputln(line);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#log(java.lang.String)
-	 */
 
 	public void log(String line) {
 		job.writeLog(line);
@@ -343,32 +270,13 @@ public class CloudgeneContext extends WorkflowContext {
 		return job.getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getWorkingDirectory()
-	 */
-
 	public String getWorkingDirectory() {
 		return workingDirectory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getUser()
-	 */
-
 	public User getUser() {
 		return user;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#sendMail(java.lang.String,
-	 * java.lang.String)
-	 */
 
 	public boolean sendMail(String subject, String body) throws Exception {
 		Settings settings = getSettings();
@@ -382,25 +290,20 @@ public class CloudgeneContext extends WorkflowContext {
 		return true;
 
 	}
-	
-	public boolean sendMail(String to, String subject, String body) throws Exception {
+
+	public boolean sendMail(String to, String subject, String body)
+			throws Exception {
 		Settings settings = getSettings();
 
 		MailUtil.send(settings.getMail().get("smtp"),
 				settings.getMail().get("port"), settings.getMail().get("user"),
 				settings.getMail().get("password"),
-				settings.getMail().get("name"), to,
-				"[" + settings.getName() + "] " + subject, body);
+				settings.getMail().get("name"), to, "[" + settings.getName()
+						+ "] " + subject, body);
 
 		return true;
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getInputs()
-	 */
 
 	public Set<String> getInputs() {
 		return inputParameters.keySet();
@@ -410,7 +313,6 @@ public class CloudgeneContext extends WorkflowContext {
 		return outputParameters.keySet();
 	}
 
-	
 	public void setInput(String input, String value) {
 
 		CloudgeneParameter parameter = inputParameters.get(input);
@@ -424,12 +326,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#incCounter(java.lang.String, int)
-	 */
-
 	public void incCounter(String name, int value) {
 
 		Integer oldvalue = counters.get(name);
@@ -439,12 +335,6 @@ public class CloudgeneContext extends WorkflowContext {
 		counters.put(name, oldvalue + value);
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#submitCounter(java.lang.String)
-	 */
 
 	public void submitCounter(String name) {
 
@@ -458,12 +348,6 @@ public class CloudgeneContext extends WorkflowContext {
 		}
 		return result;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getCounters()
-	 */
 
 	public Map<String, Integer> getCounters() {
 		return counters;

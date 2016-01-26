@@ -86,6 +86,12 @@ public class TestEnvironment {
 			app6.setPermission("public");
 			applications.add(app6);
 			
+			Application app7 = new Application();
+			app7.setId("all-possible-inputs");
+			app7.setFilename("test-data/all-possible-inputs.yaml");
+			app7.setPermission("public");
+			applications.add(app7);
+			
 			settings.setApps(applications);
 
 		}

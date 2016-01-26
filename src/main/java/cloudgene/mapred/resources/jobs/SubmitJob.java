@@ -53,11 +53,19 @@ public class SubmitJob extends BaseResource {
 			} catch (Exception e1) {
 
 				setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-				return new StringRepresentation(
-						"Tool '"
-								+ tool
-								+ "' not found or the request requires user authentication.");
+				JSONObject answer = new JSONObject();
+				try {
+					answer.put("success", false);
+					answer.put(
+							"message",
+							"Application '"
+									+ tool
+									+ "' not found or the request requires user authentication.");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 
+				return new StringRepresentation(answer.toString());
 			}
 
 			// change to public mode
