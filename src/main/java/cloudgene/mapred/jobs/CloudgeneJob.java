@@ -66,7 +66,7 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	public CloudgeneJob(User user, String id, WdlMapReduce config,
-			Map<String, String> params) throws Exception {
+			Map<String, String> params) {
 
 		this.config = config;
 		setId(id);
