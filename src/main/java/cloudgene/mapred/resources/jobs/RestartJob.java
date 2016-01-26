@@ -1,5 +1,8 @@
 package cloudgene.mapred.resources.jobs;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
@@ -15,6 +18,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 
@@ -25,8 +29,13 @@ public class RestartJob extends BaseResource {
 
 		User user = getUser(getRequest());
 
+		/*
+		 * if (user == null) { return
+		 * error401("The request requires user authentication."); }
+		 */
+
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			user = PublicUser.getUser(getDatabase());
 		}
 
 		Form form = new Form(entity);
@@ -74,9 +83,9 @@ public class RestartJob extends BaseResource {
 
 		getWorkflowEngine().restart(job);
 
-		JSONObject object = JSONConverter.fromJob(job);
-
-		return new StringRepresentation(object.toString());
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", id);
+		return ok("Your job was successfully added to the job queue.", params);
 
 	}
 

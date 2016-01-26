@@ -17,6 +17,8 @@ import cloudgene.mapred.util.Settings;
 public class CronJobScheduler {
 
 	private WebApp app;
+	
+	private Scheduler sched;
 
 	public CronJobScheduler(WebApp app) {
 		this.app = app;
@@ -28,7 +30,7 @@ public class CronJobScheduler {
 
 		SchedulerFactory schedFact = new org.quartz.impl.StdSchedulerFactory();
 
-		Scheduler sched = schedFact.getScheduler();
+		sched = schedFact.getScheduler();
 		sched.start();
 
 		if (settings.isAutoRetire()) {
@@ -78,4 +80,8 @@ public class CronJobScheduler {
 		scheduler.scheduleJob(job, trigger);
 	}
 
+	
+	public void stop() throws SchedulerException{
+		sched.shutdown();
+	}
 }

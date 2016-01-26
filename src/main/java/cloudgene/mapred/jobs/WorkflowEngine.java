@@ -19,6 +19,10 @@ import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
 
+	private Thread threadLongTimeQueue;
+
+	private Thread threadShortTimeQueue;
+
 	private Queue longTimeQueue;
 
 	private Queue shortTimeQueue;
@@ -244,11 +248,17 @@ public class WorkflowEngine implements Runnable {
 
 	@Override
 	public void run() {
-
-		new Thread(longTimeQueue).start();
-		new Thread(shortTimeQueue).start();
+		threadShortTimeQueue = new Thread(shortTimeQueue);
+		threadShortTimeQueue.start();
+		threadLongTimeQueue = new Thread(longTimeQueue);
+		threadLongTimeQueue.start();
 		running = true;
 
+	}
+
+	public void stop(){
+		threadShortTimeQueue.stop();
+		threadLongTimeQueue.stop();
 	}
 
 	public void block() {

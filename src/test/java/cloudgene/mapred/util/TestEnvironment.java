@@ -38,6 +38,8 @@ public class TestEnvironment {
 
 	private List<Application> applications;
 
+	private Thread engineThread;
+
 	private static TestEnvironment instance;
 
 	private TestEnvironment() {
@@ -79,19 +81,19 @@ public class TestEnvironment {
 			app5.setFilename("test-data/return-true-in-setup.yaml");
 			app5.setPermission("public");
 			applications.add(app5);
-			
+
 			Application app6 = new Application();
 			app6.setId("return-false-in-setup");
 			app6.setFilename("test-data/return-false-in-setup.yaml");
 			app6.setPermission("public");
 			applications.add(app6);
-			
+
 			Application app7 = new Application();
 			app7.setId("all-possible-inputs");
 			app7.setFilename("test-data/all-possible-inputs.yaml");
 			app7.setPermission("public");
 			applications.add(app7);
-			
+
 			settings.setApps(applications);
 
 		}
@@ -171,7 +173,7 @@ public class TestEnvironment {
 			database = createDatabase();
 			// start workflow engine
 			engine = new WorkflowEngine(database, 1, 1);
-			Thread engineThread = new Thread(engine);
+			engineThread = new Thread(engine);
 			engineThread.start();
 		}
 		return engine;
@@ -253,6 +255,19 @@ public class TestEnvironment {
 
 			}
 		}
+
+	}
+
+	public void reStartWebServer() throws Exception {
+		engine.stop();
+		engineThread.stop();
+		engine = null;
+		database.disconnect();
+
+		server.stop();
+		server = null;
+		database = null;
+		startWebServer();
 
 	}
 

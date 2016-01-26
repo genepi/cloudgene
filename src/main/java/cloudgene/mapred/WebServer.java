@@ -36,6 +36,8 @@ public class WebServer extends Component {
 
 	private WorkflowEngine workflowEngine;
 
+	private CronJobScheduler scheduler;
+	
 	private static final Log log = LogFactory.getLog(WebServer.class);
 
 	@Override
@@ -98,7 +100,7 @@ public class WebServer extends Component {
 		getHosts().add(host);
 
 		log.info("Start CronJobScheduler...");
-		CronJobScheduler scheduler = new CronJobScheduler(webapp);
+		scheduler = new CronJobScheduler(webapp);
 		scheduler.start();
 
 		super.start();
@@ -108,6 +110,13 @@ public class WebServer extends Component {
 		this.port = port;
 	}
 
+	
+	@Override
+	public synchronized void stop() throws Exception {
+		scheduler.stop();
+		super.stop();
+	}
+	
 	public void setHttpsCertificate(String keystore, String password) {
 		useSSL = true;
 		this.keystore = keystore;
