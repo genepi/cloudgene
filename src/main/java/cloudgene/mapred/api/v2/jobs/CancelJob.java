@@ -12,6 +12,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.PublicUser;
 
 public class CancelJob extends BaseResource {
 
@@ -21,7 +22,7 @@ public class CancelJob extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			user = PublicUser.getUser(getDatabase());
 		}
 
 		Form form = new Form(entity);

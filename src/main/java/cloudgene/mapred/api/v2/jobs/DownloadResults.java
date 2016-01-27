@@ -25,32 +25,15 @@ public class DownloadResults extends BaseResource {
 	@Get
 	public Representation get() {
 
-		String jobId = (String) getRequest().getAttributes().get("job");
-		String id = (String) getRequest().getAttributes().get("id");
-
-		String filename = null;
-
-		if (getRequest().getAttributes().containsKey("filename")) {
-
-			filename = (String) getRequest().getAttributes().get("filename");
-
-		}
-
-		if (getRequest().getAttributes().containsKey("filename2")) {
-
-			jobId = (String) getRequest().getAttributes().get("job") + "/"
-					+ (String) getRequest().getAttributes().get("id");
-			id = (String) getRequest().getAttributes().get("filename");
-
-			filename = (String) getRequest().getAttributes().get("filename2");
-
-		}
+		String jobId = getAttribute("job");
+		String paramId = getAttribute("id");
+		String filename = getAttribute("filename");
 
 		JobDao jobDao = new JobDao(getDatabase());
 		AbstractJob job = jobDao.findById(jobId);
 
 		if (job == null) {
-			return error404("Job " + id + " not found.");
+			return error404("Job " + jobId + " not found.");
 		}
 
 		// job is running -> load it from queue
@@ -74,7 +57,7 @@ public class DownloadResults extends BaseResource {
 		MediaType mediaType = MediaType.ALL;
 		if (filename.endsWith(".zip")) {
 			mediaType = MediaType.APPLICATION_ZIP;
-		} else if (filename.endsWith(".txt") || id.endsWith(".csv")) {
+		} else if (filename.endsWith(".txt") || filename.endsWith(".csv")) {
 			mediaType = MediaType.TEXT_PLAIN;
 		} else if (filename.endsWith(".pdf")) {
 			mediaType = MediaType.APPLICATION_PDF;
@@ -84,7 +67,7 @@ public class DownloadResults extends BaseResource {
 
 		DownloadDao dao = new DownloadDao(getDatabase());
 		Download download = dao.findByJobAndPath(jobId,
-				FileUtil.path(id, filename));
+				FileUtil.path(paramId, filename));
 
 		// job is running and not in database --> download possible of
 		// autoexport params
@@ -94,7 +77,8 @@ public class DownloadResults extends BaseResource {
 					if (param.getFiles() != null) {
 						for (Download download2 : param.getFiles()) {
 							if (download2.getPath().equals(
-									jobId + "/" + FileUtil.path(id, filename))) {
+									jobId + "/"
+											+ FileUtil.path(paramId, filename))) {
 								download = download2;
 							}
 						}
@@ -103,30 +87,24 @@ public class DownloadResults extends BaseResource {
 			}
 		}
 
-		if (download != null) {
-
-			String resultFile = FileUtil.path(
-					getSettings().getLocalWorkspace(), download.getPath());
-
-			if (download.getCount() > 0) {
-
-				log.debug("Downloading file " + resultFile);
-
-				download.decCount();
-				dao.update(download);
-
-				return new FileRepresentation(resultFile, mediaType);
-
-			} else {
-
-				return error400("number of max downloads exceeded.");
-
-			}
-
-		} else {
-
-			return error400("download not found.");
+		if (download == null) {
+			return error404("download not found.");
 		}
+
+		if (download.getCount() == 0) {
+			return error400("number of max downloads exceeded.");
+		}
+
+		String resultFile = FileUtil.path(getSettings().getLocalWorkspace(),
+				download.getPath());
+
+		log.debug("Downloading file " + resultFile);
+
+		//update download counter
+		download.decCount();
+		dao.update(download);
+
+		return new FileRepresentation(resultFile, mediaType);
 
 	}
 

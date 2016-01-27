@@ -31,6 +31,10 @@ public class ShareResults extends BaseResource {
 			return error404("download not found.");
 		}
 
+		if (download.getCount() == 0) {
+			return error400("number of max downloads exceeded.");
+		}
+
 		MediaType mediaType = MediaType.ALL;
 		if (filename.endsWith(".zip")) {
 			mediaType = MediaType.APPLICATION_ZIP;
@@ -45,20 +49,12 @@ public class ShareResults extends BaseResource {
 		String resultFile = FileUtil.path(getSettings().getLocalWorkspace(),
 				download.getPath());
 
-		if (download.getCount() > 0) {
+		log.debug("Downloading file " + resultFile);
 
-			log.debug("Downloading file " + resultFile);
+		download.decCount();
+		dao.update(download);
 
-			download.decCount();
-			dao.update(download);
-
-			return new FileRepresentation(resultFile, mediaType);
-
-		} else {
-
-			return error400("number of max downloads exceeded.");
-
-		}
+		return new FileRepresentation(resultFile, mediaType);
 
 	}
 

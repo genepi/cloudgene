@@ -15,6 +15,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.PublicUser;
 
 public class DeleteJob extends BaseResource {
 
@@ -24,7 +25,7 @@ public class DeleteJob extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			user = PublicUser.getUser(getDatabase());
 		}
 
 		Form form = new Form(entity);

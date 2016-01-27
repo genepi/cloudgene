@@ -94,6 +94,19 @@ public class TestEnvironment {
 			app7.setPermission("public");
 			applications.add(app7);
 
+			Application app8 = new Application();
+			app8.setId("long-sleep");
+			app8.setFilename("test-data/long-sleep.yaml");
+			app8.setPermission("public");
+			applications.add(app8);
+
+			Application app9 = new Application();
+			app9.setId("write-files-to-folder");
+			app9.setFilename("test-data/write-files-to-folder.yaml");
+			app9.setPermission("public");
+			applications.add(app9);
+
+			
 			settings.setApps(applications);
 
 		}
