@@ -40,7 +40,7 @@ public class JobDao extends JdbcDataAccessObject {
 			params[4] = job.getEndTime();
 			params[5] = job.getUser().getId();
 			params[6] = "";
-			params[7] = job.getType();
+			params[7] = -1;
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
 
@@ -72,7 +72,7 @@ public class JobDao extends JdbcDataAccessObject {
 			params[3] = job.getEndTime();
 			params[4] = job.getUser().getId();
 			params[5] = "";
-			params[6] = job.getType();
+			params[6] = -1;
 			params[7] = job.getDeletedOn();
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();

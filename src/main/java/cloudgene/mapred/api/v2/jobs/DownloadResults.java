@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import genepi.io.FileUtil;
 
@@ -12,11 +12,11 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.PublicUser;
 
 public class DownloadResults extends BaseResource {
 
@@ -60,12 +60,11 @@ public class DownloadResults extends BaseResource {
 			job = getWorkflowEngine().getJobById(jobId);
 		}
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		// public mode
 		if (user == null) {
-			UserDao dao = new UserDao(getDatabase());
-			user = dao.findByUsername("public");
+			user = PublicUser.getUser(getDatabase());
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {

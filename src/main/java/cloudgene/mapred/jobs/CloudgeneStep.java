@@ -1,7 +1,5 @@
 package cloudgene.mapred.jobs;
 
-import genepi.hadoop.common.WorkflowContext;
-
 import java.io.File;
 import java.util.List;
 

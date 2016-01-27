@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -13,7 +13,7 @@ public class KillAllJobs extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 			return error401("The request requires user authentication.");

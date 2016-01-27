@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import genepi.io.FileUtil;
 
@@ -16,7 +16,7 @@ public class GetLogs extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 			return error401("The request requires user authentication.");

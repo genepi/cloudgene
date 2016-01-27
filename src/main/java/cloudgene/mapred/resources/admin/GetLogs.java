@@ -16,7 +16,7 @@ public class GetLogs extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 

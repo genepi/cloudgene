@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
@@ -35,90 +35,85 @@ public class SubmitJob extends BaseResource {
 
 	@Post
 	public Representation post(Representation entity) {
+
+		User user = getAuthUser();
+		String tool = getAttribute("tool");
+
+		String filename = getSettings().getApp(user, tool);
+		WdlApp app = null;
 		try {
-			User user = getUser(getRequest());
-			String tool = getAttribute("tool");
+			app = WdlReader.loadAppFromFile(filename);
+		} catch (Exception e1) {
 
-			String filename = getSettings().getApp(user, tool);
-			WdlApp app = null;
-			try {
-				app = WdlReader.loadAppFromFile(filename);
-			} catch (Exception e1) {
+			return error404("Application '"
+					+ tool
+					+ "' not found or the request requires user authentication.");
 
-				return error404("Application '"
-						+ tool
-						+ "' not found or the request requires user authentication.");
-
-			}
-
-			if (app.getMapred() == null) {
-				return error404("Application '" + tool
-						+ "' has no mapred section.");
-			}
-
-			WorkflowEngine engine = getWorkflowEngine();
-			Settings settings = getSettings();
-
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
-			String id = "job-" + sdf.format(new Date());
-
-			if (user != null) {
-				// private mode
-
-				int maxPerUser = settings.getMaxRunningJobsPerUser();
-				if (engine.getJobsByUser(user).size() >= maxPerUser) {
-					return error400("Only " + maxPerUser
-							+ " jobs per user can be executed simultaneously.");
-				}
-
-			} else {
-
-				// public mode
-				user = PublicUser.getUser(getDatabase());
-				id = HashUtil.getMD5(id + "-lukas");
-
-			}
-
-			int maxJobs = settings.getMaxRunningJobs();
-			if (engine.getActiveCount() >= maxJobs) {
-				return error400("More than " + maxJobs
-						+ "  jobs are currently in the queue.");
-			}
-
-			String hdfsWorkspace = HdfsUtil.path(getSettings()
-					.getHdfsWorkspace(), id);
-			String localWorkspace = FileUtil.path(getSettings()
-					.getLocalWorkspace(), id);
-			FileUtil.createDirectory(localWorkspace);
-
-			Map<String, String> inputParams = parseAndUpdateInputParams(entity,
-					app, hdfsWorkspace, localWorkspace);
-
-			if (inputParams == null) {
-				return error400("Error during input parameter parsing.");
-			}
-
-			CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
-					inputParams);
-			job.setId(id);
-			job.setName(id);
-			job.setLocalWorkspace(localWorkspace);
-			job.setHdfsWorkspace(hdfsWorkspace);
-			job.setSettings(getSettings());
-			job.setRemoveHdfsWorkspace(false);
-			job.setApplication(app.getName() + " " + app.getVersion());
-			job.setApplicationId(tool);
-
-			engine.submit(job);
-
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("id", id);
-			return ok("Your job was successfully added to the job queue.",
-					params);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return error400(e.getMessage());
 		}
+
+		if (app.getMapred() == null) {
+			return error404("Application '" + tool + "' has no mapred section.");
+		}
+
+		WorkflowEngine engine = getWorkflowEngine();
+		Settings settings = getSettings();
+
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+		String id = "job-" + sdf.format(new Date());
+
+		if (user != null) {
+			// private mode
+
+			int maxPerUser = settings.getMaxRunningJobsPerUser();
+			if (engine.getJobsByUser(user).size() >= maxPerUser) {
+				return error400("Only " + maxPerUser
+						+ " jobs per user can be executed simultaneously.");
+			}
+
+		} else {
+
+			// public mode
+			user = PublicUser.getUser(getDatabase());
+			id = HashUtil.getMD5(id + "-lukas");
+
+		}
+
+		int maxJobs = settings.getMaxRunningJobs();
+		if (engine.getActiveCount() >= maxJobs) {
+			return error400("More than " + maxJobs
+					+ "  jobs are currently in the queue.");
+		}
+
+		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
+				id);
+		String localWorkspace = FileUtil.path(
+				getSettings().getLocalWorkspace(), id);
+		FileUtil.createDirectory(localWorkspace);
+
+		Map<String, String> inputParams = parseAndUpdateInputParams(entity,
+				app, hdfsWorkspace, localWorkspace);
+
+		if (inputParams == null) {
+			return error400("Error during input parameter parsing.");
+		}
+
+		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
+				inputParams);
+		job.setId(id);
+		job.setName(id);
+		job.setLocalWorkspace(localWorkspace);
+		job.setHdfsWorkspace(hdfsWorkspace);
+		job.setSettings(getSettings());
+		job.setRemoveHdfsWorkspace(false);
+		job.setApplication(app.getName() + " " + app.getVersion());
+		job.setApplicationId(tool);
+
+		engine.submit(job);
+
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("id", id);
+		return ok("Your job was successfully added to the job queue.", params);
+
 	}
 
 	private Map<String, String> parseAndUpdateInputParams(

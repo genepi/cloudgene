@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ public class GetJobs extends BaseResource {
 	@Get
 	public Representation getJobs() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 			return error401("The request requires user authentication.");

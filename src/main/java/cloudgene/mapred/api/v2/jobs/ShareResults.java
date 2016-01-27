@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import genepi.io.FileUtil;
 
@@ -28,7 +28,7 @@ public class ShareResults extends BaseResource {
 		Download download = dao.findByHash(hash);
 
 		if (download == null) {
-			return error400("download not found.");
+			return error404("download not found.");
 		}
 
 		MediaType mediaType = MediaType.ALL;

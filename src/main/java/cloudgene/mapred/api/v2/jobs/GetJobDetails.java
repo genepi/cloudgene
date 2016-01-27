@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
 
 import java.util.List;
 import java.util.Vector;
@@ -27,6 +27,9 @@ public class GetJobDetails extends BaseResource {
 	@Post
 	protected Representation post(Representation entity, Variant variant) {
 
+		User user = getAuthUser();
+
+		
 		Form form = new Form(entity);
 		String id = form.getFirstValue("id");
 
@@ -47,8 +50,6 @@ public class GetJobDetails extends BaseResource {
 		if (job == null) {
 			return error404("Job " + id + " not found.");
 		}
-
-		User user = getUser(getRequest());
 
 		// no user, change to public mode
 		if (user == null) {

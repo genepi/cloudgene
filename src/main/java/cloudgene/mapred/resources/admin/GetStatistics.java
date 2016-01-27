@@ -23,7 +23,7 @@ public class GetStatistics extends BaseResource {
 	@Get
 	public Representation getStatistics() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);

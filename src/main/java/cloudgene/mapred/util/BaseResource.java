@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.Request;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.EmptyRepresentation;
@@ -45,7 +44,7 @@ public class BaseResource extends ServerResource {
 		return application.getSessions();
 	}
 
-	public User getUser(Request request) {
+	public User getAuthUser() {
 		return getUserSessions().getUserByRequest(getRequest());
 	}
 
@@ -98,7 +97,7 @@ public class BaseResource extends ServerResource {
 		return new JsonRepresentation(jsonObject);
 
 	}
-	
+
 	public Representation ok(String message, Map<String, Object> params) {
 
 		setStatus(Status.SUCCESS_OK, message);
@@ -109,8 +108,8 @@ public class BaseResource extends ServerResource {
 
 			jsonObject.put("success", true);
 			jsonObject.put("message", message);
-			for (String key: params.keySet()){
-				jsonObject.put(key, params.get(key));	
+			for (String key : params.keySet()) {
+				jsonObject.put(key, params.get(key));
 			}
 
 		} catch (JSONException e) {
@@ -122,12 +121,11 @@ public class BaseResource extends ServerResource {
 		return new JsonRepresentation(jsonObject);
 
 	}
-	
 
 	public Representation error401(String message) {
 		return error(Status.CLIENT_ERROR_UNAUTHORIZED, message);
 	}
-	
+
 	public Representation error403(String message) {
 		return error(Status.CLIENT_ERROR_FORBIDDEN, message);
 	}

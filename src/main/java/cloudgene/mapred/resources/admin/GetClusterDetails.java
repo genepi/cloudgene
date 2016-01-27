@@ -17,7 +17,6 @@ import org.restlet.resource.Get;
 
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HadoopUtil;
 
@@ -26,7 +25,7 @@ public class GetClusterDetails extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);

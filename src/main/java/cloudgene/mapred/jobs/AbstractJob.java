@@ -27,14 +27,6 @@ abstract public class AbstractJob implements Runnable {
 
 	private DateFormat formatter = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
 
-	// types
-
-	public static final int TYPE_MAPREDUCE = 1;
-
-	public static final int TYPE_TASK = 2;
-
-	public static final int TYPE_LOCAL = 3;
-
 	// states
 
 	public static final int STATE_WAITING = 1;
@@ -622,8 +614,6 @@ abstract public class AbstractJob implements Runnable {
 	abstract public boolean onFailure();
 
 	abstract public boolean cleanUp();
-
-	abstract public int getType();
 
 	public void kill() {
 

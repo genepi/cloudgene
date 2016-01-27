@@ -14,6 +14,16 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import cloudgene.mapred.api.v2.jobs.CancelJob;
+import cloudgene.mapred.api.v2.jobs.DeleteJob;
+import cloudgene.mapred.api.v2.jobs.DownloadResults;
+import cloudgene.mapred.api.v2.jobs.GetJobDetails;
+import cloudgene.mapred.api.v2.jobs.GetJobStatus;
+import cloudgene.mapred.api.v2.jobs.GetJobs;
+import cloudgene.mapred.api.v2.jobs.GetLogs;
+import cloudgene.mapred.api.v2.jobs.RestartJob;
+import cloudgene.mapred.api.v2.jobs.ShareResults;
+import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.util.Database;
@@ -40,16 +50,6 @@ import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetApps;
 import cloudgene.mapred.resources.data.GetCounter;
 import cloudgene.mapred.resources.data.ValidateImport;
-import cloudgene.mapred.resources.jobs.CancelJob;
-import cloudgene.mapred.resources.jobs.DeleteJob;
-import cloudgene.mapred.resources.jobs.DownloadResults;
-import cloudgene.mapred.resources.jobs.GetJobDetails;
-import cloudgene.mapred.resources.jobs.GetJobs;
-import cloudgene.mapred.resources.jobs.GetLogs;
-import cloudgene.mapred.resources.jobs.GetJobStatus;
-import cloudgene.mapred.resources.jobs.SubmitJob;
-import cloudgene.mapred.resources.jobs.RestartJob;
-import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.users.ActivateUser;
 import cloudgene.mapred.resources.users.ChangeGroupUser;
 import cloudgene.mapred.resources.users.DeleteUser;
@@ -61,7 +61,6 @@ import cloudgene.mapred.resources.users.LogoutUser;
 import cloudgene.mapred.resources.users.NewUser;
 import cloudgene.mapred.resources.users.RegisterUser;
 import cloudgene.mapred.resources.users.ResetPassword;
-import cloudgene.mapred.resources.users.UpdateCredentials;
 import cloudgene.mapred.resources.users.UpdateUser;
 import cloudgene.mapred.resources.users.UpdateUser2;
 import cloudgene.mapred.resources.users.UpdateUserPassword;
@@ -188,7 +187,6 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin/retire/start", StartRetire.class);
 
 		router.attach(prefix + "/updateUserSettings", UpdateUserSettings.class);
-		router.attach(prefix + "/updateCredentials", UpdateCredentials.class);
 		router.attach(prefix + "/updateUserPassword", UpdateUserPassword.class);
 
 		router.attach(prefix + "/console/logs/{logfile}",

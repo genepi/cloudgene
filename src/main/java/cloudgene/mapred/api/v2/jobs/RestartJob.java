@@ -1,15 +1,13 @@
-package cloudgene.mapred.resources.jobs;
+package cloudgene.mapred.api.v2.jobs;
+
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
-import net.sf.json.JSONObject;
-
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
@@ -17,7 +15,6 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
@@ -27,12 +24,7 @@ public class RestartJob extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		User user = getUser(getRequest());
-
-		/*
-		 * if (user == null) { return
-		 * error401("The request requires user authentication."); }
-		 */
+		User user = getAuthUser();
 
 		if (user == null) {
 			user = PublicUser.getUser(getDatabase());

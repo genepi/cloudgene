@@ -424,13 +424,6 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	@Override
-	public int getType() {
-
-		return AbstractJob.TYPE_MAPREDUCE;
-
-	}
-
-	@Override
 	public void kill() {
 		if (executor != null) {
 			executor.kill();

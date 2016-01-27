@@ -11,7 +11,6 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 
 import com.esotericsoftware.yamlbeans.YamlWriter;
@@ -21,7 +20,7 @@ public class UpdateSettings extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 

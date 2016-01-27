@@ -20,7 +20,7 @@ public class ChangeGroupUser extends BaseResource {
 
 		Form form = new Form(entity);
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 
