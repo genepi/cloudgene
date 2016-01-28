@@ -20,29 +20,6 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 
 public class WdlReader {
 
-	public static WdlApp loadAppFromUrl(String filename) throws IOException {
-
-		URL url2 = new URL(filename);
-		HttpURLConnection conn = (HttpURLConnection) url2.openConnection();
-		YamlReader reader = new YamlReader(new InputStreamReader(
-				conn.getInputStream()));
-
-		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred",
-				WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
-				WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
-				WdlParameterInput.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"outputs", WdlParameterOutput.class);
-
-		WdlApp app = reader.read(WdlApp.class);
-
-		updateApp(filename, app);
-
-		return app;
-
-	}
 
 	public static WdlApp loadAppFromString(String filename, String content)
 			throws IOException {

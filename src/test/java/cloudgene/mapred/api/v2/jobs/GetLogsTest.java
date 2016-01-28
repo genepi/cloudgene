@@ -1,9 +1,11 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.IOException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -84,6 +86,42 @@ public class GetLogsTest extends JobsApiTestCase {
 		assertTrue(content.contains("std.out:"));
 		assertTrue(content.contains("Planner: WDL evaluated."));
 		assertTrue(content.contains("WriteTextToFileStep"));
+
+	}
+
+	public void testWriteToStdOuStepPublic() throws IOException, JSONException,
+			InterruptedException {
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.getEntries().add(new FormData("input-input", "input-file"));
+
+		// submit job
+		String id = submitJob("write-text-to-std-out", form);
+
+		// check feedback
+		waitForJob(id);
+
+		JSONObject result = getJobDetails(id);
+
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+		// in public mode logs should be empty (used for links etc..)
+		String logs = result.getString("logs");
+		assertEquals("", logs);
+
+		// but direct link should work
+		String content = downloadURL("/logs/" + id);
+
+		assertTrue(content.contains("taks write to system out"));
+		assertTrue(content.contains("taks write to system out2"));
+		assertTrue(content.contains("taks write to system out3"));
+
+		assertTrue(content.contains("taks write to log"));
+		assertTrue(content.contains("taks write to log2"));
+		assertTrue(content.contains("taks write to log3"));
 
 	}
 

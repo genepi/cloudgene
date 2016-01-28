@@ -35,18 +35,22 @@ public class TestCluster {
 
 	public void start() throws IOException {
 
-		File testDataCluster1 = new File(WORKING_DIRECTORY);
-		if (testDataCluster1.exists()) {
-			testDataCluster1.delete();
-		}
-		conf = new HdfsConfiguration();
-		conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR,
-				testDataCluster1.getAbsolutePath());
-		cluster = new MiniDFSCluster.Builder(conf).build();
-		fs = cluster.getFileSystem();
+		if (cluster == null) {
 
-		// set mincluster as default config
-		HdfsUtil.setDefaultConfiguration(conf);
+			File testDataCluster1 = new File(WORKING_DIRECTORY);
+			if (testDataCluster1.exists()) {
+				testDataCluster1.delete();
+			}
+			conf = new HdfsConfiguration();
+			conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR,
+					testDataCluster1.getAbsolutePath());
+			cluster = new MiniDFSCluster.Builder(conf).build();
+			fs = cluster.getFileSystem();
+
+			// set mincluster as default config
+			HdfsUtil.setDefaultConfiguration(conf);
+
+		}
 	}
 
 }

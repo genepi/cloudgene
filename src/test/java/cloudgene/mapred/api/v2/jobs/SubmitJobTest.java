@@ -1,9 +1,11 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.IOException;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -256,6 +258,37 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 		assertEquals("lukas_text", content);
 
+	}
+
+	public void testSubmitThreeTasksStepPublic() throws IOException,
+			JSONException, InterruptedException {
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.getEntries().add(new FormData("input-input", "input-file"));
+
+		// submit job
+		String id = submitJob("three-tasks", form);
+
+		// check feedback
+		waitForJob(id);
+
+		JSONObject result = getJobDetails(id);
+
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+		JSONArray messages = result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages");
+		
+		assertEquals(3, messages.length());
+		assertEquals("cloudgene-task1", messages.getJSONObject(0).get("message"));
+		assertEquals(WorkflowContext.OK, messages.getJSONObject(0).get("type"));
+		assertEquals("cloudgene-task2", messages.getJSONObject(1).get("message"));
+		assertEquals(WorkflowContext.OK, messages.getJSONObject(1).get("type"));
+		assertEquals("cloudgene-task3", messages.getJSONObject(2).get("message"));
+		assertEquals(WorkflowContext.OK, messages.getJSONObject(2).get("type"));
+		
 	}
 
 	// TODO: wrong permissions

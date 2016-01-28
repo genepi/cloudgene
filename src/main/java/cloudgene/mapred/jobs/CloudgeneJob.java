@@ -117,14 +117,11 @@ public class CloudgeneJob extends AbstractJob {
 			Planner planner = new Planner();
 			WdlApp app = planner.evaluateWDL(config, context);
 
-			boolean dag = config.getType().equals("dag");
-
 			// create dag from wdl document
 			Graph graph = planner.buildDAG(app.getMapred(), context);
 
 			// execute optimzed dag
 			executor = new Executor();
-			executor.setUseDag(dag);
 			boolean sccuessful = executor.execute(graph);
 
 			if (!sccuessful) {

@@ -1,9 +1,11 @@
 package cloudgene.mapred.jobs;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -19,8 +21,7 @@ public class WorkflowEngineTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		engine = TestServer.getInstance()
-				.startWorkflowEngineWithoutServer();
+		engine = TestServer.getInstance().startWorkflowEngineWithoutServer();
 
 	}
 
@@ -177,14 +178,73 @@ public class WorkflowEngineTest extends TestCase {
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
-		
-	//TODO: test step with tasks and check them in getresults (messages, etc..)!
-	
-	//TODO: test write to stdout and log
-	
-	//TODO: write to hdfs temp and local temp (temp output params)!
-	
-	//TODO: check if removehdfsworkspace works!
+
+	public void testThreeTasksStep() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/three-tasks.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("input", "input-file");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		List<Message> messages = job.getSteps().get(0).getLogMessages();
+
+		assertEquals(3, messages.size());
+		assertEquals("cloudgene-task1", messages.get(0).getMessage());
+		assertEquals(WorkflowContext.OK, messages.get(0).getType());
+		assertEquals("cloudgene-task2", messages.get(1).getMessage());
+		assertEquals(WorkflowContext.OK, messages.get(1).getType());
+		assertEquals("cloudgene-task3", messages.get(2).getMessage());
+		assertEquals(WorkflowContext.OK, messages.get(2).getType());
+
+	}
+
+	public void testWriteTextToStdOutStep() throws Exception {
+
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/write-text-to-std-out.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("input", "input-file");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		String stdout = FileUtil.path(TestServer.getInstance().getSettings()
+				.getLocalWorkspace(), job.getId(), "std.out");
+		String contentStdOut = FileUtil.readFileAsString(stdout);
+
+		String log = FileUtil.path(TestServer.getInstance().getSettings()
+				.getLocalWorkspace(), job.getId(), "job.txt");
+		String contentlog = FileUtil.readFileAsString(log);
+
+		assertTrue(contentStdOut.contains("taks write to system out"));
+		assertTrue(contentStdOut.contains("taks write to system out2"));
+		assertTrue(contentStdOut.contains("taks write to system out3"));
+
+		assertTrue(contentlog.contains("taks write to log"));
+		assertTrue(contentlog.contains("taks write to log2"));
+		assertTrue(contentlog.contains("taks write to log3"));
+
+	}
+
+	// TODO: write to hdfs temp and local temp (temp output params)!
+
+	// TODO: check if removehdfsworkspace works!
+
+	// TODO: check cloudgene counters (successful vs. failed)
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
 			throws Exception {
@@ -210,5 +270,5 @@ public class WorkflowEngineTest extends TestCase {
 
 		return job;
 	}
-	
+
 }
