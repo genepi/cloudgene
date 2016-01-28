@@ -13,13 +13,13 @@ import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.TestEnvironment;
+import cloudgene.mapred.util.TestServer;
 
 public class DeleteJobTest extends JobsApiTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		TestEnvironment.getInstance().startWebServer();
+		TestServer.getInstance().start();
 
 	}
 
@@ -57,7 +57,7 @@ public class DeleteJobTest extends JobsApiTestCase {
 		deleteJob(id);
 
 		// check if all data are deleted
-		assertFalse(new File(FileUtil.path(TestEnvironment.getInstance()
+		assertFalse(new File(FileUtil.path(TestServer.getInstance()
 				.getSettings().getLocalWorkspace(), id)).exists());
 
 		// TODO: same on hdfs

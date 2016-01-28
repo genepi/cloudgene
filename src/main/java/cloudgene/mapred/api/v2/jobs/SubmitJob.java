@@ -104,7 +104,7 @@ public class SubmitJob extends BaseResource {
 		job.setLocalWorkspace(localWorkspace);
 		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(getSettings());
-		job.setRemoveHdfsWorkspace(false);
+		job.setRemoveHdfsWorkspace(true);
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(tool);
 
@@ -177,11 +177,12 @@ public class SubmitJob extends BaseResource {
 
 						if (folder) {
 							// folder
-							props.put(fieldName, HdfsUtil.path(fieldName));
+							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil
+									.path(hdfsWorkspace, fieldName)));
 						} else {
 							// file
-							props.put(fieldName,
-									HdfsUtil.path(fieldName, entryName));
+							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil
+									.path(hdfsWorkspace, fieldName, entryName)));
 						}
 
 					} else {

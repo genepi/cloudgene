@@ -56,7 +56,7 @@ mapred:
 
     - id: testfile
       description: Dummy Input
-      type: local-folder                         
+      type: hdfs-folder                         
 
   outputs:
 

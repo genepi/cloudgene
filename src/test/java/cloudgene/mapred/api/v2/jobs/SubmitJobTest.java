@@ -14,14 +14,15 @@ import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.TestEnvironment;
+import cloudgene.mapred.util.TestCluster;
+import cloudgene.mapred.util.TestServer;
 
 public class SubmitJobTest extends JobsApiTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		TestEnvironment.getInstance().startWebServer();
-
+		TestCluster.getInstance().start();
+		TestServer.getInstance().start();
 	}
 
 	public void testSubmitWrongApplication() throws IOException, JSONException,
@@ -56,28 +57,68 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-number", "27"));
 		// ignore checkbox
 		form.getEntries().add(new FormData("input-list", "valuea"));
-		//local-file
+		// local-file
 		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer(
 				"content-of-my-file"));
 		form.getEntries().add(
 				new FormData("input-file", new FileRepresentation("test.txt",
 						MediaType.TEXT_PLAIN)));
-		
-		//local-folder
+
+		// local-folder
 		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer(
 				"content-of-my-file-in-folder1"));
 		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer(
-				"content-of-my-file-in-folder2"));		
-		
+				"content-of-my-file-in-folder2"));
+
 		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation("test1.txt",
-						MediaType.TEXT_PLAIN)));		
+				new FormData("input-folder", new FileRepresentation(
+						"test1.txt", MediaType.TEXT_PLAIN)));
 		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation("test2.txt",
-						MediaType.TEXT_PLAIN)));
+				new FormData("input-folder", new FileRepresentation(
+						"test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
 		String id = submitJob("all-possible-inputs", form);
+
+		// check feedback
+		waitForJob(id);
+
+		JSONObject result = getJobDetails(id);
+
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+	}
+
+	public void testSubmitAllPossibleInputsHdfs() throws IOException,
+			JSONException, InterruptedException {
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+
+		// hdfs-file
+		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer(
+				"content-of-my-file"));
+		form.getEntries().add(
+				new FormData("input-file", new FileRepresentation("test.txt",
+						MediaType.TEXT_PLAIN)));
+
+		// hdfs-folder
+		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer(
+				"content-of-my-file-in-folder1"));
+		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer(
+				"content-of-my-file-in-folder2"));
+
+		form.getEntries().add(
+				new FormData("input-folder", new FileRepresentation(
+						"test1.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(
+				new FormData("input-folder", new FileRepresentation(
+						"test2.txt", MediaType.TEXT_PLAIN)));
+
+		// submit job
+		String id = submitJob("all-possible-inputs-hdfs", form);
 
 		// check feedback
 		waitForJob(id);
@@ -184,9 +225,41 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	
-	//TODO: wrong permissions
-	
-	//TODO: wrong id
-	
+	public void testSubmitWriteTextToHdfsFilePublic() throws IOException,
+			JSONException, InterruptedException {
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.add("input-inputtext", "lukas_text");
+
+		// submit job
+		String id = submitJob("write-text-to-hdfs-file", form);
+
+		// check feedback
+		waitForJob(id);
+
+		// TODO: change!
+		Thread.sleep(5000);
+
+		// get details
+		JSONObject result = getJobDetails(id);
+
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+		// get path and download file
+		String path = result.getJSONArray("outputParams").getJSONObject(0)
+				.getJSONArray("files").getJSONObject(0).getString("path");
+
+		String content = downloadResults(path);
+
+		assertEquals("lukas_text", content);
+
+	}
+
+	// TODO: wrong permissions
+
+	// TODO: wrong id
+
 }

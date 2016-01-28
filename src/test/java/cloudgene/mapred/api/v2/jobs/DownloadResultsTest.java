@@ -10,14 +10,15 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.util.TestEnvironment;
+import cloudgene.mapred.util.TestCluster;
+import cloudgene.mapred.util.TestServer;
 
 public class DownloadResultsTest extends JobsApiTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		TestEnvironment.getInstance().startWebServer();
-
+		TestCluster.getInstance().start();
+		TestServer.getInstance().start();
 	}
 
 	public void testDownloadSingleFile() throws IOException, JSONException,
@@ -81,6 +82,67 @@ public class DownloadResultsTest extends JobsApiTestCase {
 
 		// submit job
 		String id = submitJob("write-files-to-folder", form);
+
+		// check feedback
+		waitForJob(id);
+
+		// TODO: change!
+		Thread.sleep(5000);
+
+		// get details
+		JSONObject result = getJobDetails(id);
+
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+		// get path and download file
+
+		JSONObject ouput = result.getJSONArray("outputParams").getJSONObject(0);
+		assertEquals("output", ouput.get("name"));
+		assertEquals(5, ouput.getJSONArray("files").length());
+
+		String path1 = ouput.getJSONArray("files").getJSONObject(0)
+				.getString("path");
+		assertEquals(id + "/output/file1.txt", path1);
+		String content1 = downloadResults(path1);
+		assertEquals("lukas_text", content1);
+
+		String path2 = ouput.getJSONArray("files").getJSONObject(1)
+				.getString("path");
+		assertEquals(id + "/output/file2.txt", path2);
+		String content2 = downloadResults(path2);
+		assertEquals("lukas_text", content2);
+
+		String path3 = ouput.getJSONArray("files").getJSONObject(2)
+				.getString("path");
+		assertEquals(id + "/output/file3.txt", path3);
+		String content3 = downloadResults(path3);
+		assertEquals("lukas_text", content3);
+
+		String path4 = ouput.getJSONArray("files").getJSONObject(3)
+				.getString("path");
+		assertEquals(id + "/output/file4.txt", path4);
+		String content4 = downloadResults(path4);
+		assertEquals("lukas_text", content4);
+
+		String path5 = ouput.getJSONArray("files").getJSONObject(4)
+				.getString("path");
+		assertEquals(id + "/output/file5.txt", path5);
+		String content5 = downloadResults(path5);
+		assertEquals("lukas_text", content5);
+
+	}
+
+	public void testDownloadSingleHdfsFolder() throws IOException,
+			JSONException, InterruptedException {
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.add("input-inputtext", "lukas_text");
+
+		// submit job
+		String id = submitJob("write-files-to-hdfs-folder", form);
 
 		// check feedback
 		waitForJob(id);

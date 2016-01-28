@@ -99,7 +99,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean setup() {
 
 		context = new CloudgeneContext(this);
-		context.updateInputParameters();
+		//context.updateInputParameters();
 		context.setupOutputParameters();
 
 		return true;
@@ -373,12 +373,14 @@ public class CloudgeneJob extends AbstractJob {
 
 			if (!out.isZip()) {
 
-				HdfsUtil.exportFile(localOutputDirectory, hdfsPath);
+				if (HdfsUtil.exists(hdfsPath)) {
+					HdfsUtil.exportFile(localOutputDirectory, hdfsPath);
+				}
 
 			} else {
-
-				HdfsUtil.compressFile(localOutputDirectory, hdfsPath);
-
+				if (HdfsUtil.exists(hdfsPath)) {
+					HdfsUtil.compressFile(localOutputDirectory, hdfsPath);
+				}
 			}
 
 		}

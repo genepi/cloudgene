@@ -11,14 +11,15 @@ import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.TestEnvironment;
+import cloudgene.mapred.util.TestCluster;
+import cloudgene.mapred.util.TestServer;
 
 public class ShareResultsTest extends JobsApiTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		TestEnvironment.getInstance().startWebServer();
-
+		TestServer.getInstance().start();
+		TestCluster.getInstance().start();
 	}
 
 	public void testShareSingleFile() throws IOException, JSONException,

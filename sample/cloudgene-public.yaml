@@ -46,17 +46,29 @@ mapred:
         true: true
         false: false  
 
+    - id: checkmail2
+      description: lf
+      readOnly: true
+      value: true
+      type: list
+      values:
+        true: true
+        false: false  
+
+
     - id: checkmail
       description: Test Mail Server Configuration
       type: checkbox
       value: true
+      readOnly: true
       values:
         true: true
         false: false  
 
     - id: testfile
       description: Dummy Input
-      type: local-folder                         
+      type: hdfs-folder
+      value: http://www.example.com/test-data.txt
 
   outputs:
 

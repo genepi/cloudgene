@@ -5,14 +5,15 @@ import org.restlet.ext.html.FormDataSet;
 
 import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.TestEnvironment;
+import cloudgene.mapred.util.TestCluster;
+import cloudgene.mapred.util.TestServer;
 
 public class RestartJobTest extends JobsApiTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		TestEnvironment.getInstance().startWebServer();
-
+		TestServer.getInstance().start();
+		TestCluster.getInstance().start();
 	}
 
 	public void testRestartWriteTextToFileJob() throws Exception {
@@ -29,7 +30,7 @@ public class RestartJobTest extends JobsApiTestCase {
 		Thread.sleep(500);
 
 		// stop engine
-		TestEnvironment.getInstance().reStartWebServer();
+		TestServer.getInstance().reStartWebServer();
 
 		// get details
 		JSONObject result = getJobDetails(id);

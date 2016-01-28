@@ -10,6 +10,8 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.PublicUser;
+import cloudgene.mapred.util.Settings;
 
 public class GetLogs extends BaseResource {
 
@@ -19,14 +21,10 @@ public class GetLogs extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			user = PublicUser.getUser(getDatabase());
 		}
 
-		String id = (String) getRequest().getAttributes().get("id");
-		String file = (String) getRequest().getAttributes().get("file");
-		if (file != null) {
-			id += "/" + file;
-		}
+		String id = getAttribute("id");
 
 		JobDao jobDao = new JobDao(getDatabase());
 		AbstractJob job = jobDao.findById(id);
@@ -39,33 +37,35 @@ public class GetLogs extends BaseResource {
 			return error404("Job " + id + " not found.");
 		}
 
-
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
 			return error403("Access denied.");
 		}
 
+		Settings settings = getSettings();
+		// log file
+		String logFilename = FileUtil.path(settings.getLocalWorkspace(), id,
+				"job.txt");
+		String logContent = FileUtil.readFileAsString(logFilename);
+
+		// std out
+		String outputFilename = FileUtil.path(settings.getLocalWorkspace(), id,
+				"std.out");
+		String outputContent = FileUtil.readFileAsString(outputFilename);
+
 		StringBuffer buffer = new StringBuffer();
-
-		String workspace = FileUtil.path(getSettings().getLocalWorkspace(), job
-				.getUser().getUsername());
-
-		String log = FileUtil.readFileAsString(FileUtil.path(workspace,
-				job.getLogOutFile()));
-		String output = FileUtil.readFileAsString(FileUtil.path(workspace,
-				job.getStdOutFile()));
 
 		buffer.append("<code><pre>");
 
-		if (!log.isEmpty()) {
+		if (!logContent.isEmpty()) {
 			buffer.append("job.txt:\n\n");
-			buffer.append(log);
+			buffer.append(logContent);
 
 		}
 
-		if (!output.isEmpty()) {
+		if (!outputContent.isEmpty()) {
 
 			buffer.append("\n\nstd.out:\n\n");
-			buffer.append(output);
+			buffer.append(outputContent);
 
 		}
 		buffer.append("</code></pre>");

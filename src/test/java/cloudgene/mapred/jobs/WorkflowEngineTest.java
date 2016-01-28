@@ -9,7 +9,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.TestEnvironment;
+import cloudgene.mapred.util.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 
@@ -19,7 +19,7 @@ public class WorkflowEngineTest extends TestCase {
 
 	@Override
 	protected void setUp() throws Exception {
-		engine = TestEnvironment.getInstance()
+		engine = TestServer.getInstance()
 				.startWorkflowEngineWithoutServer();
 
 	}
@@ -121,7 +121,7 @@ public class WorkflowEngineTest extends TestCase {
 			Thread.sleep(1000);
 		}
 
-		Settings settings = TestEnvironment.getInstance().getSettings();
+		Settings settings = TestServer.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
@@ -144,7 +144,7 @@ public class WorkflowEngineTest extends TestCase {
 			Thread.sleep(1000);
 		}
 		Thread.sleep(4000);
-		Settings settings = TestEnvironment.getInstance().getSettings();
+		Settings settings = TestServer.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
@@ -169,7 +169,7 @@ public class WorkflowEngineTest extends TestCase {
 
 		Thread.sleep(4000);
 
-		Settings settings = TestEnvironment.getInstance().getSettings();
+		Settings settings = TestServer.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
@@ -177,25 +177,20 @@ public class WorkflowEngineTest extends TestCase {
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
-
-	/*
-	 * public void testJobWithWrongParams() throws Exception {
-	 * 
-	 * WdlApp app = WdlReader.loadAppFromFile("test-data/return-true.yaml");
-	 * 
-	 * Map<String, String> params = new HashMap<String, String>();
-	 * params.put("wrong-param-name", "input-file");
-	 * 
-	 * CloudgeneJob job = createJobFromWdl(app, params); engine.submit(job);
-	 * while (job.isRunning()) { Thread.sleep(1000); }
-	 * assertEquals(job.getState(), AbstractJob.STATE_FAILED); }
-	 */
+		
+	//TODO: test step with tasks and check them in getresults (messages, etc..)!
+	
+	//TODO: test write to stdout and log
+	
+	//TODO: write to hdfs temp and local temp (temp output params)!
+	
+	//TODO: check if removehdfsworkspace works!
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
 			throws Exception {
 
-		User user = TestEnvironment.getInstance().getUser();
-		Settings settings = TestEnvironment.getInstance().getSettings();
+		User user = TestServer.getInstance().getUser();
+		Settings settings = TestServer.getInstance().getSettings();
 
 		String id = "test_" + System.currentTimeMillis();
 
@@ -215,5 +210,5 @@ public class WorkflowEngineTest extends TestCase {
 
 		return job;
 	}
-
+	
 }

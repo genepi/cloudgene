@@ -438,21 +438,11 @@ abstract public class AbstractJob implements Runnable {
 	private void initStdOutFiles() throws FileNotFoundException {
 
 		stdOutStream = new BufferedOutputStream(new FileOutputStream(
-				getStdOutFile()));
+				FileUtil.path(localWorkspace, "std.out")));
 
 		logStream = new BufferedOutputStream(new FileOutputStream(
-				getLogOutFile()));
+				FileUtil.path(localWorkspace, "job.txt")));
 
-	}
-
-	public String getStdOutFile() {
-
-		return FileUtil.path(localWorkspace, "std.out");
-	}
-
-	public String getLogOutFile() {
-
-		return FileUtil.path(localWorkspace, "job.txt");
 	}
 
 	private void closeStdOutFiles() {

@@ -136,14 +136,11 @@ public class WebApp extends Application {
 		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);  //todo: jobs/job_id/results/...
 		router.attach(prefix + "/results/{job}/{id}/{filename}",
 				DownloadResults.class);
-		router.attach(prefix + "/results/{job}/{id}/{filename}/{filename2}",
-				DownloadResults.class);
 		
 		router.attach(prefix + "/share/{username}/{hash}/{filename}",
 				ShareResults.class);
 
 		router.attach(prefix + "/logs/{id}", GetLogs.class); //todo: jobs/job_id/logs/...
-		router.attach(prefix + "/logs/{id}/{file}", GetLogs.class); //todo: jobs/job_id/logs/...
 
 		router.attach(prefix + "/import/validate", ValidateImport.class);
 

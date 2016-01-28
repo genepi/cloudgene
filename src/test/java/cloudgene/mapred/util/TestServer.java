@@ -26,7 +26,7 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 
-public class TestEnvironment {
+public class TestServer {
 
 	protected User user;
 
@@ -40,9 +40,9 @@ public class TestEnvironment {
 
 	private Thread engineThread;
 
-	private static TestEnvironment instance;
+	private static TestServer instance;
 
-	private TestEnvironment() {
+	private TestServer() {
 
 	}
 
@@ -106,7 +106,26 @@ public class TestEnvironment {
 			app9.setPermission("public");
 			applications.add(app9);
 
-			
+			// hdfs
+
+			Application app10 = new Application();
+			app10.setId("all-possible-inputs-hdfs");
+			app10.setFilename("test-data/all-possible-inputs-hdfs.yaml");
+			app10.setPermission("public");
+			applications.add(app10);
+
+			Application app11 = new Application();
+			app11.setId("write-files-to-hdfs-folder");
+			app11.setFilename("test-data/write-files-to-hdfs-folder.yaml");
+			app11.setPermission("public");
+			applications.add(app11);
+
+			Application app12 = new Application();
+			app12.setId("write-text-to-hdfs-file");
+			app12.setFilename("test-data/write-text-to-hdfs-file.yaml");
+			app12.setPermission("public");
+			applications.add(app12);
+
 			settings.setApps(applications);
 
 		}
@@ -115,9 +134,9 @@ public class TestEnvironment {
 
 	}
 
-	public static TestEnvironment getInstance() {
+	public static TestServer getInstance() {
 		if (instance == null) {
-			instance = new TestEnvironment();
+			instance = new TestServer();
 		}
 		return instance;
 
@@ -198,7 +217,7 @@ public class TestEnvironment {
 
 	protected WebServer server;
 
-	public void startWebServer() throws SQLException {
+	public void start() throws SQLException {
 
 		if (server == null) {
 
@@ -280,7 +299,7 @@ public class TestEnvironment {
 		server.stop();
 		server = null;
 		database = null;
-		startWebServer();
+		start();
 
 	}
 
