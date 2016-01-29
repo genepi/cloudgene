@@ -240,11 +240,13 @@ public class WorkflowEngineTest extends TestCase {
 
 	}
 
+	// TODO: merge and zip export.
+		
 	// TODO: write to hdfs temp and local temp (temp output params)!
 
 	// TODO: check if removehdfsworkspace works!
 
-	// TODO: check cloudgene counters (successful vs. failed)
+	// TODO: check cloudgene counters (successful and failed)
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
 			throws Exception {
