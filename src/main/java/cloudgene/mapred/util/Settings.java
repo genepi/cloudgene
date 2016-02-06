@@ -248,12 +248,12 @@ public class Settings {
 
 				if (!new File(app.getFilename()).exists()) {
 
-					log.error("file '" + app + "' does not exist.");
+					log.error("file '" + app.getFilename() + "' does not exist.");
 
 					return false;
 				} else {
 
-					log.info("using application " + app);
+					log.info("using application " + app.getId());
 
 				}
 

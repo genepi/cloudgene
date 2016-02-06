@@ -3,7 +3,6 @@ package cloudgene.mapred;
 import genepi.io.FileUtil;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -26,8 +25,6 @@ import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
-import com.esotericsoftware.yamlbeans.YamlException;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.H2Connector;
@@ -44,7 +41,7 @@ public class Main implements Daemon {
 
 	// private static final Log log = LogFactory.getLog(Main.class);
 
-	public static final String VERSION = "1.10.0";
+	public static final String VERSION = "1.11.0";
 
 	private Database database;
 

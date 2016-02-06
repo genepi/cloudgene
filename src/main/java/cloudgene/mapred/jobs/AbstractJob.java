@@ -461,10 +461,11 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutput(String line) {
 
 		try {
-
+			if (stdOutStream != null && line != null) {
 			stdOutStream.write(line.getBytes());
 			stdOutStream.flush();
 
+		}
 		} catch (IOException e) {
 
 		}
@@ -474,6 +475,9 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutputln(String line) {
 
 		try {
+			if (stdOutStream == null) {
+				initStdOutFiles();
+			}
 
 			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
@@ -488,6 +492,9 @@ abstract public class AbstractJob implements Runnable {
 	public void writeLog(String line) {
 
 		try {
+			if (logStream == null) {
+				initStdOutFiles();
+			}
 
 			logStream.write((formatter.format(new Date()) + " ").getBytes());
 			logStream.write(line.getBytes());

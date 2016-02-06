@@ -157,10 +157,10 @@ function buildHdfsFolder(element, param) {
 	option.attr("selected", "selected");
 	select.append(option);
 
-	//option = $("<option></option>");
-	//option.attr("value", "http");
-	//option.text("URLs (HTTP) ");
-	//select.append(option);
+	option = $("<option></option>");
+	option.attr("value", "http");
+	option.text("URLs (HTTP) ");
+	select.append(option);
 
 	option = $("<option></option>");
 	option.attr("value", "sftp");

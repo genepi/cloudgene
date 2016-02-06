@@ -14,8 +14,8 @@ import org.restlet.util.Series;
 
 import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.TestCluster;
-import cloudgene.mapred.util.TestServer;
+import cloudgene.mapred.util.junit.TestCluster;
+import cloudgene.mapred.util.junit.TestServer;
 
 public class GetJobsTest extends JobsApiTestCase {
 

@@ -1,4 +1,4 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.util.junit;
 
 import genepi.hadoop.HdfsUtil;
 
@@ -46,24 +46,25 @@ public class TestCluster {
 				testDataCluster1.delete();
 			}
 			conf = new HdfsConfiguration();
-			conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR, testDataCluster1.getAbsolutePath());
+			conf.set(MiniDFSCluster.HDFS_MINIDFS_BASEDIR,
+					testDataCluster1.getAbsolutePath());
 			cluster = new MiniDFSCluster.Builder(conf).build();
 			fs = cluster.getFileSystem();
 
 			// set mincluster as default config
 			HdfsUtil.setDefaultConfiguration(conf);
-			System.setProperty("hadoop.log.dir","test-log-dir");
-			MiniMRCluster			mrCluster = new MiniMRCluster(1, fs.getUri().toString(), 1, null, null,
-					new JobConf(conf));
+			System.setProperty("hadoop.log.dir", "test-log-dir");
+			MiniMRCluster mrCluster = new MiniMRCluster(1, fs.getUri()
+					.toString(), 1, null, null, new JobConf(conf));
 			JobConf mrClusterConf = mrCluster.createJobConf();
 			HdfsUtil.setDefaultConfiguration(new Configuration(mrClusterConf));
-			
+
 			System.out.println("------");
-			
+
 			JobClient client = new JobClient(mrClusterConf);
 			ClusterStatus status = client.getClusterStatus(true);
 			System.out.println(status.getActiveTrackerNames());
-			}
+		}
 	}
 
 }

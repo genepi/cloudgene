@@ -13,7 +13,6 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.CountingOutputStream;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -65,10 +64,8 @@ public class ImporterHttp implements IImporter {
 	@Override
 	public boolean importFiles(String extension) {
 
-		Configuration conf = new Configuration();
-		FileSystem fileSystem;
 		try {
-			fileSystem = FileSystem.get(conf);
+			FileSystem fileSystem = HdfsUtil.getFileSystem();
 			return importIntoHdfs(url, fileSystem, path);
 		} catch (IOException e) {
 			error = e.getMessage();

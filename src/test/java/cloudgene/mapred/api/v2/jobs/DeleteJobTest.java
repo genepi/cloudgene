@@ -13,7 +13,7 @@ import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.TestServer;
+import cloudgene.mapred.util.junit.TestServer;
 
 public class DeleteJobTest extends JobsApiTestCase {
 
