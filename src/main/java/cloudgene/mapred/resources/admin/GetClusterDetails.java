@@ -1,5 +1,6 @@
 package cloudgene.mapred.resources.admin;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -60,12 +61,18 @@ public class GetClusterDetails extends BaseResource {
 		}
 
 		object.put("safemode", HadoopUtil.getInstance().isInSafeMode());
-		
+
 		object.put("maintenance", getSettings().isMaintenance());
 		object.put("blocked", !getWorkflowEngine().isRunning());
 		object.put("threads", getSettings().getThreadsQueue());
 		object.put("max_jobs", getSettings().getMaxRunningJobs());
 		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
+
+		File workspace = new File(getSettings().getLocalWorkspace());
+
+		object.put("workspace_path", workspace.getAbsolutePath());
+		object.put("free_disc_space", workspace.getUsableSpace() / 1024 / 1024 / 1024);
+		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
 
 		ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
 		StringBuffer state = new StringBuffer();
