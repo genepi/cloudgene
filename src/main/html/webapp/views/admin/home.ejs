@@ -43,3 +43,20 @@
 
 
 </div>
+
+<h3>Counters</h3>
+
+<p>The following counters where submitted by applications.</p>
+
+<table class="table table-bordered" style="width: 700px;">
+
+<% this.counter.attr('complete').each(function( value, key ) { %>
+
+	<tr>
+		<td><b><%== key %></b></td>
+		<td style="width: 150px;"><%== value %></td>
+	</tr>
+
+<% }) %>
+
+</table>

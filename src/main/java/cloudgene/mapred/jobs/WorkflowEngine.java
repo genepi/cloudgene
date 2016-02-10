@@ -118,6 +118,27 @@ public class WorkflowEngine implements Runnable {
 						}
 					}
 
+					// write all submitted counters into database
+					for (String name : job.getContext().getSubmittedCounters()
+							.keySet()) {
+						Integer value = job.getContext().getSubmittedCounters()
+								.get(name);
+
+						if (value != null) {
+
+							Long counterValue = counters.get(name);
+							if (counterValue == null) {
+								counterValue = 0L + value;
+							} else {
+								counterValue = counterValue + value;
+							}
+							counters.put(name, counterValue);
+
+							counterDao.insert(name, value, job);
+
+						}
+					}
+
 				}
 
 			}
@@ -256,7 +277,7 @@ public class WorkflowEngine implements Runnable {
 
 	}
 
-	public void stop(){
+	public void stop() {
 		threadShortTimeQueue.stop();
 		threadLongTimeQueue.stop();
 	}
