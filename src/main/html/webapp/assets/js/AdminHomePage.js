@@ -10,73 +10,60 @@ AdminHomePage = can.Control({
 
 	"init" : function(element, options) {
 		element.hide();
-		Counter.findOne({}, function(counter) {
+		that= this;
 
+		Counter.findOne({}, function(counter) {
 			element.html(can.view('views/admin/home.ejs', {
 				counter : counter
 			}));
 			element.fadeIn();
-
-			$.getJSON("statistics", function(mydata) {
-
-				Morris.Area({
-					element : 'morris-area-chart3',
-					data : mydata,
-					xkey : 'timestamp',
-					ykeys : [ 'completeChromosomes' ],
-					labels : [ 'Complete Chromosomes' ],
-					pointSize : 2,
-					hideHover : 'auto',
-					resize : true
-				});
-
-				Morris.Area({
+			
+			$.getJSON("statistics", {
+				days : 1
+			}, function(mydata) {
+				
+				$("#new_users").html(mydata[0].users - mydata[mydata.length -1].users);
+				$("#total_users").html(mydata[0].users);
+				
+				$("#new_jobs").html(mydata[0].completeJobs - mydata[mydata.length -1].completeJobs);
+				$("#total_jobs").html(mydata[0].completeJobs);
+				
+				that.options.running = Morris.Area({
 					element : 'morris-area-chart',
 					data : mydata,
 					xkey : 'timestamp',
 					ykeys : [ 'runningJobs', 'waitingJobs' ],
 					labels : [ 'Running Jobs', 'Waiting Jobs' ],
-					pointSize : 2,
-					hideHover : 'auto',
+					pointSize : 0,
+					hideHover : 'always',
+					smooth : 'false',
 					resize : true
 				});
 
-				Morris.Area({
-					element : 'morris-area-chart2',
-					data : mydata,
-					xkey : 'timestamp',
-					ykeys : [ 'runningChromosomes', 'waitingChromosomes' ],
-					labels : [ 'Running Chromosomes', 'Waiting Chromosomes' ],
-					pointSize : 2,
-					hideHover : 'auto',
-					resize : true
-				});
-
-				Morris.Area({
-					element : 'morris-area-chart4',
-					data : mydata,
-					xkey : 'timestamp',
-					ykeys : [ 'completeJobs' ],
-					labels : [ 'Complete Jobs' ],
-					pointSize : 2,
-					hideHover : 'auto',
-					resize : true
-				});
-
-				Morris.Area({
-					element : 'morris-area-chart5',
-					data : mydata,
-					xkey : 'timestamp',
-					ykeys : [ 'users' ],
-					labels : [ 'Users' ],
-					pointSize : 2,
-					hideHover : 'auto',
-					resize : true
-				});
 
 			});
 		}, function(message) {
 
+		});
+	},
+
+	'#day_combo change' : function() {
+
+		days = $("#day_combo").val();
+		that = this;
+		$.getJSON("statistics", {
+			days : days
+		}, function(mydata) {
+			
+			$("#new_users").html(mydata[0].users - mydata[mydata.length -1].users);
+			$("#total_users").html(mydata[0].users);
+			
+			$("#new_jobs").html(mydata[0].completeJobs - mydata[mydata.length -1].completeJobs);
+			$("#total_jobs").html(mydata[0].completeJobs);
+			
+			that.options.running.setData(mydata);
+			//that.options.jobs.setData(mydata);
+			//that.options.users.setData(mydata);
 		});
 	}
 
