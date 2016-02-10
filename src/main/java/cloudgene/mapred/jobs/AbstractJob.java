@@ -48,6 +48,8 @@ abstract public class AbstractJob implements Runnable {
 	public static final int STATE_FAILED_AND_NOTIFICATION_SEND = 9;
 
 	public static final int STATE_DEAD = -1;
+	
+	public static final int STATE_DELETED = 10;
 
 	// properties
 

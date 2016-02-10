@@ -90,38 +90,18 @@ public class JobDao extends JdbcDataAccessObject {
 		return true;
 	}
 
-	public boolean delete(AbstractJob job) {
-		StringBuilder sql = new StringBuilder();
-		sql.append("delete job ");
-		sql.append("where id = ? ");
-		try {
-
-			Object[] params = new Object[1];
-			params[0] = job.getId();
-
-			update(sql.toString(), params);
-
-			log.debug("delete job '" + job.getId() + "' successful.");
-
-		} catch (SQLException e) {
-			log.error("delete job '" + job.getId() + "' failed", e);
-			return false;
-		}
-
-		return true;
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllByUser(User user) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where user_id = ? ");
+		sql.append("where user_id = ? and state != ? ");
 		sql.append("order by id desc ");
 
-		Object[] params = new Object[1];
+		Object[] params = new Object[2];
 		params[0] = user.getId();
+		params[1] = AbstractJob.STATE_DELETED;
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -144,13 +124,14 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where state != ? ");
+		sql.append("where state != ? AND state != ? ");
 		sql.append("order by id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[1];
+		Object[] params = new Object[2];
 		params[0] = AbstractJob.STATE_RETIRED;
+		params[1] = AbstractJob.STATE_DELETED;
 
 		try {
 
@@ -171,15 +152,16 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where state != ? AND state != ? AND state != ? ");
+		sql.append("where state != ? AND state != ? AND state != ? AND state != ? ");
 		sql.append("order by id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[3];
+		Object[] params = new Object[4];
 		params[0] = AbstractJob.STATE_RETIRED;
 		params[1] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;
 		params[2] = AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND;
+		params[3] = AbstractJob.STATE_DELETED;
 
 		try {
 

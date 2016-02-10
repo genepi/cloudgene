@@ -58,7 +58,8 @@ public class DeleteJob extends BaseResource {
 		HdfsUtil.delete(hdfsOutput);
 
 		// delete job from database
-		dao.delete(job);
+		job.setState(AbstractJob.STATE_DELETED);
+		dao.update(job);
 
 		JSONObject object = JSONConverter.fromJob(job);
 
