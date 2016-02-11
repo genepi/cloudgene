@@ -22,9 +22,9 @@ public class ImporterFtp implements IImporter {
 
 	private String workingDir;
 
-	private String username;
+	private String username = "anonymous";
 
-	private String password;
+	private String password = "anonymous@domain.com";
 
 	private String path;
 
@@ -35,8 +35,12 @@ public class ImporterFtp implements IImporter {
 	public ImporterFtp(String url, String path) {
 
 		this.server = url.split(";")[0];
-		this.username = url.split(";")[1].trim();
-		this.password = url.split(";")[2];
+		if (url.split(";").length > 1) {
+			this.username = url.split(";")[1].trim();
+		}
+		if (url.split(";").length > 2) {
+			this.password = url.split(";")[2];
+		}
 		this.path = path;
 
 		String server1 = server.replace("ftp://", "");
