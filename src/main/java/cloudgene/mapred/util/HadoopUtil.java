@@ -109,10 +109,31 @@ public class HadoopUtil {
 		job.killJob();
 	}
 
+	/*
+	 * public RunningJob getJob(String id) { RunningJob result = null; try {
+	 * result = client.getJob(id); return result;
+	 * 
+	 * } catch (IOException e) { log.error("Get Job failed.", e);
+	 * 
+	 * }
+	 * 
+	 * return result;
+	 * 
+	 * }
+	 */
+
 	public RunningJob getJob(String id) {
 		RunningJob result = null;
 		try {
-			result = client.getJob(id);
+			JobStatus[] activeJobs = client.getAllJobs();
+
+			for (JobStatus js : activeJobs) {
+				if (js.getJobID().equals(JobID.forName(id))) {
+					result = client.getJob(js.getJobID());
+					break;
+				}
+			}
+
 			return result;
 
 		} catch (IOException e) {
@@ -183,7 +204,6 @@ public class HadoopUtil {
 			return false;
 		}
 	}
-
 
 	public String getVersion() {
 
