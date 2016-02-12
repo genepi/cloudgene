@@ -10,14 +10,13 @@ public class JSONConverter {
 
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "user", "inputParams", "output",
-				"endTime", "startTime", "error", "s3Url", "task", "config",
-				"mapReduceJob", "job", "step", "context", "hdfsWorkspace",
-				"localWorkspace", "logOutFiles", "removeHdfsWorkspace",
-				"settings", "setupComplete", "stdOutFile", "workingDirectory",
-				"parameter", "logOutFile", "map", "reduce", "mapProgress",
-				"reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-				"removeHeader", "value", "autoExport", "adminOnly", "download",
-				"tip" });
+				"error", "s3Url", "task", "config", "mapReduceJob", "job",
+				"step", "context", "hdfsWorkspace", "localWorkspace",
+				"logOutFiles", "removeHdfsWorkspace", "settings",
+				"setupComplete", "stdOutFile", "workingDirectory", "parameter",
+				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress",
+				"jobId", "makeAbsolute", "mergeOutput", "removeHeader",
+				"value", "autoExport", "adminOnly", "download", "tip" });
 		return JSONObject.fromObject(job, config);
 	}
 
