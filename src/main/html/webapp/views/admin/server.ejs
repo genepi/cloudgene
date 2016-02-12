@@ -60,7 +60,7 @@
 		<td>	
 		<div class="progress progress-info" style="width: 150px;">
 		  <div class="bar" style="width: <%== ((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%"></div>
-		</div><%== cluster.attr('total_disc_space') %> GB used, <b><%== cluster.attr('free_disc_space') %> GB free</b>
+		</div><%== cluster.attr('total_disc_space') - cluster.attr('free_disc_space') %> GB used, <b><%== cluster.attr('free_disc_space') %> GB free</b>
 		</td> 		
 	
 	</tr>
