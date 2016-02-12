@@ -146,6 +146,16 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean executeSetup() {
 
+		if (getState() == AbstractJob.STATE_CANCELED
+				|| getState() == AbstractJob.STATE_FAILED) {
+			onFailure();
+			setStartTime(System.currentTimeMillis());
+			setEndTime(System.currentTimeMillis());
+			setError("Job Execution failed.");			
+			return false;
+		}
+
+		
 		WdlStep step = getConfig().getSetup();
 
 		if (step != null) {

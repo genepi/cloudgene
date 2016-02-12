@@ -234,9 +234,12 @@ public class WorkflowEngine implements Runnable {
 			dao.insert(parameter);
 		}
 
-		job.afterSubmission();
-		shortTimeQueue.submit(job);
-
+		boolean okey = job.afterSubmission();
+		if (okey){
+			shortTimeQueue.submit(job);
+		}else{
+			this.dao.update(job);
+		}
 	}
 
 	public void restart(AbstractJob job) {
@@ -249,8 +252,12 @@ public class WorkflowEngine implements Runnable {
 		job.setState(AbstractJob.STATE_WAITING);
 		dao.update(job);
 
-		job.afterSubmission();
-		shortTimeQueue.submit(job);
+		boolean okey = job.afterSubmission();
+		if (okey){
+			shortTimeQueue.submit(job);
+		}else{
+			dao.update(job);
+		}
 
 	}
 

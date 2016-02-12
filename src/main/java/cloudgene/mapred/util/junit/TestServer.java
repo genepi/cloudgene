@@ -111,13 +111,13 @@ public class TestServer {
 			app13.setFilename("test-data/three-tasks.yaml");
 			app13.setPermission("public");
 			applications.add(app13);
-			
+
 			Application app14 = new Application();
 			app14.setId("write-text-to-std-out");
 			app14.setFilename("test-data/write-text-to-std-out.yaml");
 			app14.setPermission("public");
 			applications.add(app14);
-			
+
 			// hdfs
 
 			Application app10 = new Application();
@@ -321,6 +321,10 @@ public class TestServer {
 
 	public Settings getSettings() {
 		return settings;
+	}
+
+	public Database getDatabase() {
+		return database;
 	}
 
 }

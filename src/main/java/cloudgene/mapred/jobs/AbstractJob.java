@@ -48,7 +48,7 @@ abstract public class AbstractJob implements Runnable {
 	public static final int STATE_FAILED_AND_NOTIFICATION_SEND = 9;
 
 	public static final int STATE_DEAD = -1;
-	
+
 	public static final int STATE_DELETED = 10;
 
 	// properties
@@ -215,13 +215,15 @@ abstract public class AbstractJob implements Runnable {
 		return positionInQueue;
 	}
 
-	public void afterSubmission() {
+	public boolean afterSubmission() {
 		try {
 
 			initStdOutFiles();
 
 			setup();
 
+			return true;
+			
 		} catch (Exception e1) {
 
 			setEndTime(System.currentTimeMillis());
@@ -229,7 +231,9 @@ abstract public class AbstractJob implements Runnable {
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
-			return;
+			setSetupComplete(false);
+			state = AbstractJob.STATE_FAILED;
+			return false;
 
 		}
 	}
@@ -239,6 +243,10 @@ abstract public class AbstractJob implements Runnable {
 
 		if (state == AbstractJob.STATE_CANCELED
 				|| state == AbstractJob.STATE_FAILED) {
+			onFailure();
+			setStartTime(System.currentTimeMillis());
+			setEndTime(System.currentTimeMillis());
+			setError("Job Execution failed.");					
 			return;
 		}
 
@@ -439,11 +447,15 @@ abstract public class AbstractJob implements Runnable {
 
 	private void initStdOutFiles() throws FileNotFoundException {
 
-		stdOutStream = new BufferedOutputStream(new FileOutputStream(
-				FileUtil.path(localWorkspace, "std.out")));
+		//if (stdOutStream == null) {
+			stdOutStream = new BufferedOutputStream(new FileOutputStream(
+					FileUtil.path(localWorkspace, "std.out")));
 
-		logStream = new BufferedOutputStream(new FileOutputStream(
-				FileUtil.path(localWorkspace, "job.txt")));
+		//}
+	//	if (logStream == null) {
+			logStream = new BufferedOutputStream(new FileOutputStream(
+					FileUtil.path(localWorkspace, "job.txt")));
+		//}
 
 	}
 
@@ -464,10 +476,10 @@ abstract public class AbstractJob implements Runnable {
 
 		try {
 			if (stdOutStream != null && line != null) {
-			stdOutStream.write(line.getBytes());
-			stdOutStream.flush();
+				stdOutStream.write(line.getBytes());
+				stdOutStream.flush();
 
-		}
+			}
 		} catch (IOException e) {
 
 		}
