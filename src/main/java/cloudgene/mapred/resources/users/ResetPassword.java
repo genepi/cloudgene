@@ -35,6 +35,15 @@ public class ResetPassword extends BaseResource {
 
 		if (user != null) {
 
+			if (!user.isActive()) {
+				return new JSONAnswer("Account is not activated.", false);
+			}
+
+			if (!user.getActivationCode().isEmpty()) {
+				return new JSONAnswer("Recovery mail already sent to "
+						+ user.getMail(), false);
+			}
+
 			String key = HashUtil.getMD5(System.currentTimeMillis() + "");
 			user.setActivationCode(key);
 			dao.update(user);
@@ -46,9 +55,8 @@ public class ResetPassword extends BaseResource {
 
 			String application = getSettings().getName();
 			String subject = "[" + application + "] Password Recovery";
-			String body = getWebApp().getTemplate(
-					Template.RECOVERY_MAIL, user.getFullName(), application,
-					link);
+			String body = getWebApp().getTemplate(Template.RECOVERY_MAIL,
+					user.getFullName(), application, link);
 
 			try {
 
