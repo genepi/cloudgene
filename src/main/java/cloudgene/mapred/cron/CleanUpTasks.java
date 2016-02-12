@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.classification.InterfaceAudience.Public;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
@@ -80,7 +81,12 @@ public class CleanUpTasks {
 				String body = application.getTemplate(Template.RETIRE_JOB_MAIL,
 						job.getUser().getFullName(), days, job.getName());
 
-				MailUtil.send(settings, job.getUser().getMail(), subject, body);
+				if (!job.getUser().getUsername().equals("public")) {
+
+					MailUtil.send(settings, job.getUser().getMail(), subject,
+							body);
+
+				}
 
 				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
 				job.setDeletedOn(System.currentTimeMillis()
