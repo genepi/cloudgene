@@ -74,7 +74,7 @@ public class SubmitJob extends BaseResource {
 
 			// public mode
 			user = PublicUser.getUser(getDatabase());
-			id = HashUtil.getMD5(id + "-lukas");
+			id = id + "-" + HashUtil.getMD5(id + "-lukas");
 
 		}
 
