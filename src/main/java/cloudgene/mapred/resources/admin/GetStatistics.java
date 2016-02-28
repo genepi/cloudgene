@@ -76,7 +76,19 @@ public class GetStatistics extends BaseResource {
 
 	private boolean equals(Map<String, String> a, Map<String, String> b,
 			String[] counters) {
+		
+		
 		for (String key : counters) {
+
+			if (a.get(key) == null){
+				return false;
+			}
+			
+			if (b.get(key) == null){
+				return false;
+			}
+			
+			
 			if (!a.get(key).equals(b.get(key))) {
 				return false;
 			}
