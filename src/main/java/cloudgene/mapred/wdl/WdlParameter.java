@@ -36,6 +36,8 @@ public abstract class WdlParameter {
 
 	private boolean adminOnly = false;
 
+	private boolean readOnly = false;
+
 	public static final String LOCAL_FOLDER = "local-folder";
 
 	public static final String LOCAL_FILE = "local-file";
@@ -134,6 +136,14 @@ public abstract class WdlParameter {
 
 	public boolean isZip() {
 		return zip;
+	}
+
+	public void setReadOnly(boolean readOnly) {
+		this.readOnly = readOnly;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 
 	public void setRemoveHeader(boolean removeHeader) {

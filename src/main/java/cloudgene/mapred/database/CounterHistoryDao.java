@@ -91,9 +91,49 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 		return result;
 	}
 
+	public List<Map<String, String>> getAllBeetween(long start, long end) {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select time_stamp, name, value ");
+		sql.append("from counters_history ");
+		sql.append("where time_stamp > " + start + " and time_stamp < " + end
+				+ " ");
+		sql.append("order by time_stamp desc, name ");
+
+		List<Map<String, String>> result = new Vector<Map<String, String>>();
+
+		try {
+
+			String old = "";
+			Map<String, String> counters = null;
+
+			ResultSet rs = query(sql.toString());
+			while (rs.next()) {
+
+				if (!old.equals(rs.getString(1))) {
+					counters = new HashMap<String, String>();
+					result.add(counters);
+					counters.put("timestamp",
+							DATE_FORMAT.format(new Date(rs.getLong(1))));
+					old = rs.getString(1);
+				}
+				counters.put(rs.getString(2), rs.getString(3));
+			}
+			rs.close();
+
+			log.debug("find counter history successful. results: "
+					+ result.size());
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find all counter history failed", e);
+		}
+
+		return result;
+	}
+
 	protected ResultSet query(String sql) throws SQLException {
 		PreparedStatement statement = getConnection().prepareStatement(sql);
-
 		return statement.executeQuery();
 	}
 

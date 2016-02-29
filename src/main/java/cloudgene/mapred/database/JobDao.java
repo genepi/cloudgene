@@ -16,7 +16,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
 import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.jobs.JobFactory;
 
 public class JobDao extends JdbcDataAccessObject {
 
@@ -41,10 +40,10 @@ public class JobDao extends JdbcDataAccessObject {
 			params[4] = job.getEndTime();
 			params[5] = job.getUser().getId();
 			params[6] = "";
-			params[7] = job.getType();
+			params[7] = -1;
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
-			
+
 			update(sql.toString(), params);
 
 			log.debug("insert job '" + job.getId() + "' successful.");
@@ -73,7 +72,7 @@ public class JobDao extends JdbcDataAccessObject {
 			params[3] = job.getEndTime();
 			params[4] = job.getUser().getId();
 			params[5] = "";
-			params[6] = job.getType();
+			params[6] = -1;
 			params[7] = job.getDeletedOn();
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
@@ -91,38 +90,18 @@ public class JobDao extends JdbcDataAccessObject {
 		return true;
 	}
 
-	public boolean delete(AbstractJob job) {
-		StringBuilder sql = new StringBuilder();
-		sql.append("delete job ");
-		sql.append("where id = ? ");
-		try {
-
-			Object[] params = new Object[1];
-			params[0] = job.getId();
-
-			update(sql.toString(), params);
-
-			log.debug("delete job '" + job.getId() + "' successful.");
-
-		} catch (SQLException e) {
-			log.error("delete job '" + job.getId() + "' failed", e);
-			return false;
-		}
-
-		return true;
-	}
-
 	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllByUser(User user) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where user_id = ? ");
+		sql.append("where user_id = ? and state != ? ");
 		sql.append("order by id desc ");
 
-		Object[] params = new Object[1];
+		Object[] params = new Object[2];
 		params[0] = user.getId();
+		params[1] = AbstractJob.STATE_DELETED;
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -145,13 +124,14 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where state != ? ");
+		sql.append("where state != ? AND state != ? ");
 		sql.append("order by id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[1];
+		Object[] params = new Object[2];
 		params[0] = AbstractJob.STATE_RETIRED;
+		params[1] = AbstractJob.STATE_DELETED;
 
 		try {
 
@@ -172,15 +152,16 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where state != ? AND state != ? AND state != ? ");
+		sql.append("where state != ? AND state != ? AND state != ? AND state != ? ");
 		sql.append("order by id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[3];
+		Object[] params = new Object[4];
 		params[0] = AbstractJob.STATE_RETIRED;
 		params[1] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;
 		params[2] = AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND;
+		params[3] = AbstractJob.STATE_DELETED;
 
 		try {
 
@@ -341,7 +322,7 @@ public class JobDao extends JdbcDataAccessObject {
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
 			int type = rs.getInt("type");
-			AbstractJob job = JobFactory.create(type);
+			AbstractJob job = new CloudgeneJob();
 			job.setId(rs.getString("id"));
 			job.setName(rs.getString("name"));
 			job.setState(rs.getInt("state"));

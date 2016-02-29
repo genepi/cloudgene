@@ -45,6 +45,8 @@ public class GraphNode implements Runnable {
 
 	private long time;
 
+	private String id = "";
+
 	public GraphNode(WdlStep step, CloudgeneContext context)
 			throws MalformedURLException, ClassNotFoundException,
 			InstantiationException, IllegalAccessException {
@@ -68,6 +70,8 @@ public class GraphNode implements Runnable {
 			ClassNotFoundException, InstantiationException,
 			IllegalAccessException {
 
+		id = step.getName().toLowerCase().replace(" ", "_");
+
 		if (step.getPig() != null) {
 
 			// pig script
@@ -79,7 +83,7 @@ public class GraphNode implements Runnable {
 			// spark
 			step.setClassname("cloudgene.mapred.steps.SparkStep");
 
-		}else if (step.getRmd() != null) {
+		} else if (step.getRmd() != null) {
 
 			// rscript
 			step.setClassname("cloudgene.mapred.steps.RMarkdown");
@@ -164,10 +168,8 @@ public class GraphNode implements Runnable {
 	@Override
 	public void run() {
 
-		// JobDao dao = new JobDao();
 		context.setCurrentStep(instance);
 		job.getSteps().add(instance);
-		// dao.update(job);
 
 		job.writeOutputln("------------------------------------------------------");
 		job.writeOutputln(step.getName());
@@ -177,13 +179,6 @@ public class GraphNode implements Runnable {
 
 		try {
 
-			// if (step.isCache()) {
-			// job.writeOutputln("cache = true");
-			// instance = new CachedCloudgeneStep(instance);
-			// } else {
-			// job.writeOutputln("cache = false");
-			// }
-
 			instance.setup(context);
 			boolean successful = instance.run(step, context);
 
@@ -191,6 +186,10 @@ public class GraphNode implements Runnable {
 				job.writeLog("  " + step.getName() + " [ERROR]");
 				successful = false;
 				finish = true;
+
+				context.incCounter("steps.failure." + id, 1);
+				context.submitCounter("steps.failure." + id);
+
 				return;
 			} else {
 				long end = System.currentTimeMillis();
@@ -205,13 +204,21 @@ public class GraphNode implements Runnable {
 
 				job.writeLog("  " + step.getName() + " [" + t + "]");
 				setTime(time);
+
 			}
 		} catch (Exception e) {
 			log.error("Running extern job failed!", e);
+
+			context.incCounter("steps.failure." + id, 1);
+			context.submitCounter("steps.failure." + id);
+
 			successful = false;
 			finish = true;
 			return;
 		}
+
+		context.incCounter("steps.success." + id, 1);
+		context.submitCounter("steps.success." + id);
 
 		finish = true;
 		successful = true;

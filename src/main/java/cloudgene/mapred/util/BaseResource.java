@@ -1,6 +1,13 @@
 package cloudgene.mapred.util;
 
-import org.restlet.Request;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.restlet.data.Status;
+import org.restlet.ext.json.JsonRepresentation;
+import org.restlet.representation.EmptyRepresentation;
+import org.restlet.representation.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
@@ -37,16 +44,98 @@ public class BaseResource extends ServerResource {
 		return application.getSessions();
 	}
 
-	public User getUser(Request request) {
+	public User getAuthUser() {
 		return getUserSessions().getUserByRequest(getRequest());
 	}
-	
-	public Settings getSettings(){
+
+	public Settings getSettings() {
 		return application.getSettings();
 	}
-	
-	public WorkflowEngine getWorkflowEngine(){
+
+	public WorkflowEngine getWorkflowEngine() {
 		return application.getWorkflowEngine();
+	}
+
+	public Representation error(Status status, String message) {
+
+		setStatus(status, message);
+
+		JSONObject jsonObject = new JSONObject();
+
+		try {
+
+			jsonObject.put("success", false);
+			jsonObject.put("message", message);
+
+		} catch (JSONException e) {
+
+			setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+			return new EmptyRepresentation();
+
+		}
+		return new JsonRepresentation(jsonObject);
+
+	}
+
+	public Representation ok(String message) {
+
+		setStatus(Status.SUCCESS_OK, message);
+
+		JSONObject jsonObject = new JSONObject();
+
+		try {
+
+			jsonObject.put("success", true);
+			jsonObject.put("message", message);
+
+		} catch (JSONException e) {
+
+			setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+			return new EmptyRepresentation();
+
+		}
+		return new JsonRepresentation(jsonObject);
+
+	}
+
+	public Representation ok(String message, Map<String, Object> params) {
+
+		setStatus(Status.SUCCESS_OK, message);
+
+		JSONObject jsonObject = new JSONObject();
+
+		try {
+
+			jsonObject.put("success", true);
+			jsonObject.put("message", message);
+			for (String key : params.keySet()) {
+				jsonObject.put(key, params.get(key));
+			}
+
+		} catch (JSONException e) {
+
+			setStatus(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+			return new EmptyRepresentation();
+
+		}
+		return new JsonRepresentation(jsonObject);
+
+	}
+
+	public Representation error401(String message) {
+		return error(Status.CLIENT_ERROR_UNAUTHORIZED, message);
+	}
+
+	public Representation error403(String message) {
+		return error(Status.CLIENT_ERROR_FORBIDDEN, message);
+	}
+
+	public Representation error404(String message) {
+		return error(Status.CLIENT_ERROR_NOT_FOUND, message);
+	}
+
+	public Representation error400(String message) {
+		return error(Status.CLIENT_ERROR_BAD_REQUEST, message);
 	}
 
 }

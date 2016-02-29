@@ -1,13 +1,11 @@
 package cloudgene.mapred.jobs;
 
-import genepi.hadoop.common.WorkflowContext;
-
 import java.io.File;
 import java.util.List;
 
 import cloudgene.mapred.wdl.WdlStep;
 
-public abstract class CloudgeneStep {
+public class CloudgeneStep {
 
 	private int id;
 
@@ -17,6 +15,10 @@ public abstract class CloudgeneStep {
 
 	private List<Message> logMessages;
 
+	public CloudgeneStep(){
+		
+	}
+	
 	public String getFolder(Class clazz) {
 		return new File(clazz.getProtectionDomain().getCodeSource()
 				.getLocation().getPath()).getParent();
@@ -50,7 +52,9 @@ public abstract class CloudgeneStep {
 
 	}
 
-	abstract public boolean run(WdlStep step, CloudgeneContext context);
+	public boolean run(WdlStep step, CloudgeneContext context){
+		return true;
+	}
 
 	public int getMapProgress() {
 		return 0;

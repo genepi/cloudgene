@@ -19,6 +19,10 @@ import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
 
+	private Thread threadLongTimeQueue;
+
+	private Thread threadShortTimeQueue;
+
 	private Queue longTimeQueue;
 
 	private Queue shortTimeQueue;
@@ -110,6 +114,27 @@ public class WorkflowEngine implements Runnable {
 									messageDao.insert(logMessage);
 								}
 							}
+
+						}
+					}
+
+					// write all submitted counters into database
+					for (String name : job.getContext().getSubmittedCounters()
+							.keySet()) {
+						Integer value = job.getContext().getSubmittedCounters()
+								.get(name);
+
+						if (value != null) {
+
+							Long counterValue = counters.get(name);
+							if (counterValue == null) {
+								counterValue = 0L + value;
+							} else {
+								counterValue = counterValue + value;
+							}
+							counters.put(name, counterValue);
+
+							counterDao.insert(name, value, job);
 
 						}
 					}
@@ -209,9 +234,12 @@ public class WorkflowEngine implements Runnable {
 			dao.insert(parameter);
 		}
 
-		job.afterSubmission();
-		shortTimeQueue.submit(job);
-
+		boolean okey = job.afterSubmission();
+		if (okey){
+			shortTimeQueue.submit(job);
+		}else{
+			this.dao.update(job);
+		}
 	}
 
 	public void restart(AbstractJob job) {
@@ -224,8 +252,12 @@ public class WorkflowEngine implements Runnable {
 		job.setState(AbstractJob.STATE_WAITING);
 		dao.update(job);
 
-		job.afterSubmission();
-		shortTimeQueue.submit(job);
+		boolean okey = job.afterSubmission();
+		if (okey){
+			shortTimeQueue.submit(job);
+		}else{
+			dao.update(job);
+		}
 
 	}
 
@@ -244,11 +276,17 @@ public class WorkflowEngine implements Runnable {
 
 	@Override
 	public void run() {
-
-		new Thread(longTimeQueue).start();
-		new Thread(shortTimeQueue).start();
+		threadShortTimeQueue = new Thread(shortTimeQueue);
+		threadShortTimeQueue.start();
+		threadLongTimeQueue = new Thread(longTimeQueue);
+		threadLongTimeQueue.start();
 		running = true;
 
+	}
+
+	public void stop() {
+		threadShortTimeQueue.stop();
+		threadLongTimeQueue.stop();
 	}
 
 	public void block() {

@@ -62,7 +62,9 @@ public class RMarkdown extends CloudgeneStep {
 
 		FileUtil.createDirectory(folder);
 
-		MyRScript script = new MyRScript("convert.R");
+		String scriptFilename = "convert_" + System.currentTimeMillis() + ".R";
+
+		MyRScript script = new MyRScript(scriptFilename);
 		script.append("library(knitr)");
 		script.append("opts_chunk$set(fig.path='" + folder + "')");
 		script.append("library(markdown)");
@@ -75,7 +77,7 @@ public class RMarkdown extends CloudgeneStep {
 		rScript.setSilent(true);
 
 		String[] argsForScript = new String[args.length + 1];
-		argsForScript[0] = "convert.R";
+		argsForScript[0] = scriptFilename;
 		// argsForScript[1] = "--args";
 		for (int i = 0; i < args.length; i++) {
 
@@ -93,12 +95,13 @@ public class RMarkdown extends CloudgeneStep {
 				}
 
 				try {
-					context.println("Number of lines: " + FileUtil.getLineCount(localFile));
+					context.println("Number of lines: "
+							+ FileUtil.getLineCount(localFile));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 			} else {
 
 				argsForScript[i + 1] = args[i];
@@ -112,14 +115,15 @@ public class RMarkdown extends CloudgeneStep {
 
 		int result = rScript.execute();
 
-		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.err")));
-		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.out")));
-		
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder,
+				"std.err")));
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder,
+				"std.out")));
+
 		new File(outputHtml + ".md").delete();
-		new File("convert.R").delete();
-	
+		new File(scriptFilename).delete();
+
 		RMarkdown.deleteFolder(new File(folder));
-			
 
 		return result;
 

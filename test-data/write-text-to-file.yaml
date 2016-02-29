@@ -1,0 +1,28 @@
+name: WriteTextToFileStep
+description:  <p>This job tests your configuration in order to ensure that Cloudgene is able to communicate with your Hadoop Cluster.<br>If the job fails, please follow the error message and adapt your configuration until the job runs successfully.<br>Useful informations about the configuration can be found on our website <a href="http://cloudgene.uibk.ac.at">http://cloudgene.uibk.ac.at</a>.
+version: 1.0.1
+website: http://cloudgene.uibk.ac.at
+category: cloudgene
+ 
+mapred:
+
+  steps:
+    - name: WriteTextToFileStep
+      classname: cloudgene.mapred.jobs.steps.WriteTextToFileStep
+    
+  inputs:
+    
+    - id: inputtext
+      description: Input-Text
+      type: text
+                           
+  outputs:
+
+    - id: output
+      description: OutputFile
+      type: local-file
+      download: true
+      temp: false
+      zip: false
+      removeHeader: true
+      mergeOutput: true

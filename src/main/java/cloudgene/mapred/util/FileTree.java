@@ -24,9 +24,7 @@ public class FileTree {
 				results[count].setText(files[i].getName());
 				results[count].setPath(name + "/" + files[i].getName());
 				File[] files2 = files[i].listFiles();
-				results[count].setLeaf(files2.length == 0);
 				results[count].setId(name + "/" + files[i].getName());
-				results[count].setCls("folder");
 				count++;
 			}
 		}
@@ -38,8 +36,6 @@ public class FileTree {
 				results[count].setText(files[i].getName());
 				results[count].setPath(name + "/" + files[i].getName());
 				results[count].setId(name + "/" + files[i].getName());
-				results[count].setLeaf(true);
-				results[count].setCls("file");
 				results[count].setSize(FileUtils
 						.byteCountToDisplaySize(files[i].length()));
 				count++;

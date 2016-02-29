@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlParameter;
@@ -20,16 +19,19 @@ import cloudgene.mapred.wdl.WdlParameter;
 public class CloudgeneContext extends WorkflowContext {
 
 	private String hdfsTemp;
+
 	private String localTemp;
+
 	private String hdfsOutput;
+
 	private String hdfsInput;
+
 	private String localOutput;
+
 	private String workingDirectory;
-	
+
 	private String workspace;
 
-	//private String localWorkspace;
-	
 	private Settings settings;
 
 	private CloudgeneStep step;
@@ -60,25 +62,16 @@ public class CloudgeneContext extends WorkflowContext {
 
 		workspace = job.getHdfsWorkspace();
 
-		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
-				job.getId(), "temp"));
+		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "temp"));
 
-		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "output",
-				job.getId()));
+		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
 
-		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "input",
-				job.getId()));
+		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
 
-		String localWorkspace = new File(job.getLocalWorkspace())
+		localOutput = new File(job.getLocalWorkspace()).getAbsolutePath();
+
+		localTemp = new File(FileUtil.path(job.getLocalWorkspace(), "temp"))
 				.getAbsolutePath();
-
-		localOutput = new File(FileUtil.path(localWorkspace, "output",
-				job.getId())).getAbsolutePath();
-
-		FileUtil.createDirectory(localOutput);
-
-		localTemp = new File(FileUtil.path(localWorkspace, "output",
-				job.getId(), "temp")).getAbsolutePath();
 
 		inputParameters = new HashMap<String, CloudgeneParameter>();
 		for (CloudgeneParameter param : job.getInputParams()) {
@@ -102,54 +95,11 @@ public class CloudgeneContext extends WorkflowContext {
 		return step;
 	}
 
-	public void updateInputParameters() {
-
-		for (CloudgeneParameter inputParam : inputParameters.values()) {
-
-			String hdfsPath = inputParam.getValue();
-
-			if (isHdfsInput(inputParam)
-					&& !ImporterFactory.needsImport(hdfsPath)) {
-
-				if (hdfsPath != null && !hdfsPath.isEmpty()) {
-					if (!HdfsUtil.isAbsolute(hdfsPath)) {
-						String path = HdfsUtil.path(workspace, hdfsPath);
-						if (inputParam.isMakeAbsolute()) {
-							inputParam.setValue(HdfsUtil.makeAbsolute(path));
-						} else {
-							inputParam.setValue(path);
-						}
-					} else {
-						inputParam.setValue(hdfsPath);
-					}
-				} else {
-
-					inputParam.setValue("");
-
-				}
-
-			}
-
-		}
-
-	}
-
-	private boolean isHdfsInput(CloudgeneParameter inputParam) {
-		return inputParam.getType().equals(WdlParameter.HDFS_FILE)
-				|| inputParam.getType().equals(WdlParameter.HDFS_FOLDER);
-	}
-
 	public void setupOutputParameters() {
 
-		// cleanup (need when job is restarted!)
-		FileUtil.deleteDirectory(getLocalTemp());
-		FileUtil.deleteDirectory(getLocalOutput());
-		HdfsUtil.delete(getHdfsOutput());
-		HdfsUtil.delete(getHdfsTemp());
-
 		// create output directories
-		FileUtil.createDirectory(getLocalTemp());
 		FileUtil.createDirectory(getLocalOutput());
+		FileUtil.createDirectory(getLocalTemp());
 
 		// create output directories
 		for (CloudgeneParameter param : outputParameters.values()) {
@@ -169,14 +119,18 @@ public class CloudgeneContext extends WorkflowContext {
 				if (!HdfsUtil.isAbsolute(value)) {
 					value = HdfsUtil.makeAbsolute(value);
 				}
-
+				// delete (needed for restart)
+				HdfsUtil.delete(value);
 				param.setValue(value);
 				break;
 
+			// TODO: temp support for local files
 			case WdlParameter.LOCAL_FILE:
 				String folder = FileUtil
 						.path(getLocalOutput(), param.getName());
 				String filename = FileUtil.path(folder, param.getName());
+				// delete and create (needed for restart)
+				FileUtil.deleteDirectory(folder);
 				FileUtil.createDirectory(folder);
 				param.setValue(filename);
 				break;
@@ -184,6 +138,8 @@ public class CloudgeneContext extends WorkflowContext {
 			case WdlParameter.LOCAL_FOLDER:
 				String folder2 = FileUtil.path(getLocalOutput(),
 						param.getName());
+				// delete and create (needed for restart)
+				FileUtil.deleteDirectory(folder2);
 				FileUtil.createDirectory(folder2);
 				param.setValue(folder2);
 				break;
@@ -192,12 +148,6 @@ public class CloudgeneContext extends WorkflowContext {
 		}
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getInput(java.lang.String)
-	 */
 
 	public String getInput(String param) {
 
@@ -214,12 +164,6 @@ public class CloudgeneContext extends WorkflowContext {
 		return job.getId();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getOutput(java.lang.String)
-	 */
-
 	public String getOutput(String param) {
 
 		if (outputParameters.get(param) != null) {
@@ -234,29 +178,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getParameter(java.lang.String)
-	 */
-	/*
-	 * @Override public CloudgeneParameter getParameter(String id) {
-	 * 
-	 * CloudgeneParameter parameter = inputParameters.get(id);
-	 * 
-	 * if (parameter != null) { return parameter; }
-	 * 
-	 * return outputParameters.get(id);
-	 * 
-	 * }
-	 */
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#get(java.lang.String)
-	 */
-
 	public String get(String param) {
 		String result = getInput(param);
 		if (result == null) {
@@ -270,31 +191,13 @@ public class CloudgeneContext extends WorkflowContext {
 		return settings;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getHdfsTemp()
-	 */
-
 	public String getHdfsTemp() {
 		return hdfsTemp;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getLocalTemp()
-	 */
-
 	public String getLocalTemp() {
 		return localTemp;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getHdfsOutput()
-	 */
 
 	public String getHdfsOutput() {
 		return hdfsOutput;
@@ -304,31 +207,13 @@ public class CloudgeneContext extends WorkflowContext {
 		return hdfsInput;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getLocalOutput()
-	 */
-
 	public String getLocalOutput() {
 		return localOutput;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#println(java.lang.String)
-	 */
-
 	public void println(String line) {
 		job.writeOutputln(line);
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#log(java.lang.String)
-	 */
 
 	public void log(String line) {
 		job.writeLog(line);
@@ -343,32 +228,13 @@ public class CloudgeneContext extends WorkflowContext {
 		return job.getName();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getWorkingDirectory()
-	 */
-
 	public String getWorkingDirectory() {
 		return workingDirectory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getUser()
-	 */
-
 	public User getUser() {
 		return user;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#sendMail(java.lang.String,
-	 * java.lang.String)
-	 */
 
 	public boolean sendMail(String subject, String body) throws Exception {
 		Settings settings = getSettings();
@@ -382,25 +248,20 @@ public class CloudgeneContext extends WorkflowContext {
 		return true;
 
 	}
-	
-	public boolean sendMail(String to, String subject, String body) throws Exception {
+
+	public boolean sendMail(String to, String subject, String body)
+			throws Exception {
 		Settings settings = getSettings();
 
 		MailUtil.send(settings.getMail().get("smtp"),
 				settings.getMail().get("port"), settings.getMail().get("user"),
 				settings.getMail().get("password"),
-				settings.getMail().get("name"), to,
-				"[" + settings.getName() + "] " + subject, body);
+				settings.getMail().get("name"), to, "[" + settings.getName()
+						+ "] " + subject, body);
 
 		return true;
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getInputs()
-	 */
 
 	public Set<String> getInputs() {
 		return inputParameters.keySet();
@@ -410,7 +271,6 @@ public class CloudgeneContext extends WorkflowContext {
 		return outputParameters.keySet();
 	}
 
-	
 	public void setInput(String input, String value) {
 
 		CloudgeneParameter parameter = inputParameters.get(input);
@@ -424,12 +284,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#incCounter(java.lang.String, int)
-	 */
-
 	public void incCounter(String name, int value) {
 
 		Integer oldvalue = counters.get(name);
@@ -439,12 +293,6 @@ public class CloudgeneContext extends WorkflowContext {
 		counters.put(name, oldvalue + value);
 
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#submitCounter(java.lang.String)
-	 */
 
 	public void submitCounter(String name) {
 
@@ -458,12 +306,6 @@ public class CloudgeneContext extends WorkflowContext {
 		}
 		return result;
 	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see cloudgene.mapred.jobs.IContext#getCounters()
-	 */
 
 	public Map<String, Integer> getCounters() {
 		return counters;

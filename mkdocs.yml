@@ -1,12 +1,12 @@
-site_name: Cloudgene Apps
+site_name: Cloudgene v2.0.0
 theme: readthedocs
 pages:
 - Index: index.md
 - Getting started: getting-started.md
-- Installation: installation.md
+- Installing applications: installing-applications.md
 - Creating applications: creating-applications.md
+- cloudgene.yaml: cloudgene-yaml.md
 - application.yaml: application-yaml.md
-
 
 markdown_extensions:
     - toc:

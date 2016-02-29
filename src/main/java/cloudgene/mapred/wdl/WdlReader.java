@@ -20,29 +20,6 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 
 public class WdlReader {
 
-	public static WdlApp loadAppFromUrl(String filename) throws IOException {
-
-		URL url2 = new URL(filename);
-		HttpURLConnection conn = (HttpURLConnection) url2.openConnection();
-		YamlReader reader = new YamlReader(new InputStreamReader(
-				conn.getInputStream()));
-
-		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred",
-				WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
-				WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
-				WdlParameterInput.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
-				"outputs", WdlParameterOutput.class);
-
-		WdlApp app = reader.read(WdlApp.class);
-
-		updateApp(filename, app);
-
-		return app;
-
-	}
 
 	public static WdlApp loadAppFromString(String filename, String content)
 			throws IOException {
@@ -156,78 +133,92 @@ public class WdlReader {
 
 		String appPath = "apps";
 
-		if (new File(appPath).exists()) {
+		if (user != null) {
 
-			File folder = new File(appPath);
-			File[] listOfFiles = folder.listFiles();
+			if (new File(appPath).exists()) {
 
-			String filename = "";
+				File folder = new File(appPath);
+				File[] listOfFiles = folder.listFiles();
 
-			for (int i = 0; i < listOfFiles.length; i++) {
+				String filename = "";
 
-				File dir = listOfFiles[i];
-				filename = FileUtil.path(dir.getAbsolutePath(),
-						"cloudgene.yaml");
-				File manifest = new File(filename);
+				for (int i = 0; i < listOfFiles.length; i++) {
 
-				// old style
+					File dir = listOfFiles[i];
+					filename = FileUtil.path(dir.getAbsolutePath(),
+							"cloudgene.yaml");
+					File manifest = new File(filename);
 
-				if (dir.isDirectory() && manifest.exists()) {
-					filename = manifest.getAbsolutePath();
-					try {
+					// old style
 
-						WdlApp app = loadAppFromFile(filename);
+					if (dir.isDirectory() && manifest.exists()) {
+						filename = manifest.getAbsolutePath();
+						try {
 
-						WdlHeader meta = (WdlHeader) app;
+							WdlApp app = loadAppFromFile(filename);
 
-						if (meta != null && app.getMapred() != null) {
-							meta.setId(dir.getName());
-							listApps.add(meta);
+							WdlHeader meta = (WdlHeader) app;
 
+							if (meta != null && app.getMapred() != null) {
+								meta.setId(dir.getName());
+								listApps.add(meta);
+
+							}
+						} catch (Exception e) {
+							e.printStackTrace();
 						}
-					} catch (Exception e) {
-						e.printStackTrace();
+
 					}
 
-				}
+					// new style: all other yaml files.
+					if (dir.isDirectory()) {
+						File[] filesInDir = dir.listFiles();
+						for (File file : filesInDir) {
+							if (file.getName().endsWith(".yaml")
+									&& !file.getName().equals("cloudgene.yaml")) {
+								try {
+									filename = file.getAbsolutePath();
+									WdlApp app = loadAppFromFile(filename);
 
-				// new style: all other yaml files.
-				if (dir.isDirectory()) {
-					File[] filesInDir = dir.listFiles();
-					for (File file : filesInDir) {
-						if (file.getName().endsWith(".yaml")
-								&& !file.getName().equals("cloudgene.yaml")) {
-							try {
-								filename = file.getAbsolutePath();
-								WdlApp app = loadAppFromFile(filename);
+									WdlHeader meta = (WdlHeader) app;
 
-								WdlHeader meta = (WdlHeader) app;
+									if (meta != null && app.getMapred() != null) {
 
-								if (meta != null && app.getMapred() != null) {
+										meta.setId(dir.getName());
+										listApps.add(meta);
 
-									meta.setId(dir.getName());
-									listApps.add(meta);
-
+									}
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
-							} catch (Exception e) {
-								e.printStackTrace();
 							}
 						}
 					}
 				}
-			}
 
+			}
 		}
 
 		for (Application application : setttings.getApps()) {
 
 			boolean using = true;
 
-			if (!user.isAdmin()) {
-
-				if (!application.getPermission().toLowerCase()
-						.equals(user.getRole().toLowerCase())) {
+			if (user == null) {
+				if (application.getPermission().toLowerCase().equals("public")) {
+					using = true;
+				} else {
 					using = false;
+				}
+			} else {
+
+				if (!user.isAdmin()
+						&& !application.getPermission().toLowerCase()
+								.equals("public")) {
+
+					if (!application.getPermission().toLowerCase()
+							.equals(user.getRole().toLowerCase())) {
+						using = false;
+					}
 				}
 			}
 

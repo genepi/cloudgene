@@ -8,7 +8,6 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.output.CountingOutputStream;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -29,9 +28,9 @@ public class ImporterSftp implements IImporter {
 
 	private String workingDir;
 
-	private String username;
+	private String username = "anonymous";
 
-	private String password;
+	private String password = "anonymous@domain.com";
 
 	private String path;
 
@@ -44,8 +43,12 @@ public class ImporterSftp implements IImporter {
 	public ImporterSftp(String url, String path) {
 
 		this.server = url.split(";")[0];
-		this.username = url.split(";")[1].trim();
-		this.password = url.split(";")[2];
+		if (url.split(";").length > 1) {
+			this.username = url.split(";")[1].trim();
+		}
+		if (url.split(";").length > 2) {
+			this.password = url.split(";")[2];
+		}
 		this.path = path;
 		this.port = 22;
 
@@ -69,20 +72,13 @@ public class ImporterSftp implements IImporter {
 	@Override
 	public boolean importFiles(String extension) {
 
-		Configuration conf = new Configuration();
-		FileSystem fileSystem;
 		try {
-			fileSystem = FileSystem.get(conf);
+			FileSystem fileSystem = HdfsUtil.getFileSystem();
 			return importIntoHdfs(server, workingDir, username, password,
 					fileSystem, path, port, extension);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			error = e.getMessage();
-			return false;
-		} catch (JSchException e) {
-			error = e.getMessage();
-			return false;
-		} catch (SftpException e) {
-			error = e.getMessage();
+			e.printStackTrace();
 			return false;
 		}
 
@@ -192,6 +188,7 @@ public class ImporterSftp implements IImporter {
 			}
 			channelSftp.disconnect();
 		} catch (Exception e) {
+			e.printStackTrace();
 			error = e.getMessage();
 			return false;
 		} finally {
@@ -271,8 +268,6 @@ public class ImporterSftp implements IImporter {
 					item.setText(entry.getFilename());
 					item.setPath("/");
 					item.setId("/");
-					item.setLeaf(true);
-					item.setCls("file");
 					item.setSize(FileUtils.byteCountToDisplaySize(entry
 							.getAttrs().getSize()));
 
@@ -282,6 +277,7 @@ public class ImporterSftp implements IImporter {
 			}
 			channelSftp.disconnect();
 		} catch (Exception e) {
+			e.printStackTrace();
 			error = e.getMessage();
 			return null;
 		} finally {

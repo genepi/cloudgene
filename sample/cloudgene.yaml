@@ -53,12 +53,16 @@ mapred:
       values:
         true: true
         false: false  
-                           
+
+    - id: testfile
+      description: Dummy Input
+      type: hdfs-folder                         
+
   outputs:
 
     - id: stats
       description: Statistics
-      type: hdfs-folder
+      type: local-folder
       download: true
       temp: false
       zip: false

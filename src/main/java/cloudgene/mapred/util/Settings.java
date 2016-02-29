@@ -95,6 +95,8 @@ public class Settings {
 
 		apps = new Vector<Application>();
 		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
+		apps.add(new Application("hello", "public",
+				"sample/cloudgene-public.yaml"));
 
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
@@ -246,12 +248,12 @@ public class Settings {
 
 				if (!new File(app.getFilename()).exists()) {
 
-					log.error("file '" + app + "' does not exist.");
+					log.error("file '" + app.getFilename() + "' does not exist.");
 
 					return false;
 				} else {
 
-					log.info("using application " + app);
+					log.info("using application " + app.getId());
 
 				}
 
@@ -331,6 +333,7 @@ public class Settings {
 		this.apps = apps;
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
+			log.info("Register application " + app.getId());
 			indexApps.put(app.getId(), app);
 		}
 	}
@@ -341,9 +344,19 @@ public class Settings {
 
 		if (app != null) {
 
+			if (user == null) {
+				if (app.getPermission().toLowerCase().equals("public")) {
+					System.out.println("App: " + app.getFilename());
+					return app.getFilename();
+				} else {
+					return null;
+				}
+			}
+
 			if (user.isAdmin()
 					|| app.getPermission().toLowerCase()
-							.equals(user.getRole().toLowerCase())) {
+							.equals(user.getRole().toLowerCase())
+					|| app.getPermission().toLowerCase().equals("public")) {
 
 				return app.getFilename();
 			} else {

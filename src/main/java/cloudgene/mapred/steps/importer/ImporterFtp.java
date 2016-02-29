@@ -3,16 +3,20 @@ package cloudgene.mapred.steps.importer;
 import genepi.hadoop.HdfsUtil;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.Vector;
 
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IOUtils;
 
 import cloudgene.mapred.util.FileItem;
 
@@ -22,9 +26,9 @@ public class ImporterFtp implements IImporter {
 
 	private String workingDir;
 
-	private String username;
+	private String username = "anonymous";
 
-	private String password;
+	private String password = "anonymous@domain.com";
 
 	private String path;
 
@@ -33,10 +37,13 @@ public class ImporterFtp implements IImporter {
 	private String error;
 
 	public ImporterFtp(String url, String path) {
-
 		this.server = url.split(";")[0];
-		this.username = url.split(";")[1].trim();
-		this.password = url.split(";")[2];
+		if (url.split(";").length > 1) {
+			this.username = url.split(";")[1].trim();
+		}
+		if (url.split(";").length > 2) {
+			this.password = url.split(";")[2];
+		}
 		this.path = path;
 
 		String server1 = server.replace("ftp://", "");
@@ -47,9 +54,9 @@ public class ImporterFtp implements IImporter {
 
 	@Override
 	public boolean importFiles() {
-		return importFiles(null);				
+		return importFiles(null);
 	}
-	
+
 	@Override
 	public boolean importFiles(String extension) {
 
@@ -63,15 +70,18 @@ public class ImporterFtp implements IImporter {
 					fileSystem, path);
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			error = e.getMessage();
 			return false;
 		}
 
-	}	
+	}
 
 	public boolean importIntoHdfs(String server, String workingDir,
 			String username, String password, FileSystem fileSystem, String path)
 			throws IOException {
+
+		boolean commandOK = true;
 
 		if (username == null || username.equals("")) {
 			username = "anonymous";
@@ -129,12 +139,19 @@ public class ImporterFtp implements IImporter {
 						FSDataOutputStream out = fileSystem.create(new Path(
 								target));
 
-						t = new CountingOutputStream(out);
+						client.setFileType(FTP.BINARY_FILE_TYPE);
+						client.enterLocalPassiveMode();
+						client.setAutodetectUTF8(true);
 
-						client.retrieveFile(ftpFile.getName(), t);
+						InputStream inputStream = client
+								.retrieveFileStream(name);
 
-						IOUtils.closeStream(out);
+						IOUtils.copy(inputStream, out);
+						out.flush();
 
+						IOUtils.closeQuietly(out);
+						IOUtils.closeQuietly(inputStream);
+						commandOK = client.completePendingCommand();
 					}
 				}
 				client.logout();
@@ -145,19 +162,26 @@ public class ImporterFtp implements IImporter {
 
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			error = e.getMessage();
 			return false;
 
 		} finally {
 			client.disconnect();
 		}
-		return true;
+		return commandOK;
 	}
 
 	@Override
 	public List<FileItem> getFiles() {
-		// TODO Auto-generated method stub
-		return null;
+		List<FileItem> items = new Vector<FileItem>();
+		FileItem file = new FileItem();
+		file.setText(FilenameUtils.getName(workingDir));
+		file.setPath("/");
+		file.setId("/");
+		file.setSize("-");
+		items.add(file);
+		return items;
 	}
 
 	@Override

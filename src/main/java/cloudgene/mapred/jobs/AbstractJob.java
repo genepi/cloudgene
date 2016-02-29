@@ -18,7 +18,6 @@ import java.util.Vector;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 
 abstract public class AbstractJob implements Runnable {
@@ -27,14 +26,6 @@ abstract public class AbstractJob implements Runnable {
 			.getLog(AbstractJob.class);
 
 	private DateFormat formatter = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
-
-	// types
-
-	public static final int TYPE_MAPREDUCE = 1;
-
-	public static final int TYPE_TASK = 2;
-
-	public static final int TYPE_LOCAL = 3;
 
 	// states
 
@@ -57,6 +48,8 @@ abstract public class AbstractJob implements Runnable {
 	public static final int STATE_FAILED_AND_NOTIFICATION_SEND = 9;
 
 	public static final int STATE_DEAD = -1;
+
+	public static final int STATE_DELETED = 10;
 
 	// properties
 
@@ -222,14 +215,15 @@ abstract public class AbstractJob implements Runnable {
 		return positionInQueue;
 	}
 
-	public void afterSubmission() {
+	public boolean afterSubmission() {
 		try {
+
+			initStdOutFiles();
 
 			setup();
 
-			initLocalDirectories();
-			initStdOutFiles();
-
+			return true;
+			
 		} catch (Exception e1) {
 
 			setEndTime(System.currentTimeMillis());
@@ -237,7 +231,9 @@ abstract public class AbstractJob implements Runnable {
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
-			return;
+			setSetupComplete(false);
+			state = AbstractJob.STATE_FAILED;
+			return false;
 
 		}
 	}
@@ -247,6 +243,10 @@ abstract public class AbstractJob implements Runnable {
 
 		if (state == AbstractJob.STATE_CANCELED
 				|| state == AbstractJob.STATE_FAILED) {
+			onFailure();
+			setStartTime(System.currentTimeMillis());
+			setEndTime(System.currentTimeMillis());
+			setError("Job Execution failed.");					
 			return;
 		}
 
@@ -267,6 +267,8 @@ abstract public class AbstractJob implements Runnable {
 				writeLog("    " + parameter.getDescription() + ": "
 						+ context.get(parameter.getName()));
 			}
+
+			// TODO: check if all input parameters are set
 
 			writeLog("  Outputs:");
 			for (CloudgeneParameter parameter : outputParams) {
@@ -383,7 +385,6 @@ abstract public class AbstractJob implements Runnable {
 
 			closeStdOutFiles();
 
-			exportStdOutToS3();
 		} catch (Exception e1) {
 
 			setEndTime(System.currentTimeMillis());
@@ -446,53 +447,16 @@ abstract public class AbstractJob implements Runnable {
 
 	private void initStdOutFiles() throws FileNotFoundException {
 
-		stdOutStream = new BufferedOutputStream(new FileOutputStream(
-				getStdOutFile()));
+		//if (stdOutStream == null) {
+			stdOutStream = new BufferedOutputStream(new FileOutputStream(
+					FileUtil.path(localWorkspace, "std.out")));
 
-		logStream = new BufferedOutputStream(new FileOutputStream(
-				getLogOutFile()));
+		//}
+	//	if (logStream == null) {
+			logStream = new BufferedOutputStream(new FileOutputStream(
+					FileUtil.path(localWorkspace, "job.txt")));
+		//}
 
-	}
-
-	private void initLocalDirectories() {
-
-		if (getUser() != null) {
-
-			String localWorkspace = getLocalWorkspace();
-
-			String directory = FileUtil.path(localWorkspace, "output", getId());
-			FileUtil.createDirectory(directory);
-
-		}
-
-	}
-
-	public String getStdOutFile() {
-
-		if (getUser() != null) {
-
-			String localWorkspace = getLocalWorkspace();
-
-			return FileUtil.path(localWorkspace, "output", getId(), "std.out");
-
-		} else {
-
-			return "";
-		}
-	}
-
-	public String getLogOutFile() {
-
-		if (getUser() != null) {
-
-			String localWorkspace = getLocalWorkspace();
-
-			return FileUtil.path(localWorkspace, "output", getId(), "job.txt");
-
-		} else {
-
-			return "";
-		}
 	}
 
 	private void closeStdOutFiles() {
@@ -511,10 +475,11 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutput(String line) {
 
 		try {
+			if (stdOutStream != null && line != null) {
+				stdOutStream.write(line.getBytes());
+				stdOutStream.flush();
 
-			stdOutStream.write(line.getBytes());
-			stdOutStream.flush();
-
+			}
 		} catch (IOException e) {
 
 		}
@@ -524,6 +489,9 @@ abstract public class AbstractJob implements Runnable {
 	public void writeOutputln(String line) {
 
 		try {
+			if (stdOutStream == null) {
+				initStdOutFiles();
+			}
 
 			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
@@ -538,6 +506,9 @@ abstract public class AbstractJob implements Runnable {
 	public void writeLog(String line) {
 
 		try {
+			if (logStream == null) {
+				initStdOutFiles();
+			}
 
 			logStream.write((formatter.format(new Date()) + " ").getBytes());
 			logStream.write(line.getBytes());
@@ -545,20 +516,6 @@ abstract public class AbstractJob implements Runnable {
 			logStream.flush();
 
 		} catch (IOException e) {
-		}
-
-	}
-
-	private void exportStdOutToS3() {
-
-		// export to s3
-		if (getUser().isExportToS3()) {
-
-			S3Util.copyFile(getUser().getAwsKey(), getUser().getAwsSecretKey(),
-					getUser().getS3Bucket(), getId(), getLogOutFile());
-
-			S3Util.copyFile(getUser().getAwsKey(), getUser().getAwsSecretKey(),
-					getUser().getS3Bucket(), getId(), getStdOutFile());
 		}
 
 	}
@@ -594,10 +551,10 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public boolean equals(Object obj) {
 
-		if (!(obj instanceof AbstractJob)){
+		if (!(obj instanceof AbstractJob)) {
 			return false;
 		}
-		
+
 		return ((AbstractJob) obj).getId().equals(id);
 
 	}
@@ -650,6 +607,11 @@ abstract public class AbstractJob implements Runnable {
 		return applicationId;
 	}
 
+	public boolean isRunning() {
+		return (state == STATE_WAITING) || (state == STATE_RUNNING)
+				|| (state == STATE_EXPORTING);
+	}
+
 	abstract public boolean execute();
 
 	abstract public boolean executeSetup();
@@ -663,8 +625,6 @@ abstract public class AbstractJob implements Runnable {
 	abstract public boolean onFailure();
 
 	abstract public boolean cleanUp();
-
-	abstract public int getType();
 
 	public void kill() {
 

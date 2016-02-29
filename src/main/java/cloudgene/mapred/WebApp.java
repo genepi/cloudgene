@@ -14,6 +14,16 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import cloudgene.mapred.api.v2.jobs.CancelJob;
+import cloudgene.mapred.api.v2.jobs.DeleteJob;
+import cloudgene.mapred.api.v2.jobs.DownloadResults;
+import cloudgene.mapred.api.v2.jobs.GetJobDetails;
+import cloudgene.mapred.api.v2.jobs.GetJobStatus;
+import cloudgene.mapred.api.v2.jobs.GetJobs;
+import cloudgene.mapred.api.v2.jobs.GetLogs;
+import cloudgene.mapred.api.v2.jobs.RestartJob;
+import cloudgene.mapred.api.v2.jobs.ShareResults;
+import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.util.Database;
@@ -40,16 +50,6 @@ import cloudgene.mapred.resources.apps.GetApp;
 import cloudgene.mapred.resources.apps.GetApps;
 import cloudgene.mapred.resources.data.GetCounter;
 import cloudgene.mapred.resources.data.ValidateImport;
-import cloudgene.mapred.resources.jobs.CancelJob;
-import cloudgene.mapred.resources.jobs.DeleteJob;
-import cloudgene.mapred.resources.jobs.DownloadResults;
-import cloudgene.mapred.resources.jobs.GetJobDetails;
-import cloudgene.mapred.resources.jobs.GetJobs;
-import cloudgene.mapred.resources.jobs.GetLogs;
-import cloudgene.mapred.resources.jobs.NewGetJobStatus;
-import cloudgene.mapred.resources.jobs.NewSubmitJob;
-import cloudgene.mapred.resources.jobs.RestartJob;
-import cloudgene.mapred.resources.jobs.ShareResults;
 import cloudgene.mapred.resources.users.ActivateUser;
 import cloudgene.mapred.resources.users.ChangeGroupUser;
 import cloudgene.mapred.resources.users.DeleteUser;
@@ -61,7 +61,6 @@ import cloudgene.mapred.resources.users.LogoutUser;
 import cloudgene.mapred.resources.users.NewUser;
 import cloudgene.mapred.resources.users.RegisterUser;
 import cloudgene.mapred.resources.users.ResetPassword;
-import cloudgene.mapred.resources.users.UpdateCredentials;
 import cloudgene.mapred.resources.users.UpdateUser;
 import cloudgene.mapred.resources.users.UpdateUser2;
 import cloudgene.mapred.resources.users.UpdateUserPassword;
@@ -102,6 +101,7 @@ public class WebApp extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		String prefix = settings.getUrlPrefix();
+		System.out.println("Prefix: " + prefix);
 
 		// Create a router Restlet that routes each call to a
 		Router router = new Router(getContext());
@@ -119,13 +119,13 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		router.attach(prefix + "/jobs", GetJobs.class);
-		router.attach(prefix + "/jobs/details", GetJobDetails.class);
-		router.attach(prefix + "/jobs/delete", DeleteJob.class);
-		router.attach(prefix + "/jobs/cancel", CancelJob.class);
+		router.attach(prefix + "/jobs/details", GetJobDetails.class); //todo: job_id in url
+		router.attach(prefix + "/jobs/delete", DeleteJob.class);  //todo: job_id in url
+		router.attach(prefix + "/jobs/cancel", CancelJob.class); 
 		router.attach(prefix + "/jobs/restart", RestartJob.class);
 
-		router.attach(prefix + "/jobs/newsubmit/{tool}", NewSubmitJob.class);
-		router.attach(prefix + "/jobs/newstate", NewGetJobStatus.class);
+		router.attach(prefix + "/jobs/newsubmit/{tool}", SubmitJob.class);
+		router.attach(prefix + "/jobs/newstate", GetJobStatus.class);  //todo: job_id in url
 
 		router.attach(prefix + "/counters", GetCounter.class);
 
@@ -133,16 +133,14 @@ public class WebApp extends Application {
 
 		// router.attach("/killAllJobs", KillAllJobs.class);
 
-		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
+		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);  //todo: jobs/job_id/results/...
 		router.attach(prefix + "/results/{job}/{id}/{filename}",
 				DownloadResults.class);
-		router.attach(prefix + "/results/{job}/{id}/{filename}/{filename2}",
-				DownloadResults.class);
+		
 		router.attach(prefix + "/share/{username}/{hash}/{filename}",
 				ShareResults.class);
 
-		router.attach(prefix + "/logs/{id}", GetLogs.class);
-		router.attach(prefix + "/logs/{id}/{file}", GetLogs.class);
+		router.attach(prefix + "/logs/{id}", GetLogs.class); //todo: jobs/job_id/logs/...
 
 		router.attach(prefix + "/import/validate", ValidateImport.class);
 
@@ -186,7 +184,6 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin/retire/start", StartRetire.class);
 
 		router.attach(prefix + "/updateUserSettings", UpdateUserSettings.class);
-		router.attach(prefix + "/updateCredentials", UpdateCredentials.class);
 		router.attach(prefix + "/updateUserPassword", UpdateUserPassword.class);
 
 		router.attach(prefix + "/console/logs/{logfile}",

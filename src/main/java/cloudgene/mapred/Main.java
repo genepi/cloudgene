@@ -41,18 +41,13 @@ public class Main implements Daemon {
 
 	// private static final Log log = LogFactory.getLog(Main.class);
 
-	public static final String VERSION = "1.10.0";
+	public static final String VERSION = "1.11.0";
 
 	private Database database;
 
 	private WebServer server;
-
-	private String[] args = new String[] {};
-
-	@Override
-	public void init(DaemonContext context) throws DaemonInitException,
-			Exception {
-		args = context.getArguments();
+	
+	public void runCloudgene(String[] args) throws Exception{
 		
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
@@ -282,6 +277,13 @@ public class Main implements Daemon {
 		}
 
 	}
+	
+	@Override
+	public void init(DaemonContext context) throws DaemonInitException,
+			Exception {
+		String[] args = context.getArguments();
+		runCloudgene(args);
+	}
 
 	@Override
 	public void start() throws Exception {
@@ -303,6 +305,6 @@ public class Main implements Daemon {
 
 	public static void main(String[] args) throws Exception {
 		Main main = new Main();
-		main.start();
+		main.runCloudgene(args);
 	}
 }

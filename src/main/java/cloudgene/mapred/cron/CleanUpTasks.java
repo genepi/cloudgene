@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.classification.InterfaceAudience.Public;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
@@ -30,25 +31,16 @@ public class CleanUpTasks {
 
 			if (job.getDeletedOn() < System.currentTimeMillis()) {
 
-				String localWorkspace = FileUtil.path(settings
-						.getLocalWorkspace(), job.getUser().getUsername());
-
-				String hdfsWorkspace = HdfsUtil.path(settings
-						.getHdfsWorkspace(), job.getUser().getUsername());
-
-				String localOutput = FileUtil.path(localWorkspace, "output",
-						job.getId());
+				// delete local directory and hdfs directory
+				String localOutput = FileUtil.path(
+						settings.getLocalWorkspace(), job.getId());
 
 				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(
-						hdfsWorkspace, "output", job.getId()));
-
-				String hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(
-						hdfsWorkspace, "input", job.getId()));
+						settings.getHdfsWorkspace(), job.getId()));
 
 				FileUtil.deleteDirectory(localOutput);
-
 				HdfsUtil.delete(hdfsOutput);
-				HdfsUtil.delete(hdfsInput);
+
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 
@@ -89,7 +81,12 @@ public class CleanUpTasks {
 				String body = application.getTemplate(Template.RETIRE_JOB_MAIL,
 						job.getUser().getFullName(), days, job.getName());
 
-				MailUtil.send(settings, job.getUser().getMail(), subject, body);
+				if (!job.getUser().getUsername().equals("public")) {
+
+					MailUtil.send(settings, job.getUser().getMail(), subject,
+							body);
+
+				}
 
 				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
 				job.setDeletedOn(System.currentTimeMillis()

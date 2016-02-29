@@ -16,7 +16,7 @@ public class UpdateTemplate extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 

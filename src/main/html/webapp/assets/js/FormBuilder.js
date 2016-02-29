@@ -28,7 +28,7 @@ function buildForm(application, element, params, submitButtonText) {
 				buildList(divControls, param);
 			} else if (param.type == "number") {
 				buildNumber(divControls, param);
-			} else if (param.type == "hdfs-file" || param.type == "local-folder") {
+			} else if (param.type == "hdfs-file" || param.type == "local-file") {
 				buildHdfsFile(divControls, param);
 			} else if (param.type == "hdfs-folder" || param.type == "local-folder") {
 				buildHdfsFolder(divControls, param);
@@ -37,7 +37,12 @@ function buildForm(application, element, params, submitButtonText) {
 			} else if (param.type == "number" || param.type == "text") {
 				buildText(divControls, param);
 			}
-			divControls.append('<span class="help-block"></span>');
+			
+			if(param.type == "hdfs-folder" || param.type == "local-folder"){
+				divControls.append('<span class="help-block">Multiple files can be selected by using the <span class="label">ctrl</span> / <span class="label">cmd</span> or <span class="label">shift</span> keys.</span>');	
+			}else{			
+				divControls.append('<span class="help-block"></span>');
+			}
 
 			divGroup.append(divControls);
 
@@ -152,10 +157,10 @@ function buildHdfsFolder(element, param) {
 	option.attr("selected", "selected");
 	select.append(option);
 
-	//option = $("<option></option>");
-	//option.attr("value", "http");
-	//option.text("URLs (HTTP) ");
-	//select.append(option);
+	option = $("<option></option>");
+	option.attr("value", "http");
+	option.text("URLs (HTTP) ");
+	select.append(option);
 
 	option = $("<option></option>");
 	option.attr("value", "sftp");
@@ -401,7 +406,10 @@ function buildList(element, param) {
 	var defaultSelection = false;
 	var select = $("<select></select>");
 	select.attr("name", param.id);
-
+	if (param.readOnly){
+		select.attr("disabled", "true");
+	}
+	
 	if (param.required) {
 		select.attr("data-required", "true");
 	}
@@ -435,6 +443,9 @@ function buildText(element, param) {
 	input.attr("name", param.id);
 	input.attr("type", "text");
 	input.attr("value", param.value);
+	if (param.readOnly){
+		input.attr("disabled", "true");
+	}
 	if (param.required) {
 		input.attr("data-required", "true");
 	}
@@ -450,6 +461,10 @@ function buildCheckbox(element, param) {
 	input.attr("name", param.id);
 	input.attr("type", "checkbox");
 	input.attr("value", param.value);
+	if (param.readOnly){
+		input.attr("disabled", "true");
+	}
+	
 	if (param.values["true"] == param.value) {
 		input.attr("checked", "true");
 	}

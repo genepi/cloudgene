@@ -1,10 +1,7 @@
 package cloudgene.mapred.wdl;
 
-import cloudgene.mapred.util.ExtJsTreeItem;
+public class WdlHeader {
 
-public class WdlHeader extends ExtJsTreeItem {
-
-	private boolean installed = false;
 	private String source = "";
 	private String description;
 	private String version;
@@ -12,6 +9,7 @@ public class WdlHeader extends ExtJsTreeItem {
 	private String name;
 	private String category;
 	private String author;
+	private String id;
 
 	public boolean isExpanded() {
 		return false;
@@ -25,17 +23,13 @@ public class WdlHeader extends ExtJsTreeItem {
 		return null;
 	}
 
-	public boolean isInstalled() {
-		return installed;
-	}
 
-	@Override
 	public String getText() {
 		return getName();
 	}
 
-	public void setInstalled(boolean installed) {
-		this.installed = installed;
+	public void setText(String text) {
+		setName(text);
 	}
 
 	public String getSource() {
@@ -92,6 +86,14 @@ public class WdlHeader extends ExtJsTreeItem {
 
 	public void setAuthor(String author) {
 		this.author = author;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 }

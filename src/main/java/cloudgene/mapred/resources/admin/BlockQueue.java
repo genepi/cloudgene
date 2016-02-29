@@ -6,7 +6,6 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
 
 public class BlockQueue extends BaseResource {
@@ -14,7 +13,7 @@ public class BlockQueue extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getUser(getRequest());
+		User user = getAuthUser();
 
 		if (user == null) {
 

@@ -34,12 +34,12 @@ public class UserDao extends JdbcDataAccessObject {
 			params[2] = user.getFullName();
 			params[3] = null;
 			params[4] = null;
-			params[5] = user.isSaveCredentials();
-			params[6] = user.isExportToS3();
-			params[7] = user.getS3Bucket();
+			params[5] = false;
+			params[6] = false;
+			params[7] = null;
 			params[8] = user.getMail();
 			params[9] = user.getRole();
-			params[10] = user.isExportInputToS3();
+			params[10] = false;
 			params[11] = user.getActivationCode();
 			params[12] = user.isActive();
 
@@ -70,12 +70,12 @@ public class UserDao extends JdbcDataAccessObject {
 			params[2] = user.getFullName();
 			params[3] = null;
 			params[4] = null;
-			params[5] = user.isSaveCredentials();
-			params[6] = user.isExportToS3();
-			params[7] = user.getS3Bucket();
+			params[5] = false;
+			params[6] = false;
+			params[7] = null;
 			params[8] = user.getMail();
 			params[9] = user.getRole();
-			params[10] = user.isExportInputToS3();
+			params[10] = false;
 			params[11] = user.isActive();
 			params[12] = user.getActivationCode();
 			params[13] = user.getId();
@@ -228,12 +228,8 @@ public class UserDao extends JdbcDataAccessObject {
 			user.setUsername(rs.getString("username"));
 			user.setPassword(rs.getString("password"));
 			user.setFullName(rs.getString("full_name"));
-			user.setSaveCredentials(rs.getBoolean("save_keys"));
-			user.setExportToS3(rs.getBoolean("export_to_s3"));
-			user.setS3Bucket(rs.getString("s3_bucket"));
 			user.setMail(rs.getString("mail"));
 			user.setRole(rs.getString("role"));
-			user.setExportInputToS3(rs.getBoolean("export_input_to_s3"));
 			user.setActivationCode(rs.getString("activation_code"));
 			user.setActive(rs.getBoolean("active"));
 			return user;
