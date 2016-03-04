@@ -104,7 +104,7 @@ public class SubmitJob extends BaseResource {
 		job.setLocalWorkspace(localWorkspace);
 		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(getSettings());
-		job.setRemoveHdfsWorkspace(true);
+		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(tool);
 
