@@ -42,15 +42,15 @@ public class ChangeGroupUser extends BaseResource {
 
 		if (id != null) {
 
-			// delete user from database
+			// update user role in database
 			UserDao dao = new UserDao(getDatabase());
 			User user1 = dao.findById(Integer.parseInt(id));
-			user1.setRole(form.getFirstValue("role"));
+			user.setRole(form.getFirstValue("role"));
 			dao.update(user1);
 
 			UserSessions sessions = getUserSessions();
 			sessions.updateUser(user1);
-			
+
 			JSONObject object = JSONObject.fromObject(user1);
 			return new StringRepresentation(object.toString());
 

@@ -21,12 +21,12 @@ public class ActivateUser extends BaseResource {
 
 		if (user != null) {
 
-			if (user.getActivationCode().equals(code)) {
+			if (user.getActivationCode() != null && user.getActivationCode().equals(code)) {
 
 				user.setActive(true);
 				user.setActivationCode("");
 				dao.update(user);
-				return new JSONAnswer("User sucessfully created.", true);
+				return new JSONAnswer("User sucessfully activated.", true);
 
 			} else {
 

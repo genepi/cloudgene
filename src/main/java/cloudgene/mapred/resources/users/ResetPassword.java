@@ -39,7 +39,8 @@ public class ResetPassword extends BaseResource {
 				return new JSONAnswer("Account is not activated.", false);
 			}
 
-			if (!user.getActivationCode().isEmpty()) {
+			if (user.getActivationCode() != null
+					&& !user.getActivationCode().isEmpty()) {
 				return new JSONAnswer("Recovery mail already sent to "
 						+ user.getMail(), false);
 			}
