@@ -8,6 +8,7 @@
 	<th style="width: 16px;"></th>		
 	<th style="width: 16px;"></th>
 	<th style="width: 16px;"></th>
+	<th style="width: 16px;"></th>
 </tr>	
 </thead>
 <tbody>
@@ -72,19 +73,24 @@
 
 		<td>
         		<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-        		<a href="/admin/jobs/<%= job.attr('id') %>/reset"><span class="icon-time" style="cursor: pointer;"></span></a>
+        		<a href="/admin/jobs/<%= job.attr('id') %>/reset" title="Reset counters"><span class="icon-time" style="cursor: pointer;"></span></a>
+        		<% } %>		
+		</td>
+		<td>
+        		<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
+        		<a href="/admin/jobs/<%= job.attr('id') %>/retire" title="Hot Retire: send notification now!"><span class="icon-fire" style="cursor: pointer;"></span></a>
         		<% } %>		
 		</td>
 		<td>		
-			<a href="/logs/<%= job.attr('id') %>" target="_blank">	<span class="icon-file" style="cursor: pointer;"></span></a>
+			<a href="/logs/<%= job.attr('id') %>" target="_blank" title="Show log file">	<span class="icon-file" style="cursor: pointer;"></span></a>
 		</td>
 		
 		<td>
         		<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-        			<span class="icon-remove" style="cursor: pointer;"></span>
+        			<span class="icon-remove" title ="Cancel job" style="cursor: pointer;"></span>
         		<% } %>
         		<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-        		<span class="icon-trash" style="cursor: pointer;"></span>
+        		<span class="icon-trash" title ="Delete job" style="cursor: pointer;"></span>
         		<% } %>		
 		</td>
     </tr>
