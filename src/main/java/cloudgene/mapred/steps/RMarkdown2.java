@@ -23,12 +23,12 @@ public class RMarkdown2 extends CloudgeneStep {
 
 		String wd = context.getWorkingDirectory();
 
-		String rmd = step.getRmd();
+		String rmd = step.getRmd2();
 		String output = step.getOutput();
 		String paramsString = step.getParams();
 		String[] params = paramsString.split(" ");
 
-		context.println("Running script " + step.getRmd() + "...");
+		context.println("Running script " + step.getRmd2() + "...");
 		context.println("Working Directory: " + wd);
 		context.println("Output: " + output);
 		context.println("Parameters:");
@@ -67,7 +67,7 @@ public class RMarkdown2 extends CloudgeneStep {
 		MyRScript script = new MyRScript(scriptFilename);
 		script.append("library(knitr)");
 		script.append("library(markdown)");
-		script.append("rmarkdown::render((\"" + rmdScript
+		script.append("rmarkdown::render(\"" + rmdScript
 				+ "\", output_file=\"" + outputHtml + "\")");
 
 		script.save();
