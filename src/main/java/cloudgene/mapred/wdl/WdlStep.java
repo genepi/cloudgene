@@ -18,10 +18,12 @@ public class WdlStep {
 	private String exec;
 
 	private String pig;
-	
+
 	private String spark;
 
 	private String rmd;
+
+	private String rmd2;
 
 	private String template;
 
@@ -32,7 +34,7 @@ public class WdlStep {
 	private String classname;
 
 	private String mainClass;
-	
+
 	private int id;
 
 	private boolean cache = false;
@@ -168,7 +170,7 @@ public class WdlStep {
 	public Map<String, String> getMapping() {
 		return mapping;
 	}
-	
+
 	public String getSpark() {
 		return spark;
 	}
@@ -177,13 +179,20 @@ public class WdlStep {
 		this.spark = spark;
 	}
 
-
 	public String getMainClass() {
 		return mainClass;
 	}
 
 	public void setMainClass(String mainClass) {
 		this.mainClass = mainClass;
+	}
+
+	public void setRmd2(String rmd2) {
+		this.rmd2 = rmd2;
+	}
+
+	public String getRmd2() {
+		return rmd2;
 	}
 
 }

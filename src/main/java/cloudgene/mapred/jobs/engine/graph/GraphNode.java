@@ -87,6 +87,11 @@ public class GraphNode implements Runnable {
 
 			// rscript
 			step.setClassname("cloudgene.mapred.steps.RMarkdown");
+			
+		} else if (step.getRmd2() != null) {
+
+			// rscript
+			step.setClassname("cloudgene.mapred.steps.RMarkdown2");
 
 		} else if (step.getTemplate() != null) {
 
