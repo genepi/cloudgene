@@ -19,22 +19,40 @@ function buildForm(application, element, params, submitButtonText) {
 			if (param.visible != true) {
 				divGroup.attr("style", "display:none");
 			}
-			buildLabel(divGroup, param);
-
-			divControls = $("<div></div>");
-			divControls.attr("class", "controls");
 
 			if (param.type == "list") {
+				buildLabel(divGroup, param);
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");
 				buildList(divControls, param);
 			} else if (param.type == "number") {
+				buildLabel(divGroup, param);
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");				
 				buildNumber(divControls, param);
 			} else if (param.type == "hdfs-file" || param.type == "local-file") {
+				buildLabel(divGroup, param);
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");
 				buildHdfsFile(divControls, param);
 			} else if (param.type == "hdfs-folder" || param.type == "local-folder") {
+				buildLabel(divGroup, param);
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");
 				buildHdfsFolder(divControls, param);
 			} else if (param.type == "checkbox") {
+				buildLabel(divGroup, param);
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");				
 				buildCheckbox(divControls, param);
+			} else if (param.type == "agbcheckbox") {
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");
+				buildAGBCheckbox(divControls, param);						
 			} else if (param.type == "number" || param.type == "text") {
+				buildLabel(divGroup, param);
+				divControls = $("<div></div>");
+				divControls.attr("class", "controls");				
 				buildText(divControls, param);
 			}
 			
@@ -470,6 +488,23 @@ function buildCheckbox(element, param) {
 	}
 	$(element).append(input);
 	input.bootstrapSwitch();
+}
+
+function buildAGBCheckbox(element, param) {
+	
+	var label = $("<label></label>");
+	label.attr('class', "checkbox");
+	
+	var input = $("<input></input>");
+	input.attr("id", param.id);
+	input.attr("name", param.id);
+	input.attr("type", "checkbox");
+	input.attr("value", param.value);
+	input.attr("class", "agb");
+	$(label).append(input);
+	$(label).append(param.description);
+
+	$(element).append(label);
 }
 
 function buildSubmitButton(element, submitButtonText) {

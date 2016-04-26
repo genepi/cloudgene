@@ -88,7 +88,24 @@ SubmitJobPage = can.Control({
 				}).closest('.control-group').find('.help-block').html(
 				"This parameter is required.");
 
-		if (faults.length > 0 || faults2.length > 0)
+		
+		// agb checkboxes
+
+		// reset
+
+		var faults3 = this.element.find('input').filter(
+				function() {
+					return $(this).attr('type') === 'checkbox' && $(this).attr('class') === 'agb' && $(this).attr('checked') != 'checked';
+				}).closest('.control-group').addClass('error');
+
+		this.element.find('input').filter(
+				function() {
+					return $(this).attr('type') === 'checkbox' && $(this).attr('class') === 'agb' && $(this).attr('checked') != 'checked';
+				}).closest('.control-group').find('.help-block').html(
+				"" +
+				"Please agree to the terms and conditions.");
+			
+		if (faults.length > 0 || faults2.length > 0 || faults3.length > 0)
 			return false; // if any required are empty, cancel submit
 
 		$("#waiting-dialog").modal();
