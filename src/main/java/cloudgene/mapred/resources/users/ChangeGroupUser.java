@@ -45,7 +45,7 @@ public class ChangeGroupUser extends BaseResource {
 			// update user role in database
 			UserDao dao = new UserDao(getDatabase());
 			User user1 = dao.findById(Integer.parseInt(id));
-			user.setRole(form.getFirstValue("role"));
+			user1.setRole(form.getFirstValue("role"));
 			dao.update(user1);
 
 			UserSessions sessions = getUserSessions();
