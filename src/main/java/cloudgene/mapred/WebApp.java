@@ -120,13 +120,30 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		router.attach(prefix + "/jobs", GetJobs.class);
-		router.attach(prefix + "/jobs/details", GetJobDetails.class); //todo: job_id in url
-		router.attach(prefix + "/jobs/delete", DeleteJob.class);  //todo: job_id in url
-		router.attach(prefix + "/jobs/cancel", CancelJob.class); 
+		router.attach(prefix + "/jobs/details", GetJobDetails.class); // todo:
+																		// job_id
+																		// in
+																		// url
+		router.attach(prefix + "/jobs/delete", DeleteJob.class); // todo: job_id
+																	// in url
+		router.attach(prefix + "/jobs/cancel", CancelJob.class);
 		router.attach(prefix + "/jobs/restart", RestartJob.class);
 
-		router.attach(prefix + "/jobs/newsubmit/{tool}", SubmitJob.class);
-		router.attach(prefix + "/jobs/newstate", GetJobStatus.class);  //todo: job_id in url
+		router.attach(prefix + "/jobs/submit/{tool}", SubmitJob.class);
+		router.attach(prefix + "/jobs/newstate", GetJobStatus.class); // todo:
+																		// job_id
+																		// in
+																		// url
+
+		// API
+		router.attach(prefix + "/api/v2/auth", LoginUser.class);
+		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
+		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/details", GetJobDetails.class);
+		/*router.attach(prefix + "/api/v2/jobs/{job}/results", SubmitJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/delete", SubmitJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/cancel", SubmitJob.class);*/
 
 		router.attach(prefix + "/counters", GetCounter.class);
 
@@ -134,14 +151,16 @@ public class WebApp extends Application {
 
 		// router.attach("/killAllJobs", KillAllJobs.class);
 
-		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);  //todo: jobs/job_id/results/...
+		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class); // todo:
+																				// jobs/job_id/results/...
 		router.attach(prefix + "/results/{job}/{id}/{filename}",
 				DownloadResults.class);
-		
+
 		router.attach(prefix + "/share/{username}/{hash}/{filename}",
 				ShareResults.class);
 
-		router.attach(prefix + "/logs/{id}", GetLogs.class); //todo: jobs/job_id/logs/...
+		router.attach(prefix + "/logs/{id}", GetLogs.class); // todo:
+																// jobs/job_id/logs/...
 
 		router.attach(prefix + "/import/validate", ValidateImport.class);
 

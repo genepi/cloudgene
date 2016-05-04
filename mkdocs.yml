@@ -7,6 +7,7 @@ pages:
 - Creating applications: creating-applications.md
 - cloudgene.yaml: cloudgene-yaml.md
 - application.yaml: application-yaml.md
+- API: api.md
 
 markdown_extensions:
     - toc:

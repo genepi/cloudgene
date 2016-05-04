@@ -37,7 +37,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		ClientResource resource = createClientResource("/jobs/newsubmit/wrong-application");
+		ClientResource resource = createClientResource("/jobs/submit/wrong-application");
 		try {
 			resource.post(form);
 		} catch (Exception e) {

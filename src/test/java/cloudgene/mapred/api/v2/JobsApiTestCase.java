@@ -37,7 +37,7 @@ public class JobsApiTestCase extends TestCase {
 	public String submitJob(String tool, FormDataSet form,
 			CookieSetting loginCookie) throws JSONException, IOException {
 
-		ClientResource resource = createClientResource("/jobs/newsubmit/"
+		ClientResource resource = createClientResource("/jobs/submit/"
 				+ tool, loginCookie);
 
 		resource.post(form);
