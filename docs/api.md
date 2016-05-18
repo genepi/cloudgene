@@ -30,7 +30,7 @@ import requests
 import json
 
 # imputation server url
-url = 'http://localhost:8082/api/v2'
+url = 'https://imputationserver.sph.umich.edu/api/v2'
 
 # authentication
 data = {'username': 'albert', 'password': 'einstain'}
@@ -90,7 +90,7 @@ import requests
 import json
 
 # imputation server url
-url = 'http://localhost:8082/api/v2'
+url = 'https://imputationserver.sph.umich.edu/api/v2'
 
 # add token to header (see authentication)
 headers = {'X-Auth-Token' : token }
@@ -135,7 +135,7 @@ import requests
 import json
 
 # imputation server url
-url = 'http://localhost:8082/api/v2'
+url = 'https://imputationserver.sph.umich.edu/api/v2'
 
 # add token to header (see authentication)
 headers = {'X-Auth-Token' : token }
