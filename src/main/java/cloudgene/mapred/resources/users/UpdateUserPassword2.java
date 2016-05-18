@@ -52,9 +52,6 @@ public class UpdateUserPassword2 extends BaseResource {
 		user.setActivationCode("");
 		dao.update(user);
 		
-		UserSessions sessions = getUserSessions();
-		sessions.updateUser(user);
-
 		return new JSONAnswer("Password sucessfully updated.", true);
 
 	}

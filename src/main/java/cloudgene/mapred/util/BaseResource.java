@@ -14,6 +14,7 @@ import org.restlet.resource.ServerResource;
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.WorkflowEngine;
 
@@ -45,7 +46,15 @@ public class BaseResource extends ServerResource {
 	}
 
 	public User getAuthUser() {
-		return getUserSessions().getUserByRequest(getRequest());
+
+		UserDao userDao = new UserDao(getDatabase());
+		String username = getUserSessions().getUserByRequest(getRequest());
+		if (username != null) {
+			return userDao.findByUsername(username);
+		} else {
+			return null;
+		}
+
 	}
 
 	public Settings getSettings() {

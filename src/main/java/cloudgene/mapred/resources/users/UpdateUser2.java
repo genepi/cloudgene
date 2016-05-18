@@ -61,9 +61,6 @@ public class UpdateUser2 extends BaseResource {
 
 			dao.update(newUser);
 
-			UserSessions sessions = getUserSessions();
-			sessions.updateUser(newUser);
-			
 		} else {
 
 			return new JSONAnswer("Please enter a username.", false);

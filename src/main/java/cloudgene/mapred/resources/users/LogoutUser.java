@@ -1,5 +1,6 @@
 package cloudgene.mapred.resources.users;
 
+import org.restlet.data.CookieSetting;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -18,9 +19,10 @@ public class LogoutUser extends BaseResource {
 
 		// logout and remove cookie
 		if (token != null) {
-			UserSessions sessions = getUserSessions();
-			sessions.logoutUserByToken(token);
-			getRequest().getCookies().removeAll(UserSessions.COOKIE_NAME);
+			
+			CookieSetting cookie = new CookieSetting(
+					UserSessions.COOKIE_NAME, "");
+			getResponse().getCookieSettings().add(cookie);
 		}
 
 		getResponse().redirectTemporary("index.html");

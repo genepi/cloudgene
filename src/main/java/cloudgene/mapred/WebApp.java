@@ -52,6 +52,7 @@ import cloudgene.mapred.resources.apps.GetApps;
 import cloudgene.mapred.resources.data.GetCounter;
 import cloudgene.mapred.resources.data.ValidateImport;
 import cloudgene.mapred.resources.users.ActivateUser;
+import cloudgene.mapred.resources.users.AuthUserAPI;
 import cloudgene.mapred.resources.users.ChangeGroupUser;
 import cloudgene.mapred.resources.users.DeleteUser;
 import cloudgene.mapred.resources.users.GetGroups;
@@ -136,7 +137,7 @@ public class WebApp extends Application {
 																		// url
 
 		// API
-		router.attach(prefix + "/api/v2/auth", LoginUser.class);
+		router.attach(prefix + "/api/v2/auth", AuthUserAPI.class);
 		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);

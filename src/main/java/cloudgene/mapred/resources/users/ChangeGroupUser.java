@@ -48,9 +48,6 @@ public class ChangeGroupUser extends BaseResource {
 			user1.setRole(form.getFirstValue("role"));
 			dao.update(user1);
 
-			UserSessions sessions = getUserSessions();
-			sessions.updateUser(user1);
-
 			JSONObject object = JSONObject.fromObject(user1);
 			return new StringRepresentation(object.toString());
 

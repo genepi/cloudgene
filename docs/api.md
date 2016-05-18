@@ -1,39 +1,57 @@
 # API v2.0
 
-The REST APIs provide programmatic ways to submit new jobs and to download data from Michigan Imputationsver. The REST API identifies users using authentication tokens; responses are available in JSON. You need an active user account to use this API.
+The REST APIs provide programmatic ways to submit new jobs and to download data from Michigan Imputation Server. The REST API identifies users using authentication tokens; responses are available in JSON. You need an active user account to use this API.
 
 ## Authentication
-**Request:**
+
+### POST /auth
+
+
+### Examples
+#### curl
 
 ```sh
-curl -c cookie.txt -d "loginUsername=admin" -d "loginPassword=ThY-236-kBJ-sNa"  https://imputationserver.sph.umich.edu/api/v2/auth
+curl -d "username=albert" -d "password=einstein"  https://imputationserver.sph.umich.edu/api/v2/auth
 ```
-
-**Response:**
 
 ```json
 {
   "message":"Login successfull.",
+  "token":"your-API-token",
   "type":"plain",
   "success":true
 }
 ```
 
-Todo:
-- rename loginUsername to username
-- rename loginPassword to password
-- remove cookies.
-- add "auth-token" to json response
+#### Python
 
+```python
+import requests
+import json
 
-## List all jobs
-**Request:**
+# imputation server url
+url = 'http://localhost:8082/api/v2'
 
-```sh
-curl -b cookie.txt https://imputationserver.sph.umich.edu/api/v2/jobs
+# authentication
+data = {'username': 'albert', 'password': 'einstain'}
+r = requests.post(url + "/auth", data=data)
+if r.status_code != 200:
+    raise Exception('POST /auth/ {}'.format(r.status_code))
+
+# read token
+token = r.json()["token"]
 ```
 
-**Response:**
+## List all jobs
+
+### GET /jobs
+
+### Examples
+#### curl
+
+```sh
+curl -H "X-Auth-Token: your-API-token" https://imputationserver.sph.umich.edu/api/v2/jobs
+```
 
 ```json
 [
@@ -65,19 +83,42 @@ curl -b cookie.txt https://imputationserver.sph.umich.edu/api/v2/jobs
 ]
 ```
 
+#### Python
+
+```python
+import requests
+import json
+
+# imputation server url
+url = 'http://localhost:8082/api/v2'
+
+# add token to header (see authentication)
+headers = {'X-Auth-Token' : token }
+
+# get all jobs
+r = requests.get(url + "/jobs", headers=headers)
+if r.status_code != 200:
+    raise Exception('GET /jobs/ {}'.format(r.status_code))
+
+# print all jobs
+for job in r.json():
+    print('{} [{}]'.format(job['id'], job['state']))
+```
 
 Todo:
 - remove positionInQueue
 - replace states with constants (e.g. RUNNING, WAITING, ...)
 
 ## Submit new job
-**Request:**
+
+### POST /jobs/submit/minimac
+
+### Examples
+#### curl
 
 ```sh
-curl -b cookie.txt -F "input-files=@/home/lukas/cloud/Shared/Genepi/Testdata/imputationserver/chr20.R50.merged.1.330k.recode.unphased.vcf.gz" https://imputationserver.sph.umich.edu/api/v2/jobs/submit/minimac
+curl -H "X-Auth-Token: your-API-token" -F "input-files=@/home/lukas/cloud/Shared/Genepi/Testdata/imputationserver/chr20.R50.merged.1.330k.recode.unphased.vcf.gz" https://imputationserver.sph.umich.edu/api/v2/jobs/submit/minimac
 ```
-
-**Response:**
 
 ```json
 {
@@ -87,14 +128,40 @@ curl -b cookie.txt -F "input-files=@/home/lukas/cloud/Shared/Genepi/Testdata/imp
 }
 ```
 
-## Monitor job status
-**Request:**
+#### Python
 
-```sh
-curl -b cookie.txt https://imputationserver.sph.umich.edu/api/v2/jobs/job-20160504-155023/status
+```python
+import requests
+import json
+
+# imputation server url
+url = 'http://localhost:8082/api/v2'
+
+# add token to header (see authentication)
+headers = {'X-Auth-Token' : token }
+
+# submit new job
+vcf = '/home/lukas/cloud/Shared/Genepi/Testdata/imputationserver/chr20.R50.merged.1.330k.recode.unphased.vcf.gz';
+files = {'input-files' : open(vcf, 'rb')}
+r = requests.post(url + "/jobs/submit/minimac", files=files, headers=headers)
+if r.status_code != 200:
+    raise Exception('POST /jobs/submit/minimac {}'.format(r.status_code))
+
+# print message
+print r.json()['message']
+print r.json()['id']
 ```
 
-**Response:**
+## Monitor job status
+
+### /jobs/{id}/status
+
+### Examples
+#### curl
+
+```sh
+curl-H "X-Auth-Token: your-API-token" https://imputationserver.sph.umich.edu/api/v2/jobs/job-20160504-155023/status
+```
 
 ```json
 {
@@ -120,13 +187,15 @@ Todo:
 - replace states with constants (e.g. RUNNING, WAITING, ...)
 
 ## Get job details
-**Request:**
+
+### GET /jobs/{id}/details
+
+### Examples
+#### curl
 
 ```sh
-curl -b cookie.txt https://imputationserver.sph.umich.edu/api/v2/jobs/job-20160504-155023/details
+curl --H "X-Auth-Token: your-API-token" https://imputationserver.sph.umich.edu/api/v2/jobs/job-20160504-155023/details
 ```
-
-**Response:**
 
 ```json
 {

@@ -34,9 +34,6 @@ public class UpdateUserSettings extends BaseResource {
 				UserDao dao = new UserDao(getDatabase());
 				dao.update(user);
 
-				UserSessions sessions = getUserSessions();
-				sessions.updateUser(user);
-
 				return new JSONAnswer("Password sucessfully updated.", true);
 
 			} catch (JSONException e) {

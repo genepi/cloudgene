@@ -1,79 +1,72 @@
 package cloudgene.mapred.core;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import net.minidev.json.JSONObject;
 
 import org.restlet.Request;
 
 public class UserSessions {
 
-	private Map<String, User> users;
+	public static String KEY = "my-scret-key";
 
-	public static final String COOKIE_NAME = "emi_session_id";
+	public static final String COOKIE_NAME = "cloudgene-token";
 
 	public UserSessions() {
-		users = new HashMap<String, User>();
 	}
 
 	public String loginUser(User user) {
-		String token = generateToken();
-		users.put(token, user);
+
+		JSONObject playload = new JSONObject();
+		playload.put("username", user.getUsername());
+		playload.put("name", user.getFullName());
+		playload.put("mail", user.getMail());
+
+		String token = JWT.generate(playload, KEY);
+
 		return token;
 	}
 
-	public void logoutUserByToken(String token) {
-		users.remove(token);
+	public String getUserByPayload(JSONObject payload) {
+		return payload.get("username").toString();
 	}
 
-	public User getUserByToken(String token) {
-		return users.get(token);
-	}
-
-	public User getUserByRequest(Request request) {
+	public String getUserByRequest(Request request) {
 		String token = request.getCookies().getFirstValue(COOKIE_NAME);
 
+		// check cookie
 		if (token != null) {
-			return getUserByToken(token);
+
+			JSONObject payload = JWT.validate(token, KEY);
+
+			if (payload != null) {
+
+				return getUserByPayload(payload);
+
+			} else {
+
+				// invalid access-token
+
+				return null;
+			}
+
 		} else {
-			return null;
-		}
 
-	}
+			// check auth header
 
-	public void updateUser(User user) {
+			JSONObject payload = JWT.validate(request, KEY);
 
-		for (String token : users.keySet()) {
-			if (users.get(token).getUsername().equals(user.getUsername())) {
-				users.put(token, user);
+			if (payload != null) {
+
+				return getUserByPayload(payload);
+
+			} else {
+
+				// invalid access-token
+
+				return null;
+
 			}
 		}
 
-	}
-
-	private String generateToken() {
-		// get current Time
-		long currentTime = System.currentTimeMillis();
-		// generate random number between 0 and 1000
-		Random generator2 = new Random(currentTime);
-		int randomIndex = generator2.nextInt(1000);
-		// multiply two values
-		String s = String.valueOf(currentTime * randomIndex);
-		// calculate MD5 value
-		MessageDigest m = null;
-		try {
-			m = MessageDigest.getInstance("MD5");
-			m.update(s.getBytes(), 0, s.length());
-			String cookieValue = new BigInteger(1, m.digest()).toString(16);
-			return cookieValue;
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 }

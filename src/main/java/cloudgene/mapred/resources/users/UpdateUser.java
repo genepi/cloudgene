@@ -48,9 +48,6 @@ public class UpdateUser extends BaseResource {
 				newUser.setPassword(HashUtil.getMD5(newPassword));
 
 				dao.update(newUser);
-
-				UserSessions sessions = getUserSessions();
-				sessions.updateUser(newUser);
 				
 			} else {
 

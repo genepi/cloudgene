@@ -39,9 +39,6 @@ public class UpdateUserPassword extends BaseResource {
 
 						UserDao dao = new UserDao(getDatabase());
 						dao.update(user);
-
-						UserSessions sessions = getUserSessions();
-						sessions.updateUser(user);
 						
 					} else {
 

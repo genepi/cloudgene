@@ -31,34 +31,21 @@ public class LoginFilter extends Filter {
 
 		String path = request.getResourceRef().getPath();
 
-		System.out.println(path.toLowerCase());
-		
 		if (path.toLowerCase().equals(prefix + loginPage)) {
-			String token = request.getCookies().getFirstValue(
-					UserSessions.COOKIE_NAME);
-			if (token != null) {
-				User user = sessions.getUserByToken(token);
-				if (user != null) {
-					response.redirectTemporary(prefix + "/start.html");
-					return STOP;
-				}
+			String user = sessions.getUserByRequest(request);
+			if (user != null) {
+				response.redirectTemporary(prefix + "/start.html");
+				return STOP;
 			}
+
 		}
 
 		if (isProtected(path)) {
 
-			String token = request.getCookies().getFirstValue(
-					UserSessions.COOKIE_NAME);
-
-			if (token == null) {
+			String user = sessions.getUserByRequest(request);
+			if (user == null) {
 				response.redirectTemporary(prefix + loginPage);
 				return STOP;
-			} else {
-				User user = sessions.getUserByToken(token);
-				if (user == null) {
-					response.redirectTemporary(prefix + loginPage);
-					return STOP;
-				}
 			}
 
 		}
