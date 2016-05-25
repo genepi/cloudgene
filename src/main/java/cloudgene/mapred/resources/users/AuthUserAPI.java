@@ -26,6 +26,10 @@ public class AuthUserAPI extends BaseResource {
 		String password = form.getFirstValue("password");
 		password = HashUtil.getMD5(password);
 
+		if (username == null || password == null){
+			return error(Status.CLIENT_ERROR_BAD_REQUEST, "Wrong parameters.");
+		}
+		
 		UserDao dao = new UserDao(getDatabase());
 		User user = dao.findByUsername(username);
 
@@ -53,7 +57,7 @@ public class AuthUserAPI extends BaseResource {
 				return error401("Login Failed! Wrong Username or Password.");
 			}
 		} else {
-			return error(Status.CLIENT_ERROR_BAD_REQUEST, "Wrong parameters.");
+			return error401("Login Failed! Wrong Username or Password.");
 		}
 	}
 
