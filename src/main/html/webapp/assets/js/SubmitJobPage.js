@@ -125,7 +125,7 @@ SubmitJobPage = can.Control({
 				}
 			},
 
-			error: function(answer) {
+			error: function(message) {
 				$("#waiting-dialog").modal('hide');
 				new ErrorPage("#content", {
 					status : message.statusText,
