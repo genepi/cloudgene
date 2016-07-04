@@ -110,7 +110,8 @@ public class WdlReader {
 					"cloudgene.yaml"));
 		} else {
 			// new style
-			manifest = new File(name + ".yaml");
+			System.out.println("name: " + name);
+			manifest = new File(name.replaceAll("~", "/") + ".yaml");
 		}
 
 		if (manifest.exists()) {
@@ -151,7 +152,7 @@ public class WdlReader {
 
 					// old style
 
-					if (dir.isDirectory() && manifest.exists()) {
+					/*if (dir.isDirectory() && manifest.exists()) {
 						filename = manifest.getAbsolutePath();
 						try {
 
@@ -168,14 +169,14 @@ public class WdlReader {
 							e.printStackTrace();
 						}
 
-					}
+					}*/
 
 					// new style: all other yaml files.
 					if (dir.isDirectory()) {
 						File[] filesInDir = dir.listFiles();
 						for (File file : filesInDir) {
 							if (file.getName().endsWith(".yaml")
-									&& !file.getName().equals("cloudgene.yaml")) {
+									) {
 								try {
 									filename = file.getAbsolutePath();
 									WdlApp app = loadAppFromFile(filename);
@@ -184,7 +185,7 @@ public class WdlReader {
 
 									if (meta != null && app.getMapred() != null) {
 
-										meta.setId(dir.getName());
+										meta.setId(dir.getName()+"~"+file.getName().replaceAll(".yaml",""));
 										listApps.add(meta);
 
 									}

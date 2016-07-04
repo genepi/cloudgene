@@ -365,7 +365,7 @@ public class Settings {
 
 		} else {
 
-			String filename = FileUtil.path("apps", id, "cloudgene.yaml");
+			String filename = FileUtil.path("apps", id.replaceAll("~", "/") + ".yaml");
 
 			return filename;
 
