@@ -125,8 +125,13 @@ SubmitJobPage = can.Control({
 				}
 			},
 
-			error: function(answer) {
-				$("#waiting-text").html(answer.message);
+			error: function(message) {
+				$("#waiting-dialog").modal('hide');
+				new ErrorPage("#content", {
+					status : message.statusText,
+					message : message.responseText
+				});
+				
 			},
 
 			uploadProgress: function(event, position, total, percentComplete) {
