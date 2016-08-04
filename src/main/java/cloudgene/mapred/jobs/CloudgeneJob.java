@@ -1,6 +1,7 @@
 package cloudgene.mapred.jobs;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.importer.FileItem;
 import genepi.io.FileUtil;
 
 import java.io.File;
@@ -17,7 +18,6 @@ import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
-import cloudgene.mapred.util.FileItem;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlMapReduce;
@@ -99,7 +99,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean setup() {
 
 		context = new CloudgeneContext(this);
-		//context.updateInputParameters();
+		// context.updateInputParameters();
 		context.setupOutputParameters();
 
 		return true;
@@ -151,11 +151,10 @@ public class CloudgeneJob extends AbstractJob {
 			onFailure();
 			setStartTime(System.currentTimeMillis());
 			setEndTime(System.currentTimeMillis());
-			setError("Job Execution failed.");			
+			setError("Job Execution failed.");
 			return false;
 		}
 
-		
 		WdlStep step = getConfig().getSetup();
 
 		if (step != null) {
@@ -221,6 +220,8 @@ public class CloudgeneJob extends AbstractJob {
 				writeLog("Executing onFailure... ");
 				GraphNode node = new GraphNode(step, context);
 				context.setData("cloudgene.failedStep", failedStep);
+				context.setData("cloudgene.failedStep.classname",
+						failedStep.getClassname());
 				node.run();
 				boolean result = node.isSuccessful();
 				if (result) {

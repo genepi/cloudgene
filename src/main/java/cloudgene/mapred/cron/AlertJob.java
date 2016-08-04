@@ -1,12 +1,13 @@
 package cloudgene.mapred.cron;
 
+import genepi.hadoop.HadoopUtil;
+
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import cloudgene.mapred.WebApp;
-import cloudgene.mapred.util.HadoopUtil;
 import cloudgene.mapred.util.MailUtil;
 
 public class AlertJob implements Job {

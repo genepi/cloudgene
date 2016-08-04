@@ -1,5 +1,6 @@
 package cloudgene.mapred.util;
 
+import genepi.hadoop.importer.FileItem;
 import genepi.io.FileUtil;
 
 import java.io.File;

@@ -1,10 +1,10 @@
 package cloudgene.mapred.steps;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.importer.IImporter;
+import genepi.hadoop.importer.ImporterFactory;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.steps.importer.IImporter;
-import cloudgene.mapred.steps.importer.ImporterFactory;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class HdfsImporter extends Hadoop {

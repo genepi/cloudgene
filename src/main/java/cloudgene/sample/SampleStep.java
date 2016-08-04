@@ -1,5 +1,6 @@
 package cloudgene.sample;
 
+import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.hadoop.common.WorkflowStep;
@@ -10,7 +11,6 @@ import java.io.File;
 import org.apache.hadoop.mapred.ClusterStatus;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
-import cloudgene.mapred.util.HadoopUtil;
 import cloudgene.mapred.util.Settings;
 
 public class SampleStep extends WorkflowStep {
@@ -36,16 +36,16 @@ public class SampleStep extends WorkflowStep {
 
 		String filename = context.getInput("testfile");
 		context.ok(FileUtil.readFileAsString(filename));
-		
+
 		context.ok(state.toString());
-context.beginTask("waiting....");
+		context.beginTask("waiting....");
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		String hadoopPath = settings.getHadoopPath();
 
 		if (hadoopPath.trim().isEmpty()) {
@@ -106,40 +106,43 @@ context.beginTask("waiting....");
 		context.ok("Local File System check");
 
 		String outputFolder = context.getOutput("stats");
-		
-		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "1.txt"), new StringBuffer("file 1"));
-		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "2.txt"), new StringBuffer("file 2"));
-		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "3.txt"), new StringBuffer("file 3"));
-		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "4.txt"), new StringBuffer("file 4"));
-		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "5.txt"), new StringBuffer("file 5"));
-		
-		
+
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "1.txt"),
+				new StringBuffer("file 1"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "2.txt"),
+				new StringBuffer("file 2"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "3.txt"),
+				new StringBuffer("file 3"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "4.txt"),
+				new StringBuffer("file 4"));
+		FileUtil.writeStringBufferToFile(FileUtil.path(outputFolder, "5.txt"),
+				new StringBuffer("file 5"));
+
 		/*
-		// Mail Server....
-		String mail = context.get("cloudgene.user.mail");
-		if (mail != null) {
-
-			String subject = "Mail Server Test";
-			String message = "This email was sent by Cloudgene to test your mail-server settings.";
-
-			try {
-
-				context.sendMail(subject, message);
-
-				context.ok("We have sent a test-email to <b>" + mail + "</b>.");
-
-			} catch (Exception e) {
-				context.error("Sending mail failed: " + e.getMessage());
-				return false;
-			}
-
-		} else {
-
-			context.error("No email address found. Please enter your email address (Account -> Profile).");
-			return false;
-
-		}
-*/
+		 * // Mail Server.... String mail = context.get("cloudgene.user.mail");
+		 * if (mail != null) {
+		 * 
+		 * String subject = "Mail Server Test"; String message =
+		 * "This email was sent by Cloudgene to test your mail-server settings."
+		 * ;
+		 * 
+		 * try {
+		 * 
+		 * context.sendMail(subject, message);
+		 * 
+		 * context.ok("We have sent a test-email to <b>" + mail + "</b>.");
+		 * 
+		 * } catch (Exception e) { context.error("Sending mail failed: " +
+		 * e.getMessage()); return false; }
+		 * 
+		 * } else {
+		 * 
+		 * context.error(
+		 * "No email address found. Please enter your email address (Account -> Profile)."
+		 * ); return false;
+		 * 
+		 * }
+		 */
 		context.ok("<b>Congratulations.</b> Cloudgene works properly on your Hadoop Cluster!");
 
 		return true;

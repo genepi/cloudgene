@@ -1,5 +1,7 @@
 package cloudgene.mapred.resources.admin;
 
+import genepi.hadoop.HadoopUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -19,7 +21,6 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.HadoopUtil;
 
 public class GetClusterDetails extends BaseResource {
 

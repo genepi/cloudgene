@@ -1,5 +1,6 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
@@ -19,7 +20,6 @@ import org.apache.hadoop.mapred.RunningJob;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.util.HadoopUtil;
 
 public abstract class Hadoop extends CloudgeneStep {
 

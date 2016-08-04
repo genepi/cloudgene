@@ -1,5 +1,9 @@
 package cloudgene.mapred.resources.data;
 
+import genepi.hadoop.importer.FileItem;
+import genepi.hadoop.importer.IImporter;
+import genepi.hadoop.importer.ImporterFactory;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -11,10 +15,6 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
-
-import cloudgene.mapred.steps.importer.IImporter;
-import cloudgene.mapred.steps.importer.ImporterFactory;
-import cloudgene.mapred.util.FileItem;
 
 public class ValidateImport extends ServerResource {
 
