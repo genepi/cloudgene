@@ -10,7 +10,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
@@ -37,8 +37,7 @@ public class AuthUserAPI extends BaseResource {
 			if (user.getPassword().equals(password) && user.isActive()) {
 
 				// create token
-				UserSessions sessions = getUserSessions();
-				String token = sessions.loginUser(user);
+				String token = JWTUtil.createToken(user);
 
 				// return token
 

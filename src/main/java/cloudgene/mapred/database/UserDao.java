@@ -24,12 +24,12 @@ public class UserDao extends JdbcDataAccessObject {
 
 	public boolean insert(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+		sql.append("insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,?) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[13];
+			Object[] params = new Object[14];
 			params[0] = user.getUsername().toLowerCase();
 			params[1] = user.getPassword();
 			params[2] = user.getFullName();
@@ -43,6 +43,7 @@ public class UserDao extends JdbcDataAccessObject {
 			params[10] = false;
 			params[11] = user.getActivationCode();
 			params[12] = user.isActive();
+			params[13] = user.getApiToken();
 
 			int id = insert(sql.toString(), params);
 
@@ -60,12 +61,12 @@ public class UserDao extends JdbcDataAccessObject {
 
 	public boolean update(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ? ");
+		sql.append("update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ? ");
 		sql.append("where id = ?");
 
 		try {
 
-			Object[] params = new Object[14];
+			Object[] params = new Object[15];
 			params[0] = user.getUsername().toLowerCase();
 			params[1] = user.getPassword();
 			params[2] = user.getFullName();
@@ -79,7 +80,8 @@ public class UserDao extends JdbcDataAccessObject {
 			params[10] = false;
 			params[11] = user.isActive();
 			params[12] = user.getActivationCode();
-			params[13] = user.getId();
+			params[13] = user.getApiToken();
+			params[14] = user.getId();
 
 			update(sql.toString(), params);
 
@@ -233,6 +235,7 @@ public class UserDao extends JdbcDataAccessObject {
 			user.setRole(rs.getString("role"));
 			user.setActivationCode(rs.getString("activation_code"));
 			user.setActive(rs.getBoolean("active"));
+			user.setApiToken(rs.getString("api_token"));
 			return user;
 		}
 

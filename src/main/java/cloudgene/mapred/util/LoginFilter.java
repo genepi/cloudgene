@@ -6,7 +6,7 @@ import org.restlet.routing.Filter;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 
 public class LoginFilter extends Filter {
 
@@ -14,15 +14,12 @@ public class LoginFilter extends Filter {
 
 	private String[] protectedRequests;
 
-	private UserSessions sessions;
-
 	private String prefix = "";
 
 	public LoginFilter(String loginPage, String prefix,
-			String[] protectedRequests, UserSessions sessions) {
+			String[] protectedRequests) {
 		this.loginPage = loginPage;
 		this.protectedRequests = protectedRequests;
-		this.sessions = sessions;
 		this.prefix = prefix;
 	}
 
@@ -32,7 +29,7 @@ public class LoginFilter extends Filter {
 		String path = request.getResourceRef().getPath();
 
 		if (path.toLowerCase().equals(prefix + loginPage)) {
-			String user = sessions.getUserByRequest(request);
+			String user = JWTUtil.getUserByRequest(request);
 			if (user != null) {
 				response.redirectTemporary(prefix + "/start.html");
 				return STOP;
@@ -42,7 +39,7 @@ public class LoginFilter extends Filter {
 
 		if (isProtected(path)) {
 
-			String user = sessions.getUserByRequest(request);
+			String user = JWTUtil.getUserByRequest(request);
 			if (user == null) {
 				response.redirectTemporary(prefix + loginPage);
 				return STOP;

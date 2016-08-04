@@ -10,7 +10,7 @@ import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
 
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.cron.CronJobScheduler;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
@@ -20,8 +20,6 @@ public class WebServer extends Component {
 	private Database database;
 
 	private Settings settings;
-
-	private UserSessions sessions;
 
 	private int port;
 
@@ -93,7 +91,6 @@ public class WebServer extends Component {
 
 		WebApp webapp = new WebApp(rootDirectory, pagesDirectory);
 		webapp.setSettings(settings);
-		webapp.setSessions(sessions);
 		webapp.setDatabase(database);
 		webapp.setWorkflowEngine(workflowEngine);
 		webapp.reloadTemplates();
@@ -146,14 +143,6 @@ public class WebServer extends Component {
 
 	public void setSettings(Settings settings) {
 		this.settings = settings;
-	}
-
-	public UserSessions getSessions() {
-		return sessions;
-	}
-
-	public void setSessions(UserSessions sessions) {
-		this.sessions = sessions;
 	}
 
 	public WorkflowEngine getWorkflowEngine() {

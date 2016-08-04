@@ -6,7 +6,7 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
@@ -29,11 +29,10 @@ public class LoginUser extends BaseResource {
 			if (user.getPassword().equals(password) && user.isActive()) {
 
 				// create session
-				UserSessions sessions = getUserSessions();
-				String token = sessions.loginUser(user);
+				String token = JWTUtil.createToken(user);
 				// set cookie
 				CookieSetting cookie = new CookieSetting(
-						UserSessions.COOKIE_NAME, token);
+						JWTUtil.COOKIE_NAME, token);
 				getResponse().getCookieSettings().add(cookie);
 
 				return new JSONAnswer("Login successfull.", true);

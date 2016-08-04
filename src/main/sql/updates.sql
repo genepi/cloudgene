@@ -67,3 +67,8 @@ alter table job add column application varchar(300) null default null;
 
 -- 1.9.8
 alter table job add column application_id varchar(300) null default null;
+
+
+-- 1.16.0
+
+alter table user add column api_token varchar(300) null default null;

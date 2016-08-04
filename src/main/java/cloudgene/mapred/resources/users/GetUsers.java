@@ -39,8 +39,8 @@ public class GetUsers extends BaseResource {
 		List<User> users = dao.findAll();
 
 		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "password" });
-
+		config.setExcludes(new String[] { "password","apiToken" });
+		
 		JSONArray jsonArray = JSONArray.fromObject(users, config);
 
 		return new StringRepresentation(jsonArray.toString());

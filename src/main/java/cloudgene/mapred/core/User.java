@@ -18,6 +18,8 @@ public class User {
 
 	private String activationKey = null;
 
+	private String apiToken = null;
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
@@ -88,6 +90,14 @@ public class User {
 
 	public void setActivationCode(String activationKey) {
 		this.activationKey = activationKey;
+	}
+
+	public void setApiToken(String apiToken) {
+		this.apiToken = apiToken;
+	}
+
+	public String getApiToken() {
+		return apiToken;
 	}
 
 	@Override

@@ -24,7 +24,6 @@ import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
-import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -33,7 +32,7 @@ import cloudgene.mapred.util.Settings;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "1.15.0";
+	public static final String VERSION = "1.16.0";
 
 	private Database database;
 
@@ -223,7 +222,6 @@ public class Main implements Daemon {
 			server.setDatabase(database);
 			server.setSettings(settings);
 			server.setWorkflowEngine(engine);
-			server.setSessions(new UserSessions());
 
 			server.start();
 

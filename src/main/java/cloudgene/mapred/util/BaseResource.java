@@ -15,7 +15,7 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
 
@@ -42,14 +42,10 @@ public class BaseResource extends ServerResource {
 		return application;
 	}
 
-	public UserSessions getUserSessions() {
-		return application.getSessions();
-	}
-
 	public User getAuthUser() {
 
 		UserDao userDao = new UserDao(getDatabase());
-		String username = getUserSessions().getUserByRequest(getRequest());
+		String username = JWTUtil.getUserByRequest(getRequest());
 		if (username != null) {
 			return userDao.findByUsername(username);
 		} else {

@@ -27,7 +27,8 @@ import cloudgene.mapred.api.v2.jobs.GetLogs;
 import cloudgene.mapred.api.v2.jobs.RestartJob;
 import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.api.v2.users.ApiTokens;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
@@ -82,8 +83,6 @@ public class WebApp extends Application {
 	private Database database;
 
 	private Settings settings;
-
-	private UserSessions sessions;
 
 	private WorkflowEngine workflowEngine;
 
@@ -144,6 +143,10 @@ public class WebApp extends Application {
 				GetJobDetails.class);
 		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
 
+		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
+
+		
+		
 		router.attach(prefix + "/counters", GetCounter.class);
 
 		router.attach(prefix + "/cluster", GetClusterDetails.class);
@@ -224,7 +227,7 @@ public class WebApp extends Application {
 
 		String[] protectedFiles = { prefix + "/start.html" };
 		LoginFilter filter = new LoginFilter("/index.html", prefix,
-				protectedFiles, getSessions());
+				protectedFiles);
 		filter.setNext(router);
 
 		return filter;
@@ -248,14 +251,6 @@ public class WebApp extends Application {
 
 	public void setSettings(Settings settings) {
 		this.settings = settings;
-	}
-
-	public UserSessions getSessions() {
-		return sessions;
-	}
-
-	public void setSessions(UserSessions sessions) {
-		this.sessions = sessions;
 	}
 
 	public WorkflowEngine getWorkflowEngine() {

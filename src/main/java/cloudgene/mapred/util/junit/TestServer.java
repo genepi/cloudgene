@@ -20,7 +20,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -299,7 +299,6 @@ public class TestServer {
 				server.setDatabase(database);
 				server.setSettings(settings);
 				server.setWorkflowEngine(engine);
-				server.setSessions(new UserSessions());
 
 				server.start();
 

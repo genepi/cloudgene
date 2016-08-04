@@ -88,7 +88,7 @@ public class GetAllJobs extends BaseResource {
 				"removeHdfsWorkspace", "settings", "setupComplete",
 				"stdOutFile", "steps", "workingDirectory", "activationCode",
 				"active", "admin", "awsKey", "awsSecretKey", "exportInputToS3",
-				"exportToS3", "password", "s3Bucket", "saveCredentials","map","reduce" });
+				"exportToS3", "password", "apiToken", "s3Bucket", "saveCredentials","map","reduce" });
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 
 		return new StringRepresentation(jsonArray.toString());

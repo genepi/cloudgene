@@ -5,7 +5,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
-import cloudgene.mapred.core.UserSessions;
+import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.util.BaseResource;
 
 public class LogoutUser extends BaseResource {
@@ -15,13 +15,13 @@ public class LogoutUser extends BaseResource {
 		StringRepresentation representation = null;
 
 		String token = getRequest().getCookies().getFirstValue(
-				UserSessions.COOKIE_NAME);
+				JWTUtil.COOKIE_NAME);
 
 		// logout and remove cookie
 		if (token != null) {
 			
 			CookieSetting cookie = new CookieSetting(
-					UserSessions.COOKIE_NAME, "");
+					JWTUtil.COOKIE_NAME, "");
 			getResponse().getCookieSettings().add(cookie);
 		}
 

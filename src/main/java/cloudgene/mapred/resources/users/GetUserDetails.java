@@ -32,9 +32,11 @@ public class GetUserDetails extends BaseResource {
 		User updatedUser = dao.findByUsername(user.getUsername());
 
 		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "password" });
+		config.setExcludes(new String[] { "password", "apiToken" });
 
 		JSONObject object = JSONObject.fromObject(updatedUser, config);
+		object.put("hasApiToken", user.getApiToken() != null
+				&& !user.getApiToken().isEmpty());
 
 		StringRepresentation representation = new StringRepresentation(
 				object.toString(), MediaType.APPLICATION_JSON);

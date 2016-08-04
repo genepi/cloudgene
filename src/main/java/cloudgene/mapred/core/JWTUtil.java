@@ -4,16 +4,16 @@ import net.minidev.json.JSONObject;
 
 import org.restlet.Request;
 
-public class UserSessions {
+public class JWTUtil {
 
 	public static String KEY = "my-scret-key";
 
 	public static final String COOKIE_NAME = "cloudgene-token";
 
-	public UserSessions() {
+	public JWTUtil() {
 	}
 
-	public String loginUser(User user) {
+	public static String createToken(User user) {
 
 		JSONObject playload = new JSONObject();
 		playload.put("username", user.getUsername());
@@ -25,11 +25,11 @@ public class UserSessions {
 		return token;
 	}
 
-	public String getUserByPayload(JSONObject payload) {
+	public static String getUserByPayload(JSONObject payload) {
 		return payload.get("username").toString();
 	}
 
-	public String getUserByRequest(Request request) {
+	public static String getUserByRequest(Request request) {
 		String token = request.getCookies().getFirstValue(COOKIE_NAME);
 
 		// check cookie
