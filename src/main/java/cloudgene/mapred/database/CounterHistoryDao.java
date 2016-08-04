@@ -1,5 +1,9 @@
 package cloudgene.mapred.database;
 
+import genepi.db.Database;
+import genepi.db.JdbcDataAccessObject;
+
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,9 +16,6 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import cloudgene.mapred.database.util.Database;
-import cloudgene.mapred.database.util.JdbcDataAccessObject;
 
 public class CounterHistoryDao extends JdbcDataAccessObject {
 
@@ -133,7 +134,8 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 	}
 
 	protected ResultSet query(String sql) throws SQLException {
-		PreparedStatement statement = getConnection().prepareStatement(sql);
+		Connection connection = database.getDataSource().getConnection();
+		PreparedStatement statement = connection.prepareStatement(sql);
 		return statement.executeQuery();
 	}
 

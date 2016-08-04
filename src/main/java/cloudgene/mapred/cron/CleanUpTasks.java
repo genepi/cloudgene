@@ -1,5 +1,6 @@
 package cloudgene.mapred.cron;
 
+import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
@@ -11,7 +12,6 @@ import org.apache.hadoop.classification.InterfaceAudience.Public;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
@@ -64,9 +64,10 @@ public class CleanUpTasks {
 
 		JobDao dao = new JobDao(database);
 
-		List<AbstractJob> oldJobs = dao
-				.findAllOlderThan(settings.getNotificationAfterInSec(),
-						AbstractJob.STATE_SUCCESS);
+		List<AbstractJob> oldJobs = dao.findAllOlderThan(
+				System.currentTimeMillis()
+						- settings.getNotificationAfterInSec() * 1000,
+				AbstractJob.STATE_SUCCESS);
 
 		int send = 0;
 
@@ -106,7 +107,9 @@ public class CleanUpTasks {
 
 		}
 
-		oldJobs = dao.findAllOlderThan(settings.getNotificationAfterInSec(),
+		oldJobs = dao.findAllOlderThan(
+				System.currentTimeMillis()
+						- settings.getNotificationAfterInSec() * 1000,
 				AbstractJob.STATE_FAILED);
 
 		int otherJobs = 0;
@@ -124,7 +127,9 @@ public class CleanUpTasks {
 
 		}
 
-		oldJobs = dao.findAllOlderThan(settings.getNotificationAfterInSec(),
+		oldJobs = dao.findAllOlderThan(
+				System.currentTimeMillis()
+						- settings.getNotificationAfterInSec() * 1000,
 				AbstractJob.STATE_CANCELED);
 
 		for (AbstractJob job : oldJobs) {

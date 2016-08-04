@@ -1,14 +1,13 @@
 package cloudgene.mapred;
 
+import genepi.db.Database;
+import genepi.db.DatabaseConnector;
+import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.io.InputStream;
 import java.sql.SQLException;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -25,30 +24,23 @@ import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.database.H2Connector;
-import cloudgene.mapred.database.TemplateDao;
-import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.database.util.Database;
-import cloudgene.mapred.database.util.DatabaseUpdater;
+import cloudgene.mapred.database.util.DatabaseConnectorFactory;
+import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.HashUtil;
+import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Template;
 
 public class Main implements Daemon {
-
-	// private static final Log log = LogFactory.getLog(Main.class);
 
 	public static final String VERSION = "1.13.0";
 
 	private Database database;
 
 	private WebServer server;
-	
-	public void runCloudgene(String[] args) throws Exception{
-		
+
+	public void runCloudgene(String[] args) throws Exception {
+
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
 
@@ -72,19 +64,7 @@ public class Main implements Daemon {
 		Log log = LogFactory.getLog(Main.class);
 
 		log.info("Cloudgene " + VERSION);
-		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
-		try {
-			URL url = cl.findResource("META-INF/MANIFEST.MF");
-			Manifest manifest = new Manifest(url.openStream());
-			Attributes attr = manifest.getMainAttributes();
-			String buildVesion = attr.getValue("Version");
-			String buildTime = attr.getValue("Build-Time");
-			String builtBy = attr.getValue("Built-By");
-			log.info("Built by " + builtBy + " on " + buildTime);
-
-		} catch (IOException E) {
-			// handle
-		}
+		log.info(BuildUtil.getBuildInfos());
 
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -115,45 +95,6 @@ public class Main implements Daemon {
 
 		}
 
-		H2Connector connector = new H2Connector("data/mapred", "mapred",
-				"mapred", false);
-
-		database = new Database();
-
-		try {
-
-			database.connect(connector);
-
-			log.info("Establish connection successful");
-
-		} catch (SQLException e) {
-
-			log.error("Establish connection failed", e);
-			System.exit(1);
-
-		}
-
-		// change??
-		if (connector.isNewDatabase()) {
-			File versionFile = new File("version.txt");
-			if (versionFile.exists()) {
-				versionFile.delete();
-			}
-		}
-
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,
-				"version.txt", "/updates.sql", VERSION, false);
-		if (askimedUpdater.needUpdate()) {
-			log.info("Database needs update.");
-			if (!askimedUpdater.update()) {
-				log.error("Updating database failed.");
-				database.disconnect();
-				System.exit(1);
-			}
-		} else {
-			log.info("Database is uptodate.");
-		}
-
 		// load config
 		Settings settings = null;
 		if (new File("config/settings.yaml").exists()) {
@@ -170,54 +111,75 @@ public class Main implements Daemon {
 		}
 
 		if (!settings.testPaths()) {
+			System.exit(1);
+		}
 
-			database.disconnect();
+		database = new Database();
+
+		// create h2 or mysql connector
+		DatabaseConnector connector = DatabaseConnectorFactory
+				.createConnector(settings.getDatabase());
+
+		if (connector == null) {
+
+			log.error("Unknown database driver");
 			System.exit(1);
 
+		}
+
+		//connect do database
+		try {
+
+			database.connect(connector);
+
+			log.info("Establish connection successful");
+
+		} catch (SQLException e) {
+
+			log.error("Establish connection failed", e);
+			System.exit(1);
+
+		}
+
+		// init schema
+		if (connector.isNewDatabase()) {
+
+			InputStream is = Main.class
+					.getResourceAsStream("/create-tables.sql");
+			connector.executeSQL(is);
+
+			File versionFile = new File("version.txt");
+			if (versionFile.exists()) {
+				versionFile.delete();
+			}
+		}
+
+		// update database schema if needed
+		InputStream is = Main.class.getResourceAsStream("/updates.sql");
+		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,
+				"version.txt", is, VERSION);
+
+		if (askimedUpdater.needUpdate()) {
+			log.info("Database needs update.");
+			if (!askimedUpdater.update()) {
+				log.error("Updating database failed.");
+				database.disconnect();
+				System.exit(1);
+			}
+		} else {
+			log.info("Database is uptodate.");
 		}
 
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
 
-		String username = "admin";
-		String password = "admin1978";
+		// insert fixtures
+		Fixtures.insert(database);
 
-		// insert user
-		UserDao dao = new UserDao(database);
-		User user = dao.findByUsername(username);
-		if (user == null) {
-			user = new User();
-			user.setUsername(username);
-			password = HashUtil.getMD5(password);
-			user.setPassword(password);
-			user.setRole("admin");
-
-			dao.insert(user);
-			log.info("User " + username + " created.");
-		} else {
-			log.info("User " + username + " already exists.");
-		}
-
-		// inser messages
-		TemplateDao htmlSnippetDao = new TemplateDao(database);
-
-		for (Template defaultSnippet : Template.SNIPPETS) {
-
-			Template snippet = htmlSnippetDao
-					.findByKey(defaultSnippet.getKey());
-			if (snippet == null) {
-				htmlSnippetDao.insert(defaultSnippet);
-				log.info("Template " + defaultSnippet.getKey() + " created.");
-			} else {
-				log.info("Template " + defaultSnippet.getKey()
-						+ " already exists.");
-			}
-
-		}
-
+		
+		// start workflow engine
 		try {
 
-			// start workflow engine
 			WorkflowEngine engine = new WorkflowEngine(database,
 					settings.getThreadsQueue(), settings.getThreadsQueue());
 			new Thread(engine).start();
@@ -277,7 +239,7 @@ public class Main implements Daemon {
 		}
 
 	}
-	
+
 	@Override
 	public void init(DaemonContext context) throws DaemonInitException,
 			Exception {
@@ -288,12 +250,10 @@ public class Main implements Daemon {
 	@Override
 	public void start() throws Exception {
 
-	
 	}
 
 	@Override
 	public void destroy() {
-		// TODO Auto-generated method stub
 
 	}
 

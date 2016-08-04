@@ -1,57 +1,57 @@
-CREATE TABLE USER( 
-	ID          INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	USERNAME	VARCHAR2(100) NOT NULL,
-	PASSWORD	VARCHAR2(100) NOT NULL,
-	FULL_NAME	VARCHAR2(100) NULL,
-	MAIL		VARCHAR2(100) NULL,
-	ROLE		VARCHAR2(100) NULL,
-	AWS_KEY	VARCHAR2(200) NULL,
-	AWS_SECRET_KEY	VARCHAR2(200) NULL,
-	SAVE_KEYS BOOLEAN,
-	EXPORT_TO_S3 BOOLEAN,
-	S3_BUCKET	VARCHAR2(200) NULL,
-	EXPORT_INPUT_TO_S3 BOOLEAN,
-	ACTIVATION_CODE	VARCHAR2(200) NULL,
-	ACTIVE BOOLEAN
+create table user( 
+	id          integer not null auto_increment primary key,
+	username	varchar(100) not null,
+	password	varchar(100) not null,
+	full_name	varchar(100) null,
+	mail		varchar(100) null,
+	role		varchar(100) null,
+	aws_key	varchar(200) null,
+	aws_secret_key	varchar(200) null,
+	save_keys boolean,
+	export_to_s3 boolean,
+	s3_bucket	varchar(200) null,
+	export_input_to_s3 boolean,
+	activation_code	varchar(200) null,
+	active boolean
 );
 
-CREATE TABLE JOB( 
-	ID		VARCHAR2(100) NOT NULL PRIMARY KEY,
-	STATE		INTEGER NOT NULL,
-	START_TIME	BIGINT NOT NULL,
-	END_TIME	BIGINT NOT NULL,
-	NAME 		VARCHAR2(300),
-	S3_URL		VARCHAR2(300),
-	TYPE		INTEGER,
-	USER_ID INTEGER NOT NULL REFERENCES USER(ID) ON DELETE CASCADE
+create table job( 
+	id		varchar(100) not null primary key,
+	state		integer not null,
+	start_time	bigint not null,
+	end_time	bigint not null,
+	name 		varchar(300),
+	s3_url		varchar(300),
+	type		integer,
+	user_id integer not null references user(id) on delete cascade
 );
 
-CREATE TABLE PARAMETER( 
-	ID			INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	NAME		VARCHAR2(100) NOT NULL,
-	VALUE		VARCHAR2(200) NOT NULL,
-	TYPE		VARCHAR2(25) NOT NULL,
-	FORMAT		VARCHAR2(25) NULL,
-	INPUT		BOOLEAN,
-	DOWNLOAD	BOOLEAN,
-	VARIABLE	VARCHAR2(100) NOT NULL,
-	JOB_ID		VARCHAR2(100) NOT NULL REFERENCES JOB(ID) ON DELETE CASCADE
+create table parameter( 
+	id			integer not null auto_increment primary key,
+	name		varchar(100) not null,
+	value		varchar(200) not null,
+	type		varchar(25) not null,
+	format		varchar(25) null,
+	input		boolean,
+	download	boolean,
+	variable	varchar(100) not null,
+	job_id		varchar(100) not null references job(id) on delete cascade
 );
 
-CREATE TABLE STEPS ( 
-	ID	    	INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	STATE		INTEGER NOT NULL,
-	NAME	    VARCHAR2(300),
-	START_TIME	BIGINT NOT NULL,
-	END_TIME	BIGINT NOT NULL,
-	JOB_ID		VARCHAR2(100) NOT NULL
+create table steps ( 
+	id	    	integer not null auto_increment primary key,
+	state		integer not null,
+	name	    varchar(300),
+	start_time	bigint not null,
+	end_time	bigint not null,
+	job_id		varchar(100) not null
 );
 
-CREATE TABLE LOG_MESSAGES(
- 	ID			INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY, 
-	TIME	    BIGINT NOT NULL,
-	TYPE		INTEGER NOT NULL,
-	MESSAGE	    VARCHAR2(1000),
-	STEP_ID		INTEGER NOT NULL REFERENCES STEPS(ID) ON DELETE CASCADE
+create table log_messages(
+ 	id			integer not null auto_increment primary key, 
+	time	    bigint not null,
+	type		integer not null,
+	message	    varchar(1000),
+	step_id		integer not null references steps(id) on delete cascade
 );
 

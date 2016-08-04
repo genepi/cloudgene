@@ -1,8 +1,14 @@
 package cloudgene.mapred.util.junit;
 
+import genepi.db.Database;
+import genepi.db.DatabaseConnector;
+import genepi.db.DatabaseUpdater;
+import genepi.db.h2.H2Connector;
+import genepi.db.mysql.MySqlConnector;
 import genepi.io.FileUtil;
 
 import java.io.File;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
@@ -15,11 +21,8 @@ import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.UserSessions;
-import cloudgene.mapred.database.H2Connector;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.database.util.Database;
-import cloudgene.mapred.database.util.DatabaseUpdater;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.HashUtil;
@@ -28,6 +31,12 @@ import cloudgene.mapred.util.Template;
 
 public class TestServer {
 
+	public static int PORT = 8085;
+
+	public static final String HOSTNAME = "http://localhost:" + PORT;
+
+	protected WebServer server;
+	
 	protected User user;
 
 	protected Settings settings = new Settings();
@@ -160,53 +169,61 @@ public class TestServer {
 			return database;
 		}
 
+		//delete old database
+		FileUtil.deleteDirectory("test-database");
+		
 		H2Connector connector = new H2Connector("test-database/mapred",
 				"mapred", "mapred", false);
-
+		//DatabaseConnector connector = new MySqlConnector("localhost", "3306", "cloudgene",
+		//		"root", "lukas");
 		database = new Database();
 
 		try {
 
 			database.connect(connector);
 
-		} catch (SQLException e) {
+			if (connector.isNewDatabase()) {
 
+				// init schema
+				InputStream is = Main.class
+						.getResourceAsStream("/create-tables.sql");
+				connector.executeSQL(is);
+
+				File versionFile = new File("version.txt");
+				if (versionFile.exists()) {
+					versionFile.delete();
+				}
+			}
+
+			InputStream is = Main.class.getResourceAsStream("/updates.sql");
+			DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,
+					"version.txt", is, Main.VERSION);
+			if (askimedUpdater.needUpdate()) {
+				if (!askimedUpdater.update()) {
+					database.disconnect();
+					System.exit(1);
+				}
+			}
+
+			String username = "admin";
+			String password = "admin1978";
+
+			// insert user admin
+			UserDao dao = new UserDao(database);
+			user = dao.findByUsername(username);
+			if (user == null) {
+				user = new User();
+				user.setUsername(username);
+				password = HashUtil.getMD5(password);
+				user.setPassword(password);
+				user.setRole("admin");
+				dao.insert(user);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			System.exit(1);
 
 		}
-
-		// change??
-		if (connector.isNewDatabase()) {
-			File versionFile = new File("version.txt");
-			if (versionFile.exists()) {
-				versionFile.delete();
-			}
-		}
-
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,
-				"version.txt", "/updates.sql", Main.VERSION, false);
-		if (askimedUpdater.needUpdate()) {
-			if (!askimedUpdater.update()) {
-				database.disconnect();
-				System.exit(1);
-			}
-		}
-
-		String username = "admin";
-		String password = "admin1978";
-
-		// insert user admin
-		UserDao dao = new UserDao(database);
-		user = dao.findByUsername(username);
-		if (user == null) {
-			user = new User();
-			user.setUsername(username);
-			password = HashUtil.getMD5(password);
-			user.setPassword(password);
-			user.setRole("admin");
-			dao.insert(user);
-		}
-
 		return database;
 
 	}
@@ -222,12 +239,6 @@ public class TestServer {
 		}
 		return engine;
 	}
-
-	public static int PORT = 8085;
-
-	public static final String HOSTNAME = "http://localhost:" + PORT;
-
-	protected WebServer server;
 
 	public void start() throws SQLException {
 

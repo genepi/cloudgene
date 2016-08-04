@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs;
 
+import genepi.db.Database;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +16,6 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.MessageDao;
 import cloudgene.mapred.database.ParameterDao;
 import cloudgene.mapred.database.StepDao;
-import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {

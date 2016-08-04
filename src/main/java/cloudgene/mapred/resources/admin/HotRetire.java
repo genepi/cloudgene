@@ -1,21 +1,13 @@
 package cloudgene.mapred.resources.admin;
 
-import java.util.List;
-
-import org.restlet.Application;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
-import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;

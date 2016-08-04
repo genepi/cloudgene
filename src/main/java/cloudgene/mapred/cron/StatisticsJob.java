@@ -1,5 +1,7 @@
 package cloudgene.mapred.cron;
 
+import genepi.db.Database;
+
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +15,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterDao;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 

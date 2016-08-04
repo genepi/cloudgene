@@ -1,68 +1,69 @@
---1.0.3
-CREATE TABLE DOWNLOADS(
- 	ID			  INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
- 	PARAMETER_ID  VARCHAR2(200) NOT NULL,
- 	JOB_ID  VARCHAR2(100) NOT NULL,
- 	NAME		  VARCHAR2(200) NULL,
- 	PATH		  VARCHAR2(200) NULL,
- 	HASH          VARCHAR2(200) NULL,		   
-	COUNT	      INTEGER NOT NULL,
-	SIZE		  VARCHAR2(200) NULL
+-- 1.0.3
+
+create table downloads(
+ 	id			  integer not null auto_increment primary key,
+ 	parameter_id  varchar(200) not null,
+ 	job_id  varchar(100) not null,
+ 	name		  varchar(200) null,
+ 	path		  varchar(200) null,
+ 	hash          varchar(200) null,		   
+	count	      integer not null,
+	size		  varchar(200) null
 ); 
 
---1.0.5
+-- 1.0.5
 
-CREATE TABLE CACHE_ENTRIES ( 
-	ID	    	INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	SIGNATURE	    VARCHAR2(300),
-	USED		INTEGER NOT NULL,
-	LAST_USED_ON	BIGINT NOT NULL,
-	CREATED_ON	BIGINT NOT NULL,
-	EXECUTION_TIME	BIGINT NOT NULL,
-	SIZE	        BIGINT NOT NULL,
-	USER_ID		VARCHAR2(100) NULL,
-	JOB_ID		VARCHAR2(100) NULL,
-	OUTPUT          VARCHAR2(1000)
+create table cache_entries ( 
+	id	    	integer not null auto_increment primary key,
+	signature	    varchar(300),
+	used		integer not null,
+	last_used_on	bigint not null,
+	created_on	bigint not null,
+	execution_time	bigint not null,
+	size	        bigint not null,
+	user_id		varchar(100) null,
+	job_id		varchar(100) null,
+	output          varchar(1000)
 );
 
---1.0.7
+-- 1.0.7
 
-CREATE TABLE COUNTERS ( 
-	ID	    	INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	NAME		VARCHAR2(300),
-	JOB_ID		VARCHAR2(100) NULL,
-	VALUE		BIGINT NOT NULL
+create table counters ( 
+	id	    	integer not null auto_increment primary key,
+	name		varchar(300),
+	job_id		varchar(100) null,
+	value		bigint not null
 );
 
 
---1.9.0
+-- 1.9.0
 
-CREATE TABLE COUNTERS_HISTORY ( 
-	ID	    	INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	TIME_STAMP	BIGINT NOT NULL,
-	NAME		VARCHAR2(300),
-	VALUE		BIGINT NOT NULL	
+create table counters_history ( 
+	id	    	integer not null auto_increment primary key,
+	time_stamp	bigint not null,
+	name		varchar(300),
+	value		bigint not null	
 );
 
---1.9.1
+-- 1.9.1
 
-CREATE TABLE HTML_SNIPPETS ( 
-	ID	    	INTEGER NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	KEY	     	VARCHAR2(300),
-	TEXT		VARCHAR2(1000)	
+create table html_snippets ( 
+	id	    	integer not null auto_increment primary key,
+	`key`	     	varchar(300),
+	text		varchar(1000)	
 );
 
---1.9.2
+-- 1.9.2
 
-ALTER TABLE JOB ADD COLUMN DELETED_ON BIGINT NULL DEFAULT NULL;
+alter table job add column deleted_on bigint null default null;
 
---1.9.3
+-- 1.9.3
 
-ALTER TABLE PARAMETER ADD COLUMN ADMIN_ONLY BOOLEAN NOT NULL DEFAULT FALSE;
+alter table parameter add column admin_only boolean not null default false;
 
 
---1.9.6
-ALTER TABLE JOB ADD COLUMN APPLICATION VARCHAR2(300) NULL DEFAULT NULL;
+-- 1.9.6
+alter table job add column application varchar(300) null default null;
 
---1.9.8
-ALTER TABLE JOB ADD COLUMN APPLICATION_ID VARCHAR2(300) NULL DEFAULT NULL;
+-- 1.9.8
+alter table job add column application_id varchar(300) null default null;

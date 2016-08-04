@@ -1,5 +1,9 @@
 package cloudgene.mapred.database;
 
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -9,9 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.util.Database;
-import cloudgene.mapred.database.util.IRowMapper;
-import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
@@ -89,6 +90,27 @@ public class JobDao extends JdbcDataAccessObject {
 
 		return true;
 	}
+	
+	public boolean delete(AbstractJob job) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("delete from job ");
+		sql.append("where id = ? ");
+		try {
+
+			Object[] params = new Object[1];
+			params[0] = job.getId();
+
+			update(sql.toString(), params);
+
+			log.debug("delete job successful.");
+
+		} catch (SQLException e) {
+			log.error("delete job failed", e);
+			return false;
+		}
+
+		return true;
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAllByUser(User user) {
@@ -108,6 +130,29 @@ public class JobDao extends JdbcDataAccessObject {
 		try {
 
 			result = query(sql.toString(), params, new JobMapper(false, false));
+
+			log.debug("find all jobs successful. results: " + result.size());
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find all jobs failed", e);
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<AbstractJob> findAll() {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from job ");
+		sql.append("order by id asc ");
+
+		List<AbstractJob> result = new Vector<AbstractJob>();
+
+		try {
+
+			result = query(sql.toString(), new JobMapper(true, false));
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -205,12 +250,12 @@ public class JobDao extends JdbcDataAccessObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<AbstractJob> findAllOlderThan(int time, int state) {
+	public List<AbstractJob> findAllOlderThan(long time, int state) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where  state = ? AND DATEDIFF('ms',now(), DATEADD('SECOND', end_time / 1000 + ?, DATE '1970-01-01')) < 0  ");
+		sql.append("where  state = ? AND end_time < ?  ");
 		sql.append("order by id desc ");
 
 		Object[] params = new Object[2];
@@ -270,10 +315,11 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where id = ?");
+		sql.append("where id = ? and state != ? ");
 
-		Object[] params = new Object[1];
+		Object[] params = new Object[2];
 		params[0] = id;
+		params[1] = AbstractJob.STATE_DELETED;
 
 		AbstractJob job = null;
 
@@ -321,7 +367,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
-			int type = rs.getInt("type");
+
 			AbstractJob job = new CloudgeneJob();
 			job.setId(rs.getString("id"));
 			job.setName(rs.getString("name"));

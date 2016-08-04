@@ -53,6 +53,8 @@ public class Settings {
 
 	private Map<String, String> mail;
 
+	private Map<String, String> database;
+
 	private List<Application> apps;
 
 	private int retireAfter = 6;
@@ -109,6 +111,12 @@ public class Settings {
 		mail.put("user", "");
 		mail.put("password", "");
 		mail.put("name", "noreply@cloudgene");
+
+		database = new HashMap<String, String>();
+		database.put("driver", "h2");
+		database.put("database", "data/mapred");
+		database.put("user", "mapred");
+		database.put("password", "mapred");
 
 	}
 
@@ -248,7 +256,8 @@ public class Settings {
 
 				if (!new File(app.getFilename()).exists()) {
 
-					log.error("file '" + app.getFilename() + "' does not exist.");
+					log.error("file '" + app.getFilename()
+							+ "' does not exist.");
 
 					return false;
 				} else {
@@ -365,7 +374,8 @@ public class Settings {
 
 		} else {
 
-			String filename = FileUtil.path("apps", id.replaceAll("~", "/") + ".yaml");
+			String filename = FileUtil.path("apps", id.replaceAll("~", "/")
+					+ ".yaml");
 
 			return filename;
 
@@ -513,6 +523,14 @@ public class Settings {
 
 	public String getUrlPrefix() {
 		return urlPrefix;
+	}
+
+	public void setDatabase(Map<String, String> database) {
+		this.database = database;
+	}
+
+	public Map<String, String> getDatabase() {
+		return database;
 	}
 
 }

@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.admin;
+package cloudgene.mapred.api.v2.admin;
 
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -9,7 +9,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.cron.CleanUpTasks;
 import cloudgene.mapred.util.BaseResource;
 
-public class StartRetire extends BaseResource {
+public class RetireJobs extends BaseResource {
 
 	@Get
 	public Representation get() {

@@ -1,5 +1,7 @@
 package cloudgene.mapred;
 
+import genepi.db.Database;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +16,7 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import cloudgene.mapred.api.v2.admin.RetireJobs;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DeleteJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
@@ -26,7 +29,6 @@ import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.core.UserSessions;
 import cloudgene.mapred.database.TemplateDao;
-import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
@@ -43,8 +45,6 @@ import cloudgene.mapred.resources.admin.GetTemplates;
 import cloudgene.mapred.resources.admin.HotRetire;
 import cloudgene.mapred.resources.admin.OpenQueue;
 import cloudgene.mapred.resources.admin.ResetDownloads;
-import cloudgene.mapred.resources.admin.RestartServer;
-import cloudgene.mapred.resources.admin.StartRetire;
 import cloudgene.mapred.resources.admin.UpdateSettings;
 import cloudgene.mapred.resources.admin.UpdateTemplate;
 import cloudgene.mapred.resources.apps.GetApp;
@@ -103,7 +103,6 @@ public class WebApp extends Application {
 	public synchronized Restlet createInboundRoot() {
 
 		String prefix = settings.getUrlPrefix();
-		System.out.println("Prefix: " + prefix);
 
 		// Create a router Restlet that routes each call to a
 		Router router = new Router(getContext());
@@ -141,10 +140,9 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/details", GetJobDetails.class);
-		/*router.attach(prefix + "/api/v2/jobs/{job}/results", SubmitJob.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/delete", SubmitJob.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/cancel", SubmitJob.class);*/
+		router.attach(prefix + "/api/v2/jobs/{job}/details",
+				GetJobDetails.class);
+		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
 
 		router.attach(prefix + "/counters", GetCounter.class);
 
@@ -201,9 +199,6 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin/jobs", GetAllJobs.class);
 		router.attach(prefix + "/admin/settings", GetSettings.class);
 		router.attach(prefix + "/admin/settings/update", UpdateSettings.class);
-		router.attach(prefix + "/admin/server/restart", RestartServer.class);
-
-		router.attach(prefix + "/admin/retire/start", StartRetire.class);
 
 		router.attach(prefix + "/updateUserSettings", UpdateUserSettings.class);
 		router.attach(prefix + "/updateUserPassword", UpdateUserPassword.class);

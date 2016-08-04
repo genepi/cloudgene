@@ -12,6 +12,7 @@ import cloudgene.mapred.api.v2.jobs.GetLogsTest;
 import cloudgene.mapred.api.v2.jobs.RestartJobTest;
 import cloudgene.mapred.api.v2.jobs.ShareResultsTest;
 import cloudgene.mapred.api.v2.jobs.SubmitJobTest;
+import cloudgene.mapred.database.JobDaoTest;
 import cloudgene.mapred.jobs.WorkflowEngineTest;
 import cloudgene.mapred.steps.TestCommand;
 
@@ -19,7 +20,7 @@ import cloudgene.mapred.steps.TestCommand;
 @SuiteClasses({ SubmitJobTest.class, WorkflowEngineTest.class,
 		RestartJobTest.class, CancelJobTest.class, DeleteJobTest.class,
 		DownloadResultsTest.class, ShareResultsTest.class, GetLogsTest.class,
-		GetJobsTest.class, TestCommand.class })
+		GetJobsTest.class, TestCommand.class, JobDaoTest.class })
 public class AllTests {
 
 }

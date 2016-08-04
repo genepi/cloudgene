@@ -1,5 +1,9 @@
 package cloudgene.mapred.database;
 
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -8,9 +12,6 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.database.util.Database;
-import cloudgene.mapred.database.util.IRowMapper;
-import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.util.Template;
 
 public class TemplateDao extends JdbcDataAccessObject {
@@ -23,7 +24,7 @@ public class TemplateDao extends JdbcDataAccessObject {
 
 	public boolean insert(Template snippet) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into html_snippets (key, text) ");
+		sql.append("insert into html_snippets (`key`, text) ");
 		sql.append("values (?,?)");
 
 		try {
@@ -46,7 +47,7 @@ public class TemplateDao extends JdbcDataAccessObject {
 
 	public boolean update(Template snippet) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("update html_snippets SET text = ? where key = ? ");
+		sql.append("update html_snippets SET text = ? where `key` = ? ");
 
 		try {
 
@@ -95,7 +96,7 @@ public class TemplateDao extends JdbcDataAccessObject {
 
 		sql.append("select * ");
 		sql.append("from html_snippets ");
-		sql.append("where key = ?");
+		sql.append("where `key` = ?");
 
 		Object[] params = new Object[1];
 		params[0] = key;

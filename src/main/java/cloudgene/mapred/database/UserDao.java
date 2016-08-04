@@ -1,5 +1,9 @@
 package cloudgene.mapred.database;
 
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -9,9 +13,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.util.Database;
-import cloudgene.mapred.database.util.IRowMapper;
-import cloudgene.mapred.database.util.JdbcDataAccessObject;
 
 public class UserDao extends JdbcDataAccessObject {
 
@@ -200,7 +201,7 @@ public class UserDao extends JdbcDataAccessObject {
 
 	public boolean delete(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("delete user ");
+		sql.append("delete from user ");
 		sql.append("where id = ? ");
 		try {
 
