@@ -224,7 +224,7 @@ public class WebApp extends Application {
 
 		String[] protectedFiles = { prefix + "/start.html" };
 		LoginFilter filter = new LoginFilter("/index.html", prefix,
-				protectedFiles);
+				protectedFiles,getSettings().getSecretKey());
 		filter.setNext(router);
 
 		return filter;

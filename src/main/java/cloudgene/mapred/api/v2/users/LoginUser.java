@@ -29,7 +29,7 @@ public class LoginUser extends BaseResource {
 			if (user.getPassword().equals(password) && user.isActive()) {
 
 				// create session
-				String token = JWTUtil.createToken(user);
+				String token = JWTUtil.createToken(user,getSettings().getSecretKey());
 				// set cookie
 				CookieSetting cookie = new CookieSetting(
 						JWTUtil.COOKIE_NAME, token);

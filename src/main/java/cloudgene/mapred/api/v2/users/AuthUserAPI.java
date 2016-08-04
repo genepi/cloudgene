@@ -37,7 +37,7 @@ public class AuthUserAPI extends BaseResource {
 			if (user.getPassword().equals(password) && user.isActive()) {
 
 				// create token
-				String token = JWTUtil.createToken(user);
+				String token = JWTUtil.createToken(user,getSettings().getSecretKey());
 
 				// return token
 

@@ -13,6 +13,7 @@ import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.Settings;
 
 public class ApiTokens extends BaseResource {
 
@@ -29,7 +30,7 @@ public class ApiTokens extends BaseResource {
 		}
 
 		// create token
-		String token = JWTUtil.createToken(user);
+		String token = JWTUtil.createToken(user,getSettings().getSecretKey());
 
 		// update token
 		user.setApiToken(token);

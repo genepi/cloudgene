@@ -51,6 +51,8 @@ public class Settings {
 	private String version;
 
 	private String name = "Cloudgene";
+	
+	private String secretKey = "default-key-change-me";
 
 	private Map<String, String> mail;
 
@@ -118,7 +120,7 @@ public class Settings {
 		database.put("database", "data/mapred");
 		database.put("user", "mapred");
 		database.put("password", "mapred");
-
+		
 	}
 
 	public static Settings load(String filename) throws FileNotFoundException,
@@ -532,6 +534,14 @@ public class Settings {
 
 	public Map<String, String> getDatabase() {
 		return database;
+	}
+
+	public String getSecretKey() {
+		return secretKey;
+	}
+
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 
 }
