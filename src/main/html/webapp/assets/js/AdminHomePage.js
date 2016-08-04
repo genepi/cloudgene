@@ -1,7 +1,7 @@
 // Static Page Controller
 
 Counter = can.Model({
-	findOne : 'GET counters'
+	findOne : 'GET /api/v2/server/counters'
 }, {
 
 });
@@ -17,17 +17,17 @@ AdminHomePage = can.Control({
 				counter : counter
 			}));
 			element.fadeIn();
-			
-			$.getJSON("statistics", {
+
+			$.getJSON("/api/v2/admin/server/statistics", {
 				days : 1
 			}, function(mydata) {
-				
+
 				$("#new_users").html(mydata[0].users - mydata[mydata.length -1].users);
 				$("#total_users").html(mydata[0].users);
-				
+
 				$("#new_jobs").html(mydata[0].completeJobs - mydata[mydata.length -1].completeJobs);
 				$("#total_jobs").html(mydata[0].completeJobs);
-				
+
 				that.options.running = Morris.Area({
 					element : 'morris-area-chart',
 					data : mydata,
@@ -51,16 +51,16 @@ AdminHomePage = can.Control({
 
 		days = $("#day_combo").val();
 		that = this;
-		$.getJSON("statistics", {
+		$.getJSON("/api/v2/admin/server/statistics", {
 			days : days
 		}, function(mydata) {
-			
+
 			$("#new_users").html(mydata[0].users - mydata[mydata.length -1].users);
 			$("#total_users").html(mydata[0].users);
-			
+
 			$("#new_jobs").html(mydata[0].completeJobs - mydata[mydata.length -1].completeJobs);
 			$("#total_jobs").html(mydata[0].completeJobs);
-			
+
 			that.options.running.setData(mydata);
 			//that.options.jobs.setData(mydata);
 			//that.options.users.setData(mydata);

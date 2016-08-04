@@ -1,7 +1,7 @@
 // Static Page Controller
 
 Counter = can.Model({
-	findOne : 'GET counters'
+	findOne : 'GET /api/v2/server/counters'
 }, {
 
 });

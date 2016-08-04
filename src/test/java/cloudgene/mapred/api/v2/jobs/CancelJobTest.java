@@ -39,37 +39,16 @@ public class CancelJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testCancelWithoutJobId() throws Exception {
-
-		// Handle answer!
-		ClientResource resource = createClientResource("/jobs/cancel");
-
-		Form formStatus = new Form();
-		try {
-			resource.post(formStatus);
-		} catch (Exception e) {
-
-		}
-		assertEquals(404, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity()
-				.getText());
-		assertEquals(object.get("success"), false);
-		assertEquals(object.get("message"), "No job id specified.");
-
-	}
-
 	public void testCancelWrongJobId() throws Exception {
-
-		// Handle answer!
-		ClientResource resource = createClientResource("/jobs/cancel");
 
 		String id = "some-random-id";
 
-		Form formStatus = new Form();
-		formStatus.set("id", id);
+		// Handle answer!
+		ClientResource resource = createClientResource("/api/v2/jobs/" + id
+				+ "/cancel");
 
 		try {
-			resource.post(formStatus);
+			resource.get();
 		} catch (Exception e) {
 
 		}

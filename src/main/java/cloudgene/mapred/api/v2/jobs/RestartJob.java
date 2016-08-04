@@ -6,9 +6,8 @@ import genepi.io.FileUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.restlet.data.Form;
 import org.restlet.representation.Representation;
-import org.restlet.resource.Post;
+import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
@@ -21,8 +20,8 @@ import cloudgene.mapred.wdl.WdlReader;
 
 public class RestartJob extends BaseResource {
 
-	@Post
-	public Representation post(Representation entity) {
+	@Get
+	public Representation get(Representation entity) {
 
 		User user = getAuthUser();
 
@@ -30,8 +29,7 @@ public class RestartJob extends BaseResource {
 			user = PublicUser.getUser(getDatabase());
 		}
 
-		Form form = new Form(entity);
-		String id = form.getFirstValue("id");
+		String id = getAttribute("job");
 
 		if (id == null) {
 			return error404("No job id specified.");

@@ -24,7 +24,7 @@ public class UserDao extends JdbcDataAccessObject {
 
 	public boolean insert(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,?) ");
+		sql.append("insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {

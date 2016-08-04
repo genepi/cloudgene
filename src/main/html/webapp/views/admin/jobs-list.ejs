@@ -1,98 +1,107 @@
 <thead>
-<tr>
-	<th></th>
-	<th>Job</th>
-	<th style="width: 100px;">Username</th>
-	<th style="width: 150px;">Execution Time</th>
-	<th style="width: 180px;">Valid until</th>
-	<th style="width: 16px;"></th>		
-	<th style="width: 16px;"></th>
-	<th style="width: 16px;"></th>
-	<th style="width: 16px;"></th>
-</tr>	
+	<tr>
+		<th></th>
+		<th>Job</th>
+		<th style="width: 100px;">Username</th>
+		<th style="width: 150px;">Execution Time</th>
+		<th style="width: 180px;">Valid until</th>
+		<th style="width: 16px;"></th>
+		<th style="width: 16px;"></th>
+		<th style="width: 16px;"></th>
+		<th style="width: 16px;"></th>
+	</tr>
 </thead>
 <tbody>
-<% this.each(function( job ) { %>
-    
-    <tr <%= (tr) -> can.data(tr, 'job', job) %> >
-       
-    		<td style="width: 80px;text-align:center;">
-    		
-    		    <% if( job.attr('state') == '-1' ){ %>
-        			<span class="label label-inverse" style="width: 50px">&dagger; Dead</span>
-        		<% } %>		
-    		
-        		<% if( job.attr('state') == '1' ){ %>
-        			<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') %>)</span>
-        		<% } %>
-        		<% if( job.attr('state') == '2' ){ %>
-        			<span class="label label-info" style="width: 50px">Running</span>
-        		<% } %>		
-        		<% if( job.attr('state') == '3' ){ %>
-        			<span class="label label-info" style="width: 50px">Running</span>
-        		<% } %>				
-        		<% if( job.attr('state') == '4' ){ %>
-        			<span class="label label-success" style="width: 50px">Success</span>
-        		<% } %>
-        		<% if( job.attr('state') == '5' ){ %>
-        			<span class="label label-important" style="width: 50px">Failed</span>
-        		<% } %>		
-        		<% if( job.attr('state') == '6' ){ %>
-        			<span class="label label-important" style="width: 50px">Canceled</span>
-        		<% } %>
-        		<% if( job.attr('state') == '7' ){ %>
-        			<span class="label label-inverse" style="width: 50px">Retired</span>
-        		<% } %>	
-        		<% if( job.attr('state') == '8' ){ %>
-        			<span class="label label-success" style="width: 50px">Success</span>
-        		<% } %>
-        		<% if( job.attr('state') == '9' ){ %>
-        			<span class="label label-important" style="width: 50px">Failed</span>
-        		<% } %>		
-		</td>
-			
-		
-		<td>
-			<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a>
-		</td>
-		<td>
-					<%= job.attr('user.username') %>
-		
-		</td>
-		<td>
-			<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>
-		</td>
-		
-		<% if( job.attr('state') == '8' ){ %>
-        	<td><%= prettyDate(job.attr('deletedOn')) %></td>
-        <% } else if( job.attr('state') == '9' ){ %>
-        	<td><%= prettyDate(job.attr('deletedOn')) %></td>
-        <% } else { %>
-        	<td></td>
-        <% } %>	
+	<% this.each(function( job ) { %>
 
-		<td>
-        		<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-        		<a href="/admin/jobs/<%= job.attr('id') %>/reset" title="Reset counters"><span class="icon-time" style="cursor: pointer;"></span></a>
-        		<% } %>		
-		</td>
-		<td>
-        		<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
-        		<a href="/admin/jobs/<%= job.attr('id') %>/retire" title="Hot Retire: send notification now!"><span class="icon-fire" style="cursor: pointer;"></span></a>
-        		<% } %>		
-		</td>
-		<td>		
-			<a href="/logs/<%= job.attr('id') %>" target="_blank" title="Show log file">	<span class="icon-file" style="cursor: pointer;"></span></a>
-		</td>
-		
-		<td>
-        		<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-        			<span class="icon-remove" title ="Cancel job" style="cursor: pointer;"></span>
-        		<% } %>
-        		<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-        		<span class="icon-trash" title ="Delete job" style="cursor: pointer;"></span>
-        		<% } %>		
-		</td>
-    </tr>
-<% }) %>
+		<tr <%= (tr) -> can.data(tr, 'job', job) %>>
+
+			<td style="width: 80px;text-align:center;">
+
+				<% if( job.attr('state') == '-1' ){ %>
+					<span class="label label-inverse" style="width: 50px">&dagger; Dead</span>
+				<% } %>
+
+				<% if( job.attr('state') == '1' ){ %>
+					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') %>)</span>
+				<% } %>
+				<% if( job.attr('state') == '2' ){ %>
+					<span class="label label-info" style="width: 50px">Running</span>
+				<% } %>
+				<% if( job.attr('state') == '3' ){ %>
+					<span class="label label-info" style="width: 50px">Running</span>
+				<% } %>
+				<% if( job.attr('state') == '4' ){ %>
+					<span class="label label-success" style="width: 50px">Success</span>
+				<% } %>
+				<% if( job.attr('state') == '5' ){ %>
+					<span class="label label-important" style="width: 50px">Failed</span>
+				<% } %>
+				<% if( job.attr('state') == '6' ){ %>
+					<span class="label label-important" style="width: 50px">Canceled</span>
+				<% } %>
+				<% if( job.attr('state') == '7' ){ %>
+					<span class="label label-inverse" style="width: 50px">Retired</span>
+				<% } %>
+				<% if( job.attr('state') == '8' ){ %>
+					<span class="label label-success" style="width: 50px">Success</span>
+				<% } %>
+				<% if( job.attr('state') == '9' ){ %>
+					<span class="label label-important" style="width: 50px">Failed</span>
+				<% } %>
+			</td>
+
+			<td>
+				<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a>
+			</td>
+
+			<td>
+				<%= job.attr('user.username') %>
+			</td>
+
+			<td>
+				<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>
+			</td>
+
+			<td>
+				<% if( job.attr('state') == '8' ){ %>
+					<%= prettyDate(job.attr('deletedOn')) %>
+				<% } else if( job.attr('state') == '9' ){ %>
+					<%= prettyDate(job.attr('deletedOn')) %>
+				<% } %>
+			</td>
+
+			<td>
+				<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
+					<a href="/api/v2/admin/jobs/<%= job.attr('id') %>/reset" title="Reset counters">
+						<span class="icon-time" style="cursor: pointer;"></span>
+					</a>
+				<% } %>
+			</td>
+
+			<td>
+				<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
+					<a href="/api/v2/admin/jobs/<%= job.attr('id') %>/retire" title="Hot Retire: send notification now!">
+						<span class="icon-fire" style="cursor: pointer;"></span>
+					</a>
+				<% } %>
+			</td>
+
+			<td>
+				<a href="/logs/<%= job.attr('id') %>" target="_blank" title="Show log file">
+					<span class="icon-file" style="cursor: pointer;"></span>
+				</a>
+			</td>
+
+			<td>
+				<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
+					<span class="icon-remove" title="Cancel job" style="cursor: pointer;"></span>
+				<% } %>
+				<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
+					<span class="icon-trash" title="Delete job" style="cursor: pointer;"></span>
+				<% } %>
+			</td>
+
+		</tr>
+	<% }) %>
 </tbody>

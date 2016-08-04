@@ -10,40 +10,66 @@
 <table class="table table-bordered">
 
 	<tr>
-		<td style="width: 150px;"><b>Version:</b></td>
-		<td><%= cluster.attr('version') %> (built by <%=
-			cluster.attr('built_by') %> on <%= cluster.attr('built_time') %>)</td>
-	</tr>
-
-	<tr>
-		<td style="width: 150px;"><b>Mode:</b></td>
-		<td><% if (cluster.attr('maintenance')) { %> <span
-			class="label label-important">Maintenance Mode</span> <% } else { %>
-			<span class="label label-success">Running</span> <% } %>
+		<td style="width: 150px;">
+			<b>Version:</b>
+		</td>
+		<td>
+			<%= cluster.attr('version') %>
+			(built by
+			<%=	cluster.attr('built_by') %>
+			on
+			<%= cluster.attr('built_time') %>)
 		</td>
 	</tr>
 
 	<tr>
-		<td style="width: 150px;"><b>Queue:</b></td>
-		<td><% if (cluster.attr('blocked')) { %> <span
-			class="label label-important">Blocked</span> <% } else { %> <span
-			class="label label-success">Running</span> <% } %>
-
+		<td style="width: 150px;">
+			<b>Mode:</b>
+		</td>
+		<td>
+			<% if (cluster.attr('maintenance')) { %>
+				<span class="label label-important">Maintenance Mode</span>
+			<% } else { %>
+				<span class="label label-success">Running</span>
+			<% } %>
 		</td>
 	</tr>
 
 	<tr>
-		<td style="width: 150px;"><b>Threads Queue:</b></td>
-		<td><%= cluster.attr('threads') %></td>
+		<td style="width: 150px;">
+			<b>Queue:</b>
+		</td>
+		<td>
+			<% if (cluster.attr('blocked')) { %>
+				<span class="label label-important">Blocked</span>
+			<% } else { %>
+				<span class="label label-success">Running</span>
+			<% } %>
+		</td>
 	</tr>
 
 	<tr>
-		<td style="width: 150px;"><b>Max Jobs:</b></td>
-		<td><%= cluster.attr('max_jobs') %></td>
+		<td style="width: 150px;">
+			<b>Threads Queue:</b>
+		</td>
+		<td>
+			<%= cluster.attr('threads') %>
+		</td>
 	</tr>
 
 	<tr>
-		<td style="width: 150px;"><b>Max Jobs per User:</b></td>
+		<td style="width: 150px;">
+			<b>Max Jobs:</b>
+		</td>
+		<td>
+			<%= cluster.attr('max_jobs') %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Max Jobs per User:</b>
+		</td>
 		<td><%= cluster.attr('max_jobs_user') %></td>
 	</tr>
 
@@ -56,13 +82,18 @@
 <table class="table table-bordered">
 
 	<tr>
-		<td style="width: 150px;"><b>Disk Usage:</b></td>
-		<td>	
-		<div class="progress progress-info" style="width: 150px;">
-		  <div class="bar" style="width: <%== ((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%"></div>
-		</div><%== cluster.attr('total_disc_space') - cluster.attr('free_disc_space') %> GB used, <b><%== cluster.attr('free_disc_space') %> GB free</b>
-		</td> 		
-	
+		<td style="width: 150px;">
+			<b>Disk Usage:</b>
+		</td>
+		<td>
+			<div class="progress progress-info" style="width: 150px;">
+				<div class="bar" style="width: <%== ((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%"></div>
+			</div><%== cluster.attr('total_disc_space') - cluster.attr('free_disc_space') %>
+			GB used,
+			<b><%== cluster.attr('free_disc_space') %>
+				GB free</b>
+		</td>
+
 	</tr>
 
 </table>
@@ -74,53 +105,52 @@
 <table class="table table-bordered">
 
 	<tr>
-		<td style="width: 150px;"><b>Mode:</b></td>
-		<td><% if (cluster.attr('safemode')) { %> <span
-			class="label label-important">SAFEMODE!</span> <% } else { %> <span
-			class="label label-success">Running</span> <% } %>
+		<td style="width: 150px;">
+			<b>Mode:</b>
+		</td>
+		<td>
+			<% if (cluster.attr('safemode')) { %>
+				<span class="label label-important">SAFEMODE!</span>
+			<% } else { %>
+				<span class="label label-success">Running</span>
+			<% } %>
 		</td>
 	</tr>
 
 	<tr>
-		<td style="width: 150px;"><b>Details:</b></td>
-		<td><pre><%== cluster.attr('cluster') %></pre></td>
+		<td style="width: 150px;">
+			<b>Details:</b>
+		</td>
+		<td>
+			<pre><%== cluster.attr('cluster') %></pre>
+		</td>
 	</tr>
 </table>
 
 <hr>
 
-
 <h4>Maintenance Mode</h4>
-<p>Maintenance mode is for preventing any users other than
-	administrators from submitting jobs. The front page will appear as
-	normal when your site is in maintenance mode. Users will only see the
-	maintenance mode message when they attempt to submit a job.</p>
+<p>Maintenance mode is for preventing any users other than administrators from submitting jobs. The front page will appear as normal when your site is in maintenance mode. Users will only see the maintenance mode message when they attempt to submit a job.</p>
 <p>
-	<i>Note: You can create a customized maintenance mode message by
-		change the MAINTENANCE_MESSAGE variable (see Settings).</i>
+	<i>Note: You can create a customized maintenance mode message by change the MAINTENANCE_MESSAGE variable (see Settings).</i>
 </p>
 <br>
 <p>
-	<a href="/admin/maintenance/enter" class="btn btn-danger">Enter
-		Maintenance Mode</a> <a href="/admin/maintenance/exit"
-		class="btn btn-success">Exit Maintenance Mode</a>
+	<a href="/api/v2/admin/server/maintenance/enter" class="btn btn-danger">Enter Maintenance Mode</a>
+	<a href="/api/v2/admin/server/maintenance/exit" class="btn btn-success">Exit Maintenance Mode</a>
 </p>
 
-
 <hr>
-
 
 <h4>Queue</h4>
-<p>Blocks the queue. All running jobs are executed and all other
-	jobs are waiting until the queue is manually opened.</p>
+<p>Blocks the queue. All running jobs are executed and all other jobs are waiting until the queue is manually opened.</p>
 <br>
 <p>
-	<a href="/admin/queue/block" class="btn btn-danger">Block Queue</a> <a
-		href="/admin/queue/open" class="btn btn-success">Open Queue</a>
+	<a href="/api/v2/admin/server/queue/block" class="btn btn-danger">Block Queue</a>
+	<a href="/api/v2/admin/server/queue/open" class="btn btn-success">Open Queue</a>
 </p>
 
 <hr>
-
 
 <h4>Auto Retire</h4>
 <p>Retires old jobs and send notifications.</p>

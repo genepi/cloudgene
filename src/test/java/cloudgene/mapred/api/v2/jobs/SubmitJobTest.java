@@ -37,7 +37,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		ClientResource resource = createClientResource("/jobs/submit/wrong-application");
+		ClientResource resource = createClientResource("/api/v2/jobs/submit/wrong-application");
 		try {
 			resource.post(form);
 		} catch (Exception e) {
@@ -279,16 +279,20 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
-		JSONArray messages = result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages");
-		
+		JSONArray messages = result.getJSONArray("steps").getJSONObject(0)
+				.getJSONArray("logMessages");
+
 		assertEquals(3, messages.length());
-		assertEquals("cloudgene-task1", messages.getJSONObject(0).get("message"));
+		assertEquals("cloudgene-task1", messages.getJSONObject(0)
+				.get("message"));
 		assertEquals(WorkflowContext.OK, messages.getJSONObject(0).get("type"));
-		assertEquals("cloudgene-task2", messages.getJSONObject(1).get("message"));
+		assertEquals("cloudgene-task2", messages.getJSONObject(1)
+				.get("message"));
 		assertEquals(WorkflowContext.OK, messages.getJSONObject(1).get("type"));
-		assertEquals("cloudgene-task3", messages.getJSONObject(2).get("message"));
+		assertEquals("cloudgene-task3", messages.getJSONObject(2)
+				.get("message"));
 		assertEquals(WorkflowContext.OK, messages.getJSONObject(2).get("type"));
-		
+
 	}
 
 	// TODO: wrong permissions

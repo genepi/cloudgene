@@ -18,7 +18,7 @@ TabsAdmin = can.Control({
 		});
 		this.page = this.options.detailsPage;
 	},
-	
+
 	'jobs/:job route' : function(data) {
 		this.activate('jobs');
 		this.options.detailsPage = new JobDetailsPage("#content", {
@@ -27,7 +27,7 @@ TabsAdmin = can.Control({
 		});
 		this.page = this.options.detailsPage;
 	},
-	
+
 	activate : function(id) {
 
 		// stop and destroy page
@@ -73,15 +73,14 @@ TabsAdmin = can.Control({
 			$("#content").fadeIn();
 
 			break;
-			
+
 		case "admin-logs":
 			$("#content").hide();
 			$("#content").html(can.view('views/admin/logs.ejs'));
 			$("#content").fadeIn();
-			$("#log-cloudgene").load("console/logs/cloudgene.log");
-			$("#log-access").load("console/logs/access.log");
-			$("#log-jobs").load(
-					"console/logs/jobs.log",
+			$("#log-cloudgene").load("/api/v2/admin/server/logs/cloudgene.log");
+			$("#log-access").load("/api/v2/admin/server/logs/access.log");
+			$("#log-jobs").load("/api/v2/admin/server/logs/jobs.log",
 					function(response, status, xhr) {
 
 						if (status == "error") {

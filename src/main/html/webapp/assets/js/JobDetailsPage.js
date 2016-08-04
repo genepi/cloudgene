@@ -1,7 +1,8 @@
 // Job Details Model
 JobDetails = can.Model.extend({
-	findOne : 'POST jobs/details',
-	update : 'POST jobs/{action}'
+	findOne: 'GET /api/v2/jobs/{id}',
+	destroy: 'DELETE /api/v2/jobs/{id}',
+	update: 'GET /api/v2/jobs/{id}/{action}'
 }, {});
 
 // Job Details Page Controller
@@ -10,53 +11,51 @@ JobDetailsPage = can.Control({
 
 	// load details from database and rendering
 
-	"init" : function(element, options) {
+	"init": function(element, options) {
 		var that = this;
 		this.active = true;
 
 		JobDetails.findOne({
-			id : options.jobId
-		}, function(job) {
+				id: options.jobId
+			}, function(job) {
 
-			that.element.html(can.view('views/job-details.ejs', {
-				job : job,
-				results : options.results
-			}));
-			that.job = job;
-			that.refresh();
+				that.element.html(can.view('views/job-details.ejs', {
+					job: job,
+					results: options.results
+				}));
+				that.job = job;
+				that.refresh();
 
-		}, function(message) {
-			new ErrorPage(that.element, {
-				status : message.statusText,
-				message : message.responseText
-			});
-		}
+			}, function(message) {
+				new ErrorPage(that.element, {
+					status: message.statusText,
+					message: message.responseText
+				});
+			}
 
-		)
+		);
 	},
 
 	// delete job
 
-	'#btn-delete click' : function(el, ev) {
+	'#btn-delete click': function(el, ev) {
 		var that = this;
 		bootbox.animate(false);
-		bootbox.confirm("Are you sure you want to delete <b>"
-				+ that.job.attr('id') + "</b>?", function(result) {
+		bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
 
 				$("a[data-handler='1']").button('loading');
 				$("a[data-handler='0']").hide('hide');
 
-				that.job.attr('action', 'delete')
-				that.job.save(function() {
+				that.job.destroy(function() {
 					// go to jobs page
 					bootbox.hideAll();
 					window.location.hash = "!pages/jobs";
 				}, function(message) {
 					// show error message
 					new ErrorPage(that.element, {
-						status : message.statusText,
-						message : message.responseText
+						status: message.statusText,
+						message: message.responseText
 					});
 				});
 
@@ -69,16 +68,15 @@ JobDetailsPage = can.Control({
 
 	// cancel job
 
-	'#btn-cancel click' : function(el, ev) {
+	'#btn-cancel click': function(el, ev) {
 		var that = this;
 		bootbox.animate(false);
-		bootbox.confirm("Are you sure you want to cancel <b>"
-				+ that.job.attr('id') + "</b>?", function(result) {
+		bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
 
 				$("a[data-handler='1']").button('loading');
 				$("a[data-handler='0']").hide('hide');
-				that.job.attr('action', 'cancel')
+				that.job.attr('action', 'cancel');
 				that.job.save(function() {
 					bootbox.hideAll();
 
@@ -86,8 +84,8 @@ JobDetailsPage = can.Control({
 				}, function(message) {
 					// show error message
 					new ErrorPage(that.element, {
-						status : message.statusText,
-						message : message.responseText
+						status: message.statusText,
+						message: message.responseText
 					});
 				});
 
@@ -98,16 +96,15 @@ JobDetailsPage = can.Control({
 
 	},
 
-	'#btn-restart click' : function(el, ev) {
+	'#btn-restart click': function(el, ev) {
 		var that = this;
 		bootbox.animate(false);
-		bootbox.confirm("Are you sure you want to restart <b>"
-				+ that.job.attr('id') + "</b>?", function(result) {
+		bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
 			if (result) {
 
 				$("a[data-handler='1']").button('loading');
 				$("a[data-handler='0']").hide('hide');
-				that.job.attr('action', 'restart')
+				that.job.attr('action', 'restart');
 				that.job.save(function() {
 					bootbox.hideAll();
 
@@ -115,8 +112,8 @@ JobDetailsPage = can.Control({
 				}, function(message) {
 					// show error message
 					new ErrorPage(that.element, {
-						status : message.statusText,
-						message : message.responseText
+						status: message.statusText,
+						message: message.responseText
 					});
 				});
 
@@ -128,10 +125,10 @@ JobDetailsPage = can.Control({
 
 	// refresh if job is running
 
-	refresh : function() {
+	refresh: function() {
 		var that = this;
 		Job.findOne({
-			job_id : that.job.id
+			id: that.job.id
 		}, function(currentJob) {
 			that.job.attr('state', currentJob.attr('state'));
 			that.job.attr('executionTime', currentJob.attr('executionTime'));
@@ -147,21 +144,21 @@ JobDetailsPage = can.Control({
 			} else {
 				// updates details (results, startTime, endTime, ...)
 				JobDetails.findOne({
-					id : that.job.id
+					id: that.job.id
 				}, function(job) {
 
 					if (this.active) {
 
 						that.element.html(can.view('views/job-details.ejs', {
-							job : job
+							job: job
 						}));
 					}
 
 				}, function(message) {
 
 					new ErrorPage(that.element, {
-						status : message.statusText,
-						message : message.responseText
+						status: message.statusText,
+						message: message.responseText
 					});
 
 				});
@@ -172,17 +169,13 @@ JobDetailsPage = can.Control({
 
 	},
 
-	destroy : function() {
-
+	destroy: function() {
 		this.active = false;
-
 		can.Control.prototype.destroy.call(this);
 	}
 
 });
 
 JobDetailsPage.needsUpdate = function(job) {
-
-	return job.attr("state") == 1 || job.attr("state") == 2
-			|| job.attr("state") == 3;
-}
+	return job.attr("state") == 1 || job.attr("state") == 2 || job.attr("state") == 3;
+};

@@ -10,7 +10,6 @@ import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
 
-import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.cron.CronJobScheduler;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;

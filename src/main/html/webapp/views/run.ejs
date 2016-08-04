@@ -1,6 +1,6 @@
 <h2><%= details.attr('name') %></h2>
 <p><%== details.attr('description') %><br><br></p>
-<form id="parameters" class="form-horizontal" action="jobs/submit/<%= details.attr('id') %>" method="POST" enctype="multipart/form-data"></form>
+<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/<%= details.attr('id') %>" method="POST" enctype="multipart/form-data"></form>
 
 <div id="waiting-dialog" class="modal hide">
 	<div class="modal-header">

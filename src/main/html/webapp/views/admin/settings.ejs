@@ -2,154 +2,149 @@
 
 This page enables to customize your Cloudgene installation and to connect it with your Hadoop cluster.
 
-
 <hr>
 
-  <form class="form-horizontal" id="settings-form">
+<form class="form-horizontal" id="settings-form">
 
+	<h4>General</h4>
 
-<h4>General</h4>
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">Service Name:</label>
+		<div class="controls">
+			<input name="name" type="text" data-required="true" value="<%= settings.attr('name') %>">
+		</div>
+	</div>
 
-     <div class="control-group">
-    	<label for="loginUsername" class="control-label">Service Name:</label>
-    	<div class="controls">
-    	<input name="name" type="text" data-required="true" value="<%= settings.attr('name') %>">
-    	</div>
-    </div>
+	<hr>
 
-<hr>
+	<h4>Hadoop Configuration</h4>
 
-<h4>Hadoop Configuration</h4>
+	<p>If you installed Hadoop using the ClouderaManager the path of your Hadoop Binary is normally
+		<code>/usr/bin/hadoop</code>.<br>
+		To be sure enter
+		<code>which hadoop</code>
+		on the commandline and you get the full path.</p>
 
-<p>If you installed Hadoop using the ClouderaManager the path of your Hadoop Binary is normally <code>/usr/bin/hadoop</code>.<br> To be sure enter <code>which hadoop</code> on the commandline and you get the full path.</p>
-       
-            <div class="control-group">
-    	<label for="loginUsername" class="control-label">Hadoop Path:</label>
-    	<div class="controls">
-    	<input name="hadoopPath" type="text" data-required="true" value="<%= settings.attr('hadoopPath') %>">
-    	</div>
-    </div>
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">Hadoop Path:</label>
+		<div class="controls">
+			<input name="hadoopPath" type="text" data-required="true" value="<%= settings.attr('hadoopPath') %>">
+		</div>
+	</div>
 
+	<hr>
 
-<hr>
+	<h4>Applications</h4>
 
+	<p>Some nice text about applications....</p>
 
+	<table class="table table-striped table-bordered" id="templates">
+		<thead>
+			<tr>
+				<th style="width: 150px;">Id</th>
+				<th>YamlFile</th>
+				<th style="width: 80px;">Permissions</th>
 
-<h4>Applications</h4>
+			</tr>
+		</thead>
+		<tbody>
+			<% settings.attr('apps').each(function( app ) { %>
 
+				<tr >
+					<td>
+						<%= app.attr('id') %>
+					</td>
 
-<p>Some nice text about applications....</p>
+					<td>
+						<%= app.attr('filename') %>
+					</td>
+					<td>
+						<%= app.attr('permission') %>
+					</td>
 
+				</tr>
+			<% }) %>
+		</tbody>
+	</table>
 
-<table class="table table-striped table-bordered" id="templates">
-<thead>
-<tr>
-	<th style="width: 150px;">Id</th>
-	<th>YamlFile</th>
-	<th style="width: 80px;">Permissions</th>
+	<hr>
 
-</tr>	
-</thead>
-<tbody>
-<% settings.attr('apps').each(function( app ) { %>
-    
-    <tr >
-		<td>
-			<%= app.attr('id') %>
-		</td>
-           		
-		<td>
-			<%= app.attr('filename') %>
-		</td>
-		<td>
-			<%= app.attr('permission') %>
-		</td>
-	
-    </tr>
-<% }) %>
-</tbody>
-</table>
+	<h4>Configure SMTP</h4>
 
+	<p>Customize the SMTP mailing system used by Cloudgene to handle outgoing e-mails.
+	</p>
 
-<hr>
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">Server:</label>
+		<div class="controls">
+			<input name="mail-smtp" type="text" data-required="true" value="<%= settings.attr('mail-smtp') %>">
+		</div>
+	</div>
 
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">Port:</label>
+		<div class="controls">
+			<input name="mail-port" type="text" data-required="true" value="<%= settings.attr('mail-port') %>">
+		</div>
+	</div>
 
-<h4>Configure SMTP</h4>
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">User:</label>
+		<div class="controls">
+			<input name="mail-user" type="text" data-required="true" value="<%= settings.attr('mail-user') %>">
+		</div>
+	</div>
 
-<p>Customize the SMTP mailing system used by Cloudgene to handle outgoing e-mails. </p>
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">Password:</label>
+		<div class="controls">
+			<input name="mail-password" type="password" data-required="true" value="<%= settings.attr('mail-password') %>">
+		</div>
+	</div>
 
-     <div class="control-group">
-    	<label for="loginUsername" class="control-label">Server:</label>
-    	<div class="controls">
-    	<input name="mail-smtp" type="text" data-required="true" value="<%= settings.attr('mail-smtp') %>">
-    	</div>
-    </div>
+	<div class="control-group">
+		<label for="loginUsername" class="control-label">Sender:</label>
+		<div class="controls">
+			<input name="mail-name" type="text" data-required="true" value="<%= settings.attr('mail-name') %>">
+		</div>
+	</div>
 
-     <div class="control-group">
-    	<label for="loginUsername" class="control-label">Port:</label>
-    	<div class="controls">
-    	<input name="mail-port" type="text" data-required="true" value="<%= settings.attr('mail-port') %>">
-    	</div>
-    </div>
-    
-         <div class="control-group">
-    	<label for="loginUsername" class="control-label">User:</label>
-    	<div class="controls">
-    	<input name="mail-user" type="text" data-required="true" value="<%= settings.attr('mail-user') %>">
-    	</div>
-    </div>
+	<div class="control-group">
+		<div class="controls">
+			<button id="save" class="btn btn-primary" data-loading-text="please wait...">Save</button>
 
-         <div class="control-group">
-    	<label for="loginUsername" class="control-label">Password:</label>
-    	<div class="controls">
-    	<input name="mail-password" type="password" data-required="true" value="<%= settings.attr('mail-password') %>">
-    	</div>
-    </div>
-
-         <div class="control-group">
-    	<label for="loginUsername" class="control-label">Sender:</label>
-    	<div class="controls">
-    	<input name="mail-name" type="text" data-required="true" value="<%= settings.attr('mail-name') %>">
-    	</div>
-    </div>
-
-    <div class="control-group">
-        <div class="controls">        
-    	<button id="save" class="btn btn-primary" data-loading-text="please wait...">Save</button>
-        
-       </div>
-        </div>
-      </form>
+		</div>
+	</div>
+</form>
 
 <hr>
 
 <h4>Messages and HTML Snippets</h4>
 
-
 <table class="table table-striped table-bordered" id="templates">
-<thead>
-<tr>
-	<th style="width: 150px;">Key</th>
-	<th>Text</th>
-	<th style="width: 16px;"></th>
+	<thead>
+		<tr>
+			<th style="width: 150px;">Key</th>
+			<th>Text</th>
+			<th style="width: 16px;"></th>
 
-</tr>	
-</thead>
-<tbody>
-<% this.snippets.each(function( template ) { %>
-    
-    <tr <%= (tr) -> can.data(tr, 'template', template) %> >
-           		
-		<td>
-			<%= template.attr('key') %>
-		</td>
-		<td>
-			<%= template.attr('text') %>
-		</td>
-		<td>
-        	<span class="icon-pencil" style="cursor: pointer;"></span>
-		</td>		
-    </tr>
-<% }) %>
-</tbody>
+		</tr>
+	</thead>
+	<tbody>
+		<% this.snippets.each(function( template ) { %>
+
+			<tr <%= (tr) -> can.data(tr, 'template', template) %>>
+
+				<td>
+					<%= template.attr('key') %>
+				</td>
+				<td>
+					<%= template.attr('text') %>
+				</td>
+				<td>
+					<span class="icon-pencil" style="cursor: pointer;"></span>
+				</td>
+			</tr>
+		<% }) %>
+	</tbody>
 </table>

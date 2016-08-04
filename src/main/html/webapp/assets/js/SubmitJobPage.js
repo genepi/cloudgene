@@ -1,6 +1,6 @@
 //Model
 Application = can.Model({
-	findOne: 'POST app'
+	findOne: 'GET /api/v2/server/apps/{tool}'
 }, {
 
 });
@@ -128,10 +128,10 @@ SubmitJobPage = can.Control({
 			error: function(message) {
 				$("#waiting-dialog").modal('hide');
 				new ErrorPage("#content", {
-					status : message.statusText,
-					message : message.responseText
+					status: message.statusText,
+					message: message.responseText
 				});
-				
+
 			},
 
 			uploadProgress: function(event, position, total, percentComplete) {

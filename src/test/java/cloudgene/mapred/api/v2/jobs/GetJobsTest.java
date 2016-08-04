@@ -28,7 +28,7 @@ public class GetJobsTest extends JobsApiTestCase {
 	public void testGetJobsAsPublicUser() throws IOException, JSONException,
 			InterruptedException {
 
-		ClientResource resourceJobs = createClientResource("/jobs");
+		ClientResource resourceJobs = createClientResource("/api/v2/jobs");
 
 		try {
 			resourceJobs.get();
@@ -44,7 +44,7 @@ public class GetJobsTest extends JobsApiTestCase {
 
 		CookieSetting loginCookie = getCookieForUser("admin", "admin1978");
 
-		ClientResource resourceJobs = createClientResource("/jobs");
+		ClientResource resourceJobs = createClientResource("/api/v2/jobs");
 		resourceJobs.getCookies().add(loginCookie);
 
 		try {

@@ -37,7 +37,7 @@ public class JobsApiTestCase extends TestCase {
 	public String submitJob(String tool, FormDataSet form,
 			CookieSetting loginCookie) throws JSONException, IOException {
 
-		ClientResource resource = createClientResource("/jobs/submit/"
+		ClientResource resource = createClientResource("/api/v2/jobs/submit/"
 				+ tool, loginCookie);
 
 		resource.post(form);
@@ -57,13 +57,10 @@ public class JobsApiTestCase extends TestCase {
 	public String restartJob(String id, CookieSetting loginCookie)
 			throws JSONException, IOException {
 
-		ClientResource resource = createClientResource("/jobs/restart",
-				loginCookie);
+		ClientResource resource = createClientResource("/api/v2/jobs/" + id
+				+ "/restart", loginCookie);
 
-		Form formStatus = new Form();
-		formStatus.set("id", id);
-
-		resource.post(formStatus);
+		resource.get();
 		assertEquals(200, resource.getStatus().getCode());
 
 		JSONObject object = new JSONObject(resource.getResponseEntity()
@@ -80,13 +77,9 @@ public class JobsApiTestCase extends TestCase {
 	public String cancelJob(String id, CookieSetting loginCookie)
 			throws JSONException, IOException {
 
-		ClientResource resource = createClientResource("/jobs/cancel",
-				loginCookie);
-
-		Form formStatus = new Form();
-		formStatus.set("id", id);
-
-		resource.post(formStatus);
+		ClientResource resource = createClientResource("/api/v2/jobs/" + id
+				+ "/cancel", loginCookie);
+		resource.get();
 		assertEquals(200, resource.getStatus().getCode());
 
 		// JSONObject object = new JSONObject(resource.getResponseEntity()
@@ -103,13 +96,10 @@ public class JobsApiTestCase extends TestCase {
 	public String deleteJob(String id, CookieSetting loginCookie)
 			throws JSONException, IOException {
 
-		ClientResource resource = createClientResource("/jobs/delete",
+		ClientResource resource = createClientResource("/api/v2/jobs/" + id,
 				loginCookie);
 
-		Form formStatus = new Form();
-		formStatus.set("id", id);
-
-		resource.post(formStatus);
+		resource.delete();
 		assertEquals(200, resource.getStatus().getCode());
 
 		// JSONObject object = new JSONObject(resource.getResponseEntity()
@@ -127,12 +117,10 @@ public class JobsApiTestCase extends TestCase {
 	public void waitForJob(String id, CookieSetting loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
-		ClientResource resourceStatus = createClientResource("/jobs/newstate",
-				loginCookie);
-		Form formStatus = new Form();
-		formStatus.set("job_id", id);
+		ClientResource resourceStatus = createClientResource("/api/v2/jobs/"
+				+ id + "/status", loginCookie);
 
-		resourceStatus.post(formStatus);
+		resourceStatus.get();
 
 		assertEquals(200, resourceStatus.getStatus().getCode());
 		JSONObject object = new JSONObject(resourceStatus.getResponseEntity()
@@ -153,12 +141,9 @@ public class JobsApiTestCase extends TestCase {
 	public JSONObject getJobDetails(String id, CookieSetting loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
-		ClientResource resourceStatus = createClientResource("/jobs/details",
-				loginCookie);
-		Form formStatus = new Form();
-		formStatus.set("id", id);
-
-		resourceStatus.post(formStatus);
+		ClientResource resourceStatus = createClientResource("/api/v2/jobs/"
+				+ id, loginCookie);
+		resourceStatus.get();
 
 		assertEquals(200, resourceStatus.getStatus().getCode());
 		JSONObject object = new JSONObject(resourceStatus.getResponseEntity()
@@ -239,28 +224,28 @@ public class JobsApiTestCase extends TestCase {
 
 	}
 
-	public JSONArray getJobs(CookieSetting loginCookie) throws JSONException, IOException{{
+	public JSONArray getJobs(CookieSetting loginCookie) throws JSONException,
+			IOException {
+		{
 
-		ClientResource resourceJobs = createClientResource("/jobs");
-		resourceJobs.getCookies().add(loginCookie);
+			ClientResource resourceJobs = createClientResource("/api/v2/jobs");
+			resourceJobs.getCookies().add(loginCookie);
 
-		try {
-			resourceJobs.get();
-		} catch (Exception e) {
+			try {
+				resourceJobs.get();
+			} catch (Exception e) {
+			}
+
+			assertEquals(200, resourceJobs.getStatus().getCode());
+
+			JSONArray result = new JSONArray(resourceJobs.getResponseEntity()
+					.getText());
+			return result;
+
 		}
 
-		assertEquals(200, resourceJobs.getStatus().getCode());
-		
-		
-		JSONArray result = new JSONArray(resourceJobs.getResponseEntity()
-				.getText());
-		return result;
-		
 	}
-		
-	}
-	
-	
+
 	public CookieSetting getCookieForUser(String username, String password)
 			throws IOException {
 		ClientResource resourceLogin = createClientResource("/login");

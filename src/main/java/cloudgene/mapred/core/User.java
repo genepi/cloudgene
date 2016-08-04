@@ -18,7 +18,7 @@ public class User {
 
 	private String activationKey = null;
 
-	private String apiToken = null;
+	private String apiToken = "";
 
 	public void setUsername(String username) {
 		this.username = username;

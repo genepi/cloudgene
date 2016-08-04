@@ -54,7 +54,7 @@ NewPasswordPage = can
 			}
 
 			$.ajax({
-				url: "users/update-password",
+				url: "/api/v2/users/update-password",
 				type: "POST",
 				data: this.element.find("#update-password-form")
 					.serialize(),

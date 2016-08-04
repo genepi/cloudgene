@@ -16,9 +16,26 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import cloudgene.mapred.api.v2.admin.ChangeGroup;
+import cloudgene.mapred.api.v2.admin.DeleteUser;
+import cloudgene.mapred.api.v2.admin.GetAllJobs;
+import cloudgene.mapred.api.v2.admin.GetGroups;
+import cloudgene.mapred.api.v2.admin.GetStatistics;
+import cloudgene.mapred.api.v2.admin.GetUsers;
+import cloudgene.mapred.api.v2.admin.HotRetireJob;
+import cloudgene.mapred.api.v2.admin.ResetDownloads;
 import cloudgene.mapred.api.v2.admin.RetireJobs;
+import cloudgene.mapred.api.v2.admin.server.BlockQueue;
+import cloudgene.mapred.api.v2.admin.server.EnterMaintenance;
+import cloudgene.mapred.api.v2.admin.server.ExitMaintenance;
+import cloudgene.mapred.api.v2.admin.server.GetClusterDetails;
+import cloudgene.mapred.api.v2.admin.server.GetServerLogs;
+import cloudgene.mapred.api.v2.admin.server.GetSettings;
+import cloudgene.mapred.api.v2.admin.server.GetTemplates;
+import cloudgene.mapred.api.v2.admin.server.OpenQueue;
+import cloudgene.mapred.api.v2.admin.server.UpdateSettings;
+import cloudgene.mapred.api.v2.admin.server.UpdateTemplate;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
-import cloudgene.mapred.api.v2.jobs.DeleteJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
 import cloudgene.mapred.api.v2.jobs.GetJobDetails;
 import cloudgene.mapred.api.v2.jobs.GetJobStatus;
@@ -27,48 +44,25 @@ import cloudgene.mapred.api.v2.jobs.GetLogs;
 import cloudgene.mapred.api.v2.jobs.RestartJob;
 import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
+import cloudgene.mapred.api.v2.server.GetApp;
+import cloudgene.mapred.api.v2.server.GetApps;
+import cloudgene.mapred.api.v2.server.GetCounter;
+import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
-import cloudgene.mapred.core.JWTUtil;
+import cloudgene.mapred.api.v2.users.AuthUserAPI;
+import cloudgene.mapred.api.v2.users.UpdatePassword;
+import cloudgene.mapred.api.v2.users.UserProfile;
+import cloudgene.mapred.api.v2.users.LoginUser;
+import cloudgene.mapred.api.v2.users.LogoutUser;
+import cloudgene.mapred.api.v2.users.RegisterUser;
+import cloudgene.mapred.api.v2.users.ResetPassword;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
-import cloudgene.mapred.resources.admin.BlockQueue;
-import cloudgene.mapred.resources.admin.EnterMaintenance;
-import cloudgene.mapred.resources.admin.ExitMaintenance;
-import cloudgene.mapred.resources.admin.GetAllJobs;
-import cloudgene.mapred.resources.admin.GetClusterDetails;
-import cloudgene.mapred.resources.admin.GetSettings;
-import cloudgene.mapred.resources.admin.GetStatistics;
-import cloudgene.mapred.resources.admin.GetTemplates;
-import cloudgene.mapred.resources.admin.HotRetire;
-import cloudgene.mapred.resources.admin.OpenQueue;
-import cloudgene.mapred.resources.admin.ResetDownloads;
-import cloudgene.mapred.resources.admin.UpdateSettings;
-import cloudgene.mapred.resources.admin.UpdateTemplate;
-import cloudgene.mapred.resources.apps.GetApp;
-import cloudgene.mapred.resources.apps.GetApps;
-import cloudgene.mapred.resources.data.GetCounter;
 import cloudgene.mapred.resources.data.ValidateImport;
-import cloudgene.mapred.resources.users.ActivateUser;
-import cloudgene.mapred.resources.users.AuthUserAPI;
-import cloudgene.mapred.resources.users.ChangeGroupUser;
-import cloudgene.mapred.resources.users.DeleteUser;
-import cloudgene.mapred.resources.users.GetGroups;
-import cloudgene.mapred.resources.users.GetUserDetails;
-import cloudgene.mapred.resources.users.GetUsers;
-import cloudgene.mapred.resources.users.LoginUser;
-import cloudgene.mapred.resources.users.LogoutUser;
-import cloudgene.mapred.resources.users.NewUser;
-import cloudgene.mapred.resources.users.RegisterUser;
-import cloudgene.mapred.resources.users.ResetPassword;
-import cloudgene.mapred.resources.users.UpdateUser;
-import cloudgene.mapred.resources.users.UpdateUser2;
-import cloudgene.mapred.resources.users.UpdateUserPassword;
-import cloudgene.mapred.resources.users.UpdateUserPassword2;
-import cloudgene.mapred.resources.users.UpdateUserSettings;
 import cloudgene.mapred.util.LoginFilter;
 import cloudgene.mapred.util.Settings;
 
@@ -114,102 +108,105 @@ public class WebApp extends Application {
 		route = router.attach(prefix + "/", redirector);
 		route.setMatchingMode(Template.MODE_EQUALS);
 
+		// resources
 		router.attach(prefix + "/index.html", Index.class);
 		router.attach(prefix + "/start.html", Start.class);
 		router.attach(prefix + "/admin.html", Admin.class);
 
-		router.attach(prefix + "/jobs", GetJobs.class);
-		router.attach(prefix + "/jobs/details", GetJobDetails.class); // todo:
-																		// job_id
-																		// in
-																		// url
-		router.attach(prefix + "/jobs/delete", DeleteJob.class); // todo: job_id
-																	// in url
-		router.attach(prefix + "/jobs/cancel", CancelJob.class);
-		router.attach(prefix + "/jobs/restart", RestartJob.class);
-
-		router.attach(prefix + "/jobs/submit/{tool}", SubmitJob.class);
-		router.attach(prefix + "/jobs/newstate", GetJobStatus.class); // todo:
-																		// job_id
-																		// in
-																		// url
-
-		// API
+		// user authentication
 		router.attach(prefix + "/api/v2/auth", AuthUserAPI.class);
-		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
-		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/details",
-				GetJobDetails.class);
-		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
-
-		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
-
-		
-		
-		router.attach(prefix + "/counters", GetCounter.class);
-
-		router.attach(prefix + "/cluster", GetClusterDetails.class);
-
-		// router.attach("/killAllJobs", KillAllJobs.class);
-
-		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class); // todo:
-																				// jobs/job_id/results/...
-		router.attach(prefix + "/results/{job}/{id}/{filename}",
-				DownloadResults.class);
-
-		router.attach(prefix + "/share/{username}/{hash}/{filename}",
-				ShareResults.class);
-
-		router.attach(prefix + "/logs/{id}", GetLogs.class); // todo:
-																// jobs/job_id/logs/...
-
-		router.attach(prefix + "/import/validate", ValidateImport.class);
-
-		router.attach(prefix + "/app", GetApp.class);
-		router.attach(prefix + "/apps", GetApps.class);
-
-		// Users
-		router.attach(prefix + "/users", GetUsers.class);
-		router.attach(prefix + "/users/new", NewUser.class);
-		router.attach(prefix + "/users/register", RegisterUser.class);
-		router.attach(prefix + "/users/reset", ResetPassword.class);
-		router.attach(prefix + "/users/activate/{user}/{code}",
-				ActivateUser.class);
-		router.attach(prefix + "/users/delete", DeleteUser.class);
-		router.attach(prefix + "/users/changegroup}", ChangeGroupUser.class);
-		router.attach(prefix + "/admin/groups}", GetGroups.class);
-
-		router.attach(prefix + "/users/update", UpdateUser.class);
-		router.attach(prefix + "/users/update2", UpdateUser2.class);
-		router.attach(prefix + "/users/update-password",
-				UpdateUserPassword2.class);
-
-		router.attach(prefix + "/users/details", GetUserDetails.class);
 		router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 
-		// Admin
-		router.attach(prefix + "/admin/queue/open", OpenQueue.class);
-		router.attach(prefix + "/admin/queue/block", BlockQueue.class);
-		router.attach(prefix + "/admin/maintenance/enter",
+		// jobs
+		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
+		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
+		router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
+
+		// user registration
+		router.attach(prefix + "/api/v2/users/register", RegisterUser.class);
+
+		// activate user after registration
+		router.attach(prefix + "/users/activate/{user}/{code}",
+				ActivateUser.class);
+
+		// reset password. Sends mail with link to update password
+		router.attach(prefix + "/api/v2/users/users/reset", ResetPassword.class);
+
+		// after reset, update password (needs activation code...)
+		router.attach(prefix + "/api/v2/users/update-password",
+				UpdatePassword.class);
+
+		// get or update user profile
+		router.attach(prefix + "/api/v2/users/{user}/profile",
+				UserProfile.class);
+
+		// create, delete, get api token
+		router.attach(prefix + "/api/v2/users/{user}/api-token",
+				ApiTokens.class);
+
+		// returns all counters
+		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
+
+		// returns meta data about an app
+		router.attach(prefix + "/api/v2/server/apps/{tool}", GetApp.class);
+
+		//  returns a list of all installed apps
+		router.attach(prefix + "/api/v2/server/apps", GetApps.class);
+		
+		// admin jobs
+		router.attach(prefix + "/api/v2/admin/jobs", GetAllJobs.class);
+		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
+		router.attach(prefix + "/api/v2/admin/jobs/{job}/reset",
+				ResetDownloads.class);
+		router.attach(prefix + "/api/v2/admin/jobs/{job}/retire",
+				HotRetireJob.class);
+
+		// admin users
+		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
+		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);
+		router.attach(prefix + "/api/v2/admin/users/changegroup}",
+				ChangeGroup.class);
+		router.attach(prefix + "/api/v2/admin/groups}", GetGroups.class);
+
+		// admin server management
+		router.attach(prefix + "/api/v2/admin/server/cluster",
+				GetClusterDetails.class);
+		router.attach(prefix + "/api/v2/admin/server/queue/open",
+				OpenQueue.class);
+		router.attach(prefix + "/api/v2/admin/server/queue/block",
+				BlockQueue.class);
+		router.attach(prefix + "/api/v2/admin/server/maintenance/enter",
 				EnterMaintenance.class);
-		router.attach(prefix + "/admin/maintenance/exit", ExitMaintenance.class);
-		router.attach(prefix + "/admin/templates", GetTemplates.class);
-		router.attach(prefix + "/admin/templates/update", UpdateTemplate.class);
-		router.attach(prefix + "/admin/jobs/{job}/reset", ResetDownloads.class);
-		router.attach(prefix + "/admin/jobs/{job}/retire", HotRetire.class);
-		router.attach(prefix + "/admin/jobs", GetAllJobs.class);
-		router.attach(prefix + "/admin/settings", GetSettings.class);
-		router.attach(prefix + "/admin/settings/update", UpdateSettings.class);
+		router.attach(prefix + "/api/v2/admin/server/maintenance/exit",
+				ExitMaintenance.class);
+		router.attach(prefix + "/api/v2/admin/server/templates",
+				GetTemplates.class);
+		router.attach(prefix + "/api/v2/admin/server/templates/update",
+				UpdateTemplate.class);
+		router.attach(prefix + "/api/v2/admin/server/settings",
+				GetSettings.class);
+		router.attach(prefix + "/api/v2/admin/server/settings/update",
+				UpdateSettings.class);
+		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}",
+				GetServerLogs.class);
+		router.attach(prefix + "/api/v2/admin/server/statistics",
+				GetStatistics.class);
 
-		router.attach(prefix + "/updateUserSettings", UpdateUserSettings.class);
-		router.attach(prefix + "/updateUserPassword", UpdateUserPassword.class);
+		// sownload resources
+		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
+		router.attach(prefix + "/results/{job}/{id}/{filename}",
+				DownloadResults.class);
+		router.attach(prefix + "/share/{username}/{hash}/{filename}",
+				ShareResults.class);
+		router.attach(prefix + "/logs/{id}", GetLogs.class);
 
-		router.attach(prefix + "/console/logs/{logfile}",
-				cloudgene.mapred.resources.admin.GetLogs.class);
+		// ------------------
 
-		router.attach(prefix + "/statistics", GetStatistics.class);
+		router.attach(prefix + "/import/validate", ValidateImport.class);
 
 		setStatusService(new CustomStatusService());
 

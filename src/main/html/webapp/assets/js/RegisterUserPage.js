@@ -114,7 +114,7 @@ RegisterUserPage = can
 			$('#save').button('loading');
 
 			$.ajax({
-				url: "users/register",
+				url: "/api/v2/users/register",
 				type: "POST",
 				data: this.element.find("#signon-form").serialize(),
 				dataType: 'json',

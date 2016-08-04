@@ -13,7 +13,7 @@ ResetPasswordPage = can.Control({
 		username = this.element.find("[name='username']");
 
 		$.ajax({
-			url : "users/reset",
+			url : "/api/v2/users/reset",
 			type : "POST",
 			data : this.element.find("#reset-form").serialize(),
 			dataType : 'json',

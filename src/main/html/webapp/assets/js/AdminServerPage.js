@@ -1,6 +1,6 @@
 //model
 Cluster = can.Model({
-	findOne : 'GET cluster'
+	findOne : 'GET /api/v2/admin/server/cluster'
 }, {
 
 });
