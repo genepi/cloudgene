@@ -21,12 +21,6 @@
 		</repository>
 
 		<repository>
-			<name>jets3t</name>
-			<id>jets3t</id>
-			<url>http://www.jets3t.org/maven2</url>
-		</repository>
-
-		<repository>
 			<id>cloudera</id>
 			<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
 		</repository>
@@ -250,12 +244,6 @@
 			<artifactId>json-lib</artifactId>
 			<version>2.4</version>
 			<classifier>jdk15</classifier>
-		</dependency>
-
-		<dependency>
-			<groupId>net.java.dev.jets3t</groupId>
-			<artifactId>jets3t</artifactId>
-			<version>0.9.1</version>
 		</dependency>
 
 		<dependency>
