@@ -408,7 +408,7 @@ public class CloudgeneJob extends AbstractJob {
 
 			for (FileItem item : items) {
 				String hash = HashUtil.getMD5(item.getText() + item.getId()
-						+ item.getSize() + getId());
+						+ item.getSize() + getId() + (Math.random() * 100000));
 				Download download = new Download();
 				download.setName(item.getText());
 				download.setPath(FileUtil.path(getId(), item.getId()));
