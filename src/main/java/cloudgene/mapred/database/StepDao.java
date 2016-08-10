@@ -75,6 +75,7 @@ public class StepDao extends JdbcDataAccessObject {
 			for (CloudgeneStep step : result) {
 				List<Message> logMessages = messageDao.findAllByStep(step);
 				step.setLogMessages(logMessages);
+				step.setJob(job);
 			}
 
 			log.debug("find all log step successful. results: " + result.size());

@@ -234,7 +234,7 @@ public class JobDao extends JdbcDataAccessObject {
 		sql.append("from job ");
 		sql.append("join user on job.user_id = user.id ");
 		sql.append("where  state = ? or state = ? ");
-		sql.append("order job.by id desc ");
+		sql.append("order by job.id desc ");
 
 		Object[] params = new Object[2];
 		params[0] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;

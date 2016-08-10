@@ -226,15 +226,16 @@
 					<% if (param.attr('files').length > 0){ %>
 						<table class="table table-bordered">
 							<tbody>
-								<tr>
-									<td colspan="4">
+								<tr <%= (tr) -> can.data(tr, 'files', param.attr('files')) %>>
+									<td colspan="2">
 										<b><%=param.attr('description') %></b>
 									</td>
+									<td><span class="share-folder icon-share" style="cursor: pointer;" title="Share All Data..."></span></td>
 								</tr>
 
 								<% param.attr('files').each(function( output ) { %>
 
-									<tr>
+									<tr <%= (tr) -> can.data(tr, 'output', output) %>>
 										<td>
 											<a href="results/<%=output.attr('path') %>" target="_blank"><%=output.attr('name') %></a>
 
@@ -248,7 +249,7 @@
 										</td>
 										<td style="width: 100px;text-align:right;"><%=output.attr('size') %></td>
 										<td style="width: 16px;text-align:center;">
-											<span class="icon-share-alt" style="cursor: pointer;" title="Share Data..." <%=output.attr('hash') ? " onclick=\"bootbox.animate(false); bootbox.alert('<h4>Share Data</h4>The private link for this file is:<br><br><pre><a target=\\\'_blank\\\' href=\\\'https://"+location.host+"/share/"+output.username+"/" +output.hash+"/" + output.name + "\\\'>https://"+location.host+"/share/"+output.username+"/" + output.hash+"/" + output.name +"</a></pre>');\"" : ""%>></span>
+											<span class="share-file icon-share-alt" style="cursor: pointer;" title="Share Data..."></span>
 										</td>
 									</tr>
 

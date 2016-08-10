@@ -123,6 +123,23 @@ JobDetailsPage = can.Control({
 		});
 	},
 
+	'.share-file click': function(e) {
+		output = e.closest('tr').data('output');
+		bootbox.animate(false);
+		bootbox.alert(can.view('/views/share-file.ejs', {
+			hostname: location.protocol + '//' + location.host,
+			output: output
+		}));
+	},
+
+	'.share-folder click': function(e) {
+		files = e.closest('tr').data('files');
+		bootbox.animate(false);
+		bootbox.alert(can.view('/views/share-folder.ejs', {
+			hostname: 'https://' + location.host,
+			files: files
+		}));	},
+
 	// refresh if job is running
 
 	refresh: function() {
