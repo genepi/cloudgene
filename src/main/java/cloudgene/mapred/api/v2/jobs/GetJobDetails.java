@@ -63,10 +63,6 @@ public class GetJobDetails extends BaseResource {
 			return error403("Access denied.");
 		}
 
-		// finds position in queue
-		int position = getWorkflowEngine().getPositionInQueue(job);
-		job.setPositionInQueue(position);
-
 		// removes outputs that are for admin only
 		List<CloudgeneParameter> adminParams = new Vector<>();
 		if (!user.isAdmin()) {

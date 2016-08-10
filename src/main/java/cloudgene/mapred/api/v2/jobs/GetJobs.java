@@ -49,7 +49,7 @@ public class GetJobs extends BaseResource {
 				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"logs", "removeHdfsWorkspace", "settings", "setupComplete",
 				"stdOutFile", "steps", "workingDirectory", "application",
-				"map", "reduce", "logOutFile", "deletedOn" });
+				"map", "reduce", "logOutFile", "deletedOn","applicationId","name","running" });
 
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 

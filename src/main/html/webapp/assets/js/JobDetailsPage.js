@@ -149,9 +149,8 @@ JobDetailsPage = can.Control({
 		}, function(currentJob) {
 			that.job.attr('state', currentJob.attr('state'));
 			that.job.attr('executionTime', currentJob.attr('executionTime'));
-			that.job.attr('map', currentJob.attr('map'));
-			that.job.attr('reduce', currentJob.attr('reduce'));
 			that.job.attr('steps', currentJob.attr('steps'));
+			that.job.attr('positionInQueue', currentJob.attr('positionInQueue'));
 
 			// needs refresh
 			if (JobDetailsPage.needsUpdate(currentJob) && that.active) {

@@ -8,6 +8,8 @@ import java.util.concurrent.Future;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.google.common.util.concurrent.Service.State;
+
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 
@@ -18,19 +20,22 @@ public abstract class Queue implements Runnable {
 	private HashMap<AbstractJob, Future<?>> futures;
 
 	private HashMap<AbstractJob, Runnable> runnables;
-	
+
 	private Scheduler scheduler;
 
 	private String name = "";
 
+	private boolean updatePositions = false;
+
 	private static final Log log = LogFactory.getLog(Queue.class);
 
-	public Queue(String name, int threads) {
+	public Queue(String name, int threads, boolean updatePositions) {
 		futures = new HashMap<AbstractJob, Future<?>>();
 		runnables = new HashMap<AbstractJob, Runnable>();
 		queue = new Vector<AbstractJob>();
 		scheduler = new Scheduler(threads);
 		this.name = name;
+		this.updatePositions = updatePositions;
 	}
 
 	public void submit(AbstractJob job) {
@@ -41,12 +46,15 @@ public abstract class Queue implements Runnable {
 
 				Runnable runnable = createRunnable(job);
 				runnables.put(job, runnable);
-				
-				
+
 				Future<?> future = scheduler.submit(runnable);
 				futures.put(job, future);
 				queue.add(job);
 				log.info(name + ": Submit job...");
+
+				if (updatePositions) {
+					updatePositionInQueue();
+				}
 
 			}
 
@@ -64,6 +72,10 @@ public abstract class Queue implements Runnable {
 			job.kill();
 			job.cancel();
 
+			if (updatePositions) {
+				updatePositionInQueue();
+			}
+
 		}
 
 		if (job.getState() == AbstractJob.STATE_WAITING) {
@@ -72,7 +84,7 @@ public abstract class Queue implements Runnable {
 
 				synchronized (queue) {
 					Runnable runnable = runnables.get(job);
-					if (runnable != null){
+					if (runnable != null) {
 						scheduler.kill(runnable);
 					}
 					job.cancel();
@@ -80,6 +92,11 @@ public abstract class Queue implements Runnable {
 					futures.remove(job);
 					onComplete(job);
 					log.info(name + ": Cancel Job...");
+
+					if (updatePositions) {
+						updatePositionInQueue();
+					}
+
 				}
 
 			}
@@ -115,6 +132,9 @@ public abstract class Queue implements Runnable {
 						for (AbstractJob job : complete) {
 							onComplete(job);
 							futures.remove(job);
+							if (updatePositions) {
+								updatePositionInQueue();
+							}
 						}
 
 					}
@@ -206,18 +226,15 @@ public abstract class Queue implements Runnable {
 		return null;
 	}
 
-	public int getPositionInQueue(AbstractJob job) {
-
+	protected void updatePositionInQueue() {
 		synchronized (queue) {
-
-			int index = queue.indexOf(job);
-
-			if (index < 0) {
-				return 0;
-			} else {
-				return index + 1 - scheduler.getActiveCount();
+			int position = 0;
+			for (AbstractJob job : queue) {
+				job.setPositionInQueue(position);
+				if (job.getState() == AbstractJob.STATE_WAITING) {
+					position++;
+				}
 			}
-
 		}
 	}
 

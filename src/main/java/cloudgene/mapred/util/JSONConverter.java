@@ -16,7 +16,7 @@ public class JSONConverter {
 				"setupComplete", "stdOutFile", "workingDirectory", "parameter",
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress",
 				"jobId", "makeAbsolute", "mergeOutput", "removeHeader",
-				"value", "autoExport", "adminOnly", "download", "tip", "apiToken" });
+				"value", "autoExport", "adminOnly", "download", "tip", "apiToken","parameterId","count","username","running" });
 		return JSONObject.fromObject(job, config);
 	}
 

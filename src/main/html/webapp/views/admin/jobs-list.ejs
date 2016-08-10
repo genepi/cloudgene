@@ -23,7 +23,7 @@
 				<% } %>
 
 				<% if( job.attr('state') == '1' ){ %>
-					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') %>)</span>
+					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') + 1 %>)</span>
 				<% } %>
 				<% if( job.attr('state') == '2' ){ %>
 					<span class="label label-info" style="width: 50px">Running</span>
@@ -52,7 +52,7 @@
 			</td>
 
 			<td>
-				<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a>
+				<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('id') %></a>
 			</td>
 
 			<td>

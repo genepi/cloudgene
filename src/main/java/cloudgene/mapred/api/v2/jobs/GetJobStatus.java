@@ -38,9 +38,6 @@ public class GetJobStatus extends BaseResource {
 
 			}
 
-			int position = getWorkflowEngine().getPositionInQueue(job);
-			job.setPositionInQueue(position);
-
 		}
 
 		if (job == null) {

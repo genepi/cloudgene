@@ -59,12 +59,12 @@
 
 				<td style="width: 20px;text-align:center;">
 					<% if( job.attr('state') == '1' ){ %>
-						<span class="badge"><%= job.attr('positionInQueue') %></span>
+						<span class="badge"><%= job.attr('positionInQueue') + 1%></span>
 					<% } %>
 				</td>
 
 				<td>
-					<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a>
+					<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('id') %></a>
 				</td>
 
 				<td></td>

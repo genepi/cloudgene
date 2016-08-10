@@ -91,7 +91,9 @@
 			<% if( job.attr('state') == '7' ){ %>
 				<span class="label label-inverse" style="width: 50px">Retired</span>
 			<% } %>
-
+			<% if( job.attr('state') == '1' ){ %>
+				<small> &nbsp; queue position <b><%= job.attr('positionInQueue') + 1 %></b> <%== job.attr('positionInQueue')+1 > 30 ? '<span class="icon-warning-sign"  style="color:#FFA500;" title="server under heavy load"></span>' : '' %></small>
+			<% } %>
 		</td>
 	</tr>
 	<% if( job.attr('logs') ){ %>
@@ -110,17 +112,6 @@
 			</td>
 			<td><%= job.attr('application') %></td>
 		</tr>
-
-		<% if( job.attr('state') == '1' ){ %>
-			<tr>
-				<td>
-					<b>Queue Position:</b>
-				</td>
-				<td>
-					<span class="badge"><%= job.attr('positionInQueue') %></span>
-				</td>
-			</tr>
-		<% } %>
 
 		<tr>
 			<td>

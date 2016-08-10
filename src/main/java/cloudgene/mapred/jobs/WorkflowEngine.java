@@ -61,7 +61,7 @@ public class WorkflowEngine implements Runnable {
 			dao.update(job);
 		}
 
-		shortTimeQueue = new Queue("ShortTimeQueue", stqThreads) {
+		shortTimeQueue = new Queue("ShortTimeQueue", stqThreads, false) {
 
 			@Override
 			public Runnable createRunnable(AbstractJob job) {
@@ -146,7 +146,7 @@ public class WorkflowEngine implements Runnable {
 
 		};
 
-		longTimeQueue = new Queue("LongTimeQueue", ltqThreads) {
+		longTimeQueue = new Queue("LongTimeQueue", ltqThreads, true) {
 
 			@Override
 			public Runnable createRunnable(AbstractJob job) {
@@ -397,10 +397,6 @@ public class WorkflowEngine implements Runnable {
 		}
 
 		return jobs;
-	}
-
-	public int getPositionInQueue(AbstractJob job) {
-		return longTimeQueue.getPositionInQueue(job);
 	}
 
 	class SetupThread implements Runnable {
