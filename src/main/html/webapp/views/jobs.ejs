@@ -58,7 +58,7 @@
 				</td>
 
 				<td style="width: 20px;text-align:center;">
-					<% if( job.attr('state') == '1' ){ %>
+					<% if( job.attr('state') == '1' && job.attr('positionInQueue') != -1){ %>
 						<span class="badge"><%= job.attr('positionInQueue') + 1%></span>
 					<% } %>
 				</td>

@@ -261,6 +261,12 @@ public class WorkflowEngine implements Runnable {
 		}
 
 	}
+	
+	public void pushToFront(AbstractJob job){
+		if (longTimeQueue.isInQueue(job)) {
+			longTimeQueue.pushToFront(job);
+		}
+	}
 
 	public void cancel(AbstractJob job) {
 

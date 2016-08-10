@@ -238,6 +238,10 @@ public abstract class Queue implements Runnable {
 		}
 	}
 
+	public boolean pushToFront(AbstractJob job){
+		return true;
+	}
+	
 	public boolean isInQueue(AbstractJob job) {
 
 		synchronized (queue) {

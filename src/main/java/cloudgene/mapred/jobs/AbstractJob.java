@@ -79,7 +79,7 @@ abstract public class AbstractJob implements Runnable {
 
 	private boolean setupComplete = false;
 
-	private int positionInQueue = 0;
+	private int positionInQueue = -1;
 
 	protected List<CloudgeneParameter> inputParams = new Vector<CloudgeneParameter>();
 
