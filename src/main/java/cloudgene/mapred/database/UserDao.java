@@ -222,20 +222,20 @@ public class UserDao extends JdbcDataAccessObject {
 		return true;
 	}
 
-	class UserMapper implements IRowMapper {
+	public static class UserMapper implements IRowMapper {
 
 		@Override
-		public Object mapRow(ResultSet rs, int row) throws SQLException {
+		public User mapRow(ResultSet rs, int row) throws SQLException {
 			User user = new User();
-			user.setId(rs.getInt("id"));
-			user.setUsername(rs.getString("username"));
-			user.setPassword(rs.getString("password"));
-			user.setFullName(rs.getString("full_name"));
-			user.setMail(rs.getString("mail"));
-			user.setRole(rs.getString("role"));
-			user.setActivationCode(rs.getString("activation_code"));
-			user.setActive(rs.getBoolean("active"));
-			user.setApiToken(rs.getString("api_token"));
+			user.setId(rs.getInt("user.id"));
+			user.setUsername(rs.getString("user.username"));
+			user.setPassword(rs.getString("user.password"));
+			user.setFullName(rs.getString("user.full_name"));
+			user.setMail(rs.getString("user.mail"));
+			user.setRole(rs.getString("user.role"));
+			user.setActivationCode(rs.getString("user.activation_code"));
+			user.setActive(rs.getBoolean("user.active"));
+			user.setApiToken(rs.getString("user.api_token"));
 			return user;
 		}
 

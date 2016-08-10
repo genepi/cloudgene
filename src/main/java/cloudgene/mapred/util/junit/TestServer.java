@@ -170,9 +170,9 @@ public class TestServer {
 		}
 
 		//delete old database
-		FileUtil.deleteDirectory("test-database");
+		//FileUtil.deleteDirectory("test-database");
 		
-		H2Connector connector = new H2Connector("test-database/mapred",
+		H2Connector connector = new H2Connector("./test-database/mapred",
 				"mapred", "mapred", false);
 		//DatabaseConnector connector = new MySqlConnector("localhost", "3306", "cloudgene",
 		//		"root", "lukas");
@@ -182,7 +182,7 @@ public class TestServer {
 
 			database.connect(connector);
 
-			if (connector.isNewDatabase()) {
+			/*if (connector.isNewDatabase()) {
 
 				// init schema
 				InputStream is = Main.class
@@ -193,7 +193,7 @@ public class TestServer {
 				if (versionFile.exists()) {
 					versionFile.delete();
 				}
-			}
+			}*/
 
 			InputStream is = Main.class.getResourceAsStream("/updates.sql");
 			DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,

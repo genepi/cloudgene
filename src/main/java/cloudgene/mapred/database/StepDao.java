@@ -68,8 +68,14 @@ public class StepDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params,
-					new CloudgeneStepMapper(true));
+			result = query(sql.toString(), params, new CloudgeneStepMapper());
+
+			// load messages for all steps
+			MessageDao messageDao = new MessageDao(database);
+			for (CloudgeneStep step : result) {
+				List<Message> logMessages = messageDao.findAllByStep(step);
+				step.setLogMessages(logMessages);
+			}
 
 			log.debug("find all log step successful. results: " + result.size());
 
@@ -82,27 +88,12 @@ public class StepDao extends JdbcDataAccessObject {
 
 	class CloudgeneStepMapper implements IRowMapper {
 
-		private boolean loadMessages;
-
-		private MessageDao messageDao;
-
-		public CloudgeneStepMapper(boolean loadMessages) {
-			this.loadMessages = loadMessages;
-			messageDao = new MessageDao(database);
-		}
-
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
 
 			CloudgeneStep step = new EmptyStep();
 			step.setId(rs.getInt("id"));
 			step.setName(rs.getString("name"));
-
-			if (loadMessages) {
-				List<Message> logMessages = messageDao.findAllByStep(step);
-				step.setLogMessages(logMessages);
-			}
-
 			return step;
 
 		}

@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao.UserMapper;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameter;
@@ -90,7 +91,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		return true;
 	}
-	
+
 	public boolean delete(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("delete from job ");
@@ -129,7 +130,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new JobMapper(false, false));
+			result = query(sql.toString(), params, new JobMapper());
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -139,20 +140,22 @@ public class JobDao extends JdbcDataAccessObject {
 			return null;
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<AbstractJob> findAll() {
+		// log.info("finding all jobs");
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("order by id asc ");
+		sql.append("join user on job.user_id = user.id ");
+		sql.append("order by job.id asc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
 		try {
 
-			result = query(sql.toString(), new JobMapper(true, false));
+			result = query(sql.toString(), new JobAndUserMapper());
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -169,8 +172,9 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
+		sql.append("join user on job.user_id = user.id ");
 		sql.append("where state != ? AND state != ? ");
-		sql.append("order by id desc ");
+		sql.append("order by job.id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -180,7 +184,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new JobMapper(true, false));
+			result = query(sql.toString(), params, new JobAndUserMapper());
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -197,8 +201,9 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
+		sql.append("join user on job.user_id = user.id ");
 		sql.append("where state != ? AND state != ? AND state != ? AND state != ? ");
-		sql.append("order by id desc ");
+		sql.append("order by job.id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
@@ -210,7 +215,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new JobMapper(true, false));
+			result = query(sql.toString(), params, new JobAndUserMapper());
 
 			log.debug("find all jobs successful. results: " + result.size());
 
@@ -227,8 +232,9 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
+		sql.append("join user on job.user_id = user.id ");
 		sql.append("where  state = ? or state = ? ");
-		sql.append("order by id desc ");
+		sql.append("order job.by id desc ");
 
 		Object[] params = new Object[2];
 		params[0] = AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND;
@@ -238,7 +244,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new JobMapper(true, false));
+			result = query(sql.toString(), params, new JobAndUserMapper());
 
 			log.debug("find all old jobs successful. results: " + result.size());
 
@@ -255,8 +261,9 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
+		sql.append("join user on job.user_id = user.id ");
 		sql.append("where  state = ? AND end_time < ?  ");
-		sql.append("order by id desc ");
+		sql.append("order by job.id desc ");
 
 		Object[] params = new Object[2];
 		params[0] = state;
@@ -266,7 +273,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new JobMapper(true, false));
+			result = query(sql.toString(), params, new JobAndUserMapper());
 
 			log.debug("find all old jobs successful. results: " + result.size());
 
@@ -283,8 +290,9 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
+		sql.append("join user on job.user_id = user.id ");
 		sql.append("where state = ? ");
-		sql.append("order by id desc ");
+		sql.append("order by job.id desc ");
 
 		Object[] params = new Object[1];
 		params[0] = state;
@@ -293,7 +301,7 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new JobMapper(true, false));
+			result = query(sql.toString(), params, new JobAndUserMapper());
 
 			log.debug("find all old jobs successful. results: " + result.size());
 
@@ -315,7 +323,8 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("where id = ? and state != ? ");
+		sql.append("join user on job.user_id = user.id ");
+		sql.append("where job.id = ? and state != ? ");
 
 		Object[] params = new Object[2];
 		params[0] = id;
@@ -326,7 +335,28 @@ public class JobDao extends JdbcDataAccessObject {
 		try {
 
 			job = (AbstractJob) queryForObject(sql.toString(), params,
-					new JobMapper(true, loadParams));
+					new JobAndUserMapper());
+
+			if (loadParams && job != null) {
+
+				ParameterDao parameterDao = new ParameterDao(database);
+				List<CloudgeneParameter> inputParams = parameterDao
+						.findAllInputByJob(job);
+				List<CloudgeneParameter> outputParams = parameterDao
+						.findAllOutputByJob(job);
+				job.setInputParams(inputParams);
+				job.setOutputParams(outputParams);
+
+				if (job instanceof CloudgeneJob) {
+
+					StepDao stepDao = new StepDao(database);
+					List<CloudgeneStep> steps = stepDao
+							.findAllByJob((CloudgeneJob) job);
+					job.setSteps(steps);
+
+				}
+
+			}
 
 			if (job instanceof CloudgeneJob) {
 				((CloudgeneJob) job).updateProgress();
@@ -347,60 +377,37 @@ public class JobDao extends JdbcDataAccessObject {
 
 	class JobMapper implements IRowMapper {
 
-		private boolean loadUser;
+		@Override
+		public AbstractJob mapRow(ResultSet rs, int row) throws SQLException {
 
-		private boolean loadDetails;
+			AbstractJob job = new CloudgeneJob();
+			job.setId(rs.getString("job.id"));
+			job.setName(rs.getString("job.name"));
+			job.setState(rs.getInt("job.state"));
+			job.setStartTime(rs.getLong("job.start_time"));
+			job.setEndTime(rs.getLong("job.end_time"));
+			job.setDeletedOn(rs.getLong("job.deleted_on"));
+			job.setApplication(rs.getString("job.application"));
+			job.setApplicationId(rs.getString("job.application_id"));
 
-		private UserDao userDao;
-
-		private ParameterDao parameterDao;
-
-		private StepDao stepDao;
-
-		public JobMapper(boolean loadUser, boolean loadDetails) {
-			this.loadUser = loadUser;
-			this.loadDetails = loadDetails;
-			userDao = new UserDao(database);
-			parameterDao = new ParameterDao(database);
-			stepDao = new StepDao(database);
+			return job;
 		}
+
+	}
+
+	class JobAndUserMapper implements IRowMapper {
+
+		private JobMapper jobMaper = new JobMapper();
+
+		private UserMapper userMapper = new UserMapper();
 
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
 
-			AbstractJob job = new CloudgeneJob();
-			job.setId(rs.getString("id"));
-			job.setName(rs.getString("name"));
-			job.setState(rs.getInt("state"));
-			job.setStartTime(rs.getLong("start_time"));
-			job.setEndTime(rs.getLong("end_time"));
-			job.setDeletedOn(rs.getLong("deleted_on"));
-			job.setApplication(rs.getString("application"));
-			job.setApplicationId(rs.getString("application_id"));
+			AbstractJob job = jobMaper.mapRow(rs, row);
 
-			if (loadUser) {
-
-				User user = userDao.findById(rs.getInt("user_id"));
-				job.setUser(user);
-			}
-
-			if (loadDetails) {
-
-				List<CloudgeneParameter> inputParams = parameterDao
-						.findAllInputByJob(job);
-				List<CloudgeneParameter> outputParams = parameterDao
-						.findAllOutputByJob(job);
-				job.setInputParams(inputParams);
-				job.setOutputParams(outputParams);
-
-				if (job instanceof CloudgeneJob) {
-
-					List<CloudgeneStep> steps = stepDao
-							.findAllByJob((CloudgeneJob) job);
-					job.setSteps(steps);
-
-				}
-			}
+			User user = userMapper.mapRow(rs, row);
+			job.setUser(user);
 
 			return job;
 		}

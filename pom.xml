@@ -65,8 +65,8 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -123,7 +123,7 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-db</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency>
 
 		<dependency>
@@ -268,7 +268,7 @@
 		<dependency>
 			<groupId>com.esotericsoftware.yamlbeans</groupId>
 			<artifactId>yamlbeans</artifactId>
-			<version>1.09</version>
+			<version>1.06</version>
 		</dependency>
 
 		<dependency>

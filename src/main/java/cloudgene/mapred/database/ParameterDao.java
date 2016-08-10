@@ -72,8 +72,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new ParameterMapper(job,
-					false));
+			result = query(sql.toString(), params, new ParameterMapper());
 
 			log.debug("find all input parameters for job '" + job.getId()
 					+ "' successful. results: " + result.size());
@@ -101,8 +100,17 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = query(sql.toString(), params, new ParameterMapper(job,
-					true));
+			result = query(sql.toString(), params, new ParameterMapper());
+
+			DownloadDao downloadDao = new DownloadDao(database);
+			for (CloudgeneParameter parameter : result) {
+				List<Download> downloads = downloadDao
+						.findAllByParameter(parameter);
+				for (Download download : downloads) {
+					download.setUsername(job.getUser().getUsername());
+				}
+				parameter.setFiles(downloads);
+			}
 
 			log.debug("find all output parameters for job '" + job.getId()
 					+ "' successful. results: " + result.size());
@@ -117,18 +125,6 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 	class ParameterMapper implements IRowMapper {
 
-		private boolean loadDownloads;
-
-		private DownloadDao downloadDao;
-
-		private AbstractJob job;
-
-		public ParameterMapper(AbstractJob job, boolean loadDownloads) {
-			this.loadDownloads = loadDownloads;
-			this.job = job;
-			downloadDao = new DownloadDao(database);
-		}
-
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
 			CloudgeneParameter parameter = new CloudgeneParameter();
@@ -142,17 +138,6 @@ public class ParameterDao extends JdbcDataAccessObject {
 			parameter.setFormat(rs.getString("format"));
 			parameter.setId(rs.getInt("id"));
 			parameter.setAdminOnly(rs.getBoolean("admin_only"));
-			if (loadDownloads) {
-
-				List<Download> downloads = downloadDao
-						.findAllByParameter(parameter);
-				for (Download download : downloads) {
-					download.setUsername(job.getUser().getUsername());
-				}
-				parameter.setFiles(downloads);
-
-			}
-
 			return parameter;
 
 		}

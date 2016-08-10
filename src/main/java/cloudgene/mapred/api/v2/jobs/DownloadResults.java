@@ -5,6 +5,7 @@ import genepi.io.FileUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
+import org.restlet.data.Status;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
@@ -24,7 +25,7 @@ public class DownloadResults extends BaseResource {
 
 	@Get
 	public Representation get() {
-
+try{
 		String jobId = getAttribute("job");
 		String paramId = getAttribute("id");
 		String filename = getAttribute("filename");
@@ -103,9 +104,12 @@ public class DownloadResults extends BaseResource {
 		//update download counter
 		download.decCount();
 		dao.update(download);
-
 		return new FileRepresentation(resultFile, mediaType);
 
+}catch(Exception e){
+	e.printStackTrace();
+}
+return error(Status.CLIENT_ERROR_BAD_REQUEST, "oje");
 	}
 
 }

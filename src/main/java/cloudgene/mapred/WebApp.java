@@ -47,6 +47,7 @@ import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.api.v2.server.GetApp;
 import cloudgene.mapred.api.v2.server.GetApps;
 import cloudgene.mapred.api.v2.server.GetCounter;
+import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
 import cloudgene.mapred.api.v2.users.AuthUserAPI;
@@ -154,9 +155,12 @@ public class WebApp extends Application {
 		// returns meta data about an app
 		router.attach(prefix + "/api/v2/server/apps/{tool}", GetApp.class);
 
-		//  returns a list of all installed apps
+		// returns a list of all installed apps
 		router.attach(prefix + "/api/v2/server/apps", GetApps.class);
-		
+
+		// returns current version as svg image
+		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
+
 		// admin jobs
 		router.attach(prefix + "/api/v2/admin/jobs", GetAllJobs.class);
 		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
@@ -224,7 +228,7 @@ public class WebApp extends Application {
 
 		String[] protectedFiles = { prefix + "/start.html" };
 		LoginFilter filter = new LoginFilter("/index.html", prefix,
-				protectedFiles,getSettings().getSecretKey());
+				protectedFiles, getSettings().getSecretKey());
 		filter.setNext(router);
 
 		return filter;
