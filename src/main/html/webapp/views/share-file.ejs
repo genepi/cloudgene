@@ -1,0 +1,20 @@
+<h4>Share Data</h4>
+The private link for this file is:<br><br>
+
+<ul id="myTab" class="nav nav-tabs">
+	<li class="active">
+		<a href="#links" data-toggle="tab">Link to share</a>
+	</li>
+	<li class="">
+		<a href="#wget" data-toggle="tab">wget command</a>
+	</li>
+</ul>
+
+<div id="myTabContent" class="tab-content">
+	<div class="tab-pane active in" id="links">
+		<textarea class="field span6" id="message" rows="3"><%= hostname %>/share/<%= output.attr('username') %>/<%= output.attr('hash') %>/<%= output.attr('name') %></textarea>
+	</div>
+	<div class="tab-pane" id="wget">
+		<textarea class="field span6" id="message" rows="3">wget <%= hostname %>/share/<%= output.attr('username') %>/<%= output.attr('hash') %>/<%= output.attr('name') %></textarea>
+	</div>
+</div>
