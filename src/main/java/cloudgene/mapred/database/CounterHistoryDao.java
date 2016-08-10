@@ -67,7 +67,9 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 			String old = "";
 			Map<String, String> counters = null;
 
-			ResultSet rs = query(sql.toString());
+			Connection connection = database.getDataSource().getConnection();
+			PreparedStatement statement = connection.prepareStatement(sql.toString());
+			ResultSet rs = statement.executeQuery();
 			while (rs.next()) {
 
 				if (!old.equals(rs.getString(1))) {
@@ -80,6 +82,7 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 				counters.put(rs.getString(2), rs.getString(3));
 			}
 			rs.close();
+			connection.close();
 
 			log.debug("find counter history successful. results: "
 					+ result.size());
@@ -107,8 +110,9 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 
 			String old = "";
 			Map<String, String> counters = null;
-
-			ResultSet rs = query(sql.toString());
+			Connection connection = database.getDataSource().getConnection();
+			PreparedStatement statement = connection.prepareStatement(sql.toString());
+			ResultSet rs = statement.executeQuery();
 			while (rs.next()) {
 
 				if (!old.equals(rs.getString(1))) {
@@ -121,6 +125,7 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 				counters.put(rs.getString(2), rs.getString(3));
 			}
 			rs.close();
+			connection.close();
 
 			log.debug("find counter history successful. results: "
 					+ result.size());
@@ -131,12 +136,6 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 		}
 
 		return result;
-	}
-
-	protected ResultSet query(String sql) throws SQLException {
-		Connection connection = database.getDataSource().getConnection();
-		PreparedStatement statement = connection.prepareStatement(sql);
-		return statement.executeQuery();
 	}
 
 }
