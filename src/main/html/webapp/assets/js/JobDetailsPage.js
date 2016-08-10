@@ -136,7 +136,7 @@ JobDetailsPage = can.Control({
 		files = e.closest('tr').data('files');
 		bootbox.animate(false);
 		bootbox.alert(can.view('/views/share-folder.ejs', {
-			hostname: 'https://' + location.host,
+			hostname: location.protocol + '//' + location.host,
 			files: files
 		}));	},
 

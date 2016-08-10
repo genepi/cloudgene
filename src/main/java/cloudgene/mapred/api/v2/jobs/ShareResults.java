@@ -31,10 +31,14 @@ public class ShareResults extends BaseResource {
 			return error404("download not found.");
 		}
 
+		if (!download.getName().equals(filename)){
+			return error404("download not found.");
+		}
+		
 		if (download.getCount() == 0) {
 			return error400("number of max downloads exceeded.");
 		}
-
+		
 		MediaType mediaType = MediaType.ALL;
 		if (filename.endsWith(".zip")) {
 			mediaType = MediaType.APPLICATION_ZIP;
