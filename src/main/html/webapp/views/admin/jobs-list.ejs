@@ -1,6 +1,7 @@
 <thead>
 	<tr>
-		<th></th>
+		<th style="width: 40px;"><small>Priority</small></th>
+		<th style="width: 80px;"></th>
 		<th>Job</th>
 		<th style="width: 100px;">Username</th>
 		<th style="width: 150px;">Execution Time</th>
@@ -15,6 +16,12 @@
 	<% this.each(function( job ) { %>
 
 		<tr <%= (tr) -> can.data(tr, 'job', job) %>>
+
+			<td style="width: 40px;text-align:center;">
+				<% if( job.attr('state') == '1' ){ %>
+					<small><%= job.attr('priority') %></small>
+				<%  } %>
+			</td>
 
 			<td style="width: 80px;text-align:center;">
 
@@ -60,7 +67,9 @@
 			</td>
 
 			<td>
-				<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>
+				<% if( job.attr('state') != '6' ){ %>
+					<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>
+				<% } %>
 			</td>
 
 			<td>

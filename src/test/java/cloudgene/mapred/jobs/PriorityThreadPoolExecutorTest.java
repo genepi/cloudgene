@@ -1,5 +1,6 @@
 package cloudgene.mapred.jobs;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,68 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 	protected void setUp() throws Exception {
 		engine = TestServer.getInstance().startWorkflowEngineWithoutServer();
 
+	}
+
+	public void testCancelRunningJob() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
+
+		Map<String, String> inputs = new HashMap<String, String>();
+		inputs.put("input", "input-file");
+		List<AbstractJob> jobsBeforeSubmit = engine.getAllJobsInLongTimeQueue();
+
+		AbstractJob job1 = createJobFromWdl(app, "job_running", inputs);
+		engine.submit(job1);
+		Thread.sleep(5000);
+
+		assertEquals(AbstractJob.STATE_RUNNING, job1.getState());
+
+		List<AbstractJob> jobsAfterSubmit = engine.getAllJobsInLongTimeQueue();
+		assertEquals(jobsBeforeSubmit.size() + 1, jobsAfterSubmit.size());
+
+		engine.cancel(job1);
+		Thread.sleep(5000);
+
+		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
+
+		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
+		assertEquals(jobsBeforeSubmit.size(), jobsAfterCancel.size());
+
+	}
+
+	public void testCancelWaitingJob() throws Exception {
+		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
+
+		Map<String, String> inputs = new HashMap<String, String>();
+		inputs.put("input", "input-file");
+		List<AbstractJob> jobsBeforeSubmit = engine.getAllJobsInLongTimeQueue();
+
+		AbstractJob job1 = createJobFromWdl(app, "job_running_a", inputs);
+		engine.submit(job1);
+		Thread.sleep(5000);
+
+		AbstractJob job2 = createJobFromWdl(app, "job_waiting_b", inputs);
+		engine.submit(job2);
+
+		Thread.sleep(5000);
+
+		assertEquals(AbstractJob.STATE_RUNNING, job1.getState());
+		assertEquals(AbstractJob.STATE_WAITING, job2.getState());
+
+		List<AbstractJob> jobsAfterSubmit = engine.getAllJobsInLongTimeQueue();
+		assertEquals(jobsBeforeSubmit.size() + 2, jobsAfterSubmit.size());
+
+		engine.cancel(job2);
+		Thread.sleep(5000);
+
+		assertEquals(AbstractJob.STATE_CANCELED, job2.getState());
+
+		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
+		assertEquals(jobsAfterSubmit.size() - 1, jobsAfterCancel.size());
+		
+		//clear queue
+		engine.cancel(job1);
+		Thread.sleep(5000);
 	}
 
 	/**
