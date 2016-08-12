@@ -6,9 +6,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class PriorityThreadPoolExecutor {
 	private PausableThreadPoolExecutor executor;
 	private BlockingQueue<Runnable> queue;
+
+	private static final Log log = LogFactory.getLog(PriorityThreadPoolExecutor.class);
 
 	public PriorityThreadPoolExecutor(int threads, boolean priority) {
 		if (priority) {
@@ -26,6 +31,12 @@ public class PriorityThreadPoolExecutor {
 
 	public void kill(PriorityRunnable runnable) {
 		executor.remove(runnable);
+	}
+
+	public Future resubmit(PriorityRunnable runnable) {
+		executor.remove(runnable);
+		Future future = executor.submit(runnable);
+		return future;
 	}
 
 	public boolean isRunning() {

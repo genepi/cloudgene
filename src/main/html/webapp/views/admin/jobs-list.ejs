@@ -19,7 +19,9 @@
 
 			<td style="width: 40px;text-align:center;">
 				<% if( job.attr('state') == '1' ){ %>
-					<small><%= job.attr('priority') %></small>
+					<small><%= job.attr('priority') %> 	<a href="/api/v2/admin/jobs/<%= job.attr('id') %>/priority" title="Change priority to high!">
+							<span class="icon-arrow-up" style="cursor: pointer;"></span>
+						</a></small>
 				<%  } %>
 			</td>
 

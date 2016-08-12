@@ -11,7 +11,7 @@ public class LongSleepStep extends WorkflowStep {
 	public boolean run(WorkflowContext context) {
 
 		try {
-			for (int i = 0; i < 30 && !killed; i++) {
+			for (int i = 0; i < 50 && !killed; i++) {
 				Thread.sleep(1000);
 				System.out.println(context.getJobId() + ": Sleep number " + i);
 			}

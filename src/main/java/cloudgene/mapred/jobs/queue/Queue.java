@@ -57,30 +57,7 @@ public abstract class Queue implements Runnable {
 
 				if (priority) {
 					// sorty by state and by priority
-					Collections.sort(queue, new Comparator<AbstractJob>() {
-
-						@Override
-						public int compare(AbstractJob o1, AbstractJob o2) {
-							
-							if (o1.getState() != o2.getState()){
-								if (o1.getState() == AbstractJob.STATE_RUNNING){
-									return -1;
-								}else{
-									return 1;
-								}
-							}
-							
-							if (o1.getPriority() == o2.getPriority()) {
-								return 0;
-							} else {
-								if (o1.getPriority() < o2.getPriority()) {
-									return -1;
-								} else {
-									return 1;
-								}
-							}
-						}
-					});
+					Collections.sort(queue, new PriorityComparator());
 				}
 
 				if (updatePositions) {
@@ -268,8 +245,47 @@ public abstract class Queue implements Runnable {
 		}
 	}
 
-	public boolean pushToFront(AbstractJob job) {
-		return true;
+	public boolean updatePriority(AbstractJob job, long priority) {
+		log.info("Update priority");
+		if (!this.priority) {
+			return false;
+		}
+
+		if (!isInQueue(job)) {
+			return false;
+		}
+
+		if (job.getState() != AbstractJob.STATE_WAITING) {
+			return false;
+		}
+
+		synchronized (futures) {
+
+			synchronized (queue) {
+				Future<?> oldFuture = futures.get(job);
+				if (oldFuture != null){
+					oldFuture.cancel(false);
+				}
+				job.setPriority(priority);
+				Future<?> future = scheduler.resubmit(job);
+				if (future != null) {
+					futures.put(job, future);
+					log.info(name + ": Update priority of " + job.getId()
+							+ (this.priority ? " (P: " + job.getPriority() + ")" : "") + "...");
+
+					// sorty by state and by priority
+					Collections.sort(queue, new PriorityComparator());
+
+					if (updatePositions) {
+						updatePositionInQueue();
+					}
+					return true;
+				}
+
+			}
+		}
+		return false;
+
 	}
 
 	public boolean isInQueue(AbstractJob job) {
@@ -278,6 +294,31 @@ public abstract class Queue implements Runnable {
 
 			return queue.contains(job);
 
+		}
+	}
+
+	protected class PriorityComparator implements Comparator<AbstractJob> {
+
+		@Override
+		public int compare(AbstractJob o1, AbstractJob o2) {
+
+			if (o1.getState() != o2.getState()) {
+				if (o1.getState() == AbstractJob.STATE_RUNNING) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
+
+			if (o1.getPriority() == o2.getPriority()) {
+				return 0;
+			} else {
+				if (o1.getPriority() < o2.getPriority()) {
+					return -1;
+				} else {
+					return 1;
+				}
+			}
 		}
 	}
 

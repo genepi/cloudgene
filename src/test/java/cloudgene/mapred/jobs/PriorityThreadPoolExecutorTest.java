@@ -1,6 +1,5 @@
 package cloudgene.mapred.jobs;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,8 +79,8 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
 		assertEquals(jobsAfterSubmit.size() - 1, jobsAfterCancel.size());
-		
-		//clear queue
+
+		// clear queue
 		engine.cancel(job1);
 		Thread.sleep(5000);
 	}
@@ -229,6 +228,126 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 		// check if all jobs are sorted by priority
 		List<AbstractJob> jobs = engine.getAllJobsInLongTimeQueue();
+		assertEquals(0, jobs.indexOf(job1));
+		assertEquals(2, jobs.indexOf(job2));
+		assertEquals(3, jobs.indexOf(job3));
+		assertEquals(1, jobs.indexOf(job4));
+
+		engine.cancel(job1);
+		Thread.sleep(5000);
+
+		assertEquals(3, engine.getAllJobsInLongTimeQueue().size());
+		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
+		assertEquals(AbstractJob.STATE_WAITING, job2.getState());
+		assertEquals(0, job2.getPositionInQueue());
+		assertEquals(AbstractJob.STATE_WAITING, job3.getState());
+		assertEquals(1, job3.getPositionInQueue());
+		assertEquals(AbstractJob.STATE_RUNNING, job4.getState());
+
+		engine.cancel(job4);
+		Thread.sleep(5000);
+
+		assertEquals(2, engine.getAllJobsInLongTimeQueue().size());
+		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
+		assertEquals(AbstractJob.STATE_RUNNING, job2.getState());
+		assertEquals(AbstractJob.STATE_WAITING, job3.getState());
+		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
+		assertEquals(0, job3.getPositionInQueue());
+
+		engine.cancel(job2);
+		Thread.sleep(5000);
+
+		assertEquals(1, engine.getAllJobsInLongTimeQueue().size());
+		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
+		assertEquals(AbstractJob.STATE_CANCELED, job2.getState());
+		assertEquals(AbstractJob.STATE_RUNNING, job3.getState());
+		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
+
+		engine.cancel(job3);
+		Thread.sleep(5000);
+
+		assertEquals(0, engine.getAllJobsInLongTimeQueue().size());
+		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
+		assertEquals(AbstractJob.STATE_CANCELED, job2.getState());
+		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
+		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
+
+	}
+
+	/**
+	 * Submits 4 jobs, job3 has small priority cancels job by jobs, checks
+	 * states, priority and queue position
+	 * 
+	 * @throws Exception
+	 */
+	public void testMultipleJobsAndUpdatePriority() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
+
+		Map<String, String> inputs = new HashMap<String, String>();
+		inputs.put("input", "input-file");
+
+		AbstractJob job1 = createJobFromWdl(app, "job1_ab", inputs);
+		engine.submit(job1);
+
+		Thread.sleep(5000);
+
+		AbstractJob job2 = createJobFromWdl(app, "job2_ab", inputs);
+		engine.submit(job2);
+
+		Thread.sleep(5000);
+
+		AbstractJob job3 = createJobFromWdl(app, "job3_ab", inputs);
+		engine.submit(job3);
+
+		Thread.sleep(5000);
+
+		// submit with lowest priority
+		AbstractJob job4 = createJobFromWdl(app, "job4_ab", inputs);
+		engine.submit(job4);
+
+		Thread.sleep(5000);
+
+		assertEquals(AbstractJob.STATE_RUNNING, job1.getState());
+		assertEquals(AbstractJob.STATE_WAITING, job2.getState());
+		assertEquals(0, job2.getPositionInQueue());
+		assertEquals(AbstractJob.STATE_WAITING, job3.getState());
+		assertEquals(1, job3.getPositionInQueue());
+		assertEquals(AbstractJob.STATE_WAITING, job4.getState());
+		assertEquals(2, job4.getPositionInQueue());
+
+		assertTrue(job1.getPriority() < job2.getPriority() && job2.getPriority() < job3.getPriority()
+				&& job3.getPriority() < job4.getPriority());
+
+		assertEquals(4, engine.getAllJobsInLongTimeQueue().size());
+
+		// check if all jobs are sorted by priority
+		List<AbstractJob> jobs = engine.getAllJobsInLongTimeQueue();
+		assertEquals(0, jobs.indexOf(job1));
+		assertEquals(1, jobs.indexOf(job2));
+		assertEquals(2, jobs.indexOf(job3));
+		assertEquals(3, jobs.indexOf(job4));
+
+		// update priority to highest priority
+		engine.updatePriority(job4, 0);
+
+		Thread.sleep(5000);
+
+		assertEquals(AbstractJob.STATE_RUNNING, job1.getState());
+		assertEquals(AbstractJob.STATE_WAITING, job2.getState());
+		assertEquals(1, job2.getPositionInQueue());
+		assertEquals(AbstractJob.STATE_WAITING, job3.getState());
+		assertEquals(2, job3.getPositionInQueue());
+		assertEquals(AbstractJob.STATE_WAITING, job4.getState());
+		assertEquals(0, job4.getPositionInQueue());
+
+		assertTrue(job1.getPriority() < job2.getPriority() && job2.getPriority() < job3.getPriority()
+				&& job4.getPriority() < job2.getPriority() && job4.getPriority() < job3.getPriority());
+
+		assertEquals(4, engine.getAllJobsInLongTimeQueue().size());
+
+		// check if all jobs are sorted by priority
+		jobs = engine.getAllJobsInLongTimeQueue();
 		assertEquals(0, jobs.indexOf(job1));
 		assertEquals(2, jobs.indexOf(job2));
 		assertEquals(3, jobs.indexOf(job3));

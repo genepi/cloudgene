@@ -39,7 +39,7 @@ public class WorkflowEngine implements Runnable {
 	private Database database;
 
 	private Map<String, Long> counters;
-	
+
 	private AtomicLong priorityCounter = new AtomicLong();
 
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
@@ -54,8 +54,7 @@ public class WorkflowEngine implements Runnable {
 
 		dao = new JobDao(database);
 
-		List<AbstractJob> deadJobs = dao
-				.findAllByState(AbstractJob.STATE_WAITING);
+		List<AbstractJob> deadJobs = dao.findAllByState(AbstractJob.STATE_WAITING);
 		deadJobs.addAll(dao.findAllByState(AbstractJob.STATE_RUNNING));
 		deadJobs.addAll(dao.findAllByState(AbstractJob.STATE_EXPORTING));
 
@@ -83,8 +82,7 @@ public class WorkflowEngine implements Runnable {
 
 				} else {
 
-					log.info("Setup failed for Job " + job.getId()
-							+ ". Not added to Long Time Queue.");
+					log.info("Setup failed for Job " + job.getId() + ". Not added to Long Time Queue.");
 
 					dao.update(job);
 
@@ -124,10 +122,8 @@ public class WorkflowEngine implements Runnable {
 					}
 
 					// write all submitted counters into database
-					for (String name : job.getContext().getSubmittedCounters()
-							.keySet()) {
-						Integer value = job.getContext().getSubmittedCounters()
-								.get(name);
+					for (String name : job.getContext().getSubmittedCounters().keySet()) {
+						Integer value = job.getContext().getSubmittedCounters().get(name);
 
 						if (value != null) {
 
@@ -197,10 +193,8 @@ public class WorkflowEngine implements Runnable {
 				}
 
 				// write all submitted counters into database
-				for (String name : job.getContext().getSubmittedCounters()
-						.keySet()) {
-					Integer value = job.getContext().getSubmittedCounters()
-							.get(name);
+				for (String name : job.getContext().getSubmittedCounters().keySet()) {
+					Integer value = job.getContext().getSubmittedCounters().get(name);
 
 					if (value != null) {
 
@@ -222,6 +216,7 @@ public class WorkflowEngine implements Runnable {
 		};
 
 	}
+
 	public void submit(AbstractJob job) {
 		submit(job, priorityCounter.incrementAndGet());
 	}
@@ -229,7 +224,7 @@ public class WorkflowEngine implements Runnable {
 	public void submit(AbstractJob job, long priority) {
 
 		job.setPriority(priority);
-		
+
 		dao.insert(job);
 
 		ParameterDao dao = new ParameterDao(database);
@@ -245,9 +240,9 @@ public class WorkflowEngine implements Runnable {
 		}
 
 		boolean okey = job.afterSubmission();
-		if (okey){
+		if (okey) {
 			shortTimeQueue.submit(job);
-		}else{
+		} else {
 			this.dao.update(job);
 		}
 	}
@@ -258,18 +253,16 @@ public class WorkflowEngine implements Runnable {
 		dao.update(job);
 
 		boolean okey = job.afterSubmission();
-		if (okey){
+		if (okey) {
 			shortTimeQueue.submit(job);
-		}else{
+		} else {
 			dao.update(job);
 		}
 
 	}
-	
-	public void pushToFront(AbstractJob job){
-		if (longTimeQueue.isInQueue(job)) {
-			longTimeQueue.pushToFront(job);
-		}
+
+	public void updatePriority(AbstractJob job, long priority) {
+		longTimeQueue.updatePriority(job, priority);
 	}
 
 	public void cancel(AbstractJob job) {
@@ -313,8 +306,7 @@ public class WorkflowEngine implements Runnable {
 	}
 
 	public boolean isRunning() {
-		return running && shortTimeQueue.isRunning()
-				&& longTimeQueue.isRunning();
+		return running && shortTimeQueue.isRunning() && longTimeQueue.isRunning();
 	}
 
 	public int getActiveCount() {
@@ -341,8 +333,7 @@ public class WorkflowEngine implements Runnable {
 			List<AbstractJob> jobs = longTimeQueue.getAllJobs();
 			for (AbstractJob job : jobs) {
 				if (job.getState() == state) {
-					Map<String, Integer> counters = job.getContext()
-							.getCounters();
+					Map<String, Integer> counters = job.getContext().getCounters();
 					for (String name : counters.keySet()) {
 						Integer value = counters.get(name);
 						Long oldvalue = result.get(name);
@@ -422,8 +413,7 @@ public class WorkflowEngine implements Runnable {
 			log.info("Start iput validation for job " + job.getId() + "...");
 			boolean result = job.executeSetup();
 			job.setSetupComplete(result);
-			log.info("Input Validation for job " + job.getId()
-					+ " finished. Result: " + result);
+			log.info("Input Validation for job " + job.getId() + " finished. Result: " + result);
 
 		}
 

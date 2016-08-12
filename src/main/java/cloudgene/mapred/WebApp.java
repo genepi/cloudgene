@@ -17,6 +17,7 @@ import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
 import cloudgene.mapred.api.v2.admin.ChangeGroup;
+import cloudgene.mapred.api.v2.admin.ChangePriority;
 import cloudgene.mapred.api.v2.admin.DeleteUser;
 import cloudgene.mapred.api.v2.admin.GetAllJobs;
 import cloudgene.mapred.api.v2.admin.GetGroups;
@@ -101,8 +102,7 @@ public class WebApp extends Application {
 		// Create a router Restlet that routes each call to a
 		Router router = new Router(getContext());
 		String target = prefix + "/index.html";
-		Redirector redirector = new Redirector(getContext(), target,
-				Redirector.MODE_CLIENT_PERMANENT);
+		Redirector redirector = new Redirector(getContext(), target, Redirector.MODE_CLIENT_PERMANENT);
 		TemplateRoute route = router.attach(prefix, redirector);
 		route.setMatchingMode(Template.MODE_EQUALS);
 
@@ -131,23 +131,19 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/users/register", RegisterUser.class);
 
 		// activate user after registration
-		router.attach(prefix + "/users/activate/{user}/{code}",
-				ActivateUser.class);
+		router.attach(prefix + "/users/activate/{user}/{code}", ActivateUser.class);
 
 		// reset password. Sends mail with link to update password
 		router.attach(prefix + "/api/v2/users/users/reset", ResetPassword.class);
 
 		// after reset, update password (needs activation code...)
-		router.attach(prefix + "/api/v2/users/update-password",
-				UpdatePassword.class);
+		router.attach(prefix + "/api/v2/users/update-password", UpdatePassword.class);
 
 		// get or update user profile
-		router.attach(prefix + "/api/v2/users/{user}/profile",
-				UserProfile.class);
+		router.attach(prefix + "/api/v2/users/{user}/profile", UserProfile.class);
 
 		// create, delete, get api token
-		router.attach(prefix + "/api/v2/users/{user}/api-token",
-				ApiTokens.class);
+		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
 
 		// returns all counters
 		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
@@ -164,48 +160,33 @@ public class WebApp extends Application {
 		// admin jobs
 		router.attach(prefix + "/api/v2/admin/jobs", GetAllJobs.class);
 		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/reset",
-				ResetDownloads.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/retire",
-				HotRetireJob.class);
+		router.attach(prefix + "/api/v2/admin/jobs/{job}/reset", ResetDownloads.class);
+		router.attach(prefix + "/api/v2/admin/jobs/{job}/retire", HotRetireJob.class);
+		router.attach(prefix + "/api/v2/admin/jobs/{job}/priority", ChangePriority.class);
 
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
 		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);
-		router.attach(prefix + "/api/v2/admin/users/changegroup}",
-				ChangeGroup.class);
+		router.attach(prefix + "/api/v2/admin/users/changegroup}", ChangeGroup.class);
 		router.attach(prefix + "/api/v2/admin/groups}", GetGroups.class);
 
 		// admin server management
-		router.attach(prefix + "/api/v2/admin/server/cluster",
-				GetClusterDetails.class);
-		router.attach(prefix + "/api/v2/admin/server/queue/open",
-				OpenQueue.class);
-		router.attach(prefix + "/api/v2/admin/server/queue/block",
-				BlockQueue.class);
-		router.attach(prefix + "/api/v2/admin/server/maintenance/enter",
-				EnterMaintenance.class);
-		router.attach(prefix + "/api/v2/admin/server/maintenance/exit",
-				ExitMaintenance.class);
-		router.attach(prefix + "/api/v2/admin/server/templates",
-				GetTemplates.class);
-		router.attach(prefix + "/api/v2/admin/server/templates/update",
-				UpdateTemplate.class);
-		router.attach(prefix + "/api/v2/admin/server/settings",
-				GetSettings.class);
-		router.attach(prefix + "/api/v2/admin/server/settings/update",
-				UpdateSettings.class);
-		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}",
-				GetServerLogs.class);
-		router.attach(prefix + "/api/v2/admin/server/statistics",
-				GetStatistics.class);
+		router.attach(prefix + "/api/v2/admin/server/cluster", GetClusterDetails.class);
+		router.attach(prefix + "/api/v2/admin/server/queue/open", OpenQueue.class);
+		router.attach(prefix + "/api/v2/admin/server/queue/block", BlockQueue.class);
+		router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
+		router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
+		router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
+		router.attach(prefix + "/api/v2/admin/server/templates/update", UpdateTemplate.class);
+		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
+		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
+		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
+		router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 
 		// sownload resources
 		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
-		router.attach(prefix + "/results/{job}/{id}/{filename}",
-				DownloadResults.class);
-		router.attach(prefix + "/share/{username}/{hash}/{filename}",
-				ShareResults.class);
+		router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
+		router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
 		router.attach(prefix + "/logs/{id}", GetLogs.class);
 
 		// ------------------
@@ -227,8 +208,7 @@ public class WebApp extends Application {
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
 		String[] protectedFiles = { prefix + "/start.html" };
-		LoginFilter filter = new LoginFilter("/index.html", prefix,
-				protectedFiles, getSettings().getSecretKey());
+		LoginFilter filter = new LoginFilter("/index.html", prefix, protectedFiles, getSettings().getSecretKey());
 		filter.setNext(router);
 
 		return filter;
