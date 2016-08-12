@@ -13,13 +13,13 @@ public class LongSleepStep extends WorkflowStep {
 		try {
 			for (int i = 0; i < 30 && !killed; i++) {
 				Thread.sleep(1000);
-				System.out.println("Sleep number " + i);
+				System.out.println(context.getJobId() + ": Sleep number " + i);
 			}
-			return true;
+			return !killed;
 
-		} catch (InterruptedException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
-			return true;
+			return false;
 		}
 
 	}

@@ -5,6 +5,7 @@ import genepi.db.Database;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +17,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.MessageDao;
 import cloudgene.mapred.database.ParameterDao;
 import cloudgene.mapred.database.StepDao;
+import cloudgene.mapred.jobs.queue.PriorityRunnable;
 import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
@@ -37,6 +39,8 @@ public class WorkflowEngine implements Runnable {
 	private Database database;
 
 	private Map<String, Long> counters;
+	
+	private AtomicLong priorityCounter = new AtomicLong();
 
 	private static final Log log = LogFactory.getLog(WorkflowEngine.class);
 
@@ -61,10 +65,10 @@ public class WorkflowEngine implements Runnable {
 			dao.update(job);
 		}
 
-		shortTimeQueue = new Queue("ShortTimeQueue", stqThreads, false) {
+		shortTimeQueue = new Queue("ShortTimeQueue", stqThreads, false, false) {
 
 			@Override
-			public Runnable createRunnable(AbstractJob job) {
+			public PriorityRunnable createRunnable(AbstractJob job) {
 				return new SetupThread(job);
 			}
 
@@ -146,10 +150,10 @@ public class WorkflowEngine implements Runnable {
 
 		};
 
-		longTimeQueue = new Queue("LongTimeQueue", ltqThreads, true) {
+		longTimeQueue = new Queue("LongTimeQueue", ltqThreads, true, true) {
 
 			@Override
-			public Runnable createRunnable(AbstractJob job) {
+			public PriorityRunnable createRunnable(AbstractJob job) {
 				return job;
 			}
 
@@ -218,9 +222,14 @@ public class WorkflowEngine implements Runnable {
 		};
 
 	}
-
 	public void submit(AbstractJob job) {
+		submit(job, priorityCounter.incrementAndGet());
+	}
 
+	public void submit(AbstractJob job, long priority) {
+
+		job.setPriority(priority);
+		
 		dao.insert(job);
 
 		ParameterDao dao = new ParameterDao(database);
@@ -244,11 +253,6 @@ public class WorkflowEngine implements Runnable {
 	}
 
 	public void restart(AbstractJob job) {
-
-		// TODO: delete old results!
-		for (CloudgeneParameter parameter : job.getOutputParams()) {
-
-		}
 
 		job.setState(AbstractJob.STATE_WAITING);
 		dao.update(job);
@@ -405,7 +409,7 @@ public class WorkflowEngine implements Runnable {
 		return jobs;
 	}
 
-	class SetupThread implements Runnable {
+	class SetupThread extends PriorityRunnable {
 
 		private AbstractJob job;
 

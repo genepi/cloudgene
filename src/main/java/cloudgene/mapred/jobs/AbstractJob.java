@@ -18,12 +18,12 @@ import java.util.Vector;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.jobs.queue.PriorityRunnable;
 import cloudgene.mapred.util.Settings;
 
-abstract public class AbstractJob implements Runnable {
+abstract public class AbstractJob extends PriorityRunnable {
 
-	private static final org.apache.commons.logging.Log log = LogFactory
-			.getLog(AbstractJob.class);
+	private static final org.apache.commons.logging.Log log = LogFactory.getLog(AbstractJob.class);
 
 	private DateFormat formatter = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
 
@@ -103,6 +103,8 @@ abstract public class AbstractJob implements Runnable {
 
 	private String hdfsWorkspace;
 
+	private boolean canceld = false;
+	
 	public String getId() {
 		return id;
 	}
@@ -223,7 +225,7 @@ abstract public class AbstractJob implements Runnable {
 			setup();
 
 			return true;
-			
+
 		} catch (Exception e1) {
 
 			setEndTime(System.currentTimeMillis());
@@ -241,12 +243,11 @@ abstract public class AbstractJob implements Runnable {
 	@Override
 	public void run() {
 
-		if (state == AbstractJob.STATE_CANCELED
-				|| state == AbstractJob.STATE_FAILED) {
+		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
 			onFailure();
 			setStartTime(System.currentTimeMillis());
 			setEndTime(System.currentTimeMillis());
-			setError("Job Execution failed.");					
+			setError("Job Execution failed.");
 			return;
 		}
 
@@ -264,16 +265,14 @@ abstract public class AbstractJob implements Runnable {
 
 			writeLog("  Inputs:");
 			for (CloudgeneParameter parameter : inputParams) {
-				writeLog("    " + parameter.getDescription() + ": "
-						+ context.get(parameter.getName()));
+				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
 			}
 
 			// TODO: check if all input parameters are set
 
 			writeLog("  Outputs:");
 			for (CloudgeneParameter parameter : outputParams) {
-				writeLog("    " + parameter.getDescription() + ": "
-						+ context.get(parameter.getName()));
+				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
 			}
 
 			writeLog("Preparing Job....");
@@ -310,8 +309,7 @@ abstract public class AbstractJob implements Runnable {
 							setEndTime(System.currentTimeMillis());
 
 							setState(AbstractJob.STATE_SUCCESS);
-							log.info("Job " + getId()
-									+ ": data export successful.");
+							log.info("Job " + getId() + ": data export successful.");
 							writeLog("Data export successful.");
 
 						} else {
@@ -319,8 +317,7 @@ abstract public class AbstractJob implements Runnable {
 							setEndTime(System.currentTimeMillis());
 
 							setState(AbstractJob.STATE_FAILED);
-							log.error("Job " + getId()
-									+ ": data export failed.");
+							log.error("Job " + getId() + ": data export failed.");
 							writeLog("Data export failed.");
 
 						}
@@ -336,8 +333,7 @@ abstract public class AbstractJob implements Runnable {
 
 						setState(AbstractJob.STATE_FAILED);
 						log.error("Job " + getId() + ": data export failed.", e);
-						writeLog("Data export failed: "
-								+ e.getLocalizedMessage() + "\n" + s);
+						writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
 
 					} catch (Error e) {
 
@@ -350,8 +346,7 @@ abstract public class AbstractJob implements Runnable {
 
 						setState(AbstractJob.STATE_FAILED);
 						log.error("Job " + getId() + ": data export failed.", e);
-						writeLog("Data export failed: "
-								+ e.getLocalizedMessage() + "\n" + s);
+						writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
 
 					}
 
@@ -360,15 +355,13 @@ abstract public class AbstractJob implements Runnable {
 					setEndTime(System.currentTimeMillis());
 
 					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": execution failed. "
-							+ getError());
+					log.error("Job " + getId() + ": execution failed. " + getError());
 					writeLog("Job execution failed: " + getError());
 
 				}
 			}
 
-			if (getState() == AbstractJob.STATE_FAILED
-					|| getState() == AbstractJob.STATE_CANCELED) {
+			if (getState() == AbstractJob.STATE_FAILED || getState() == AbstractJob.STATE_CANCELED) {
 
 				writeLog("Cleaning up...");
 				onFailure();
@@ -381,6 +374,10 @@ abstract public class AbstractJob implements Runnable {
 				log.info("Job " + getId() + ": cleanup successful.");
 				writeLog("Cleanup successful.");
 
+			}
+			
+			if (canceld){
+				setState(AbstractJob.STATE_CANCELED);
 			}
 
 			closeStdOutFiles();
@@ -397,8 +394,7 @@ abstract public class AbstractJob implements Runnable {
 			e1.printStackTrace(printWriter);
 			String s = writer.toString();
 
-			writeLog("Initialization failed: " + e1.getLocalizedMessage()
-					+ "\n" + s);
+			writeLog("Initialization failed: " + e1.getLocalizedMessage() + "\n" + s);
 
 			writeLog("Cleaning up...");
 			onFailure();
@@ -419,8 +415,7 @@ abstract public class AbstractJob implements Runnable {
 			e.printStackTrace(printWriter);
 			String s = writer.toString();
 
-			writeLog("Initialization failed: " + e.getLocalizedMessage() + "\n"
-					+ s);
+			writeLog("Initialization failed: " + e.getLocalizedMessage() + "\n" + s);
 
 			writeLog("Cleaning up...");
 			onFailure();
@@ -440,22 +435,20 @@ abstract public class AbstractJob implements Runnable {
 		/*
 		 * if (state == STATE_RUNNING) { closeStdOutFiles(); }
 		 */
-
+		canceld = true;
 		setState(AbstractJob.STATE_CANCELED);
 
 	}
 
 	private void initStdOutFiles() throws FileNotFoundException {
 
-		//if (stdOutStream == null) {
-			stdOutStream = new BufferedOutputStream(new FileOutputStream(
-					FileUtil.path(localWorkspace, "std.out")));
+		// if (stdOutStream == null) {
+		stdOutStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "std.out")));
 
-		//}
-	//	if (logStream == null) {
-			logStream = new BufferedOutputStream(new FileOutputStream(
-					FileUtil.path(localWorkspace, "job.txt")));
-		//}
+		// }
+		// if (logStream == null) {
+		logStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "job.txt")));
+		// }
 
 	}
 
@@ -608,8 +601,7 @@ abstract public class AbstractJob implements Runnable {
 	}
 
 	public boolean isRunning() {
-		return (state == STATE_WAITING) || (state == STATE_RUNNING)
-				|| (state == STATE_EXPORTING);
+		return (state == STATE_WAITING) || (state == STATE_RUNNING) || (state == STATE_EXPORTING);
 	}
 
 	abstract public boolean execute();
