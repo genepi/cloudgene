@@ -134,7 +134,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/users/activate/{user}/{code}", ActivateUser.class);
 
 		// reset password. Sends mail with link to update password
-		router.attach(prefix + "/api/v2/users/users/reset", ResetPassword.class);
+		router.attach(prefix + "/api/v2/users/reset", ResetPassword.class);
 
 		// after reset, update password (needs activation code...)
 		router.attach(prefix + "/api/v2/users/update-password", UpdatePassword.class);
