@@ -97,10 +97,15 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void setupOutputParameters() {
 
+		//cleanup temp directories
+		HdfsUtil.delete(getHdfsTemp());
+		FileUtil.deleteDirectory(getLocalTemp());
+		
 		// create output directories
 		FileUtil.createDirectory(getLocalOutput());
 		FileUtil.createDirectory(getLocalTemp());
 
+		
 		// create output directories
 		for (CloudgeneParameter param : outputParameters.values()) {
 
@@ -120,10 +125,7 @@ public class CloudgeneContext extends WorkflowContext {
 					value = HdfsUtil.makeAbsolute(value);
 				}
 				// delete (needed for restart)
-				println("File path " + value + " exists: "
-						+ HdfsUtil.exists(value));
 				HdfsUtil.delete(value);
-				println("Clean up hdfs folder " + value);
 				param.setValue(value);
 				break;
 

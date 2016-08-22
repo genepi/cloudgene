@@ -98,15 +98,15 @@ public class JWT {
 			}
 
 		} catch (JOSEException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			return null;
 
 		} catch (ParseException e1) {
-			e1.printStackTrace();
+			//e1.printStackTrace();
 			return null;
 
 		} catch (Exception e1) {
-			e1.printStackTrace();
+			//e1.printStackTrace();
 			return null;
 
 		}
