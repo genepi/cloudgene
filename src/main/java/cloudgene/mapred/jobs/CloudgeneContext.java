@@ -120,7 +120,10 @@ public class CloudgeneContext extends WorkflowContext {
 					value = HdfsUtil.makeAbsolute(value);
 				}
 				// delete (needed for restart)
+				println("File path " + value + " exists: "
+						+ HdfsUtil.exists(value));
 				HdfsUtil.delete(value);
+				println("Clean up hdfs folder " + value);
 				param.setValue(value);
 				break;
 
