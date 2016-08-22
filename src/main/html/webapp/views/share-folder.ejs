@@ -14,14 +14,14 @@ The private links for this folder are:<br><br>
 	<div class="tab-pane active in" id="links">
 	  <% value = '' %>
 		<% files.each(function(output2){
-			value += hostname  + '/share/'+ output2.attr('username') +'/' + output2.attr('hash') +'/'+ output2.attr('name') + '\n';
+			value += hostname  + '/share/results/' + output2.attr('hash') +'/'+ output2.attr('name') + '\n';
 		 })%>
 		 <textarea class="field span6" id="message" rows="10"><%= value %></textarea>
 	</div>
 
 	<% value2 = '' %>
 	<% files.each(function(output2){
-		value2 += 'wget ' + hostname  + '/share/'+ output2.attr('username') +'/' + output2.attr('hash') +'/'+ output2.attr('name') + '\n';
+		value2 += 'wget ' + hostname  + '/share/results/' + output2.attr('hash') +'/'+ output2.attr('name') + '\n';
 	 })%>
 	<div class="tab-pane" id="wget">
 	<textarea class="field span6" id="message" rows="10"><%= value2 %></textarea>
