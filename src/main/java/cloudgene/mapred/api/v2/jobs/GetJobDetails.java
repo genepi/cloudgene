@@ -81,6 +81,14 @@ public class GetJobDetails extends BaseResource {
 		}
 		job.getOutputParams().removeAll(adminParams);
 
+		// removes inputs that are using sftp
+		for (CloudgeneParameter param : job.getInputParams()) {
+			if (param.getValue().contains("sftp://")) {
+				param.setValue("sftp://***************");
+			}
+		}
+
+		
 		// set log if user is admin
 		if (user.isAdmin()) {
 			job.setLogs("logs/" + job.getId());
