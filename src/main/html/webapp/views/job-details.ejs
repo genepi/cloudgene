@@ -67,7 +67,7 @@
 		<td>
 
 			<% if( job.attr('state') == '-1' ){ %>
-				<span class="label label-inverse" style="width: 50px">&dagger; Dead</span>
+				<span class="label label-inverse" style="width: 50px">Pending</span>
 			<% } %>
 
 			<% if( job.attr('state') == '1' ){ %>
@@ -120,7 +120,7 @@
 			<td>
 
 				<div class="btn-group">
-					<% if( job.attr('state') == '-1'){ %>
+					<% if( job.attr('state') == '-1' && admin){ %>
 						<button class="btn" id="btn-restart">Restart</button>
 					<% } %>
 					<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
@@ -142,7 +142,7 @@
 		<% if( job.attr('state') == '-1'){ %>
 			<p><br></p>
 			<p>
-				<i>Our service terminated unexpected and we lost your job. We will restart your job as soon as possible!</i>
+				<i>This job is pending. We will start your job as soon as possible!</i>
 			</p>
 		<% } %>
 

@@ -59,6 +59,7 @@ TabsPublic = can.Control({
 		this.activate('jobs');
 		this.options.detailsPage = new JobDetailsPage("#content", {
 			jobId : data.job,
+			admin: false,
 			results : false
 		});
 		this.page = this.options.detailsPage;
