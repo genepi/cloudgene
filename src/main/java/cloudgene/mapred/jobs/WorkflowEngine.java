@@ -248,6 +248,13 @@ public class WorkflowEngine implements Runnable {
 	}
 
 	public void restart(AbstractJob job) {
+		restart(job, priorityCounter.incrementAndGet());
+	}
+	
+	
+	public void restart(AbstractJob job, long priority) {
+
+		job.setPriority(priority);
 
 		job.setState(AbstractJob.STATE_WAITING);
 		dao.update(job);
