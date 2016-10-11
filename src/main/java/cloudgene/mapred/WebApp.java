@@ -110,8 +110,10 @@ public class WebApp extends Application {
 		route.setMatchingMode(Template.MODE_EQUALS);
 
 		// resources
+		router.attach(prefix + "/index", Index.class);		
 		router.attach(prefix + "/index.html", Index.class);
 		router.attach(prefix + "/start.html", Start.class);
+		router.attach(prefix + "/admin", Admin.class);
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		// user authentication

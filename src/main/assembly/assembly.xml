@@ -40,8 +40,8 @@
 		</fileSet>
 
 		<fileSet>
-			<outputDirectory>/</outputDirectory>
-			<directory>src/main/html</directory>
+			<outputDirectory>/webapp</outputDirectory>
+			<directory>src/main/html/webapp/dist</directory>
 		</fileSet>
 
 		<fileSet>
