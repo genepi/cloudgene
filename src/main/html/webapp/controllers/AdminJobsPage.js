@@ -1,11 +1,3 @@
-//model
-Job = can.Model({
-	findAll: 'GET /api/v2/admin/jobs',
-	findOne: 'GET /api/v2/jobs/{id}/status',
-	destroy: 'DELETE /api/v2/jobs/{id}',
-	update: 'GET /api/v2/jobs/{id}/cancel'
-}, {});
-
 // controller
 AdminJobsPage = can.Control({
 
@@ -22,7 +14,7 @@ AdminJobsPage = can.Control({
 
 	loadJobs: function(element, mySate) {
 		var that = this;
-		Job.findAll({
+		JobAdminDetails.findAll({
 			state: mySate
 		}, function(jobs) {
 			$(element).html(can.view('views/admin/jobs-list.ejs', jobs));

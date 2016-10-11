@@ -1,10 +1,3 @@
-//model
-Cluster = can.Model({
-	findOne : 'GET /api/v2/admin/server/cluster'
-}, {
-
-});
-
 // controller
 AdminServerPage = can.Control({
 

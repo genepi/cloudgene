@@ -132,13 +132,13 @@ RegisterUserPage = can
 							.addClass('error');
 						username.closest('.control-group').find(
 							'.help-block').html(data.message);
-						$('#save').button('reset')
+						$('#save').button('reset');
 
 					}
 				},
 				error: function(message) {
 					alert('failure: ' + message);
-					$('#save').button('reset')
+					$('#save').button('reset');
 				}
 			});
 

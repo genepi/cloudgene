@@ -1,12 +1,4 @@
 // Static Page Controller
-
-Counter = can.Model({
-	findOne : 'GET /api/v2/server/counters'
-}, {
-
-});
-
-
 HomePage = can.Control({
 
 	"init" : function(element, options) {

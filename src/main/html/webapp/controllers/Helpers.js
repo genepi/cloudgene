@@ -46,3 +46,7 @@ can.ejs.Helpers.prototype.prettyDate = function(unixTimestamp) {
 	}
 
 };
+
+String.prototype.endsWith = function (s) {
+		return this.length >= s.length && this.substr(this.length - s.length) == s;
+};

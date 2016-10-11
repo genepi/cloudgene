@@ -1,15 +1,3 @@
-//model
-User = can.Model({
-	destroy: 'POST /api/v2/admin/users/delete',
-	update: 'POST /api/v2/admin/users/changegroup',
-	findAll: 'GET /api/v2/admin/users'
-}, {});
-
-// model
-Group = can.Model({
-	findAll: 'GET /api/v2/admin/groups',
-}, {});
-
 // controller
 AdminUsersPage = can
 	.Control({

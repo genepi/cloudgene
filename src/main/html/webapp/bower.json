@@ -1,0 +1,14 @@
+{
+  "name": "Cloudgene",
+  "homepage": "https://github.com/lukfor/askimed",
+  "authors": [
+    "lukfor <lukas.forer@i-med.ac.at>",
+    "seppinho <sebastian.schoenherr@i-med.ac.at>"
+  ],
+  "description": "",
+  "main": ["assets/js/cloudgene.js", "assets/css/cloudgene.css"],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+  }
+}

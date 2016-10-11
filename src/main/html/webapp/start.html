@@ -8,10 +8,21 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <!-- Le styles -->
+
+<!--(if target dev)><!-->
 <link href="assets/css/bootstrap.css" rel="stylesheet">
 <link href="assets/css/bootstrap-fileupload.css" rel="stylesheet">
 <link href="assets/css/dataTables.bootstrap.css" rel="stylesheet">
 <link href="assets/css/bootstrap-switch.css" rel="stylesheet">
+<link href="assets/css/morris.css" rel="stylesheet">
+<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+<!--<!(endif)-->
+
+
+<!--(if target dist)>
+<link href="cloudgene.vendor.min.css" rel="stylesheet">
+<!(endif)-->
+
 
 <style>
 body {
@@ -19,13 +30,7 @@ body {
       to the bottom of the topbar */
 }
 </style>
-<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
-<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
-      </script>
-    <![endif]-->
-<!-- Le fav and touch icons -->
+
 <link rel="shortcut icon" href="assets/ico/favicon.ico">
 <link rel="apple-touch-icon-precomposed" sizes="144x144"
 	href="assets/ico/apple-touch-icon-144-precomposed.png">
@@ -45,27 +50,27 @@ body {
 				<a id="home" class="brand" href="#!pages/home"> ${appname} </a>
 				<ul class="nav pull-left"  id="tabfolder">
 					<li><a id="home" href="#!pages/home"> Home </a></li>
-					
+
 					<#if apps?size == 1>
 										<li class=""><a id="run" href="#!run/${apps[0].id}"> Run </a></li>
-					
+
 					<#else>
 					<li class="dropdown">
 					  <a class="dropdown-toggle" id="run" role="button" data-toggle="dropdown"> Run <b class="caret"></b></a>
 						<ul class="dropdown-menu" role="menu" aria-labelledby="run">
-	
+
 							<#list apps as app>
-	
+
 							<li role="presentation">
 								<a role="menuitem" tabindex="-1" href="#!run/${app.id}"> ${app.name}</a>
 							</li>
-	
-							</#list>  							
-							
+
+							</#list>
+
 						</ul>
 					</li>
 					</#if>
-					
+
 					<li class=""><a id="jobs" href="#!pages/jobs"> Jobs </a></li>
 					<li><a id="help" href="#!pages/help"> Help </a></li>
 					<li><a id="contact" href="#!pages/contact"> Contact </a></li>
@@ -107,43 +112,52 @@ body {
 		</footer>
 	</div>
 
-	<!-- Libraries -->
+	<!--(if target dev)><!-->
 	<script src="assets/js/lib/date.format.js"></script>
 	<script src="assets/js/lib/jquery.js"></script>
 	<script src="assets/js/lib/jquery.form.js"></script>
-	<script src="assets/js/lib/bootstrap.js"></script>
+	<script src="assets/js/lib/bootstrap.min.js"></script>
 	<script src="assets/js/lib/bootbox.min.js"></script>
 	<script src="assets/js/lib/can.jquery.js"></script>
 	<script src="assets/js/lib/bootstrap-fileupload.js"></script>
 	<script src="assets/js/lib/jquery.dataTables.min.js"></script>
 	<script src="assets/js/lib/bootstrap-switch.min.js"></script>
 	<script src="assets/js/lib/dataTables.bootstrap.js"></script>
+  <script src="models/Application.js"></script>
+	<script src="models/Cluster.js"></script>
+	<script src="models/Counter.js"></script>
+	<script src="models/Group.js"></script>
+	<script src="models/Job.js"></script>
+	<script src="models/JobAdminDetails.js"></script>
+	<script src="models/JobDetails.js"></script>
+	<script src="models/Settings.js"></script>
+	<script src="models/Template.js"></script>
+	<script src="models/User.js"></script>
+	<script src="models/UserToken.js"></script>
+	<script src="controllers/WaitingPage.js"></script>
+	<script src="controllers/SubmitJobPage.js"></script>
+	<script src="controllers/FormBuilder.js"></script>
+	<script src="controllers/Helpers.js"></script>
+	<script src="controllers/UserLoginForm.js"></script>
+	<script src="controllers/HomePage.js"></script>
+	<script src="controllers/ErrorPage.js"></script>
+	<script src="controllers/Error404Page.js"></script>
+	<script src="controllers/StaticPage.js"></script>
+	<script src="controllers/UpdateProfilePage.js"></script>
+	<script src="controllers/JobListPage.js"></script>
+	<script src="controllers/JobDetailsPage.js"></script>
+	<script src="controllers/Tabs.js"></script>
+	<!--<!(endif)-->
 
-
-	<!-- Pages and Controllers -->
-
-	<script src="assets/js/WaitingPage.js"></script>
-	<script src="assets/js/SubmitJobPage.js"></script>
-	<script src="assets/js/FormBuilder.js"></script>
-	<script src="assets/js/Helpers.js"></script>
-	<script src="assets/js/UserLoginForm.js"></script>
-	<script src="assets/js/HomePage.js"></script>
-	<script src="assets/js/ErrorPage.js"></script>
-	<script src="assets/js/Error404Page.js"></script>
-	<script src="assets/js/StaticPage.js"></script>
-	<script src="assets/js/UpdateProfilePage.js"></script>
-	<script src="assets/js/JobListPage.js"></script>
-	<script src="assets/js/JobDetailsPage.js"></script>
-	<script src="assets/js/Tabs.js"></script>
+	<!--(if target dist)>
+	<script src="cloudgene.vendor.min.js"></script>
+	<script src="cloudgene.min.js"></script>
+	<!(endif)-->
 
 
 	<script>
 		var app;
 
-		String.prototype.endsWith = function (s) {
-			  return this.length >= s.length && this.substr(this.length - s.length) == s;
-			}
-		
 		$(document)
 				.ready(
 						function() {
@@ -171,7 +185,7 @@ body {
 							can.route("run/:app", {app: "${apps[0].id}"});
 
 							can.route.ready();
-							
+
 
 							//default route!
 							//can.route("pages/:page", {page: "home"});

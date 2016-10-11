@@ -8,9 +8,18 @@
 <meta name="description" content="">
 <meta name="author" content="">
 <!-- Le styles -->
+
+<!--(if target dev)><!-->
 <link href="assets/css/bootstrap.css" rel="stylesheet">
 <link href="assets/css/bootstrap-fileupload.css" rel="stylesheet">
-<link href="assets/js/lib/morris/morris.css" rel="stylesheet">
+<link href="assets/css/morris.css" rel="stylesheet">
+<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
+<!--<!(endif)-->
+
+<!--(if target dist)>
+<link href="cloudgene.vendor.min.css" rel="stylesheet">
+<!(endif)-->
+
 
 <style>
 body {
@@ -18,13 +27,7 @@ body {
       to the bottom of the topbar */
 }
 </style>
-<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
-<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js">
-      </script>
-    <![endif]-->
-<!-- Le fav and touch icons -->
+
 <link rel="shortcut icon" href="assets/ico/favicon.ico">
 <link rel="apple-touch-icon-precomposed" sizes="144x144"
 	href="assets/ico/apple-touch-icon-144-precomposed.png">
@@ -47,7 +50,7 @@ body {
 					<li><a id="admin-home" href="#!pages/admin-home"> Dashboard </a></li>
 					<li><a id="admin-server" href="#!pages/admin-server">Server
 					</a></li>
-					
+
 					<li><a id="admin-settings" href="#!pages/admin-settings">
 							Settings </a></li>
 					<li><a id="admin-jobs" href="#!pages/admin-jobs"> Jobs </a></li>
@@ -55,10 +58,10 @@ body {
 					</a></li>
 					<li><a id="admin-logs" href="#!pages/admin-logs"> Logs </a></li>
 					<li class="divider-vertical"></li>
-					
+
 					<li><a id="back" href="index.html"> Exit</a></li>
-					
-					
+
+
 				</ul>
 
 			</div>
@@ -74,41 +77,51 @@ body {
 		</footer>
 	</div>
 
-	<!-- Libraries -->
+	<!--(if target dev)><!-->
 	<script src="assets/js/lib/date.format.js"></script>
 	<script src="assets/js/lib/jquery.js"></script>
 	<script src="assets/js/lib/jquery.form.js"></script>
-	<script src="assets/js/lib/bootstrap.js"></script>
+	<script src="assets/js/lib/bootstrap.min.js"></script>
 	<script src="assets/js/lib/bootbox.min.js"></script>
 	<script src="assets/js/lib/can.jquery.js"></script>
 	<script src="assets/js/lib/bootstrap-fileupload.js"></script>
-	<script src="assets/js/lib/morris/raphael.min.js"></script>
-	<script src="assets/js/lib/morris/morris.min.js"></script>
+	<script src="assets/js/lib/raphael.min.js"></script>
+	<script src="assets/js/lib/morris.min.js"></script>
 	<script src="assets/js/lib/md5.min.js"></script>
-	
-	
-	<!-- Pages and Controllers -->
-	<script src="assets/js/Helpers.js"></script>
-	<script src="assets/js/JobDetailsPage.js"></script>
-	<script src="assets/js/AdminHomePage.js"></script>
-	<script src="assets/js/AdminJobsPage.js"></script>
-	<script src="assets/js/AdminUsersPage.js"></script>
-	<script src="assets/js/AdminSettingsPage.js"></script>
-	<script src="assets/js/AdminServerPage.js"></script>
 
-	<script src="assets/js/ErrorPage.js"></script>
-	<script src="assets/js/Error404Page.js"></script>
-	<script src="assets/js/TabsAdmin.js"></script>
+  <script src="models/Application.js"></script>
+	<script src="models/Cluster.js"></script>
+	<script src="models/Counter.js"></script>
+	<script src="models/Group.js"></script>
+	<script src="models/Job.js"></script>
+	<script src="models/JobAdminDetails.js"></script>
+	<script src="models/JobDetails.js"></script>
+	<script src="models/Settings.js"></script>
+	<script src="models/Template.js"></script>
+	<script src="models/User.js"></script>
+	<script src="models/UserToken.js"></script>
 
+	<script src="controllers/Helpers.js"></script>
+	<script src="controllers/JobDetailsPage.js"></script>
+	<script src="controllers/AdminHomePage.js"></script>
+	<script src="controllers/AdminJobsPage.js"></script>
+	<script src="controllers/AdminUsersPage.js"></script>
+	<script src="controllers/AdminSettingsPage.js"></script>
+	<script src="controllers/AdminServerPage.js"></script>
+	<script src="controllers/ErrorPage.js"></script>
+	<script src="controllers/Error404Page.js"></script>
+	<script src="controllers/TabsAdmin.js"></script> -->
+	<!--<!(endif)-->
+
+	<!--(if target dist)>
+	<script src="cloudgene.vendor.min.js"></script>
+	<script src="cloudgene.min.js"></script>
+	<!(endif)-->
 
 	<script>
-	
-	String.prototype.endsWith = function (s) {
-		  return this.length >= s.length && this.substr(this.length - s.length) == s;
-		}
-	
+
 		$(document).ready(function() {
-		
+
 			tabs = new TabsAdmin("#tabfolder");
 			if (window.location.hash == '') {
 				tabs.activate("admin-home");
