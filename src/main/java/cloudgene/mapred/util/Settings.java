@@ -95,6 +95,8 @@ public class Settings {
 	private Map<String, Application> indexApps;
 
 	private String urlPrefix = "";
+	
+	private List<MenuItem> navigation = new Vector<MenuItem>();
 
 	public Settings() {
 
@@ -115,6 +117,12 @@ public class Settings {
 		mail.put("password", "");
 		mail.put("name", "noreply@cloudgene");
 
+		MenuItem helpMenuItem = new MenuItem();
+		helpMenuItem.setId("help");
+		helpMenuItem.setName("Help");
+		helpMenuItem.setLink("#!pages/help");
+		navigation.add(helpMenuItem);
+		
 		database = new HashMap<String, String>();
 		database.put("driver", "h2");
 		database.put("database", "data/mapred");
@@ -544,4 +552,12 @@ public class Settings {
 		this.secretKey = secretKey;
 	}
 
+	public void setNavigation(List<MenuItem> navigation) {
+		this.navigation = navigation;
+	}
+	
+	public List<MenuItem> getNavigation() {
+		return navigation;
+	}
+	
 }

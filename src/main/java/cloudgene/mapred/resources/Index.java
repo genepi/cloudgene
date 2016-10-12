@@ -40,6 +40,7 @@ public class Index extends BaseResource {
 		data.put("appname", getSettings().getName());
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 		data.put("apps", apps);
+		data.put("navigation", getSettings().getNavigation());
 
 		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage",

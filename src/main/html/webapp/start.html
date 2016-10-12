@@ -72,7 +72,22 @@ body {
 					</#if>
 
 					<li class=""><a id="jobs" href="#!pages/jobs"> Jobs </a></li>
-					<li><a id="help" href="#!pages/help"> Help </a></li>
+
+					<#list navigation as item>
+						<#if item.link??>
+							<li><a id="${item.id}" href="${item.link}"> ${item.name} </a></li>
+						<#else>
+							<li class="dropdown">
+								<a class="dropdown-toggle" id="${item.id}" role="button" data-toggle="dropdown"> ${item.name} <b class="caret"></b></a>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="${item.id}">
+									<#list item.items as subitem>
+									<li role="presentation"><a role="menuitem" tabindex="-1"  id="${subitem.id}" href="${subitem.link}"> ${subitem.name} </a></li>
+									</#list>
+								</ul>
+							</li>
+						</#if>
+					</#list>
+
 					<li><a id="contact" href="#!pages/contact"> Contact </a></li>
 				</ul>
 				<ul class="nav pull-right">

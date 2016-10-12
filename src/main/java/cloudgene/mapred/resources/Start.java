@@ -53,7 +53,8 @@ public class Start extends BaseResource {
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 		data.put("username", user.getUsername());
 		data.put("apps", apps);
-
+		data.put("navigation", getSettings().getNavigation());
+		
 		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage",
 					getWebApp()
