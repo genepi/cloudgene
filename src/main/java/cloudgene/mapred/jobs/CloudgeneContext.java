@@ -22,6 +22,8 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private String localTemp;
 
+	private String localInput;
+
 	private String hdfsOutput;
 
 	private String hdfsInput;
@@ -70,8 +72,9 @@ public class CloudgeneContext extends WorkflowContext {
 
 		localOutput = new File(job.getLocalWorkspace()).getAbsolutePath();
 
-		localTemp = new File(FileUtil.path(job.getLocalWorkspace(), "temp"))
-				.getAbsolutePath();
+		localTemp = new File(FileUtil.path(job.getLocalWorkspace(), "temp")).getAbsolutePath();
+
+		localInput = new File(FileUtil.path(job.getLocalWorkspace(), "input")).getAbsolutePath();
 
 		inputParameters = new HashMap<String, CloudgeneParameter>();
 		for (CloudgeneParameter param : job.getInputParams()) {
@@ -97,15 +100,14 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void setupOutputParameters() {
 
-		//cleanup temp directories
+		// cleanup temp directories
 		HdfsUtil.delete(getHdfsTemp());
 		FileUtil.deleteDirectory(getLocalTemp());
-		
+
 		// create output directories
 		FileUtil.createDirectory(getLocalOutput());
 		FileUtil.createDirectory(getLocalTemp());
 
-		
 		// create output directories
 		for (CloudgeneParameter param : outputParameters.values()) {
 
@@ -131,8 +133,7 @@ public class CloudgeneContext extends WorkflowContext {
 
 			// TODO: temp support for local files
 			case WdlParameter.LOCAL_FILE:
-				String folder = FileUtil
-						.path(getLocalOutput(), param.getName());
+				String folder = FileUtil.path(getLocalOutput(), param.getName());
 				String filename = FileUtil.path(folder, param.getName());
 				// delete and create (needed for restart)
 				FileUtil.deleteDirectory(folder);
@@ -141,8 +142,7 @@ public class CloudgeneContext extends WorkflowContext {
 				break;
 
 			case WdlParameter.LOCAL_FOLDER:
-				String folder2 = FileUtil.path(getLocalOutput(),
-						param.getName());
+				String folder2 = FileUtil.path(getLocalOutput(), param.getName());
 				// delete and create (needed for restart)
 				FileUtil.deleteDirectory(folder2);
 				FileUtil.createDirectory(folder2);
@@ -204,6 +204,10 @@ public class CloudgeneContext extends WorkflowContext {
 		return localTemp;
 	}
 
+	public String getLocalInput() {
+		return localInput;
+	}
+
 	public String getHdfsOutput() {
 		return hdfsOutput;
 	}
@@ -244,25 +248,20 @@ public class CloudgeneContext extends WorkflowContext {
 	public boolean sendMail(String subject, String body) throws Exception {
 		Settings settings = getSettings();
 
-		MailUtil.send(settings.getMail().get("smtp"),
-				settings.getMail().get("port"), settings.getMail().get("user"),
-				settings.getMail().get("password"),
-				settings.getMail().get("name"), user.getMail(),
+		MailUtil.send(settings.getMail().get("smtp"), settings.getMail().get("port"), settings.getMail().get("user"),
+				settings.getMail().get("password"), settings.getMail().get("name"), user.getMail(),
 				"[" + settings.getName() + "] " + subject, body);
 
 		return true;
 
 	}
 
-	public boolean sendMail(String to, String subject, String body)
-			throws Exception {
+	public boolean sendMail(String to, String subject, String body) throws Exception {
 		Settings settings = getSettings();
 
-		MailUtil.send(settings.getMail().get("smtp"),
-				settings.getMail().get("port"), settings.getMail().get("user"),
-				settings.getMail().get("password"),
-				settings.getMail().get("name"), to, "[" + settings.getName()
-						+ "] " + subject, body);
+		MailUtil.send(settings.getMail().get("smtp"), settings.getMail().get("port"), settings.getMail().get("user"),
+				settings.getMail().get("password"), settings.getMail().get("name"), to,
+				"[" + settings.getName() + "] " + subject, body);
 
 		return true;
 
@@ -322,9 +321,8 @@ public class CloudgeneContext extends WorkflowContext {
 
 		if (out != null) {
 
-			return "<a href=\"/results/" + job.getId() + "/" + out.getName()
-					+ "/" + out.getName() + ".txt" + "\">" + out.getName()
-					+ ".txt" + "</a>";
+			return "<a href=\"/results/" + job.getId() + "/" + out.getName() + "/" + out.getName() + ".txt" + "\">"
+					+ out.getName() + ".txt" + "</a>";
 
 		} else {
 			return "[PARAMETER UNKOWN!]";
@@ -360,28 +358,24 @@ public class CloudgeneContext extends WorkflowContext {
 	}
 
 	public void endTask(String message, int type) {
-		Message status = step.getLogMessages().get(
-				step.getLogMessages().size() - 1);
+		Message status = step.getLogMessages().get(step.getLogMessages().size() - 1);
 		status.setType(type);
 		status.setMessage(message);
 	}
 
 	public void updateTask(String message, int type) {
-		Message status = step.getLogMessages().get(
-				step.getLogMessages().size() - 1);
+		Message status = step.getLogMessages().get(step.getLogMessages().size() - 1);
 		status.setType(type);
 		status.setMessage(message);
 	}
 
 	public void updateTask(String message) {
-		Message status = step.getLogMessages().get(
-				step.getLogMessages().size() - 1);
+		Message status = step.getLogMessages().get(step.getLogMessages().size() - 1);
 		status.setMessage(message);
 	}
 
 	public void endTask(int type) {
-		Message status = step.getLogMessages().get(
-				step.getLogMessages().size() - 1);
+		Message status = step.getLogMessages().get(step.getLogMessages().size() - 1);
 		status.setType(type);
 	}
 

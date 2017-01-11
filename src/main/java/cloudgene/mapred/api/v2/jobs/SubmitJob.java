@@ -45,9 +45,7 @@ public class SubmitJob extends BaseResource {
 			app = WdlReader.loadAppFromFile(filename);
 		} catch (Exception e1) {
 
-			return error404("Application '"
-					+ tool
-					+ "' not found or the request requires user authentication.");
+			return error404("Application '" + tool + "' not found or the request requires user authentication.");
 
 		}
 
@@ -66,8 +64,7 @@ public class SubmitJob extends BaseResource {
 
 			int maxPerUser = settings.getMaxRunningJobsPerUser();
 			if (engine.getJobsByUser(user).size() >= maxPerUser) {
-				return error400("Only " + maxPerUser
-						+ " jobs per user can be executed simultaneously.");
+				return error400("Only " + maxPerUser + " jobs per user can be executed simultaneously.");
 			}
 
 		} else {
@@ -80,25 +77,20 @@ public class SubmitJob extends BaseResource {
 
 		int maxJobs = settings.getMaxRunningJobs();
 		if (engine.getActiveCount() >= maxJobs) {
-			return error400("More than " + maxJobs
-					+ "  jobs are currently in the queue.");
+			return error400("More than " + maxJobs + "  jobs are currently in the queue.");
 		}
 
-		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
-				id);
-		String localWorkspace = FileUtil.path(
-				getSettings().getLocalWorkspace(), id);
+		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		Map<String, String> inputParams = parseAndUpdateInputParams(entity,
-				app, hdfsWorkspace, localWorkspace);
+		Map<String, String> inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
 
 		if (inputParams == null) {
 			return error400("Error during input parameter parsing.");
 		}
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(),
-				inputParams);
+		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputParams);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);
@@ -116,8 +108,7 @@ public class SubmitJob extends BaseResource {
 
 	}
 
-	private Map<String, String> parseAndUpdateInputParams(
-			Representation entity, WdlApp app, String hdfsWorkspace,
+	private Map<String, String> parseAndUpdateInputParams(Representation entity, WdlApp app, String hdfsWorkspace,
 			String localWorkspace) {
 		Map<String, String> props = new HashMap<String, String>();
 
@@ -135,8 +126,7 @@ public class SubmitJob extends BaseResource {
 
 					// file parameter
 					// write local file
-					String tmpFile = getSettings().getTempFilename(
-							item.getName());
+					String tmpFile = getSettings().getTempFilename(item.getName());
 					File file = new File(tmpFile);
 
 					FileUtils.copyInputStreamToFile(item.openStream(), file);
@@ -145,28 +135,23 @@ public class SubmitJob extends BaseResource {
 					String entryName = item.getName();
 
 					// remove upload indentification!
-					String fieldName = item.getFieldName()
-							.replace("-upload", "").replace("input-", "");
+					String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
 
 					boolean hdfs = false;
 					boolean folder = false;
 
 					for (WdlParameter input : app.getMapred().getInputs()) {
 						if (input.getId().equals(fieldName)) {
-							hdfs = (input.getType().equals(
-									WdlParameter.HDFS_FOLDER) || input
-									.getType().equals(WdlParameter.HDFS_FILE));
-							folder = (input.getType()
-									.equals(WdlParameter.HDFS_FOLDER))
-									|| (input.getType()
-											.equals(WdlParameter.LOCAL_FOLDER));
+							hdfs = (input.getType().equals(WdlParameter.HDFS_FOLDER)
+									|| input.getType().equals(WdlParameter.HDFS_FILE));
+							folder = (input.getType().equals(WdlParameter.HDFS_FOLDER))
+									|| (input.getType().equals(WdlParameter.LOCAL_FOLDER));
 						}
 					}
 
 					if (hdfs) {
 
-						String targetPath = HdfsUtil.path(hdfsWorkspace,
-								fieldName);
+						String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
 
 						String target = HdfsUtil.path(targetPath, entryName);
 
@@ -177,38 +162,35 @@ public class SubmitJob extends BaseResource {
 
 						if (folder) {
 							// folder
-							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil
-									.path(hdfsWorkspace, fieldName)));
+							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName)));
 						} else {
 							// file
-							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil
-									.path(hdfsWorkspace, fieldName, entryName)));
+							props.put(fieldName,
+									HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, entryName)));
 						}
 
 					} else {
 
 						// copy to workspace in temp directory
-
-						String targetPath = FileUtil.path(localWorkspace,
-								"temp", fieldName);
+						String targetPath = FileUtil.path(localWorkspace, "input", fieldName);
 
 						FileUtil.createDirectory(targetPath);
 
 						String target = FileUtil.path(targetPath, entryName);
 
+						System.out.println("System copy file " + fieldName + " to " + target);
+
 						FileUtil.copy(tmpFile, target);
 
 						// deletes temporary file
-						FileUtil.deleteFile(tmpFile);
+						// FileUtil.deleteFile(tmpFile);
 
 						if (folder) {
 							// folder
-							props.put(fieldName,
-									new File(targetPath).getAbsolutePath());
+							props.put(fieldName, new File(targetPath).getAbsolutePath());
 						} else {
 							// file
-							props.put(fieldName,
-									new File(target).getAbsolutePath());
+							props.put(fieldName, new File(target).getAbsolutePath());
 						}
 
 					}
@@ -254,8 +236,7 @@ public class SubmitJob extends BaseResource {
 		return params;
 	}
 
-	private FileItemIterator parseRequest(Representation entity)
-			throws FileUploadException, IOException {
+	private FileItemIterator parseRequest(Representation entity) throws FileUploadException, IOException {
 
 		// 1/ Create a factory for disk-based file items
 		DiskFileItemFactory factory = new DiskFileItemFactory();

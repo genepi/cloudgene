@@ -275,6 +275,9 @@ public class CloudgeneJob extends AbstractJob {
 
 		// delete local temp folders
 
+		writeLog("Cleaning up uploaded local files...");
+		FileUtil.deleteDirectory(context.getLocalInput());
+		
 		writeLog("Cleaning up temproary local files...");
 		FileUtil.deleteDirectory(context.getLocalTemp());
 

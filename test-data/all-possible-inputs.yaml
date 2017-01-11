@@ -7,7 +7,7 @@ category: cloudgene
 mapred:
 
   steps:
-    - name: WriteTextToFileStep
+    - name: CheckInputs
       classname: cloudgene.mapred.jobs.steps.CheckInputs
     
   inputs:
@@ -31,6 +31,7 @@ mapred:
     - id: checkbox
       description: Input Checkbox
       type: checkbox
+      value: false
       values:
         true: valueTrue
         false: valueFalse

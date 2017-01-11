@@ -58,7 +58,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-text", "my-text"));
 		form.getEntries().add(new FormData("input-number", "27"));
 		// ignore checkbox
-		form.getEntries().add(new FormData("input-list", "valuea"));
+		form.getEntries().add(new FormData("input-list", "keya"));
 		// local-file
 		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer(
 				"content-of-my-file"));

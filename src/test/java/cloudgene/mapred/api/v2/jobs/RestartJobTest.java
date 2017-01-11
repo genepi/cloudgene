@@ -27,7 +27,7 @@ public class RestartJobTest extends JobsApiTestCase {
 		// submit job
 		String id = submitJob("write-text-to-file", form);
 
-		Thread.sleep(500);
+		Thread.sleep(10);
 
 		// stop engine
 		TestServer.getInstance().reStartWebServer();

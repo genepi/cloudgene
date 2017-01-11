@@ -36,7 +36,7 @@ public class TestServer {
 	public static final String HOSTNAME = "http://localhost:" + PORT;
 
 	protected WebServer server;
-	
+
 	protected User user;
 
 	protected Settings settings = new Settings();
@@ -163,19 +163,21 @@ public class TestServer {
 
 	}
 
-	public Database createDatabase() throws SQLException {
+	public Database createDatabase(boolean newDatabase) throws SQLException {
 
 		if (database != null) {
 			return database;
 		}
 
-		//delete old database
-		FileUtil.deleteDirectory("test-database");
-		
-		H2Connector connector = new H2Connector("./test-database/mapred",
-				"mapred", "mapred", false);
-		//DatabaseConnector connector = new MySqlConnector("localhost", "3306", "cloudgene",
-		//		"root", "lukas");
+		// delete old database
+		if (newDatabase){
+			FileUtil.deleteDirectory("test-database");
+		}
+
+		H2Connector connector = new H2Connector("./test-database/mapred", "mapred", "mapred", false);
+		// DatabaseConnector connector = new MySqlConnector("localhost", "3306",
+		// "cloudgene",
+		// "root", "lukas");
 		database = new Database();
 
 		try {
@@ -185,8 +187,7 @@ public class TestServer {
 			if (connector.isNewDatabase()) {
 
 				// init schema
-				InputStream is = Main.class
-						.getResourceAsStream("/create-tables.sql");
+				InputStream is = Main.class.getResourceAsStream("/create-tables.sql");
 				connector.executeSQL(is);
 
 				File versionFile = new File("version.txt");
@@ -196,8 +197,7 @@ public class TestServer {
 			}
 
 			InputStream is = Main.class.getResourceAsStream("/updates.sql");
-			DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,
-					"version.txt", is, Main.VERSION);
+			DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, "version.txt", is, Main.VERSION);
 			if (askimedUpdater.needUpdate()) {
 				if (!askimedUpdater.update()) {
 					database.disconnect();
@@ -228,10 +228,9 @@ public class TestServer {
 
 	}
 
-	public WorkflowEngine startWorkflowEngineWithoutServer()
-			throws SQLException {
+	public WorkflowEngine startWorkflowEngineWithoutServer() throws SQLException {
 		if (engine == null) {
-			database = createDatabase();
+			database = createDatabase(true);
 			// start workflow engine
 			engine = new WorkflowEngine(database, 1, 1);
 			engineThread = new Thread(engine);
@@ -241,20 +240,23 @@ public class TestServer {
 	}
 
 	public void start() throws SQLException {
+		start(true);
+	}
+
+	public void start(boolean newDatabase) throws SQLException {
 
 		if (server == null) {
 
 			registerApplications();
 
-			database = createDatabase();
+			database = createDatabase(newDatabase);
 
 			// inser messages
 			TemplateDao htmlSnippetDao = new TemplateDao(database);
 
 			for (Template defaultSnippet : Template.SNIPPETS) {
 
-				Template snippet = htmlSnippetDao.findByKey(defaultSnippet
-						.getKey());
+				Template snippet = htmlSnippetDao.findByKey(defaultSnippet.getKey());
 				if (snippet == null) {
 					htmlSnippetDao.insert(defaultSnippet);
 				} else {
@@ -277,10 +279,9 @@ public class TestServer {
 				if (new File("webapp").exists()) {
 					webAppFolder = "webapp";
 				} else {
-					webAppFolder = FileUtil.path(new File(Main.class
-							.getProtectionDomain().getCodeSource()
-							.getLocation().getPath()).getParent(), "html",
-							"webapp");
+					webAppFolder = FileUtil
+							.path(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+									.getParent(), "html", "webapp");
 					System.out.println(webAppFolder);
 				}
 
@@ -321,7 +322,7 @@ public class TestServer {
 		server.stop();
 		server = null;
 		database = null;
-		start();
+		start(false);
 
 	}
 
