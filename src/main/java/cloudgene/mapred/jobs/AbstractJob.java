@@ -104,7 +104,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private String hdfsWorkspace;
 
 	private boolean canceld = false;
-	
+
 	public String getId() {
 		return id;
 	}
@@ -375,8 +375,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 				writeLog("Cleanup successful.");
 
 			}
-			
-			if (canceld){
+
+			if (canceld) {
 				setState(AbstractJob.STATE_CANCELED);
 			}
 
@@ -617,6 +617,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 	abstract public boolean onFailure();
 
 	abstract public boolean cleanUp();
+
+	public void onStepFinished(CloudgeneStep step) {
+
+	}
+
+	public void onStepStarted(CloudgeneStep step) {
+
+	}
 
 	public void kill() {
 

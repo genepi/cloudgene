@@ -1,12 +1,5 @@
 package cloudgene.mapred.util.junit;
 
-import genepi.db.Database;
-import genepi.db.DatabaseConnector;
-import genepi.db.DatabaseUpdater;
-import genepi.db.h2.H2Connector;
-import genepi.db.mysql.MySqlConnector;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.InputStream;
 import java.sql.SQLException;
@@ -20,14 +13,18 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
+import genepi.db.Database;
+import genepi.db.DatabaseUpdater;
+import genepi.db.h2.H2Connector;
+import genepi.io.FileUtil;
 
 public class TestServer {
 
@@ -232,7 +229,7 @@ public class TestServer {
 		if (engine == null) {
 			database = createDatabase(true);
 			// start workflow engine
-			engine = new WorkflowEngine(database, 1, 1);
+			engine = new PersistentWorkflowEngine(database, 1, 1);
 			engineThread = new Thread(engine);
 			engineThread.start();
 		}

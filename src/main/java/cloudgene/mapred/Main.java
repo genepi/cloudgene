@@ -26,6 +26,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
+import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Settings;
@@ -70,8 +71,7 @@ public class Main implements Daemon {
 
 		// create the Options
 		Options options = new Options();
-		Option portOption = new Option(null, "port", true,
-				"runs cloudgene on port <PORT>");
+		Option portOption = new Option(null, "port", true, "runs cloudgene on port <PORT>");
 		portOption.setRequired(false);
 		portOption.setArgName("PORT");
 		options.addOption(portOption);
@@ -116,8 +116,7 @@ public class Main implements Daemon {
 		database = new Database();
 
 		// create h2 or mysql connector
-		DatabaseConnector connector = DatabaseConnectorFactory
-				.createConnector(settings.getDatabase());
+		DatabaseConnector connector = DatabaseConnectorFactory.createConnector(settings.getDatabase());
 
 		if (connector == null) {
 
@@ -126,7 +125,7 @@ public class Main implements Daemon {
 
 		}
 
-		//connect do database
+		// connect do database
 		try {
 
 			database.connect(connector);
@@ -143,8 +142,7 @@ public class Main implements Daemon {
 		// init schema
 		if (connector.isNewDatabase()) {
 
-			InputStream is = Main.class
-					.getResourceAsStream("/create-tables.sql");
+			InputStream is = Main.class.getResourceAsStream("/create-tables.sql");
 			connector.executeSQL(is);
 
 			File versionFile = new File("version.txt");
@@ -155,8 +153,7 @@ public class Main implements Daemon {
 
 		// update database schema if needed
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector,
-				"version.txt", is, VERSION);
+		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, "version.txt", is, VERSION);
 
 		if (askimedUpdater.needUpdate()) {
 			log.info("Database needs update.");
@@ -175,12 +172,11 @@ public class Main implements Daemon {
 		// insert fixtures
 		Fixtures.insert(database);
 
-		
 		// start workflow engine
 		try {
 
-			WorkflowEngine engine = new WorkflowEngine(database,
-					settings.getThreadsQueue(), settings.getThreadsQueue());
+			WorkflowEngine engine = new PersistentWorkflowEngine(database, settings.getThreadsQueue(),
+					settings.getThreadsQueue());
 			new Thread(engine).start();
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
@@ -197,9 +193,9 @@ public class Main implements Daemon {
 			if (new File("webapp").exists()) {
 				webAppFolder = "webapp";
 			} else {
-				webAppFolder = FileUtil.path(new File(Main.class
-						.getProtectionDomain().getCodeSource().getLocation()
-						.getPath()).getParent(), "html", "webapp");
+				webAppFolder = FileUtil.path(
+						new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(),
+						"html", "webapp");
 				System.out.println(webAppFolder);
 			}
 
@@ -227,8 +223,7 @@ public class Main implements Daemon {
 
 		} catch (Exception e) {
 
-			log.error("Can't launch the web server.\nAn unexpected "
-					+ "exception occured:", e);
+			log.error("Can't launch the web server.\nAn unexpected " + "exception occured:", e);
 
 			database.disconnect();
 
@@ -239,8 +234,7 @@ public class Main implements Daemon {
 	}
 
 	@Override
-	public void init(DaemonContext context) throws DaemonInitException,
-			Exception {
+	public void init(DaemonContext context) throws DaemonInitException, Exception {
 		String[] args = context.getArguments();
 		runCloudgene(args);
 	}

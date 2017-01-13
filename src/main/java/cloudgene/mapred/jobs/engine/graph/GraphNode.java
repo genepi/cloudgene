@@ -176,6 +176,8 @@ public class GraphNode implements Runnable {
 		context.setCurrentStep(instance);
 		job.getSteps().add(instance);
 
+		job.onStepStarted(instance);
+
 		job.writeOutputln("------------------------------------------------------");
 		job.writeOutputln(step.getName());
 		job.writeOutputln("------------------------------------------------------");
@@ -194,6 +196,7 @@ public class GraphNode implements Runnable {
 
 				context.incCounter("steps.failure." + id, 1);
 				context.submitCounter("steps.failure." + id);
+				job.onStepFinished(instance);
 
 				return;
 			} else {
@@ -219,6 +222,7 @@ public class GraphNode implements Runnable {
 
 			successful = false;
 			finish = true;
+			job.onStepFinished(instance);
 			return;
 		}
 
@@ -227,6 +231,7 @@ public class GraphNode implements Runnable {
 
 		finish = true;
 		successful = true;
+		job.onStepFinished(instance);
 
 	}
 
