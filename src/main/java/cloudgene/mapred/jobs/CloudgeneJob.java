@@ -263,7 +263,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean cleanUp() {
 
 		// delete hdfs temp folders
-		writeLog("Cleaning up temproary hdfs files...");
+		writeLog("Cleaning up temporary hdfs files...");
 		HdfsUtil.delete(context.getHdfsTemp());
 
 		// delete hdfs workspace
@@ -276,9 +276,9 @@ public class CloudgeneJob extends AbstractJob {
 		// delete local temp folders
 
 		writeLog("Cleaning up uploaded local files...");
-		//FileUtil.deleteDirectory(context.getLocalInput());
+		FileUtil.deleteDirectory(context.getLocalInput());
 		
-		writeLog("Cleaning up temproary local files...");
+		writeLog("Cleaning up temporary local files...");
 		FileUtil.deleteDirectory(context.getLocalTemp());
 
 		return true;
