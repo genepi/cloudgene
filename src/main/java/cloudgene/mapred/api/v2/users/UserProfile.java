@@ -25,11 +25,8 @@ public class UserProfile extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
+			return new StringRepresentation("The request requires user authentication.");
 		}
 
 		UserDao dao = new UserDao(getDatabase());
@@ -39,27 +36,22 @@ public class UserProfile extends BaseResource {
 		config.setExcludes(new String[] { "password", "apiToken" });
 
 		JSONObject object = JSONObject.fromObject(updatedUser, config);
-		object.put("hasApiToken", user.getApiToken() != null
-				&& !user.getApiToken().isEmpty());
+		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());
 
-		StringRepresentation representation = new StringRepresentation(
-				object.toString(), MediaType.APPLICATION_JSON);
+		StringRepresentation representation = new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 
 		return representation;
 
 	}
-	
+
 	@Post
 	public Representation post(Representation entity) {
 
 		User user = getAuthUser();
 
 		if (user == null) {
-
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
+			return new StringRepresentation("The request requires user authentication.");
 		}
 
 		Form form = new Form(entity);
@@ -67,41 +59,49 @@ public class UserProfile extends BaseResource {
 		String username = form.getFirstValue("username");
 		String fullname = form.getFirstValue("full-name");
 		String mail = form.getFirstValue("mail").toString();
-
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
-		if (username != null && !username.isEmpty()
-				&& user.getUsername().equals(username)) {
+		String error = User.checkUsername(username);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
 
-			UserDao dao = new UserDao(getDatabase());
-			User newUser = dao.findByUsername(username);
-			newUser.setFullName(fullname);
-			newUser.setMail(mail);
+		// check if user is admin or it is his username
+		if (!user.getUsername().equals(username) && !user.isAdmin()) {
+			return new JSONAnswer("You are not allowed to change this user profile.", false);
+		}
 
-			if (newPassword != null && !newPassword.isEmpty()) {
+		error = User.checkName(fullname);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
 
-				if (newPassword.equals(confirmNewPassword)) {
+		error = User.checkMail(mail);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
 
-					newUser.setPassword(HashUtil.getMD5(newPassword));
+		UserDao dao = new UserDao(getDatabase());
+		User newUser = dao.findByUsername(username);
+		newUser.setFullName(fullname);
+		newUser.setMail(mail);
 
-				} else {
+		// update password only when it's not empty
+		if (newPassword != null && !newPassword.isEmpty()) {
 
-					return new JSONAnswer("Please check your passwords.", false);
+			error = User.checkPassword(newPassword, confirmNewPassword);
 
-				}
-
+			if (error != null) {
+				return new JSONAnswer(error, false);
 			}
-
-			dao.update(newUser);
-
-		} else {
-
-			return new JSONAnswer("Please enter a username.", false);
+			newUser.setPassword(HashUtil.getMD5(newPassword));
 
 		}
 
-		return new JSONAnswer("User sucessfully updated.", true);
+		dao.update(newUser);
+
+		return new JSONAnswer("User profile sucessfully updated.", true);
 
 	}
 

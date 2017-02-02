@@ -5,7 +5,6 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
@@ -24,34 +23,30 @@ public class UpdatePassword extends BaseResource {
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
+		if (username == null || username.isEmpty()){
+			return new JSONAnswer("No username set.", false);
+		}
+		
 		UserDao dao = new UserDao(getDatabase());
 		User user = dao.findByUsername(username);
 
 		if (user == null) {
-			return new JSONAnswer(
-					"We couldn't find an account with that username.", false);
-
+			return new JSONAnswer("We couldn't find an account with that username.", false);
 		}
 
-		System.out.println(user.getActivationCode());
-
-		if (key == null || user.getActivationCode() == null
-				|| !user.getActivationCode().equals(key)) {
-			return new JSONAnswer(
-					"Your recovery request is invalid or expired.", false);
-
+		if (key == null || user.getActivationCode() == null || !user.getActivationCode().equals(key)) {
+			return new JSONAnswer("Your recovery request is invalid or expired.", false);
 		}
 
-		if (!newPassword.equals(confirmNewPassword)) {
-
-			return new JSONAnswer("Please check your passwords.", false);
-
+		String error = User.checkPassword(newPassword, confirmNewPassword);		
+		if (error != null) {
+			return new JSONAnswer(error, false);
 		}
 
 		user.setPassword(HashUtil.getMD5(newPassword));
 		user.setActivationCode("");
 		dao.update(user);
-		
+
 		return new JSONAnswer("Password sucessfully updated.", true);
 
 	}

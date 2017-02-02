@@ -14,85 +14,81 @@ import cloudgene.mapred.util.Template;
 
 public class RegisterUser extends BaseResource {
 
+	public static final String DEFAULT_ROLE = "User";
+
 	@Post
 	public Representation post(Representation entity) {
 
 		Form form = new Form(entity);
-
-		// New User
 		String username = form.getFirstValue("username");
 		String fullname = form.getFirstValue("full-name");
 		String mail = form.getFirstValue("mail").toString();
-		String role = "User";
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
-		if (username != null && !username.isEmpty()) {
+		// check username
+		String error = User.checkUsername(username);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
+		UserDao dao = new UserDao(getDatabase());
+		if (dao.findByUsername(username) != null) {
+			return new JSONAnswer("Username already exists.", false);
+		}
 
-			if (newPassword.equals(confirmNewPassword)) {
+		// check email
+		error = User.checkMail(mail);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
+		if (dao.findByMail(mail) != null) {
+			return new JSONAnswer("E-Mail is already registered.", false);
+		}
 
-				UserDao dao = new UserDao(getDatabase());
+		// check password
+		error = User.checkPassword(newPassword, confirmNewPassword);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
 
-				if (dao.findByUsername(username) != null) {
+		// check password
+		error = User.checkName(fullname);
+		if (error != null) {
+			return new JSONAnswer(error, false);
+		}
 
-					return new JSONAnswer("Username already exists.", false);
+		String activationKey = HashUtil.getMD5(System.currentTimeMillis() + username + mail);
 
-				}
+		User newUser = new User();
+		newUser.setUsername(username);
+		newUser.setFullName(fullname);
+		newUser.setMail(mail);
+		newUser.setRole(DEFAULT_ROLE);
+		newUser.setActive(false);
+		newUser.setActivationCode(activationKey);
+		newUser.setPassword(HashUtil.getMD5(newPassword));
 
-				if (dao.findByMail(mail) != null) {
+		String activationLink = getRequest().getRootRef().toString() + "/#!activate/" + username + "/" + activationKey;
 
-					return new JSONAnswer("E-Mail is already registered.",
-							false);
+		// send email with activation code
 
-				}
+		String application = getSettings().getName();
+		String subject = "[" + application + "] Signup activation";
+		String body = getWebApp().getTemplate(Template.REGISTER_MAIL, fullname, application, activationLink);
 
-				String key = HashUtil.getMD5(System.currentTimeMillis() + "");
-				User newUser = new User();
-				newUser.setUsername(username);
-				newUser.setFullName(fullname);
-				newUser.setMail(mail);
-				newUser.setRole(role);
-				newUser.setActive(false);
-				newUser.setActivationCode(key);
-				newUser.setPassword(HashUtil.getMD5(newPassword));
+		try {
 
-				String link = getRequest().getRootRef().toString()
-						+ "/#!activate/" + username + "/" + key;
+			MailUtil.send(getSettings(), mail, subject, body);
 
-				// send email with activation code
+			MailUtil.notifyAdmin(getSettings(), "[" + getSettings().getName() + "] New user", "Username: " + username);
 
-				String application = getSettings().getName();
-				String subject = "[" + application + "] Signup activation";
-				String body = getWebApp().getTemplate(Template.REGISTER_MAIL,
-						fullname, application, link);
+			dao.insert(newUser);
 
-				try {
+			return new JSONAnswer("User sucessfully created.", true);
 
-					MailUtil.send(getSettings(), mail, subject, body);
+		} catch (Exception e) {
 
-					MailUtil.notifyAdmin(getSettings(), "["
-							+ getSettings().getName() + "] New user",
-							"Username: " + username);
-
-					dao.insert(newUser);
-
-					return new JSONAnswer("User sucessfully created.", true);
-
-				} catch (Exception e) {
-
-					return new JSONAnswer(e.getMessage(), false);
-
-				}
-
-			} else {
-
-				return new JSONAnswer("Please check your passwords.", false);
-
-			}
-
-		} else {
-
-			return new JSONAnswer("Please enter a username.", false);
+			return new JSONAnswer(e.getMessage(), false);
 
 		}
 

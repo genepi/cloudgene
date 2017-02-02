@@ -1,5 +1,7 @@
 package cloudgene.mapred.core;
 
+import java.util.regex.Pattern;
+
 public class User {
 
 	private String username;
@@ -98,6 +100,76 @@ public class User {
 
 	public String getApiToken() {
 		return apiToken;
+	}
+
+	public static String checkUsername(String username) {
+
+		if (username == null || username.isEmpty()) {
+			return "The username is required.";
+		}
+
+		if (username.length() < 4) {
+			return "The username must contain at least four characters.";
+
+		}
+
+		if (!Pattern.matches("^[a-zA-Z0-9]+$", username)) {
+			return "Your username is not valid. Only characters A-Z, a-z and digits 0-9 are acceptable.";
+		}
+
+		return null;
+
+	}
+
+	public static String checkPassword(String password, String confirmPassword) {
+
+		if (password == null || confirmPassword == null || password.isEmpty() || !password.equals(confirmPassword)) {
+			return "Please check your passwords.";
+		}
+
+		if (password.length() < 6) {
+			return "Password must contain at least six characters!";
+		}
+
+		if (!Pattern.compile("[0-9]").matcher(password).find()) {
+			return "Password must contain at least one number (0-9)!";
+		}
+
+		if (!Pattern.compile("[a-z]").matcher(password).find()) {
+			return "Password must contain at least one lowercase letter (a-z)!";
+		}
+
+		if (!Pattern.compile("[A-Z]").matcher(password).find()) {
+			return "Password must contain at least one uppercase letter (A-Z)!";
+		}
+
+		return null;
+
+	}
+
+	private static final String EMAIL_PATTERN = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+
+	public static String checkMail(String mail) {
+
+		if (mail == null || mail.isEmpty()) {
+			return "E-Mail is required.";
+		}
+
+		if (!Pattern.matches(EMAIL_PATTERN, mail)) {
+			return "Please enter a valid mail address.";
+		}
+
+		return null;
+	}
+	
+	public static String checkName(String name) {
+
+		if (name == null || name.isEmpty()) {
+			return "The full name is required.";
+		}
+
+		return null;
 	}
 
 	@Override
