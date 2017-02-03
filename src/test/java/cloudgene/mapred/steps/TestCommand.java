@@ -82,7 +82,7 @@ public class TestCommand extends TestCase {
 		assertTrue(messages.get(0).getMessage().contains("Command '/bin/lukas/forer' was not found."));
 	}
 	
-	public void testInvalidParameters() throws Exception{
+	/*public void testInvalidParameters() throws Exception{
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/invalid-parameters.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -112,7 +112,7 @@ public class TestCommand extends TestCase {
 		//simple check if exit code = 1
 		assertFalse(contentStdOut.contains("Exit Code: 0"));
 		
-	}
+	}*/
 	
 	//TODO: check file staging
 	

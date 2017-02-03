@@ -23,10 +23,10 @@ public class UpdatePassword extends BaseResource {
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
-		if (username == null || username.isEmpty()){
+		if (username == null || username.isEmpty()) {
 			return new JSONAnswer("No username set.", false);
 		}
-		
+
 		UserDao dao = new UserDao(getDatabase());
 		User user = dao.findByUsername(username);
 
@@ -34,11 +34,15 @@ public class UpdatePassword extends BaseResource {
 			return new JSONAnswer("We couldn't find an account with that username.", false);
 		}
 
+		if (!user.isActive()){
+			return new JSONAnswer("Account is not activated.", false);
+		}
+		
 		if (key == null || user.getActivationCode() == null || !user.getActivationCode().equals(key)) {
 			return new JSONAnswer("Your recovery request is invalid or expired.", false);
 		}
-
-		String error = User.checkPassword(newPassword, confirmNewPassword);		
+		
+		String error = User.checkPassword(newPassword, confirmNewPassword);
 		if (error != null) {
 			return new JSONAnswer(error, false);
 		}

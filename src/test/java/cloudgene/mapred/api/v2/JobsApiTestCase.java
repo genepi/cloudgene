@@ -255,9 +255,10 @@ public class JobsApiTestCase extends TestCase {
 
 		resourceLogin.post(formStatus);
 
-		System.out.println(resourceLogin.getResponseEntity().getText());
-
 		assertEquals(200, resourceLogin.getStatus().getCode());
+		JSONObject object = new JSONObject(resourceLogin.getResponseEntity().getText());
+		assertEquals("Login successfull.", object.getString("message"));
+		assertEquals(true, object.get("success"));
 		assertEquals(1, resourceLogin.getResponse().getCookieSettings().size());
 
 		return resourceLogin.getResponse().getCookieSettings().get(0);

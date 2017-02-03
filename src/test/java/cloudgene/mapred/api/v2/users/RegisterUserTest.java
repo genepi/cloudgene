@@ -8,6 +8,7 @@ import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.api.v2.JobsApiTestCase;
+import cloudgene.mapred.util.junit.TestMailServer;
 import cloudgene.mapred.util.junit.TestServer;
 
 public class RegisterUserTest extends JobsApiTestCase {
@@ -15,15 +16,20 @@ public class RegisterUserTest extends JobsApiTestCase {
 	@Override
 	protected void setUp() throws Exception {
 		TestServer.getInstance().start();
+		TestMailServer.getInstance().start();
 	}
 
 	public void testWithCorrectData() throws JSONException, IOException {
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
+
 		// form data
 
 		Form form = new Form();
-		form.set("username", "username");
+		form.set("username", "usernameunique");
 		form.set("full-name", "full name");
-		form.set("mail", "test@test.com");
+		form.set("mail", "test-uniquent@test.com");
 		form.set("new-password", "Password27");
 		form.set("confirm-new-password", "Password27");
 
@@ -33,14 +39,55 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		// no email set in testcases!
+		assertEquals("User sucessfully created.", object.get("message"));
+
+		// check if one mail was sent to user, one to admin
+		assertEquals(mailsBefore + 2, mailServer.getReceivedEmailSize());
+
+		mailsBefore = mailServer.getReceivedEmailSize();
+
+		// test with same username
+		form = new Form();
+		form.set("username", "usernameunique");
+		form.set("full-name", "full name");
+		form.set("mail", "test-uniquent@test.com");
+		form.set("new-password", "Password27");
+		form.set("confirm-new-password", "Password27");
+
+		// register user
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
-		//no email set in testcases!
-		assertTrue(object.get("message").toString().contains("mail could not be sent"));
+		// no email set in testcases!
+		assertEquals("Username already exists.", object.get("message"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+
+		// test with same email but different username
+		form = new Form();
+		form.set("username", "usernameuniqueunique");
+		form.set("full-name", "full name");
+		form.set("mail", "test-uniquent@test.com");
+		form.set("new-password", "Password27");
+		form.set("confirm-new-password", "Password27");
+
+		// register user
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), false);
+		// no email set in testcases!
+		assertEquals("E-Mail is already registered.", object.get("message"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithEmptyUsername() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "");
@@ -56,11 +103,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("username is required"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithWrongUsername() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "username-");
@@ -76,11 +126,44 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("Your username is not valid"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+
+		form = new Form();
+		form.set("username", "username.");
+		form.set("full-name", "full name");
+		form.set("mail", "test@test.com");
+		form.set("new-password", "Password27");
+		form.set("confirm-new-password", "Password27");
+
+		// register user
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), false);
+		assertTrue(object.get("message").toString().contains("Your username is not valid"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+
+		form = new Form();
+		form.set("username", "username#");
+		form.set("full-name", "full name");
+		form.set("mail", "test@test.com");
+		form.set("new-password", "Password27");
+		form.set("confirm-new-password", "Password27");
+
+		// register user
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), false);
+		assertTrue(object.get("message").toString().contains("Your username is not valid"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithShortUsername() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abc");
@@ -96,11 +179,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("username must contain at least"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithEmptyName() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -116,11 +202,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("full name is required"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithEmptyMail() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -136,11 +225,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("E-Mail is required."));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithWrongMail() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -156,11 +248,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("a valid mail address"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithWrongConfirmPassword() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -176,11 +271,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("check your passwords"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithWrongPasswordLength() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -196,11 +294,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("contain at least"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithPasswordWithMissingUppercase() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -216,11 +317,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one uppercase"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithPasswordWithMissingLowercase() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -236,11 +340,14 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one lowercase"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 
 	public void testWithPasswordWithMissingNumber() throws JSONException, IOException {
-		// form data
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
 
 		Form form = new Form();
 		form.set("username", "abcde");
@@ -256,6 +363,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one number"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
 

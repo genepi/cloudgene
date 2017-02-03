@@ -25,6 +25,7 @@ import genepi.db.Database;
 import genepi.db.DatabaseUpdater;
 import genepi.db.h2.H2Connector;
 import genepi.io.FileUtil;
+import junit.framework.Test;
 
 public class TestServer {
 
@@ -49,7 +50,7 @@ public class TestServer {
 	private static TestServer instance;
 
 	private TestServer() {
-
+		settings.getMail().put("port", TestMailServer.PORT+"");
 	}
 
 	public List<Application> registerApplications() {

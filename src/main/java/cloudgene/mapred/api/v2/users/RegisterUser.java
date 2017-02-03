@@ -57,30 +57,41 @@ public class RegisterUser extends BaseResource {
 			return new JSONAnswer(error, false);
 		}
 
-		String activationKey = HashUtil.getMD5(System.currentTimeMillis() + username + mail);
-
 		User newUser = new User();
 		newUser.setUsername(username);
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
 		newUser.setRole(DEFAULT_ROLE);
-		newUser.setActive(false);
-		newUser.setActivationCode(activationKey);
 		newUser.setPassword(HashUtil.getMD5(newPassword));
-
-		String activationLink = getRequest().getRootRef().toString() + "/#!activate/" + username + "/" + activationKey;
-
-		// send email with activation code
-
-		String application = getSettings().getName();
-		String subject = "[" + application + "] Signup activation";
-		String body = getWebApp().getTemplate(Template.REGISTER_MAIL, fullname, application, activationLink);
 
 		try {
 
-			MailUtil.send(getSettings(), mail, subject, body);
+			// if email server configured, send mails with activation link. Else
+			// activate user immediately.
 
-			MailUtil.notifyAdmin(getSettings(), "[" + getSettings().getName() + "] New user", "Username: " + username);
+			if (getSettings().getMail() != null) {
+
+				String activationKey = HashUtil.getMD5(System.currentTimeMillis() + username + mail);
+				newUser.setActive(false);
+				newUser.setActivationCode(activationKey);
+
+				// send email with activation code
+				String application = getSettings().getName();
+				String subject = "[" + application + "] Signup activation";
+				String activationLink = getRequest().getRootRef().toString() + "/#!activate/" + username + "/"
+						+ activationKey;
+				String body = getWebApp().getTemplate(Template.REGISTER_MAIL, fullname, application, activationLink);
+
+				MailUtil.send(getSettings(), mail, subject, body);
+
+				MailUtil.notifyAdmin(getSettings(), "[" + getSettings().getName() + "] New user",
+						"Username: " + username);
+			} else {
+
+				newUser.setActive(true);
+				newUser.setActivationCode("");
+
+			}
 
 			dao.insert(newUser);
 
