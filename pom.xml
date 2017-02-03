@@ -320,6 +320,13 @@
 			<version>LATEST</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/dumbster/dumbster -->
+		<dependency>
+			<groupId>dumbster</groupId>
+			<artifactId>dumbster</artifactId>
+			<version>1.6</version>
+		</dependency>
+
 	</dependencies>
 
 	<name>Cloudgene</name>
