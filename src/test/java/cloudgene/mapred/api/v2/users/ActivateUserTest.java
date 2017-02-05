@@ -70,7 +70,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
+		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
 
@@ -97,7 +97,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
+		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
 

@@ -1,5 +1,6 @@
 package cloudgene.mapred.core;
 
+import java.util.Date;
 import java.util.regex.Pattern;
 
 public class User {
@@ -21,6 +22,12 @@ public class User {
 	private String activationKey = null;
 
 	private String apiToken = "";
+
+	private Date lastLogin;
+
+	private Date lockedUntil;
+
+	private int loginAttempts;
 
 	public void setUsername(String username) {
 		this.username = username;
@@ -102,6 +109,30 @@ public class User {
 		return apiToken;
 	}
 
+	public void setLastLogin(Date lastLogin) {
+		this.lastLogin = lastLogin;
+	}
+
+	public Date getLastLogin() {
+		return lastLogin;
+	}
+
+	public void setLockedUntil(Date lockedUntil) {
+		this.lockedUntil = lockedUntil;
+	}
+
+	public Date getLockedUntil() {
+		return lockedUntil;
+	}
+
+	public void setLoginAttempts(int loginAttempts) {
+		this.loginAttempts = loginAttempts;
+	}
+
+	public int getLoginAttempts() {
+		return loginAttempts;
+	}
+
 	public static String checkUsername(String username) {
 
 		if (username == null || username.isEmpty()) {
@@ -162,7 +193,7 @@ public class User {
 
 		return null;
 	}
-	
+
 	public static String checkName(String name) {
 
 		if (name == null || name.isEmpty()) {

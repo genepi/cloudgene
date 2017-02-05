@@ -1,6 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +45,16 @@ public class LoginUserTest extends JobsApiTestCase {
 		testUser2.setPassword(HashUtil.getMD5("test2"));
 		userDao.insert(testUser2);
 
+		User testUser3 = new User();
+		testUser3.setUsername("lockeduser");
+		testUser3.setFullName("test1");
+		testUser3.setMail("testuser1@test.com");
+		testUser3.setRole("User");
+		testUser3.setActive(true);
+		testUser3.setActivationCode("");
+		testUser3.setPassword(HashUtil.getMD5("lockedpasssord"));
+		userDao.insert(testUser3);
+
 	}
 
 	public void testActivatedUser() throws JSONException, IOException {
@@ -62,20 +73,106 @@ public class LoginUserTest extends JobsApiTestCase {
 		assertEquals(1, resource.getResponse().getCookieSettings().size());
 	}
 
-	public void testWrongPassword() throws JSONException, IOException {
+	public void testWrongPasswordAndLocking() throws JSONException, IOException {
 
-		// login should work
-		ClientResource resource = createClientResource("/login");
-		Form form = new Form();
-		form.set("loginUsername", "testuser1");
-		form.set("loginPassword", "wrong-password");
+		UserDao dao = new UserDao(TestServer.getInstance().getDatabase());
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-		assertEquals(false, object.get("success"));
-		assertEquals(0, resource.getResponse().getCookieSettings().size());
+		// try with correct password
+		for (int i = 1; i < 10; i++) {
+
+			
+			ClientResource resource = createClientResource("/login");
+			Form form = new Form();
+			form.set("loginUsername", "lockeduser");
+			form.set("loginPassword", "lockedpasssord");
+
+			resource.post(form);
+			assertEquals(200, resource.getStatus().getCode());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+			assertEquals("Login successfull.", object.getString("message"));
+			assertEquals(true, object.get("success"));
+			assertEquals(1, resource.getResponse().getCookieSettings().size());
+			
+			//check login attempts are the same
+			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
+			assertEquals(0, newLoginAttempts);
+		}
+
+		int oldLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
+
+		// login should work xx times
+		for (int i = 1; i < LoginUser.MAX_LOGIN_ATTEMMPTS + 10; i++) {
+			ClientResource resource = createClientResource("/login");
+			Form form = new Form();
+			form.set("loginUsername", "lockeduser");
+			form.set("loginPassword", "wrong-password");
+
+			resource.post(form);
+			assertEquals(200, resource.getStatus().getCode());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+
+			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
+
+			if (i <= LoginUser.MAX_LOGIN_ATTEMMPTS) {
+				// check login counter
+				assertEquals(oldLoginAttempts + 1, newLoginAttempts);
+				oldLoginAttempts = newLoginAttempts;
+				// check error messages
+				assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
+				assertEquals(false, object.get("success"));
+				assertEquals(0, resource.getResponse().getCookieSettings().size());
+			} else {
+				assertEquals("The user account is locked for " + LoginUser.LOCKING_TIME_MIN
+						+ " minutes. Too many failed logins.", object.getString("message"));
+				assertEquals(false, object.get("success"));
+				assertEquals(0, resource.getResponse().getCookieSettings().size());
+			}
+		}
+
+		// try with correct password
+		for (int i = 1; i < 10; i++) {
+			ClientResource resource = createClientResource("/login");
+			Form form = new Form();
+			form.set("loginUsername", "lockeduser");
+			form.set("loginPassword", "lockedpasssord");
+
+			resource.post(form);
+			assertEquals(200, resource.getStatus().getCode());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+
+			assertEquals("The user account is locked for " + LoginUser.LOCKING_TIME_MIN
+					+ " minutes. Too many failed logins.", object.getString("message"));
+			assertEquals(false, object.get("success"));
+			assertEquals(0, resource.getResponse().getCookieSettings().size());
+
+		}
+		
+		//update locked until to now
+		User user = dao.findByUsername("lockeduser");
+		user.setLockedUntil(new Date());
+		dao.update(user);
+		
+		// try with correct password
+		for (int i = 1; i < 10; i++) {
+
+			
+			ClientResource resource = createClientResource("/login");
+			Form form = new Form();
+			form.set("loginUsername", "lockeduser");
+			form.set("loginPassword", "lockedpasssord");
+
+			resource.post(form);
+			assertEquals(200, resource.getStatus().getCode());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+			assertEquals("Login successfull.", object.getString("message"));
+			assertEquals(true, object.get("success"));
+			assertEquals(1, resource.getResponse().getCookieSettings().size());
+			
+			//check login attempts are the same
+			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
+			assertEquals(0, newLoginAttempts);
+		}
+		
 	}
 
 	public void testInActivateUser() throws JSONException, IOException {
@@ -89,7 +186,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
+		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
 	}
