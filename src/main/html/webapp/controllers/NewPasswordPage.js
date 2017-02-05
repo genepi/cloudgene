@@ -17,7 +17,7 @@ NewPasswordPage = can.Control({
 		// password
 		newPassword = this.element.find("[name='new-password']");
 		confirmNewPassword = this.element.find("[name='confirm-new-password']");
-		error = ser.checkPassword(newPassword.val(), confirmNewPassword.val());
+		error = user.checkPassword(newPassword.val(), confirmNewPassword.val());
 		if (error) {
 			confirmNewPassword.closest('.control-group').addClass('error');
 			confirmNewPassword.closest('.control-group').find('.help-block').html(error);
