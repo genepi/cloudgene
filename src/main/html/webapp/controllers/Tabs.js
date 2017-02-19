@@ -21,6 +21,7 @@ Tabs = can.Control({
 		this.activate('jobs');
 		this.options.detailsPage = new JobDetailsPage("#content", {
 			jobId : data.job,
+			admin: false,
 			results : true
 		});
 		this.page = this.options.detailsPage;

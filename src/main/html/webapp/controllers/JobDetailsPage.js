@@ -14,7 +14,8 @@ JobDetailsPage = can.Control({
 
 				that.element.html(can.view('views/job-details.ejs', {
 					job: job,
-					results: options.results
+					results: options.results,
+					admin: options.admin
 				}));
 				that.job = job;
 				that.refresh();

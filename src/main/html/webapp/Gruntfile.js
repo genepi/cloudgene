@@ -19,7 +19,7 @@ module.exports = function(grunt) {
         separator: ';',
       },
       app: {
-        src: ['models/*.js', 'controllers/*.js', 'dist/cloudgene.views.js'],
+        src: ['models/*.js', 'controllers/*.js', 'tmp/cloudgene.views.js'],
         dest: 'tmp/cloudgene.js',
       },
       vendor: {
