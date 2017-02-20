@@ -101,8 +101,11 @@ JobDetailsPage = can.Control({
 				that.job.attr('action', 'restart');
 				that.job.save(function() {
 					bootbox.hideAll();
-
-					window.location.hash = "!pages/jobs";
+					if (that.options.admin){
+						window.location.hash = "!pages/admin-jobs";
+					}else{
+						window.location.hash = "!pages/jobs";
+					}
 				}, function(message) {
 					// show error message
 					new ErrorPage(that.element, {
