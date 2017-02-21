@@ -38,9 +38,6 @@ public class UpdateSettings extends BaseResource {
 
 		Form form = new Form(entity);
 		String name = form.getFirstValue("name");
-		String hadoopPath = form.getFirstValue("hadoopPath");
-		String userApp = form.getFirstValue("userApp");
-		String adminApp = form.getFirstValue("adminApp");
 		String mailSmtp = form.getFirstValue("mail-smtp");
 		String mailPort = form.getFirstValue("mail-port");
 		String mailUser = form.getFirstValue("mail-user");
@@ -48,7 +45,6 @@ public class UpdateSettings extends BaseResource {
 		String mailName = form.getFirstValue("mail-name");
 		String piggene = form.getFirstValue("piggene");
 
-		getSettings().setHadoopPath(hadoopPath);
 		getSettings().setName(name);
 		getSettings().getMail().put("smtp", mailSmtp);
 		getSettings().getMail().put("port", mailPort);
