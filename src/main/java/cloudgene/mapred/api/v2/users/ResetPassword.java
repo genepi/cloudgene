@@ -36,14 +36,21 @@ public class ResetPassword extends BaseResource {
 			if (!user.isActive()) {
 				return new JSONAnswer("Account is not activated.", false);
 			}
-
+			String key = "";
 			if (user.getActivationCode() != null && !user.getActivationCode().isEmpty()) {
-				return new JSONAnswer("Recovery mail already sent to " + user.getMail(), false);
-			}
 
-			String key = HashUtil.getMD5(System.currentTimeMillis() + "");
-			user.setActivationCode(key);
-			dao.update(user);
+				// resend the same activation token
+				key = user.getActivationCode();
+				// return new JSONAnswer("Recovery mail already sent to " +
+				// user.getMail() + ". Resend again.", false);
+
+			} else {
+
+				// create activation token
+				key = HashUtil.getMD5(System.currentTimeMillis() + "_" + Math.round(2000));
+				user.setActivationCode(key);
+				dao.update(user);
+			}
 
 			String link = getRequest().getRootRef().toString() + "/#!recovery/" + user.getUsername() + "/" + key;
 

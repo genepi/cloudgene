@@ -37,8 +37,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.getMD5("oldpassword"));
 		userDao.insert(testUser1);
-		
-		
+
 		User testUse2 = new User();
 		testUse2.setUsername("testreset2");
 		testUse2.setFullName("test1");
@@ -69,7 +68,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
-	
+
 	public void testWithInActiveUser() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -88,7 +87,6 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
 	}
-
 
 	public void testWithWrongEMail() throws JSONException, IOException {
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -148,21 +146,26 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
+		assertEquals(object.get("success"), true);
 
-		assertTrue(object.get("message").toString().contains("Recovery mail already sent to"));
-		assertEquals(mailsBefore + 2, mailServer.getReceivedEmailSize());
-		
-		//check correct activtion code is in mail
+		assertTrue(object.get("message").toString().contains("Email sent to"));
+		assertEquals(mailsBefore + 4, mailServer.getReceivedEmailSize());
+
+		// check correct activtion code is in mail
 		// get activation key from database
 		Database database = TestServer.getInstance().getDatabase();
 		UserDao userDao = new UserDao(database);
 		User user = userDao.findByUsername("testreset");
 		assertNotNull(user);
 
-		SmtpMessage message = mailServer.getReceivedEmailAsList().get(mailsBefore);
-		// check if correct key is in mail
-		assertTrue(message.getBody().contains(user.getActivationCode()));
+		SmtpMessage message1 = mailServer.getReceivedEmailAsList().get(mailsBefore);
+		// check if correct key is in mail1
+		assertTrue(message1.getBody().contains(user.getActivationCode()));
+
+		SmtpMessage message2 = mailServer.getReceivedEmailAsList().get(mailsBefore + 2);
+		// check if correct key is in mail2
+		assertTrue(message2.getBody().contains(user.getActivationCode()));
+
 	}
 
 }
