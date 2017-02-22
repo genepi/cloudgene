@@ -56,7 +56,7 @@ public class SubmitJob extends BaseResource {
 		WorkflowEngine engine = getWorkflowEngine();
 		Settings settings = getSettings();
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
 		String id = "job-" + sdf.format(new Date());
 
 		if (user != null) {
