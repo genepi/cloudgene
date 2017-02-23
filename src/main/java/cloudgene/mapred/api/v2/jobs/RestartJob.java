@@ -46,37 +46,39 @@ public class RestartJob extends BaseResource {
 			return error403("Access denied.");
 		}
 
-		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(),
-				id);
-		String localWorkspace = FileUtil.path(
-				getSettings().getLocalWorkspace(), id);
+		if (job.getState() == AbstractJob.STATE_DEAD) {
 
-		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
-		job.setSettings(getSettings());
-		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
+			String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+			String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 
-		String application = job.getApplicationId();
-		String filename = getSettings().getApp(job.getUser(), application);
-		WdlApp app = null;
-		try {
-			app = WdlReader.loadAppFromFile(filename);
-		} catch (Exception e1) {
+			job.setLocalWorkspace(localWorkspace);
+			job.setHdfsWorkspace(hdfsWorkspace);
+			job.setSettings(getSettings());
+			job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 
-			return error400("Application '"
-					+ application
-					+ "' not found or the request requires user authentication.");
+			String application = job.getApplicationId();
+			String filename = getSettings().getApp(job.getUser(), application);
+			WdlApp app = null;
+			try {
+				app = WdlReader.loadAppFromFile(filename);
+			} catch (Exception e1) {
+
+				return error400(
+						"Application '" + application + "' not found or the request requires user authentication.");
+
+			}
+
+			((CloudgeneJob) job).loadConfig(app.getMapred());
+
+			getWorkflowEngine().restart(job);
+
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("id", id);
+			return ok("Your job was successfully added to the job queue.", params);
+		} else {
+			return error400("Job " + id + " is not pending.");
 
 		}
-
-		((CloudgeneJob) job).loadConfig(app.getMapred());
-
-		getWorkflowEngine().restart(job);
-
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("id", id);
-		return ok("Your job was successfully added to the job queue.", params);
-
 	}
 
 }
