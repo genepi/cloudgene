@@ -4,7 +4,6 @@
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
 	<version>1.20.0</version>
-
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -58,7 +57,12 @@
 					<exclude>**/*.java</exclude>
 				</excludes>
 			</resource>
+
+			<resource>
+				<directory>src/main/sql</directory>
+			</resource>
 		</resources>
+
 		<plugins>
 
 			<plugin>
@@ -67,10 +71,6 @@
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
-					<includes>
-						<include>src/main/java/**/*.java</include>
-						<include>src/main/sql/**/*.java</include>
-					</includes>
 				</configuration>
 			</plugin>
 			<plugin>
