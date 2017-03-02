@@ -72,6 +72,7 @@ public class DeleteJobTest extends JobsApiTestCase {
 		} catch (Exception e) {
 		}
 		assertEquals(404, resourceStatus.getStatus().getCode());
+		resourceStatus.release();
 	}
 
 	//TODO: wrong permissions

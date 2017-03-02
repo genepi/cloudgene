@@ -36,6 +36,7 @@ public class GetJobsTest extends JobsApiTestCase {
 		}
 
 		assertEquals(401, resourceJobs.getStatus().getCode());
+		resourceJobs.release();
 
 	}
 
@@ -53,7 +54,8 @@ public class GetJobsTest extends JobsApiTestCase {
 		}
 
 		assertEquals(200, resourceJobs.getStatus().getCode());
-
+		resourceJobs.release();
+		
 	}
 
 	public void testGetJobsAsAdminUserAndSubmit() throws IOException,

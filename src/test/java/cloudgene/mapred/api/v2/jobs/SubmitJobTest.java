@@ -46,6 +46,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 					.getText());
 			assertEquals(object.get("success"), false);
 		}
+		resource.release();
 	}
 
 	public void testSubmitAllPossibleInputs() throws IOException,

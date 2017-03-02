@@ -57,7 +57,7 @@ public class CancelJobTest extends JobsApiTestCase {
 				.getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "Job " + id + " not found.");
-
+		resource.release();
 	}
 
 }

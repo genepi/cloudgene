@@ -72,7 +72,7 @@ public class ShareResultsTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "download not found.");
-
+		resource.release();
 	}
 
 	public void testShareSingleFolder() throws IOException, JSONException, InterruptedException {
@@ -190,6 +190,6 @@ public class ShareResultsTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "number of max downloads exceeded.");
-
+		resource.release();
 	}
 }

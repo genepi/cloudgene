@@ -66,7 +66,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertEquals("We couldn't find an account with that username or email.", object.get("message").toString());
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithInActiveUser() throws JSONException, IOException {
@@ -85,7 +85,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertEquals("Account is not activated.", object.get("message").toString());
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithWrongEMail() throws JSONException, IOException {
@@ -103,6 +103,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertEquals("We couldn't find an account with that username or email.", object.get("message").toString());
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+		resource.release();
 	}
 
 	public void testWithSpecial() throws JSONException, IOException {
@@ -120,6 +121,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertEquals("We couldn't find an account with that username or email.", object.get("message").toString());
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+		resource.release();
 	}
 
 	public void testResetPassword() throws JSONException, IOException {
@@ -165,7 +167,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		SmtpMessage message2 = mailServer.getReceivedEmailAsList().get(mailsBefore + 2);
 		// check if correct key is in mail2
 		assertTrue(message2.getBody().contains(user.getActivationCode()));
-
+		resource.release();
 	}
 
 }

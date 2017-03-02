@@ -60,7 +60,8 @@ public class ActivateUserTest extends JobsApiTestCase {
 		SmtpMessage message = mailServer.getReceivedEmailAsList().get(mailsBefore);
 		// check if correct key is in mail
 		assertTrue(message.getBody().contains(user.getActivationCode()));
-
+		resource.release();
+		
 		// login should not be possible
 		resource = createClientResource("/login");
 		form = new Form();
@@ -73,21 +74,24 @@ public class ActivateUserTest extends JobsApiTestCase {
 		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
-
+		resource.release();
+		
 		// activate user with wrong activation code
 		resource = createClientResource("/users/activate/" + user.getUsername() + "/RANDOMACTIVATIONCODE");
 		resource.get();
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("Wrong activation code.", object.getString("message"));
 		assertEquals(false, object.get("success"));
-
+		resource.release();
+		
 		// activate user with wrong username
 		resource = createClientResource("/users/activate/randomusername/" + user.getActivationCode());
 		resource.get();
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("Wrong username.", object.getString("message"));
 		assertEquals(false, object.get("success"));
-
+		resource.release();
+		
 		// login should not be possible
 		resource = createClientResource("/login");
 		form = new Form();
@@ -100,14 +104,16 @@ public class ActivateUserTest extends JobsApiTestCase {
 		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
-
+		resource.release();
+		
 		// activate user with correct data
 		resource = createClientResource("/users/activate/" + user.getUsername() + "/" + user.getActivationCode());
 		resource.get();
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("User sucessfully activated.", object.getString("message"));
 		assertEquals(true, object.get("success"));
-
+		resource.release();
+		
 		// login should work
 		resource = createClientResource("/login");
 		form = new Form();
@@ -120,6 +126,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		assertEquals("Login successfull.", object.getString("message"));
 		assertEquals(true, object.get("success"));
 		assertEquals(1, resource.getResponse().getCookieSettings().size());
+		resource.release();
 	}
 
 }

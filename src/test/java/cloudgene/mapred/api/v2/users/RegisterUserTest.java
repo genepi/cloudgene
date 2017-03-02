@@ -81,7 +81,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		// no email set in testcases!
 		assertEquals("E-Mail is already registered.", object.get("message"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithEmptyUsername() throws JSONException, IOException {
@@ -104,7 +104,8 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("username is required"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
+		
 	}
 
 	public void testWithWrongUsername() throws JSONException, IOException {
@@ -157,7 +158,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("Your username is not valid"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithShortUsername() throws JSONException, IOException {
@@ -180,7 +181,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("username must contain at least"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithEmptyName() throws JSONException, IOException {
@@ -203,7 +204,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("full name is required"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithEmptyMail() throws JSONException, IOException {
@@ -226,7 +227,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("E-Mail is required."));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithWrongMail() throws JSONException, IOException {
@@ -249,7 +250,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("a valid mail address"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithWrongConfirmPassword() throws JSONException, IOException {
@@ -272,7 +273,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("check your passwords"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithWrongPasswordLength() throws JSONException, IOException {
@@ -295,7 +296,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("contain at least"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithPasswordWithMissingUppercase() throws JSONException, IOException {
@@ -318,7 +319,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one uppercase"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithPasswordWithMissingLowercase() throws JSONException, IOException {
@@ -341,7 +342,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one lowercase"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 	public void testWithPasswordWithMissingNumber() throws JSONException, IOException {
@@ -364,7 +365,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one number"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
-
+		resource.release();
 	}
 
 }

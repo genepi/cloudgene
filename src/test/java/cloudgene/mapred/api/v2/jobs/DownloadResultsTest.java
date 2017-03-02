@@ -68,7 +68,7 @@ public class DownloadResultsTest extends JobsApiTestCase {
 				.getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "download not found.");
-
+		resource.release();
 	}
 
 	public void testDownloadSingleFolder() throws IOException, JSONException,
@@ -244,7 +244,7 @@ public class DownloadResultsTest extends JobsApiTestCase {
 				.getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "number of max downloads exceeded.");
-
+		resource.release();
 	}
 
 	public void testJobNotFound() throws IOException, JSONException,
@@ -264,7 +264,7 @@ public class DownloadResultsTest extends JobsApiTestCase {
 				.getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "Job job-lukas277 not found.");
-
+		resource.release();
 	}
 
 }

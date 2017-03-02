@@ -71,6 +71,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		assertEquals("Login successfull.", object.getString("message"));
 		assertEquals(true, object.get("success"));
 		assertEquals(1, resource.getResponse().getCookieSettings().size());
+		resource.release();
 	}
 
 	public void testWrongPasswordAndLocking() throws JSONException, IOException {
@@ -96,6 +97,7 @@ public class LoginUserTest extends JobsApiTestCase {
 			//check login attempts are the same
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 			assertEquals(0, newLoginAttempts);
+			resource.release();
 		}
 
 		int oldLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
@@ -127,6 +129,7 @@ public class LoginUserTest extends JobsApiTestCase {
 				assertEquals(false, object.get("success"));
 				assertEquals(0, resource.getResponse().getCookieSettings().size());
 			}
+			resource.release();
 		}
 
 		// try with correct password
@@ -144,7 +147,7 @@ public class LoginUserTest extends JobsApiTestCase {
 					+ " minutes. Too many failed logins.", object.getString("message"));
 			assertEquals(false, object.get("success"));
 			assertEquals(0, resource.getResponse().getCookieSettings().size());
-
+			resource.release();
 		}
 		
 		//update locked until to now
@@ -171,6 +174,7 @@ public class LoginUserTest extends JobsApiTestCase {
 			//check login attempts are the same
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 			assertEquals(0, newLoginAttempts);
+			resource.release();
 		}
 		
 	}
@@ -189,6 +193,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
+		resource.release();
 	}
 
 }

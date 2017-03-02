@@ -48,6 +48,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 
 		}
 		assertEquals(200, resource.getStatus().getCode());
+		resource.release();
 		
 		//logout
 		resource = createClientResource("/logout");
@@ -57,6 +58,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 
 		}
 		assertEquals(200, resource.getStatus().getCode());
+		resource.release();
 		
 		//test protected resource again
 		resource = createClientResource("/api/v2/users/testuser99/profile");
@@ -66,6 +68,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 
 		}
 		assertEquals(401, resource.getStatus().getCode());
+		resource.release();
 	}
 
 	

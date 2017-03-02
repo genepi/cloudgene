@@ -56,6 +56,7 @@ public class UserProfileTest extends JobsApiTestCase {
 
 		}
 		assertEquals(401, resource.getStatus().getCode());
+		resource.release();
 	}
 
 	public void testGetWithCorrectCredentials() throws JSONException, IOException {
@@ -74,6 +75,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		assertFalse(object.has("password"));
 		assertEquals(object.get("username"), "test1");
 		assertEquals(object.get("mail"), "test1@test.com");
+		resource.release();
 	}
 
 	public void testUpdateWithCorrectCredentials() throws JSONException, IOException {
@@ -96,7 +98,8 @@ public class UserProfileTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
 		assertTrue(object.get("message").toString().contains("User profile sucessfully updated"));
-
+		resource.release();
+		
 		// try login with old password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -109,7 +112,8 @@ public class UserProfileTest extends JobsApiTestCase {
 		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
-
+		resource.release();
+		
 		// try login with new password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -144,6 +148,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("not allowed to change"));
+		resource.release();
 	}
 
 	public void testUpdateWithWrongConfirmPassword() throws JSONException, IOException {
@@ -167,6 +172,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("check your passwords"));
+		resource.release();
 	}
 
 	public void testUpdatePasswordWithMissingLowercase() throws JSONException, IOException {
@@ -189,6 +195,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one lowercase"));
+		resource.release();
 
 	}
 
@@ -213,6 +220,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one number"));
+		resource.release();
 	}
 
 	public void testUpdatePasswordWithMissingUppercase() throws JSONException, IOException {
@@ -236,6 +244,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertTrue(object.get("message").toString().contains("least one uppercase"));
+		resource.release();
 	}
 
 }

@@ -73,7 +73,8 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(false, object.get("success"));
 		assertEquals("Password must contain at least one uppercase letter (A-Z)!", object.get("message").toString());
-
+		resource.release();		
+		
 		// try to update password
 		resource = createClientResource("/api/v2/users/update-password");
 		form = new Form();
@@ -87,7 +88,8 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(true, object.get("success"));
 		assertEquals("Password sucessfully updated.", object.get("message").toString());
-
+		resource.release();
+		
 		// try login with old password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -100,7 +102,8 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
-
+		resource.release();
+		
 		// try login with new password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -113,6 +116,7 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		assertEquals("Login successfull.", object.getString("message"));
 		assertEquals(true, object.get("success"));
 		assertEquals(1, resource.getResponse().getCookieSettings().size());
+		resource.release();
 	}
 
 	public void testWithWrongActivationCode() throws JSONException, IOException {
