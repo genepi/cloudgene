@@ -8,10 +8,10 @@ import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
-import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.HashUtil;
+import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestServer;
 import genepi.db.Database;
 

@@ -12,8 +12,8 @@ import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
 import org.restlet.util.Series;
 
-import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestCluster;
 import cloudgene.mapred.util.junit.TestServer;
 

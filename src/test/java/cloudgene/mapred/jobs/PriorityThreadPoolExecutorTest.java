@@ -25,6 +25,10 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 	public void testCancelRunningJob() throws Exception {
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
 
 		Map<String, String> inputs = new HashMap<String, String>();
@@ -48,9 +52,18 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
 		assertEquals(jobsBeforeSubmit.size(), jobsAfterCancel.size());
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
+
 	}
 
 	public void testCancelWaitingJob() throws Exception {
+		
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
 
 		Map<String, String> inputs = new HashMap<String, String>();
@@ -83,6 +96,10 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		// clear queue
 		engine.cancel(job1);
 		Thread.sleep(5000);
+
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
 	}
 
 	/**
@@ -94,6 +111,10 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 	public void testMultipleJobs() throws Exception {
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
 
 		Map<String, String> inputs = new HashMap<String, String>();
@@ -178,6 +199,9 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
 	}
 
 	/**
@@ -188,6 +212,10 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 	 */
 	public void testMultipleJobsWithPriority() throws Exception {
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
 
 		Map<String, String> inputs = new HashMap<String, String>();
@@ -272,6 +300,9 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
 	}
 
 	/**
@@ -282,6 +313,10 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 	 */
 	public void testMultipleJobsAndUpdatePriority() throws Exception {
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/long-sleep.yaml");
 
 		Map<String, String> inputs = new HashMap<String, String>();
@@ -392,6 +427,9 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
+		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+			Thread.sleep(6000);
+		}
 	}
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, String id, Map<String, String> inputs) throws Exception {

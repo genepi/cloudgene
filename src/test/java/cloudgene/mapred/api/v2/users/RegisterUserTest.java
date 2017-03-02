@@ -7,7 +7,7 @@ import org.json.JSONObject;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
-import cloudgene.mapred.api.v2.JobsApiTestCase;
+import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestMailServer;
 import cloudgene.mapred.util.junit.TestServer;
 

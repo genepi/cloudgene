@@ -11,8 +11,8 @@ import org.restlet.data.Form;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
 
-import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestServer;
 
 public class DeleteJobTest extends JobsApiTestCase {

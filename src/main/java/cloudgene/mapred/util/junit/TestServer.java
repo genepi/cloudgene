@@ -170,6 +170,7 @@ public class TestServer {
 		// delete old database
 		if (newDatabase){
 			FileUtil.deleteDirectory("test-database");
+			//FileUtil.createDirectory("test-database");
 		}
 
 		H2Connector connector = new H2Connector("./test-database/mapred", "mapred", "mapred", false);

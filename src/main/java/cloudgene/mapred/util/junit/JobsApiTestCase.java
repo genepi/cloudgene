@@ -1,4 +1,4 @@
-package cloudgene.mapred.api.v2;
+package cloudgene.mapred.util.junit;
 
 import java.io.IOException;
 
@@ -11,8 +11,6 @@ import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
-
-import cloudgene.mapred.util.junit.TestServer;
 
 public class JobsApiTestCase extends TestCase {
 

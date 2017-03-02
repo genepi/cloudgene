@@ -6,10 +6,10 @@ import java.util.List;
 
 import org.junit.Test;
 
-import cloudgene.mapred.api.v2.JobsApiTestCase;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
+import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestServer;
 
 public class JobDaoTest extends JobsApiTestCase {
