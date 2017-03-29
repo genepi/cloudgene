@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
@@ -12,6 +11,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
+import cloudgene.mapred.util.junit.LoginToken;
 import cloudgene.mapred.util.junit.TestServer;
 import genepi.db.Database;
 
@@ -62,9 +62,8 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testGetWithCorrectCredentials() throws JSONException, IOException {
 		// login as user test1 and get profile. username is ignored, returns
 		// allways auth user's profile. just for better urls
-		CookieSetting cookie = getCookieForUser("test1", "Test1Password");
-		ClientResource resource = createClientResource("/api/v2/users/test1/profile");
-		resource.getCookies().add(cookie);
+		LoginToken token = login("test1", "Test1Password");
+		ClientResource resource = createClientResource("/api/v2/users/test1/profile", token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -81,17 +80,16 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testUpdateWithCorrectCredentials() throws JSONException, IOException {
 
 		// login as user test1
-		CookieSetting cookie = getCookieForUser("test2", "Test2Password");
+		LoginToken token = login("test2", "Test2Password");
 
 		// try to update password for test2
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 		Form form = new Form();
 		form.set("username", "test2");
 		form.set("full-name", "new full-name");
 		form.set("mail", "test1@test.com");
 		form.set("new-password", "new-Password27");
 		form.set("confirm-new-password", "new-Password27");
-		resource.getCookies().add(cookie);
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -99,7 +97,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		assertEquals(object.get("success"), true);
 		assertTrue(object.get("message").toString().contains("User profile sucessfully updated"));
 		resource.release();
-		
+
 		// try login with old password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -113,7 +111,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
 		resource.release();
-		
+
 		// try login with new password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -131,17 +129,16 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testUpdateWithWrongCredentials() throws JSONException, IOException {
 
 		// login as user test1
-		CookieSetting cookie = getCookieForUser("test1", "Test1Password");
+		LoginToken token = login("test1", "Test1Password");
 
 		// try to update password for test2
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 		Form form = new Form();
 		form.set("username", "test2");
 		form.set("full-name", "test2 test1");
 		form.set("mail", "test1@test.com");
 		form.set("new-password", "Password27");
 		form.set("confirm-new-password", "Password27");
-		resource.getCookies().add(cookie);
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -154,9 +151,9 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testUpdateWithWrongConfirmPassword() throws JSONException, IOException {
 
 		// login as user test1
-		CookieSetting cookie = getCookieForUser("test1", "Test1Password");
+		LoginToken token = login("test1", "Test1Password");
 
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 		Form form = new Form();
 
 		// try to update with wrong password
@@ -165,7 +162,6 @@ public class UserProfileTest extends JobsApiTestCase {
 		form.set("mail", "test1@test.com");
 		form.set("new-password", "aaa");
 		form.set("confirm-new-password", "abbb");
-		resource.getCookies().add(cookie);
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -178,9 +174,9 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testUpdatePasswordWithMissingLowercase() throws JSONException, IOException {
 
 		// login as user test1
-		CookieSetting cookie = getCookieForUser("test1", "Test1Password");
+		LoginToken token = login("test1", "Test1Password");
 
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 		Form form = new Form();
 		// try to update with wrong password
 		form.set("username", "test1");
@@ -188,7 +184,6 @@ public class UserProfileTest extends JobsApiTestCase {
 		form.set("mail", "test1@test.com");
 		form.set("new-password", "PASSWORD2727");
 		form.set("confirm-new-password", "PASSWORD2727");
-		resource.getCookies().add(cookie);
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -202,9 +197,9 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testUpdatePasswordWithMissingNumber() throws JSONException, IOException {
 
 		// login as user test1
-		CookieSetting cookie = getCookieForUser("test1", "Test1Password");
+		LoginToken token = login("test1", "Test1Password");
 
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 		Form form = new Form();
 
 		// try to update with wrong password
@@ -213,7 +208,6 @@ public class UserProfileTest extends JobsApiTestCase {
 		form.set("mail", "test1@test.com");
 		form.set("new-password", "PASSWORDpassword");
 		form.set("confirm-new-password", "PASSWORDpassword");
-		resource.getCookies().add(cookie);
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -226,9 +220,9 @@ public class UserProfileTest extends JobsApiTestCase {
 	public void testUpdatePasswordWithMissingUppercase() throws JSONException, IOException {
 
 		// login as user test1
-		CookieSetting cookie = getCookieForUser("test1", "Test1Password");
+		LoginToken token = login("test1", "Test1Password");
 
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 		Form form = new Form();
 
 		// try to update with wrong password
@@ -237,7 +231,6 @@ public class UserProfileTest extends JobsApiTestCase {
 		form.set("mail", "test1@test.com");
 		form.set("new-password", "passwordword27");
 		form.set("confirm-new-password", "passwordword27");
-		resource.getCookies().add(cookie);
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());

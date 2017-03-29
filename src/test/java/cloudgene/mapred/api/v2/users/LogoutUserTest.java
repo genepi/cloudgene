@@ -10,6 +10,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
+import cloudgene.mapred.util.junit.LoginToken;
 import cloudgene.mapred.util.junit.TestServer;
 import genepi.db.Database;
 
@@ -37,11 +38,10 @@ public class LogoutUserTest extends JobsApiTestCase {
 
 	public void testLogout() throws JSONException, IOException {
 
-		CookieSetting cookie = getCookieForUser("testuser99", "testuser99");
+		LoginToken token = login("testuser99", "testuser99");
 		
 		//test protected resource
-		ClientResource resource = createClientResource("/api/v2/users/testuser99/profile");
-		resource.getCookies().add(cookie);
+		ClientResource resource = createClientResource("/api/v2/users/testuser99/profile", token);
 		try {
 			resource.get();
 		} catch (Exception e) {

@@ -30,7 +30,7 @@ public class ApiTokens extends BaseResource {
 		}
 
 		// create token
-		String token = JWTUtil.createToken(user,getSettings().getSecretKey());
+		String token = JWTUtil.createApiToken(user,getSettings().getSecretKey());
 
 		// update token
 		user.setApiToken(token);

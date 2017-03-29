@@ -5,13 +5,13 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.Client;
-import org.restlet.Context;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
-import org.restlet.data.Protocol;
+import org.restlet.data.Header;
+import org.restlet.engine.header.HeaderConstants;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
+import org.restlet.util.Series;
 
 import junit.framework.TestCase;
 
@@ -23,22 +23,32 @@ public class JobsApiTestCase extends TestCase {
 		return l;
 	}
 
-	public ClientResource createClientResource(String path, CookieSetting loginCookie) {
+	public ClientResource createClientResource(String path, LoginToken loginToken) {
 		ClientResource resource = createClientResource(path);
-		if (loginCookie != null) {
-			resource.getCookies().add(loginCookie);
+		if (loginToken != null) {
+			resource.getCookies().add(loginToken.getCookie());
+			setupCrfToken(resource, loginToken.getCsrfToken());
 		}
 		return resource;
+	}
+
+	public void setupCrfToken(ClientResource resource, String token) {
+		Series<Header> requestHeader = (Series<Header>) resource.getRequest().getAttributes()
+				.get(HeaderConstants.ATTRIBUTE_HEADERS);
+		if (requestHeader == null) {
+			requestHeader = new Series(Header.class);
+			resource.getRequest().getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, requestHeader);
+		}
+		requestHeader.add("X-CSRF-Token", token);
 	}
 
 	public String submitJob(String tool, FormDataSet form) throws JSONException, IOException {
 		return submitJob(tool, form, null);
 	}
 
-	public String submitJob(String tool, FormDataSet form, CookieSetting loginCookie)
-			throws JSONException, IOException {
+	public String submitJob(String tool, FormDataSet form, LoginToken loginToken) throws JSONException, IOException {
 
-		ClientResource resource = createClientResource("/api/v2/jobs/submit/" + tool, loginCookie);
+		ClientResource resource = createClientResource("/api/v2/jobs/submit/" + tool, loginToken);
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 
@@ -52,7 +62,7 @@ public class JobsApiTestCase extends TestCase {
 		return restartJob(id, null);
 	}
 
-	public String restartJob(String id, CookieSetting loginCookie) throws JSONException, IOException {
+	public String restartJob(String id, LoginToken loginCookie) throws JSONException, IOException {
 
 		ClientResource resource = createClientResource("/api/v2/jobs/" + id + "/restart", loginCookie);
 
@@ -69,7 +79,7 @@ public class JobsApiTestCase extends TestCase {
 		return cancelJob(id, null);
 	}
 
-	public String cancelJob(String id, CookieSetting loginCookie) throws JSONException, IOException {
+	public String cancelJob(String id, LoginToken loginCookie) throws JSONException, IOException {
 
 		ClientResource resource = createClientResource("/api/v2/jobs/" + id + "/cancel", loginCookie);
 		resource.get();
@@ -86,7 +96,7 @@ public class JobsApiTestCase extends TestCase {
 		return deleteJob(id, null);
 	}
 
-	public String deleteJob(String id, CookieSetting loginCookie) throws JSONException, IOException {
+	public String deleteJob(String id, LoginToken loginCookie) throws JSONException, IOException {
 
 		ClientResource resource = createClientResource("/api/v2/jobs/" + id, loginCookie);
 
@@ -104,8 +114,7 @@ public class JobsApiTestCase extends TestCase {
 		waitForJob(id, null);
 	}
 
-	public void waitForJob(String id, CookieSetting loginCookie)
-			throws IOException, JSONException, InterruptedException {
+	public void waitForJob(String id, LoginToken loginCookie) throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceStatus = createClientResource("/api/v2/jobs/" + id + "/status", loginCookie);
 
@@ -126,7 +135,7 @@ public class JobsApiTestCase extends TestCase {
 		return getJobDetails(id, null);
 	}
 
-	public JSONObject getJobDetails(String id, CookieSetting loginCookie)
+	public JSONObject getJobDetails(String id, LoginToken loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceStatus = createClientResource("/api/v2/jobs/" + id, loginCookie);
@@ -144,7 +153,7 @@ public class JobsApiTestCase extends TestCase {
 		return downloadResults(path, null);
 	}
 
-	public String downloadResults(String path, CookieSetting loginCookie)
+	public String downloadResults(String path, LoginToken loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceDownload = createClientResource("/results/" + path, loginCookie);
@@ -169,7 +178,7 @@ public class JobsApiTestCase extends TestCase {
 		return downloadSharedResults(user, hash, filename, null);
 	}
 
-	public String downloadSharedResults(String user, String hash, String filename, CookieSetting loginCookie)
+	public String downloadSharedResults(String user, String hash, String filename, LoginToken loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceDownload = createClientResource("/share/" + user + "/" + hash + "/" + filename,
@@ -194,7 +203,7 @@ public class JobsApiTestCase extends TestCase {
 		return downloadURL(url, null);
 	}
 
-	public String downloadURL(String url, CookieSetting loginCookie)
+	public String downloadURL(String url, LoginToken loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceDownload = createClientResource(url, loginCookie);
@@ -213,11 +222,10 @@ public class JobsApiTestCase extends TestCase {
 
 	}
 
-	public JSONArray getJobs(CookieSetting loginCookie) throws JSONException, IOException {
+	public JSONArray getJobs(LoginToken loginCookie) throws JSONException, IOException {
 		{
 
-			ClientResource resourceJobs = createClientResource("/api/v2/jobs");
-			resourceJobs.getCookies().add(loginCookie);
+			ClientResource resourceJobs = createClientResource("/api/v2/jobs", loginCookie);
 
 			try {
 				resourceJobs.get();
@@ -235,7 +243,8 @@ public class JobsApiTestCase extends TestCase {
 
 	}
 
-	public CookieSetting getCookieForUser(String username, String password) throws IOException {
+	public LoginToken login(String username, String password) throws IOException {
+
 		ClientResource resourceLogin = createClientResource("/login");
 		Form formStatus = new Form();
 		formStatus.set("loginUsername", username);
@@ -252,7 +261,13 @@ public class JobsApiTestCase extends TestCase {
 		CookieSetting cookie = resourceLogin.getResponse().getCookieSettings().get(0);
 		resourceLogin.release();
 
-		return cookie;
+		LoginToken loginToken = new LoginToken();
+		loginToken.setCookie(cookie);
+		loginToken.setCsrfToken(object.getString("csrf"));
+
+		System.out.println("token: " + object.getString("csrf"));
+
+		return loginToken;
 
 	}
 

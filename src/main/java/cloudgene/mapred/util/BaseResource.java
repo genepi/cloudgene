@@ -43,9 +43,13 @@ public class BaseResource extends ServerResource {
 	}
 
 	public User getAuthUser() {
+		return getAuthUser(true);
+	}
+	
+	public User getAuthUser(boolean checkCsrf) {
 
 		UserDao userDao = new UserDao(getDatabase());
-		String username = JWTUtil.getUserByRequest(getRequest(),getSettings().getSecretKey());
+		String username = JWTUtil.getUserByRequest(getRequest(), getSettings().getSecretKey(), checkCsrf);
 		if (username != null) {
 			return userDao.findByUsername(username);
 		} else {

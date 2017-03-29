@@ -177,6 +177,27 @@ body {
 				.ready(
 						function() {
 
+							// add token to every ajax request
+							$.ajaxPrefilter(function(options) {
+
+								if (!options.beforeSend) {
+									options.beforeSend = function(xhr) {
+										if (localStorage.getItem("cloudgene")) {
+											try {
+
+												// get data
+												var data = JSON.parse(localStorage.getItem("cloudgene"));
+												xhr.setRequestHeader("X-CSRF-Token", data.csrf);
+
+											} catch (e) {
+
+											}
+										}
+									}
+								}
+
+							});
+
 							app = app
 									|| (function() {
 										var process = $('<div id="process" class="modal hide" tabindex="-1" data-backdrop="static" style="width: 80px;  margin-left:-40px; height: 80px;  margin-top:100px;"><div class="modal-header"><h1>lf</h1></div><div class="modal-body"><img src="assets/img/spinner.gif"/></div></div>');

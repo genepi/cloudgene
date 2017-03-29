@@ -50,6 +50,45 @@ AdminJobsPage = can.Control({
 			}
 		});
 
+	},
+
+	'.icon-arrow-up click': function(el, ev) {
+		job = el.parent().parent().data('job');
+		that = this;
+		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority');
+		request.success(function(data) {
+			bootbox.alert(data);
+			that.init(that.element, that.options);
+		});
+		request.error(function(data) {
+			bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+		});
+	},
+
+	'.icon-time click': function(el, ev) {
+		job = el.parent().parent().data('job');
+		that = this;
+		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset');
+		request.success(function(data) {
+			bootbox.alert(data);
+			that.init(that.element, that.options);
+		});
+		request.error(function(data) {
+			bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+		});
+	},
+
+	'.icon-fire click': function(el, ev) {
+		job = el.parent().parent().data('job');
+		that = this;
+		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire');
+		request.success(function(data) {
+			bootbox.alert(data);
+			that.init(that.element, that.options);
+		});
+		request.error(function(data) {
+			bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+		});
 	}
 
 });

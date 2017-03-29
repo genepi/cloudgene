@@ -15,11 +15,10 @@ public class LoginFilter extends Filter {
 	private String[] protectedRequests;
 
 	private String prefix = "";
-	
+
 	private String secretKey = "";
 
-	public LoginFilter(String loginPage, String prefix,
-			String[] protectedRequests, String secretKey) {
+	public LoginFilter(String loginPage, String prefix, String[] protectedRequests, String secretKey) {
 		this.loginPage = loginPage;
 		this.protectedRequests = protectedRequests;
 		this.prefix = prefix;
@@ -32,7 +31,7 @@ public class LoginFilter extends Filter {
 		String path = request.getResourceRef().getPath();
 
 		if (path.toLowerCase().equals(prefix + loginPage)) {
-			String user = JWTUtil.getUserByRequest(request,secretKey);
+			String user = JWTUtil.getUserByRequest(request, secretKey, false);
 			if (user != null) {
 				response.redirectTemporary(prefix + "/start.html");
 				return STOP;
@@ -42,7 +41,7 @@ public class LoginFilter extends Filter {
 
 		if (isProtected(path)) {
 
-			String user = JWTUtil.getUserByRequest(request,secretKey);
+			String user = JWTUtil.getUserByRequest(request, secretKey, false);
 			if (user == null) {
 				response.redirectTemporary(prefix + loginPage);
 				return STOP;

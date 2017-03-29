@@ -19,9 +19,9 @@
 
 			<td style="width: 40px;text-align:center;">
 				<% if( job.attr('state') == '1' ){ %>
-					<small><%= job.attr('priority') %> 	<a href="/api/v2/admin/jobs/<%= job.attr('id') %>/priority" title="Change priority to high!">
+					<small><%= job.attr('priority') %>
 							<span class="icon-arrow-up" style="cursor: pointer;"></span>
-						</a></small>
+					</small>
 				<%  } %>
 			</td>
 
@@ -84,17 +84,13 @@
 
 			<td>
 				<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-					<a href="/api/v2/admin/jobs/<%= job.attr('id') %>/reset" title="Reset counters">
 						<span class="icon-time" style="cursor: pointer;"></span>
-					</a>
 				<% } %>
 			</td>
 
 			<td>
 				<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
-					<a href="/api/v2/admin/jobs/<%= job.attr('id') %>/retire" title="Hot Retire: send notification now!">
-						<span class="icon-fire" style="cursor: pointer;"></span>
-					</a>
+					<span class="icon-fire" style="cursor: pointer;"></span>
 				<% } %>
 			</td>
 

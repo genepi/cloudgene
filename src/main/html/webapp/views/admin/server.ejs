@@ -136,8 +136,8 @@
 </p>
 <br>
 <p>
-	<a href="/api/v2/admin/server/maintenance/enter" class="btn btn-danger">Enter Maintenance Mode</a>
-	<a href="/api/v2/admin/server/maintenance/exit" class="btn btn-success">Exit Maintenance Mode</a>
+	<span class="btn btn-danger" id ="maintenance-enter-btn">Enter Maintenance Mode</span>
+	<span class="btn btn-success" id="maintenance-exit-btn">Exit Maintenance Mode</span>
 </p>
 
 <hr>
@@ -146,8 +146,8 @@
 <p>Blocks the queue. All running jobs are executed and all other jobs are waiting until the queue is manually opened.</p>
 <br>
 <p>
-	<a href="/api/v2/admin/server/queue/block" class="btn btn-danger">Block Queue</a>
-	<a href="/api/v2/admin/server/queue/open" class="btn btn-success">Open Queue</a>
+	<span class="btn btn-danger" id ="queue-block-btn">Block Queue</span>
+	<span class="btn btn-success" id ="queue-open-btn">Open Queue</span>
 </p>
 
 <hr>
@@ -156,5 +156,5 @@
 <p>Retires old jobs and send notifications.</p>
 <br>
 <p>
-	<a href="/api/v2/admin/jobs/retire" class="btn btn-primary">Start Retire</a>
+	<span class="btn btn-primary" id="retire-btn">Start Retire</span>
 </p>

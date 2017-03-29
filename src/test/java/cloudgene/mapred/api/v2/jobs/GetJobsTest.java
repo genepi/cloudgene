@@ -14,6 +14,7 @@ import org.restlet.util.Series;
 
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
+import cloudgene.mapred.util.junit.LoginToken;
 import cloudgene.mapred.util.junit.TestCluster;
 import cloudgene.mapred.util.junit.TestServer;
 
@@ -25,8 +26,7 @@ public class GetJobsTest extends JobsApiTestCase {
 		TestCluster.getInstance().start();
 	}
 
-	public void testGetJobsAsPublicUser() throws IOException, JSONException,
-			InterruptedException {
+	public void testGetJobsAsPublicUser() throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceJobs = createClientResource("/api/v2/jobs");
 
@@ -40,13 +40,11 @@ public class GetJobsTest extends JobsApiTestCase {
 
 	}
 
-	public void testGetJobsAsAdminUser() throws IOException, JSONException,
-			InterruptedException {
+	public void testGetJobsAsAdminUser() throws IOException, JSONException, InterruptedException {
 
-		CookieSetting loginCookie = getCookieForUser("admin", "admin1978");
+		LoginToken token = login("admin", "admin1978");
 
-		ClientResource resourceJobs = createClientResource("/api/v2/jobs");
-		resourceJobs.getCookies().add(loginCookie);
+		ClientResource resourceJobs = createClientResource("/api/v2/jobs", token);
 
 		try {
 			resourceJobs.get();
@@ -55,31 +53,30 @@ public class GetJobsTest extends JobsApiTestCase {
 
 		assertEquals(200, resourceJobs.getStatus().getCode());
 		resourceJobs.release();
-		
+
 	}
 
-	public void testGetJobsAsAdminUserAndSubmit() throws IOException,
-			JSONException, InterruptedException {
+	public void testGetJobsAsAdminUserAndSubmit() throws IOException, JSONException, InterruptedException {
 
-		CookieSetting loginCookie = getCookieForUser("admin", "admin1978");
+		LoginToken token = login("admin", "admin1978");
 
-		JSONArray jobsBefore = getJobs(loginCookie);
+		JSONArray jobsBefore = getJobs(token);
 
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("return-true-step-public", form, loginCookie);
+		String id = submitJob("return-true-step-public", form, token);
 
 		// check feedback
-		waitForJob(id, loginCookie);
+		waitForJob(id, token);
 
-		JSONObject result = getJobDetails(id, loginCookie);
+		JSONObject result = getJobDetails(id, token);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
-		JSONArray jobsAfter = getJobs(loginCookie);
+		JSONArray jobsAfter = getJobs(token);
 
 		assertEquals(jobsBefore.length() + 1, jobsAfter.length());
 

@@ -51,7 +51,6 @@ import cloudgene.mapred.api.v2.server.GetCounter;
 import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
-import cloudgene.mapred.api.v2.users.AuthUserAPI;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
 import cloudgene.mapred.api.v2.users.UserProfile;
 import cloudgene.mapred.api.v2.users.LoginUser;
@@ -110,14 +109,13 @@ public class WebApp extends Application {
 		route.setMatchingMode(Template.MODE_EQUALS);
 
 		// resources
-		router.attach(prefix + "/index", Index.class);		
+		router.attach(prefix + "/index", Index.class);
 		router.attach(prefix + "/index.html", Index.class);
 		router.attach(prefix + "/start.html", Start.class);
 		router.attach(prefix + "/admin", Admin.class);
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		// user authentication
-		router.attach(prefix + "/api/v2/auth", AuthUserAPI.class);
 		router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 

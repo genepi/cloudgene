@@ -34,6 +34,8 @@ public class Index extends BaseResource {
 
 		cfg.setTemplateLoader(loader);
 		
+		System.out.println("Template Folder: " + new File(app.getRootFolder()).getAbsolutePath());
+		
 		List<WdlHeader> apps = WdlReader.loadApps(null, getSettings());
 
 		Map<String, Object> data = new HashMap<String, Object>();

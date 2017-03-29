@@ -27,7 +27,7 @@ public class Start extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getAuthUser();
+		User user = getAuthUser(false);
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);

@@ -2,9 +2,13 @@ package cloudgene.mapred.api.v2.users;
 
 import java.util.Date;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
+import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
@@ -41,28 +45,41 @@ public class LoginUser extends BaseResource {
 				if (user.getLockedUntil() == null || user.getLockedUntil().after(new Date())) {
 					return new JSONAnswer("The user account is locked for " + LoginUser.LOCKING_TIME_MIN
 							+ " minutes. Too many failed logins.", false);
-				}else{
-					//penalty time is over. set to zero
+				} else {
+					// penalty time is over. set to zero
 					user.setLoginAttempts(0);
 				}
 			}
 
 			if (user.getPassword().equals(password)) {
 
-				// create session
-				String token = JWTUtil.createToken(user, getSettings().getSecretKey());
+				// create unique csrf token
+				String csrfToken = HashUtil.getMD5("csrf_token_for_" + user.getUsername());
+
+				// create cookie token with crf token
+				String token = JWTUtil.createCookieToken(user, getSettings().getSecretKey(), csrfToken);
 				// set cookie
 				CookieSetting cookie = new CookieSetting(JWTUtil.COOKIE_NAME, token);
-				if (getSettings().isHttps()){
-					cookie.setSecure(true);				
+				if (getSettings().isHttps()) {
+					cookie.setSecure(true);
 					cookie.setAccessRestricted(true);
 				}
 				getResponse().getCookieSettings().add(cookie);
 				user.setLoginAttempts(0);
 				user.setLastLogin(new Date());
 				dao.update(user);
-				
-				return new JSONAnswer("Login successfull.", true);
+
+				JSONObject answer = new JSONObject();
+				try {
+					answer.put("success", true);
+					answer.put("message", "Login successfull.");
+					answer.put("csrf", csrfToken);
+					answer.put("type", "plain");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+				return new JsonRepresentation(answer);
 
 			} else {
 
