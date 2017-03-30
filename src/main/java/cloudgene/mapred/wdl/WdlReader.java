@@ -30,6 +30,8 @@ public class WdlReader {
 				WdlMapReduce.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
 				WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "setups",
+				WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
 				WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class,
@@ -51,6 +53,8 @@ public class WdlReader {
 				WdlMapReduce.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps",
 				WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "setups",
+				WdlStep.class);		
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs",
 				WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlMapReduce.class,

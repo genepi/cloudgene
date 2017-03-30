@@ -31,6 +31,8 @@ public class WdlMapReduce {
 
 	private WdlStep setup = null;
 
+	private List<WdlStep> setups = new Vector<WdlStep>();
+
 	private WdlStep onFailure = null;
 
 	public String getJar() {
@@ -135,6 +137,14 @@ public class WdlMapReduce {
 
 	public WdlStep getSetup() {
 		return setup;
+	}
+
+	public void setSetups(List<WdlStep> setups) {
+		this.setups = setups;
+	}
+
+	public List<WdlStep> getSetups() {
+		return setups;
 	}
 
 	public void setOnFailure(WdlStep onFailure) {
