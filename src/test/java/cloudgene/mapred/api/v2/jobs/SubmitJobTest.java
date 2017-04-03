@@ -81,7 +81,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 						"test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
-		String id = submitJob("all-possible-inputs", form);
+		String id = submitJobPublic("all-possible-inputs", form);
 
 		// check feedback
 		waitForJob(id);
@@ -121,7 +121,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 						"test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
-		String id = submitJob("all-possible-inputs-hdfs", form);
+		String id = submitJobPublic("all-possible-inputs-hdfs", form);
 
 		// check feedback
 		waitForJob(id);
@@ -142,7 +142,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("return-true-step-public", form);
+		String id = submitJobPublic("return-true-step-public", form);
 
 		// check feedback
 		waitForJob(id);
@@ -163,7 +163,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("return-false-step-public", form);
+		String id = submitJobPublic("return-false-step-public", form);
 
 		// check feedback
 		waitForJob(id);
@@ -184,7 +184,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("return-exception-step-public", form);
+		String id = submitJobPublic("return-exception-step-public", form);
 
 		// check feedback
 		waitForJob(id);
@@ -205,7 +205,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.add("input-inputtext", "lukas_text");
 
 		// submit job
-		String id = submitJob("write-text-to-file", form);
+		String id = submitJobPublic("write-text-to-file", form);
 
 		// check feedback
 		waitForJob(id);
@@ -238,7 +238,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.add("input-inputtext", "lukas_text");
 
 		// submit job
-		String id = submitJob("write-text-to-hdfs-file", form);
+		String id = submitJobPublic("write-text-to-hdfs-file", form);
 
 		// check feedback
 		waitForJob(id);
@@ -271,7 +271,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("three-tasks", form);
+		String id = submitJobPublic("three-tasks", form);
 
 		// check feedback
 		waitForJob(id);

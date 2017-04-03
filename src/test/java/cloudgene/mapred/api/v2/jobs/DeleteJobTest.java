@@ -32,7 +32,7 @@ public class DeleteJobTest extends JobsApiTestCase {
 		form.add("input-inputtext", "lukas_text");
 
 		// submit job
-		String id = submitJob("write-text-to-file", form);
+		String id = submitJobPublic("write-text-to-file", form);
 
 		// check feedback
 		waitForJob(id);

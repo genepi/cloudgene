@@ -27,7 +27,7 @@ public class CancelJobTest extends JobsApiTestCase {
 		form.add("input", "dummy");
 
 		// submit job
-		String id = submitJob("long-sleep", form);
+		String id = submitJobPublic("long-sleep", form);
 
 		Thread.sleep(8000);
 

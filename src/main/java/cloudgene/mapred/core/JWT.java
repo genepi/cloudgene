@@ -89,6 +89,8 @@ public class JWT {
 				// read valid-until and check
 				JSONObject payload = jwsObject.getPayload().toJSONObject();
 
+				payload.put("request-token", token);
+				
 				if (((Long) payload.get("expire")) > System.currentTimeMillis()) {
 					return payload;
 				} else {

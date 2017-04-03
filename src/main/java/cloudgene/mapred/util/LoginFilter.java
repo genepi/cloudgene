@@ -6,6 +6,7 @@ import org.restlet.routing.Filter;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
+import genepi.db.Database;
 import cloudgene.mapred.core.JWTUtil;
 
 public class LoginFilter extends Filter {
@@ -28,10 +29,13 @@ public class LoginFilter extends Filter {
 	@Override
 	protected int beforeHandle(Request request, Response response) {
 
+		WebApp application = (WebApp) getApplication();
+		Database database = application.getDatabase();
+
 		String path = request.getResourceRef().getPath();
 
 		if (path.toLowerCase().equals(prefix + loginPage)) {
-			String user = JWTUtil.getUserByRequest(request, secretKey, false);
+			User user = JWTUtil.getUserByRequest(database, request, secretKey, false);
 			if (user != null) {
 				response.redirectTemporary(prefix + "/start.html");
 				return STOP;
@@ -41,7 +45,7 @@ public class LoginFilter extends Filter {
 
 		if (isProtected(path)) {
 
-			String user = JWTUtil.getUserByRequest(request, secretKey, false);
+			User user = JWTUtil.getUserByRequest(database, request, secretKey, false);
 			if (user == null) {
 				response.redirectTemporary(prefix + loginPage);
 				return STOP;

@@ -42,13 +42,36 @@ public class JobsApiTestCase extends TestCase {
 		requestHeader.add("X-CSRF-Token", token);
 	}
 
-	public String submitJob(String tool, FormDataSet form) throws JSONException, IOException {
+	public void setupApiToken(ClientResource resource, String token) {
+		Series<Header> requestHeader = (Series<Header>) resource.getRequest().getAttributes()
+				.get(HeaderConstants.ATTRIBUTE_HEADERS);
+		if (requestHeader == null) {
+			requestHeader = new Series(Header.class);
+			resource.getRequest().getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, requestHeader);
+		}
+		requestHeader.add("X-Auth-Token", token);
+	}
+	
+	public String submitJobPublic(String tool, FormDataSet form) throws JSONException, IOException {
 		return submitJob(tool, form, null);
 	}
 
 	public String submitJob(String tool, FormDataSet form, LoginToken loginToken) throws JSONException, IOException {
 
 		ClientResource resource = createClientResource("/api/v2/jobs/submit/" + tool, loginToken);
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		resource.release();
+		return (String) object.get("id");
+	}
+	
+	public String submitJobWithApiToken(String tool, FormDataSet form, String apiToken) throws JSONException, IOException {
+
+		ClientResource resource = createClientResource("/api/v2/jobs/submit/" + tool);
+		setupApiToken(resource, apiToken);
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 
@@ -131,6 +154,23 @@ public class JobsApiTestCase extends TestCase {
 		}
 	}
 
+	public void waitForJobWithApiToken(String id, String token) throws IOException, JSONException, InterruptedException {
+
+		ClientResource resourceStatus = createClientResource("/api/v2/jobs/" + id + "/status");
+		setupApiToken(resourceStatus, token);
+		resourceStatus.get();
+
+		assertEquals(200, resourceStatus.getStatus().getCode());
+		JSONObject object = new JSONObject(resourceStatus.getResponseEntity().getText());
+		resourceStatus.release();
+
+		boolean running = object.getBoolean("running");
+		if (running) {
+			Thread.sleep(1000);
+			waitForJobWithApiToken(id, token);
+		}
+	}
+	
 	public JSONObject getJobDetails(String id) throws IOException, JSONException, InterruptedException {
 		return getJobDetails(id, null);
 	}
@@ -149,6 +189,23 @@ public class JobsApiTestCase extends TestCase {
 
 	}
 
+	public JSONObject getJobDetailsWithApiToken(String id, String token)
+			throws IOException, JSONException, InterruptedException {
+
+		ClientResource resourceStatus = createClientResource("/api/v2/jobs/" + id);
+		setupApiToken(resourceStatus, token);
+
+		resourceStatus.get();
+
+		assertEquals(200, resourceStatus.getStatus().getCode());
+		JSONObject object = new JSONObject(resourceStatus.getResponseEntity().getText());
+		resourceStatus.release();
+
+		return object;
+
+	}
+
+	
 	public String downloadResults(String path) throws IOException, JSONException, InterruptedException {
 		return downloadResults(path, null);
 	}
@@ -157,6 +214,27 @@ public class JobsApiTestCase extends TestCase {
 			throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceDownload = createClientResource("/results/" + path, loginCookie);
+
+		try {
+			resourceDownload.get();
+			assertEquals(200, resourceDownload.getStatus().getCode());
+			String text = resourceDownload.getResponseEntity().getText();
+			resourceDownload.release();
+			return text;
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(resourceDownload.getResponseEntity().getText());
+			assertEquals(false, true);
+			return null;
+		}
+
+	}
+	
+	public String downloadResultsWithApiToken(String path, String token)
+			throws IOException, JSONException, InterruptedException {
+
+		ClientResource resourceDownload = createClientResource("/results/" + path);
+		setupApiToken(resourceDownload, token);
 
 		try {
 			resourceDownload.get();
@@ -227,6 +305,28 @@ public class JobsApiTestCase extends TestCase {
 
 			ClientResource resourceJobs = createClientResource("/api/v2/jobs", loginCookie);
 
+			try {
+				resourceJobs.get();
+			} catch (Exception e) {
+			}
+
+			assertEquals(200, resourceJobs.getStatus().getCode());
+
+			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
+			resourceJobs.release();
+
+			return result;
+
+		}
+
+	}
+	
+	public JSONArray getJobsWithApiToken(String token) throws JSONException, IOException {
+		{
+
+			ClientResource resourceJobs = createClientResource("/api/v2/jobs");
+			setupApiToken(resourceJobs, token);
+			
 			try {
 				resourceJobs.get();
 			} catch (Exception e) {

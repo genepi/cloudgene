@@ -101,6 +101,13 @@ public class TestServer {
 			app7.setPermission("public");
 			applications.add(app7);
 
+			Application app71 = new Application();
+			app71.setId("all-possible-inputs-private");
+			app71.setFilename("test-data/all-possible-inputs.yaml");
+			app71.setPermission("private");
+			applications.add(app71);
+
+			
 			Application app8 = new Application();
 			app8.setId("long-sleep");
 			app8.setFilename("test-data/long-sleep.yaml");

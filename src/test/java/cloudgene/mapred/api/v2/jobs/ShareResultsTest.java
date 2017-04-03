@@ -35,7 +35,7 @@ public class ShareResultsTest extends JobsApiTestCase {
 		form.add("input-inputtext", "lukas_text");
 
 		// submit job
-		String id = submitJob("write-text-to-file", form);
+		String id = submitJobPublic("write-text-to-file", form);
 
 		// check feedback
 		waitForJob(id);
@@ -84,7 +84,7 @@ public class ShareResultsTest extends JobsApiTestCase {
 		form.add("input-inputtext", "lukas_text");
 
 		// submit job
-		String id = submitJob("write-files-to-folder", form);
+		String id = submitJobPublic("write-files-to-folder", form);
 
 		// check feedback
 		waitForJob(id);
@@ -149,7 +149,7 @@ public class ShareResultsTest extends JobsApiTestCase {
 		form.add("input-inputtext", "lukas_text");
 
 		// submit job
-		String id = submitJob("write-files-to-folder", form);
+		String id = submitJobPublic("write-files-to-folder", form);
 
 		// check feedback
 		waitForJob(id);

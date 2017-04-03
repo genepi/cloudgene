@@ -71,7 +71,6 @@ public class ApiTokens extends BaseResource {
 		// return token
 		JSONObject answer = new JSONObject();
 		answer.put("success", true);
-		answer.put("message", "Creation successfull.");
 		answer.put("token", user.getApiToken());
 		answer.put("type", "plain");
 		return new StringRepresentation(answer.toString());

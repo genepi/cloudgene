@@ -58,7 +58,7 @@ public class GetLogsTest extends JobsApiTestCase {
 						"test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
-		String id = submitJob("all-possible-inputs", form);
+		String id = submitJobPublic("all-possible-inputs", form);
 
 		// check feedback
 		waitForJob(id);
@@ -99,7 +99,7 @@ public class GetLogsTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("write-text-to-std-out", form);
+		String id = submitJobPublic("write-text-to-std-out", form);
 
 		// check feedback
 		waitForJob(id);

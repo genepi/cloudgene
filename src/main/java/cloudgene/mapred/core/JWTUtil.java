@@ -6,6 +6,9 @@ import org.restlet.Request;
 import org.restlet.data.Parameter;
 import org.restlet.util.Series;
 
+import cloudgene.mapred.database.UserDao;
+import genepi.db.Database;
+
 public class JWTUtil {
 
 	public static final String COOKIE_NAME = "cloudgene-token";
@@ -40,15 +43,21 @@ public class JWTUtil {
 		return token;
 	}
 
-	public static String getUser(JSONObject payload) {
-		return payload.get("username").toString();
+	public static User getUser(Database database, JSONObject payload) {
+		String username = payload.get("username").toString();
+		if (username != null) {
+			UserDao userDao = new UserDao(database);
+			return userDao.findByUsername(username);
+		} else {
+			return null;
+		}
 	}
 
 	public static boolean isApiToken(JSONObject payload) {
 		return (Boolean) payload.get("api");
 	}
 
-	public static String getUserByRequest(Request request, String secretKey, boolean checkCsrf) {
+	public static User getUserByRequest(Database database, Request request, String secretKey, boolean checkCsrf) {
 		String token = request.getCookies().getFirstValue(COOKIE_NAME);
 
 		// check cookie
@@ -63,7 +72,6 @@ public class JWTUtil {
 				// IE 8 bug
 				csrfToken = headers.getFirstValue("x-csrf-token");
 			}
-			System.out.println("Token Request: " + csrfToken);
 
 			// no csrf token available
 			if (checkCsrf && csrfToken == null) {
@@ -74,12 +82,10 @@ public class JWTUtil {
 
 			if (payload != null) {
 
-				System.out.println("Token Request: " + csrfToken);
-				System.out.println("Token Key: " + payload.get("csrf").toString());
-
 				// check csrf token
 				if (!isApiToken(payload) && (!checkCsrf || csrfToken.equals(payload.get("csrf").toString()))) {
-					return getUser(payload);
+					User user = getUser(database, payload);
+					return user;
 				} else {
 					// csrf token is invalid
 					return null;
@@ -104,7 +110,13 @@ public class JWTUtil {
 
 				// check if it is an api key
 				if (isApiToken(payload)) {
-					return getUser(payload);
+					User user = getUser(database, payload);
+					// check if api key is on users whitelist
+					if (user != null && user.getApiToken().equals(payload.get("request-token").toString())) {
+						return user;
+					} else {
+						return null;
+					}
 				} else {
 					return null;
 				}

@@ -107,6 +107,41 @@ public class WorkflowEngineTest extends TestCase {
 
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
+	
+
+	public void testReturnTrueInSecondSetupStep() throws Exception {
+
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/return-true-in-setup2.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("input", "input-file");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+	}
+
+	public void testReturnFalseInSecondSetupStep() throws Exception {
+
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/return-false-in-setup2.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("input", "input-file");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+
+		assertEquals(AbstractJob.STATE_FAILED, job.getState());
+	}
 
 	public void testWriteTextToFileJob() throws Exception {
 
@@ -158,6 +193,31 @@ public class WorkflowEngineTest extends TestCase {
 
 		WdlApp app = WdlReader
 				.loadAppFromFile("test-data/write-text-to-file-on-failure2.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("inputtext", "lukas_text");
+
+		CloudgeneJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+
+		Thread.sleep(4000);
+
+		Settings settings = TestServer.getInstance().getSettings();
+		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
+		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
+		String content = FileUtil.readFileAsString(filename);
+
+		assertEquals("lukas_text", content);
+		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
+	}
+	
+	public void testWriteTextToFileOnFailureInSecondSetupJob() throws Exception {
+
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/write-text-to-file-on-failure3.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "lukas_text");
