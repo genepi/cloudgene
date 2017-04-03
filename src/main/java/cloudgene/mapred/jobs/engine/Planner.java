@@ -58,8 +58,7 @@ public class Planner {
 
 		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(),
 				sw.toString());
-		//not the best solution :)
-		app.getMapred().setSteps(config.getSteps());
+
 		app.getMapred().setInputs(config.getInputs());
 		app.getMapred().setOutputs(config.getOutputs());
 
