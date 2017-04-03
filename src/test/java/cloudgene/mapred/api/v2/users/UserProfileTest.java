@@ -148,6 +148,34 @@ public class UserProfileTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	public void testUpdateWithMissingCSRFToken() throws JSONException, IOException {
+
+		// login as user test1
+		LoginToken token = login("test1", "Test1Password");
+
+		// try to update password with missing csrf token
+
+		ClientResource resource = createClientResource("/api/v2/users/me/profile");
+		resource.getCookies().add(token.getCookie());
+
+		Form form = new Form();
+		form.set("username", "test1");
+		form.set("full-name", "new full-name");
+		form.set("mail", "test1@test.com");
+		form.set("new-password", "new-Password27");
+		form.set("confirm-new-password", "new-Password27");
+
+		try{
+		resource.post(form);
+			assertFalse(true);
+		}catch (Exception e) {
+
+		}
+		assertEquals(401, resource.getStatus().getCode());
+
+		resource.release();
+	}
+
 	public void testUpdateWithWrongConfirmPassword() throws JSONException, IOException {
 
 		// login as user test1
