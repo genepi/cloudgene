@@ -165,9 +165,7 @@ public class CloudgeneJob extends AbstractJob {
 					node.run();
 					boolean result = node.isSuccessful();
 
-					if (result) {
-						return true;
-					} else {
+					if (!result) {
 						setState(AbstractJob.STATE_FAILED);
 						executeFailureStep(step);
 						onFailure();
@@ -178,6 +176,7 @@ public class CloudgeneJob extends AbstractJob {
 					}
 
 				} catch (Exception e) {
+					e.printStackTrace();
 					setState(AbstractJob.STATE_FAILED);
 					executeFailureStep(step);
 					onFailure();
