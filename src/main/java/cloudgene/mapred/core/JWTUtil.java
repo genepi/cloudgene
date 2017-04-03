@@ -54,7 +54,11 @@ public class JWTUtil {
 	}
 
 	public static boolean isApiToken(JSONObject payload) {
-		return (Boolean) payload.get("api");
+		if (payload.containsKey("api")) {
+			return (Boolean) payload.get("api");
+		} else {
+			return false;
+		}
 	}
 
 	public static User getUserByRequest(Database database, Request request, String secretKey, boolean checkCsrf) {
