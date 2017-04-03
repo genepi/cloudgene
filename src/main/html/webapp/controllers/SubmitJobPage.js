@@ -97,8 +97,25 @@ SubmitJobPage = can.Control({
 
 		$("#waiting-dialog").modal();
 
+		if (localStorage.getItem("cloudgene")) {
+			try {
+
+				// get data
+				var data = JSON.parse(localStorage.getItem("cloudgene"));
+				csrfToken =  data.csrf;
+
+			} catch (e) {
+
+			}
+		}
+
 		this.element.find("#parameters").ajaxSubmit({
 			dataType: 'json',
+
+			headers: {
+				"X-CSRF-Token": csrfToken
+			},
+
 			success: function(answer) {
 				if (answer.success) {
 					$("#waiting-dialog").modal('hide');
