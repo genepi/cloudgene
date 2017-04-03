@@ -51,7 +51,7 @@ public class Settings {
 	private String version;
 
 	private String name = "Cloudgene";
-	
+
 	private String secretKey = "default-key-change-me";
 
 	private Map<String, String> mail;
@@ -95,15 +95,14 @@ public class Settings {
 	private Map<String, Application> indexApps;
 
 	private String urlPrefix = "";
-	
+
 	private List<MenuItem> navigation = new Vector<MenuItem>();
 
 	public Settings() {
 
 		apps = new Vector<Application>();
 		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
-		apps.add(new Application("hello", "public",
-				"sample/cloudgene-public.yaml"));
+		apps.add(new Application("hello", "public", "sample/cloudgene-public.yaml"));
 
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
@@ -122,17 +121,16 @@ public class Settings {
 		helpMenuItem.setName("Help");
 		helpMenuItem.setLink("#!pages/help");
 		navigation.add(helpMenuItem);
-		
+
 		database = new HashMap<String, String>();
 		database.put("driver", "h2");
 		database.put("database", "data/mapred");
 		database.put("user", "mapred");
 		database.put("password", "mapred");
-		
+
 	}
 
-	public static Settings load(String filename) throws FileNotFoundException,
-			YamlException {
+	public static Settings load(String filename) throws FileNotFoundException, YamlException {
 
 		YamlConfig config = new YamlConfig();
 		config.setPropertyElementType(Settings.class, "apps", Application.class);
@@ -143,13 +141,11 @@ public class Settings {
 
 		// auto-search
 
-		if (settings.streamingJar.isEmpty()
-				|| !(new File(settings.streamingJar).exists())) {
+		if (settings.streamingJar.isEmpty() || !(new File(settings.streamingJar).exists())) {
 
 			String version = HadoopUtil.getInstance().getVersion();
 			String jar = "hadoop-streaming-" + version + ".jar";
-			settings.streamingJar = FileUtil.path(settings.hadoopPath,
-					"contrib", "streaming", jar);
+			settings.streamingJar = FileUtil.path(settings.hadoopPath, "contrib", "streaming", jar);
 
 			if (new File(settings.streamingJar).exists()) {
 
@@ -158,7 +154,8 @@ public class Settings {
 
 			} else {
 
-				log.warn("Streaming Jar could not be found automatically. Please specify it in config/settings.yaml. Streaming mode is disabled.");
+				log.warn(
+						"Streaming Jar could not be found automatically. Please specify it in config/settings.yaml. Streaming mode is disabled.");
 				settings.streaming = false;
 			}
 
@@ -267,8 +264,7 @@ public class Settings {
 
 				if (!new File(app.getFilename()).exists()) {
 
-					log.error("file '" + app.getFilename()
-							+ "' does not exist.");
+					log.error("file '" + app.getFilename() + "' does not exist.");
 
 					return false;
 				} else {
@@ -285,8 +281,7 @@ public class Settings {
 
 		if (!new File(hadoop).exists()) {
 
-			log.warn("hadoop '" + hadoop
-					+ "' does not exist. please change it.");
+			log.warn("hadoop '" + hadoop + "' does not exist. please change it.");
 
 			// return false;
 
@@ -373,9 +368,7 @@ public class Settings {
 				}
 			}
 
-			if (user.isAdmin()
-					|| app.getPermission().toLowerCase()
-							.equals(user.getRole().toLowerCase())
+			if (user.isAdmin() || app.getPermission().toLowerCase().equals(user.getRole().toLowerCase())
 					|| app.getPermission().toLowerCase().equals("public")) {
 
 				return app.getFilename();
@@ -385,10 +378,15 @@ public class Settings {
 
 		} else {
 
-			String filename = FileUtil.path("apps", id.replaceAll("~", "/")
-					+ ".yaml");
+			if (user != null) {
 
-			return filename;
+				String filename = FileUtil.path("apps", id.replaceAll("~", "/") + ".yaml");
+
+				return filename;
+
+			} else {
+				return null;
+			}
 
 		}
 
@@ -555,9 +553,9 @@ public class Settings {
 	public void setNavigation(List<MenuItem> navigation) {
 		this.navigation = navigation;
 	}
-	
+
 	public List<MenuItem> getNavigation() {
 		return navigation;
 	}
-	
+
 }
