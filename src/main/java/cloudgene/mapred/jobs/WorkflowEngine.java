@@ -42,9 +42,18 @@ public class WorkflowEngine implements Runnable {
 
 				if (job.isSetupComplete()) {
 
-					job.setState(AbstractJob.STATE_WAITING);
-					statusUpdated(job);
-					longTimeQueue.submit(job);
+					if (job.hasSteps()) {
+
+						job.setState(AbstractJob.STATE_WAITING);
+						statusUpdated(job);
+						longTimeQueue.submit(job);
+
+					} else {
+						job.setState(AbstractJob.STATE_SUCCESS);
+						statusUpdated(job);
+						jobCompleted(job);
+
+					}
 
 				} else {
 

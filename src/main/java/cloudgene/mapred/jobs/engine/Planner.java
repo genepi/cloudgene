@@ -3,6 +3,7 @@ package cloudgene.mapred.jobs.engine;
 import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.util.List;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -21,34 +22,29 @@ import cloudgene.mapred.wdl.WdlStep;
 
 public class Planner {
 
-	public WdlApp evaluateWDL(WdlMapReduce config, CloudgeneContext context)
-			throws Exception {
+	public WdlApp evaluateWDL(WdlMapReduce config, CloudgeneContext context) throws Exception {
 
 		Velocity.setProperty("file.resource.loader.path", "/");
 		VelocityContext context2 = new VelocityContext();
 
 		// add input values to context
 		for (WdlParameter param : config.getInputs()) {
-			context2.put(param.getId(),
-					new ParameterValue(param, context.getInput(param.getId())));
+			context2.put(param.getId(), new ParameterValue(param, context.getInput(param.getId())));
 		}
 
 		// add output values to context
 		for (WdlParameter param : config.getOutputs()) {
-			context2.put(param.getId(),
-					new ParameterValue(param, context.getOutput(param.getId())));
+			context2.put(param.getId(), new ParameterValue(param, context.getOutput(param.getId())));
 		}
 
-		context2.put("workdir",
-				new File(context.getWorkingDirectory()).getAbsolutePath());
+		context2.put("workdir", new File(context.getWorkingDirectory()).getAbsolutePath());
 
 		File manifest = new File(config.getManifestFile());
 
 		StringWriter sw = null;
 		try {
 
-			Template template = Velocity
-					.getTemplate(manifest.getAbsolutePath());
+			Template template = Velocity.getTemplate(manifest.getAbsolutePath());
 			sw = new StringWriter();
 			template.merge(context2, sw);
 
@@ -56,8 +52,7 @@ public class Planner {
 			throw e;
 		}
 
-		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(),
-				sw.toString());
+		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(), sw.toString());
 
 		app.getMapred().setInputs(config.getInputs());
 		app.getMapred().setOutputs(config.getOutputs());
@@ -67,15 +62,14 @@ public class Planner {
 		return app;
 	}
 
-	public Graph buildDAG(WdlMapReduce config, CloudgeneContext context)
-			throws MalformedURLException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException {
+	public Graph buildDAG(List<WdlStep> steps, WdlMapReduce config, CloudgeneContext context)
+			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
 		Graph graph = new Graph(context);
 
 		// build nodes
 		GraphNode lastNode = null;
-		for (WdlStep step : config.getSteps()) {
+		for (WdlStep step : steps) {
 			GraphNode node = new GraphNode(step, context);
 			graph.addNode(node);
 			if (lastNode != null) {
@@ -89,8 +83,7 @@ public class Planner {
 
 			for (WdlParameter param : config.getOutputs()) {
 				if (stepConsumesParameter(node.getStep(), param, context)
-						&& !stepProducesParameter(node.getStep(), param,
-								context)) {
+						&& !stepProducesParameter(node.getStep(), param, context)) {
 					node.addInput(param.getId());
 				}
 
@@ -124,16 +117,14 @@ public class Planner {
 
 		context.log("  Dipendencies: " + graph.getEdges().size());
 		for (GraphEdge edge : graph.getEdges()) {
-			context.log("    " + edge.getSource().getStep().getName() + "->"
-					+ edge.getTarget().getStep().getName());
+			context.log("    " + edge.getSource().getStep().getName() + "->" + edge.getTarget().getStep().getName());
 		}
 
 		return graph;
 
 	}
 
-	private boolean stepConsumesParameter(WdlStep step, WdlParameter param,
-			CloudgeneContext context) {
+	private boolean stepConsumesParameter(WdlStep step, WdlParameter param, CloudgeneContext context) {
 
 		if (step.getParams() != null) {
 			if (step.getParams().contains(context.get(param.getId()))) {
@@ -157,8 +148,7 @@ public class Planner {
 
 	}
 
-	private boolean stepProducesParameter(WdlStep step, WdlParameter param,
-			CloudgeneContext context) {
+	private boolean stepProducesParameter(WdlStep step, WdlParameter param, CloudgeneContext context) {
 
 		return (step.getGenerates().contains(context.get(param.getId())));
 

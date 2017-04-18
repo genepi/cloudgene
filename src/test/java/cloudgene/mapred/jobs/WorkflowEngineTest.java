@@ -125,7 +125,72 @@ public class WorkflowEngineTest extends TestCase {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
+	
+	
+	public void testReturnWriteFileInSecondSetupStep() throws Exception {
 
+		String myContent = "test-test-test-test-text";
+		
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/write-file-in-setup.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("inputtext", myContent);
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		Settings settings = TestServer.getInstance().getSettings();
+		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
+		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
+		String content = FileUtil.readFileAsString(filename);
+		assertEquals(myContent, content);
+	
+		app = WdlReader
+				.loadAppFromFile("test-data/write-file-in-setup-failure.yaml");
+
+		params = new HashMap<String, String>();
+		params.put("inputtext", myContent);
+
+		job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+		assertEquals(AbstractJob.STATE_FAILED, job.getState());
+		
+		System.out.println("ok:" +  job.getOutputParams().get(0).getValue());
+		
+		path = job.getOutputParams().get(0).getFiles().get(0).getPath();
+		filename = FileUtil.path(settings.getLocalWorkspace(), path);
+		content = FileUtil.readFileAsString(filename);
+		assertEquals(myContent, content);
+		
+		
+	}
+
+	
+	public void testEmptyStepList() throws Exception {
+
+		WdlApp app = WdlReader
+				.loadAppFromFile("test-data/no-steps.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("inputtext", "test");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (job.isRunning()) {
+			Thread.sleep(1000);
+		}
+
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+	}
+	
 	public void testReturnFalseInSecondSetupStep() throws Exception {
 
 		WdlApp app = WdlReader

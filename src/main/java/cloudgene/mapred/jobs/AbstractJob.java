@@ -528,6 +528,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public boolean isSetupComplete() {
 		return setupComplete;
 	}
+	
+	public boolean hasSteps(){
+		return true;
+	}
 
 	public CloudgeneContext getContext() {
 		return context;

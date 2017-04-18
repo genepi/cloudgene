@@ -106,6 +106,21 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	@Override
+	public boolean hasSteps() {
+		try {
+			// evaluate WDL derictives
+			Planner planner = new Planner();
+			WdlApp app = planner.evaluateWDL(config, context);
+			return app.getMapred().getSteps().size() > 0;
+		} catch (Exception e) {
+			// e.printStackTrace();
+			writeOutput(e.getMessage());
+			setError(e.getMessage());
+			return false;
+		}
+	}
+
+	@Override
 	public boolean execute() {
 
 		try {
@@ -117,7 +132,7 @@ public class CloudgeneJob extends AbstractJob {
 			WdlApp app = planner.evaluateWDL(config, context);
 
 			// create dag from wdl document
-			Graph graph = planner.buildDAG(app.getMapred(), context);
+			Graph graph = planner.buildDAG(app.getMapred().getSteps(), app.getMapred(), context);
 
 			// execute optimzed dag
 			executor = new Executor();
@@ -159,50 +174,38 @@ public class CloudgeneJob extends AbstractJob {
 			getConfig().getSetups().add(0, setup);
 		}
 		try {
-			for (WdlStep step : getConfig().getSetups()) {
-				try {
-					GraphNode node = new GraphNode(step, context);
-					node.run();
-					boolean result = node.isSuccessful();
+			// evaluate WDL derictives
+			Planner planner = new Planner();
+			WdlApp app = planner.evaluateWDL(config, context);
+			Graph graph = planner.buildDAG(app.getMapred().getSetups(), app.getMapred(), context);
 
-					if (!result) {
-						setState(AbstractJob.STATE_FAILED);
-						executeFailureStep(step);
-						onFailure();
-						setStartTime(System.currentTimeMillis());
-						setEndTime(System.currentTimeMillis());
-						setError("Job Execution failed.");
-						return false;
-					}
+			// execute optimzed dag
+			executor = new Executor();
+			boolean sccuessful = executor.execute(graph);
 
-				} catch (Exception e) {
-					e.printStackTrace();
-					setState(AbstractJob.STATE_FAILED);
-					executeFailureStep(step);
-					onFailure();
-					setStartTime(System.currentTimeMillis());
-					setEndTime(System.currentTimeMillis());
-					e.printStackTrace();
-					writeOutput(e.getMessage());
-					setError(e.getMessage());
-					return false;
-				}
-
+			if (!sccuessful) {
+				setState(AbstractJob.STATE_FAILED);
+				setError("Job Execution failed.");
+				GraphNode failedNode = executor.getCurrentNode();
+				executeFailureStep(failedNode.getStep());
+				onFailure();
+				setStartTime(System.currentTimeMillis());
+				setEndTime(System.currentTimeMillis());
+				setError("Job Execution failed.");
+				return false;
 			}
 
+			setError(null);
 			return true;
-			
+
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			setState(AbstractJob.STATE_FAILED);
-			onFailure();
-			setStartTime(System.currentTimeMillis());
-			setEndTime(System.currentTimeMillis());
-			e.printStackTrace();
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;
 		}
+
 	}
 
 	@Override
