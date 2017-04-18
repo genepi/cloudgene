@@ -78,6 +78,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private int reduce = -1;
 
 	private boolean setupComplete = false;
+	
+	private boolean setupRunning = false;
 
 	private int positionInQueue = -1;
 
@@ -527,6 +529,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public boolean isSetupComplete() {
 		return setupComplete;
+	}
+	
+	public void setSetupRunning(boolean setupRunning) {
+		this.setupRunning = setupRunning;
+	}
+	
+	public boolean isSetupRunning() {
+		return setupRunning;
 	}
 	
 	public boolean hasSteps(){

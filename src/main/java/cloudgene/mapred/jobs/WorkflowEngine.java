@@ -265,8 +265,10 @@ public class WorkflowEngine implements Runnable {
 
 		@Override
 		public void run() {
-			log.info("Start iput validation for job " + job.getId() + "...");
+			log.info("Start input validation for job " + job.getId() + "...");
+			job.setSetupRunning(true);
 			boolean result = job.executeSetup();
+			job.setSetupRunning(false);
 			job.setSetupComplete(result);
 			log.info("Input Validation for job " + job.getId() + " finished. Result: " + result);
 

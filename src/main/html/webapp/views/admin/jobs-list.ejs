@@ -32,7 +32,11 @@
 				<% } %>
 
 				<% if( job.attr('state') == '1' ){ %>
+					<% if( job.attr('setupRunning')){ %>
+					<span class="label" style="width: 50px">Validation</span>
+					<% } else { %>
 					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') + 1 %>)</span>
+					<% } %>
 				<% } %>
 				<% if( job.attr('state') == '2' ){ %>
 					<span class="label label-info" style="width: 50px">Running</span>
