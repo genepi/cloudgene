@@ -168,18 +168,21 @@ public class CloudgeneJob extends AbstractJob {
 			return false;
 		}
 
-		WdlStep setup = getConfig().getSetup();
-
-		if (setup != null) {
-			getConfig().getSetups().add(0, setup);
-		}
 		try {
-			// evaluate WDL derictives
+
+			// evaluate WDL
 			Planner planner = new Planner();
 			WdlApp app = planner.evaluateWDL(config, context);
+
+			// if a single setup step is set, add it to setups
+			WdlStep setup = app.getMapred().getSetup();
+			if (setup != null) {
+				app.getMapred().getSetups().add(0, setup);
+			}
+
 			Graph graph = planner.buildDAG(app.getMapred().getSetups(), app.getMapred(), context);
 
-			// execute optimzed dag
+			// execute optimized DAG
 			executor = new Executor();
 			boolean sccuessful = executor.execute(graph);
 
