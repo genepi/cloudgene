@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
+import java.util.UUID;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -59,6 +60,8 @@ public class SubmitJob extends BaseResource {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
 		String id = "job-" + sdf.format(new Date());
 
+		boolean publicMode = false;
+		
 		if (user != null) {
 			// private mode
 
@@ -71,7 +74,10 @@ public class SubmitJob extends BaseResource {
 
 			// public mode
 			user = PublicUser.getUser(getDatabase());
-			id = id + "-" + HashUtil.getMD5(id + "-lukas");
+
+			String uuid = UUID.randomUUID().toString();		
+			id = id + "-" + HashUtil.getMD5(uuid);
+			publicMode = true;
 
 		}
 
@@ -90,9 +96,16 @@ public class SubmitJob extends BaseResource {
 			return error400("Error during input parameter parsing.");
 		}
 
+		String name = id;
+		if (!publicMode){
+			if (inputParams.get("job-name") != null && !inputParams.get("job-name").trim().isEmpty()){
+				name = id + " (" + inputParams.get("job-name") + ")";
+			}
+		}
+		
 		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputParams);
 		job.setId(id);
-		job.setName(id);
+		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);
 		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(getSettings());
@@ -111,6 +124,7 @@ public class SubmitJob extends BaseResource {
 	private Map<String, String> parseAndUpdateInputParams(Representation entity, WdlApp app, String hdfsWorkspace,
 			String localWorkspace) {
 		Map<String, String> props = new HashMap<String, String>();
+		Map<String, String> params = new HashMap<String, String>();
 
 		try {
 			FileItemIterator iterator = parseRequest(entity);
@@ -206,6 +220,13 @@ public class SubmitJob extends BaseResource {
 							props.put(key, value);
 						}
 
+					}else{
+						String key = item.getFieldName();
+						String value = Streams.asString(item.openStream());						
+						if (!params.containsKey(key)) {
+							// don't override uploaded files
+							params.put(key, value);
+						}
 					}
 
 				}
@@ -216,8 +237,6 @@ public class SubmitJob extends BaseResource {
 			e.printStackTrace();
 			return null;
 		}
-
-		Map<String, String> params = new HashMap<String, String>();
 
 		for (WdlParameter input : app.getMapred().getInputs()) {
 			if (props.containsKey(input.getId())) {
