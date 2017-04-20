@@ -330,6 +330,21 @@ public class CloudgeneContext extends WorkflowContext {
 
 	}
 
+	public String createLinkToFile(String id, String filename) {
+
+		CloudgeneParameter out = outputParameters.get(id);
+
+		if (out != null) {
+
+			return "<a href=\"/results/" + job.getId() + "/" + out.getName() + "/" + filename + "\">"
+					+ out.getName() + ".txt" + "</a>";
+
+		} else {
+			return "[PARAMETER UNKOWN!]";
+		}
+
+	}
+	
 	public void message(String message, int type) {
 		Message status = new Message(step, type, message);
 
