@@ -45,10 +45,11 @@ function buildForm(application, element, params, submitButtonText) {
 				divControls.attr("class", "controls");
 				buildHdfsFolder(divControls, param);
 			} else if (param.type == "checkbox") {
-				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
 				buildCheckbox(divControls, param);
+				//buildLabel(divGroup, param);
+
 			} else if (param.type == "agbcheckbox") {
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
@@ -502,7 +503,12 @@ function buildNumber(element, param) {
 }
 
 function buildCheckbox(element, param) {
+
+	var label = $("<label></label>");
+	label.attr('class', "checkbox");
+
 	var input = $("<input></input>");
+	input.attr("id", param.id);
 	input.attr("name", param.id);
 	input.attr("type", "checkbox");
 	input.attr("value", param.value);
@@ -513,8 +519,13 @@ function buildCheckbox(element, param) {
 	if (param.values["true"] == param.value) {
 		input.attr("checked", "true");
 	}
-	$(element).append(input);
-	input.bootstrapSwitch();
+
+	$(label).append(input);
+	$(label).append(param.description);
+
+	$(element).append(label);
+
+	//input.bootstrapSwitch();
 }
 
 function buildAGBCheckbox(element, param) {
