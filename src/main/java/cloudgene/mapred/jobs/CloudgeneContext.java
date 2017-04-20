@@ -337,7 +337,7 @@ public class CloudgeneContext extends WorkflowContext {
 		if (out != null) {
 
 			return "<a href=\"/results/" + job.getId() + "/" + out.getName() + "/" + filename + "\">"
-					+ out.getName() + ".txt" + "</a>";
+					+ filename + "</a>";
 
 		} else {
 			return "[PARAMETER UNKOWN!]";
