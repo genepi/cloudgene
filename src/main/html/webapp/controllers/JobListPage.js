@@ -28,6 +28,7 @@ JobListPage = can.Control({
 				ordering: false,
 				info: true,
 				searching: false,
+				"pageLength": 25,
 				"bLengthChange": false
 			});
 			that.element.fadeIn();

@@ -10,8 +10,8 @@
 		<tr>
 			<th></th>
 			<th></th>
-			<th>Job</th>
-			<th style="width: 100px;">Progress</th>
+			<th  style="width: 250px;">Job</th>
+			<th>Name</th>
 			<th style="width: 150px;">Execution Time</th>
 			<th style="width: 16px;"></th>
 		</tr>
@@ -68,10 +68,12 @@
 				</td>
 
 				<td>
-					<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a>
+					<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('id') %></a>
 				</td>
 
-				<td></td>
+				<td>
+					<%= job.attr('name') != job.attr('id') ? job.attr('name') : '' %></a>
+				</td>
 
 				<td>
 					<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>

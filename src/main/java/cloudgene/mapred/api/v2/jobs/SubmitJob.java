@@ -99,7 +99,7 @@ public class SubmitJob extends BaseResource {
 		String name = id;
 		if (!publicMode){
 			if (inputParams.get("job-name") != null && !inputParams.get("job-name").trim().isEmpty()){
-				name = id + " (" + inputParams.get("job-name") + ")";
+				name = inputParams.get("job-name");
 			}
 		}
 		

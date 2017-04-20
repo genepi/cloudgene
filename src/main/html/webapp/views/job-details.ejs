@@ -1,8 +1,7 @@
-<h2>
-	<a href="#!pages/jobs">Jobs</a>
-	/
-	<%= job.attr('name') %></h2>
+<br><p><a href="#!pages/jobs">Jobs</a> / <%= job.attr('id') %></p><hr>
 
+	<h2><%= job.attr('id') != job.attr('name') ? job.attr('name') : job.attr('id') %></h2>
+<br>
 <% if( job.attr('public')){ %>
 	<div class="alert alert-info">Please bookmark this page to monitor your job and to download your results!
 	</div>
