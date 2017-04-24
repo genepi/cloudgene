@@ -59,11 +59,11 @@ public class HotRetireJob extends BaseResource {
 			try {
 
 				String subject = "[" + settings.getName() + "] Job "
-						+ job.getName() + " will be retired in " + days
+						+ job.getId() + " will be retired in " + days
 						+ " days";
 
 				String body = getWebApp().getTemplate(Template.RETIRE_JOB_MAIL,
-						job.getUser().getFullName(), days, job.getName());
+						job.getUser().getFullName(), days, job.getId());
 
 				if (!job.getUser().getUsername().equals("public")) {
 
