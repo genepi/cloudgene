@@ -14,6 +14,7 @@ JobListPage = can.Control({
 
 		var that = this;
 		Job.findAll({
+			page: options.page2
 		}, function(jobs) {
 			$.each(jobs, function(key, job) {
 				if (JobRefresher.needsUpdate(job)) {
@@ -22,15 +23,13 @@ JobListPage = can.Control({
 					that.options.refreshers.push(refresher);
 				}
 			});
-			that.element.html(can.view('views/jobs.ejs', jobs));
-			that.element.find("#job-list").dataTable({
-				paging: true,
-				ordering: false,
-				info: true,
-				searching: false,
-				"pageLength": 25,
-				"bLengthChange": false
-			});
+			that.element.html(can.view('views/jobs.ejs', {
+				jobs: jobs,
+				page: options.page2,
+				total: jobs.attr('count'),
+				perPage: 25,
+			}));
+
 			that.element.fadeIn();
 		}, function(message) {
 			new ErrorPage(that.element, {

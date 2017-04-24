@@ -29,7 +29,8 @@ public class JobDao extends JdbcDataAccessObject {
 
 	public boolean insert(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id) ");
+		sql.append(
+				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?,?)");
 
 		try {
@@ -138,6 +139,64 @@ public class JobDao extends JdbcDataAccessObject {
 		} catch (SQLException e) {
 			log.error("find all jobs failed", e);
 			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<AbstractJob> findAllByUser(User user, int offset, int limit) {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from job ");
+		sql.append("where user_id = ? and state != ? ");
+		sql.append("order by id desc ");
+		sql.append("limit ?,?");
+
+		Object[] params = new Object[4];
+		params[0] = user.getId();
+		params[1] = AbstractJob.STATE_DELETED;
+		params[2] = offset;
+		params[3] = limit;
+
+		List<AbstractJob> result = new Vector<AbstractJob>();
+
+		try {
+
+			result = query(sql.toString(), params, new JobMapper());
+
+			log.debug("find all jobs successful. results: " + result.size());
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find all jobs failed", e);
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public int countAllByUser(User user) {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select count(*) ");
+		sql.append("from job ");
+		sql.append("where user_id = ? and state != ? ");
+
+		Object[] params = new Object[2];
+		params[0] = user.getId();
+		params[1] = AbstractJob.STATE_DELETED;
+
+		int result = 0;
+
+		try {
+
+			result = (Integer) queryForObject(sql.toString(), params, new IntegerMapper());
+
+			log.debug("count all jobs successful. results: " + result);
+
+			return result;
+		} catch (SQLException e) {
+			log.error("count all jobs failed", e);
+			return 0;
 		}
 	}
 
@@ -334,24 +393,20 @@ public class JobDao extends JdbcDataAccessObject {
 
 		try {
 
-			job = (AbstractJob) queryForObject(sql.toString(), params,
-					new JobAndUserMapper());
+			job = (AbstractJob) queryForObject(sql.toString(), params, new JobAndUserMapper());
 
 			if (loadParams && job != null) {
 
 				ParameterDao parameterDao = new ParameterDao(database);
-				List<CloudgeneParameter> inputParams = parameterDao
-						.findAllInputByJob(job);
-				List<CloudgeneParameter> outputParams = parameterDao
-						.findAllOutputByJob(job);
+				List<CloudgeneParameter> inputParams = parameterDao.findAllInputByJob(job);
+				List<CloudgeneParameter> outputParams = parameterDao.findAllOutputByJob(job);
 				job.setInputParams(inputParams);
 				job.setOutputParams(outputParams);
 
 				if (job instanceof CloudgeneJob) {
 
 					StepDao stepDao = new StepDao(database);
-					List<CloudgeneStep> steps = stepDao
-							.findAllByJob((CloudgeneJob) job);
+					List<CloudgeneStep> steps = stepDao.findAllByJob((CloudgeneJob) job);
 					job.setSteps(steps);
 
 				}

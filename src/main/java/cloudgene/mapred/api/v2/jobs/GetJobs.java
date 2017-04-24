@@ -3,6 +3,7 @@ package cloudgene.mapred.api.v2.jobs;
 import java.util.List;
 
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
 import org.restlet.data.Status;
@@ -21,6 +22,8 @@ public class GetJobs extends BaseResource {
 	 * Resource to get a list of all jobs for authenticated user.
 	 */
 
+	public static final int MAX_PER_PAGE = 25;
+	
 	@Get
 	public Representation getJobs() {
 
@@ -37,9 +40,31 @@ public class GetJobs extends BaseResource {
 
 		}
 
+		String page = getQueryValue("page");
+		
+		int offset = 0;
+		if (page != null) {
+
+			offset = Integer.valueOf(page);
+			if (offset < 1) {
+				offset = 1;
+			}
+			offset = (offset - 1) * MAX_PER_PAGE;
+		}
+		
 		// find all jobs by user
 		JobDao dao = new JobDao(getDatabase());
-		List<AbstractJob> jobs = dao.findAllByUser(user);
+		
+		//count all jobs
+		int count = dao.countAllByUser(user);
+		
+		List<AbstractJob> jobs = null;
+		if (page != null) {
+			jobs = dao.findAllByUser(user, offset, MAX_PER_PAGE);	
+		}else{
+			jobs = dao.findAllByUser(user);
+		}
+		
 
 		// exclude unused parameters
 		JsonConfig config = new JsonConfig();
@@ -51,9 +76,14 @@ public class GetJobs extends BaseResource {
 				"stdOutFile", "steps", "workingDirectory", "application",
 				"map", "reduce", "logOutFile", "deletedOn","applicationId","running" });
 
-		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
+		JSONObject object = new JSONObject();
+		object.put("count", count);
 
-		return new StringRepresentation(jsonArray.toString());
+		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
+		object.put("data", jsonArray);
+
+		
+		return new StringRepresentation(object.toString());
 
 	}
 }

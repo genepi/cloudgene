@@ -6,12 +6,23 @@ Tabs = can.Control({
 	},
 
 	'run/:app route' : function(data) {
-		
-		this.activate('run');	
+
+		this.activate('run');
 		this.page = new SubmitJobPage("#content", {tool: data.app});
 	},
-	
-	
+
+
+	'pages/jobs route': function(data){
+		data.page2=1;
+		this.options.jobs = new JobListPage("#content", data);
+		this.page = this.options.jobs;
+	},
+
+	'pages/jobs/:page2 route': function(data){
+		this.options.jobs = new JobListPage("#content", data);
+		this.page = this.options.jobs;
+	},
+
 	'pages/:page route' : function(data) {
 		this.activate(data.page);
 		this.show(data.page);
@@ -26,7 +37,7 @@ Tabs = can.Control({
 		});
 		this.page = this.options.detailsPage;
 	},
-	
+
 	'jobs/:job route' : function(data) {
 		this.activate('jobs');
 		this.options.detailsPage = new JobDetailsPage("#content", {
@@ -35,7 +46,7 @@ Tabs = can.Control({
 		});
 		this.page = this.options.detailsPage;
 	},
-	
+
 
 	'recovery/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
@@ -43,13 +54,13 @@ Tabs = can.Control({
 			message : "Please log out for password recovery."
 		});
 	},
-	
+
 	'activate/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
 			status : "27",
 			message : "Please log out for user activation."
 		});
-	},	
+	},
 
 	activate : function(id) {
 
@@ -76,11 +87,6 @@ Tabs = can.Control({
 		switch (id) {
 		case "run":
 			this.page = new SubmitJobPage("#content");
-			break;
-
-		case "jobs":
-			this.options.jobs = new JobListPage("#content");
-			this.page = this.options.jobs;
 			break;
 
 		case "home":

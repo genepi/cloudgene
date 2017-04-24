@@ -1,0 +1,49 @@
+
+<%
+var next = 1;
+var prev = 1;
+var maxPages = Math.floor(total / perPage);
+if (total % perPage > 0){
+	maxPages++;
+}
+var from = (page-1)*perPage+1;
+var to = page*perPage;
+if (to > total){
+    to = total;
+}
+if(page <= 1) { prev = 0; }
+if(total <= 0 || page >= maxPages)  { next = 0; }
+%>
+
+<div class="row-fluid">
+<div class="span6">Showing <%= from %> to <%= to %> of <%= total %> entries</div>
+<div class="span6">
+	<div class="pagination" style="float:right; margin:0;">
+<ul>
+    <li class="<%= page == 1  ? 'page-item disabled' : '' %>">
+      <a href="<%= link %>/<%= page - prev %>" aria-label="Previous">
+        <span aria-hidden="true">&larr; Previous</span>
+      </a>
+    </li>
+    <% for (i = 3; i > 0; i--){ %>
+    	<% if (parseInt(page) - i > 0){ %>
+    		<li><a href="<%= link %>/<%= page - i %>"><%= page - i %></a></li>
+    	<% } %>
+    <% } %>
+    <li class="active"><a href="#"><%= page %></a></li>
+    <% for (i = 1; i <= 3; i++){ %>
+    	<% if (page + i <= maxPages){ %>
+    		<li><a href="<%= link %>/<%= page +i %>"><%= page + i %></a></li>
+    	<% } %>
+    <% } %>
+    <li class="<%= page == maxPages  ? 'page-item disabled' : '' %>">
+      <a href="<%= link %>/<%= page + next %>" aria-label="Next">
+        <span aria-hidden="true">Next &rarr;</span>
+      </a>
+    </li>
+  </ul>
+</div>
+</div>
+
+</div>
+<br><br>

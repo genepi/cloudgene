@@ -17,7 +17,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		<% this.each(function( job ) { %>
+		<% jobs.each(function( job ) { %>
 
 			<tr <%= (tr) -> can.data(tr, 'job', job) %>>
 
@@ -92,6 +92,9 @@
 		<% }) %>
 	</tbody>
 </table>
+
+<%== can.view.render('views/components/pagination.ejs', { total: total, page: parseInt(page), perPage: perPage, link: "#!pages/jobs"}) %>
+
 
 <div class="modal hide" id="delete-dialog">
 	<div class="modal-body">
