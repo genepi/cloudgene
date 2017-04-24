@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         version: '2.2.6'
       },
       dist: {
-        src: ['views/*.ejs', 'views/admin/*.ejs'],
+        src: ['views/*.ejs', 'views/admin/*.ejs','views/components/*.ejs'],
         dest: 'tmp/cloudgene.views.js'
       }
     },
@@ -31,9 +31,6 @@ module.exports = function(grunt) {
           'assets/js/lib/bootbox.min.js',
           'assets/js/lib/can.jquery.js',
           'assets/js/lib/bootstrap-fileupload.js',
-          'assets/js/lib/jquery.dataTables.min.js',
-          'assets/js/lib/bootstrap-switch.min.js',
-          'assets/js/lib/dataTables.bootstrap.js',
           'assets/js/lib/md5.min.js',
           'assets/js/lib/raphael.min.js',
           'assets/js/lib/morris.min.js'
@@ -65,8 +62,6 @@ module.exports = function(grunt) {
           'dist/cloudgene.vendor.min.css': [
             'assets/css/bootstrap.css',
             'assets/css/bootstrap-fileupload.css',
-            'assets/css/dataTables.bootstrap.css',
-            'assets/css/bootstrap-switch.css',
             'assets/css/morris.css',
             'assets/css/bootstrap-responsive.css'
           ]

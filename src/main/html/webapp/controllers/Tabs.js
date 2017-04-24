@@ -14,11 +14,13 @@ Tabs = can.Control({
 
 	'pages/jobs route': function(data){
 		data.page2=1;
+		this.activate('jobs');
 		this.options.jobs = new JobListPage("#content", data);
 		this.page = this.options.jobs;
 	},
 
 	'pages/jobs/:page2 route': function(data){
+		this.activate('jobs');
 		this.options.jobs = new JobListPage("#content", data);
 		this.page = this.options.jobs;
 	},
