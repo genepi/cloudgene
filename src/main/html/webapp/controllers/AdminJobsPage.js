@@ -29,7 +29,7 @@ AdminJobsPage = can.Control({
 
 	'.icon-trash click': function(el, ev) {
 
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		bootbox.animate(false);
 		bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
 			if (result) {
@@ -41,7 +41,7 @@ AdminJobsPage = can.Control({
 
 	'.icon-remove click': function(el, ev) {
 
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		bootbox.animate(false);
 		bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
 			if (result) {
@@ -53,7 +53,7 @@ AdminJobsPage = can.Control({
 	},
 
 	'.icon-arrow-up click': function(el, ev) {
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		that = this;
 		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority');
 		request.success(function(data) {
@@ -66,7 +66,7 @@ AdminJobsPage = can.Control({
 	},
 
 	'.icon-time click': function(el, ev) {
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		that = this;
 		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset');
 		request.success(function(data) {
@@ -79,7 +79,7 @@ AdminJobsPage = can.Control({
 	},
 
 	'.icon-fire click': function(el, ev) {
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		that = this;
 		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire');
 		request.success(function(data) {

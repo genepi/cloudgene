@@ -43,7 +43,7 @@ JobListPage = can.Control({
 	'.icon-trash click': function(el, ev) {
 		var that = this;
 
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		bootbox.animate(false);
 		bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
 			if (result) {
@@ -75,7 +75,7 @@ JobListPage = can.Control({
 	'.icon-remove click': function(el, ev) {
 		var that = this;
 
-		job = el.parent().parent().data('job');
+		job = el.closest('tr').data('job');
 		bootbox.animate(false);
 		bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
 			if (result) {
