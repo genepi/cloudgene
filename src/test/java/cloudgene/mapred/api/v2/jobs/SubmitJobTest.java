@@ -1,8 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.hadoop.common.WorkflowContext;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -16,10 +13,12 @@ import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.util.TestSFTPServer;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestCluster;
-import cloudgene.mapred.util.junit.TestSFTPServer;
 import cloudgene.mapred.util.junit.TestServer;
+import genepi.hadoop.common.WorkflowContext;
+import genepi.io.FileUtil;
 
 public class SubmitJobTest extends JobsApiTestCase {
 
