@@ -344,6 +344,13 @@
 			<version>1.6</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.apache.sshd</groupId>
+			<artifactId>sshd-sftp</artifactId>
+			<version>0.9.0</version>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<name>Cloudgene</name>
