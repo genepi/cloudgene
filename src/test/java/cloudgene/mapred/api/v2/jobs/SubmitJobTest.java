@@ -3,6 +3,7 @@ package cloudgene.mapred.api.v2.jobs;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONArray;
@@ -17,6 +18,7 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestCluster;
+import cloudgene.mapred.util.junit.TestSFTPServer;
 import cloudgene.mapred.util.junit.TestServer;
 
 public class SubmitJobTest extends JobsApiTestCase {
@@ -27,8 +29,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 		TestServer.getInstance().start();
 	}
 
-	public void testSubmitWrongApplication() throws IOException, JSONException,
-			InterruptedException {
+	public void testSubmitWrongApplication() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -42,15 +43,13 @@ public class SubmitJobTest extends JobsApiTestCase {
 			resource.post(form);
 		} catch (Exception e) {
 			assertEquals(404, resource.getStatus().getCode());
-			JSONObject object = new JSONObject(resource.getResponseEntity()
-					.getText());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 			assertEquals(object.get("success"), false);
 		}
 		resource.release();
 	}
 
-	public void testSubmitAllPossibleInputs() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitAllPossibleInputs() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -61,24 +60,15 @@ public class SubmitJobTest extends JobsApiTestCase {
 		// ignore checkbox
 		form.getEntries().add(new FormData("input-list", "keya"));
 		// local-file
-		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer(
-				"content-of-my-file"));
-		form.getEntries().add(
-				new FormData("input-file", new FileRepresentation("test.txt",
-						MediaType.TEXT_PLAIN)));
+		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
+		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
 
 		// local-folder
-		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer(
-				"content-of-my-file-in-folder1"));
-		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer(
-				"content-of-my-file-in-folder2"));
+		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
+		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
-		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation(
-						"test1.txt", MediaType.TEXT_PLAIN)));
-		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation(
-						"test2.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
 		String id = submitJobPublic("all-possible-inputs", form);
@@ -92,8 +82,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitAllPossibleInputsHdfs() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitAllPossibleInputsHdfs() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -101,24 +90,15 @@ public class SubmitJobTest extends JobsApiTestCase {
 		form.setMultipart(true);
 
 		// hdfs-file
-		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer(
-				"content-of-my-file"));
-		form.getEntries().add(
-				new FormData("input-file", new FileRepresentation("test.txt",
-						MediaType.TEXT_PLAIN)));
+		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
+		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
 
 		// hdfs-folder
-		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer(
-				"content-of-my-file-in-folder1"));
-		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer(
-				"content-of-my-file-in-folder2"));
+		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
+		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
-		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation(
-						"test1.txt", MediaType.TEXT_PLAIN)));
-		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation(
-						"test2.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
 		String id = submitJobPublic("all-possible-inputs-hdfs", form);
@@ -132,8 +112,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitReturnTrueStepPublic() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitReturnTrueStepPublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -153,8 +132,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitReturnFalseStepPublic() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitReturnFalseStepPublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -174,8 +152,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitReturnExceptionStepPublic() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitReturnExceptionStepPublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -195,8 +172,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitWriteTextToFilePublic() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitWriteTextToFilePublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -219,8 +195,8 @@ public class SubmitJobTest extends JobsApiTestCase {
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		// get path and download file
-		String path = result.getJSONArray("outputParams").getJSONObject(0)
-				.getJSONArray("files").getJSONObject(0).getString("path");
+		String path = result.getJSONArray("outputParams").getJSONObject(0).getJSONArray("files").getJSONObject(0)
+				.getString("path");
 
 		String content = downloadResults(path);
 
@@ -228,8 +204,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitWriteTextToHdfsFilePublic() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitWriteTextToHdfsFilePublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -252,8 +227,8 @@ public class SubmitJobTest extends JobsApiTestCase {
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		// get path and download file
-		String path = result.getJSONArray("outputParams").getJSONObject(0)
-				.getJSONArray("files").getJSONObject(0).getString("path");
+		String path = result.getJSONArray("outputParams").getJSONObject(0).getJSONArray("files").getJSONObject(0)
+				.getString("path");
 
 		String content = downloadResults(path);
 
@@ -261,8 +236,7 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 	}
 
-	public void testSubmitThreeTasksStepPublic() throws IOException,
-			JSONException, InterruptedException {
+	public void testSubmitThreeTasksStepPublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -280,19 +254,53 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
-		JSONArray messages = result.getJSONArray("steps").getJSONObject(0)
-				.getJSONArray("logMessages");
+		JSONArray messages = result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages");
 
 		assertEquals(3, messages.length());
-		assertEquals("cloudgene-task1", messages.getJSONObject(0)
-				.get("message"));
+		assertEquals("cloudgene-task1", messages.getJSONObject(0).get("message"));
 		assertEquals(WorkflowContext.OK, messages.getJSONObject(0).get("type"));
-		assertEquals("cloudgene-task2", messages.getJSONObject(1)
-				.get("message"));
+		assertEquals("cloudgene-task2", messages.getJSONObject(1).get("message"));
 		assertEquals(WorkflowContext.OK, messages.getJSONObject(1).get("type"));
-		assertEquals("cloudgene-task3", messages.getJSONObject(2)
-				.get("message"));
+		assertEquals("cloudgene-task3", messages.getJSONObject(2).get("message"));
 		assertEquals(WorkflowContext.OK, messages.getJSONObject(2).get("type"));
+
+	}
+
+	public void testSubmitSftpUpload() throws IOException, JSONException, InterruptedException {
+
+		TestSFTPServer sftp = new TestSFTPServer("test-data");
+
+		String url = "sftp://localhost:8001/" + new File("test-data/sftp-import.yaml").getAbsolutePath() + ";"
+				+ TestSFTPServer.USERNAME + ";" + TestSFTPServer.PASSWORD;
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.getEntries().add(new FormData("input-input", url));
+
+		// submit job
+		String id = submitJobPublic("sftp-import", form);
+
+		// get details to check *** bug
+		 getJobDetails(id);
+
+		// check feedback
+		waitForJob(id);
+
+		JSONObject result = getJobDetails(id);
+
+		//check if no sftp url is in json
+		System.out.println(result.toString());
+		assertFalse(result.toString().contains(url));
+		
+		//get log file
+		
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+		sftp.stop();
+
+		// check results!
 
 	}
 
