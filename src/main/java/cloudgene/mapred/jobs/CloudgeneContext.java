@@ -177,7 +177,7 @@ public class CloudgeneContext extends WorkflowContext {
 
 		} else {
 
-			return outputParameters.get(param).getValue();
+			return null;
 
 		}
 
