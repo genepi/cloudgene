@@ -36,6 +36,7 @@ import cloudgene.mapred.api.v2.admin.server.GetTemplates;
 import cloudgene.mapred.api.v2.admin.server.OpenQueue;
 import cloudgene.mapred.api.v2.admin.server.UpdateSettings;
 import cloudgene.mapred.api.v2.admin.server.UpdateTemplate;
+import cloudgene.mapred.api.v2.data.ImporterFileList;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
 import cloudgene.mapred.api.v2.jobs.GetJobDetails;
@@ -63,7 +64,6 @@ import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
-import cloudgene.mapred.resources.data.ValidateImport;
 import cloudgene.mapred.util.LoginFilter;
 import cloudgene.mapred.util.Settings;
 
@@ -191,7 +191,7 @@ public class WebApp extends Application {
 
 		// ------------------
 
-		router.attach(prefix + "/import/validate", ValidateImport.class);
+		router.attach(prefix + "/api/v2/importer/files", ImporterFileList.class);
 
 		setStatusService(new CustomStatusService());
 

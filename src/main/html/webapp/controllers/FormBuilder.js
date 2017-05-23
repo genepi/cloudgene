@@ -335,7 +335,7 @@ function buildHdfsFolder(element, param) {
 		buttonAddFiles.button('loading');
 
 		$.ajax({
-			url: "import/validate",
+			url: "api/v2/importer/files",
 			type: "POST",
 			data: {
 				input: textarea.attr("value") + ";" + username.attr("value") + ";" + password.attr("value")

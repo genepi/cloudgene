@@ -1,4 +1,4 @@
-package cloudgene.mapred.resources.data;
+package cloudgene.mapred.api.v2.data;
 
 import genepi.hadoop.importer.FileItem;
 import genepi.hadoop.importer.IImporter;
@@ -16,7 +16,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
 
-public class ValidateImport extends ServerResource {
+public class ImporterFileList extends ServerResource {
 
 	@Post
 	public Representation validateImport(Representation entity) {

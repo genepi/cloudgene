@@ -152,6 +152,12 @@ public class TestServer {
 			app12.setPermission("public");
 			applications.add(app12);
 
+			Application app16 = new Application();
+			app16.setId("sftp-import");
+			app16.setFilename("test-data/sftp-import.yaml");
+			app16.setPermission("public");
+			applications.add(app16);
+			
 			settings.setApps(applications);
 
 		}
