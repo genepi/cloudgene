@@ -31,14 +31,12 @@ public class GetClusterDetails extends BaseResource {
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			return new StringRepresentation("The request requires administration rights.");
 		}
 
 		JSONObject object = new JSONObject();
@@ -77,8 +75,7 @@ public class GetClusterDetails extends BaseResource {
 
 		ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
 		StringBuffer state = new StringBuffer();
-		state.append("State: " + cluster.getJobTrackerStatus().toString()
-				+ "\n");
+		state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
 		state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
 		state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
 		state.append("Nodes\n");
@@ -91,8 +88,13 @@ public class GetClusterDetails extends BaseResource {
 		}
 		object.put("cluster", state.toString());
 
-		return new StringRepresentation(object.toString(),
-				MediaType.APPLICATION_JSON);
+		object.put("db_max_active", getDatabase().getDataSource().getMaxActive());
+		object.put("db_active", getDatabase().getDataSource().getNumActive());
+		object.put("db_max_idle", getDatabase().getDataSource().getMaxIdle());
+		object.put("db_idle", getDatabase().getDataSource().getNumIdle());
+		object.put("db_max_open_prep_statements", getDatabase().getDataSource().getMaxOpenPreparedStatements());
+
+		return new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 
 	}
 }

@@ -100,6 +100,50 @@
 
 <hr>
 
+<h4>Database Connection Pool</h4>
+
+<table class="table table-bordered">
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Active </b><br><i>Number of instances currently borrowed from this pool.</i>
+		</td>
+		<td>
+			<%=  cluster.attr('db_active') %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Max active:</b>
+		</td>
+		<td>
+			<%=  cluster.attr('db_max_active') %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Idle:</b><br><i>Number of instances currently idle in this pool.</i>
+		</td>
+		<td>
+			<%=  cluster.attr('db_idle') %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Max idle:</b>
+		</td>
+		<td>
+			<%=  cluster.attr('db_max_idle') %>
+		</td>
+	</tr>
+
+</table>
+
+<hr>
+
 <h4>Hadoop</h4>
 
 <table class="table table-bordered">
