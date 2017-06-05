@@ -89,6 +89,19 @@ AdminJobsPage = can.Control({
 		request.error(function(data) {
 			bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
 		});
+	},
+
+	'.icon-plus click': function(el, ev) {
+		job = el.closest('tr').data('job');
+		that = this;
+		request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/1');
+		request.success(function(data) {
+			bootbox.alert(data);
+			that.init(that.element, that.options);
+		});
+		request.error(function(data) {
+			bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+		});
 	}
 
 });

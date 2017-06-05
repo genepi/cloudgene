@@ -96,6 +96,9 @@
 				<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
 					<span class="icon-fire" style="cursor: pointer;"></span>
 				<% } %>
+				<% if( job.attr('state') == '8' || job.attr('state') == '9'){ %>
+					<span class="icon-plus" style="cursor: pointer;"></span>
+				<% } %>
 			</td>
 
 			<td>
