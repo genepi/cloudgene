@@ -55,7 +55,7 @@ public class ChangeRetireDate extends BaseResource {
 
 			try {
 
-				job.setDeletedOn(job.getDeletedOn() + (days * 24 * 60 * 60));
+				job.setDeletedOn(job.getDeletedOn() + (days * 24 * 60 * 60 * 1000));
 
 				dao.update(job);
 
