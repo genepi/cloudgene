@@ -1,22 +1,18 @@
 package cloudgene.mapred.wdl;
 
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.List;
 import java.util.Vector;
+
+import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.Settings;
-
-import com.esotericsoftware.yamlbeans.YamlReader;
+import genepi.io.FileUtil;
 
 public class WdlReader {
 
@@ -98,36 +94,6 @@ public class WdlReader {
 				config.getSteps().add(step);
 			}
 
-		}
-
-	}
-
-	public static WdlApp loadApp(String name) {
-
-		File dir = new File(name);
-
-		File manifest = null;
-
-		if (dir.isDirectory()) {
-			// old style
-			manifest = new File(FileUtil.path(dir.getAbsolutePath(),
-					"cloudgene.yaml"));
-		} else {
-			// new style
-			System.out.println("name: " + name);
-			manifest = new File(name.replaceAll("~", "/") + ".yaml");
-		}
-
-		if (manifest.exists()) {
-			try {
-				return loadAppFromFile(manifest.getAbsolutePath());
-			} catch (IOException e) {
-				e.printStackTrace();
-				return null;
-			}
-		} else {
-
-			return null;
 		}
 
 	}

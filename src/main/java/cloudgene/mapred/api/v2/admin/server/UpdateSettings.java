@@ -43,7 +43,6 @@ public class UpdateSettings extends BaseResource {
 		String mailUser = form.getFirstValue("mail-user");
 		String mailPassword = form.getFirstValue("mail-password");
 		String mailName = form.getFirstValue("mail-name");
-		String piggene = form.getFirstValue("piggene");
 
 		getSettings().setName(name);
 		getSettings().getMail().put("smtp", mailSmtp);
@@ -51,11 +50,6 @@ public class UpdateSettings extends BaseResource {
 		getSettings().getMail().put("user", mailUser);
 		getSettings().getMail().put("password", mailPassword);
 		getSettings().getMail().put("name", mailName);
-		if (piggene != null && piggene.trim().isEmpty()) {
-			getSettings().setPiggene(null);
-		} else {
-			getSettings().setPiggene(piggene);
-		}
 
 		try {
 

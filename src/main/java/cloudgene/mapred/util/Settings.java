@@ -42,12 +42,6 @@ public class Settings {
 
 	private String streamingJar = "";
 
-	private String cloudUser;
-
-	private String mapRed;
-
-	private String cloudFolder;
-
 	private String version;
 
 	private String name = "Cloudgene";
@@ -89,8 +83,6 @@ public class Settings {
 	private boolean maintenance = false;
 
 	private String adminMail = "lukas.forer@i-med.ac.at";
-
-	private String piggene = null;
 
 	private Map<String, Application> indexApps;
 
@@ -300,30 +292,6 @@ public class Settings {
 
 	}
 
-	public String getCloudUser() {
-		return cloudUser;
-	}
-
-	public void setCloudUser(String cloudUser) {
-		this.cloudUser = cloudUser;
-	}
-
-	public String getMapRed() {
-		return mapRed;
-	}
-
-	public void setMapRed(String mapRed) {
-		this.mapRed = mapRed;
-	}
-
-	public String getCloudFolder() {
-		return cloudFolder;
-	}
-
-	public void setCloudFolder(String cloudFolder) {
-		this.cloudFolder = cloudFolder;
-	}
-
 	public String getVersion() {
 		return version;
 	}
@@ -485,15 +453,7 @@ public class Settings {
 	public String getAdminMail() {
 		return adminMail;
 	}
-
-	public void setPiggene(String piggene) {
-		this.piggene = piggene;
-	}
-
-	public String getPiggene() {
-		return piggene;
-	}
-
+	
 	public String getSparkPath() {
 		return sparkPath;
 	}
