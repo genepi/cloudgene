@@ -24,6 +24,7 @@ import java.util.UUID;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.PublicUser;
@@ -40,10 +41,10 @@ public class SubmitJob extends BaseResource {
 		User user = getAuthUser();
 		String tool = getAttribute("tool");
 
-		String filename = getSettings().getApp(user, tool);
+		Application application = getSettings().getApp(user, tool);
 		WdlApp app = null;
 		try {
-			app = WdlReader.loadAppFromFile(filename);
+			app = application.getWorkflow();
 		} catch (Exception e1) {
 
 			return error404("Application '" + tool + "' not found or the request requires user authentication.");

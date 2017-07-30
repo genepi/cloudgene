@@ -16,7 +16,6 @@ import cloudgene.mapred.WebApp;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlHeader;
-import cloudgene.mapred.wdl.WdlReader;
 import freemarker.template.Configuration;
 
 public class Index extends BaseResource {
@@ -36,7 +35,7 @@ public class Index extends BaseResource {
 		
 		System.out.println("Template Folder: " + new File(app.getRootFolder()).getAbsolutePath());
 		
-		List<WdlHeader> apps = WdlReader.loadApps(null, getSettings());
+		List<WdlHeader> apps = getSettings().getApps(null);
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());

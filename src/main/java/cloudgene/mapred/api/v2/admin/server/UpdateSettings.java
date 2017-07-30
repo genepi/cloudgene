@@ -51,18 +51,7 @@ public class UpdateSettings extends BaseResource {
 		getSettings().getMail().put("password", mailPassword);
 		getSettings().getMail().put("name", mailName);
 
-		try {
-
-			FileUtil.createDirectory("config");
-
-			YamlWriter writer = new YamlWriter(new FileWriter(FileUtil.path(
-					"config", "settings.yaml")));
-			writer.write(getSettings());
-			writer.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		getSettings().save();
 
 		return new StringRepresentation("OK.");
 	}

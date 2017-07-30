@@ -1,11 +1,11 @@
 package cloudgene.mapred.util;
 
-import genepi.hadoop.HadoopUtil;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +13,23 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import cloudgene.mapred.core.User;
+import org.restlet.data.MediaType;
+import org.restlet.representation.Representation;
+import org.restlet.resource.ClientResource;
+import org.restlet.resource.ResourceException;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
+import com.esotericsoftware.yamlbeans.YamlWriter;
+
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.wdl.WdlApp;
+import cloudgene.mapred.wdl.WdlHeader;
+import genepi.hadoop.HadoopUtil;
+import genepi.io.FileUtil;
+import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.exception.ZipException;
 
 public class Settings {
 
@@ -96,10 +107,7 @@ public class Settings {
 		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
 		apps.add(new Application("hello", "public", "sample/cloudgene-public.yaml"));
 
-		indexApps = new HashMap<String, Application>();
-		for (Application app : apps) {
-			indexApps.put(app.getId(), app);
-		}
+		reloadApplications();
 
 		mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
@@ -126,7 +134,6 @@ public class Settings {
 
 		YamlConfig config = new YamlConfig();
 		config.setPropertyElementType(Settings.class, "apps", Application.class);
-
 		YamlReader reader = new YamlReader(new FileReader(filename), config);
 
 		Settings settings = reader.read(Settings.class);
@@ -159,6 +166,20 @@ public class Settings {
 		log.info("Write statistics: " + settings.writeStatistics);
 
 		return settings;
+
+	}
+
+	public void save() {
+		try {
+
+			FileUtil.createDirectory("config");
+			YamlWriter writer = new YamlWriter(new FileWriter(FileUtil.path("config", "settings.yaml")));
+			writer.write(this);
+			writer.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
@@ -250,25 +271,6 @@ public class Settings {
 
 	public boolean testPaths() {
 
-		if (!new File(appsPath).exists()) {
-
-			for (Application app : apps) {
-
-				if (!new File(app.getFilename()).exists()) {
-
-					log.error("file '" + app.getFilename() + "' does not exist.");
-
-					return false;
-				} else {
-
-					log.info("using application " + app.getId());
-
-				}
-
-			}
-
-		}
-
 		String hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
 
 		if (!new File(hadoop).exists()) {
@@ -314,23 +316,35 @@ public class Settings {
 
 	public void setApps(List<Application> apps) {
 		this.apps = apps;
+		reloadApplications();
+	}
+
+	public void reloadApplications() {
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
 			log.info("Register application " + app.getId());
+
+			// load application
+			try {
+				log.info("Load workflow file " + app.getFilename());
+				app.loadWorkflow();
+			} catch (IOException e) {
+				log.error("Application " + app.getId() + " has syntax errors.", e);
+			}
 			indexApps.put(app.getId(), app);
+
 		}
 	}
 
-	public String getApp(User user, String id) {
+	public Application getApp(User user, String id) {
 
 		Application app = indexApps.get(id);
 
-		if (app != null) {
+		if (app != null && app.isEnabled() && app.isLoaded() && !app.hasSyntaxError()) {
 
 			if (user == null) {
 				if (app.getPermission().toLowerCase().equals("public")) {
-					System.out.println("App: " + app.getFilename());
-					return app.getFilename();
+					return app;
 				} else {
 					return null;
 				}
@@ -339,23 +353,131 @@ public class Settings {
 			if (user.isAdmin() || app.getPermission().toLowerCase().equals(user.getRole().toLowerCase())
 					|| app.getPermission().toLowerCase().equals("public")) {
 
-				return app.getFilename();
+				return app;
 			} else {
 				return null;
 			}
+
+		}
+
+		return null;
+
+	}
+
+	public List<WdlHeader> getApps(User user) {
+
+		List<WdlHeader> listApps = new Vector<WdlHeader>();
+
+		for (Application application : getApps()) {
+
+			boolean using = true;
+
+			if (user == null) {
+				if (application.getPermission().toLowerCase().equals("public")) {
+					using = true;
+				} else {
+					using = false;
+				}
+			} else {
+
+				if (!user.isAdmin() && !application.getPermission().toLowerCase().equals("public")) {
+
+					if (!application.getPermission().toLowerCase().equals(user.getRole().toLowerCase())) {
+						using = false;
+					}
+				}
+			}
+
+			if (using) {
+
+				if (application.isEnabled() && application.isLoaded() && !application.hasSyntaxError()) {
+					WdlApp app = application.getWorkflow();
+					WdlHeader meta = (WdlHeader) app;
+					app.setId(application.getId());
+					listApps.add(meta);
+				}
+
+			}
+
+		}
+
+		return listApps;
+
+	}
+
+	public void deleteApplication(Application application) {
+
+		// download
+		String appPath = FileUtil.path("apps", "my_app");
+		FileUtil.deleteDirectory(appPath);
+		apps.remove(application);
+		reloadApplications();
+
+	}
+
+	public void installApplicationFromUrl(String url) throws IOException {
+
+		// download
+		ClientResource pull = new ClientResource(url);
+
+		Representation response = null;
+		try {
+			response = pull.get(MediaType.APPLICATION_ZIP);
+		} catch (ResourceException e) {
+			throw new IOException(e);
+		}
+
+		if (pull.getStatus().getCode() == 200) {
+			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
+			response.write(new FileOutputStream(zipFilename));
+
+			installApplicationFromZipFile(zipFilename);
 
 		} else {
+			throw new IOException("Zip file couldn't be downloaded.");
+		}
 
-			if (user != null) {
+	}
 
-				String filename = FileUtil.path("apps", id.replaceAll("~", "/") + ".yaml");
+	public void installApplicationFromZipFile(String zipFilename) throws IOException {
 
-				return filename;
+		// extract in apps folder
 
-			} else {
-				return null;
-			}
+		String appPath = FileUtil.path("apps", "my_app");
 
+		FileUtil.createDirectory("apps");
+		FileUtil.createDirectory(appPath);
+		ZipFile file;
+		try {
+			file = new ZipFile(zipFilename);
+			file.extractAll(appPath);
+		} catch (ZipException e) {
+			throw new IOException(e);
+		}
+
+		installApplicationFromDirectory(appPath);
+
+	}
+
+	public void installApplicationFromDirectory(String path) throws IOException {
+
+		// find all cloudgene workflows (use filename as id)
+
+		String[] files = FileUtil.getFiles(path, "*.yaml");
+		for (String filename : files) {
+
+			Application application = new Application();
+			application.setId(FileUtil.getFilename(filename).replaceAll(".yaml", ""));
+			application.setFilename(filename);
+			application.setPermission("user");
+			application.loadWorkflow();
+
+			// check requirements
+
+			// execute install steps
+
+			apps.add(application);
+			indexApps.put(application.getId(), application);
 		}
 
 	}
@@ -453,7 +575,7 @@ public class Settings {
 	public String getAdminMail() {
 		return adminMail;
 	}
-	
+
 	public String getSparkPath() {
 		return sparkPath;
 	}

@@ -19,7 +19,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlHeader;
-import cloudgene.mapred.wdl.WdlReader;
 import freemarker.template.Configuration;
 
 public class Start extends BaseResource {
@@ -45,7 +44,7 @@ public class Start extends BaseResource {
 
 		cfg.setTemplateLoader(loader);
 
-		List<WdlHeader> apps = WdlReader.loadApps(user, getSettings());
+		List<WdlHeader> apps = getSettings().getApps(user);
 		
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());

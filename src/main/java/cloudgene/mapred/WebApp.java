@@ -47,8 +47,8 @@ import cloudgene.mapred.api.v2.jobs.GetLogs;
 import cloudgene.mapred.api.v2.jobs.RestartJob;
 import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
-import cloudgene.mapred.api.v2.server.GetApp;
-import cloudgene.mapred.api.v2.server.GetApps;
+import cloudgene.mapred.api.v2.server.App;
+import cloudgene.mapred.api.v2.server.Apps;
 import cloudgene.mapred.api.v2.server.GetCounter;
 import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.users.ActivateUser;
@@ -150,10 +150,10 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
 
 		// returns meta data about an app
-		router.attach(prefix + "/api/v2/server/apps/{tool}", GetApp.class);
+		router.attach(prefix + "/api/v2/server/apps/{tool}", App.class);
 
 		// returns a list of all installed apps
-		router.attach(prefix + "/api/v2/server/apps", GetApps.class);
+		router.attach(prefix + "/api/v2/server/apps", Apps.class);
 
 		// returns current version as svg image
 		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
@@ -169,8 +169,8 @@ public class WebApp extends Application {
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
 		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);
-		router.attach(prefix + "/api/v2/admin/users/changegroup}", ChangeGroup.class);
-		router.attach(prefix + "/api/v2/admin/groups}", GetGroups.class);
+		router.attach(prefix + "/api/v2/admin/users/changegroup", ChangeGroup.class);
+		router.attach(prefix + "/api/v2/admin/groups", GetGroups.class);
 
 		// admin server management
 		router.attach(prefix + "/api/v2/admin/server/cluster", GetClusterDetails.class);

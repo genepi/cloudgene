@@ -44,13 +44,16 @@ body {
 	<div class="navbar navbar-fixed-top nav-pills">
 		<div class="navbar-inner">
 			<div class="container">
-				<a id="home" class="brand" href="#!pages/admin-home"> ${appname}
-					- Admin-Panel (${version} )</a>
+				<a id="home" class="brand" href="#!pages/admin-home"> ${appname}</a>
 				<ul class="nav" role="navigation" id="tabfolder">
 					<li><a id="admin-home" href="#!pages/admin-home"> Dashboard </a></li>
 					<li><a id="admin-server" href="#!pages/admin-server">Server
 					</a></li>
 
+					<li><a id="admin-apps" href="#!pages/admin-apps">
+							Applications </a></li>
+					<li><a id="admin-templates" href="#!pages/admin-templates">
+							Templates </a></li>
 					<li><a id="admin-settings" href="#!pages/admin-settings">
 							Settings </a></li>
 					<li><a id="admin-jobs" href="#!pages/admin-jobs"> Jobs </a></li>
@@ -107,6 +110,8 @@ body {
 	<script src="controllers/AdminJobsPage.js"></script>
 	<script src="controllers/AdminUsersPage.js"></script>
 	<script src="controllers/AdminSettingsPage.js"></script>
+	<script src="controllers/AdminAppsPage.js"></script>
+	<script src="controllers/AdminTemplatesPage.js"></script>
 	<script src="controllers/AdminServerPage.js"></script>
 	<script src="controllers/ErrorPage.js"></script>
 	<script src="controllers/Error404Page.js"></script>

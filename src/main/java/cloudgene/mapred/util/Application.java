@@ -1,5 +1,10 @@
 package cloudgene.mapred.util;
 
+import java.io.IOException;
+
+import cloudgene.mapred.wdl.WdlApp;
+import cloudgene.mapred.wdl.WdlReader;
+
 public class Application {
 
 	private String filename;
@@ -7,6 +12,14 @@ public class Application {
 	private String permission;
 
 	private String id;
+
+	private boolean syntaxError = false;
+
+	private WdlApp workflow = null;
+
+	private String errorMessage = "";
+	
+	private boolean enabled = true;
 
 	public Application(String id, String permission, String filename) {
 		this.id = id;
@@ -40,6 +53,43 @@ public class Application {
 
 	public String getId() {
 		return id;
+	}
+
+	public void loadWorkflow() throws IOException {
+		try {
+			workflow = WdlReader.loadAppFromFile(getFilename());
+			syntaxError = false;
+			errorMessage = "";
+		} catch (IOException e) {
+			syntaxError = true;
+			workflow = null;
+			errorMessage = e.getMessage();
+			throw e;
+		}
+	}
+
+	public WdlApp getWorkflow() {
+		return workflow;
+	}
+
+	public boolean hasSyntaxError() {
+		return syntaxError;
+	}
+
+	public String getErrorMessage() {
+		return errorMessage;
+	}
+
+	public boolean isLoaded() {
+		return workflow != null;
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
+	}
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 
 }
