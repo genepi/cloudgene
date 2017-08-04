@@ -86,6 +86,8 @@ public class Settings {
 	private boolean writeStatistics = true;
 
 	private boolean https = false;
+	
+	private boolean secureCookie = false;
 
 	private String httpsKeystore = "";
 
@@ -638,6 +640,14 @@ public class Settings {
 
 	public List<MenuItem> getNavigation() {
 		return navigation;
+	}
+
+	public boolean isSecureCookie() {
+		return secureCookie;
+	}
+
+	public void setSecureCookie(boolean secureCookie) {
+		this.secureCookie = secureCookie;
 	}
 
 }
