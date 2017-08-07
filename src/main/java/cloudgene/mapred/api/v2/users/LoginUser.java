@@ -60,10 +60,12 @@ public class LoginUser extends BaseResource {
 				String token = JWTUtil.createCookieToken(user, getSettings().getSecretKey(), csrfToken);
 				// set cookie
 				CookieSetting cookie = new CookieSetting(JWTUtil.COOKIE_NAME, token);
-				if (getSettings().isHttps()) {
+
+				if ((getSettings().isHttps()) || getSettings().isSecureCookie()) {
 					cookie.setSecure(true);
 					cookie.setAccessRestricted(true);
 				}
+
 				getResponse().getCookieSettings().add(cookie);
 				user.setLoginAttempts(0);
 				user.setLastLogin(new Date());
