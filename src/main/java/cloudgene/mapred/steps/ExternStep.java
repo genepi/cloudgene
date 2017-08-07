@@ -40,6 +40,7 @@ public class ExternStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
+		context.setConfig(step.getConfig());
 		return workflowStep.run(context);
 	}
 

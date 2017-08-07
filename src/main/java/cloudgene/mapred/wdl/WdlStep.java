@@ -34,6 +34,8 @@ public class WdlStep {
 	private String classname;
 
 	private String mainClass;
+	
+	private Map<String, String> config;
 
 	private int id;
 
@@ -193,6 +195,14 @@ public class WdlStep {
 
 	public String getRmd2() {
 		return rmd2;
+	}
+	
+	public void setConfig(Map<String, String> config) {
+		this.config = config;
+	}
+	
+	public Map<String, String> getConfig() {
+		return config;
 	}
 
 }

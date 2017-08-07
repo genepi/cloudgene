@@ -52,6 +52,8 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private Map<String, Object> data = new HashMap<String, Object>();
 
+	private Map<String, String> config;
+	
 	public CloudgeneContext(CloudgeneJob job) {
 
 		this.workingDirectory = job.getWorkingDirectory();
@@ -400,6 +402,21 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void setData(String key, Object object) {
 		data.put(key, object);
+	}
+	
+
+	@Override
+	public void setConfig(Map<String, String> config) {
+		this.config = config;
+	}
+
+	@Override
+	public String getConfig(String param) {
+		if (config != null) {
+			return config.get(param);
+		} else {
+			return null;
+		}
 	}
 
 }
