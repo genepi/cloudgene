@@ -6,11 +6,13 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -28,6 +30,7 @@ import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
 import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
+import genepi.io.WildCardFileFilter;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -378,7 +381,7 @@ public class Settings {
 		return app;
 
 	}
-	
+
 	public List<WdlHeader> getAppsByUser(User user) {
 
 		List<WdlHeader> listApps = new Vector<WdlHeader>();
@@ -428,7 +431,7 @@ public class Settings {
 		if (application.getWorkflow().getDeinstallation() != null) {
 			application.getWorkflow().deinstall();
 		}
-		
+
 		// download
 		String appPath = FileUtil.path("apps", "my_app");
 		FileUtil.deleteDirectory(appPath);
@@ -438,27 +441,10 @@ public class Settings {
 	}
 
 	public Application installApplicationFromUrl(String url) throws IOException {
-
-		// download
-		ClientResource pull = new ClientResource(url);
-
-		Representation response = null;
-		try {
-			response = pull.get(MediaType.APPLICATION_ZIP);
-		} catch (ResourceException e) {
-			throw new IOException(e);
-		}
-
-		if (pull.getStatus().getCode() == 200) {
-			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
-			response.write(new FileOutputStream(zipFilename));
-
-			return installApplicationFromZipFile(zipFilename);
-
-		} else {
-			throw new IOException("Zip file couldn't be downloaded.");
-		}
-
+		// download file from url
+		String zipFilename = FileUtil.path(getTempPath(), "download.zip");
+		FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
+		return installApplicationFromZipFile(zipFilename);
 	}
 
 	public Application installApplicationFromZipFile(String zipFilename) throws IOException {
@@ -484,30 +470,42 @@ public class Settings {
 	public Application installApplicationFromDirectory(String path) throws IOException {
 
 		// find all cloudgene workflows (use filename as id)
-
+		System.out.println("Search in folder " + path);
 		String[] files = FileUtil.getFiles(path, "*.yaml");
 		for (String filename : files) {
 
-			Application application = new Application();
-			application.setId(FileUtil.getFilename(filename).replaceAll(".yaml", ""));
-			application.setFilename(filename);
-			application.setPermission("user");
-			application.loadWorkflow();
+			return installApplicationFromYaml(filename);
 
-			// check requirements
-
-			// execute install steps
-			if (application.getWorkflow().getInstallation() != null) {
-				application.getWorkflow().install();
-			}
-
-			apps.add(application);
-			indexApps.put(application.getId(), application);
-			
-			return application;
 		}
-		
+
+		// search in subfolders
+		for (String directory : getDirectories(path)) {
+			return installApplicationFromDirectory(directory);
+		}
+
 		return null;
+
+	}
+
+	public Application installApplicationFromYaml(String filename) throws IOException {
+
+		Application application = new Application();
+		application.setId(FileUtil.getFilename(filename).replaceAll(".yaml", ""));
+		application.setFilename(filename);
+		application.setPermission("user");
+		application.loadWorkflow();
+
+		// check requirements
+
+		// execute install steps
+		if (application.getWorkflow().getInstallation() != null) {
+			application.getWorkflow().install();
+		}
+
+		apps.add(application);
+		indexApps.put(application.getId(), application);
+
+		return application;
 
 	}
 
@@ -675,6 +673,30 @@ public class Settings {
 
 	public void setSecureCookie(boolean secureCookie) {
 		this.secureCookie = secureCookie;
+	}
+
+	private String[] getDirectories(String path) {
+		File dir = new File(path);
+		File[] files = dir.listFiles();
+
+		int count = 0;
+		for (File file : files) {
+			if (file.isDirectory()) {
+				count++;
+			}
+		}
+
+		String[] names = new String[count];
+
+		count = 0;
+		for (File file : files) {
+			if (file.isDirectory()) {
+				names[count] = file.getAbsolutePath();
+				count++;
+			}
+		}
+
+		return names;
 	}
 
 }

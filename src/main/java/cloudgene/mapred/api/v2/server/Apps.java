@@ -46,11 +46,13 @@ public class Apps extends BaseResource {
 
 			Application application = null;
 
-			if (url.startsWith("http://")) {
+			if (url.startsWith("http://") || url.startsWith("https://")) {
 				application = getSettings().installApplicationFromUrl(url);
 			} else {
 				if (url.endsWith(".zip")) {
 					application = getSettings().installApplicationFromZipFile(url);
+				} else if (url.endsWith(".yaml")) {
+					application = getSettings().installApplicationFromYaml(url);
 				} else {
 					application = getSettings().installApplicationFromDirectory(url);
 				}
