@@ -209,8 +209,7 @@ public class WebApp extends Application {
 		route = router.attach(prefix + "/", dir);
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
-		String[] protectedFiles = { prefix + "/start.html" };
-		LoginFilter filter = new LoginFilter("/index.html", prefix, protectedFiles, getSettings().getSecretKey());
+		LoginFilter filter = new LoginFilter("/index.html", prefix, getSettings().getSecretKey());
 		filter.setNext(router);
 
 		return filter;
