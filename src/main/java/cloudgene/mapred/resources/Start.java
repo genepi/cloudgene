@@ -30,22 +30,20 @@ public class Start extends BaseResource {
 
 		if (user == null) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 		}
 
 		WebApp app = getWebApp();
 
 		Configuration cfg = new Configuration();
 
-		ContextTemplateLoader loader = new ContextTemplateLoader(
-				getContext(),
+		ContextTemplateLoader loader = new ContextTemplateLoader(getContext(),
 				LocalReference.createFileReference(new File(app.getRootFolder())));
 
 		cfg.setTemplateLoader(loader);
 
-		List<WdlHeader> apps = getSettings().getApps(user);
-		
+		List<WdlHeader> apps = getSettings().getAppsByUser(user);
+
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());
 		data.put("admin", user.isAdmin());
@@ -53,15 +51,12 @@ public class Start extends BaseResource {
 		data.put("username", user.getUsername());
 		data.put("apps", apps);
 		data.put("navigation", getSettings().getNavigation());
-		
+
 		if (getSettings().isMaintenance()) {
-			data.put("maintenaceMessage",
-					getWebApp()
-							.getTemplate(Template.MAINTENANCE_MESSAGE));
+			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
 		}
 
-		return new TemplateRepresentation("start.html", cfg, data,
-				MediaType.TEXT_HTML);
+		return new TemplateRepresentation("start.html", cfg, data, MediaType.TEXT_HTML);
 
 	}
 

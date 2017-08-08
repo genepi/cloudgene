@@ -34,7 +34,9 @@
 						<% } %>
 					</td>
 					<td>
-						<%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %>
+
+						<label class="checkbox"><input class="enabled-checkbox" type="checkbox" <%== app.attr('enabled') ? 'checked' : '' %>><%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %></label>						
+
 					</td>
 					<td>
 						<span class="icon-trash" style="cursor: pointer;"></span>

@@ -41,8 +41,6 @@ public class Settings {
 
 	private String rPath = "/usr/";
 
-	private String appsPath = "../cloudgene.tools";
-
 	private String outputPath = "output";
 
 	private String tempPath = "tmp";
@@ -86,8 +84,6 @@ public class Settings {
 	private boolean writeStatistics = true;
 
 	private boolean https = false;
-	
-	private boolean secureCookie = false;
 
 	private String httpsKeystore = "";
 
@@ -102,6 +98,8 @@ public class Settings {
 	private String urlPrefix = "";
 
 	private List<MenuItem> navigation = new Vector<MenuItem>();
+
+	private boolean secureCookie = false;
 
 	public Settings() {
 
@@ -338,15 +336,19 @@ public class Settings {
 		}
 	}
 
-	public Application getApp(User user, String id) {
+	public Application getAppByIdAndUser(String id, User user) {
 
-		Application app = indexApps.get(id);
+		Application app = getApp(id);
 
 		if (app != null && app.isEnabled() && app.isLoaded() && !app.hasSyntaxError()) {
 
 			if (user == null) {
 				if (app.getPermission().toLowerCase().equals("public")) {
-					return app;
+					if (app.getWorkflow().getMapred() != null) {
+						return app;
+					} else {
+						return app;
+					}
 				} else {
 					return null;
 				}
@@ -354,8 +356,12 @@ public class Settings {
 
 			if (user.isAdmin() || app.getPermission().toLowerCase().equals(user.getRole().toLowerCase())
 					|| app.getPermission().toLowerCase().equals("public")) {
+				if (app.getWorkflow().getMapred() != null) {
+					return app;
+				} else {
+					return app;
+				}
 
-				return app;
 			} else {
 				return null;
 			}
@@ -366,7 +372,14 @@ public class Settings {
 
 	}
 
-	public List<WdlHeader> getApps(User user) {
+	public Application getApp(String id) {
+
+		Application app = indexApps.get(id);
+		return app;
+
+	}
+	
+	public List<WdlHeader> getAppsByUser(User user) {
 
 		List<WdlHeader> listApps = new Vector<WdlHeader>();
 
@@ -393,10 +406,12 @@ public class Settings {
 			if (using) {
 
 				if (application.isEnabled() && application.isLoaded() && !application.hasSyntaxError()) {
-					WdlApp app = application.getWorkflow();
-					WdlHeader meta = (WdlHeader) app;
-					app.setId(application.getId());
-					listApps.add(meta);
+					if (application.getWorkflow().getMapred() != null) {
+						WdlApp app = application.getWorkflow();
+						WdlHeader meta = (WdlHeader) app;
+						app.setId(application.getId());
+						listApps.add(meta);
+					}
 				}
 
 			}
@@ -407,8 +422,13 @@ public class Settings {
 
 	}
 
-	public void deleteApplication(Application application) {
+	public void deleteApplication(Application application) throws IOException {
 
+		// execute install steps
+		if (application.getWorkflow().getDeinstallation() != null) {
+			application.getWorkflow().deinstall();
+		}
+		
 		// download
 		String appPath = FileUtil.path("apps", "my_app");
 		FileUtil.deleteDirectory(appPath);
@@ -417,7 +437,7 @@ public class Settings {
 
 	}
 
-	public void installApplicationFromUrl(String url) throws IOException {
+	public Application installApplicationFromUrl(String url) throws IOException {
 
 		// download
 		ClientResource pull = new ClientResource(url);
@@ -433,7 +453,7 @@ public class Settings {
 			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
 			response.write(new FileOutputStream(zipFilename));
 
-			installApplicationFromZipFile(zipFilename);
+			return installApplicationFromZipFile(zipFilename);
 
 		} else {
 			throw new IOException("Zip file couldn't be downloaded.");
@@ -441,7 +461,7 @@ public class Settings {
 
 	}
 
-	public void installApplicationFromZipFile(String zipFilename) throws IOException {
+	public Application installApplicationFromZipFile(String zipFilename) throws IOException {
 
 		// extract in apps folder
 
@@ -457,11 +477,11 @@ public class Settings {
 			throw new IOException(e);
 		}
 
-		installApplicationFromDirectory(appPath);
+		return installApplicationFromDirectory(appPath);
 
 	}
 
-	public void installApplicationFromDirectory(String path) throws IOException {
+	public Application installApplicationFromDirectory(String path) throws IOException {
 
 		// find all cloudgene workflows (use filename as id)
 
@@ -477,10 +497,17 @@ public class Settings {
 			// check requirements
 
 			// execute install steps
+			if (application.getWorkflow().getInstallation() != null) {
+				application.getWorkflow().install();
+			}
 
 			apps.add(application);
 			indexApps.put(application.getId(), application);
+			
+			return application;
 		}
+		
+		return null;
 
 	}
 

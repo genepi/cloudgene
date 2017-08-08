@@ -1,8 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,7 +14,8 @@ import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlReader;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
 public class RestartJob extends BaseResource {
 
@@ -57,15 +55,14 @@ public class RestartJob extends BaseResource {
 			job.setSettings(getSettings());
 			job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 
-			String application = job.getApplicationId();
-			Application application2 = getSettings().getApp(job.getUser(), application);
+			String appId = job.getApplicationId();
+			Application application = getSettings().getAppByIdAndUser(appId, job.getUser());
 			WdlApp app = null;
 			try {
-				app = application2.getWorkflow();
+				app = application.getWorkflow();
 			} catch (Exception e1) {
 
-				return error400(
-						"Application '" + application + "' not found or the request requires user authentication.");
+				return error400("Application '" + appId + "' not found or the request requires user authentication.");
 
 			}
 

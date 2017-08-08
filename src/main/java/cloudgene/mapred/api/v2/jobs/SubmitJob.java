@@ -1,14 +1,12 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
@@ -19,7 +17,6 @@ import org.apache.commons.io.FileUtils;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
-import java.util.UUID;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -31,7 +28,8 @@ import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
-import cloudgene.mapred.wdl.WdlReader;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
 public class SubmitJob extends BaseResource {
 
@@ -39,20 +37,20 @@ public class SubmitJob extends BaseResource {
 	public Representation post(Representation entity) {
 
 		User user = getAuthUser();
-		String tool = getAttribute("tool");
+		String appId = getAttribute("tool");
 
-		Application application = getSettings().getApp(user, tool);
+		Application application = getSettings().getAppByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {
 			app = application.getWorkflow();
 		} catch (Exception e1) {
 
-			return error404("Application '" + tool + "' not found or the request requires user authentication.");
+			return error404("Application '" + appId + "' not found or the request requires user authentication.");
 
 		}
 
 		if (app.getMapred() == null) {
-			return error404("Application '" + tool + "' has no mapred section.");
+			return error404("Application '" + appId + "' has no mapred section.");
 		}
 
 		WorkflowEngine engine = getWorkflowEngine();
@@ -62,7 +60,7 @@ public class SubmitJob extends BaseResource {
 		String id = "job-" + sdf.format(new Date());
 
 		boolean publicMode = false;
-		
+
 		if (user != null) {
 			// private mode
 
@@ -76,7 +74,7 @@ public class SubmitJob extends BaseResource {
 			// public mode
 			user = PublicUser.getUser(getDatabase());
 
-			String uuid = UUID.randomUUID().toString();		
+			String uuid = UUID.randomUUID().toString();
 			id = id + "-" + HashUtil.getMD5(uuid);
 			publicMode = true;
 
@@ -98,12 +96,12 @@ public class SubmitJob extends BaseResource {
 		}
 
 		String name = id;
-		if (!publicMode){
-			if (inputParams.get("job-name") != null && !inputParams.get("job-name").trim().isEmpty()){
+		if (!publicMode) {
+			if (inputParams.get("job-name") != null && !inputParams.get("job-name").trim().isEmpty()) {
 				name = inputParams.get("job-name");
 			}
 		}
-		
+
 		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputParams);
 		job.setId(id);
 		job.setName(name);
@@ -112,7 +110,7 @@ public class SubmitJob extends BaseResource {
 		job.setSettings(getSettings());
 		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 		job.setApplication(app.getName() + " " + app.getVersion());
-		job.setApplicationId(tool);
+		job.setApplicationId(appId);
 
 		engine.submit(job);
 
@@ -221,9 +219,9 @@ public class SubmitJob extends BaseResource {
 							props.put(key, value);
 						}
 
-					}else{
+					} else {
 						String key = item.getFieldName();
-						String value = Streams.asString(item.openStream());						
+						String value = Streams.asString(item.openStream());
 						if (!params.containsKey(key)) {
 							// don't override uploaded files
 							params.put(key, value);

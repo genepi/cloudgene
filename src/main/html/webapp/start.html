@@ -48,7 +48,7 @@ body {
 				<a id="home" class="brand" href="#!pages/home"> ${appname} </a>
 				<ul class="nav pull-left"  id="tabfolder">
 					<li><a id="home" href="#!pages/home"> Home </a></li>
-
+					<#if apps?size gt 0>
 					<#if apps?size == 1>
 										<li class=""><a id="run" href="#!run/${apps[0].id}"> Run </a></li>
 
@@ -67,6 +67,7 @@ body {
 
 						</ul>
 					</li>
+					</#if>
 					</#if>
 
 					<li class=""><a id="jobs" href="#!pages/jobs"> Jobs </a></li>

@@ -2,12 +2,14 @@ package cloudgene.mapred.api.v2.server;
 
 import java.util.List;
 
+import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
+import org.restlet.resource.Put;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
@@ -23,25 +25,25 @@ import net.sf.json.JsonConfig;
 public class App extends BaseResource {
 
 	@Get
-	public Representation post(Representation entity) {
+	public Representation getApp() {
 
 		User user = getAuthUser();
 
-		String tool = getAttribute("tool");
+		String appId = getAttribute("tool");
 
-		Application application = getSettings().getApp(user, tool);
-		WdlApp app = null;
-		WdlHeader meta = null;
+		Application application = getSettings().getAppByIdAndUser(appId, user);
+		WdlApp wdlApp = null;
+		WdlHeader wdlHeader = null;
 		try {
-			app = application.getWorkflow();
-			meta = (WdlHeader) app;
-			meta.setId(tool);
+			wdlApp = application.getWorkflow();
+			wdlHeader = (WdlHeader) wdlApp;
+			wdlHeader.setId(appId);
 
 		} catch (Exception e1) {
 
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 			return new StringRepresentation(
-					"Tool '" + tool + "' not found or the request requires user authentication..");
+					"Application '" + appId + "' not found or the request requires user authentication..");
 
 		}
 
@@ -54,9 +56,9 @@ public class App extends BaseResource {
 
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
-		JSONObject jsonObject = JSONObject.fromObject(meta, config);
+		JSONObject jsonObject = JSONObject.fromObject(wdlHeader, config);
 
-		List<WdlParameter> params = app.getMapred().getInputs();
+		List<WdlParameter> params = wdlApp.getMapred().getInputs();
 		JSONArray jsonArray = JSONArray.fromObject(params);
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
@@ -66,7 +68,7 @@ public class App extends BaseResource {
 	}
 
 	@Delete
-	public Representation remove() {
+	public Representation removeApp() {
 
 		User user = getAuthUser();
 
@@ -82,12 +84,73 @@ public class App extends BaseResource {
 			return new StringRepresentation("The request requires administration rights.");
 		}
 
-		String tool = getAttribute("tool");
-		Application application = getSettings().getApp(user, tool);
+		String appId = getAttribute("tool");
+		Application application = getSettings().getApp(appId);
 		if (application != null) {
-			getSettings().deleteApplication(application);
-			getSettings().save();
-			return new JsonRepresentation(application);
+			try {
+				getSettings().deleteApplication(application);
+				getSettings().save();
+				return new JsonRepresentation(application);
+			} catch (Exception e) {
+				e.printStackTrace();
+				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return new StringRepresentation("Application not installed: " + e.getMessage());
+			}
+		} else {
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Application '" + appId + "' not found.");
+		}
+	}
+
+	@Put
+	public Representation updateApp(Representation entity) {
+
+		User user = getAuthUser();
+
+		if (user == null) {
+
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("The request requires user authentication.");
+
+		}
+
+		if (!user.isAdmin()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("The request requires administration rights.");
+		}
+
+		Form form = new Form(entity);
+		String enabled = form.getFirstValue("enabled");
+
+		String tool = getAttribute("tool");
+		Application application = getSettings().getApp(tool);
+		if (application != null) {
+
+			try {
+				// enable or disable
+				if (enabled != null) {
+					if (application.isEnabled() && enabled.equals("false")) {
+						application.getWorkflow().deinstall();
+						application.setEnabled(false);
+						getSettings().reloadApplications();
+						getSettings().save();
+					} else if (!application.isEnabled() && enabled.equals("true")) {
+						application.getWorkflow().install();
+						application.setEnabled(true);
+						getSettings().reloadApplications();
+						getSettings().save();
+					}
+				}
+
+				// update permissions
+
+				return new JsonRepresentation(application);
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return new StringRepresentation("Application not installed: " + e.getMessage());
+			}
 
 		} else {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);

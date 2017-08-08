@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
+import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -42,19 +43,27 @@ public class Apps extends BaseResource {
 		}
 
 		try {
+
+			Application application = null;
+
 			if (url.startsWith("http://")) {
-				getSettings().installApplicationFromUrl(url);
+				application = getSettings().installApplicationFromUrl(url);
 			} else {
 				if (url.endsWith(".zip")) {
-					getSettings().installApplicationFromZipFile(url);
+					application = getSettings().installApplicationFromZipFile(url);
 				} else {
-					getSettings().installApplicationFromDirectory(url);
+					application = getSettings().installApplicationFromDirectory(url);
 				}
 			}
 
 			getSettings().save();
+			if (application != null) {
+				return new JsonRepresentation(application);
+			} else {
+				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return new StringRepresentation("Application not installed: No workflow file found.");
+			}
 
-			return new StringRepresentation("Application installed.");
 		} catch (Exception e) {
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("Application not installed: " + e.getMessage());
