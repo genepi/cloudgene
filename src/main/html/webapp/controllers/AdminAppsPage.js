@@ -48,25 +48,49 @@ AdminAppsPage = can.Control({
 
 	},
 
+	'#reload-apps-btn click': function(el, ev) {
+		var that = this;
+
+		Application.findAll({
+			reload: 'true'
+		}, function(applications) {
+
+			that.element.html(can.view('views/admin/apps.ejs', {
+				applications: applications
+			}));
+			$("#content").fadeIn();
+
+		});
+	},
+
 	'.enabled-checkbox click': function(el, ev) {
+
 		application = el.closest('tr').data('application');
+		bootbox.animate(false);
 		enabled = el.is(":checked");
-		application.attr('enabled', enabled);
+		bootbox.confirm("Are you sure you want to " + (enabled ? "enable" : "disable") + " application <b>" + application.attr('id') + "</b>?", function(result) {
+			if (result) {
+				application.attr('enabled', enabled);
 
-		bootbox.dialog((enabled ? '<h4>Install application</h4>' : '<h4>Uninstall application</h4>') +
-			'<p>Please wait while the application is configured.</p>' +
-			'<div class="progress progress-striped active">' +
-			'<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-			'</div>'
-		);
+				bootbox.dialog((enabled ? '<h4>Install application</h4>' : '<h4>Uninstall application</h4>') +
+					'<p>Please wait while the application is configured.</p>' +
+					'<div class="progress progress-striped active">' +
+					'<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
+					'</div>'
+				);
 
-		application.save(function(application) {
-			bootbox.hideAll();
-			bootbox.alert(enabled ? '<h4>Congratulations</h4><p>The application installation was successful.</p>' : '<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
+				application.save(function(application) {
+					bootbox.hideAll();
+					bootbox.alert(enabled ? '<h4>Congratulations</h4><p>The application installation was successful.</p>' : '<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
 
-		}, function(data) {
-			bootbox.hideAll();
-			bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+				}, function(data) {
+					bootbox.hideAll();
+					bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+				});
+			}else{
+				//reset checkbox
+				el.prop("checked", !enabled);
+			}
 		});
 	},
 

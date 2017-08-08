@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
+import genepi.io.FileUtil;
 
 public class Application {
 
@@ -15,11 +16,15 @@ public class Application {
 
 	private boolean syntaxError = false;
 
+	private boolean changed = true;
+
 	private WdlApp workflow = null;
 
 	private String errorMessage = "";
-	
+
 	private boolean enabled = true;
+
+	private String wdlContent;
 
 	public Application(String id, String permission, String filename) {
 		this.id = id;
@@ -60,10 +65,12 @@ public class Application {
 			workflow = WdlReader.loadAppFromFile(getFilename());
 			syntaxError = false;
 			errorMessage = "";
+			wdlContent = FileUtil.readFileAsString(getFilename());
 		} catch (IOException e) {
 			syntaxError = true;
 			workflow = null;
 			errorMessage = e.getMessage();
+			wdlContent = FileUtil.readFileAsString(getFilename());
 			throw e;
 		}
 	}
@@ -83,13 +90,26 @@ public class Application {
 	public boolean isLoaded() {
 		return workflow != null;
 	}
-	
+
 	public boolean isEnabled() {
 		return enabled;
 	}
-	
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public boolean isChanged() {
+		return changed;
+	}
+
+	public void setChanged(boolean changed) {
+		this.changed = changed;
+	}
+
+	public void checkForChanges() {
+		String newWdlContent = FileUtil.readFileAsString(getFilename());
+		setChanged(!wdlContent.equals(newWdlContent));
 	}
 
 }

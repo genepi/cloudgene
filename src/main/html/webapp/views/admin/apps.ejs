@@ -2,7 +2,7 @@
 
 	<p>Some nice text about applications....</p>
 <br>
-<p><span class="btn btn-primary" id ="install-app-btn">Install App</span></p>
+<p><span class="btn btn-primary" id ="install-app-btn">Install App</span>&nbsp;<span class="btn btn-default" id ="reload-apps-btn">Reload Apps from filesystem</span></p>
 <br>
 
 	<table class="table table-striped table-bordered" id="templates">
@@ -23,6 +23,11 @@
 						<%= app.attr('id') %>
 					</td>
 					<td>
+						<% if(app.attr('changed') == true) { %>
+							<div class="alert alert-danger">
+							Warning: File <b><%= app.attr('filename') %></b> changed on disk. Reload Apps to solve this issue.
+						</div>
+						<% } %>
 						<% if (app.attr('errorMessage')) { %>
 							<p> Error parsing file <b><%= app.attr('filename') %></b>:</p>
 							<p class="text-error"><%= app.attr('errorMessage') %></p>
@@ -35,7 +40,7 @@
 					</td>
 					<td>
 
-						<label class="checkbox"><input class="enabled-checkbox" type="checkbox" <%== app.attr('enabled') ? 'checked' : '' %>><%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %></label>						
+						<label class="checkbox"><input class="enabled-checkbox" type="checkbox" <%== app.attr('enabled') ? 'checked' : '' %>><%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %></label>
 
 					</td>
 					<td>

@@ -85,7 +85,15 @@ public class Apps extends BaseResource {
 
 		}
 
+		String reload = getQueryValue("reload");
+		if (reload != null && reload.equals("true")) {
+			getSettings().reloadApplications();
+		}
+
 		List<Application> apps = getSettings().getApps();
+		for (Application app : apps) {
+			app.checkForChanges();
+		}
 		JSONArray jsonArray = JSONArray.fromObject(apps);
 
 		return new StringRepresentation(jsonArray.toString());
