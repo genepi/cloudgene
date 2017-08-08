@@ -121,7 +121,9 @@ public class App extends BaseResource {
 
 		Form form = new Form(entity);
 		String enabled = form.getFirstValue("enabled");
+		String permission = form.getFirstValue("permission");
 
+		
 		String tool = getAttribute("tool");
 		Application application = getSettings().getApp(tool);
 		if (application != null) {
@@ -137,6 +139,14 @@ public class App extends BaseResource {
 					} else if (!application.isEnabled() && enabled.equals("true")) {
 						application.getWorkflow().install();
 						application.setEnabled(true);
+						getSettings().reloadApplications();
+						getSettings().save();
+					}
+				}
+				
+				if (permission != null){
+					if (!application.getPermission().equals(permission)){
+						application.setPermission(permission);
 						getSettings().reloadApplications();
 						getSettings().save();
 					}

@@ -1,53 +1,64 @@
 <h2>Applications</h2>
 
-	<p>Some nice text about applications....</p>
+<p>Some nice text about applications....</p>
 <br>
-<p><span class="btn btn-primary" id ="install-app-btn">Install App</span>&nbsp;<span class="btn btn-default" id ="reload-apps-btn">Reload Apps from filesystem</span></p>
+<p>
+	<span class="btn btn-primary" id="install-app-btn">Install App</span>&nbsp;<span class="btn btn-default" id="reload-apps-btn">Reload Apps from filesystem</span>
+</p>
 <br>
 
-	<table class="table table-striped table-bordered" id="templates">
-		<thead>
-			<tr>
-				<th style="width: 150px;">Id</th>
-				<th>Application</th>
-				<th style="width: 80px;"></th>
-				<th style="width: 16px;"></th>
+<table class="table table-striped table-bordered" id="templates">
+	<thead>
+		<tr>
+			<th style="width: 150px;">Id</th>
+			<th>Application</th>
+			<th style="width: 80px;">Permission</th>
+			<th style="width: 80px;"></th>
+			<th style="width: 16px;"></th>
+
+		</tr>
+	</thead>
+	<tbody>
+		<% applications.each(function( app ) { %>
+
+			<tr <%= (tr) -> can.data(tr, 'application', app) %>>
+				<td>
+					<%= app.attr('id') %>
+				</td>
+				<td>
+					<% if(app.attr('changed') == true) { %>
+						<div class="alert alert-danger">
+							Warning: File
+							<b><%= app.attr('filename') %></b>
+							changed on disk. Reload Apps to solve this issue.
+						</div>
+					<% } %>
+					<% if (app.attr('errorMessage')) { %>
+						<p>
+							Error parsing file
+							<b><%= app.attr('filename') %></b>:</p>
+						<p class="text-error"><%= app.attr('errorMessage') %></p>
+					<% } else { %>
+						<p>
+							<b><%= app.attr('workflow').attr('name') %></b>
+							<%= app.attr('workflow').attr('version') %></p>
+						<p><%== app.attr('workflow').attr('description') %></p><br>
+						<p>
+							<a href="<%= app.attr('workflow').attr('website') %>"><%= app.attr('workflow').attr('website') %></a>
+						</p>
+					<% } %>
+				</td>
+				<td>
+					<%= app.attr('permission') %> <span class="icon-pencil" style="cursor: pointer;"></span>
+				</td>
+				<td>
+					<label class="checkbox"><input class="enabled-checkbox" type="checkbox" <%== app.attr('enabled') ? 'checked' : '' %>><%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %></label>
+				</td>
+				<td>
+					<span class="icon-trash" style="cursor: pointer;"></span>
+				</td>
 
 			</tr>
-		</thead>
-		<tbody>
-			<% applications.each(function( app ) { %>
-
-				<tr <%= (tr) -> can.data(tr, 'application', app) %>>
-					<td>
-						<%= app.attr('id') %>
-					</td>
-					<td>
-						<% if(app.attr('changed') == true) { %>
-							<div class="alert alert-danger">
-							Warning: File <b><%= app.attr('filename') %></b> changed on disk. Reload Apps to solve this issue.
-						</div>
-						<% } %>
-						<% if (app.attr('errorMessage')) { %>
-							<p> Error parsing file <b><%= app.attr('filename') %></b>:</p>
-							<p class="text-error"><%= app.attr('errorMessage') %></p>
-						<% } else { %>
-							<p><b><%= app.attr('workflow').attr('name') %></b> <%= app.attr('workflow').attr('version') %></p>
-						  <p><%== app.attr('workflow').attr('description') %></p><br>
-							<p><a href="<%= app.attr('workflow').attr('website') %>"><%= app.attr('workflow').attr('website') %></a> </p><br><br>
-							<p>Permissions: <%= app.attr('permission') %></p>
-						<% } %>
-					</td>
-					<td>
-
-						<label class="checkbox"><input class="enabled-checkbox" type="checkbox" <%== app.attr('enabled') ? 'checked' : '' %>><%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %></label>
-
-					</td>
-					<td>
-						<span class="icon-trash" style="cursor: pointer;"></span>
-					</td>
-
-				</tr>
-			<% }) %>
-		</tbody>
-	</table>
+		<% }) %>
+	</tbody>
+</table>

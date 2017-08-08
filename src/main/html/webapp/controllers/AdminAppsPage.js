@@ -87,7 +87,7 @@ AdminAppsPage = can.Control({
 					bootbox.hideAll();
 					bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
 				});
-			}else{
+			} else {
 				//reset checkbox
 				el.prop("checked", !enabled);
 			}
@@ -120,5 +120,24 @@ AdminAppsPage = can.Control({
 		});
 
 	},
+
+	'.icon-pencil click': function(el, ev) {
+
+		application = el.closest('tr').data('application');
+		var permission = application.attr('permission');
+		bootbox.animate(false);
+
+		bootbox.confirm('<h4> Change permission of ' + application.attr('id') +
+			'</h4><form><input class="field span2" id="message" name="message" value="' + permission + '"></input></form>',
+			function(result) {
+				if (result) {
+					var text = $('#message').val();
+					application.attr('permission', text);
+					application.save();
+				}
+			});
+
+
+	}
 
 });
