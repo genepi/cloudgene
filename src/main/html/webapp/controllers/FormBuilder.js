@@ -11,20 +11,20 @@ function buildForm(application, element, params, submitButtonText) {
 
 		param.id = "input-" + param.id;
 
-		if (param.type == "label") {
-
+		if (param.type == "group") {
 			labelGroup = buildLabel2(element, param);
 			labelOpen = true;
-
 		} else {
-
 			divGroup = $("<div></div>");
 			divGroup.attr("class", "control-group");
-			if (param.visible != true) {
+			if (param.visible !== true) {
 				divGroup.attr("style", "display:none");
 			}
 
-			if (param.type == "list") {
+			if (param.type == "label") {
+				divControls = $("<div></div>");
+				divControls.html(param.description);
+			} else if (param.type == "list") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
