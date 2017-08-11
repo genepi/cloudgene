@@ -35,26 +35,38 @@ public class Apps extends BaseResource {
 		}
 
 		Form form = new Form(entity);
+		String id = form.getFirstValue("name");
 		String url = form.getFirstValue("url");
+
+		if (id == null) {
+			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			return new StringRepresentation("No id set.");
+		}
 
 		if (url == null) {
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("No url or file location set.");
 		}
 
+		// check for unique id
+		if (getSettings().getApp(id) != null) {
+			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+			return new StringRepresentation("An application with the id '" + id + "' is already installed.");
+		}
+System.out.println("ID: " + id);
 		try {
 
 			Application application = null;
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				application = getSettings().installApplicationFromUrl(url);
+				application = getSettings().installApplicationFromUrl(id, url);
 			} else {
 				if (url.endsWith(".zip")) {
-					application = getSettings().installApplicationFromZipFile(url);
+					application = getSettings().installApplicationFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
-					application = getSettings().installApplicationFromYaml(url);
+					application = getSettings().installApplicationFromYaml(id, url);
 				} else {
-					application = getSettings().installApplicationFromDirectory(url);
+					application = getSettings().installApplicationFromDirectory(id, url);
 				}
 			}
 

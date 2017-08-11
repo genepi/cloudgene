@@ -18,12 +18,14 @@ AdminAppsPage = can.Control({
 	'#install-app-btn click': function(el, ev) {
 		bootbox.animate(false);
 		bootbox.confirm(
-			'<h4>Install App from URL</h4><p>Please enter the URL of the zip file of the application.</p><form><input class="field span5" id="url" name="url" value="http://"/></form>',
+			'<h4>Install App from URL</h4><form onsubmit="return false;"><p>Please enter an unique id for the application:</p><input class="field span5" id="id" name="id" value=""/><p>Please enter the URL of the zip file of the application.</p><input class="field span5" id="url" name="url" value="http://"/></form>',
 			function(result) {
 				if (result) {
+					var id = $('#id').val();
 					var url = $('#url').val();
 					app = new Application();
 					app.attr('url', url);
+					app.attr('name', id);
 
 					bootbox.dialog('<h4>Install application</h4>' +
 						'<p>Please wait while the application is configured.</p>' +

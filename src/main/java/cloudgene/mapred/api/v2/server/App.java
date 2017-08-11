@@ -1,5 +1,6 @@
 package cloudgene.mapred.api.v2.server;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.restlet.data.Form;
@@ -123,7 +124,6 @@ public class App extends BaseResource {
 		String enabled = form.getFirstValue("enabled");
 		String permission = form.getFirstValue("permission");
 
-		
 		String tool = getAttribute("tool");
 		Application application = getSettings().getApp(tool);
 		if (application != null) {
@@ -131,21 +131,22 @@ public class App extends BaseResource {
 			try {
 				// enable or disable
 				if (enabled != null) {
+					HashMap<String, String> environment = getSettings().getEnvironment(application);
 					if (application.isEnabled() && enabled.equals("false")) {
-						application.getWorkflow().deinstall();
+						application.getWorkflow().deinstall(environment);
 						application.setEnabled(false);
 						getSettings().reloadApplications();
 						getSettings().save();
 					} else if (!application.isEnabled() && enabled.equals("true")) {
-						application.getWorkflow().install();
+						application.getWorkflow().install(environment);
 						application.setEnabled(true);
 						getSettings().reloadApplications();
 						getSettings().save();
 					}
 				}
-				
-				if (permission != null){
-					if (!application.getPermission().equals(permission)){
+
+				if (permission != null) {
+					if (!application.getPermission().equals(permission)) {
 						application.setPermission(permission);
 						getSettings().reloadApplications();
 						getSettings().save();

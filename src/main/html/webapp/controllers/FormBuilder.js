@@ -441,15 +441,17 @@ function buildList(element, param) {
 	select.append(emptyOption);
 
 
-	for (var key in param.attr('values').attr()) {
-		var option = $("<option></option>");
-		option.attr("value", key);
-		option.text(param.values[key]);
-		if (param.value == key) {
-			option.attr("selected", "");
-			defaultSelection = true;
+	if (param.attr('values')){
+		for (var key in param.attr('values').attr()) {
+			var option = $("<option></option>");
+			option.attr("value", key);
+			option.text(param.values[key]);
+			if (param.value == key) {
+				option.attr("selected", "");
+				defaultSelection = true;
+			}
+			select.append(option);
 		}
-		select.append(option);
 	}
 	if (!defaultSelection) {
 		emptyOption.attr("selected", "");

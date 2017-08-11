@@ -2,7 +2,6 @@ package cloudgene.mapred.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,10 +14,6 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -30,7 +25,6 @@ import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
 import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
-import genepi.io.WildCardFileFilter;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
@@ -429,29 +423,31 @@ public class Settings {
 
 		// execute install steps
 		if (application.getWorkflow().getDeinstallation() != null) {
-			application.getWorkflow().deinstall();
+
+			HashMap<String, String> environment = getEnvironment(application);
+			application.getWorkflow().deinstall(environment);
 		}
 
 		// download
-		String appPath = FileUtil.path("apps", "my_app");
+		String id = application.getId();
+		String appPath = FileUtil.path("apps", id);
 		FileUtil.deleteDirectory(appPath);
 		apps.remove(application);
 		reloadApplications();
 
 	}
 
-	public Application installApplicationFromUrl(String url) throws IOException {
+	public Application installApplicationFromUrl(String id, String url) throws IOException {
 		// download file from url
 		String zipFilename = FileUtil.path(getTempPath(), "download.zip");
 		FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
-		return installApplicationFromZipFile(zipFilename);
+		return installApplicationFromZipFile(id, zipFilename);
 	}
 
-	public Application installApplicationFromZipFile(String zipFilename) throws IOException {
+	public Application installApplicationFromZipFile(String id, String zipFilename) throws IOException {
 
 		// extract in apps folder
-
-		String appPath = FileUtil.path("apps", "my_app");
+		String appPath = FileUtil.path("apps", id);
 
 		FileUtil.createDirectory("apps");
 		FileUtil.createDirectory(appPath);
@@ -463,43 +459,43 @@ public class Settings {
 			throw new IOException(e);
 		}
 
-		return installApplicationFromDirectory(appPath);
+		return installApplicationFromDirectory(id, appPath);
 
 	}
 
-	public Application installApplicationFromDirectory(String path) throws IOException {
-
+	public Application installApplicationFromDirectory(String id, String path) throws IOException {
 		// find all cloudgene workflows (use filename as id)
 		System.out.println("Search in folder " + path);
 		String[] files = FileUtil.getFiles(path, "*.yaml");
 		for (String filename : files) {
 
-			return installApplicationFromYaml(filename);
+			return installApplicationFromYaml(id, filename);
 
 		}
 
 		// search in subfolders
 		for (String directory : getDirectories(path)) {
-			return installApplicationFromDirectory(directory);
+			return installApplicationFromDirectory(id, directory);
 		}
-
 		return null;
 
 	}
 
-	public Application installApplicationFromYaml(String filename) throws IOException {
+	public Application installApplicationFromYaml(String id, String filename) throws IOException {
 
 		Application application = new Application();
-		application.setId(FileUtil.getFilename(filename).replaceAll(".yaml", ""));
+		application.setId(id);
 		application.setFilename(filename);
 		application.setPermission("user");
 		application.loadWorkflow();
 
-		// check requirements
+		// TODO: check requirements (e.g. hadoop, rmd, spark, ...)
 
 		// execute install steps
 		if (application.getWorkflow().getInstallation() != null) {
-			application.getWorkflow().install();
+
+			HashMap<String, String> environment = getEnvironment(application);
+			application.getWorkflow().install(environment);
 		}
 
 		apps.add(application);
@@ -697,6 +693,16 @@ public class Settings {
 		}
 
 		return names;
+	}
+
+	public HashMap<String, String> getEnvironment(Application application) {
+		HashMap<String, String> environment = new HashMap<String, String>();
+		String hdfsFolder = FileUtil.path(getHdfsWorkspace(), "apps", application.getId());
+		String localFolder = FileUtil.path("apps", application.getId());
+		environment.put("hdfs_app_folder", hdfsFolder);
+		environment.put("apps", "apps");
+		environment.put("local_app_folder", localFolder);
+		return environment;
 	}
 
 }
