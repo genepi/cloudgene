@@ -75,7 +75,7 @@ public class Application {
 		}
 	}
 
-	public WdlApp getWorkflow() {
+	public WdlApp getWdlApp() {
 		return workflow;
 	}
 

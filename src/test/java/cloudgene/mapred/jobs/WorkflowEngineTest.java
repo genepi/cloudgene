@@ -385,7 +385,7 @@ public class WorkflowEngineTest extends TestCase {
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputs);
+		CloudgeneJob job = new CloudgeneJob(user, id, app.getWorkflow(), inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

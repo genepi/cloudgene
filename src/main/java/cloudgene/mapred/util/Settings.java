@@ -341,7 +341,7 @@ public class Settings {
 
 			if (user == null) {
 				if (app.getPermission().toLowerCase().equals("public")) {
-					if (app.getWorkflow().getMapred() != null) {
+					if (app.getWdlApp().getWorkflow() != null) {
 						return app;
 					} else {
 						return app;
@@ -353,7 +353,7 @@ public class Settings {
 
 			if (user.isAdmin() || app.getPermission().toLowerCase().equals(user.getRole().toLowerCase())
 					|| app.getPermission().toLowerCase().equals("public")) {
-				if (app.getWorkflow().getMapred() != null) {
+				if (app.getWdlApp().getWorkflow() != null) {
 					return app;
 				} else {
 					return app;
@@ -403,8 +403,8 @@ public class Settings {
 			if (using) {
 
 				if (application.isEnabled() && application.isLoaded() && !application.hasSyntaxError()) {
-					if (application.getWorkflow().getMapred() != null) {
-						WdlApp app = application.getWorkflow();
+					if (application.getWdlApp().getWorkflow() != null) {
+						WdlApp app = application.getWdlApp();
 						WdlHeader meta = (WdlHeader) app;
 						app.setId(application.getId());
 						listApps.add(meta);
@@ -422,10 +422,10 @@ public class Settings {
 	public void deleteApplication(Application application) throws IOException {
 
 		// execute install steps
-		if (application.getWorkflow().getDeinstallation() != null) {
+		if (application.getWdlApp().getDeinstallation() != null) {
 
 			HashMap<String, String> environment = getEnvironment(application);
-			application.getWorkflow().deinstall(environment);
+			application.getWdlApp().deinstall(environment);
 		}
 
 		// download
@@ -492,10 +492,10 @@ public class Settings {
 		// TODO: check requirements (e.g. hadoop, rmd, spark, ...)
 
 		// execute install steps
-		if (application.getWorkflow().getInstallation() != null) {
+		if (application.getWdlApp().getInstallation() != null) {
 
 			HashMap<String, String> environment = getEnvironment(application);
-			application.getWorkflow().install(environment);
+			application.getWdlApp().install(environment);
 		}
 
 		apps.add(application);
