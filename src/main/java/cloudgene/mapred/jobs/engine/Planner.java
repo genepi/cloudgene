@@ -15,14 +15,14 @@ import cloudgene.mapred.jobs.engine.graph.GraphEdge;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValue;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlMapReduce;
+import cloudgene.mapred.wdl.WdlWorkflow;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class Planner {
 
-	public WdlApp evaluateWDL(WdlMapReduce config, CloudgeneContext context) throws Exception {
+	public WdlApp evaluateWDL(WdlWorkflow config, CloudgeneContext context) throws Exception {
 
 		Velocity.setProperty("file.resource.loader.path", "/");
 		VelocityContext context2 = new VelocityContext();
@@ -54,15 +54,15 @@ public class Planner {
 
 		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(), sw.toString());
 
-		app.getMapred().setInputs(config.getInputs());
-		app.getMapred().setOutputs(config.getOutputs());
+		app.getWorkflow().setInputs(config.getInputs());
+		app.getWorkflow().setOutputs(config.getOutputs());
 
 		context.println("Planner: WDL evaluated.");
 
 		return app;
 	}
 
-	public Graph buildDAG(List<WdlStep> steps, WdlMapReduce config, CloudgeneContext context)
+	public Graph buildDAG(List<WdlStep> steps, WdlWorkflow config, CloudgeneContext context)
 			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
 		Graph graph = new Graph(context);

@@ -36,7 +36,7 @@ public class App extends BaseResource {
 		WdlApp wdlApp = null;
 		WdlHeader wdlHeader = null;
 		try {
-			wdlApp = application.getWorkflow();
+			wdlApp = application.getWdlApp();
 			wdlHeader = (WdlHeader) wdlApp;
 			wdlHeader.setId(appId);
 
@@ -59,7 +59,7 @@ public class App extends BaseResource {
 		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
 		JSONObject jsonObject = JSONObject.fromObject(wdlHeader, config);
 
-		List<WdlParameter> params = wdlApp.getMapred().getInputs();
+		List<WdlParameter> params = wdlApp.getWorkflow().getInputs();
 		JSONArray jsonArray = JSONArray.fromObject(params);
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
@@ -133,12 +133,12 @@ public class App extends BaseResource {
 				if (enabled != null) {
 					HashMap<String, String> environment = getSettings().getEnvironment(application);
 					if (application.isEnabled() && enabled.equals("false")) {
-						application.getWorkflow().deinstall(environment);
+						application.getWdlApp().deinstall(environment);
 						application.setEnabled(false);
 						getSettings().reloadApplications();
 						getSettings().save();
 					} else if (!application.isEnabled() && enabled.equals("true")) {
-						application.getWorkflow().install(environment);
+						application.getWdlApp().install(environment);
 						application.setEnabled(true);
 						getSettings().reloadApplications();
 						getSettings().save();

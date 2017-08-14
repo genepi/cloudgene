@@ -59,14 +59,14 @@ public class RestartJob extends BaseResource {
 			Application application = getSettings().getAppByIdAndUser(appId, job.getUser());
 			WdlApp app = null;
 			try {
-				app = application.getWorkflow();
+				app = application.getWdlApp();
 			} catch (Exception e1) {
 
 				return error400("Application '" + appId + "' not found or the request requires user authentication.");
 
 			}
 
-			((CloudgeneJob) job).loadConfig(app.getMapred());
+			((CloudgeneJob) job).loadConfig(app.getWorkflow());
 
 			getWorkflowEngine().restart(job);
 

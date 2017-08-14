@@ -19,11 +19,12 @@ public class WdlReader {
 
 		YamlReader reader = new YamlReader(new StringReader(content));
 
-		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "setups", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs", WdlParameterInput.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "outputs", WdlParameterOutput.class);
+		reader.getConfig().setPropertyDefaultType(WdlApp.class, "workflow", WdlWorkflow.class);
+		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlWorkflow.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "steps", WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "setups", WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "inputs", WdlParameterInput.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "outputs", WdlParameterOutput.class);
 
 		WdlApp app = reader.read(WdlApp.class);
 		reader.close();
@@ -38,11 +39,12 @@ public class WdlReader {
 
 		YamlReader reader = new YamlReader(new FileReader(filename));
 
-		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlMapReduce.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "steps", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "setups", WdlStep.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "inputs", WdlParameterInput.class);
-		reader.getConfig().setPropertyElementType(WdlMapReduce.class, "outputs", WdlParameterOutput.class);
+		reader.getConfig().setPropertyDefaultType(WdlApp.class, "workflow", WdlWorkflow.class);
+		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlWorkflow.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "steps", WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "setups", WdlStep.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "inputs", WdlParameterInput.class);
+		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "outputs", WdlParameterOutput.class);
 
 		WdlApp app = reader.read(WdlApp.class);
 		reader.close();
@@ -55,7 +57,7 @@ public class WdlReader {
 
 	private static void updateApp(String filename, WdlApp app) {
 
-		WdlMapReduce config = app.getMapred();
+		WdlWorkflow config = app.getWorkflow();
 
 		if (config != null) {
 			String jar = config.getJar();

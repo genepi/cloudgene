@@ -6,25 +6,35 @@ import java.util.List;
 import java.util.Map;
 
 import cloudgene.mapred.util.ApplicationInstaller;
-import cloudgene.mapred.util.Settings;
 import genepi.hadoop.HdfsUtil;
 
 public class WdlApp extends WdlHeader implements Comparable<WdlApp> {
 
-	private WdlMapReduce mapred;
-
+	private WdlWorkflow workflow;
+	
 	private Map<String, String> cluster;
 
 	private List<Map<String, Object>> installation;
 
 	private List<Map<String, Object>> deinstallation;
 
-	public WdlMapReduce getMapred() {
-		return mapred;
+	@Deprecated
+	public WdlWorkflow getMapred() {
+		return null;
 	}
 
-	public void setMapred(WdlMapReduce mapred) {
-		this.mapred = mapred;
+	@Deprecated
+	public void setMapred(WdlWorkflow mapred) {
+		this.workflow = mapred;
+	}
+	
+	
+	public WdlWorkflow getWorkflow() {
+		return workflow;
+	}
+	
+	public void setWorkflow(WdlWorkflow workflow) {
+		this.workflow = workflow;
 	}
 
 	public Map<String, String> getCluster() {

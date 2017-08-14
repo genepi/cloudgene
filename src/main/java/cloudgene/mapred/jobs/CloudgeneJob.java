@@ -20,13 +20,13 @@ import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlMapReduce;
+import cloudgene.mapred.wdl.WdlWorkflow;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class CloudgeneJob extends AbstractJob {
 
-	private WdlMapReduce config;
+	private WdlWorkflow config;
 
 	private String workingDirectory;
 
@@ -40,7 +40,7 @@ public class CloudgeneJob extends AbstractJob {
 		super();
 	}
 
-	public void loadConfig(WdlMapReduce config) {
+	public void loadConfig(WdlWorkflow config) {
 
 		this.config = config;
 		workingDirectory = config.getPath();
@@ -65,7 +65,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	}
 
-	public CloudgeneJob(User user, String id, WdlMapReduce config, Map<String, String> params) {
+	public CloudgeneJob(User user, String id, WdlWorkflow config, Map<String, String> params) {
 
 		this.config = config;
 		setId(id);
@@ -111,7 +111,7 @@ public class CloudgeneJob extends AbstractJob {
 			// evaluate WDL derictives
 			Planner planner = new Planner();
 			WdlApp app = planner.evaluateWDL(config, context);
-			return app.getMapred().getSteps().size() > 0;
+			return app.getWorkflow().getSteps().size() > 0;
 		} catch (Exception e) {
 			// e.printStackTrace();
 			writeOutput(e.getMessage());
@@ -132,7 +132,7 @@ public class CloudgeneJob extends AbstractJob {
 			WdlApp app = planner.evaluateWDL(config, context);
 
 			// create dag from wdl document
-			Graph graph = planner.buildDAG(app.getMapred().getSteps(), app.getMapred(), context);
+			Graph graph = planner.buildDAG(app.getWorkflow().getSteps(), app.getWorkflow(), context);
 
 			// execute optimzed dag
 			executor = new Executor();
@@ -175,12 +175,12 @@ public class CloudgeneJob extends AbstractJob {
 			WdlApp app = planner.evaluateWDL(config, context);
 
 			// if a single setup step is set, add it to setups
-			WdlStep setup = app.getMapred().getSetup();
+			WdlStep setup = app.getWorkflow().getSetup();
 			if (setup != null) {
-				app.getMapred().getSetups().add(0, setup);
+				app.getWorkflow().getSetups().add(0, setup);
 			}
 
-			Graph graph = planner.buildDAG(app.getMapred().getSetups(), app.getMapred(), context);
+			Graph graph = planner.buildDAG(app.getWorkflow().getSetups(), app.getWorkflow(), context);
 
 			// execute optimized DAG
 			executor = new Executor();
@@ -435,7 +435,7 @@ public class CloudgeneJob extends AbstractJob {
 		return workingDirectory;
 	}
 
-	public WdlMapReduce getConfig() {
+	public WdlWorkflow getConfig() {
 		return config;
 	}
 

@@ -42,14 +42,14 @@ public class SubmitJob extends BaseResource {
 		Application application = getSettings().getAppByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {
-			app = application.getWorkflow();
+			app = application.getWdlApp();
 		} catch (Exception e1) {
 
 			return error404("Application '" + appId + "' not found or the request requires user authentication.");
 
 		}
 
-		if (app.getMapred() == null) {
+		if (app.getWorkflow() == null) {
 			return error404("Application '" + appId + "' has no mapred section.");
 		}
 
@@ -102,7 +102,7 @@ public class SubmitJob extends BaseResource {
 			}
 		}
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getMapred(), inputParams);
+		CloudgeneJob job = new CloudgeneJob(user, id, app.getWorkflow(), inputParams);
 		job.setId(id);
 		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);
@@ -153,7 +153,7 @@ public class SubmitJob extends BaseResource {
 					boolean hdfs = false;
 					boolean folder = false;
 
-					for (WdlParameter input : app.getMapred().getInputs()) {
+					for (WdlParameter input : app.getWorkflow().getInputs()) {
 						if (input.getId().equals(fieldName)) {
 							hdfs = (input.getType().equals(WdlParameter.HDFS_FOLDER)
 									|| input.getType().equals(WdlParameter.HDFS_FILE));
@@ -237,7 +237,7 @@ public class SubmitJob extends BaseResource {
 			return null;
 		}
 
-		for (WdlParameter input : app.getMapred().getInputs()) {
+		for (WdlParameter input : app.getWorkflow().getInputs()) {
 			if (props.containsKey(input.getId())) {
 				if (input.getType().equals("checkbox")) {
 					params.put(input.getId(), input.getValues().get("true"));

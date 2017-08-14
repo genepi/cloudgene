@@ -3,7 +3,7 @@ package cloudgene.mapred.wdl;
 import java.util.List;
 import java.util.Vector;
 
-public class WdlMapReduce {
+public class WdlWorkflow {
 
 	private String jar;
 
