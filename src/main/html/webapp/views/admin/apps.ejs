@@ -40,11 +40,11 @@
 						<p class="text-error"><%= app.attr('errorMessage') %></p>
 					<% } else { %>
 						<p>
-							<b><%= app.attr('workflow').attr('name') %></b>
-							<%= app.attr('workflow').attr('version') %></p>
-						<p><%== app.attr('workflow').attr('description') %></p><br>
+							<b><%= app.attr('wdlApp').attr('name') %></b>
+							<%= app.attr('wdlApp').attr('version') %></p>
+						<p><%== app.attr('wdlApp').attr('description') %></p><br>
 						<p>
-							<a href="<%= app.attr('workflow').attr('website') %>"><%= app.attr('workflow').attr('website') %></a>
+							<a href="<%= app.attr('wdlApp').attr('website') %>"><%= app.attr('wdlApp').attr('website') %></a>
 						</p>
 					<% } %>
 				</td>
