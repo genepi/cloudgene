@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
+import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
+import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.util.Streams;
@@ -89,7 +91,13 @@ public class SubmitJob extends BaseResource {
 		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		Map<String, String> inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
+		Map<String, String> inputParams = null;
+
+		try {
+			inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
+		} catch (FileUploadIOException e) {
+			return error400("Upload limit reached.");
+		}
 
 		if (inputParams == null) {
 			return error400("Error during input parameter parsing.");
@@ -121,7 +129,7 @@ public class SubmitJob extends BaseResource {
 	}
 
 	private Map<String, String> parseAndUpdateInputParams(Representation entity, WdlApp app, String hdfsWorkspace,
-			String localWorkspace) {
+			String localWorkspace) throws FileUploadIOException {
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
 
@@ -231,10 +239,13 @@ public class SubmitJob extends BaseResource {
 				}
 
 			}
-
+		} catch (FileUploadIOException e) {
+			System.out.println("XXXXXGVGG");
+			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+
 		}
 
 		for (WdlParameter input : app.getWorkflow().getInputs()) {
@@ -264,7 +275,8 @@ public class SubmitJob extends BaseResource {
 		// FileUpload extension that will parse Restlet requests and
 		// generates FileItems.
 		RestletFileUpload upload = new RestletFileUpload(factory);
-
+		Settings settings = getSettings();
+		upload.setFileSizeMax(settings.getUploadLimit());
 		return upload.getItemIterator(entity);
 
 	}

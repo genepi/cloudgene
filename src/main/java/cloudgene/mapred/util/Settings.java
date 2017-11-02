@@ -97,6 +97,8 @@ public class Settings {
 	private List<MenuItem> navigation = new Vector<MenuItem>();
 
 	private boolean secureCookie = false;
+	
+	private int uploadLimit = -1;
 
 	public Settings() {
 
@@ -669,6 +671,14 @@ public class Settings {
 
 	public void setSecureCookie(boolean secureCookie) {
 		this.secureCookie = secureCookie;
+	}
+	
+	public int getUploadLimit() {
+		return uploadLimit;
+	}
+
+	public void setUploadLimit(int uploadLimit) {
+		this.uploadLimit = uploadLimit;
 	}
 
 	private String[] getDirectories(String path) {
