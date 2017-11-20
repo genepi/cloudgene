@@ -19,6 +19,7 @@ public class UserProfileTest extends JobsApiTestCase {
 
 	@Override
 	protected void setUp() throws Exception {
+		
 		TestServer.getInstance().start();
 
 		// insert two dummy users
@@ -84,14 +85,14 @@ public class UserProfileTest extends JobsApiTestCase {
 
 		// try to update password for test2
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-		form.set("username", "test2");
-		form.set("full-name", "new full-name");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "new-Password27");
-		form.set("confirm-new-password", "new-Password27");
+		JSONObject user = new JSONObject();
+		user.put("username", "test2");
+		user.put("fullName", "new full-name");
+		user.put("mail", "test1@test.com");
+		user.put("password", "new-Password27");
+		user.put("password2", "new-Password27");
 
-		resource.post(form);
+		resource.post(user);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
@@ -100,7 +101,7 @@ public class UserProfileTest extends JobsApiTestCase {
 
 		// try login with old password
 		resource = createClientResource("/login");
-		form = new Form();
+		Form form = new Form();
 		form.set("loginUsername", "test2");
 		form.set("loginPassword", "Test2Password");
 		resource.post(form);
@@ -133,14 +134,14 @@ public class UserProfileTest extends JobsApiTestCase {
 
 		// try to update password for test2
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-		form.set("username", "test2");
-		form.set("full-name", "test2 test1");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "Password27");
-		form.set("confirm-new-password", "Password27");
+		JSONObject user = new JSONObject();
+		user.put("username", "test2");
+		user.put("fullName", "test2 test1");
+		user.put("mail", "test1@test.com");
+		user.put("password", "Password27");
+		user.put("password2", "Password27");
 
-		resource.post(form);
+		resource.post(user);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
@@ -158,15 +159,15 @@ public class UserProfileTest extends JobsApiTestCase {
 		ClientResource resource = createClientResource("/api/v2/users/me/profile");
 		resource.getCookies().add(token.getCookie());
 
-		Form form = new Form();
-		form.set("username", "test1");
-		form.set("full-name", "new full-name");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "new-Password27");
-		form.set("confirm-new-password", "new-Password27");
+		JSONObject user = new JSONObject();
+		user.put("username", "test1");
+		user.put("fullName", "new full-name");
+		user.put("mail", "test1@test.com");
+		user.put("password", "new-Password27");
+		user.put("password2", "new-Password27");
 
 		try{
-		resource.post(form);
+		resource.post(user);
 			assertFalse(true);
 		}catch (Exception e) {
 
@@ -182,16 +183,16 @@ public class UserProfileTest extends JobsApiTestCase {
 		LoginToken token = login("test1", "Test1Password");
 
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
+		JSONObject user = new JSONObject();
 
 		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "aaa");
-		form.set("confirm-new-password", "abbb");
+		user.put("username", "test1");
+		user.put("fullName", "test1 new");
+		user.put("mail", "test1@test.com");
+		user.put("password", "aaa");
+		user.put("password2", "abbb");
 
-		resource.post(form);
+		resource.post(user);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
@@ -205,15 +206,16 @@ public class UserProfileTest extends JobsApiTestCase {
 		LoginToken token = login("test1", "Test1Password");
 
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "PASSWORD2727");
-		form.set("confirm-new-password", "PASSWORD2727");
+		JSONObject user = new JSONObject();
 
-		resource.post(form);
+		// try to update with wrong password
+		user.put("username", "test1");
+		user.put("fullName", "test1 new");
+		user.put("mail", "test1@test.com");
+		user.put("password", "PASSWORD2727");
+		user.put("password2", "PASSWORD2727");
+
+		resource.post(user);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
@@ -228,16 +230,16 @@ public class UserProfileTest extends JobsApiTestCase {
 		LoginToken token = login("test1", "Test1Password");
 
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
+		JSONObject user = new JSONObject();
 
 		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "PASSWORDpassword");
-		form.set("confirm-new-password", "PASSWORDpassword");
+		user.put("username", "test1");
+		user.put("fullName", "test1 new");
+		user.put("mail", "test1@test.com");
+		user.put("password", "PASSWORDpassword");
+		user.put("password2", "PASSWORDpassword");
 
-		resource.post(form);
+		resource.post(user);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
@@ -251,16 +253,16 @@ public class UserProfileTest extends JobsApiTestCase {
 		LoginToken token = login("test1", "Test1Password");
 
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
+		JSONObject user = new JSONObject();
 
 		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "passwordword27");
-		form.set("confirm-new-password", "passwordword27");
+		user.put("username", "test1");
+		user.put("fullName", "test1 new");
+		user.put("mail", "test1@test.com");
+		user.put("password", "passwordword27");
+		user.put("password2", "passwordword27");
 
-		resource.post(form);
+		resource.post(user);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
