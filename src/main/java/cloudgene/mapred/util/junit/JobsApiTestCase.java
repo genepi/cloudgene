@@ -314,8 +314,7 @@ public class JobsApiTestCase extends TestCase {
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
 			
-			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());		
-			JSONArray result = object.getJSONArray("data");
+			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
 			resourceJobs.release();
 
 			return result;
@@ -337,8 +336,7 @@ public class JobsApiTestCase extends TestCase {
 
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
-			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());		
-			JSONArray result = object.getJSONArray("data");
+			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
 			resourceJobs.release();
 
 			return result;
