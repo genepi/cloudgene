@@ -78,7 +78,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private int reduce = -1;
 
 	private boolean setupComplete = false;
-	
+
 	private boolean setupRunning = false;
 
 	private int positionInQueue = -1;
@@ -238,6 +238,168 @@ abstract public class AbstractJob extends PriorityRunnable {
 			setSetupComplete(false);
 			state = AbstractJob.STATE_FAILED;
 			return false;
+
+		}
+	}
+
+	public void runSetupSteps() {
+
+		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
+			onFailure();
+			setStartTime(System.currentTimeMillis());
+			setEndTime(System.currentTimeMillis());
+			setError("Job Execution failed.");
+			setSetupComplete(false);
+			return;
+		}
+
+		try {
+
+			log.info("Job " + getId() + ": executing setups...");
+			writeLog("Executing Job setups....");
+
+			boolean succesfull = executeSetupSteps();
+
+			if (succesfull && hasSteps()) {
+				// all okey
+
+				log.info("Job " + getId() + ":  executed successful. job has steps.");
+				setSetupComplete(true);
+
+				return;
+
+			} else if (succesfull && !hasSteps()) {
+				// all okey and no more steps
+
+				log.info("Job " + getId() + ":  executed successful. job has no more steps.");
+
+				writeLog("Job executed successful.");
+				writeLog("Exporting Data...");
+
+				setState(AbstractJob.STATE_EXPORTING);
+
+				try {
+
+					boolean successfulAfter = after();
+
+					if (successfulAfter) {
+
+						setEndTime(System.currentTimeMillis());
+
+						setState(AbstractJob.STATE_SUCCESS);
+						setSetupComplete(true);
+						log.info("Job " + getId() + ": data export successful.");
+						writeLog("Data export successful.");
+
+					} else {
+
+						setEndTime(System.currentTimeMillis());
+						setSetupComplete(false);
+						setState(AbstractJob.STATE_FAILED);
+						log.error("Job " + getId() + ": data export failed.");
+						writeLog("Data export failed.");
+
+					}
+
+				} catch (Exception e) {
+
+					setEndTime(System.currentTimeMillis());
+
+					Writer writer = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(writer);
+					e.printStackTrace(printWriter);
+					String s = writer.toString();
+
+					setState(AbstractJob.STATE_FAILED);
+					log.error("Job " + getId() + ": data export failed.", e);
+					writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
+					setSetupComplete(false);
+
+				} catch (Error e) {
+
+					setEndTime(System.currentTimeMillis());
+
+					Writer writer = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(writer);
+					e.printStackTrace(printWriter);
+					String s = writer.toString();
+
+					setState(AbstractJob.STATE_FAILED);
+					log.error("Job " + getId() + ": data export failed.", e);
+					writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
+					setSetupComplete(false);
+
+				}
+
+				writeLog("Cleaning up...");
+				cleanUp();
+				log.info("Job " + getId() + ": cleanup successful.");
+				writeLog("Cleanup successful.");
+
+				closeStdOutFiles();
+
+			} else if (!succesfull) {
+				setEndTime(System.currentTimeMillis());
+
+				setState(AbstractJob.STATE_FAILED);
+				log.error("Job " + getId() + ": execution failed. " + getError());
+				writeLog("Job execution failed: " + getError());
+				writeLog("Cleaning up...");
+				onFailure();
+				log.info("Job " + getId() + ": cleanup successful.");
+				writeLog("Cleanup successful.");
+
+				if (canceld) {
+					setState(AbstractJob.STATE_CANCELED);
+				}
+				setSetupComplete(false);
+
+				closeStdOutFiles();
+			}
+
+		} catch (Exception e1) {
+
+			setEndTime(System.currentTimeMillis());
+
+			setState(AbstractJob.STATE_FAILED);
+			log.error("Job " + getId() + ": initialization failed.", e1);
+
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e1.printStackTrace(printWriter);
+			String s = writer.toString();
+
+			writeLog("Initialization failed: " + e1.getLocalizedMessage() + "\n" + s);
+
+			writeLog("Cleaning up...");
+			onFailure();
+			log.info("Job " + getId() + ": cleanup successful.");
+			writeLog("Cleanup successful.");
+			setSetupComplete(false);
+
+			closeStdOutFiles();
+
+		} catch (Error e) {
+
+			setEndTime(System.currentTimeMillis());
+
+			setState(AbstractJob.STATE_FAILED);
+			log.error("Job " + getId() + ": initialization failed.", e);
+
+			Writer writer = new StringWriter();
+			PrintWriter printWriter = new PrintWriter(writer);
+			e.printStackTrace(printWriter);
+			String s = writer.toString();
+
+			writeLog("Initialization failed: " + e.getLocalizedMessage() + "\n" + s);
+
+			writeLog("Cleaning up...");
+			onFailure();
+			log.info("Job " + getId() + ": cleanup successful.");
+			writeLog("Cleanup successful.");
+			setSetupComplete(false);
+
+			closeStdOutFiles();
 
 		}
 	}
@@ -530,16 +692,16 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public boolean isSetupComplete() {
 		return setupComplete;
 	}
-	
+
 	public void setSetupRunning(boolean setupRunning) {
 		this.setupRunning = setupRunning;
 	}
-	
+
 	public boolean isSetupRunning() {
 		return setupRunning;
 	}
-	
-	public boolean hasSteps(){
+
+	public boolean hasSteps() {
 		return true;
 	}
 
@@ -620,7 +782,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	abstract public boolean execute();
 
-	abstract public boolean executeSetup();
+	abstract public boolean executeSetupSteps();
 
 	abstract public boolean setup();
 

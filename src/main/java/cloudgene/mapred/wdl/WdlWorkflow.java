@@ -155,4 +155,13 @@ public class WdlWorkflow {
 		return onFailure;
 	}
 
+	public boolean hasHdfsOutputs() {
+		for (WdlParameter output : outputs) {
+			if (output.getType().equals(WdlParameter.HDFS_FILE) || output.getType().equals(WdlParameter.HDFS_FOLDER)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

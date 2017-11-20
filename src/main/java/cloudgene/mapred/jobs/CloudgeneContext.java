@@ -53,7 +53,7 @@ public class CloudgeneContext extends WorkflowContext {
 	private Map<String, Object> data = new HashMap<String, Object>();
 
 	private Map<String, String> config;
-	
+
 	public CloudgeneContext(CloudgeneJob job) {
 
 		this.workingDirectory = job.getWorkingDirectory();
@@ -100,10 +100,17 @@ public class CloudgeneContext extends WorkflowContext {
 		return step;
 	}
 
-	public void setupOutputParameters() {
+	public void setupOutputParameters(boolean hasHdfsOutputs) {
 
 		// cleanup temp directories
-		HdfsUtil.delete(getHdfsTemp());
+		if (hasHdfsOutputs) {
+			try{
+				HdfsUtil.delete(getHdfsTemp());
+			}catch (Exception e) {
+				System.out.println("Warning: problems during hdfs init.");
+			}
+		}
+		
 		FileUtil.deleteDirectory(getLocalTemp());
 
 		// create output directories
@@ -129,13 +136,20 @@ public class CloudgeneContext extends WorkflowContext {
 					value = HdfsUtil.makeAbsolute(value);
 				}
 				// delete (needed for restart)
+				try{
 				HdfsUtil.delete(value);
+				}catch (Exception e) {
+					System.out.println("Warning: problems during hdfs init.");
+				}				
 				param.setValue(value);
 				break;
 
-			// TODO: temp support for local files
 			case WdlParameter.LOCAL_FILE:
-				String folder = FileUtil.path(getLocalOutput(), param.getName());
+				String parent = getLocalOutput();
+				if (!param.isDownload()){
+					parent = getLocalTemp();
+				}
+				String folder = FileUtil.path(parent, param.getName());
 				String filename = FileUtil.path(folder, param.getName());
 				// delete and create (needed for restart)
 				FileUtil.deleteDirectory(folder);
@@ -144,7 +158,12 @@ public class CloudgeneContext extends WorkflowContext {
 				break;
 
 			case WdlParameter.LOCAL_FOLDER:
-				String folder2 = FileUtil.path(getLocalOutput(), param.getName());
+				String parent2 = getLocalOutput();
+				if (!param.isDownload()){
+					parent2 = getLocalTemp();
+				}
+				
+				String folder2 = FileUtil.path(parent2, param.getName());
 				// delete and create (needed for restart)
 				FileUtil.deleteDirectory(folder2);
 				FileUtil.createDirectory(folder2);
@@ -338,15 +357,15 @@ public class CloudgeneContext extends WorkflowContext {
 
 		if (out != null) {
 
-			return "<a href=\"/results/" + job.getId() + "/" + out.getName() + "/" + filename + "\">"
-					+ filename + "</a>";
+			return "<a href=\"/results/" + job.getId() + "/" + out.getName() + "/" + filename + "\">" + filename
+					+ "</a>";
 
 		} else {
 			return "[PARAMETER UNKOWN!]";
 		}
 
 	}
-	
+
 	public void message(String message, int type) {
 		Message status = new Message(step, type, message);
 
@@ -403,7 +422,6 @@ public class CloudgeneContext extends WorkflowContext {
 	public void setData(String key, Object object) {
 		data.put(key, object);
 	}
-	
 
 	@Override
 	public void setConfig(Map<String, String> config) {

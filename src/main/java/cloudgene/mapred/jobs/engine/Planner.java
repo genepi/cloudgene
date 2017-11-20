@@ -57,7 +57,7 @@ public class Planner {
 		app.getWorkflow().setInputs(config.getInputs());
 		app.getWorkflow().setOutputs(config.getOutputs());
 
-		context.println("Planner: WDL evaluated.");
+		context.log("Planner: WDL evaluated.");
 
 		return app;
 	}

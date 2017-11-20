@@ -99,7 +99,7 @@ public class CloudgeneJob extends AbstractJob {
 
 		context = new CloudgeneContext(this);
 		// context.updateInputParameters();
-		context.setupOutputParameters();
+		context.setupOutputParameters(config.hasHdfsOutputs());
 
 		return true;
 
@@ -136,9 +136,9 @@ public class CloudgeneJob extends AbstractJob {
 
 			// execute optimzed dag
 			executor = new Executor();
-			boolean sccuessful = executor.execute(graph);
+			boolean successful = executor.execute(graph);
 
-			if (!sccuessful) {
+			if (!successful) {
 				setError("Job Execution failed.");
 				GraphNode failedNode = executor.getCurrentNode();
 				executeFailureStep(failedNode.getStep());
@@ -158,18 +158,9 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	@Override
-	public boolean executeSetup() {
-
-		if (getState() == AbstractJob.STATE_CANCELED || getState() == AbstractJob.STATE_FAILED) {
-			onFailure();
-			setStartTime(System.currentTimeMillis());
-			setEndTime(System.currentTimeMillis());
-			setError("Job Execution failed.");
-			return false;
-		}
-
+	public boolean executeSetupSteps() {
+		
 		try {
-
 			// evaluate WDL
 			Planner planner = new Planner();
 			WdlApp app = planner.evaluateWDL(config, context);
@@ -184,26 +175,19 @@ public class CloudgeneJob extends AbstractJob {
 
 			// execute optimized DAG
 			executor = new Executor();
-			boolean sccuessful = executor.execute(graph);
+			boolean successful = executor.execute(graph);
 
-			if (!sccuessful) {
-				setState(AbstractJob.STATE_FAILED);
+			if (!successful) {
 				setError("Job Execution failed.");
 				GraphNode failedNode = executor.getCurrentNode();
 				executeFailureStep(failedNode.getStep());
-				onFailure();
-				setStartTime(System.currentTimeMillis());
-				setEndTime(System.currentTimeMillis());
-				setError("Job Execution failed.");
 				return false;
 			}
 
 			setError(null);
 			return true;
-
 		} catch (Exception e) {
 			// e.printStackTrace();
-			setState(AbstractJob.STATE_FAILED);
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;
@@ -273,17 +257,6 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean cleanUp() {
 
-		// delete hdfs temp folders
-		writeLog("Cleaning up temporary hdfs files...");
-		HdfsUtil.delete(context.getHdfsTemp());
-
-		// delete hdfs workspace
-		if (isRemoveHdfsWorkspace()) {
-			writeLog("Cleaning up hdfs files...");
-			HdfsUtil.delete(context.getHdfsOutput());
-			HdfsUtil.delete(context.getHdfsInput());
-		}
-
 		// delete local temp folders
 
 		writeLog("Cleaning up uploaded local files...");
@@ -291,6 +264,25 @@ public class CloudgeneJob extends AbstractJob {
 
 		writeLog("Cleaning up temporary local files...");
 		FileUtil.deleteDirectory(context.getLocalTemp());
+
+		if (config.hasHdfsOutputs()) {
+
+			try {
+				// delete hdfs temp folders
+				writeLog("Cleaning up temporary hdfs files...");
+				HdfsUtil.delete(context.getHdfsTemp());
+
+				// delete hdfs workspace
+				if (isRemoveHdfsWorkspace()) {
+					writeLog("Cleaning up hdfs files...");
+					HdfsUtil.delete(context.getHdfsOutput());
+					HdfsUtil.delete(context.getHdfsInput());
+				}
+			} catch (Exception e) {
+				System.out.println("Warning: problems during hdfs cleanup.");
+			}
+
+		}
 
 		return true;
 	}
