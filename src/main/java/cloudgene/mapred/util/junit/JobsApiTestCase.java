@@ -2,6 +2,7 @@ package cloudgene.mapred.util.junit;
 
 import java.io.IOException;
 
+import org.apache.avro.data.Json;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -312,7 +313,9 @@ public class JobsApiTestCase extends TestCase {
 
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
-			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
+			
+			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());		
+			JSONArray result = object.getJSONArray("data");
 			resourceJobs.release();
 
 			return result;
@@ -334,7 +337,8 @@ public class JobsApiTestCase extends TestCase {
 
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
-			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
+			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());		
+			JSONArray result = object.getJSONArray("data");
 			resourceJobs.release();
 
 			return result;
