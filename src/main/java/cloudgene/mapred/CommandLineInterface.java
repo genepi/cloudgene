@@ -1,6 +1,7 @@
 package cloudgene.mapred;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -21,6 +22,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.esotericsoftware.yamlbeans.YamlException;
+
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -37,8 +40,6 @@ import genepi.io.FileUtil;
 public class CommandLineInterface {
 
 	private String[] args = new String[] {};
-
-	// private String prefix = "lukas-cloudgene";
 
 	private String cmd = "cloudgene";
 
@@ -66,19 +67,35 @@ public class CommandLineInterface {
 
 	public void start() throws Exception {
 
+		Thread.sleep(10000);
+		
 		String filename = args[0];
 
 		// load wdl app from yaml file
 		try {
-			System.out.println("Loading file " + filename + "...");
 			app = WdlReader.loadAppFromFile(filename);
 
-		} catch (Exception e1) {
-
+		} catch (FileNotFoundException e1) {
 			printError("File '" + filename + "' not found.");
-
+			System.exit(1);
+		}catch (YamlException e) {
+			printError("Syntax error in file '" + filename + "':");
+			printError(e.getMessage());
+			System.exit(1);
+			
 		}
 
+		// print application details
+		System.out.println();
+		System.out.println(app.getName() + " " + app.getVersion());
+		if (app.getAuthor() != null && !app.getAuthor().isEmpty()) {
+			System.out.println(app.getVersion());
+		}
+		if (app.getWebsite() != null && !app.getWebsite().isEmpty()) {
+			System.out.println(app.getWebsite());
+		}
+		System.out.println();
+		
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
 
@@ -146,25 +163,41 @@ public class CommandLineInterface {
 
 				@Override
 				public void onStepStarted(CloudgeneStep step) {
+					super.onStepStarted(step);
 					n++;
-					printDoubleLine();
-					System.out.println("[" + n + "] " + step.getName());
-					printDoubleLine();
+					/*
+					 * printDoubleLine(); System.out.println("[" + n + "] " +
+					 * step.getName()); printDoubleLine();
+					 */
 				}
 
 				@Override
 				public void onStepFinished(CloudgeneStep step) {
+					super.onStepFinished(step);
 					int c = 0;
 					for (Message message : step.getLogMessages()) {
 						String text = message.getMessage().replaceAll("<br>", "\n").replaceAll("\n",
 								"\n" + spaces(4 + 8));
 						String type = getDescription(message.getType());
-						printText(4, spaces("[" + type + "]", 8) + text);
+						type = spaces("[" + type + "]", 8);
+						if (message.getType() == Message.OK) {
+							type = makeGreen(type);
+						} else if (message.getType() == Message.ERROR) {
+							type = makeRed(type);
+						}
+
+						printText(0, spaces(type, 8) + text);
 						c++;
 						if (c < step.getLogMessages().size()) {
 							printSingleLine(4);
 						}
 					}
+				}
+
+				@Override
+				public void writeOutputln(String line) {
+					super.writeOutputln(line);
+					printText(0, spaces("[OUT]", 8) + line);
 				}
 
 			};
@@ -176,51 +209,48 @@ public class CommandLineInterface {
 			job.setRemoveHdfsWorkspace(true);
 			job.setApplication(app.getName() + " " + app.getVersion());
 			job.setApplicationId(app.getId());
+		
 
-			System.out.println("Submit job " + id + "..." + "\n\n");
-
-			// print job tile
-			printDoubleLine();
-			System.out.println(app.getName() + " (Job " + id + ")");
-			printSingleLine();
+			//printDoubleLine();
+			printText(0, spaces("[INFO]", 8) + "Submit job " + id + "...");
 
 			// submit job
 			engine.submit(job);
 
 			// wait until job is complete. TODO: improve feedback!
-			while (job.getState() != CloudgeneJob.STATE_SUCCESS && job.getState() != CloudgeneJob.STATE_CANCELED
-					&& job.getState() != CloudgeneJob.STATE_FAILED) {
+			while (job.isRunning()) {
 				Thread.sleep(1000);
 			}
+			
+			Thread.sleep(5000);
 
 			// print steps and feedback
 			// printSummary(job);
-			printDoubleLine();
+			//printDoubleLine();
 			System.out.println();
 
 			if (job.getState() == CloudgeneJob.STATE_SUCCESS) {
 				printlnInGreen("Done! Executed without errors.");
-				System.out.println("Results can be found in " + (new File(local)).getAbsolutePath());
+				System.out.println("Results can be found in file://" + (new File(local)).getAbsolutePath());
 				System.out.println();
 				System.out.println();
+				Thread.sleep(10000);
 				System.exit(0);
 			} else {
-				System.out.println();
 				printlnInRed("Error: Execution failed.");
-				System.out.println("  Log: " + FileUtil.path(id, "job.txt"));
-				System.out.println("  StdOut: " + FileUtil.path(id, "std.out"));
+				//System.out.println("  Log: " + FileUtil.path(id, "job.txt"));
+				//System.out.println("  StdOut: " + FileUtil.path(id, "std.out"));
 				System.out.println();
 				System.out.println();
 				System.exit(-1);
 			}
 
 		} catch (Exception e) {
-			System.out.println();
 			printlnInRed("Error: Execution failed.");
 			System.out.println("Details:");
 			e.printStackTrace();
-			System.out.println("  Log: " + FileUtil.path(id, "job.txt"));
-			System.out.println("  StdOut: " + FileUtil.path(id, "std.out"));
+			//System.out.println("  Log: " + FileUtil.path(id, "job.txt"));
+			//System.out.println("  StdOut: " + FileUtil.path(id, "std.out"));
 			System.out.println();
 			System.out.println();
 
@@ -233,6 +263,7 @@ public class CommandLineInterface {
 	public void printHeader() {
 		System.out.println();
 		System.out.println("Cloudgene " + Main.VERSION + " - CLI");
+		System.out.println("http://cloudgene.uibk.ac.at");
 		System.out.println("(c) 2009-2017 Lukas Forer and Sebastian Schoenherr");
 
 		URLClassLoader cl = (URLClassLoader) CommandLineInterface.class.getClassLoader();
@@ -307,14 +338,22 @@ public class CommandLineInterface {
 		return result;
 	}
 
-	public void printlnInRed(String text){
-		System.out.println((char)27 + "[31m" +text + (char)27 + "[0m");
+	public void printlnInRed(String text) {
+		System.out.println(makeRed(text));
 	}
-	
-	public void printlnInGreen(String text){
-		System.out.println((char)27 + "[32m" +text + (char)27 + "[0m");
+
+	public String makeRed(String text) {
+		return ((char) 27 + "[31m" + text + (char) 27 + "[0m");
 	}
-	
+
+	public void printlnInGreen(String text) {
+		System.out.println(makeGreen(text));
+	}
+
+	public String makeGreen(String text) {
+		return ((char) 27 + "[32m" + text + (char) 27 + "[0m");
+	}
+
 	public void printLine(int paddingLeft, char c) {
 		printText(paddingLeft, chars(c, MAX_LENGTH - paddingLeft));
 	}
