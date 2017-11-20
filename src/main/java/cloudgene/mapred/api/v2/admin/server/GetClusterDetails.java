@@ -59,7 +59,11 @@ public class GetClusterDetails extends BaseResource {
 			// handle
 		}
 
-		object.put("safemode", HadoopUtil.getInstance().isInSafeMode());
+		try {
+			object.put("safemode", HadoopUtil.getInstance().isInSafeMode());
+		} catch (Exception e) {
+			object.put("safemode", false);
+		}
 
 		object.put("maintenance", getSettings().isMaintenance());
 		object.put("blocked", !getWorkflowEngine().isRunning());
@@ -73,20 +77,24 @@ public class GetClusterDetails extends BaseResource {
 		object.put("free_disc_space", workspace.getUsableSpace() / 1024 / 1024 / 1024);
 		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
 
-		ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
-		StringBuffer state = new StringBuffer();
-		state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
-		state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
-		state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
-		state.append("Nodes\n");
-		for (String tracker : cluster.getActiveTrackerNames()) {
-			state.append("  " + tracker + "\n");
+		try {
+			ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
+			StringBuffer state = new StringBuffer();
+			state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
+			state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
+			state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
+			state.append("Nodes\n");
+			for (String tracker : cluster.getActiveTrackerNames()) {
+				state.append("  " + tracker + "\n");
+			}
+			state.append("Blacklist:\n");
+			for (String tracker : cluster.getBlacklistedTrackerNames()) {
+				state.append("  " + tracker + "\n");
+			}
+			object.put("cluster", state.toString());
+		} catch (Exception e) {
+			object.put("cluster", "Hadoop cluster is unreachable");
 		}
-		state.append("Blacklist:\n");
-		for (String tracker : cluster.getBlacklistedTrackerNames()) {
-			state.append("  " + tracker + "\n");
-		}
-		object.put("cluster", state.toString());
 
 		object.put("db_max_active", getDatabase().getDataSource().getMaxActive());
 		object.put("db_active", getDatabase().getDataSource().getNumActive());
