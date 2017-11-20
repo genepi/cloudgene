@@ -6,9 +6,11 @@ import net.sf.json.JsonConfig;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
+import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
+import org.restlet.resource.Patch;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
@@ -36,6 +38,7 @@ public class UserProfile extends BaseResource {
 		config.setExcludes(new String[] { "password", "apiToken" });
 
 		JSONObject object = JSONObject.fromObject(updatedUser, config);
+		object.put("id", updatedUser.getUsername());
 		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());
 
 		StringRepresentation representation = new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
@@ -45,7 +48,8 @@ public class UserProfile extends BaseResource {
 	}
 
 	@Post
-	public Representation post(Representation entity) {
+	@Patch
+	public Representation post(JsonRepresentation entity) {
 
 		User user = getAuthUser();
 
@@ -54,13 +58,22 @@ public class UserProfile extends BaseResource {
 			return new StringRepresentation("The request requires user authentication.");
 		}
 
-		Form form = new Form(entity);
+		org.json.JSONObject json = entity.getJsonObject();
+		String username = json.getString("username");
+		String fullname = json.getString("fullName");
+		String mail = json.getString("mail").toString();
 
-		String username = form.getFirstValue("username");
-		String fullname = form.getFirstValue("full-name");
-		String mail = form.getFirstValue("mail").toString();
-		String newPassword = form.getFirstValue("new-password");
-		String confirmNewPassword = form.getFirstValue("confirm-new-password");
+		String newPassword = null;
+		System.out.println(json.get("password"));
+		if (json.has("password") && !json.isNull("password")) {
+			newPassword = json.getString("password");
+		}
+
+		String confirmNewPassword = null;
+
+		if (json.has("password2") && !json.isNull("password2")) {
+			confirmNewPassword = json.getString("password2");
+		}
 
 		String error = User.checkUsername(username);
 		if (error != null) {
