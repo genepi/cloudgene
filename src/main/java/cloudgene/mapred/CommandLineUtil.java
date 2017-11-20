@@ -66,10 +66,10 @@ public class CommandLineUtil {
 							if (!new File(sourceFile).isDirectory()) {
 								String name = FileUtil.getFilename(sourceFile);
 								String target = HdfsUtil.path(targetPath, name);
-								System.out.println("Put file " + sourceFile + " to " + target);
+								//System.out.println("Put file " + sourceFile + " to " + target);
 								HdfsUtil.put(sourceFile, target);
 							} else {
-								System.out.println("Ignore sub-directory " + sourceFile);
+								//System.out.println("Ignore sub-directory " + sourceFile);
 							}
 
 						}
@@ -98,16 +98,16 @@ public class CommandLineUtil {
 							if (!new File(sourceFile).isDirectory()) {
 								String name = FileUtil.getFilename(sourceFile);
 								String targetFile = FileUtil.path(targetPath, name);
-								System.out.println("Copy file " + sourceFile + " to " + targetFile);
+								//System.out.println("Copy file " + sourceFile + " to " + targetFile);
 								FileUtil.copy(sourceFile, targetFile);
 							} else {
-								System.out.println("Ignore sub-directory " + sourceFile);
+								//System.out.println("Ignore sub-directory " + sourceFile);
 							}
 
 						}
 					} else {
 						String targetFile = FileUtil.path(targetPath, entryName);
-						System.out.println("Copy file " + value + " to " + targetFile);
+						//System.out.println("Copy file " + value + " to " + targetFile);
 						FileUtil.copy(value, targetFile);
 					}
 
