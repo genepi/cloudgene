@@ -65,6 +65,23 @@ public class JWT {
 		if (token2 != null) {
 			return validate(token2, key);
 		}
+		
+		 token = headers.getFirstValue("Authorization");
+		if (token != null) {
+			token = token.replaceAll("Bearer ", "");
+			System.out.println("token " + token);
+			return validate(token, key);
+		}
+
+		// IE 8 bug
+		token2 = headers.getFirstValue("authorization");
+
+		if (token2 != null) {
+			token = token2.replaceAll("Bearer ", "");
+
+			return validate(token2, key);
+		}
+		
 
 		// check if token is no in header, but in query
 		String token3 = request.getResourceRef().getQueryAsForm()
