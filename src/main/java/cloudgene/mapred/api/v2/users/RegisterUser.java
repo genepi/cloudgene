@@ -84,8 +84,6 @@ public class RegisterUser extends BaseResource {
 
 				MailUtil.send(getSettings(), mail, subject, body);
 
-				MailUtil.notifyAdmin(getSettings(), "[" + getSettings().getName() + "] New user",
-						"Username: " + username);
 			} else {
 
 				newUser.setActive(true);
@@ -93,8 +91,8 @@ public class RegisterUser extends BaseResource {
 
 			}
 
-			MailUtil.notifySlack(getSettings(), "New user sign up: " + username);
-			
+			MailUtil.notifySlack(getSettings(), "Hi! say hello to " + username + " (" + mail + ")");
+
 			dao.insert(newUser);
 
 			return new JSONAnswer("User sucessfully created.", true);

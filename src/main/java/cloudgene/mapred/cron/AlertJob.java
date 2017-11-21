@@ -28,8 +28,8 @@ public class AlertJob implements Job {
 
 				try {
 
-					MailUtil.notifySlack(application.getSettings(), "Hi!\n\n" + "Your Hadoop cluster is in Safemode. "
-							+ "Don't worry, we blocked the queue for you!");
+					MailUtil.notifySlack(application.getSettings(), "Hi!\n\n" + "Your Hadoop cluster is in Safemode :scream:. "
+							+ "Don't worry, I blocked the queue for you ;)");
 
 					MailUtil.notifyAdmin(application.getSettings(),
 							"[" + application.getSettings().getName() + "] Problems with your Hadoop cluster",

@@ -48,8 +48,8 @@ public class ActivateUserTest extends JobsApiTestCase {
 		// no email set in testcases!
 		assertEquals("User sucessfully created.", object.get("message"));
 
-		// check if one mail was sent to user, one to admin
-		assertEquals(mailsBefore + 2, mailServer.getReceivedEmailSize());
+		// check if one mail was sent to user
+		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
 
 		// get activation key from database
 		Database database = TestServer.getInstance().getDatabase();

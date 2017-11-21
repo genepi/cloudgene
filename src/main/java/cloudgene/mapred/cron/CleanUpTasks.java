@@ -4,6 +4,7 @@ import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +52,11 @@ public class CleanUpTasks {
 
 		}
 
+		File workspace = new File(settings.getLocalWorkspace());
+
+		int free =  Math.round(workspace.getTotalSpace() / 1024 / 1024 / 1024);		
+		MailUtil.notifySlack(settings, "Hi! I retired " + deleted + " jobs. There are now " + free + " GB free :+1:");
+		
 		log.info(deleted + " jobs retired.");
 		return deleted;
 	}
@@ -65,9 +71,7 @@ public class CleanUpTasks {
 		JobDao dao = new JobDao(database);
 
 		List<AbstractJob> oldJobs = dao.findAllOlderThan(
-				System.currentTimeMillis()
-						- settings.getNotificationAfterInSec() * 1000,
-				AbstractJob.STATE_SUCCESS);
+				System.currentTimeMillis() - settings.getNotificationAfterInSec() * 1000, AbstractJob.STATE_SUCCESS);
 
 		int send = 0;
 
@@ -75,24 +79,21 @@ public class CleanUpTasks {
 
 			try {
 
-				String subject = "[" + settings.getName() + "] Job "
-						+ job.getId() + " will be retired in " + days
+				String subject = "[" + settings.getName() + "] Job " + job.getId() + " will be retired in " + days
 						+ " days";
 
-				String body = application.getTemplate(Template.RETIRE_JOB_MAIL,
-						job.getUser().getFullName(), days, job.getId());
+				String body = application.getTemplate(Template.RETIRE_JOB_MAIL, job.getUser().getFullName(), days,
+						job.getId());
 
 				if (!job.getUser().getUsername().equals("public")) {
 
-					MailUtil.send(settings, job.getUser().getMail(), subject,
-							body);
+					MailUtil.send(settings, job.getUser().getMail(), subject, body);
 
 				}
 
 				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
 				job.setDeletedOn(System.currentTimeMillis()
-						+ ((settings.getRetireAfterInSec() - settings
-								.getNotificationAfterInSec()) * 1000));
+						+ ((settings.getRetireAfterInSec() - settings.getNotificationAfterInSec()) * 1000));
 
 				log.info("Sent notification for job " + job.getId() + ".");
 				send++;
@@ -100,53 +101,45 @@ public class CleanUpTasks {
 
 			} catch (Exception e) {
 
-				log.error("Sent notification for job " + job.getId()
-						+ " failed.", e);
+				log.error("Sent notification for job " + job.getId() + " failed.", e);
 
 			}
 
 		}
 
-		oldJobs = dao.findAllOlderThan(
-				System.currentTimeMillis()
-						- settings.getNotificationAfterInSec() * 1000,
+		oldJobs = dao.findAllOlderThan(System.currentTimeMillis() - settings.getNotificationAfterInSec() * 1000,
 				AbstractJob.STATE_FAILED);
 
 		int otherJobs = 0;
 
 		for (AbstractJob job : oldJobs) {
 
-			log.info("Job failed, no notification sent for job " + job.getId()
-					+ ".");
+			log.info("Job failed, no notification sent for job " + job.getId() + ".");
 			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
 			job.setDeletedOn(System.currentTimeMillis()
-					+ ((settings.getRetireAfterInSec() - settings
-							.getNotificationAfterInSec()) * 1000));
+					+ ((settings.getRetireAfterInSec() - settings.getNotificationAfterInSec()) * 1000));
 			dao.update(job);
 			otherJobs++;
 
 		}
 
-		oldJobs = dao.findAllOlderThan(
-				System.currentTimeMillis()
-						- settings.getNotificationAfterInSec() * 1000,
+		oldJobs = dao.findAllOlderThan(System.currentTimeMillis() - settings.getNotificationAfterInSec() * 1000,
 				AbstractJob.STATE_CANCELED);
 
 		for (AbstractJob job : oldJobs) {
 
-			log.info("Job failed, no notification sent for job " + job.getId()
-					+ ".");
+			log.info("Job failed, no notification sent for job " + job.getId() + ".");
 			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
 			job.setDeletedOn(System.currentTimeMillis()
-					+ ((settings.getRetireAfterInSec() - settings
-							.getNotificationAfterInSec()) * 1000));
+					+ ((settings.getRetireAfterInSec() - settings.getNotificationAfterInSec()) * 1000));
 			dao.update(job);
 			otherJobs++;
 
 		}
 
-		log.info(send + " notifications sent. " + otherJobs
-				+ " jobs marked without email ntofication.");
+		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email ntofication.");
+
+		MailUtil.notifySlack(settings, "Hi! I sent " + send + " notifications :love_letter:");
 
 		return send;
 

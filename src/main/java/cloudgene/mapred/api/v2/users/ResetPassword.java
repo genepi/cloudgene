@@ -62,12 +62,9 @@ public class ResetPassword extends BaseResource {
 
 			try {
 
-				MailUtil.notifySlack(getSettings(), " Password Recovery for username " + username);
+				MailUtil.notifySlack(getSettings(), "Hi! " + username + " asked me for a new password.");
 
 				MailUtil.send(getSettings(), user.getMail(), subject, body);
-
-				MailUtil.notifyAdmin(getSettings(), "[" + getSettings().getName() + "] Password Recovery",
-						"Username: " + username);
 
 				return new JSONAnswer(
 						"Email sent to " + user.getMail() + " with instructions on how to reset your password.", true);
