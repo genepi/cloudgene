@@ -133,10 +133,16 @@ public class SubmitJob extends BaseResource {
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
 
+		FileItemIterator iterator = null;
 		try {
-			FileItemIterator iterator = parseRequest(entity);
+			iterator = parseRequest(entity);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
 
-			// uploaded files
+		}
+		// uploaded files
+		try {
 			while (iterator.hasNext()) {
 
 				FileItemStream item = iterator.next();
@@ -145,74 +151,81 @@ public class SubmitJob extends BaseResource {
 
 				if (name != null) {
 
-					// file parameter
-					// write local file
-					String tmpFile = getSettings().getTempFilename(item.getName());
-					File file = new File(tmpFile);
+					File file = null;
 
-					FileUtils.copyInputStreamToFile(item.openStream(), file);
+					try {
+						// file parameter
+						// write local file
+						String tmpFile = getSettings().getTempFilename(item.getName());
+						file = new File(tmpFile);
 
-					// import into hdfs
-					String entryName = item.getName();
+						FileUtils.copyInputStreamToFile(item.openStream(), file);
 
-					// remove upload indentification!
-					String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
+						// import into hdfs
+						String entryName = item.getName();
 
-					boolean hdfs = false;
-					boolean folder = false;
+						// remove upload indentification!
+						String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
 
-					for (WdlParameter input : app.getWorkflow().getInputs()) {
-						if (input.getId().equals(fieldName)) {
-							hdfs = (input.getType().equals(WdlParameter.HDFS_FOLDER)
-									|| input.getType().equals(WdlParameter.HDFS_FILE));
-							folder = (input.getType().equals(WdlParameter.HDFS_FOLDER))
-									|| (input.getType().equals(WdlParameter.LOCAL_FOLDER));
+						boolean hdfs = false;
+						boolean folder = false;
+
+						for (WdlParameter input : app.getWorkflow().getInputs()) {
+							if (input.getId().equals(fieldName)) {
+								hdfs = (input.getType().equals(WdlParameter.HDFS_FOLDER)
+										|| input.getType().equals(WdlParameter.HDFS_FILE));
+								folder = (input.getType().equals(WdlParameter.HDFS_FOLDER))
+										|| (input.getType().equals(WdlParameter.LOCAL_FOLDER));
+							}
 						}
-					}
 
-					if (hdfs) {
+						if (hdfs) {
 
-						String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
+							String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
 
-						String target = HdfsUtil.path(targetPath, entryName);
+							String target = HdfsUtil.path(targetPath, entryName);
 
-						HdfsUtil.put(tmpFile, target);
+							HdfsUtil.put(tmpFile, target);
 
+							if (folder) {
+								// folder
+								props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName)));
+							} else {
+								// file
+								props.put(fieldName,
+										HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, entryName)));
+							}
+
+						} else {
+
+							// copy to workspace in temp directory
+							String targetPath = FileUtil.path(localWorkspace, "input", fieldName);
+
+							FileUtil.createDirectory(targetPath);
+
+							String target = FileUtil.path(targetPath, entryName);
+
+							FileUtil.copy(tmpFile, target);
+
+							if (folder) {
+								// folder
+								props.put(fieldName, new File(targetPath).getAbsolutePath());
+							} else {
+								// file
+								props.put(fieldName, new File(target).getAbsolutePath());
+							}
+
+						}
+						
 						// deletes temporary file
 						FileUtil.deleteFile(tmpFile);
 
-						if (folder) {
-							// folder
-							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName)));
-						} else {
-							// file
-							props.put(fieldName,
-									HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, entryName)));
-						}
-
-					} else {
-
-						// copy to workspace in temp directory
-						String targetPath = FileUtil.path(localWorkspace, "input", fieldName);
-
-						FileUtil.createDirectory(targetPath);
-
-						String target = FileUtil.path(targetPath, entryName);
-
-						System.out.println("System copy file " + fieldName + " to " + target);
-
-						FileUtil.copy(tmpFile, target);
-
-						// deletes temporary file
-						// FileUtil.deleteFile(tmpFile);
-
-						if (folder) {
-							// folder
-							props.put(fieldName, new File(targetPath).getAbsolutePath());
-						} else {
-							// file
-							props.put(fieldName, new File(target).getAbsolutePath());
-						}
+					} catch (FileUploadIOException e) {
+						file.delete();
+						throw e;
+					} catch (Exception e) {
+						file.delete();
+						return null;
 
 					}
 
@@ -247,7 +260,6 @@ public class SubmitJob extends BaseResource {
 			return null;
 
 		}
-
 		for (WdlParameter input : app.getWorkflow().getInputs()) {
 			if (props.containsKey(input.getId())) {
 				if (input.getType().equals("checkbox")) {
