@@ -88,7 +88,9 @@ public class Settings {
 
 	private boolean maintenance = false;
 
-	private String adminMail = "lukas.forer@i-med.ac.at";
+	private String adminMail = null;
+
+	private String slack = null;
 
 	private Map<String, Application> indexApps;
 
@@ -97,7 +99,7 @@ public class Settings {
 	private List<MenuItem> navigation = new Vector<MenuItem>();
 
 	private boolean secureCookie = false;
-	
+
 	private int uploadLimit = -1;
 
 	public Settings() {
@@ -307,6 +309,14 @@ public class Settings {
 
 	public void setMail(Map<String, String> mail) {
 		this.mail = mail;
+	}
+
+	public String getSlack() {
+		return slack;
+	}
+
+	public void setSlack(String slack) {
+		this.slack = slack;
 	}
 
 	public List<Application> getApps() {
@@ -672,7 +682,7 @@ public class Settings {
 	public void setSecureCookie(boolean secureCookie) {
 		this.secureCookie = secureCookie;
 	}
-	
+
 	public int getUploadLimit() {
 		return uploadLimit;
 	}

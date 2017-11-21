@@ -93,6 +93,8 @@ public class RegisterUser extends BaseResource {
 
 			}
 
+			MailUtil.notifySlack(getSettings(), "New user sign up: " + username);
+			
 			dao.insert(newUser);
 
 			return new JSONAnswer("User sucessfully created.", true);

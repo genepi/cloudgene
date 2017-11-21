@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.24.0</version>
+	<version>1.25.0</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -146,7 +146,7 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-hadoop</artifactId>
-			<version>mr1-1.1.8</version>
+			<version>mr1-1.2.0</version>
 		</dependency>
 
 		<dependency>
@@ -355,6 +355,12 @@
 			<artifactId>sshd-sftp</artifactId>
 			<version>0.9.0</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+		  <groupId>net.gpedro.integrations.slack</groupId>
+		  <artifactId>slack-webhook</artifactId>
+		  <version>1.3.0</version>
 		</dependency>
 
 	</dependencies>

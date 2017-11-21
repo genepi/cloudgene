@@ -13,8 +13,7 @@ import cloudgene.mapred.util.MailUtil;
 public class AlertJob implements Job {
 
 	@Override
-	public void execute(JobExecutionContext context)
-			throws JobExecutionException {
+	public void execute(JobExecutionContext context) throws JobExecutionException {
 
 		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
 		WebApp application = (WebApp) dataMap.get("application");
@@ -29,12 +28,14 @@ public class AlertJob implements Job {
 
 				try {
 
-					MailUtil.notifyAdmin(application.getSettings(), "["
-							+ application.getSettings().getName()
-							+ "] Problems with your Hadoop cluster", "Hi,\n\n"
-							+ "This is a notification sent by Cloudgene.\n\n"
-							+ "Your Hadoop cluster is in Safemode. "
+					MailUtil.notifySlack(application.getSettings(), "Hi!\n\n" + "Your Hadoop cluster is in Safemode. "
 							+ "Don't worry, we blocked the queue for you!");
+
+					MailUtil.notifyAdmin(application.getSettings(),
+							"[" + application.getSettings().getName() + "] Problems with your Hadoop cluster",
+							"Hi,\n\n" + "This is a notification sent by Cloudgene.\n\n"
+									+ "Your Hadoop cluster is in Safemode. "
+									+ "Don't worry, we blocked the queue for you!");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
