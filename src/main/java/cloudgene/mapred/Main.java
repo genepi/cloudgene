@@ -176,7 +176,7 @@ public class Main implements Daemon {
 		try {
 
 			WorkflowEngine engine = new PersistentWorkflowEngine(database, settings.getThreadsQueue(),
-					settings.getThreadsQueue());
+					settings.getThreadsSetupQueue());
 			new Thread(engine).start();
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));

@@ -64,6 +64,8 @@ public class Settings {
 
 	private int notificationAfter = 4;
 
+	private int threadsSetupQueue = 5;
+	
 	private int threadsQueue = 5;
 
 	private int maxRunningJobs = 20;
@@ -713,6 +715,13 @@ public class Settings {
 		}
 
 		return names;
+	}
+	
+	public void setThreadsSetupQueue(int threadsSetupQueue) {
+		this.threadsSetupQueue = threadsSetupQueue;
+	}
+	public int getThreadsSetupQueue() {
+		return threadsSetupQueue;
 	}
 
 	public HashMap<String, String> getEnvironment(Application application) {
