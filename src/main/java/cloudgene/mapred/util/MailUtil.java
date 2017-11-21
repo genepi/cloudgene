@@ -34,7 +34,9 @@ public class MailUtil {
 			String text){
 		if (settings.getSlack() != null && !settings.getSlack().isEmpty()){
 			SlackApi api = new SlackApi(settings.getSlack());
-			api.call(new SlackMessage("Cloudgene Bot", text));
+			SlackMessage message = new SlackMessage("Cloudgene", text);
+			message.setIcon(":rocket:");
+			api.call(message);
 			log.debug("Sent slack notification");
 		}
 	}

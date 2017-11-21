@@ -91,7 +91,7 @@ public class RegisterUser extends BaseResource {
 
 			}
 
-			MailUtil.notifySlack(getSettings(), "Hi! say hello to " + username + " (" + mail + ")");
+			MailUtil.notifySlack(getSettings(), "Hi! say hello to " + username + " (" + mail + ") :hugging_face:");
 
 			dao.insert(newUser);
 
