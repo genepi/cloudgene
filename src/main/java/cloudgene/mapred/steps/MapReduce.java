@@ -1,8 +1,12 @@
 package cloudgene.mapred.steps;
 
+import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import genepi.io.text.LineWriter;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
@@ -10,6 +14,12 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlStep;
+
+
+
+import javax.ws.rs.core.MultivaluedMap;
+
+import org.apache.hadoop.conf.Configuration;
 
 public class MapReduce extends Hadoop {
 
@@ -61,6 +71,36 @@ public class MapReduce extends Hadoop {
 		List<String> command = new Vector<String>();
 
 		command.add(hadoop);
+		//TODO: write config and set to hadoop config		
+		try {
+			FileUtil.createDirectory("temp-conf");
+			LineWriter writer = new LineWriter("temp-conf/mapred-site.xml");			
+			Configuration configuration = HdfsUtil.getConfiguration();
+			writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
+			writer.write("<configuration>");
+			writer.write("<property><name>mapred.job.tracker</name><value>"+configuration.get("mapred.job.tracker")+"</value></property>");			
+			writer.write("</configuration>");
+			writer.close();
+			
+			writer = new LineWriter("temp-conf/core-site.xml");			
+			writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
+			writer.write("<configuration>");
+			writer.write("<property><name>fs.default.name</name><value>"+configuration.get("fs.defaultFS")+"</value></property>");
+			writer.write("</configuration>");
+			writer.close();
+			
+			
+			//HdfsUtil.getConfiguration().writeXml(new FileOutputStream("temp-conf/mapred-default.xml"));
+			
+			command.add("--config");
+			command.add(new File("temp-conf").getAbsolutePath());
+
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		//-fs and -jt and -config are supported by generic tool runner. 
+		
 		command.add("jar");
 
 		if (step.getJar() != null) {

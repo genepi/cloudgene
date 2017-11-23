@@ -16,8 +16,11 @@ import java.util.jar.Manifest;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -30,14 +33,20 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.DockerHadoopCluster;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
+import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 public class CommandLineInterface {
+
+	public static final String DEFAULT_DOCKER_IMAGE = "seppinho/cdh5-hadoop-mrv1";
+
+	public static final String DEFAULT_HADOOP_USER = "cloudgene";
 
 	private String[] args = new String[] {};
 
@@ -67,8 +76,6 @@ public class CommandLineInterface {
 
 	public void start() throws Exception {
 
-		Thread.sleep(10000);
-		
 		String filename = args[0];
 
 		// load wdl app from yaml file
@@ -78,11 +85,11 @@ public class CommandLineInterface {
 		} catch (FileNotFoundException e1) {
 			printError("File '" + filename + "' not found.");
 			System.exit(1);
-		}catch (YamlException e) {
+		} catch (YamlException e) {
 			printError("Syntax error in file '" + filename + "':");
 			printError(e.getMessage());
 			System.exit(1);
-			
+
 		}
 
 		// print application details
@@ -95,12 +102,34 @@ public class CommandLineInterface {
 			System.out.println(app.getWebsite());
 		}
 		System.out.println();
-		
+
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
 
 		// create options for each input param in yaml file
 		Options options = CommandLineUtil.createOptionsFromApp(app);
+
+		// add general options: run on docker
+		Option dockerOption = new Option(null, "docker", false, "use docker hadoop cluster");
+		dockerOption.setRequired(false);
+		options.addOption(dockerOption);
+
+		// add general options: run on docker
+		Option dockerImageOption = new Option(null, "image", true,
+				"use custom docker image [default: " + DEFAULT_DOCKER_IMAGE + "]");
+		dockerImageOption.setRequired(false);
+		options.addOption(dockerImageOption);
+
+		// add general options: hadoop hostname
+		Option hostOption = new Option(null, "host", true, "Hadoop namenode hostname [default: localhost]");
+		hostOption.setRequired(false);
+		options.addOption(hostOption);
+
+		// add general options: hadoop user
+		Option usernameOption = new Option(null, "user", true,
+				"Hadoop username [default: " + DEFAULT_HADOOP_USER + "]");
+		usernameOption.setRequired(false);
+		options.addOption(usernameOption);
 
 		// parse the command line arguments
 		CommandLine line = null;
@@ -115,6 +144,47 @@ public class CommandLineInterface {
 			System.out.println();
 			System.exit(1);
 
+		}
+
+		DockerHadoopCluster cluster = null;
+		
+		if (line.hasOption("host")) {
+
+			// init copnfiguration for remote hadoop cluster
+
+			String host = line.getOptionValue("host");
+
+			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
+
+			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
+
+			System.setProperty("HADOOP_USER_NAME", username);
+
+			Configuration configuration = new Configuration();
+			configuration.set("fs.defaultFS", "hdfs://" + host + ":8020");
+			configuration.set("mapred.job.tracker", host + ":8021");
+			HdfsUtil.setDefaultConfiguration(configuration);
+
+			ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
+			System.out.println("  TaskTrackers: " + details.getTaskTrackers());
+		} else if (line.hasOption("docker")) {
+
+			String image = line.getOptionValue("image", DEFAULT_DOCKER_IMAGE);
+
+			cluster = new DockerHadoopCluster();
+			boolean result = cluster.start(image);
+			if (!result) {
+				System.exit(1);
+			}
+			System.setProperty("HADOOP_USER_NAME", "cloudgene");
+
+			Configuration configuration = new Configuration();
+			configuration.set("fs.defaultFS", "hdfs://" + cluster.getIpAddress() + ":8020");
+			configuration.set("mapred.job.tracker", cluster.getIpAddress() + ":8021");
+			HdfsUtil.setDefaultConfiguration(configuration);
+
+		} else {
+			System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
 		}
 
 		// load config
@@ -209,9 +279,8 @@ public class CommandLineInterface {
 			job.setRemoveHdfsWorkspace(true);
 			job.setApplication(app.getName() + " " + app.getVersion());
 			job.setApplicationId(app.getId());
-		
 
-			//printDoubleLine();
+			// printDoubleLine();
 			printText(0, spaces("[INFO]", 8) + "Submit job " + id + "...");
 
 			// submit job
@@ -221,27 +290,31 @@ public class CommandLineInterface {
 			while (job.isRunning()) {
 				Thread.sleep(1000);
 			}
-			
-			Thread.sleep(5000);
 
 			// print steps and feedback
 			// printSummary(job);
-			//printDoubleLine();
+			// printDoubleLine();
 			System.out.println();
 
 			if (job.getState() == CloudgeneJob.STATE_SUCCESS) {
+				if (cluster != null){
+					cluster.stop();
+				}
 				printlnInGreen("Done! Executed without errors.");
 				System.out.println("Results can be found in file://" + (new File(local)).getAbsolutePath());
 				System.out.println();
 				System.out.println();
-				Thread.sleep(10000);
 				System.exit(0);
 			} else {
 				printlnInRed("Error: Execution failed.");
-				//System.out.println("  Log: " + FileUtil.path(id, "job.txt"));
-				//System.out.println("  StdOut: " + FileUtil.path(id, "std.out"));
+				// System.out.println(" Log: " + FileUtil.path(id, "job.txt"));
+				// System.out.println(" StdOut: " + FileUtil.path(id,
+				// "std.out"));
 				System.out.println();
 				System.out.println();
+				if (cluster != null){
+					cluster.stop();
+				}
 				System.exit(-1);
 			}
 
@@ -249,11 +322,13 @@ public class CommandLineInterface {
 			printlnInRed("Error: Execution failed.");
 			System.out.println("Details:");
 			e.printStackTrace();
-			//System.out.println("  Log: " + FileUtil.path(id, "job.txt"));
-			//System.out.println("  StdOut: " + FileUtil.path(id, "std.out"));
+			// System.out.println(" Log: " + FileUtil.path(id, "job.txt"));
+			// System.out.println(" StdOut: " + FileUtil.path(id, "std.out"));
 			System.out.println();
 			System.out.println();
-
+			if (cluster != null){
+				cluster.stop();
+			}
 			System.exit(-1);
 
 		}
