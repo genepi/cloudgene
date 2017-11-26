@@ -107,9 +107,6 @@ public class Settings {
 	public Settings() {
 
 		apps = new Vector<Application>();
-		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
-		apps.add(new Application("hello", "public", "sample/cloudgene-public.yaml"));
-
 		reloadApplications();
 
 		mail = new HashMap<String, String>();
@@ -444,8 +441,8 @@ public class Settings {
 
 		// download
 		String id = application.getId();
-		String appPath = FileUtil.path("apps", id);
-		FileUtil.deleteDirectory(appPath);
+		//String appPath = FileUtil.path("apps", id);
+		//FileUtil.deleteDirectory(appPath);
 		apps.remove(application);
 		reloadApplications();
 

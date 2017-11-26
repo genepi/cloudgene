@@ -1,4 +1,4 @@
-package cloudgene.mapred;
+package cloudgene.mapred.cli;
 
 import java.io.File;
 import java.util.HashMap;
