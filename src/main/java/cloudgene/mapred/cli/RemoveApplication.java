@@ -5,16 +5,16 @@ import cloudgene.mapred.util.Application;
 public class RemoveApplication extends BaseTool {
 
 	private String cmd = "cloudgene";
-	
+
 	public RemoveApplication(String[] args) {
 		super(args);
 	}
 
 	@Override
 	public void createParameters() {
-		
+
 	}
-	
+
 	@Override
 	public int run() {
 		if (args.length != 1) {
@@ -28,19 +28,18 @@ public class RemoveApplication extends BaseTool {
 
 			Application application = settings.getApp(id);
 			if (application == null) {
-				System.out.println("application not found.");
+				printlnInRed("[ERROR] Application " + id + " is not in your local repository.\n");
 				return 1;
 			}
 
 			settings.deleteApplication(application);
 
-			System.out.println("remove okey");
+			printlnInGreen("[OK] Application removed.");
 			settings.save();
 			return 0;
 
 		} catch (Exception e) {
-			System.out.println("remove error");
-			e.printStackTrace();
+			printlnInRed("[ERROR] Application not removed:" + e.toString() + "\n");
 			return 1;
 		}
 

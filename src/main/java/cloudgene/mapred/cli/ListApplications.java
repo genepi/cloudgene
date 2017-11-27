@@ -15,9 +15,15 @@ public class ListApplications extends BaseTool {
 
 	@Override
 	public int run() {
+
+		System.out.format("%-35s%-20s%-20s%-60s\n", "APPLICATION", "VERSION", "STATUS", "FILENAME");
+
 		for (Application app : settings.getApps()) {
-			System.out.println(app.getId() + "\t\t" + app.getFilename());
+			System.out.format("%-35s%-20s%-20s%-60s\n", app.getId(), app.getWdlApp().getVersion(),
+					app.hasSyntaxError() ? "Parsing error" : "OK", app.getFilename());
 		}
+
+		System.out.println();
 
 		return 0;
 	}

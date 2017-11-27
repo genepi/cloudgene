@@ -30,6 +30,8 @@ public class InstallApplication extends BaseTool {
 		try {
 
 			Application application = null;
+			System.out.println("Installing application " + id + "...");
+
 			if (url.startsWith("http://") || url.startsWith("https://")) {
 				application = getSettings().installApplicationFromUrl(id, url);
 			} else {
@@ -43,18 +45,18 @@ public class InstallApplication extends BaseTool {
 			}
 
 			if (application != null) {
-				System.out.println("installation okey");
 				settings.save();
+				printlnInGreen("[OK] Application installed.\n");
 				return 0;
 			} else {
-				System.out.println("installation error");
+				printlnInRed("[ERROR] Application not installed.\n");
 				return 1;
 			}
 
 		} catch (Exception e) {
 
-			System.out.println("installation error");
-			e.printStackTrace();
+			printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
+
 			return 1;
 
 		}
