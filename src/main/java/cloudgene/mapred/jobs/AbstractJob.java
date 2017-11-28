@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs;
 
+import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.io.HdfsLineWriter;
 import genepi.io.FileUtil;
 
 import java.io.BufferedOutputStream;
@@ -12,7 +14,9 @@ import java.io.Writer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.logging.LogFactory;
@@ -108,6 +112,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private String hdfsWorkspace;
 
 	private boolean canceld = false;
+
+	private boolean forceInstallation = true;
 
 	public String getId() {
 		return id;
@@ -245,8 +251,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 	}
 
 	public void runSetupSteps() {
-		log.info("Job " + getId() + ": executing inistallation...");
-		writeLog("Executing Job inistallation....");
+		log.info("Job " + getId() + ": executing installation...");
+		writeLog("Executing Job installation....");
 
 		// find dependecies
 		List<Application> applications = new Vector<>();
@@ -264,8 +270,16 @@ abstract public class AbstractJob extends PriorityRunnable {
 				Application app2 = setttings.getApp(appId);
 				if (app2 != null) {
 					applications.add(app2);
-					// update evenirnoment variables
-					getContext().setData(input.getName(), app2.getWdlApp().getProperties());
+					// update evenirnoment variables					
+					HashMap<String, String> env = setttings.getEnvironment(app2);
+					Map<String, String> properties = app2.getWdlApp().getProperties();
+					for (String property: properties.keySet()){
+						String value2 = properties.get(property);
+						properties.put(property, ApplicationInstaller.env(value2, env));
+						System.out.println(ApplicationInstaller.env(value2, env));
+
+					}
+					getContext().setData(input.getName(), properties);
 				} else {
 					setState(AbstractJob.STATE_FAILED);
 					onFailure();
@@ -279,22 +293,38 @@ abstract public class AbstractJob extends PriorityRunnable {
 		}
 
 		for (Application app : applications) {
-			if (!app.isInstalled(setttings.getHdfsAppWorkspace())) {
+			writeLog("  Preparing application " + app.getId() + "...");
+			String target = setttings.getEnvironment(app).get("hdfs_app_folder");
+			String installationFile = HdfsUtil.path(target, "installed");
+			boolean installed = HdfsUtil.exists(installationFile);
+			if (!installed || forceInstallation) {
 				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
 					try {
+
+						HdfsUtil.delete(target);
+						writeLog("  Installing Application...");
 						ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
 								setttings.getEnvironment(app));
+
+						HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
+						lineWriter.write(System.currentTimeMillis() + "");
+						lineWriter.close();
+
 						log.info("Installation of application " + id + " finished.");
+						writeLog("  Installation finished.");
 					} catch (IOException e) {
 						setState(AbstractJob.STATE_FAILED);
 						onFailure();
 						setStartTime(System.currentTimeMillis());
 						setEndTime(System.currentTimeMillis());
+						writeLog("  Installation of application " + id + " failed.");
 						setError("Installation of application " + id + " failed.");
 						setSetupComplete(false);
 						return;
 					}
 				}
+			} else {
+				writeLog("  Application is already installed.");
 			}
 		}
 
@@ -858,6 +888,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void kill() {
 
+	}
+
+	public void setForceInstallation(boolean forceInstallation) {
+		this.forceInstallation = forceInstallation;
 	}
 
 }

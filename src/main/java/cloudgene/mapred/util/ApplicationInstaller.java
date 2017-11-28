@@ -38,7 +38,7 @@ public class ApplicationInstaller {
 			throws IOException {
 		switch (command) {
 		case "import":
-			String source = (String) parameters.get("source");
+			String source = env((String) parameters.get("source"), environment);
 			String target = env((String) parameters.get("target"), environment);
 			System.out.println("Import data from " + source + " to " + target + "...");
 			runImportCommand(source, target);

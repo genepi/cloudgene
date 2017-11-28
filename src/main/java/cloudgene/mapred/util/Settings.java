@@ -696,8 +696,8 @@ public class Settings {
 
 	public HashMap<String, String> getEnvironment(Application application) {
 		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId());
-		String localFolder = FileUtil.path("apps", application.getId());
+		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId(), application.getWdlApp().getVersion());
+		String localFolder = new File(application.getFilename()).getParentFile().getAbsolutePath();
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
 		return environment;
