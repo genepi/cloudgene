@@ -15,7 +15,7 @@ public class DockerHadoopCluster {
 	private String dockerId;
 
 	private String ipAddress;
-	
+
 	private String name;
 
 	public boolean start(String image) throws DockerCertificateException, DockerException, InterruptedException {
@@ -26,54 +26,40 @@ public class DockerHadoopCluster {
 
 		DockerClient docker = DefaultDockerClient.fromEnv().build();
 
-		try {
+		// Create container with exposed ports
+		final ContainerConfig containerConfig = ContainerConfig.builder().image(image).hostname("hadoop-docker")
+				.cmd("sh", "-c", "while :; do sleep 1; done").build();
 
-			// Create container with exposed ports
-			final ContainerConfig containerConfig = ContainerConfig.builder().image(image).hostname("hadoop-docker")
-					.cmd("sh", "-c", "while :; do sleep 1; done").build();
+		ContainerCreation creation = docker.createContainer(containerConfig);
 
-			ContainerCreation creation = docker.createContainer(containerConfig);
+		dockerId = creation.id();
 
-			dockerId = creation.id();
+		// Inspect container
+		ContainerInfo info = docker.inspectContainer(dockerId);
+		System.out.println("Starting container " + info.name() + "...");
+		name = info.name();
+		// Start container
+		docker.startContainer(dockerId);
 
-			// Inspect container
-			ContainerInfo info = docker.inspectContainer(dockerId);
-			System.out.println("Starting container " + info.name() + "...");
-			name = info.name();
-			// Start container
-			docker.startContainer(dockerId);
+		System.out.println("Executing initial script... ");
 
-			System.out.println("Executing initial script... ");
+		String[] command = { "bash", "-c", "run-hadoop-initial.sh" };
+		ExecCreation execCreation = docker.execCreate(dockerId, command, DockerClient.ExecCreateParam.attachStdout(),
+				DockerClient.ExecCreateParam.attachStderr());
+		LogStream output = docker.execStart(execCreation.id());
+		String execOutput = output.readFully();
 
-			String[] command = { "bash", "-c", "run-hadoop-initial.sh" };
-			ExecCreation execCreation = docker.execCreate(dockerId, command,
-					DockerClient.ExecCreateParam.attachStdout(), DockerClient.ExecCreateParam.attachStderr());
-			LogStream output = docker.execStart(execCreation.id());
-			String execOutput = output.readFully();
+		System.out.println("Starting container [OK] ");
 
-			System.out.println("Starting container [OK] ");
+		info = docker.inspectContainer(dockerId);
+		ipAddress = info.networkSettings().ipAddress();
 
-			info = docker.inspectContainer(dockerId);
-			ipAddress = info.networkSettings().ipAddress();
+		System.out.println("Cluster is running on " + ipAddress);
+		System.out.println();
 
-			System.out.println("Cluster is running on " + ipAddress);
-			System.out.println();
+		docker.close();
 
-			docker.close();
-
-			return true;
-
-		} catch (DockerException e) {
-			System.out.println("Starting container [FAILED] ");
-			e.printStackTrace();
-			docker.close();
-			return false;
-		} catch (InterruptedException e) {
-			System.out.println("Starting container [FAILED] ");
-			e.printStackTrace();
-			docker.close();
-			return false;
-		}
+		return true;
 
 	}
 
