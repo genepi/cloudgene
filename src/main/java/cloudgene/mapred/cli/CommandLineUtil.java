@@ -17,6 +17,9 @@ public class CommandLineUtil {
 
 	public static Options createOptionsFromApp(WdlApp app) {
 		Options options = new Options();
+		if (app.getWorkflow() == null){
+			return options;
+		}
 		for (WdlParameter input : app.getWorkflow().getInputs()) {
 			if (!input.getType().equals("agbcheckbox") && !input.isAdminOnly() && input.isVisible()) {
 				Option option = new Option(null, input.getId(), true, input.getDescription());
@@ -48,7 +51,9 @@ public class CommandLineUtil {
 
 	public static Map<String, String> createParams(WdlApp app, CommandLine line, String local, String hdfs) {
 		Map<String, String> props = new HashMap<String, String>();
-
+		if (app.getWorkflow() == null){
+			return props;
+		}
 		for (WdlParameter input : app.getWorkflow().getInputs()) {
 
 			String value = line.getOptionValue(input.getId(), input.getValue());

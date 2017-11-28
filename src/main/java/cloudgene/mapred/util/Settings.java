@@ -44,7 +44,9 @@ public class Settings {
 
 	private String localWorkspace = "workspace";
 
-	private String hdfsWorkspace = "cloudgene";
+	private String hdfsWorkspace = "cloudgene/data";
+
+	private String hdfsAppWorkspace = "cloudgene/apps";
 
 	private String streamingJar = "";
 
@@ -65,7 +67,7 @@ public class Settings {
 	private int notificationAfter = 4;
 
 	private int threadsSetupQueue = 5;
-	
+
 	private int threadsQueue = 5;
 
 	private int maxRunningJobs = 20;
@@ -137,28 +139,6 @@ public class Settings {
 		YamlReader reader = new YamlReader(new FileReader(filename), config);
 
 		Settings settings = reader.read(Settings.class);
-
-		// auto-search
-
-		if (settings.streamingJar.isEmpty() || !(new File(settings.streamingJar).exists())) {
-
-			String version = HadoopUtil.getInstance().getVersion();
-			String jar = "hadoop-streaming-" + version + ".jar";
-			settings.streamingJar = FileUtil.path(settings.hadoopPath, "contrib", "streaming", jar);
-
-			if (new File(settings.streamingJar).exists()) {
-
-				log.info("Found streamingJar at " + settings.streamingJar + "");
-				settings.streaming = true;
-
-			} else {
-
-				log.warn(
-						"Streaming Jar could not be found automatically. Please specify it in config/settings.yaml. Streaming mode is disabled.");
-				settings.streaming = false;
-			}
-
-		}
 
 		log.info("Auto retire: " + settings.isAutoRetire());
 		log.info("Retire jobs after " + settings.retireAfter + " days.");
@@ -235,6 +215,14 @@ public class Settings {
 
 	public void setHdfsWorkspace(String hdfsWorkspace) {
 		this.hdfsWorkspace = hdfsWorkspace;
+	}
+
+	public String getHdfsAppWorkspace() {
+		return hdfsAppWorkspace;
+	}
+
+	public void setHdfsAppWorkspace(String hdfsAppWorkspace) {
+		this.hdfsAppWorkspace = hdfsAppWorkspace;
 	}
 
 	public String getStreamingJar() {
@@ -432,17 +420,10 @@ public class Settings {
 
 	public void deleteApplication(Application application) throws IOException {
 
-		// execute install steps
-		if (application.getWdlApp().getDeinstallation() != null) {
-
-			HashMap<String, String> environment = getEnvironment(application);
-			application.getWdlApp().deinstall(environment);
-		}
-
 		// download
 		String id = application.getId();
-		//String appPath = FileUtil.path("apps", id);
-		//FileUtil.deleteDirectory(appPath);
+		// String appPath = FileUtil.path("apps", id);
+		// FileUtil.deleteDirectory(appPath);
 		apps.remove(application);
 		reloadApplications();
 
@@ -499,15 +480,6 @@ public class Settings {
 		application.setFilename(filename);
 		application.setPermission("user");
 		application.loadWorkflow();
-
-		// TODO: check requirements (e.g. hadoop, rmd, spark, ...)
-
-		// execute install steps
-		if (application.getWdlApp().getInstallation() != null) {
-
-			HashMap<String, String> environment = getEnvironment(application);
-			application.getWdlApp().install(environment);
-		}
 
 		apps.add(application);
 		indexApps.put(application.getId(), application);
@@ -713,20 +685,20 @@ public class Settings {
 
 		return names;
 	}
-	
+
 	public void setThreadsSetupQueue(int threadsSetupQueue) {
 		this.threadsSetupQueue = threadsSetupQueue;
 	}
+
 	public int getThreadsSetupQueue() {
 		return threadsSetupQueue;
 	}
 
 	public HashMap<String, String> getEnvironment(Application application) {
 		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(getHdfsWorkspace(), "apps", application.getId());
+		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId());
 		String localFolder = FileUtil.path("apps", application.getId());
 		environment.put("hdfs_app_folder", hdfsFolder);
-		environment.put("apps", "apps");
 		environment.put("local_app_folder", localFolder);
 		return environment;
 	}

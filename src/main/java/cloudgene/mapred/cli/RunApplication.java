@@ -24,6 +24,7 @@ import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.DockerHadoopCluster;
+import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
@@ -42,7 +43,7 @@ public class RunApplication extends BaseTool {
 	public RunApplication(String[] args) {
 		super(args);
 	}
-	
+
 	@Override
 	public int run() {
 		return 0;
@@ -53,9 +54,9 @@ public class RunApplication extends BaseTool {
 	@Override
 	public int start() {
 
-		//call init manualy
+		// call init manualy
 		init();
-		
+
 		String filename = args[0];
 
 		// check if file exists
@@ -143,54 +144,38 @@ public class RunApplication extends BaseTool {
 
 		if (line.hasOption("host")) {
 
-			// init copnfiguration for remote hadoop cluster
-
 			String host = line.getOptionValue("host");
-
 			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
-
 			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
+			HadoopCluster.init(host, username);
 
-			System.setProperty("HADOOP_USER_NAME", username);
-
-			Configuration configuration = new Configuration();
-			configuration.set("fs.defaultFS", "hdfs://" + host + ":8020");
-			configuration.set("mapred.job.tracker", host + ":8021");
-			HdfsUtil.setDefaultConfiguration(configuration);
-
-			ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
-			if (details != null) {
-				System.out.println("  TaskTrackers: " + details.getTaskTrackers());
-			} else {
-				System.out.println("Error: Hadoop cluster running on " + host + " is unreachable.");
-				System.out.println();
-				return 1;
-			}
 		} else if (line.hasOption("docker")) {
 
 			String image = line.getOptionValue("image", DEFAULT_DOCKER_IMAGE);
 
 			cluster = new DockerHadoopCluster();
 			try {
-				boolean result = cluster.start(image);
-				if (!result) {
-					printError("Error starting cluster.");
-					return 1;
-				}
+				cluster.start(image);
 			} catch (Exception e) {
 				printError("Error starting cluster.");
 				printError(e.getMessage());
 				return 1;
 			}
-			System.setProperty("HADOOP_USER_NAME", "cloudgene");
 
-			Configuration configuration = new Configuration();
-			configuration.set("fs.defaultFS", "hdfs://" + cluster.getIpAddress() + ":8020");
-			configuration.set("mapred.job.tracker", cluster.getIpAddress() + ":8021");
-			HdfsUtil.setDefaultConfiguration(configuration);
+			HadoopCluster.init(cluster.getIpAddress(), "cloudgene");
 
 		} else {
 			System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
+		}
+
+		// check cluster status
+		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
+		if (details != null) {
+			System.out.println("  TaskTrackers: " + details.getTaskTrackers());
+		} else {
+			System.out.println("Error: Hadoop cluster is unreachable.");
+			System.out.println();
+			return 1;
 		}
 
 		// create directories
