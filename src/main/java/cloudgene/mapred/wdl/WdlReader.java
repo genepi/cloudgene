@@ -4,14 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
-
-import cloudgene.mapred.util.ApplicationInstaller;
-import genepi.io.FileUtil;
 
 public class WdlReader {
 
@@ -82,47 +76,6 @@ public class WdlReader {
 				step.setReducer(reducer);
 				step.setParams(config.getParams());
 				config.getSteps().add(step);
-			}
-
-			// load values from files
-			if (config.getInputs() != null) {
-				for (WdlParameter input : config.getInputs()) {
-					if (input.getType().toLowerCase().equals("list")) {
-						Map<String, String> values = input.getValues();
-						if (values != null) {
-							String source = values.get("source");
-							String array = values.get("array");
-							String key = values.get("key");
-							String value = values.get("value");
-							if (source != null && array != null && key != null && value != null) {
-								input.setValues(new HashMap<String, String>());
-								try {
-									String sourceFilename = FileUtil.path(path, source);
-									if (new File(sourceFilename).exists()) {
-										YamlReader reader = new YamlReader(new FileReader(sourceFilename));
-										Map<String, Object> data = reader.read(Map.class);
-										List<Map> list = ApplicationInstaller.findArray(data, array);
-										if (list != null) {
-											Map<String, String> newValues = new HashMap<String, String>();
-											for (Map map : list) {
-												if (map.get(key) != null && map.get(value) != null) {
-													String newKey = map.get(key).toString();
-													String newValue = map.get(value).toString();
-													newValues.put(newKey, newValue);
-												}
-											}
-											input.setValues(newValues);
-										}
-										reader.close();
-									}
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-
-							}
-						}
-					}
-				}
 			}
 
 		}

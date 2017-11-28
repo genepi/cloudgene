@@ -1,12 +1,7 @@
 package cloudgene.mapred.wdl;
 
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import cloudgene.mapred.util.ApplicationInstaller;
-import genepi.hadoop.HdfsUtil;
 
 public class WdlApp extends WdlHeader implements Comparable<WdlApp> {
 
@@ -17,7 +12,9 @@ public class WdlApp extends WdlHeader implements Comparable<WdlApp> {
 	private List<Map<String, Object>> installation;
 
 	private List<Map<String, Object>> deinstallation;
-
+	
+	private Map<String, String> properties;
+	
 	@Deprecated
 	public WdlWorkflow getMapred() {
 		return null;
@@ -61,19 +58,14 @@ public class WdlApp extends WdlHeader implements Comparable<WdlApp> {
 		return deinstallation;
 	}
 
-	public void install(HashMap<String, String> environment) throws IOException {
-		if (installation != null) {
-			ApplicationInstaller.install(installation, environment);
-		}
+	public void setProperties(Map<String, String> properties) {
+		this.properties = properties;
 	}
-
-	public void deinstall(HashMap<String, String> environment) throws IOException {
-		if (deinstallation != null) {
-			ApplicationInstaller.install(deinstallation, environment);
-			HdfsUtil.delete(environment.get("hdfs_app_folder"));
-		}
+	
+	public Map<String, String> getProperties() {
+		return properties;
 	}
-
+		
 	@Override
 	public int compareTo(WdlApp o) {
 		return getName().compareTo(o.getName());

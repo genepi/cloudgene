@@ -133,12 +133,10 @@ public class App extends BaseResource {
 				if (enabled != null) {
 					HashMap<String, String> environment = getSettings().getEnvironment(application);
 					if (application.isEnabled() && enabled.equals("false")) {
-						application.getWdlApp().deinstall(environment);
 						application.setEnabled(false);
 						getSettings().reloadApplications();
 						getSettings().save();
 					} else if (!application.isEnabled() && enabled.equals("true")) {
-						application.getWdlApp().install(environment);
 						application.setEnabled(true);
 						getSettings().reloadApplications();
 						getSettings().save();

@@ -19,6 +19,8 @@ import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
+import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.Settings;
 
 abstract public class AbstractJob extends PriorityRunnable {
@@ -243,6 +245,58 @@ abstract public class AbstractJob extends PriorityRunnable {
 	}
 
 	public void runSetupSteps() {
+		log.info("Job " + getId() + ": executing inistallation...");
+		writeLog("Executing Job inistallation....");
+
+		// find dependecies
+		List<Application> applications = new Vector<>();
+
+		// install application
+		String id = getApplicationId();
+		Settings setttings = getSettings();
+		Application app3 = setttings.getApp(id);
+		applications.add(app3);
+
+		for (CloudgeneParameter input : getInputParams()) {
+			String value = input.getValue();
+			if (value.startsWith("apps@")) {
+				String appId = value.replaceAll("apps@", "");
+				Application app2 = setttings.getApp(appId);
+				if (app2 != null) {
+					applications.add(app2);
+					// update evenirnoment variables
+					getContext().setData(input.getName(), app2.getWdlApp().getProperties());
+				} else {
+					setState(AbstractJob.STATE_FAILED);
+					onFailure();
+					setStartTime(System.currentTimeMillis());
+					setEndTime(System.currentTimeMillis());
+					setError("Linked Application '" + appId + "' not found.");
+					setSetupComplete(false);
+					return;
+				}
+			}
+		}
+
+		for (Application app : applications) {
+			if (!app.isInstalled(setttings.getHdfsAppWorkspace())) {
+				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
+					try {
+						ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
+								setttings.getEnvironment(app));
+						log.info("Installation of application " + id + " finished.");
+					} catch (IOException e) {
+						setState(AbstractJob.STATE_FAILED);
+						onFailure();
+						setStartTime(System.currentTimeMillis());
+						setEndTime(System.currentTimeMillis());
+						setError("Installation of application " + id + " failed.");
+						setSetupComplete(false);
+						return;
+					}
+				}
+			}
+		}
 
 		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
 			onFailure();

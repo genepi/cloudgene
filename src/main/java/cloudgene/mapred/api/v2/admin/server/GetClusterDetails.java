@@ -1,6 +1,7 @@
 package cloudgene.mapred.api.v2.admin.server;
 
 import genepi.hadoop.HadoopUtil;
+import genepi.hadoop.HdfsUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.HadoopCluster;
 
 public class GetClusterDetails extends BaseResource {
 
@@ -81,6 +83,8 @@ public class GetClusterDetails extends BaseResource {
 		try {
 			ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
 			StringBuffer state = new StringBuffer();
+			state.append("JobTracker: " + HadoopCluster.getJobTracker() + "\n");
+			state.append("Default FS: " + HadoopCluster.getDefaultFS() + "\n");
 			state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
 			state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
 			state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
