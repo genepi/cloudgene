@@ -113,7 +113,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private boolean canceld = false;
 
-	private boolean forceInstallation = true;
+	private boolean forceInstallation = false;
 
 	public String getId() {
 		return id;
