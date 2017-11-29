@@ -251,83 +251,107 @@ abstract public class AbstractJob extends PriorityRunnable {
 	}
 
 	public void runSetupSteps() {
-		log.info("Job " + getId() + ": executing installation...");
-		writeLog("Executing Job installation....");
+		try {
+			log.info("Job " + getId() + ": executing installation...");
+			writeLog("Executing Job installation....");
 
-		// find dependecies
-		List<Application> applications = new Vector<>();
+			Settings setttings = getSettings();
 
-		// install application
-		String id = getApplicationId();
-		Settings setttings = getSettings();
-		Application app3 = setttings.getApp(id);
-		applications.add(app3);
+			// find dependecies
+			List<Application> applications = new Vector<>();
 
-		for (CloudgeneParameter input : getInputParams()) {
-			String value = input.getValue();
-			if (value.startsWith("apps@")) {
-				String appId = value.replaceAll("apps@", "");
-				Application app2 = setttings.getApp(appId);
-				if (app2 != null) {
-					applications.add(app2);
-					// update evenirnoment variables					
-					HashMap<String, String> env = setttings.getEnvironment(app2);
-					Map<String, String> properties = app2.getWdlApp().getProperties();
-					for (String property: properties.keySet()){
-						String value2 = properties.get(property);
-						properties.put(property, ApplicationInstaller.env(value2, env));
-						System.out.println(ApplicationInstaller.env(value2, env));
+			// install application
 
-					}
-					getContext().setData(input.getName(), properties);
-				} else {
-					setState(AbstractJob.STATE_FAILED);
-					onFailure();
-					setStartTime(System.currentTimeMillis());
-					setEndTime(System.currentTimeMillis());
-					setError("Linked Application '" + appId + "' not found.");
-					setSetupComplete(false);
-					return;
-				}
+			String id = getApplicationId();
+			if (id != null) {
+				Application app3 = setttings.getApp(id);
+				applications.add(app3);
 			}
-		}
 
-		for (Application app : applications) {
-			writeLog("  Preparing application " + app.getId() + "...");
-			String target = setttings.getEnvironment(app).get("hdfs_app_folder");
-			String installationFile = HdfsUtil.path(target, "installed");
-			boolean installed = HdfsUtil.exists(installationFile);
-			if (!installed || forceInstallation) {
-				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
-					try {
+			for (CloudgeneParameter input : getInputParams()) {
+				String value = input.getValue();
+				if (value.startsWith("apps@")) {
+					String appId = value.replaceAll("apps@", "");
+					Application app2 = setttings.getApp(appId);
+					if (app2 != null) {
+						applications.add(app2);
+						// update evenirnoment variables
+						HashMap<String, String> env = setttings.getEnvironment(app2);
+						Map<String, String> properties = app2.getWdlApp().getProperties();
+						for (String property : properties.keySet()) {
+							String value2 = properties.get(property);
+							properties.put(property, ApplicationInstaller.env(value2, env));
+							System.out.println(ApplicationInstaller.env(value2, env));
 
-						HdfsUtil.delete(target);
-						writeLog("  Installing Application...");
-						ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
-								setttings.getEnvironment(app));
-
-						HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
-						lineWriter.write(System.currentTimeMillis() + "");
-						lineWriter.close();
-
-						log.info("Installation of application " + id + " finished.");
-						writeLog("  Installation finished.");
-					} catch (IOException e) {
+						}
+						getContext().setData(input.getName(), properties);
+					} else {
 						setState(AbstractJob.STATE_FAILED);
 						onFailure();
 						setStartTime(System.currentTimeMillis());
 						setEndTime(System.currentTimeMillis());
-						writeLog("  Installation of application " + id + " failed.");
-						setError("Installation of application " + id + " failed.");
+						setError("Linked Application '" + appId + "' not found.");
 						setSetupComplete(false);
 						return;
 					}
 				}
-			} else {
-				writeLog("  Application is already installed.");
 			}
-		}
 
+			for (Application app : applications) {
+
+				log.info("Job " + getId() + ": executing installation for " + app.getId() + "...");
+
+				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
+
+					writeLog("  Preparing application " + app.getId() + "...");
+
+					String target = setttings.getEnvironment(app).get("hdfs_app_folder");
+
+					String installationFile = HdfsUtil.path(target, "installed");
+					boolean installed = HdfsUtil.exists(installationFile);
+
+					if (!installed || forceInstallation) {
+						try {
+
+							HdfsUtil.delete(target);
+							writeLog("  Installing Application...");
+							ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
+									setttings.getEnvironment(app));
+
+							HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
+							lineWriter.write(System.currentTimeMillis() + "");
+							lineWriter.close();
+
+							log.info("Installation of application " + id + " finished.");
+							writeLog("  Installation finished.");
+						} catch (IOException e) {
+							setState(AbstractJob.STATE_FAILED);
+							onFailure();
+							setStartTime(System.currentTimeMillis());
+							setEndTime(System.currentTimeMillis());
+							writeLog("  Installation of application " + id + " failed.");
+							setError("Installation of application " + id + " failed.");
+							setSetupComplete(false);
+							e.printStackTrace();
+							return;
+						}
+					} else {
+						writeLog("  Application is already installed.");
+					}
+				}
+
+			}
+		} catch (Exception e) {
+			setState(AbstractJob.STATE_FAILED);
+			onFailure();
+			setStartTime(System.currentTimeMillis());
+			setEndTime(System.currentTimeMillis());
+			writeLog("  Installation of application " + id + " failed.");
+			setError("Installation of application " + id + " failed.");
+			setSetupComplete(false);
+			e.printStackTrace();
+			return;
+		}
 		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
 			onFailure();
 			setStartTime(System.currentTimeMillis());
