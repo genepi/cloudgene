@@ -10,6 +10,7 @@ import cloudgene.mapred.cli.InstallApplication;
 import cloudgene.mapred.cli.ListApplications;
 import cloudgene.mapred.cli.RemoveApplication;
 import cloudgene.mapred.cli.RunApplication;
+import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import genepi.base.Toolbox;
 
@@ -50,6 +51,7 @@ public class CommandLineInterface extends Toolbox {
 		toolbox.addTool("ls", ListApplications.class);
 		toolbox.addTool("remove", RemoveApplication.class);
 		toolbox.addTool("server", StartServer.class);
+		toolbox.addTool("version", ShowVersion.class);
 		toolbox.start();
 
 	}

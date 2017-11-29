@@ -431,9 +431,28 @@ public class Settings {
 
 	public Application installApplicationFromUrl(String id, String url) throws IOException {
 		// download file from url
-		String zipFilename = FileUtil.path(getTempPath(), "download.zip");
-		FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
-		return installApplicationFromZipFile(id, zipFilename);
+		if (url.endsWith(".zip")) {
+			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
+			FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
+			return installApplicationFromZipFile(id, zipFilename);
+		} else {
+			try {
+				String appPath = FileUtil.path("apps", id);
+				FileUtil.createDirectory("apps");
+				FileUtil.createDirectory(appPath);
+
+				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
+				System.out.println("Url: " + url);
+				System.out.println("yamlFilename: " + yamlFilename);
+				FileUtils.copyURLToFile(new URL(url), new File(yamlFilename));
+				return installApplicationFromYaml(id, yamlFilename);
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
 	}
 
 	public Application installApplicationFromZipFile(String id, String zipFilename) throws IOException {
