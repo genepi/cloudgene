@@ -1,11 +1,15 @@
 package cloudgene.mapred.jobs;
 
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.common.WorkflowContext;
 import genepi.hadoop.importer.FileItem;
+import genepi.hadoop.io.HdfsLineWriter;
 import genepi.io.FileUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -18,7 +22,10 @@ import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
+import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.HashUtil;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlWorkflow;
 import cloudgene.mapred.wdl.WdlParameter;
@@ -159,7 +166,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	@Override
 	public boolean executeSetupSteps() {
-		
+
 		try {
 			// evaluate WDL
 			Planner planner = new Planner();
@@ -193,6 +200,102 @@ public class CloudgeneJob extends AbstractJob {
 			return false;
 		}
 
+	}
+
+	@Override
+	public boolean executeInstallation(boolean forceInstallation) {
+				
+		try {
+
+			Settings setttings = getSettings();
+
+			// find dependencies
+			List<Application> applications = new Vector<>();
+
+			// install application
+			String id = getApplicationId();
+			if (id != null) {
+				Application app3 = setttings.getApp(id);
+				applications.add(app3);
+			}
+
+			for (CloudgeneParameter input : getInputParams()) {
+				String value = input.getValue();
+				if (value.startsWith("apps@")) {
+					String appId = value.replaceAll("apps@", "");
+					Application app2 = setttings.getApp(appId);
+					if (app2 != null) {
+						applications.add(app2);
+						// update evenirnoment variables
+						HashMap<String, String> env = setttings.getEnvironment(app2);
+						Map<String, String> properties = app2.getWdlApp().getProperties();
+						for (String property : properties.keySet()) {
+							String value2 = properties.get(property);
+							properties.put(property, ApplicationInstaller.env(value2, env));
+							System.out.println(ApplicationInstaller.env(value2, env));
+
+						}
+						getContext().setData(input.getName(), properties);
+					} else {
+						writeOutput("Application " + appId + " is not installed.");
+						setError("Application " + appId + " is not installed.");
+						return false;
+					}
+				}
+			}
+			
+			for (Application app : applications) {
+
+				log.info("Job " + getId() + ": executing installation for " + app.getId() + "...");
+
+				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
+
+					writeLog("  Preparing application " + app.getId() + "...");
+
+					String target = setttings.getEnvironment(app).get("hdfs_app_folder");
+
+					String installationFile = HdfsUtil.path(target, "installed");
+					boolean installed = HdfsUtil.exists(installationFile);
+
+					if (!installed || forceInstallation) {
+						try {
+
+							//context.beginTask("Installing application " + app.getId() + "...");
+
+							HdfsUtil.delete(target);
+							writeLog("  Installing Application...");
+							ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
+									setttings.getEnvironment(app));
+
+							HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
+							lineWriter.write(System.currentTimeMillis() + "");
+							lineWriter.close();
+
+							log.info("Installation of application " + app.getId() + " finished.");
+							//context.endTask("Installation of application " + app.getId() + " finished.",
+							//		WorkflowContext.OK);
+							writeLog("  Installation finished.");
+						} catch (IOException e) {
+							//context.endTask("Installing application " + app.getId() + "failed.", WorkflowContext.ERROR);
+
+							writeOutput("Installation of application " + app.getId() + " failed.");
+							writeOutput(e.getMessage());
+							setError(e.getMessage());
+							return false;
+						}
+					} else {
+						writeLog("  Application is already installed.");
+					}
+				}
+
+			}
+			return true;
+		} catch (Exception e) {
+			writeOutput("Installation of application " + getApplicationId() + " failed.");
+			writeOutput(e.getMessage());
+			setError(e.getMessage());
+			return false;
+		}
 	}
 
 	@Override

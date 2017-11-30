@@ -70,7 +70,7 @@
 				<version>1.0.0.beta3</version>
 				<configuration>
 					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
-					<fileName>cloudgene-installer-${project.version}.sh</fileName>
+					<fileName>cloudgene-installer.sh</fileName>
 					<label>Install Cloudgene ${project.version}</label>
 					<notemp>true</notemp>
 					<current>true</current>

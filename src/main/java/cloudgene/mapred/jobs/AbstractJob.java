@@ -251,107 +251,20 @@ abstract public class AbstractJob extends PriorityRunnable {
 	}
 
 	public void runSetupSteps() {
-		try {
-			log.info("Job " + getId() + ": executing installation...");
-			writeLog("Executing Job installation....");
 
-			Settings setttings = getSettings();
+		log.info("Job " + getId() + ": executing installation...");
+		writeLog("Executing Job installation....");
 
-			// find dependecies
-			List<Application> applications = new Vector<>();
-
-			// install application
-
-			String id = getApplicationId();
-			if (id != null) {
-				Application app3 = setttings.getApp(id);
-				applications.add(app3);
-			}
-
-			for (CloudgeneParameter input : getInputParams()) {
-				String value = input.getValue();
-				if (value.startsWith("apps@")) {
-					String appId = value.replaceAll("apps@", "");
-					Application app2 = setttings.getApp(appId);
-					if (app2 != null) {
-						applications.add(app2);
-						// update evenirnoment variables
-						HashMap<String, String> env = setttings.getEnvironment(app2);
-						Map<String, String> properties = app2.getWdlApp().getProperties();
-						for (String property : properties.keySet()) {
-							String value2 = properties.get(property);
-							properties.put(property, ApplicationInstaller.env(value2, env));
-							System.out.println(ApplicationInstaller.env(value2, env));
-
-						}
-						getContext().setData(input.getName(), properties);
-					} else {
-						setState(AbstractJob.STATE_FAILED);
-						onFailure();
-						setStartTime(System.currentTimeMillis());
-						setEndTime(System.currentTimeMillis());
-						setError("Linked Application '" + appId + "' not found.");
-						setSetupComplete(false);
-						return;
-					}
-				}
-			}
-
-			for (Application app : applications) {
-
-				log.info("Job " + getId() + ": executing installation for " + app.getId() + "...");
-
-				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
-
-					writeLog("  Preparing application " + app.getId() + "...");
-
-					String target = setttings.getEnvironment(app).get("hdfs_app_folder");
-
-					String installationFile = HdfsUtil.path(target, "installed");
-					boolean installed = HdfsUtil.exists(installationFile);
-
-					if (!installed || forceInstallation) {
-						try {
-
-							HdfsUtil.delete(target);
-							writeLog("  Installing Application...");
-							ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
-									setttings.getEnvironment(app));
-
-							HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
-							lineWriter.write(System.currentTimeMillis() + "");
-							lineWriter.close();
-
-							log.info("Installation of application " + id + " finished.");
-							writeLog("  Installation finished.");
-						} catch (IOException e) {
-							setState(AbstractJob.STATE_FAILED);
-							onFailure();
-							setStartTime(System.currentTimeMillis());
-							setEndTime(System.currentTimeMillis());
-							writeLog("  Installation of application " + id + " failed.");
-							setError("Installation of application " + id + " failed.");
-							setSetupComplete(false);
-							e.printStackTrace();
-							return;
-						}
-					} else {
-						writeLog("  Application is already installed.");
-					}
-				}
-
-			}
-		} catch (Exception e) {
+		boolean result = executeInstallation(forceInstallation);
+		if (result == false) {
 			setState(AbstractJob.STATE_FAILED);
 			onFailure();
 			setStartTime(System.currentTimeMillis());
 			setEndTime(System.currentTimeMillis());
-			writeLog("  Installation of application " + id + " failed.");
-			setError("Installation of application " + id + " failed.");
 			setSetupComplete(false);
-			e.printStackTrace();
 			return;
 		}
+
 		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
 			onFailure();
 			setStartTime(System.currentTimeMillis());
@@ -892,6 +805,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	abstract public boolean executeSetupSteps();
 
+	abstract public boolean executeInstallation(boolean forceInstallation);
+	
 	abstract public boolean setup();
 
 	abstract public boolean before();
