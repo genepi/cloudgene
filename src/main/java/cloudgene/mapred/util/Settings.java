@@ -442,8 +442,7 @@ public class Settings {
 				FileUtil.createDirectory(appPath);
 
 				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
-				System.out.println("Url: " + url);
-				System.out.println("yamlFilename: " + yamlFilename);
+
 				FileUtils.copyURLToFile(new URL(url), new File(yamlFilename));
 				return installApplicationFromYaml(id, yamlFilename);
 

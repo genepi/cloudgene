@@ -65,28 +65,6 @@
 
 		<plugins>
 			<plugin>
-				<groupId>com.github.hazendaz.maven</groupId>
-				<artifactId>makeself-maven-plugin</artifactId>
-				<version>1.0.0.beta3</version>
-				<configuration>
-					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
-					<fileName>cloudgene-installer.sh</fileName>
-					<label>Install Cloudgene ${project.version}</label>
-					<notemp>true</notemp>
-					<current>true</current>
-					<nox11>true</nox11>
-					<nowait>true</nowait>
-				</configuration>
-				<executions>
-					<execution>
-						<id>makeself</id>
-						<goals>
-							<goal>makeself</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.1</version>
 				<configuration>
@@ -133,7 +111,28 @@
 					</execution>
 				</executions>
 			</plugin>
-
+			<plugin>
+				<groupId>com.github.hazendaz.maven</groupId>
+				<artifactId>makeself-maven-plugin</artifactId>
+				<version>1.0.0.beta3</version>
+				<configuration>
+					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
+					<fileName>cloudgene-installer-${project.version}.sh</fileName>
+					<label>Install Cloudgene ${project.version}</label>
+					<notemp>true</notemp>
+					<current>true</current>
+					<nox11>true</nox11>
+					<nowait>true</nowait>
+				</configuration>
+				<executions>
+					<execution>
+						<id>makeself</id>
+						<goals>
+							<goal>makeself</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>

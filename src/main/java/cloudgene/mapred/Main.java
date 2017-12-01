@@ -181,8 +181,6 @@ public class Main implements Daemon {
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 
-			PropertyConfigurator.configure("config/log4j.properties");
-
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 

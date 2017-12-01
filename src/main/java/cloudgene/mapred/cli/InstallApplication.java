@@ -30,6 +30,12 @@ public class InstallApplication extends BaseTool {
 		try {
 
 			Application application = null;
+
+			if (settings.getApp(id) != null) {
+				printlnInRed("[ERROR] An application with id '" + id + "' is already installed.\n");
+				return 1;
+			}
+
 			System.out.println("Installing application " + id + "...");
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {

@@ -68,6 +68,17 @@ public class StartServer extends BaseTool {
 				newArgs = new String[] { "--port", getValue("port").toString() };
 			}
 			main.runCloudgene(newArgs);
+			
+			String port = "";
+			if (getValue("port") != null){
+				port = getValue("port").toString();
+			}else{
+				port = "8082";
+			}
+			System.out.println();
+			System.out.println("Server is running on http://localhost:" + port );
+			System.out.println();
+			System.out.println("Please press ctrl-c to stop.");
 			while (true) {
 				Thread.sleep(5000000);
 			}
