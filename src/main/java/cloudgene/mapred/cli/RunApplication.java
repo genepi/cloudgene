@@ -39,9 +39,9 @@ public class RunApplication extends BaseTool {
 	public static final String DEFAULT_HADOOP_USER = "cloudgene";
 
 	private WdlApp app = null;
-	
+
 	private boolean output = true;
-	
+
 	private boolean logging = true;
 
 	public RunApplication(String[] args) {
@@ -112,13 +112,12 @@ public class RunApplication extends BaseTool {
 		Option loggingOption = new Option(null, "no-logging", false, "Don’t stream logging messages to stdout");
 		loggingOption.setRequired(false);
 		options.addOption(loggingOption);
-		
+
 		// add general options: run on docker
 		Option outputOption = new Option(null, "no-output", false, "Don’t stream output to stdout");
 		outputOption.setRequired(false);
 		options.addOption(outputOption);
-		
-		
+
 		// add general options: run on docker
 		Option dockerOption = new Option(null, "docker", false, "use docker hadoop cluster");
 		dockerOption.setRequired(false);
@@ -157,20 +156,19 @@ public class RunApplication extends BaseTool {
 
 		DockerHadoopCluster cluster = null;
 
-	 
 		if (line.hasOption("no-logging")) {
 			logging = false;
 		}
-		
+
 		if (line.hasOption("no-output")) {
 			output = false;
 		}
-		
+
 		if (line.hasOption("host")) {
 
 			String host = line.getOptionValue("host");
 			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
-			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
+			printText(0, spaces("[INFO]", 8) + "Use Haddop cluster running on " + host + " with username " + username);
 			HadoopCluster.init(host, username);
 
 		} else if (line.hasOption("docker")) {
@@ -189,13 +187,15 @@ public class RunApplication extends BaseTool {
 			HadoopCluster.init(cluster.getIpAddress(), "cloudgene");
 
 		} else {
-			System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
+			printText(0, spaces("[INFO]", 8)
+					+ "No external Haddop cluster set. Be sure cloudgene is running on your namenode");
 		}
 
 		// check cluster status
 		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
 		if (details != null) {
-			System.out.println("  TaskTrackers: " + details.getTaskTrackers());
+			printText(0, spaces("[INFO]", 8) + "Cluster has " + details.getActiveTrackerNames().size() + " nodes, "
+					+ details.getMapTasks() + " map tasks and " + details.getReduceTasks() + " reduce tasks");
 		} else {
 			System.out.println("Error: Hadoop cluster is unreachable.");
 			System.out.println();
@@ -263,7 +263,7 @@ public class RunApplication extends BaseTool {
 				@Override
 				public void writeOutputln(String line) {
 					super.writeOutputln(line);
-					if (output){
+					if (output) {
 						printText(0, spaces("[OUT]", 8) + line);
 					}
 				}
@@ -271,11 +271,11 @@ public class RunApplication extends BaseTool {
 				@Override
 				public void writeLog(String line) {
 					super.writeLog(line);
-					if (logging){
+					if (logging) {
 						printText(0, spaces("[LOG]", 8) + line);
 					}
 				}
-				
+
 			};
 			job.setId(id);
 			job.setName(id);
