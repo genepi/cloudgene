@@ -48,7 +48,7 @@ public class Command extends Hadoop {
 					HdfsUtil.checkOut(param, localFile);
 					command.add(new File(localFile).getAbsolutePath());
 				} catch (IOException e) {
-					context.println(e.getMessage());
+					context.log(e.getMessage());
 					command.add(param);
 				}
 

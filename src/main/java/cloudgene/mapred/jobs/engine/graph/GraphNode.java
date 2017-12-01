@@ -178,9 +178,9 @@ public class GraphNode implements Runnable {
 
 		job.onStepStarted(instance);
 
-		job.writeOutputln("------------------------------------------------------");
-		job.writeOutputln(step.getName());
-		job.writeOutputln("------------------------------------------------------");
+		job.writeLog("------------------------------------------------------");
+		job.writeLog(step.getName());
+		job.writeLog("------------------------------------------------------");
 
 		long start = System.currentTimeMillis();
 

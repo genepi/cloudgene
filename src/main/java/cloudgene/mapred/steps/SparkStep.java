@@ -61,8 +61,8 @@ public class SparkStep extends Hadoop {
 
 		log.info(command);
 
-		context.println("Command: " + command);
-		context.println("Working Directory: "
+		context.log("Command: " + command);
+		context.log("Working Directory: "
 				+ new File(context.getWorkingDirectory()).getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
@@ -71,7 +71,7 @@ public class SparkStep extends Hadoop {
 		Process process = builder.start();
 
 		process.waitFor();
-		context.println("Exit Code: " + process.exitValue());
+		context.log("Exit Code: " + process.exitValue());
 
 		return true;
 	}

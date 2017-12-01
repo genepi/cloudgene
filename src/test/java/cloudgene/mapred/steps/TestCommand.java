@@ -57,8 +57,12 @@ public class TestCommand extends TestCase {
 		//simple ls result check
 		assertTrue(contentStdOut.contains("invalid-command.yaml"));
 		
+		String jobLog = FileUtil.path(TestServer.getInstance().getSettings()
+				.getLocalWorkspace(), job.getId(), "job.txt");
+		String contentjobLog = FileUtil.readFileAsString(jobLog);
+
 		//simple check if exit code = 0
-		assertTrue(contentStdOut.contains("Exit Code: 0"));
+		assertTrue(contentjobLog.contains("Exit Code: 0"));
 		
 	}
 	

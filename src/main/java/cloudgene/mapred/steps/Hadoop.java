@@ -89,8 +89,8 @@ public abstract class Hadoop extends CloudgeneStep {
 
 		log.info(command);
 
-		context.println("Command: " + command);
-		context.println("Working Directory: "
+		context.log("Command: " + command);
+		context.log("Working Directory: "
 				+ new File(context.getWorkingDirectory()).getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
@@ -106,7 +106,6 @@ public abstract class Hadoop extends CloudgeneStep {
 		Pattern pattern = Pattern.compile("Running job: (.*)");
 		Pattern pattern2 = Pattern.compile("HadoopJobId: (.*)");
 
-		context.println("Output: ");
 		while ((line = br.readLine()) != null) {
 
 			Matcher matcher = pattern.matcher(line);
@@ -123,7 +122,7 @@ public abstract class Hadoop extends CloudgeneStep {
 				}
 			}
 
-			context.println("  " + line);
+			context.println(line);
 		}
 
 		br.close();
@@ -131,7 +130,7 @@ public abstract class Hadoop extends CloudgeneStep {
 		is.close();
 
 		process.waitFor();
-		context.println("Exit Code: " + process.exitValue());
+		context.log("Exit Code: " + process.exitValue());
 
 		if (process.exitValue() != 0) {
 			return false;

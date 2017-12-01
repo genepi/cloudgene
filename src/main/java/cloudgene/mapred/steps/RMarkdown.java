@@ -28,12 +28,12 @@ public class RMarkdown extends CloudgeneStep {
 		String paramsString = step.getParams();
 		String[] params = paramsString.split(" ");
 
-		context.println("Running script " + step.getRmd() + "...");
-		context.println("Working Directory: " + wd);
-		context.println("Output: " + output);
-		context.println("Parameters:");
+		context.log("Running script " + step.getRmd() + "...");
+		context.log("Working Directory: " + wd);
+		context.log("Output: " + output);
+		context.log("Parameters:");
 		for (String param : params) {
-			context.println("  " + param);
+			context.log("  " + param);
 		}
 
 		int result = convert(FileUtil.path(wd, rmd), output, params, context);
@@ -53,7 +53,7 @@ public class RMarkdown extends CloudgeneStep {
 	public int convert(String rmdScript, String outputHtml, String[] args,
 			WorkflowContext context) {
 
-		context.println("Creating RMarkdown report from " + rmdScript + "...");
+		context.log("Creating RMarkdown report from " + rmdScript + "...");
 
 		outputHtml = new File(outputHtml).getAbsolutePath();
 
@@ -85,17 +85,17 @@ public class RMarkdown extends CloudgeneStep {
 			if (args[i].startsWith("hdfs://")) {
 
 				String localFile = FileUtil.path(folder, "local_file_" + i);
-				context.println("Check out file " + args[i] + "...");
+				context.log("Check out file " + args[i] + "...");
 				try {
 					HdfsUtil.checkOut(args[i], localFile);
 					argsForScript[i + 1] = localFile;
 				} catch (IOException e) {
-					context.println(e.getMessage());
+					context.log(e.getMessage());
 					argsForScript[i + 1] = args[i];
 				}
 
 				try {
-					context.println("Number of lines: "
+					context.log("Number of lines: "
 							+ FileUtil.getLineCount(localFile));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block

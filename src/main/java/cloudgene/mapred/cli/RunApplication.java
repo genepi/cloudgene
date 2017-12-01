@@ -39,6 +39,10 @@ public class RunApplication extends BaseTool {
 	public static final String DEFAULT_HADOOP_USER = "cloudgene";
 
 	private WdlApp app = null;
+	
+	private boolean output = true;
+	
+	private boolean logging = true;
 
 	public RunApplication(String[] args) {
 		super(args);
@@ -105,6 +109,17 @@ public class RunApplication extends BaseTool {
 		Options options = CommandLineUtil.createOptionsFromApp(app);
 
 		// add general options: run on docker
+		Option loggingOption = new Option(null, "no-logging", false, "Don’t stream logging messages to stdout");
+		loggingOption.setRequired(false);
+		options.addOption(loggingOption);
+		
+		// add general options: run on docker
+		Option outputOption = new Option(null, "no-output", false, "Don’t stream output to stdout");
+		outputOption.setRequired(false);
+		options.addOption(outputOption);
+		
+		
+		// add general options: run on docker
 		Option dockerOption = new Option(null, "docker", false, "use docker hadoop cluster");
 		dockerOption.setRequired(false);
 		options.addOption(dockerOption);
@@ -142,6 +157,15 @@ public class RunApplication extends BaseTool {
 
 		DockerHadoopCluster cluster = null;
 
+	 
+		if (line.hasOption("no-logging")) {
+			logging = false;
+		}
+		
+		if (line.hasOption("no-output")) {
+			output = false;
+		}
+		
 		if (line.hasOption("host")) {
 
 			String host = line.getOptionValue("host");
@@ -239,9 +263,19 @@ public class RunApplication extends BaseTool {
 				@Override
 				public void writeOutputln(String line) {
 					super.writeOutputln(line);
-					printText(0, spaces("[OUT]", 8) + line);
+					if (output){
+						printText(0, spaces("[OUT]", 8) + line);
+					}
 				}
 
+				@Override
+				public void writeLog(String line) {
+					super.writeLog(line);
+					if (logging){
+						printText(0, spaces("[LOG]", 8) + line);
+					}
+				}
+				
 			};
 			job.setId(id);
 			job.setName(id);

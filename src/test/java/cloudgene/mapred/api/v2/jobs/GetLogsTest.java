@@ -83,7 +83,6 @@ public class GetLogsTest extends JobsApiTestCase {
 		assertTrue(content.contains("Input Checkbox: valueFalse"));
 		assertTrue(content.contains("Input List: keya"));
 
-		assertTrue(content.contains("std.out:"));
 		assertTrue(content.contains("Planner: WDL evaluated."));
 		assertTrue(content.contains("CheckInputs"));
 

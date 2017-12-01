@@ -671,7 +671,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 				initStdOutFiles();
 			}
 
-			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
 			stdOutStream.write("\n".getBytes());
 			stdOutStream.flush();
