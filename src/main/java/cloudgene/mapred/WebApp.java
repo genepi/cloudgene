@@ -3,9 +3,7 @@ package cloudgene.mapred;
 import genepi.db.Database;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +15,6 @@ import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
-import org.restlet.service.CorsService;
 
 import cloudgene.mapred.api.v2.admin.ChangeGroup;
 import cloudgene.mapred.api.v2.admin.ChangePriority;
@@ -40,8 +37,6 @@ import cloudgene.mapred.api.v2.admin.server.GetTemplates;
 import cloudgene.mapred.api.v2.admin.server.OpenQueue;
 import cloudgene.mapred.api.v2.admin.server.UpdateSettings;
 import cloudgene.mapred.api.v2.admin.server.UpdateTemplate;
-import cloudgene.mapred.api.v2.apps.GetApp;
-import cloudgene.mapred.api.v2.apps.GetUserApps;
 import cloudgene.mapred.api.v2.data.ImporterFileList;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
@@ -62,7 +57,6 @@ import cloudgene.mapred.api.v2.users.UpdatePassword;
 import cloudgene.mapred.api.v2.users.UserProfile;
 import cloudgene.mapred.api.v2.users.LoginUser;
 import cloudgene.mapred.api.v2.users.LogoutUser;
-import cloudgene.mapred.api.v2.users.OAuth;
 import cloudgene.mapred.api.v2.users.RegisterUser;
 import cloudgene.mapred.api.v2.users.ResetPassword;
 import cloudgene.mapred.database.TemplateDao;
@@ -94,15 +88,6 @@ public class WebApp extends Application {
 		this.webRoot = LocalReference.createFileReference(new File(root));
 		this.root = root;
 		this.webRoot2 = LocalReference.createFileReference(new File(pages));
-
-		CorsService corsService = new CorsService();
-		corsService.setAllowingAllRequestedHeaders(true);
-		corsService.setAllowedOrigins(new HashSet(Arrays.asList("*")));
-		corsService.setAllowedCredentials(true);
-		corsService.setSkippingResourceForCorsOptions(true);
-
-		getServices().add(corsService);
-
 	}
 
 	/**
@@ -132,7 +117,6 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		// user authentication
-		router.attach(prefix + "/api/v2/oauth", OAuth.class);
 		router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 
@@ -157,7 +141,6 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/users/update-password", UpdatePassword.class);
 
 		// get or update user profile
-		router.attach(prefix + "/api/v2/users/{user}", UserProfile.class);		
 		router.attach(prefix + "/api/v2/users/{user}/profile", UserProfile.class);
 
 		// create, delete, get api token
@@ -168,10 +151,6 @@ public class WebApp extends Application {
 
 		// returns meta data about an app
 		router.attach(prefix + "/api/v2/server/apps/{tool}", App.class);
-
-		// returns all aps for one user and meta data
-		router.attach(prefix + "/api/v2/apps", GetUserApps.class);
-		router.attach(prefix + "/api/v2/apps/{tool}", GetApp.class);
 
 		// returns a list of all installed apps
 		router.attach(prefix + "/api/v2/server/apps", Apps.class);

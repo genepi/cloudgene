@@ -27,7 +27,9 @@ public class JobsApiTestCase extends TestCase {
 	public ClientResource createClientResource(String path, LoginToken loginToken) {
 		ClientResource resource = createClientResource(path);
 		if (loginToken != null) {
+			if (loginToken.getCookie() != null){
 			resource.getCookies().add(loginToken.getCookie());
+			}
 			setupCrfToken(resource, loginToken.getCsrfToken());
 		}
 		return resource;
@@ -40,7 +42,9 @@ public class JobsApiTestCase extends TestCase {
 			requestHeader = new Series(Header.class);
 			resource.getRequest().getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, requestHeader);
 		}
+		if (token != null){
 		requestHeader.add("X-CSRF-Token", token);
+		}
 	}
 
 	public void setupApiToken(ClientResource resource, String token) {
@@ -314,7 +318,8 @@ public class JobsApiTestCase extends TestCase {
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
 			
-			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
+			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());		
+			JSONArray result = object.getJSONArray("data");
 			resourceJobs.release();
 
 			return result;
@@ -336,7 +341,8 @@ public class JobsApiTestCase extends TestCase {
 
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
-			JSONArray result = new JSONArray(resourceJobs.getResponseEntity().getText());
+			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());		
+			JSONArray result = object.getJSONArray("data");
 			resourceJobs.release();
 
 			return result;

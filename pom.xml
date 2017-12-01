@@ -439,6 +439,17 @@
 		</dependency>
 
 
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-server</artifactId>
+			<version>1.9</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<name>Cloudgene</name>
@@ -459,6 +470,7 @@
 				<artifactId>jersey-core</artifactId>
 				<version>1.19.4</version>
 			</dependency>
+
 		</dependencies>
 	</dependencyManagement>
 </project>

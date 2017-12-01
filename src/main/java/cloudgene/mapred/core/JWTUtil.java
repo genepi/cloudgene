@@ -116,7 +116,7 @@ public class JWTUtil {
 				if (isApiToken(payload)) {
 					User user = getUser(database, payload);
 					// check if api key is on users whitelist
-					if (user != null) {
+					if (user != null && user.getApiToken().equals(payload.get("request-token").toString())) {
 						return user;
 					} else {
 						return null;
