@@ -13,6 +13,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -88,7 +89,15 @@ public class RunApplication extends BaseTool {
 				printError("Application or file " + filename + " not found.");
 				return 1;
 			}
+
+			if (application.hasSyntaxError()) {
+				printError("Syntax error in file '" + application.getFilename() + "':");
+				printError(application.getErrorMessage());
+				return 1;
+			}
+
 			app = application.getWdlApp();
+
 		}
 
 		// print application details
@@ -101,6 +110,12 @@ public class RunApplication extends BaseTool {
 			System.out.println(app.getWebsite());
 		}
 		System.out.println();
+
+		if (app.getWorkflow() == null || app.getWorkflow().getSteps() == null
+				|| app.getWorkflow().getSteps().size() == 0) {
+			printError("Application has no workflow. It seems that " + app.getName() + " is a data package.");
+			return 1;
+		}
 
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -188,17 +203,28 @@ public class RunApplication extends BaseTool {
 
 		} else {
 			printText(0, spaces("[INFO]", 8)
-					+ "No external Haddop cluster set. Be sure cloudgene is running on your namenode");
+					+ "No external Haddop cluster set. Be sure you execute Cloudgene on your namenode.");
 		}
 
 		// check cluster status
 		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
+		boolean hadoopSupport = true;
 		if (details != null) {
-			printText(0, spaces("[INFO]", 8) + "Cluster has " + details.getActiveTrackerNames().size() + " nodes, "
-					+ details.getMapTasks() + " map tasks and " + details.getReduceTasks() + " reduce tasks");
+			int nodes = details.getActiveTrackerNames().size();
+			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMapTasks()
+					+ " map tasks and " + details.getReduceTasks() + " reduce tasks");
+			if (nodes == 0) {
+				printText(0,
+						spaces("[WARN]", 8) + "Cluster seems unreachable or misconfigured. Hadoop support disabled.");
+				hadoopSupport = false;
+			}
 		} else {
-			System.out.println("Error: Hadoop cluster is unreachable.");
-			System.out.println();
+			printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
+			hadoopSupport = false;
+		}
+
+		if (!hadoopSupport && (app.getWorkflow().hasHdfsOutputs() || app.getWorkflow().hasHdfsInputs())) {
+			printError("This application needs a working Hadoop cluster.");
 			return 1;
 		}
 
@@ -218,9 +244,8 @@ public class RunApplication extends BaseTool {
 		FileUtil.createDirectory(local);
 
 		// file params with values from cmdline
-		Map<String, String> params = CommandLineUtil.createParams(app, line, local, hdfs);
-
-		try {
+		try{
+			Map<String, String> params = CommandLineUtil.createParams(app, line, local, hdfs);
 
 			// dummy user
 			User user = new User();

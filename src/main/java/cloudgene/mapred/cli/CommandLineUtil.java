@@ -1,6 +1,7 @@
 package cloudgene.mapred.cli;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class CommandLineUtil {
 		return options;
 	}
 
-	public static Map<String, String> createParams(WdlApp app, CommandLine line, String local, String hdfs) {
+	public static Map<String, String> createParams(WdlApp app, CommandLine line, String local, String hdfs) throws FileNotFoundException {
 		Map<String, String> props = new HashMap<String, String>();
 		if (app.getWorkflow() == null){
 			return props;
@@ -61,6 +62,9 @@ public class CommandLineUtil {
 			if (input.isFileOrFolder()) {
 
 				File tmpFile = new File(value);
+				if (!tmpFile.exists()){
+					throw new FileNotFoundException("File " + value + " not found.");
+				}
 				String entryName = tmpFile.getName();
 
 				if (input.isHdfs()) {
