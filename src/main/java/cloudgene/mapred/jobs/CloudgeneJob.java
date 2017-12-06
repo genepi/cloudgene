@@ -73,7 +73,7 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	public CloudgeneJob(User user, String id, WdlWorkflow config, Map<String, String> params) {
-
+		setComplete(false);
 		this.config = config;
 		setId(id);
 		setUser(user);

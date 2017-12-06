@@ -30,12 +30,12 @@ public class JobDao extends JdbcDataAccessObject {
 	public boolean insert(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?,?)");
+				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id, submitted_on, finished_on, setup_start_time, setup_end_time) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[10];
+			Object[] params = new Object[14];
 			params[0] = job.getId();
 			params[1] = job.getName();
 			params[2] = job.getState();
@@ -46,6 +46,10 @@ public class JobDao extends JdbcDataAccessObject {
 			params[7] = -1;
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
+			params[10] = job.getSubmittedOn();
+			params[11] = job.getFinishedOn();
+			params[12] = job.getSetupStartTime();
+			params[13] = job.getSetupEndTime();
 
 			update(sql.toString(), params);
 
@@ -64,11 +68,11 @@ public class JobDao extends JdbcDataAccessObject {
 		sql.append("update job ");
 		sql.append("  set name = ?, state = ?, ");
 		sql.append("  start_time = ?, end_time = ?, ");
-		sql.append("  user_id = ?, s3_url = ?, type = ?, deleted_on = ?, application = ?, application_id = ? ");
+		sql.append("  user_id = ?, s3_url = ?, type = ?, deleted_on = ?, application = ?, application_id = ?, submitted_on = ?, finished_on = ?, setup_start_time = ?, setup_end_time = ? ");
 		sql.append("where id = ? ");
 		try {
 
-			Object[] params = new Object[11];
+			Object[] params = new Object[15];
 			params[0] = job.getName();
 			params[1] = job.getState();
 			params[2] = job.getStartTime();
@@ -79,7 +83,11 @@ public class JobDao extends JdbcDataAccessObject {
 			params[7] = job.getDeletedOn();
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
-			params[10] = job.getId();
+			params[10] = job.getSubmittedOn();
+			params[11] = job.getFinishedOn();
+			params[12] = job.getSetupStartTime();
+			params[13] = job.getSetupEndTime();
+			params[14] = job.getId();
 
 			update(sql.toString(), params);
 
@@ -321,7 +329,7 @@ public class JobDao extends JdbcDataAccessObject {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("join user on job.user_id = user.id ");
-		sql.append("where  state = ? AND end_time < ?  ");
+		sql.append("where  state = ? AND end_time != 0 AND end_time < ?  ");
 		sql.append("order by job.id desc ");
 
 		Object[] params = new Object[2];
@@ -444,6 +452,10 @@ public class JobDao extends JdbcDataAccessObject {
 			job.setDeletedOn(rs.getLong("job.deleted_on"));
 			job.setApplication(rs.getString("job.application"));
 			job.setApplicationId(rs.getString("job.application_id"));
+			job.setSubmittedOn(rs.getLong("job.submitted_on"));
+			job.setFinishedOn(rs.getLong("job.finished_on"));
+			job.setSetupStartTime(rs.getLong("job.setup_start_time"));
+			job.setSetupEndTime(rs.getLong("job.setup_end_time"));
 
 			return job;
 		}

@@ -43,23 +43,19 @@ public class WorkflowEngine implements Runnable {
 				if (job.isSetupComplete()) {
 
 					if (job.hasSteps()) {
-
-						job.setState(AbstractJob.STATE_WAITING);
 						statusUpdated(job);
 						longTimeQueue.submit(job);
-
 					} else {
-						job.setState(AbstractJob.STATE_SUCCESS);
-						statusUpdated(job);
+						job.setFinishedOn(System.currentTimeMillis());
 						jobCompleted(job);
-
+						job.setComplete(true);
 					}
 
 				} else {
-
 					log.info("Setup failed for Job " + job.getId() + ". Not added to Long Time Queue.");
+					job.setFinishedOn(System.currentTimeMillis());
 					jobCompleted(job);
-
+					job.setComplete(true);
 				}
 
 			}
@@ -75,9 +71,9 @@ public class WorkflowEngine implements Runnable {
 
 			@Override
 			public void onComplete(AbstractJob job) {
-
+				job.setFinishedOn(System.currentTimeMillis());
 				jobCompleted(job);
-
+				job.setComplete(true);
 			}
 
 		};
@@ -91,14 +87,17 @@ public class WorkflowEngine implements Runnable {
 	public void submit(AbstractJob job, long priority) {
 
 		job.setPriority(priority);
-
+		job.setSubmittedOn(System.currentTimeMillis());
 		jobSubmitted(job);
 
 		boolean okey = job.afterSubmission();
 		if (okey) {
 			shortTimeQueue.submit(job);
 		} else {
+			job.setFinishedOn(System.currentTimeMillis());
 			statusUpdated(job);
+			job.setComplete(true);			
+
 		}
 	}
 
@@ -109,7 +108,12 @@ public class WorkflowEngine implements Runnable {
 	public void restart(AbstractJob job, long priority) {
 
 		job.setPriority(priority);
-
+		job.setSubmittedOn(System.currentTimeMillis());
+		job.setStartTime(0);
+		job.setEndTime(0);
+		job.setSetupStartTime(0);
+		job.setSetupEndTime(0);
+		job.setFinishedOn(0);
 		job.setState(AbstractJob.STATE_WAITING);
 		statusUpdated(job);
 
@@ -117,7 +121,10 @@ public class WorkflowEngine implements Runnable {
 		if (okey) {
 			shortTimeQueue.submit(job);
 		} else {
+			job.setFinishedOn(System.currentTimeMillis());
 			statusUpdated(job);
+			job.setComplete(true);
+
 		}
 
 	}
@@ -129,7 +136,6 @@ public class WorkflowEngine implements Runnable {
 	public void cancel(AbstractJob job) {
 
 		if (shortTimeQueue.isInQueue(job)) {
-			job.setStartTime(System.currentTimeMillis());
 			shortTimeQueue.cancel(job);
 		}
 
@@ -266,11 +272,12 @@ public class WorkflowEngine implements Runnable {
 		@Override
 		public void run() {
 			log.info("Start input validation for job " + job.getId() + "...");
+			job.setSetupStartTime(System.currentTimeMillis());
 			job.setSetupRunning(true);
 			job.runSetupSteps();
+			job.setSetupEndTime(System.currentTimeMillis());
 			job.setSetupRunning(false);
 			log.info("Input Validation for job " + job.getId() + " finished. Result: " + job.isSetupComplete());
-
 		}
 
 	}

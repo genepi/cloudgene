@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.25.0</version>
+	<version>1.26.0</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -76,7 +76,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 
-				<configuration>
+				<configuration> present).
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>

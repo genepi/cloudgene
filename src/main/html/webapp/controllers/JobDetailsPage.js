@@ -145,7 +145,20 @@ JobDetailsPage = can.Control({
 			id: that.job.id
 		}, function(currentJob) {
 			that.job.attr('state', currentJob.attr('state'));
-			that.job.attr('executionTime', currentJob.attr('executionTime'));
+			that.job.attr('startTime', currentJob.attr('startTime'));
+			if (currentJob.attr('startTime') > 0 && currentJob.attr('endTime') === 0){
+				//running
+				that.job.attr('endTime', Date.now());
+			}else{
+				that.job.attr('endTime', currentJob.attr('endTime'));
+			}
+			that.job.attr('setupStartTime', currentJob.attr('setupStartTime'));
+			if (currentJob.attr('setupStartTime') > 0 && currentJob.attr('setupEndTime') === 0){
+				//running
+				that.job.attr('setupEndTime', Date.now());
+			}else{
+				that.job.attr('setupEndTime', currentJob.attr('setupEndTime'));
+			}
 			that.job.attr('steps', currentJob.attr('steps'));
 			that.job.attr('positionInQueue', currentJob.attr('positionInQueue'));
 

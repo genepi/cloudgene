@@ -11,16 +11,28 @@ can.ejs.Helpers.prototype.prettyState = function(state) {
 	} else if (this.state == 5) {
 		return 'Error';
 	} else if (this.state == 6) {
-		return 'Canceled'
+		return 'Canceled';
 	} else {
-		return 'Error'
+		return 'Error';
 	}
 
 };
 
-can.ejs.Helpers.prototype.prettyTime = function(executionTime, state) {
+can.ejs.Helpers.prototype.prettyTime = function(start, end) {
 
-	if (executionTime <= 0 || state == 1) {
+	if (start === 0 && end === 0) {
+		return '-';
+	}
+
+	if (start > 0 && end === 0){
+		executionTime = Date.now() - start;
+	}else{
+		executionTime =end - start;
+	}
+
+
+
+	if (executionTime <= 0) {
 
 		return '-';
 

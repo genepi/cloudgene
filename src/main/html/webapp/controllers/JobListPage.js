@@ -127,6 +127,20 @@ JobRefresher = can.Control({
 		Job.findOne({
 			id: that.job.id
 		}, function(currentJob) {
+
+			if (currentJob.attr('startTime') > 0 && currentJob.attr('endTime') === 0){
+				//running
+				currentJob.attr('endTime', Date.now());
+			}else{
+				currentJob.attr('endTime', currentJob.attr('endTime'));
+			}
+			if (currentJob.attr('setupStartTime') > 0 && currentJob.attr('setupEndTime') === 0){
+				//running
+				currentJob.attr('setupEndTime', Date.now());
+			}else{
+				currentJob.attr('setupEndTime', currentJob.attr('setupEndTime'));
+			}
+
 			if (JobRefresher.needsUpdate(currentJob) && that.active) {
 				setTimeout(function() {
 					that.refresh();

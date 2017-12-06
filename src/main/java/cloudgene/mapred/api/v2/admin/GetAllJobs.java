@@ -82,7 +82,7 @@ public class GetAllJobs extends BaseResource {
 
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "outputParams", "inputParams",
-				"output", "endTime", "startTime", "error", "s3Url", "task",
+				"output", "error", "s3Url", "task",
 				"config", "mapReduceJob", "job", "step", "context",
 				"hdfsWorkspace", "localWorkspace", "logOutFiles", "logs",
 				"removeHdfsWorkspace", "settings", "setupComplete",

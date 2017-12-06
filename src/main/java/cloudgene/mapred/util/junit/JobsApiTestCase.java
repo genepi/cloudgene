@@ -152,9 +152,10 @@ public class JobsApiTestCase extends TestCase {
 		JSONObject object = new JSONObject(resourceStatus.getResponseEntity().getText());
 		resourceStatus.release();
 
-		boolean running = object.getBoolean("running");
+		boolean running = object.getInt("state") == 1 || object.getInt("state") == 2 || object.getInt("state") == 3;
+		System.out.println(running);
 		if (running) {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 			waitForJob(id, loginCookie);
 		}
 	}
@@ -169,9 +170,8 @@ public class JobsApiTestCase extends TestCase {
 		JSONObject object = new JSONObject(resourceStatus.getResponseEntity().getText());
 		resourceStatus.release();
 
-		boolean running = object.getBoolean("running");
-		if (running) {
-			Thread.sleep(1000);
+		boolean running = object.getInt("state") == 1 || object.getInt("state") == 2 || object.getInt("state") == 3;		if (running) {
+			Thread.sleep(500);
 			waitForJobWithApiToken(id, token);
 		}
 	}

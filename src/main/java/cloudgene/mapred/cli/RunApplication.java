@@ -62,6 +62,13 @@ public class RunApplication extends BaseTool {
 		// call init manualy
 		init();
 
+		if (args.length < 1) {
+			printError("No filename of a cloudgene.yaml file or id of an application found.");
+			System.out.println("cloudgene run <path-to-cloudgene.yaml>");
+			System.out.println();
+			return 1;
+		}
+
 		String filename = args[0];
 
 		// check if file exists
@@ -244,7 +251,7 @@ public class RunApplication extends BaseTool {
 		FileUtil.createDirectory(local);
 
 		// file params with values from cmdline
-		try{
+		try {
 			Map<String, String> params = CommandLineUtil.createParams(app, line, local, hdfs);
 
 			// dummy user
@@ -317,10 +324,12 @@ public class RunApplication extends BaseTool {
 			engine.submit(job);
 
 			// wait until job is complete.
-			while (job.isRunning()) {
+			while (!job.isComplete()) {
 				Thread.sleep(1000);
 			}
-
+			long wallTime = (job.getFinishedOn() - job.getSubmittedOn()) / 1000;
+			long setupTime = (job.getSetupEndTime() - job.getSetupStartTime()) / 1000;
+			long pipelineTime = (job.getFinishedOn() - job.getSubmittedOn()) / 1000;
 			// print steps and feedback
 			System.out.println();
 
@@ -332,6 +341,10 @@ public class RunApplication extends BaseTool {
 				printlnInGreen("Done! Executed without errors.");
 				System.out.println("Results can be found in file://" + (new File(local)).getAbsolutePath());
 				System.out.println();
+				if (logging) {
+					printText(0, spaces("[LOG]", 8) + "Wall-Time: " + wallTime + " sec [Setup: " + setupTime
+							+ " sec, Pipeline: " + pipelineTime + " sec]");
+				}
 				System.out.println();
 				return 0;
 
@@ -339,9 +352,17 @@ public class RunApplication extends BaseTool {
 				printlnInRed("Error: Execution failed.");
 				System.out.println();
 				System.out.println();
+				if (logging) {
+					printText(0, spaces("[LOG]", 8) + "Wall-Time: " + wallTime + " [Setup: " + setupTime
+							+ ", Pipeline: " + pipelineTime);
+					System.out.println();
+				}
+
 				if (cluster != null) {
 					cluster.stop();
 				}
+				System.out.println();
+
 				return 1;
 			}
 
