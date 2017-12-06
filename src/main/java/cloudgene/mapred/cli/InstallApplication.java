@@ -1,5 +1,8 @@
 package cloudgene.mapred.cli;
 
+import java.util.List;
+import java.util.Vector;
+
 import cloudgene.mapred.util.Application;
 
 public class InstallApplication extends BaseTool {
@@ -29,7 +32,7 @@ public class InstallApplication extends BaseTool {
 
 		try {
 
-			Application application = null;
+			List<Application> applications = new Vector<Application>();
 
 			if (settings.getApp(id) != null) {
 				printlnInRed("[ERROR] An application with id '" + id + "' is already installed.\n");
@@ -39,23 +42,27 @@ public class InstallApplication extends BaseTool {
 			System.out.println("Installing application " + id + "...");
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				application = getSettings().installApplicationFromUrl(id, url);
+				applications = getSettings().installApplicationFromUrl(id, url);
 			} else {
 				if (url.endsWith(".zip")) {
-					application = getSettings().installApplicationFromZipFile(id, url);
+					applications = getSettings().installApplicationFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
-					application = getSettings().installApplicationFromYaml(id, url);
+					Application application = getSettings().installApplicationFromYaml(id, url);
+					if (application != null) {
+						applications.add(application);
+					}
 				} else {
-					application = getSettings().installApplicationFromDirectory(id, url);
+					applications = getSettings().installApplicationFromDirectory(id, url);
 				}
 			}
 
-			if (application != null) {
+			if (applications.size() > 0) {
 				settings.save();
-				printlnInGreen("[OK] Application installed.\n");
+				printlnInGreen("[OK] " + applications.size() + " Applications installed: \n");
+				ListApplications.printApplicationList(applications);
 				return 0;
 			} else {
-				printlnInRed("[ERROR] Application not installed.\n");
+				printlnInRed("[ERROR] 0 Applications not installed.\n");
 				return 1;
 			}
 

@@ -429,7 +429,7 @@ public class Settings {
 
 	}
 
-	public Application installApplicationFromUrl(String id, String url) throws IOException {
+	public List<Application> installApplicationFromUrl(String id, String url) throws IOException {
 		// download file from url
 		if (url.endsWith(".zip")) {
 			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
@@ -444,7 +444,14 @@ public class Settings {
 				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
 
 				FileUtils.copyURLToFile(new URL(url), new File(yamlFilename));
-				return installApplicationFromYaml(id, yamlFilename);
+				Application application = installApplicationFromYaml(id, yamlFilename);
+
+				List<Application> installed = new Vector<Application>();
+				if (application != null) {
+					installed.add(application);
+				}
+
+				return installed;
 
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -454,7 +461,7 @@ public class Settings {
 
 	}
 
-	public Application installApplicationFromZipFile(String id, String zipFilename) throws IOException {
+	public List<Application> installApplicationFromZipFile(String id, String zipFilename) throws IOException {
 
 		// extract in apps folder
 		String appPath = FileUtil.path("apps", id);
@@ -473,21 +480,29 @@ public class Settings {
 
 	}
 
-	public Application installApplicationFromDirectory(String id, String path) throws IOException {
+	public List<Application> installApplicationFromDirectory(String id, String path) throws IOException {
 		// find all cloudgene workflows (use filename as id)
 		System.out.println("Search in folder " + path);
 		String[] files = FileUtil.getFiles(path, "*.yaml");
+
+		List<Application> installed = new Vector<Application>();
+
 		for (String filename : files) {
-
-			return installApplicationFromYaml(id, filename);
-
+			String newId = id;
+			if (files.length > 0) {
+				newId = id + "-" + FileUtil.getFilename(filename).replaceAll(".yaml", "");
+			}
+			Application application = installApplicationFromYaml(newId, filename);
+			if (application != null) {
+				installed.add(application);
+			}
 		}
 
 		// search in subfolders
 		for (String directory : getDirectories(path)) {
-			return installApplicationFromDirectory(id, directory);
+			installed.addAll(installApplicationFromDirectory(id, directory));
 		}
-		return null;
+		return installed;
 
 	}
 
