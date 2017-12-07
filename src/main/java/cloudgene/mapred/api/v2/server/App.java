@@ -15,6 +15,7 @@ import org.restlet.resource.Put;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
@@ -55,6 +56,13 @@ public class App extends BaseResource {
 
 		}
 
+		if (wdlApp.getWorkflow().hasHdfsInputs() && !getSettings().isEnable(Technology.HADOOP_CLUSTER)) {
+
+			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+			return new StringRepresentation("Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
+
+		}
+		
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
 		JSONObject jsonObject = JSONObject.fromObject(wdlHeader, config);

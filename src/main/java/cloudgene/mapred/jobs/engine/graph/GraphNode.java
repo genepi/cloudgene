@@ -22,6 +22,7 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.ExternStep;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class GraphNode implements Runnable {
@@ -48,8 +49,7 @@ public class GraphNode implements Runnable {
 	private String id = "";
 
 	public GraphNode(WdlStep step, CloudgeneContext context)
-			throws MalformedURLException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException {
+			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		this.step = step;
 		this.context = context;
 		this.job = context.getJob();
@@ -66,9 +66,8 @@ public class GraphNode implements Runnable {
 		this.step = step;
 	}
 
-	private void instance() throws MalformedURLException,
-			ClassNotFoundException, InstantiationException,
-			IllegalAccessException {
+	private void instance()
+			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
 		id = step.getName().toLowerCase().replace(" ", "_");
 
@@ -87,7 +86,7 @@ public class GraphNode implements Runnable {
 
 			// rscript
 			step.setClassname("cloudgene.mapred.steps.RMarkdown");
-			
+
 		} else if (step.getRmd2() != null) {
 
 			// rscript
@@ -109,9 +108,16 @@ public class GraphNode implements Runnable {
 
 		} else {
 
-			// mapreduce
-			step.setClassname("cloudgene.mapred.steps.MapReduce");
+			if (step.getRuntime() == null || step.getRuntime().isEmpty()
+					|| step.getRuntime().toLowerCase().equals("hadoop")) {
+				// mapreduce
+				step.setClassname("cloudgene.mapred.steps.MapReduce");
+			} else if (step.getRuntime() != null && step.getRuntime().toLowerCase().equals("java")) {
+				// normal java when no Hadoop suppport
+				step.setClassname("cloudgene.mapred.steps.JavaStep");
+			} else {
 
+			}
 		}
 
 		// create instance
@@ -127,8 +133,7 @@ public class GraphNode implements Runnable {
 
 				URL url = file.toURL();
 
-				URLClassLoader urlCl = new URLClassLoader(new URL[] { url },
-						CloudgeneJob.class.getClassLoader());
+				URLClassLoader urlCl = new URLClassLoader(new URL[] { url }, CloudgeneJob.class.getClassLoader());
 				Class myClass = urlCl.loadClass(step.getClassname());
 
 				Object object = myClass.newInstance();
@@ -138,22 +143,15 @@ public class GraphNode implements Runnable {
 				} else if (object instanceof WorkflowStep) {
 					instance = new ExternStep((WorkflowStep) object);
 				} else {
-					instance = new ErrorStep(
-							"Error during initialization: class "
-									+ step.getClassname()
-									+ " ( "
-									+ object.getClass().getSuperclass()
-											.getCanonicalName()
-									+ ") "
-									+ " has to extend CloudgeneStep or WorkflowStep. ");
+					instance = new ErrorStep("Error during initialization: class " + step.getClassname() + " ( "
+							+ object.getClass().getSuperclass().getCanonicalName() + ") "
+							+ " has to extend CloudgeneStep or WorkflowStep. ");
 
 				}
 
 			} else {
 
-				instance = new ErrorStep(
-						"Error during initialization: Jar file '" + jar
-								+ "' not found.");
+				instance = new ErrorStep("Error during initialization: Jar file '" + jar + "' not found.");
 
 			}
 
@@ -206,8 +204,7 @@ public class GraphNode implements Runnable {
 				long h = (long) (Math.floor((time / 1000) / 60 / 60));
 				long m = (long) ((Math.floor((time / 1000) / 60)) % 60);
 
-				String t = (h > 0 ? h + " h " : "")
-						+ (m > 0 ? m + " min " : "")
+				String t = (h > 0 ? h + " h " : "") + (m > 0 ? m + " min " : "")
 						+ (int) ((Math.floor(time / 1000)) % 60) + " sec";
 
 				job.writeLog("  " + step.getName() + " [" + t + "]");

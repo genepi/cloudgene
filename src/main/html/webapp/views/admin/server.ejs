@@ -109,6 +109,39 @@
 
 <hr>
 
+<h4>Hadoop</h4>
+<% if (cluster.attr('hadoop_enabled')) { %>
+<table class="table table-bordered">
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Mode:</b>
+		</td>
+		<td>
+			<% if (cluster.attr('hadoop_safemode')) { %>
+				<span class="label label-important">SAFEMODE!</span>
+			<% } else { %>
+				<span class="label label-success">Running</span>
+			<% } %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Details:</b>
+		</td>
+		<td>
+			<pre><%== cluster.attr('hadoop_details') %></pre>
+		</td>
+	</tr>
+</table>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+	    <%== cluster.attr('hadoop_error') %>
+	</div>
+<% }%>
+<hr>
+
 <h4>Database Connection Pool</h4>
 
 <table class="table table-bordered">
@@ -149,35 +182,6 @@
 		</td>
 	</tr>
 
-</table>
-
-<hr>
-
-<h4>Hadoop</h4>
-
-<table class="table table-bordered">
-
-	<tr>
-		<td style="width: 150px;">
-			<b>Mode:</b>
-		</td>
-		<td>
-			<% if (cluster.attr('safemode')) { %>
-				<span class="label label-important">SAFEMODE!</span>
-			<% } else { %>
-				<span class="label label-success">Running</span>
-			<% } %>
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 150px;">
-			<b>Details:</b>
-		</td>
-		<td>
-			<pre><%== cluster.attr('cluster') %></pre>
-		</td>
-	</tr>
 </table>
 
 <hr>

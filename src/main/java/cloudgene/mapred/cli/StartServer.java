@@ -1,9 +1,13 @@
 package cloudgene.mapred.cli;
 
+import org.apache.hadoop.mapred.ClusterStatus;
+
 import cloudgene.mapred.Main;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.util.DockerHadoopCluster;
 import cloudgene.mapred.util.HadoopCluster;
 import genepi.base.Tool;
+import genepi.hadoop.HadoopUtil;
 
 public class StartServer extends BaseTool {
 
@@ -61,22 +65,43 @@ public class StartServer extends BaseTool {
 			System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
 		}
 
+		// check cluster status
+		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
+		boolean hadoopSupport = true;
+		if (details != null) {
+			int nodes = details.getActiveTrackerNames().size();
+			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMapTasks()
+					+ " map tasks and " + details.getReduceTasks() + " reduce tasks");
+			if (nodes == 0) {
+				printText(0,
+						spaces("[WARN]", 8) + "Cluster seems unreachable or misconfigured. Hadoop support disabled.");
+				hadoopSupport = false;
+			}
+		} else {
+			printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
+			hadoopSupport = false;
+		}
+
+		if (!hadoopSupport) {
+			settings.disable(Technology.HADOOP_CLUSTER);
+		}
+
 		Main main = new Main();
 		try {
 			String[] newArgs = new String[] {};
 			if (getValue("port") != null) {
 				newArgs = new String[] { "--port", getValue("port").toString() };
 			}
-			main.runCloudgene(newArgs);
-			
+			main.runCloudgene(settings, newArgs);
+
 			String port = "";
-			if (getValue("port") != null){
+			if (getValue("port") != null) {
 				port = getValue("port").toString();
-			}else{
+			} else {
 				port = "8082";
 			}
 			System.out.println();
-			System.out.println("Server is running on http://localhost:" + port );
+			System.out.println("Server is running on http://localhost:" + port);
 			System.out.println();
 			System.out.println("Please press ctrl-c to stop.");
 			while (true) {

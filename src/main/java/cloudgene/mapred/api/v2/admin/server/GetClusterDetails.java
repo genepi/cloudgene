@@ -1,16 +1,11 @@
 package cloudgene.mapred.api.v2.admin.server;
 
-import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.HdfsUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-
-import net.sf.json.JSONObject;
 
 import org.apache.hadoop.mapred.ClusterStatus;
 import org.restlet.data.MediaType;
@@ -23,6 +18,10 @@ import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HadoopCluster;
+import cloudgene.mapred.util.Technology;
+import genepi.hadoop.HadoopUtil;
+import genepi.hadoop.HdfsUtil;
+import net.sf.json.JSONObject;
 
 public class GetClusterDetails extends BaseResource {
 
@@ -42,10 +41,17 @@ public class GetClusterDetails extends BaseResource {
 		}
 
 		JSONObject object = new JSONObject();
+
+		// general settigns
 		object.put("maintenance", getSettings().isMaintenance());
 		object.put("blocked", !getWorkflowEngine().isRunning());
 		object.put("version", Main.VERSION);
-
+		object.put("maintenance", getSettings().isMaintenance());
+		object.put("blocked", !getWorkflowEngine().isRunning());
+		object.put("threads_setup", getSettings().getThreadsSetupQueue());
+		object.put("threads", getSettings().getThreadsQueue());
+		object.put("max_jobs", getSettings().getMaxRunningJobs());
+		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
 		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
 		try {
 			URL url = cl.findResource("META-INF/MANIFEST.MF");
@@ -61,46 +67,50 @@ public class GetClusterDetails extends BaseResource {
 			// handle
 		}
 
-		try {
-			object.put("safemode", HadoopUtil.getInstance().isInSafeMode());
-		} catch (Exception e) {
-			object.put("safemode", false);
-		}
-
-		object.put("maintenance", getSettings().isMaintenance());
-		object.put("blocked", !getWorkflowEngine().isRunning());
-		object.put("threads_setup", getSettings().getThreadsSetupQueue());
-		object.put("threads", getSettings().getThreadsQueue());
-		object.put("max_jobs", getSettings().getMaxRunningJobs());
-		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
-
+		// workspace and hdd
 		File workspace = new File(getSettings().getLocalWorkspace());
-
 		object.put("workspace_path", workspace.getAbsolutePath());
 		object.put("free_disc_space", workspace.getUsableSpace() / 1024 / 1024 / 1024);
 		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
 
-		try {
-			ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
-			StringBuffer state = new StringBuffer();
-			state.append("JobTracker: " + HadoopCluster.getJobTracker() + "\n");
-			state.append("Default FS: " + HadoopCluster.getDefaultFS() + "\n");
-			state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
-			state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
-			state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
-			state.append("Nodes\n");
-			for (String tracker : cluster.getActiveTrackerNames()) {
-				state.append("  " + tracker + "\n");
+		// hadoop
+		if (getSettings().isEnable(Technology.HADOOP_CLUSTER)) {
+			try {
+
+				try {
+					object.put("hadoop_safemode", HadoopUtil.getInstance().isInSafeMode());
+				} catch (Exception e) {
+					object.put("hadoop_safemode", false);
+				}
+
+				ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
+				StringBuffer state = new StringBuffer();
+				state.append("JobTracker: " + HadoopCluster.getJobTracker() + "\n");
+				state.append("Default FS: " + HadoopCluster.getDefaultFS() + "\n");
+				state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
+				state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
+				state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
+				state.append("Nodes\n");
+				for (String tracker : cluster.getActiveTrackerNames()) {
+					state.append("  " + tracker + "\n");
+				}
+				state.append("Blacklist:\n");
+				for (String tracker : cluster.getBlacklistedTrackerNames()) {
+					state.append("  " + tracker + "\n");
+				}
+				object.put("hadoop_details", state.toString());
+				object.put("hadoop_enabled", true);
+
+			} catch (Exception e) {
+				object.put("hadoop_enabled", false);
+				object.put("hadoop_error", "Hadoop cluster is unreachable");
 			}
-			state.append("Blacklist:\n");
-			for (String tracker : cluster.getBlacklistedTrackerNames()) {
-				state.append("  " + tracker + "\n");
-			}
-			object.put("cluster", state.toString());
-		} catch (Exception e) {
-			object.put("cluster", "Hadoop cluster is unreachable");
+		} else {
+			object.put("hadoop_enabled", false);
+			object.put("hadoop_error", "Hadoop support is disabled. Please check your configuration.");
 		}
 
+		// database
 		object.put("db_max_active", getDatabase().getDataSource().getMaxActive());
 		object.put("db_active", getDatabase().getDataSource().getNumActive());
 		object.put("db_max_idle", getDatabase().getDataSource().getMaxIdle());

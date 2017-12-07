@@ -7,13 +7,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math3.stat.clustering.Cluster;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -106,6 +109,8 @@ public class Settings {
 
 	private int uploadLimit = -1;
 
+	private Set<Technology> technologies = new HashSet<Technology>();
+	
 	public Settings() {
 
 		apps = new Vector<Application>();
@@ -130,6 +135,9 @@ public class Settings {
 		database.put("user", "mapred");
 		database.put("password", "mapred");
 
+		enable(Technology.HADOOP_CLUSTER);
+
+		
 	}
 
 	public static Settings load(String filename) throws FileNotFoundException, YamlException {
@@ -139,6 +147,7 @@ public class Settings {
 		YamlReader reader = new YamlReader(new FileReader(filename), config);
 
 		Settings settings = reader.read(Settings.class);
+		settings.enable(Technology.HADOOP_CLUSTER);
 
 		log.info("Auto retire: " + settings.isAutoRetire());
 		log.info("Retire jobs after " + settings.retireAfter + " days.");
@@ -719,6 +728,21 @@ public class Settings {
 		return names;
 	}
 
+	public void enable(Technology technology){
+		technologies.add(technology);
+	}
+	
+	public void disable(Technology technology){
+		
+		System.out.println(technologies);
+		technologies.remove(technology);
+		System.out.println(technologies);
+	}
+	
+	public boolean isEnable(Technology technology){
+		return technologies.contains(technology);
+	}
+	
 	public void setThreadsSetupQueue(int threadsSetupQueue) {
 		this.threadsSetupQueue = threadsSetupQueue;
 	}
