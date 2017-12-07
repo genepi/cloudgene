@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class SparkStep extends Hadoop {
@@ -74,5 +75,10 @@ public class SparkStep extends Hadoop {
 		context.log("Exit Code: " + process.exitValue());
 
 		return true;
+	}
+	
+	@Override
+	public Technology[] getRequirements() {
+		return new Technology[]{Technology.HADOOP_CLUSTER};
 	}
 }

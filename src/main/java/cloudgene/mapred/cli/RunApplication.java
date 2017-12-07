@@ -26,6 +26,7 @@ import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.DockerHadoopCluster;
 import cloudgene.mapred.util.HadoopCluster;
+import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
@@ -238,6 +239,10 @@ public class RunApplication extends BaseTool {
 
 		if (!hadoopSupport){
 			settings.disable(Technology.HADOOP_CLUSTER);
+		}
+		
+		if (!RBinary.isInstalled()){
+			settings.disable(Technology.R);
 		}
 		
 		// create directories

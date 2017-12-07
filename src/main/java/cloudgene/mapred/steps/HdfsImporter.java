@@ -5,6 +5,7 @@ import genepi.hadoop.importer.IImporter;
 import genepi.hadoop.importer.ImporterFactory;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Message;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class HdfsImporter extends Hadoop {
@@ -95,6 +96,11 @@ public class HdfsImporter extends Hadoop {
 			return false;
 		}
 
+	}
+	
+	@Override
+	public Technology[] getRequirements() {
+		return new Technology[]{Technology.HADOOP_CLUSTER};
 	}
 
 }

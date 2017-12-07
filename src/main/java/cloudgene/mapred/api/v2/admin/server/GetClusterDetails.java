@@ -18,9 +18,12 @@ import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HadoopCluster;
+import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.command.Command;
+import genepi.hadoop.rscript.RScript;
+import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
 
 public class GetClusterDetails extends BaseResource {
@@ -108,6 +111,23 @@ public class GetClusterDetails extends BaseResource {
 		} else {
 			object.put("hadoop_enabled", false);
 			object.put("hadoop_error", "Hadoop support is disabled. Please check your configuration.");
+		}
+
+		// r
+		if (getSettings().isEnable(Technology.R)) {
+			object.put("r_enabled", true);
+			object.put("r_details", RBinary.getVersion());
+		} else {
+			object.put("r_enabled", false);
+			object.put("r_error", "R support is disabled. Please check your configuration.");
+		}
+
+		if (getSettings().isEnable(Technology.R_MARKDOWN)) {
+			object.put("rmarkdown_enabled", true);
+			object.put("rmarkdown_details", "'knitr' and 'markdown' are installed.");
+		} else {
+			object.put("rmarkdown_enabled", false);
+			object.put("rmarkdown_error", "R Markdown support is disabled. Please check your configuration.");
 		}
 
 		// database

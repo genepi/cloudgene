@@ -6,6 +6,7 @@ import cloudgene.mapred.Main;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.util.DockerHadoopCluster;
 import cloudgene.mapred.util.HadoopCluster;
+import cloudgene.mapred.util.RBinary;
 import genepi.base.Tool;
 import genepi.hadoop.HadoopUtil;
 
@@ -84,6 +85,17 @@ public class StartServer extends BaseTool {
 
 		if (!hadoopSupport) {
 			settings.disable(Technology.HADOOP_CLUSTER);
+		}
+
+		if (!RBinary.isInstalled()) {
+			printText(0, spaces("[WARN]", 8) + "RScript not found. R Markdown report disabled.");
+			settings.disable(Technology.R);
+			settings.disable(Technology.R_MARKDOWN);
+		} else {
+			if (!RBinary.isMarkdownInstalled()) {
+				printText(0, spaces("[WARN]", 8) + "R Markdown packages not found. R Markdown report disabled.");
+				settings.disable(Technology.R_MARKDOWN);
+			}
 		}
 
 		Main main = new Main();

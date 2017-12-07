@@ -149,6 +149,14 @@ public class GraphNode implements Runnable {
 
 				}
 
+				// check requirements
+				for (Technology technology : instance.getRequirements()) {
+					if (!context.getSettings().isEnable(technology)) {
+						instance = new ErrorStep(
+								"Requirements not fullfilled. This steps needs " + technology.toString());
+					}
+				}
+
 			} else {
 
 				instance = new ErrorStep("Error during initialization: Jar file '" + jar + "' not found.");

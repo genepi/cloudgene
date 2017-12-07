@@ -3,9 +3,10 @@ package cloudgene.mapred.jobs;
 import java.io.File;
 import java.util.List;
 
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
-public class CloudgeneStep {
+public abstract class CloudgeneStep {
 
 	private int id;
 
@@ -80,6 +81,10 @@ public class CloudgeneStep {
 		this.logMessages = logMessages;
 	}
 
+	public Technology[] getRequirements(){
+		return new Technology[]{};
+	}
+	
 	// dummy for beam serialization (setup --> property up!)
 	public CloudgeneContext getup() {
 		return null;

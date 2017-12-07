@@ -140,6 +140,34 @@
 	    <%== cluster.attr('hadoop_error') %>
 	</div>
 <% }%>
+
+<hr>
+
+<h4>R</h4>
+<% if (cluster.attr('r_enabled')) { %>
+	<div class="alert alert-success" id="success-message">
+		<%== cluster.attr('r_details') %></pre>
+	</div>
+</table>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+    <%== cluster.attr('r_error') %>
+	</div>
+<% }%>
+
+<hr>
+
+<h4>R Markdown</h4>
+<% if (cluster.attr('rmarkdown_enabled')) { %>
+	<div class="alert alert-success" id="success-message">
+		<%== cluster.attr('rmarkdown_details') %>
+	</div>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+	  	<%== cluster.attr('rmarkdown_error') %>
+	</div>
+<% }%>
+
 <hr>
 
 <h4>Database Connection Pool</h4>

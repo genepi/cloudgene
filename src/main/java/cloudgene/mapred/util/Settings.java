@@ -136,7 +136,8 @@ public class Settings {
 		database.put("password", "mapred");
 
 		enable(Technology.HADOOP_CLUSTER);
-
+		enable(Technology.R);
+		enable(Technology.R_MARKDOWN);
 		
 	}
 
@@ -733,10 +734,7 @@ public class Settings {
 	}
 	
 	public void disable(Technology technology){
-		
-		System.out.println(technologies);
 		technologies.remove(technology);
-		System.out.println(technologies);
 	}
 	
 	public boolean isEnable(Technology technology){

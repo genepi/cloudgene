@@ -12,6 +12,8 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.MyRScript;
+import cloudgene.mapred.util.RBinary;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
 public class RMarkdown2 extends CloudgeneStep {
@@ -24,9 +26,22 @@ public class RMarkdown2 extends CloudgeneStep {
 		String wd = context.getWorkingDirectory();
 
 		String rmd = step.getRmd2();
+		if (rmd == null || rmd.isEmpty()) {
+			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
+			return false;
+		}
 		String output = step.getOutput();
+		if (output == null || output.isEmpty()) {
+			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
+			return false;
+		}
+
 		String paramsString = step.getParams();
-		String[] params = paramsString.split(" ");
+
+		String[] params = new String[] {};
+		if (paramsString != null) {
+			params = paramsString.split(" ");
+		}
 
 		context.log("Running script " + step.getRmd2() + "...");
 		context.log("Working Directory: " + wd);
@@ -42,23 +57,19 @@ public class RMarkdown2 extends CloudgeneStep {
 			context.endTask("Execution successful.", Message.OK);
 			return true;
 		} else {
-			context.endTask(
-					"Execution failed. Please have a look at the logfile for details.",
-					Message.ERROR);
+			context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
 			return false;
 		}
 
 	}
 
-	public int convert(String rmdScript, String outputHtml, String[] args,
-			WorkflowContext context) {
+	public int convert(String rmdScript, String outputHtml, String[] args, WorkflowContext context) {
 
 		context.log("Creating RMarkdown report from " + rmdScript + "...");
 
 		outputHtml = new File(outputHtml).getAbsolutePath();
 
-		String folder = new File(outputHtml).getParentFile().getAbsolutePath()
-				+ "/figures-temp/";
+		String folder = new File(outputHtml).getParentFile().getAbsolutePath() + "/figures-temp/";
 
 		FileUtil.createDirectory(folder);
 
@@ -67,12 +78,11 @@ public class RMarkdown2 extends CloudgeneStep {
 		MyRScript script = new MyRScript(scriptFilename);
 		script.append("library(knitr)");
 		script.append("library(markdown)");
-		script.append("rmarkdown::render(\"" + rmdScript
-				+ "\", output_file=\"" + outputHtml + "\")");
+		script.append("rmarkdown::render(\"" + rmdScript + "\", output_file=\"" + outputHtml + "\")");
 
 		script.save();
 
-		Command rScript = new Command("/usr/bin/Rscript");
+		Command rScript = new Command(RBinary.RSCRIPT_PATH);
 		rScript.setSilent(true);
 
 		String[] argsForScript = new String[args.length + 1];
@@ -94,8 +104,7 @@ public class RMarkdown2 extends CloudgeneStep {
 				}
 
 				try {
-					context.log("Number of lines: "
-							+ FileUtil.getLineCount(localFile));
+					context.log("Number of lines: " + FileUtil.getLineCount(localFile));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -114,10 +123,8 @@ public class RMarkdown2 extends CloudgeneStep {
 
 		int result = rScript.execute();
 
-		context.println(FileUtil.readFileAsString(FileUtil.path(folder,
-				"std.err")));
-		context.println(FileUtil.readFileAsString(FileUtil.path(folder,
-				"std.out")));
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.err")));
+		context.println(FileUtil.readFileAsString(FileUtil.path(folder, "std.out")));
 
 		new File(outputHtml + ".md").delete();
 		new File(scriptFilename).delete();
@@ -140,6 +147,11 @@ public class RMarkdown2 extends CloudgeneStep {
 			}
 		}
 		folder.delete();
+	}
+
+	@Override
+	public Technology[] getRequirements() {
+		return new Technology[] { Technology.R, Technology.R_MARKDOWN };
 	}
 
 }
