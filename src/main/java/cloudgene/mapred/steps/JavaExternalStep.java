@@ -18,11 +18,11 @@ import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
-public class JavaStep extends CloudgeneStep {
+public class JavaExternalStep extends CloudgeneStep {
 
 	protected Process process;
 
-	protected static final Log log = LogFactory.getLog(JavaStep.class);
+	protected static final Log log = LogFactory.getLog(JavaExternalStep.class);
 
 	public boolean run(WdlStep step, CloudgeneContext context) {
 

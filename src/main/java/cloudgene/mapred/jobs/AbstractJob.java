@@ -80,9 +80,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private String error = "";
 
-	private int map = -1;
-
-	private int reduce = -1;
+	private int progress = -1;
 
 	private boolean setupComplete = false;
 
@@ -206,20 +204,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.error = error;
 	}
 
-	public void setMap(int map) {
-		this.map = map;
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 
-	public int getMap() {
-		return map;
-	}
-
-	public void setReduce(int reduce) {
-		this.reduce = reduce;
-	}
-
-	public int getReduce() {
-		return reduce;
+	public int getProgress() {
+		return progress;
 	}
 
 	public void setDeletedOn(long deletedOn) {

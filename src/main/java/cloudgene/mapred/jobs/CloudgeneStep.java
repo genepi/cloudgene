@@ -1,10 +1,15 @@
 package cloudgene.mapred.jobs;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.common.WorkflowContext;
 
 public abstract class CloudgeneStep {
 
@@ -57,12 +62,8 @@ public abstract class CloudgeneStep {
 		return true;
 	}
 
-	public int getMapProgress() {
-		return 0;
-	}
-
-	public int getReduceProgress() {
-		return 0;
+	public int getProgress() {
+		return -1;
 	}
 
 	public void updateProgress() {
@@ -89,5 +90,48 @@ public abstract class CloudgeneStep {
 	public CloudgeneContext getup() {
 		return null;
 	}
+	
+	protected boolean executeCommand(List<String> command,
+			WorkflowContext context) throws IOException, InterruptedException {
+		// set global variables
+		for (int j = 0; j < command.size(); j++) {
+
+			String cmd = command.get(j).replaceAll("\\$job_id",
+					context.getJobId());
+			command.set(j, cmd);
+		}
+
+		context.log("Command: " + command);
+		context.log("Working Directory: "
+				+ new File(context.getWorkingDirectory()).getAbsolutePath());
+
+		ProcessBuilder builder = new ProcessBuilder(command);
+		builder.directory(new File(context.getWorkingDirectory()));
+		builder.redirectErrorStream(true);
+		Process process = builder.start();
+		InputStream is = process.getInputStream();
+		InputStreamReader isr = new InputStreamReader(is);
+		BufferedReader br = new BufferedReader(isr);
+		String line = null;
+
+		while ((line = br.readLine()) != null) {
+			context.println(line);
+		}
+
+		br.close();
+		isr.close();
+		is.close();
+
+		process.waitFor();
+		context.log("Exit Code: " + process.exitValue());
+
+		if (process.exitValue() != 0) {
+			return false;
+		} else {
+			process.destroy();
+		}
+		return true;
+	}
+
 
 }

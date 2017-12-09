@@ -1,34 +1,34 @@
 package cloudgene.mapred.steps;
 
-import genepi.io.FileUtil;
-
 import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
-public class PigHadoop extends Hadoop {
+public class HadoopSparkStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String pigPath = context.getSettings().getPigPath();
-		String pig = FileUtil.path(pigPath, "bin", "pig");
+		String pigPath = context.getSettings().getSparkPath();
 
 		// params
 		String paramsString = step.getParams();
 		String[] params = paramsString.split(" ");
 
-		// pig script
+		// spark script
 		List<String> command = new Vector<String>();
 
-		command.add(pig);
-		command.add("-f");
-		command.add(step.getPig());
+		command.add(pigPath);
+		command.add("--class");
+		command.add(step.getMainClass());
+		command.add("--master");
+		command.add("yarn");
+		command.add(step.getSpark());
 
 		// params
 		for (String tile : params) {
@@ -36,7 +36,7 @@ public class PigHadoop extends Hadoop {
 		}
 
 		try {
-			context.beginTask("Running Pig Script...");
+			context.beginTask("Running Spark Script...");
 			boolean successful = executeCommand(command, context);
 			if (successful) {
 				context.endTask("Execution successful.", Message.OK);
@@ -52,10 +52,10 @@ public class PigHadoop extends Hadoop {
 		}
 
 	}
+
 	
 	@Override
 	public Technology[] getRequirements() {
 		return new Technology[]{Technology.HADOOP_CLUSTER};
 	}
-
 }

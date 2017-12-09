@@ -1,37 +1,33 @@
 package cloudgene.mapred.steps;
 
-import genepi.hadoop.common.WorkflowContext;
-
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.io.FileUtil;
 
-public class SparkStep extends Hadoop {
+public class HadoopPigStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String pigPath = context.getSettings().getSparkPath();
+		String pigPath = context.getSettings().getPigPath();
+		String pig = FileUtil.path(pigPath, "bin", "pig");
 
 		// params
 		String paramsString = step.getParams();
 		String[] params = paramsString.split(" ");
 
-		// spark script
+		// pig script
 		List<String> command = new Vector<String>();
 
-		command.add(pigPath);
-		command.add("--class");
-		command.add(step.getMainClass());
-		command.add("--master");
-		command.add("yarn");
-		command.add(step.getSpark());
+		command.add(pig);
+		command.add("-f");
+		command.add(step.getPig());
 
 		// params
 		for (String tile : params) {
@@ -39,7 +35,7 @@ public class SparkStep extends Hadoop {
 		}
 
 		try {
-			context.beginTask("Running Spark Script...");
+			context.beginTask("Running Pig Script...");
 			boolean successful = executeCommand(command, context);
 			if (successful) {
 				context.endTask("Execution successful.", Message.OK);
@@ -55,30 +51,10 @@ public class SparkStep extends Hadoop {
 		}
 
 	}
-
-	protected boolean ex(List<String> command, WorkflowContext context)
-			throws IOException, InterruptedException {
-	
-
-		log.info(command);
-
-		context.log("Command: " + command);
-		context.log("Working Directory: "
-				+ new File(context.getWorkingDirectory()).getAbsolutePath());
-
-		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(new File(context.getWorkingDirectory()));
-		builder.redirectErrorStream(true);
-		Process process = builder.start();
-
-		process.waitFor();
-		context.log("Exit Code: " + process.exitValue());
-
-		return true;
-	}
 	
 	@Override
 	public Technology[] getRequirements() {
 		return new Technology[]{Technology.HADOOP_CLUSTER};
 	}
+
 }

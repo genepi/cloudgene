@@ -1,8 +1,5 @@
 package cloudgene.mapred.jobs.engine.graph;
 
-import genepi.hadoop.common.WorkflowStep;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -20,10 +17,20 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
+import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.ErrorStep;
-import cloudgene.mapred.steps.ExternStep;
+import cloudgene.mapred.steps.JavaInternalStep;
+import cloudgene.mapred.steps.JavaExternalStep;
+import cloudgene.mapred.steps.HadoopMapReduceStep;
+import cloudgene.mapred.steps.HadoopPigStep;
+import cloudgene.mapred.steps.RMarkdownStep;
+import cloudgene.mapred.steps.RMarkdown2Step;
+import cloudgene.mapred.steps.HadoopSparkStep;
+import cloudgene.mapred.steps.TemplateStep;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.common.WorkflowStep;
+import genepi.io.FileUtil;
 
 public class GraphNode implements Runnable {
 	private WdlStep step;
@@ -74,28 +81,28 @@ public class GraphNode implements Runnable {
 		if (step.getPig() != null) {
 
 			// pig script
-			step.setClassname("cloudgene.mapred.steps.PigHadoop");
+			step.setClassname(HadoopPigStep.class.getName());
 
 		}
 		if (step.getSpark() != null) {
 
 			// spark
-			step.setClassname("cloudgene.mapred.steps.SparkStep");
+			step.setClassname(HadoopSparkStep.class.getName());
 
 		} else if (step.getRmd() != null) {
 
 			// rscript
-			step.setClassname("cloudgene.mapred.steps.RMarkdown");
+			step.setClassname(RMarkdownStep.class.getName());
 
 		} else if (step.getRmd2() != null) {
 
 			// rscript
-			step.setClassname("cloudgene.mapred.steps.RMarkdown2");
+			step.setClassname(RMarkdown2Step.class.getName());
 
 		} else if (step.getTemplate() != null) {
 
 			// template step
-			step.setClassname("cloudgene.mapred.steps.TemplateStep");
+			step.setClassname(TemplateStep.class.getName());
 
 		} else if (step.getClassname() != null) {
 
@@ -104,17 +111,17 @@ public class GraphNode implements Runnable {
 		} else if (step.getExec() != null) {
 
 			// command
-			step.setClassname("cloudgene.mapred.steps.Command");
+			step.setClassname(BashCommandStep.class.getName());
 
 		} else {
 
 			if (step.getRuntime() == null || step.getRuntime().isEmpty()
 					|| step.getRuntime().toLowerCase().equals("hadoop")) {
 				// mapreduce
-				step.setClassname("cloudgene.mapred.steps.MapReduce");
+				step.setClassname(HadoopMapReduceStep.class.getName());
 			} else if (step.getRuntime() != null && step.getRuntime().toLowerCase().equals("java")) {
 				// normal java when no Hadoop suppport
-				step.setClassname("cloudgene.mapred.steps.JavaStep");
+				step.setClassname(JavaExternalStep.class.getName());
 			} else {
 
 			}
@@ -141,7 +148,7 @@ public class GraphNode implements Runnable {
 				if (object instanceof CloudgeneStep) {
 					instance = (CloudgeneStep) object;
 				} else if (object instanceof WorkflowStep) {
-					instance = new ExternStep((WorkflowStep) object);
+					instance = new JavaInternalStep((WorkflowStep) object);
 				} else {
 					instance = new ErrorStep("Error during initialization: class " + step.getClassname() + " ( "
 							+ object.getClass().getSuperclass().getCanonicalName() + ") "
@@ -256,17 +263,9 @@ public class GraphNode implements Runnable {
 		}
 	}
 
-	public int getMapProgress() {
+	public int getProgress() {
 		if (instance != null) {
-			return instance.getMapProgress();
-		} else {
-			return 0;
-		}
-	}
-
-	public int getReduceProgress() {
-		if (instance != null) {
-			return instance.getReduceProgress();
+			return instance.getProgress();
 		} else {
 			return 0;
 		}

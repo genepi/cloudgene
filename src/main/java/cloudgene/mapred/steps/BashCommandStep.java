@@ -9,10 +9,11 @@ import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
 
-public class Command extends Hadoop {
+public class BashCommandStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -22,15 +23,13 @@ public class Command extends Hadoop {
 		File file = new File(params[0]);
 
 		if (!file.exists()) {
-			context.error("Command '"
-					+ file.getAbsolutePath()
+			context.error("Command '" + file.getAbsolutePath()
 					+ "' was not found. Please set the correct path in the cloudgene.yaml file.");
 			return false;
 		}
 
 		if (!file.canExecute()) {
-			context.error("Command '"
-					+ file.getAbsolutePath()
+			context.error("Command '" + file.getAbsolutePath()
 					+ "' was found but can not be executed. Please check the permissions.");
 			return false;
 		}
@@ -41,9 +40,7 @@ public class Command extends Hadoop {
 			// checkout hdfs file
 			if (param.startsWith("hdfs://")) {
 				String name = FileUtil.getFilename(param);
-				String localFile = FileUtil.path(
-						((CloudgeneContext) context).getLocalTemp(), "local_"
-								+ name);
+				String localFile = FileUtil.path(((CloudgeneContext) context).getLocalTemp(), "local_" + name);
 				try {
 					HdfsUtil.checkOut(param, localFile);
 					command.add(new File(localFile).getAbsolutePath());
@@ -67,9 +64,7 @@ public class Command extends Hadoop {
 				context.endTask("Execution successful.", Message.OK);
 				return true;
 			} else {
-				context.endTask(
-						"Execution failed. Please have a look at the logfile for details.",
-						Message.ERROR);
+				context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
 				return false;
 			}
 		} catch (Exception e) {

@@ -4,11 +4,12 @@ import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.importer.IImporter;
 import genepi.hadoop.importer.ImporterFactory;
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
-public class HdfsImporter extends Hadoop {
+public class HdfsImporterStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -19,8 +20,7 @@ public class HdfsImporter extends Hadoop {
 
 				if (ImporterFactory.needsImport(context.get(input))) {
 
-					String[] urlList = context.get(input).split(";")[0]
-							.split("\\s+");
+					String[] urlList = context.get(input).split(";")[0].split("\\s+");
 
 					String username = "";
 					if (context.get(input).split(";").length > 1) {
@@ -36,16 +36,13 @@ public class HdfsImporter extends Hadoop {
 
 						String url = url2 + ";" + username + ";" + password;
 
-						String target = HdfsUtil.path(
-								((CloudgeneContext) context).getHdfsTemp(),
-								"importer", input);
+						String target = HdfsUtil.path(((CloudgeneContext) context).getHdfsTemp(), "importer", input);
 
 						try {
 
 							context.beginTask("Import File(s) " + url2 + "...");
 
-							IImporter importer = ImporterFactory
-									.createImporter(url, target);
+							IImporter importer = ImporterFactory.createImporter(url, target);
 
 							if (importer != null) {
 
@@ -55,14 +52,11 @@ public class HdfsImporter extends Hadoop {
 
 									context.setInput(input, target);
 
-									context.endTask("Import File(s) " + url2
-											+ " successful.", Message.OK);
+									context.endTask("Import File(s) " + url2 + " successful.", Message.OK);
 
 								} else {
 
-									context.endTask("Import File(s) " + url2
-											+ " failed: "
-											+ importer.getErrorMessage(),
+									context.endTask("Import File(s) " + url2 + " failed: " + importer.getErrorMessage(),
 											Message.ERROR);
 
 									return false;
@@ -71,8 +65,7 @@ public class HdfsImporter extends Hadoop {
 
 							} else {
 
-								context.endTask("Import File(s) " + url2
-										+ " failed: Protocol not supported",
+								context.endTask("Import File(s) " + url2 + " failed: Protocol not supported",
 										Message.ERROR);
 
 								return false;
@@ -80,8 +73,7 @@ public class HdfsImporter extends Hadoop {
 							}
 
 						} catch (Exception e) {
-							context.endTask("Import File(s) " + url2 + " failed: "
-									+ e.toString(), Message.ERROR);
+							context.endTask("Import File(s) " + url2 + " failed: " + e.toString(), Message.ERROR);
 							return false;
 						}
 
@@ -97,10 +89,10 @@ public class HdfsImporter extends Hadoop {
 		}
 
 	}
-	
+
 	@Override
 	public Technology[] getRequirements() {
-		return new Technology[]{Technology.HADOOP_CLUSTER};
+		return new Technology[] { Technology.HADOOP_CLUSTER };
 	}
 
 }

@@ -5,22 +5,12 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
 
-public class ExternStep extends CloudgeneStep {
+public class JavaInternalStep extends CloudgeneStep {
 
 	private WorkflowStep workflowStep;
 
-	public ExternStep(WorkflowStep step) {
+	public JavaInternalStep(WorkflowStep step) {
 		this.workflowStep = step;
-	}
-
-	@Override
-	public int getReduceProgress() {
-		return workflowStep.getReduceProgress();
-	}
-
-	@Override
-	public int getMapProgress() {
-		return workflowStep.getMapProgress();
 	}
 
 	@Override

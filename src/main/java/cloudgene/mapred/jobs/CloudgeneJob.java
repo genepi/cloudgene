@@ -546,12 +546,10 @@ public class CloudgeneJob extends AbstractJob {
 		if (executor != null) {
 
 			executor.updateProgress();
-			setMap(executor.getMapProgress());
-			setReduce(executor.getReduceProgress());
+			setProgress(executor.getProgress());
 
 		} else {
-			setMap(0);
-			setReduce(0);
+			setProgress(-1);
 		}
 
 	}

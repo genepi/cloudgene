@@ -16,7 +16,7 @@ import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 
-public class RMarkdown extends CloudgeneStep {
+public class RMarkdown2Step extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -25,12 +25,11 @@ public class RMarkdown extends CloudgeneStep {
 
 		String wd = context.getWorkingDirectory();
 
-		String rmd = step.getRmd();
+		String rmd = step.getRmd2();
 		if (rmd == null || rmd.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
 			return false;
 		}
-
 		String output = step.getOutput();
 		if (output == null || output.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
@@ -44,7 +43,7 @@ public class RMarkdown extends CloudgeneStep {
 			params = paramsString.split(" ");
 		}
 
-		context.log("Running script " + step.getRmd() + "...");
+		context.log("Running script " + step.getRmd2() + "...");
 		context.log("Working Directory: " + wd);
 		context.log("Output: " + output);
 		context.log("Parameters:");
@@ -78,10 +77,9 @@ public class RMarkdown extends CloudgeneStep {
 
 		MyRScript script = new MyRScript(scriptFilename);
 		script.append("library(knitr)");
-		script.append("opts_chunk$set(fig.path='" + folder + "')");
 		script.append("library(markdown)");
-		script.append("knit(\"" + rmdScript + "\", \"" + outputHtml + ".md\")");
-		script.append("markdownToHTML(\"" + outputHtml + ".md\", \"" + outputHtml + "\")");
+		script.append("rmarkdown::render(\"" + rmdScript + "\", output_file=\"" + outputHtml + "\")");
+
 		script.save();
 
 		Command rScript = new Command(RBinary.RSCRIPT_PATH);
@@ -131,7 +129,7 @@ public class RMarkdown extends CloudgeneStep {
 		new File(outputHtml + ".md").delete();
 		new File(scriptFilename).delete();
 
-		RMarkdown.deleteFolder(new File(folder));
+		RMarkdown2Step.deleteFolder(new File(folder));
 
 		return result;
 
