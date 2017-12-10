@@ -1,15 +1,35 @@
-site_name: Cloudgene v2.0.0
-theme: readthedocs
+site_name: Cloudgene v3
+theme: material
 pages:
-- Index: index.md
-- Getting started: getting-started.md
-- Installing applications: installing-applications.md
-- Creating applications: creating-applications.md
-- cloudgene.yaml: cloudgene-yaml.md
-- application.yaml: application-yaml.md
+- Home: index.md
+- Documentation:
+    - Getting started: getting-started.md
+    - Configuration: configuration.md
+    - Installing apps: installing-applications.md
+    - Running apps on the Commandline: commandline.md
+    - Running apps in the Web Application: web-application.md
+    - Administration: administration.md
+
+- Developers:
+    - Introduction: developers/introduction.md
+    - Steps:
+        - BashCommand: developers/steps/BashCommand.md
+        - HadoopMapReduce: developers/steps/HadoopMapReduce.md
+        - HadoopPig: developers/steps/HadoopPig.md
+        - RMarkdown: developers/steps/RMarkdown.md
+        - JavaInterface: developers/steps/JavaInterface.md
+    - Inputs: developers/inputs.md
+    - Outputs: developers/outputs.md
+    - Control patterns: developers/control-patterns.md
 - API: api.md
 
+extra:
+  feature:
+    tabs: true
+
+
 markdown_extensions:
-    - toc:
-        permalink:
-    - admonition:
+  - codehilite
+  - admonition
+  - toc(permalink=true)
+  - footnotes
