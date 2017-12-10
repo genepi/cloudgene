@@ -21,13 +21,12 @@ public abstract class CloudgeneStep {
 
 	private List<Message> logMessages;
 
-	public CloudgeneStep(){
-		
+	public CloudgeneStep() {
+
 	}
-	
+
 	public String getFolder(Class clazz) {
-		return new File(clazz.getProtectionDomain().getCodeSource()
-				.getLocation().getPath()).getParent();
+		return new File(clazz.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent();
 	}
 
 	public void setId(int id) {
@@ -58,7 +57,7 @@ public abstract class CloudgeneStep {
 
 	}
 
-	public boolean run(WdlStep step, CloudgeneContext context){
+	public boolean run(WdlStep step, CloudgeneContext context) {
 		return true;
 	}
 
@@ -82,28 +81,26 @@ public abstract class CloudgeneStep {
 		this.logMessages = logMessages;
 	}
 
-	public Technology[] getRequirements(){
-		return new Technology[]{};
+	public Technology[] getRequirements() {
+		return new Technology[] {};
 	}
-	
+
 	// dummy for beam serialization (setup --> property up!)
 	public CloudgeneContext getup() {
 		return null;
 	}
-	
-	protected boolean executeCommand(List<String> command,
-			WorkflowContext context) throws IOException, InterruptedException {
+
+	protected boolean executeCommand(List<String> command, WorkflowContext context)
+			throws IOException, InterruptedException {
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
 
-			String cmd = command.get(j).replaceAll("\\$job_id",
-					context.getJobId());
+			String cmd = command.get(j).replaceAll("\\$job_id", context.getJobId());
 			command.set(j, cmd);
 		}
 
 		context.log("Command: " + command);
-		context.log("Working Directory: "
-				+ new File(context.getWorkingDirectory()).getAbsolutePath());
+		context.log("Working Directory: " + new File(context.getWorkingDirectory()).getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
 		builder.directory(new File(context.getWorkingDirectory()));
@@ -132,6 +129,5 @@ public abstract class CloudgeneStep {
 		}
 		return true;
 	}
-
 
 }

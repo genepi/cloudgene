@@ -74,8 +74,11 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 		String streamingJar = context.getSettings().getStreamingJar();
 
 		// params
-		String paramsString = step.getParams();
-		String[] params = paramsString.split(" ");
+		String paramsString = step.get("params");
+		String[] params = new String[] {};
+		if (paramsString != null) {
+			params = paramsString.split(" ");
+		}
 
 		// hadoop jar or streaming
 		List<String> command = new Vector<String>();
@@ -146,9 +149,9 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 
 		if (step.getJar() == null) {
 
-			if (step.getMapper() != null) {
+			if (step.get("mapper") != null) {
 
-				String tiles[] = step.getMapper().split(" ", 2);
+				String tiles[] = step.get("mapper").split(" ", 2);
 				String filename = tiles[0];
 
 				command.add("-mapper");
@@ -162,9 +165,9 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 
 			}
 
-			if (step.getReducer() != null) {
+			if (step.get("reducer") != null) {
 
-				String tiles[] = step.getReducer().split(" ", 2);
+				String tiles[] = step.get("reducer").split(" ", 2);
 				String filename = tiles[0];
 
 				command.add("-reducer");

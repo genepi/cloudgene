@@ -19,15 +19,18 @@ public class HadoopPigStep extends CloudgeneStep {
 		String pig = FileUtil.path(pigPath, "bin", "pig");
 
 		// params
-		String paramsString = step.getParams();
-		String[] params = paramsString.split(" ");
+		String paramsString = step.get("params");
+		String[] params = new String[] {};
+		if (paramsString != null) {
+			params = paramsString.split(" ");
+		}
 
 		// pig script
 		List<String> command = new Vector<String>();
 
 		command.add(pig);
 		command.add("-f");
-		command.add(step.getPig());
+		command.add(step.get("pig"));
 
 		// params
 		for (String tile : params) {

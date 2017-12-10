@@ -18,7 +18,20 @@ public class BashCommandStep extends CloudgeneStep {
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String[] params = step.getExec().split(" ");
+		String cmd = step.get("exec");
+		if (cmd == null) {
+			cmd = step.get("cmd");
+		}
+
+		if (cmd == null) {
+			context.error("No 'exec' or 'cmd' parameter found.");
+		}
+
+		if (cmd.isEmpty()) {
+			context.error("'exec' or 'cmd' parameter cannot be an empty string.");
+		}
+
+		String[] params = cmd.split(" ");
 
 		File file = new File(params[0]);
 

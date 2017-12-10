@@ -23,36 +23,37 @@ public class RMarkdownStep extends CloudgeneStep {
 
 		context.beginTask("Running Report Script...");
 
-		String wd = context.getWorkingDirectory();
+		String workingDirectory = context.getWorkingDirectory();
 
-		String rmd = step.getRmd();
+		String rmd = step.get("rmd");
 		if (rmd == null || rmd.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
 			return false;
 		}
 
-		String output = step.getOutput();
+		String output = step.get("output");
 		if (output == null || output.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
 			return false;
 		}
 
-		String paramsString = step.getParams();
+		String paramsString = step.get("params");
 
 		String[] params = new String[] {};
 		if (paramsString != null) {
 			params = paramsString.split(" ");
 		}
 
-		context.log("Running script " + step.getRmd() + "...");
-		context.log("Working Directory: " + wd);
+		String script = FileUtil.path(workingDirectory, rmd);
+		context.log("Running script " + script + "...");
+		context.log("Working Directory: " + workingDirectory);
 		context.log("Output: " + output);
 		context.log("Parameters:");
 		for (String param : params) {
 			context.log("  " + param);
 		}
 
-		int result = convert(FileUtil.path(wd, rmd), output, params, context);
+		int result = convert(script, output, params, context);
 
 		if (result == 0) {
 			context.endTask("Execution successful.", Message.OK);

@@ -54,29 +54,10 @@ public class WdlReader {
 		WdlWorkflow config = app.getWorkflow();
 
 		if (config != null) {
-			String jar = config.getJar();
-			String mapper = config.getMapper();
-			String reducer = config.getReducer();
-
+			
 			String path = new File(new File(filename).getAbsolutePath()).getParentFile().getAbsolutePath();
 			config.setPath(path);
 			config.setManifestFile(filename);
-
-			// default step
-			if (jar != null) {
-				WdlStep step = new WdlStep();
-				step.setJar(jar);
-				step.setParams(config.getParams());
-				config.getSteps().add(step);
-			}
-
-			if (mapper != null && reducer != null) {
-				WdlStep step = new WdlStep();
-				step.setMapper(mapper);
-				step.setReducer(reducer);
-				step.setParams(config.getParams());
-				config.getSteps().add(step);
-			}
 
 		}
 

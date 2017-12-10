@@ -17,18 +17,21 @@ public class HadoopSparkStep extends CloudgeneStep {
 		String pigPath = context.getSettings().getSparkPath();
 
 		// params
-		String paramsString = step.getParams();
-		String[] params = paramsString.split(" ");
+		String paramsString = step.get("params");
+		String[] params = new String[] {};
+		if (paramsString != null) {
+			params = paramsString.split(" ");
+		}
 
 		// spark script
 		List<String> command = new Vector<String>();
 
 		command.add(pigPath);
 		command.add("--class");
-		command.add(step.getMainClass());
+		command.add(step.get("main_class"));
 		command.add("--master");
 		command.add("yarn");
-		command.add(step.getSpark());
+		command.add(step.get("spark"));
 
 		// params
 		for (String tile : params) {
@@ -42,8 +45,7 @@ public class HadoopSparkStep extends CloudgeneStep {
 				context.endTask("Execution successful.", Message.OK);
 				return true;
 			} else {
-				context.endTask("Execution failed. Please have a look at the logfile for details.",
-						Message.ERROR);
+				context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
 				return false;
 			}
 		} catch (Exception e) {
@@ -53,9 +55,8 @@ public class HadoopSparkStep extends CloudgeneStep {
 
 	}
 
-	
 	@Override
 	public Technology[] getRequirements() {
-		return new Technology[]{Technology.HADOOP_CLUSTER};
+		return new Technology[] { Technology.HADOOP_CLUSTER };
 	}
 }

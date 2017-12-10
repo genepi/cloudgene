@@ -30,7 +30,7 @@ public class JavaInternalStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
-		context.setConfig(step.getConfig());
+		context.setConfig(step);
 		return workflowStep.run(context);
 	}
 

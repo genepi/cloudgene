@@ -156,7 +156,7 @@ public class CloudgeneJob extends AbstractJob {
 			return true;
 
 		} catch (Exception e) {
-			// e.printStackTrace();
+			 e.printStackTrace();
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;

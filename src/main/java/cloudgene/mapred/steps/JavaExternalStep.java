@@ -57,8 +57,12 @@ public class JavaExternalStep extends CloudgeneStep {
 		}
 
 		String jar = step.getJar();
-		String paramsString = step.getParams();
-		String[] params = paramsString.split(" ");
+		// params
+		String paramsString = step.get("params");
+		String[] params = new String[] {};
+		if (paramsString != null) {
+			params = paramsString.split(" ");
+		}
 
 		List<String> command = new Vector<String>();
 		command.add(javaBin);

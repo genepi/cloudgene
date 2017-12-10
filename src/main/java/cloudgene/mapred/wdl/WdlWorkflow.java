@@ -5,18 +5,6 @@ import java.util.Vector;
 
 public class WdlWorkflow {
 
-	private String jar;
-
-	private String mapper;
-
-	private String reducer;
-
-	private String exec;
-
-	private String pig;
-
-	private String params;
-
 	private List<WdlStep> steps = new Vector<WdlStep>();
 
 	private List<WdlParameter> inputs = new Vector<WdlParameter>();
@@ -34,38 +22,6 @@ public class WdlWorkflow {
 	private List<WdlStep> setups = new Vector<WdlStep>();
 
 	private WdlStep onFailure = null;
-
-	public String getJar() {
-		return jar;
-	}
-
-	public void setJar(String jar) {
-		this.jar = jar;
-	}
-
-	public String getMapper() {
-		return mapper;
-	}
-
-	public void setMapper(String mapper) {
-		this.mapper = mapper;
-	}
-
-	public String getReducer() {
-		return reducer;
-	}
-
-	public void setReducer(String reducer) {
-		this.reducer = reducer;
-	}
-
-	public String getParams() {
-		return params;
-	}
-
-	public void setParams(String params) {
-		this.params = params;
-	}
 
 	public List<WdlParameter> getInputs() {
 		return inputs;
@@ -97,22 +53,6 @@ public class WdlWorkflow {
 
 	public void setPath(String path) {
 		this.path = path;
-	}
-
-	public void setExec(String exec) {
-		this.exec = exec;
-	}
-
-	public String getExec() {
-		return exec;
-	}
-
-	public void setPig(String pig) {
-		this.pig = pig;
-	}
-
-	public String getPig() {
-		return pig;
 	}
 
 	public void setType(String type) {
@@ -163,7 +103,7 @@ public class WdlWorkflow {
 		}
 		return false;
 	}
-	
+
 	public boolean hasHdfsInputs() {
 		for (WdlParameter input : inputs) {
 			if (input.isHdfs()) {

@@ -17,6 +17,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
+import cloudgene.mapred.jobs.CloudgeneStepFactory;
 import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
@@ -26,7 +27,6 @@ import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.RMarkdownStep;
 import cloudgene.mapred.steps.RMarkdown2Step;
 import cloudgene.mapred.steps.HadoopSparkStep;
-import cloudgene.mapred.steps.TemplateStep;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.common.WorkflowStep;
@@ -78,54 +78,10 @@ public class GraphNode implements Runnable {
 
 		id = step.getName().toLowerCase().replace(" ", "_");
 
-		if (step.getPig() != null) {
+		// find step implementation
 
-			// pig script
-			step.setClassname(HadoopPigStep.class.getName());
-
-		}
-		if (step.getSpark() != null) {
-
-			// spark
-			step.setClassname(HadoopSparkStep.class.getName());
-
-		} else if (step.getRmd() != null) {
-
-			// rscript
-			step.setClassname(RMarkdownStep.class.getName());
-
-		} else if (step.getRmd2() != null) {
-
-			// rscript
-			step.setClassname(RMarkdown2Step.class.getName());
-
-		} else if (step.getTemplate() != null) {
-
-			// template step
-			step.setClassname(TemplateStep.class.getName());
-
-		} else if (step.getClassname() != null) {
-
-			// custom class
-
-		} else if (step.getExec() != null) {
-
-			// command
-			step.setClassname(BashCommandStep.class.getName());
-
-		} else {
-
-			if (step.getRuntime() == null || step.getRuntime().isEmpty()
-					|| step.getRuntime().toLowerCase().equals("hadoop")) {
-				// mapreduce
-				step.setClassname(HadoopMapReduceStep.class.getName());
-			} else if (step.getRuntime() != null && step.getRuntime().toLowerCase().equals("java")) {
-				// normal java when no Hadoop suppport
-				step.setClassname(JavaExternalStep.class.getName());
-			} else {
-
-			}
-		}
+		String classname = CloudgeneStepFactory.getClassname(step);
+		step.setClassname(classname);
 
 		// create instance
 
