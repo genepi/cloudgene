@@ -92,6 +92,11 @@ public abstract class CloudgeneStep {
 
 	protected boolean executeCommand(List<String> command, WorkflowContext context)
 			throws IOException, InterruptedException {
+		return executeCommand(command, context, null);
+	}
+
+	protected boolean executeCommand(List<String> command, WorkflowContext context, StringBuilder output)
+			throws IOException, InterruptedException {
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
 
@@ -113,6 +118,9 @@ public abstract class CloudgeneStep {
 
 		while ((line = br.readLine()) != null) {
 			context.println(line);
+			if (output != null) {
+				output.append(line + "\n");
+			}
 		}
 
 		br.close();

@@ -25,4 +25,13 @@ public class WdlStep extends HashMap<String, String>{
 		return get("generates");
 	}
 	
+	public String get(String key, String defaultValue){
+		String value = get(key);
+		if (value == null){
+			return defaultValue;
+		}else{
+			return value;
+		}
+	}
+	
 }
