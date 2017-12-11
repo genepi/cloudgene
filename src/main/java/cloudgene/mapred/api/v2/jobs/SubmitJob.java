@@ -82,11 +82,6 @@ public class SubmitJob extends BaseResource {
 
 		}
 
-		int maxJobs = settings.getMaxRunningJobs();
-		if (engine.getActiveCount() >= maxJobs) {
-			return error400("More than " + maxJobs + "  jobs are currently in the queue.");
-		}
-
 		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
 		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);

@@ -53,7 +53,6 @@ public class GetClusterDetails extends BaseResource {
 		object.put("blocked", !getWorkflowEngine().isRunning());
 		object.put("threads_setup", getSettings().getThreadsSetupQueue());
 		object.put("threads", getSettings().getThreadsQueue());
-		object.put("max_jobs", getSettings().getMaxRunningJobs());
 		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
 		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
 		try {

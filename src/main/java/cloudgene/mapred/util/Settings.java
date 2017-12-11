@@ -16,7 +16,6 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.math3.stat.clustering.Cluster;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -26,7 +25,6 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
-import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -38,10 +36,6 @@ public class Settings {
 	private String pigPath = "/usr/";
 
 	private String sparkPath = "/usr/bin/spark-submit";
-
-	private String rPath = "/usr/";
-
-	private String outputPath = "output";
 
 	private String tempPath = "tmp";
 
@@ -73,7 +67,7 @@ public class Settings {
 
 	private int threadsQueue = 5;
 
-	private int maxRunningJobs = 20;
+	//private int maxRunningJobs = 20;
 
 	private int maxRunningJobsPerUser = 2;
 
@@ -195,14 +189,6 @@ public class Settings {
 	 * public void setAppsPath(String appsPath) { this.appsPath = appsPath; }
 	 */
 
-	public String getOutputPath() {
-		return outputPath;
-	}
-
-	public void setOutputPath(String outputPath) {
-		this.outputPath = outputPath;
-	}
-
 	public String getTempPath() {
 		return tempPath;
 	}
@@ -249,14 +235,6 @@ public class Settings {
 
 	public void setStreaming(boolean streaming) {
 		this.streaming = streaming;
-	}
-
-	public String getRPath() {
-		return rPath;
-	}
-
-	public void setRPath(String rPath) {
-		this.rPath = rPath;
 	}
 
 	public boolean isRemoveHdfsWorkspace() {
@@ -639,14 +617,6 @@ public class Settings {
 
 	public int getThreadsQueue() {
 		return threadsQueue;
-	}
-
-	public int getMaxRunningJobs() {
-		return maxRunningJobs;
-	}
-
-	public void setMaxRunningJobs(int maxRunningJobs) {
-		this.maxRunningJobs = maxRunningJobs;
 	}
 
 	public int getMaxRunningJobsPerUser() {
