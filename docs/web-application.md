@@ -3,13 +3,13 @@
 The webservice displays a graphical userinterface for all installed applications. The webserver can be started with the following command:
 
 ```sh
-./cloudgene server
+cloudgene server
 ```
 
 The webservice is available on http://localhost:8082. Please use username `admin` and password `admin1978` to login. You can use the `--port` flag to change the port from `8082` to `8085`:
 
 ```sh
-./cloudgene server --port 8085
+cloudgene server --port 8085
 ```
 
 *For production you should use the `cloudgene-daemon.sh` script. Learn [more]()*
@@ -22,31 +22,31 @@ Cloudgene needs a Hadoop cluster to execute MapReduce steps. Cloudgene uses the 
 
 ## Running on a local workstation using Docker
 
-Navigate to the folder where your cloudgene.yaml file is located and execute your workflow with the `--docker` flag:
+Start the server with the `--docker` flag:
 
 ```sh
-./cloudgene server --docker
+cloudgene server --docker
 ```
 
 Cloudgene starts automatically the needed docker container and executes your MapReduce steps on the cluster inside the container. We use an [image](https://github.com/seppinho/cdh5-hadoop-mrv1) from seppinho as our default image. You can use the `--image` flag if you want to use a custom docker image (e.g. a fork of our image with some special adaptations you need for your workflow):
 
 ```sh
-./cloudgene run server --docker --image myuser/my-image
+cloudgene run server --docker --image myuser/my-image
 ```
 
 
 ## Running on a remote Hadoop cluster
 
-Navigate to the folder where your cloudgene.yaml file is located and execute your workflow with the `--host` flag to set the ip address of your remote Hadoop cluster:
+Start the server with the `--host` flag to set the IP address of your remote Hadoop cluster:
 
 ```sh
-./cloudgene server --host <remote-ip>
+cloudgene server --host <remote-ip>
 ```
 
 Cloudgene executes your MapReduce steps on the remote cluster. You can use the `--user` flag to set the username which should be used to execute your job (e.g. it uses the HDFS directory of this user for all files):
 
 ```sh
-./cloudgene server --host <remote-ip> --user <remote-user>
+cloudgene server --host <remote-ip> --user <remote-user>
 ```
 
 ## Reusing Docker containers
@@ -58,7 +58,7 @@ docker run -it -h cloudgene -p 50030:50030 seppinho/cdh5-hadoop-mrv1:latest run-
 ```
 When the container is ready, you see the following output:
 
-```
+```ansi
  * Started Hadoop datanode (hadoop-hdfs-datanode):
  * Started Hadoop namenode:
  * Started Hadoop secondarynamenode:
@@ -69,7 +69,7 @@ Congratulations! Cluster is running on 172.17.0.2
 
 You can now use the provided address (e.g. 172.17.0.2) to run all Cloudgene workflows in the same container:
 ```sh
-./cloudgene server --host 172.17.0.2
+cloudgene server --host 172.17.0.2
 ```
 
 You can also take advantage of all Hadoop web-interfaces to debug your job (e.g. 172.17.0.2:50030 and 172.17.0.2:50070).

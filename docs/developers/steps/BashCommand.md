@@ -20,10 +20,10 @@ The following examples illustrate the syntax.
 name: cmd example
 version: 1.0
 workflow:
-steps:
-  - name: Print text to terminal
-    cmd: /bin/echo $message
-    stdout: true
+  steps:
+    - name: Print text to terminal
+      cmd: /bin/echo $message
+      stdout: true
     inputs:
       - id: message
         description: Message

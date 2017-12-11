@@ -42,7 +42,7 @@ If `download` is set to true, the file or folder can be downloaded (default: tru
 
 
 ## Intermediate results
-If `temp` is set to true, this folder or file will be deleted automatically when the job is run (default: false).
+If `temp` is set to true, this folder or file will be deleted automatically when the job is finished (default: false).
 
 
 ## Zip

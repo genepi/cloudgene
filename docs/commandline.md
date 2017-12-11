@@ -3,12 +3,12 @@
 Navigate to the folder where your cloudgene.yaml file is located and start your workflow with the following command:
 
 ```sh
-./cloudgene run cloudgene.yaml <workflow parameters>
+cloudgene run cloudgene.yaml <workflow parameters>
 ```
 or if you installed an application you can start it by entering the name. For example:
 
 ```sh
-./cloudgene run hello-cloudgene
+cloudgene run hello-cloudgene
 ```
 
 ## How to execute a Cloudgene Pipeline on Hadoop clusters
@@ -20,13 +20,13 @@ Cloudgene needs a Hadoop cluster to execute MapReduce steps. Cloudgene uses the 
 Navigate to the folder where your cloudgene.yaml file is located and execute your workflow with the `--docker` flag:
 
 ```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --docker
+cloudgene run cloudgene.yaml <workflow parameters> --docker
 ```
 
 Cloudgene starts automatically the needed docker container and executes your MapReduce steps on the cluster inside the container. We use an [image](https://github.com/seppinho/cdh5-hadoop-mrv1) from seppinho as our default image. You can use the `--image` flag if you want to use a custom docker image (e.g. a fork of our image with some special adaptations you need for your workflow):
 
 ```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --docker --image myuser/my-image
+cloudgene run cloudgene.yaml <workflow parameters> --docker --image myuser/my-image
 ```
 
 
@@ -41,7 +41,7 @@ Navigate to the folder where your cloudgene.yaml file is located and execute you
 Cloudgene executes your MapReduce steps on the remote cluster. You can use the `--user` flag to set the username which should be used to execute your job (e.g. it uses the HDFS directory of this user for all files):
 
 ```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --host <remote-ip> --user <remote-user>
+cloudgene run cloudgene.yaml <workflow parameters> --host <remote-ip> --user <remote-user>
 ```
 
 ## Reusing Docker containers
@@ -53,7 +53,7 @@ docker run -it -h cloudgene -p 50030:50030 seppinho/cdh5-hadoop-mrv1:latest run-
 ```
 When the container is ready, you see the following output:
 
-```
+```ansi
  * Started Hadoop datanode (hadoop-hdfs-datanode):
  * Started Hadoop namenode:
  * Started Hadoop secondarynamenode:
@@ -63,8 +63,9 @@ Congratulations! Cluster is running on 172.17.0.2
 ```
 
 You can now use the provided address (e.g. 172.17.0.2) to run all Cloudgene workflows in the same container:
+
 ```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --host 172.17.0.2
+cloudgene run cloudgene.yaml <workflow parameters> --host 172.17.0.2
 ```
 
 You can also take advantage of all Hadoop web-interfaces to debug your job (e.g. 172.17.0.2:50030 and 172.17.0.2:50070).

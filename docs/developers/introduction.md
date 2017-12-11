@@ -41,7 +41,7 @@ The next step is to add the `workflow` section to your configuration file to def
 
 ## Defining steps
 
-A workflow contains an array of `steps` which should be executed in a well-defined order where steps can use files or folders generated from other steps as their input. The simplest way to model such a workflow is to create a list of steps where each step depends on its forerunner.
+The simplest way to model a workflow is to create a list of steps where each step depends on its forerunner. Steps are defined in the `steps` section where each step is defined by a `name` and type specific properties.
 
 A simple example with two steps looks like this:
 
@@ -64,8 +64,10 @@ In this example we used the command line tool `echo` to print out some text. How
 To test our workflow we copy the content into a file named `hello-cloudgene.yaml`. Next, we can upload the zip file of our application to a Cloudgene webserver or we execute it on our developement machine with the `cloudgene-cli` program:
 
 ```bash
-$ java -jar cloudgene-cli.jar hello-cloudgene.yaml
+cloudgene run hello-cloudgene.yaml
+```
 
+```ansi
 Cloudgene 1.24.0 - CLI
 (c) 2009-2017 Lukas Forer and Sebastian Schoenherr
 Built by seb on null
@@ -97,7 +99,7 @@ We see that Cloudgene executes our workflow and prints the text to the terminal.
 
 ## Defining input parameters
 
- Input parameters are defined in the `inputs` section where each parameter is defined by an unique `id`, a textual `description` and a `type`.
+Input parameters are defined in the `inputs` section where each parameter is defined by an unique `id`, a textual `description` and a `type`.
 
 We extend the example above by an input parameter to set the message:
 
@@ -118,8 +120,10 @@ workflow:
  If the workflow is executed on a Cloudgene Webserver, a web-interface is automatically created where the user has to enter the message. However, if we execute the workflow using `cloudgene-cli`, the parameter has to be set as a command-line argument:
 
 ```bash
-$ java -jar cloudgene-cli.jar hello-cloudgene.yaml --message "Using an input parameter is easy!"
+cloudgene run hello-cloudgene.yaml --message "Using an input parameter is easy!"
+```
 
+```ansi
 Cloudgene 1.24.0 - CLI
 (c) 2009-2017 Lukas Forer and Sebastian Schoenherr
 Built by seb on null
@@ -142,3 +146,19 @@ hello-cloudgene (Job job-20170812-145643)
 
 Done! Executed without errors.
 ```
+
+## Serve the webservice
+
+Before you can start the webservice, you have to install your new workflow:
+
+```bash
+cloudgene install hello-cloudgene hello-cloudgene.yaml
+``` 
+
+Next, we can start the webserver:
+
+```bash
+cloudgene server
+``` 
+
+The webservice is available on [http://localhost:8082](http://localhost:8082). Please use username `admin` and password `admin1978` to login.

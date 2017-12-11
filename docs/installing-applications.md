@@ -7,14 +7,14 @@ An online repository of all available applications can be found [here]().
 You can install applications by using the `install` command. Cloudgene installs all applications in the folder `apps`.
 
 ```sh
-./cloudgene install <id> <location>
+cloudgene install <id> <location>
 ```
 The `id` parameter is a shorthand name of the application and is used to refer the application. Location could be a zip file or a yaml file accessible via http or which is located on the local filesystem.
 
 A simple hello world workflow can be installed by using the following command:
 
 ```sh
-./cloudgene install hello-cloudgene http://cloudgene.uibk.ac.at/downloads/hello-cloudgene
+cloudgene install hello-cloudgene http://cloudgene.uibk.ac.at/downloads/hello-cloudgene
 ```
 
 
@@ -24,7 +24,7 @@ A list of all installed applications can be shown with the `ls` command:
 
 
 ```sh
-./cloudgene ls
+cloudgene ls
 ```
 
 This list prints the name and the version of an application and shows you if an application has no syntax errors.
@@ -36,7 +36,7 @@ An installed application can be removed with the `remove` command:
 
 
 ```sh
-./cloudgene remove <name>
+cloudgene remove <name>
 ```
 
 

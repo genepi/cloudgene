@@ -1,19 +1,52 @@
 # Control patterns
 
 
-Some analytic workflows have a dynamic behaviour - for example, skipping a step based on the user input. Thus, this kind of workflow can not be represented by a static sequence of steps. To overcome this issue, WDL understands also some basic directives, which can be used to create steps. By using conditions and loops inside the WDL file the steps of a workflow can be constructed in a dynamic way based on the user input. In addition, WDL provides a simple interface which can be implemented in a Java class in order to extend Cloudgene with new user defined functions. Currently, Cloudgene supports a variety of already implemented utilities which facilitate the creation of workflows in the field of Bioinformatics especially for NGS. This toolbox includes functions for data file determination as well as utilities for BAM and FASTQ files. The following listing shows an example to sort only unsorted BAM-files:
+Some analytic workflows have a dynamic behaviour - for example, skipping a step based on the user input. Thus, this kind of workflow can not be represented by a static sequence of steps. To overcome this issue, WDL understands also some basic directives, which can be used to create steps. By using conditions and loops inside the WDL file the steps of a workflow can be constructed in a dynamic way based on the user input.
 
-    - steps:
+!!! important
+    Each directive starts with # and **has to be** at beginning of a line.
 
-    #foreach ($bam in $bam_files.getFiles())
-    #if (!$BamUtil.isSorted($bam))
-      - jar: hadoop-bam.jar
-        param: sort $bam
-    #end
-    #end
+## If condition
 
-      - jar: variation-calling.jar
-        param: \$bam_files $output_folder  
+You can use every input parameter (in this example `$choice`) to build logical conditions. More about conditions and syntax examples can be found in the [Velocity manual](http://velocity.apache.org/engine/1.7/user-guide.html#if-elseif-else).
 
+```yaml
+name: if example
+version: 1.0
+workflow:
+  steps:
+#if ($choice == "yes")
+    - name: Yes Step
+      cmd: /bin/echo yes select
+      stdout: true
+#end
 
-The introduction of directives opens a wide range of new possibilities: (1) basic input validation, (2) different data flows based on the input data, and (3) easier building of workflows by combining existing Hadoop programs without code modification.
+#if ($choice == "no")
+    - name: No Step
+      cmd: /bin/echo no select
+      stdout: true
+#end
+  inputs:
+    - id: choice
+      description: Select a value
+      values:
+        no: No
+        yes: Yes
+      type: list
+```
+
+## Loops
+
+You can use loops to add steps dynamically to your workflow:
+
+```yaml
+name: loop example
+version: 1.0
+workflow:
+  steps:
+#foreach($i in [1..10])
+    - name: Step $i
+      cmd: /bin/echo I am step number $i
+      stdout: true
+#end
+```
