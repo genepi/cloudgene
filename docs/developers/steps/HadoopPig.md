@@ -1,6 +1,6 @@
 # HadoopPig step
 
-Apache PIG scripts can be integrated as tasks in order to transform datasets created by other Hadoop jobs in a SQL like style. This extension enables the usage of scripts based on SeqPig and BioPig which provide functions to analyse and transform a variety of NGS file formats.
+Apache PIG scripts can be integrated as tasks in order to transform datasets created by other Hadoop jobs in a SQL like style.
 
 ## Parameters
 

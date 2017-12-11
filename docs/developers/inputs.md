@@ -21,8 +21,12 @@ The value of the parameter can be referenced by `$id` in the workflow. For examp
 workflow:
   steps:
     - name: Name Step1
-      exec: /bin/echo
-      params: "Value of Parameter 1: $param1"
+      cmd: /bin/echo Value of Parameter 1: $param1
+      stdout: true
+  inputs:
+    - id: param1
+      description: Description of parameter 1
+      type: number
 ```
 
 ## Types
@@ -64,9 +68,9 @@ At the moment the following types of input parameter are supported:
 
 ## Default values
 
-The property `value` defines the default value of this parameter. This value is preselected in the job submission form.
+The property `value` defines the default value of this parameter. This value is preselected in the job submission form (default: **empty**).
 
 
 ## Required parameters
 
-The property `required` defines if the parameter is mandatory or can be submitted empty by the user.
+The property `required` defines if the parameter is mandatory or can be submitted empty by the user (default: **true**).

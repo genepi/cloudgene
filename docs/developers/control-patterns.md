@@ -37,7 +37,7 @@ workflow:
 
 ## Loops
 
-You can use loops to add steps dynamically to your workflow:
+You can use loops to add steps to your workflow dynamically:
 
 ```yaml
 name: loop example

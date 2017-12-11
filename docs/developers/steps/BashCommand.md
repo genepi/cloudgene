@@ -1,6 +1,9 @@
 # BashCommand step
 
-Cloudgene supports the execution of executable binaries. Since all HDFS inputs paths of a non Hadoop task are automatically exported to the local filesystem, no additional steps are needed to work with this files.
+Cloudgene supports the execution of executable binaries.
+
+!!! tip
+    All HDFS inputs are automatically exported to the local filesystem and can be used without manual exportation in any executable binary.
 
 ## Parameters
 
@@ -24,10 +27,10 @@ workflow:
     - name: Print text to terminal
       cmd: /bin/echo $message
       stdout: true
-    inputs:
-      - id: message
-        description: Message
-        type: text
+  inputs:
+    - id: message
+      description: Message
+      type: text
 ```
 
 We have to set `stdout` to `true` in order to see the messages in the web-application as a step output.
