@@ -6,7 +6,7 @@ This page helps you to configure Cloudgene and describes all parameters of the `
 
 ## Database connection
 
-Cloudgene uses default a embedded H2 database to store meta data about jobs and users:
+Cloudgene uses an embedded H2 database to store meta data about jobs and users:
 
 ```yaml
 database:
@@ -80,14 +80,14 @@ hdfsAppWorkspace: cloudgene/apps
 
 ## Queue
 
-Cloudgene manages two different queues to perform setup steps and execution steps for a job. The number of jobs which are executed in parallel can be set for each queue independently:
+Cloudgene manages two different queues to execute setup steps and workflow steps for a job. The number of jobs which are executed in parallel can be set for each queue independently:
 
 ```yaml
-# 5 jobs can execute their setup stpes in parallel
+# max. 5 jobs can execute their setup steps in parallel
 threadsSetupQueue: 5
-# 5 jobs can execute their execution stpes in parallel
+# max. 5 jobs can execute their workflow steps in parallel
 threadsQueue: 5
-# each user can run max 2 jobs at the same time
+# each user can run max. 2 jobs at the same time
 maxRunningJobsPerUser: 2
 ```
 

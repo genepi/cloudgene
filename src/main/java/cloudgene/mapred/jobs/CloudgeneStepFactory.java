@@ -1,6 +1,7 @@
 package cloudgene.mapred.jobs;
 
 import cloudgene.mapred.steps.BashCommandStep;
+import cloudgene.mapred.steps.DockerStep;
 import cloudgene.mapred.steps.HadoopMapReduceStep;
 import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.HadoopSparkStep;
@@ -12,6 +13,18 @@ import cloudgene.mapred.wdl.WdlStep;
 public class CloudgeneStepFactory {
 
 	public static String getClassname(WdlStep step) {
+		
+		String type = step.get("type");
+		
+		if (type != null){
+			switch(type.toLowerCase()){
+			case "java":
+				return JavaExternalStep.class.getName();
+			case "docker":
+				return DockerStep.class.getName();
+			}
+		}
+		
 		if (step.get("pig") != null) {
 
 			// pig script

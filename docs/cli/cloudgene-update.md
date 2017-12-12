@@ -1,3 +1,3 @@
-# `cloudgene install`
+# `cloudgene update`
 
 ### `cloudgene update <app>`
