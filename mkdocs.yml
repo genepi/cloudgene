@@ -2,18 +2,34 @@ site_name: Cloudgene v3
 theme: material
 pages:
 - Home: index.md
-- Documentation:
-    - Getting started: getting-started.md
-    - Configuration: configuration.md
-    - Installing apps: installing-applications.md
-    - Running apps on the Commandline: commandline.md
-    - Running apps in the Web Application: web-application.md
-    - Administration: administration.md
+- Installation: installation.md
+- Getting started:
+     - Install Apps: getting-started/installing-applications.md
+     - Run Apps on the Commandline: getting-started/commandline.md
+     - Run Apps in the Web Application: getting-started/web-application.md
 
+- Cloudgene CLI:
+    - Introduction: cli/introduction.md
+    - cloudgene install: cli/cloudgene-install.md
+    - cloudgene update: cli/cloudgene-update.md
+    - cloudgene remove: cli/cloudgene-remove.md
+    - cloudgene ls: cli/cloudgene-ls.md
+    - cloudgene run: cli/cloudgene-run.md
+    - cloudgene server: cli/cloudgene-server.md
+    - cloudgene version: cli/cloudgene-version.md
+- Cloudgene Daemon:
+    - Introduction: daemon/introduction.md
+    - Start Daemon: daemon/start-daemon.md
+    - Stop Daemon: daemon/stop-daemon.md
+    - Configuration: daemon/configuration.md
+    - Manage Jobs: daemon/jobs.md
+    - Manage Permissions: daemon/permissions.md
+    - Maintenance: daemon/administration.md
 - Developers:
     - Introduction: developers/introduction.md
     - Steps:
         - BashCommand: developers/steps/BashCommand.md
+        - JavaJar: developers/steps/JavaJar.md
         - HadoopMapReduce: developers/steps/HadoopMapReduce.md
         - HadoopPig: developers/steps/HadoopPig.md
         - RMarkdown: developers/steps/RMarkdown.md
@@ -21,7 +37,14 @@ pages:
     - Inputs: developers/inputs.md
     - Outputs: developers/outputs.md
     - Control patterns: developers/control-patterns.md
-- API: api.md
+- API Reference:
+    - Introduction: api/introduction.md
+    - Authentication: api/authentication.md
+    - Submit Job: api/job-submission.md
+    - Job Status: api/job-status.md
+    - List Jobs: api/list-jobs.md
+    - Job Details: api/job-details.md
+
 
 extra:
   feature:
