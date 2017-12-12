@@ -5,11 +5,8 @@
 # The path to the folder containing MyDaemon.jar
 FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-# Hadoop path with all jars
-HADOOP_CLASS_PATH=`hadoop classpath`
-
 # Our classpath including our jar file
-CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"
+CLASS_PATH="$FILE_PATH/cloudgene.jar"
 
 # The fully qualified name of the class to execute
 CLASS="cloudgene.mapred.CommandLineInterface"
