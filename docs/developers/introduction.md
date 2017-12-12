@@ -25,7 +25,7 @@ Read more about [installing applications](/docs/03-installing-apps).
 
 ## cloudgene.yaml
 
-The file content starts with a simple header containing general information about the application,  followed by the description of input/output parameters as well as all steps of the workflows:
+The file content starts with a simple header containing general information about the application, followed by the description of input/output parameters as well as all steps of the workflows:
 
 A simple example looks like this:
 
@@ -36,6 +36,7 @@ category: tool-category
 version: 1.0
 website: http://www.my-website.com
 ```
+The two most important fields are `name` and `version`, without them your application won’t be able to install. The `name` and `version` fields are used together to create a unique id.
 
 The next step is to add the `workflow` section to your configuration file to define steps as well as input- and output-parameters.
 
