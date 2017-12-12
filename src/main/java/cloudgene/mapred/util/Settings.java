@@ -496,6 +496,10 @@ public class Settings {
 
 	public Application installApplicationFromYaml(String id, String filename) throws IOException {
 
+		if (indexApps.get(id) != null){
+			throw new IOException("Application " + id + " is already installed");
+		}
+		
 		Application application = new Application();
 		application.setId(id);
 		application.setFilename(filename);
