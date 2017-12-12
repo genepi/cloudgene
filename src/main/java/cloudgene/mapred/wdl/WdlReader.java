@@ -49,18 +49,29 @@ public class WdlReader {
 
 	}
 
-	private static void updateApp(String filename, WdlApp app) {
+	private static void updateApp(String filename, WdlApp app) throws IOException {
 
 		WdlWorkflow config = app.getWorkflow();
 
 		if (config != null) {
-			
+
 			String path = new File(new File(filename).getAbsolutePath()).getParentFile().getAbsolutePath();
 			config.setPath(path);
 			config.setManifestFile(filename);
 
 		}
 
+		// check mandatory fields errors
+		/*if (app.getId() == null || app.getId().isEmpty()) {
+			throw new IOException("No field 'id' found in file '" + filename + "'.");
+		}*/
+		if (app.getVersion() == null || app.getVersion().isEmpty()) {
+			throw new IOException("No field 'version' found in file '" + filename + "'.");
+		}
+		if (app.getName() == null || app.getName().isEmpty()) {
+			throw new IOException("No field 'name' found in file '" + filename + "'.");
+		}
+		//check id format
 	}
 
 }
