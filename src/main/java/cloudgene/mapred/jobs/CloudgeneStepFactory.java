@@ -2,6 +2,7 @@ package cloudgene.mapred.jobs;
 
 import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.DockerStep;
+import cloudgene.mapred.steps.GroovyStep;
 import cloudgene.mapred.steps.HadoopMapReduceStep;
 import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.HadoopSparkStep;
@@ -22,6 +23,8 @@ public class CloudgeneStepFactory {
 				return JavaExternalStep.class.getName();
 			case "docker":
 				return DockerStep.class.getName();
+			case "groovy":
+				return GroovyStep.class.getName();
 			}
 		}
 		

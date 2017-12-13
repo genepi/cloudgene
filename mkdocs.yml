@@ -35,6 +35,7 @@ pages:
         - RMarkdown: developers/steps/RMarkdown.md
         - Docker: developers/steps/Docker.md
         - JavaInterface: developers/steps/JavaInterface.md
+        - Groovy: developers/steps/Groovy.md
     - Inputs: developers/inputs.md
     - Outputs: developers/outputs.md
     - Control patterns: developers/control-patterns.md
