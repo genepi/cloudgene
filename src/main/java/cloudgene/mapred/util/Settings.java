@@ -67,7 +67,7 @@ public class Settings {
 
 	private int threadsQueue = 5;
 
-	//private int maxRunningJobs = 20;
+	// private int maxRunningJobs = 20;
 
 	private int maxRunningJobsPerUser = 2;
 
@@ -104,7 +104,7 @@ public class Settings {
 	private int uploadLimit = -1;
 
 	private Set<Technology> technologies = new HashSet<Technology>();
-	
+
 	public Settings() {
 
 		apps = new Vector<Application>();
@@ -129,10 +129,11 @@ public class Settings {
 		database.put("user", "mapred");
 		database.put("password", "mapred");
 
-		enable(Technology.HADOOP_CLUSTER);
-		enable(Technology.R);
-		enable(Technology.R_MARKDOWN);
-		
+		// enable all technologies
+		for (Technology technology : Technology.values()) {
+			enable(technology);
+		}
+
 	}
 
 	public static Settings load(String filename) throws FileNotFoundException, YamlException {
@@ -496,10 +497,10 @@ public class Settings {
 
 	public Application installApplicationFromYaml(String id, String filename) throws IOException {
 
-		if (indexApps.get(id) != null){
+		if (indexApps.get(id) != null) {
 			throw new IOException("Application " + id + " is already installed");
 		}
-		
+
 		Application application = new Application();
 		application.setId(id);
 		application.setFilename(filename);
@@ -703,18 +704,18 @@ public class Settings {
 		return names;
 	}
 
-	public void enable(Technology technology){
+	public void enable(Technology technology) {
 		technologies.add(technology);
 	}
-	
-	public void disable(Technology technology){
+
+	public void disable(Technology technology) {
 		technologies.remove(technology);
 	}
-	
-	public boolean isEnable(Technology technology){
+
+	public boolean isEnable(Technology technology) {
 		return technologies.contains(technology);
 	}
-	
+
 	public void setThreadsSetupQueue(int threadsSetupQueue) {
 		this.threadsSetupQueue = threadsSetupQueue;
 	}

@@ -2,6 +2,11 @@ package cloudgene.mapred.cli;
 
 import org.apache.hadoop.mapred.ClusterStatus;
 
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+
 import cloudgene.mapred.Main;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.util.DockerHadoopCluster;
@@ -97,6 +102,16 @@ public class StartServer extends BaseTool {
 				settings.disable(Technology.R_MARKDOWN);
 			}
 		}
+		
+		try {
+			DockerClient docker = DefaultDockerClient.fromEnv().build();
+			docker.info();
+			docker.close();
+		} catch (DockerException | DockerCertificateException | InterruptedException e1) {
+			settings.disable(Technology.DOCKER);
+			printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
+		}
+		
 
 		Main main = new Main();
 		try {

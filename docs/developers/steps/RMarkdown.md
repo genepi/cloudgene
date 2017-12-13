@@ -6,9 +6,9 @@ To give the user feedback on the results of an executed workflow, it is importan
 
 | Parameter | Required | Description |
 | --- | --- | --- |
-| `rmd` | yes |  |
-| `params` | no |  |
-| `output` | yes |  |
+| `rmd2` | yes | The filename of your RMarkdown script (*.Rmd) |
+| `params` | no | Input parameters that can be used inside the RMarkdown script (e.g. input files) |
+| `output` | yes | The name and location of the rendered HTML page. |
 
 ## Examples
 
@@ -18,7 +18,15 @@ version: 1.0
 workflow:
   steps:
     - name: Running report script
-      rmd: report.Rmd
-      params: $hdfs_output
-      output: $report.html
+      rmd2: report.Rmd
+      params: $dataset
+      output: ${report}.html
+  inputs:
+    - id: dataset
+      description: Dataset
+      type: hdfs-file
+  outputs:
+    - id: report
+      description: HDFS-Output
+      type: local-file
 ```

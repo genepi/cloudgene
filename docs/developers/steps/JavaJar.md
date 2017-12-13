@@ -6,21 +6,25 @@ Cloudgene supports the execution of jar files (written in Java).
 
 | Parameter | Required | Description |
 | --- | --- | --- |
+| `type` | yes | Type has to be `java` |
 | `jar` | yes | The filename of the jar (relativ to cloudgene.yaml file) |
 | `params` | no | The paramters that you want to use in your jar |
-| `runtime` | yes | Set it to `java` in order to execute the jar without the Hadoop classpath. |
 
 ## Examples
+
+### Execute Jar Archive
+
+ The following example illustrates how to execute the default main-class of jar archive:
 
 ```yaml
 name: java example
 version: 1.0
 workflow:
   steps:
-    - name: Print text to terminal
+    - name: Execute jar archive
+      type: java
       jar: my-jar-file.jar
       params: --param1 $file1
-      runtime: java
   inputs:
     - id: file1
       description: Input File

@@ -15,9 +15,10 @@ Cloudgene supports the execution of executable binaries.
 
 ## Examples
 
-The following examples illustrate the syntax.
+### Print message to using `/bin/echo`
 
-### Print message using /bin/echo
+This example shows how to forward stdout directly to the output of a step in order to display it the web-application.
+
 
 ```yaml
 name: cmd example
@@ -33,9 +34,10 @@ workflow:
       type: text
 ```
 
-We have to set `stdout` to `true` in order to see the messages in the web-application as a step output.
 
-### Write message to a file using bash features
+### Write message to a file using stdout streaming
+
+This example shows how to use Bash specific features by setting the `bash` property to `true`:
 
 ```yaml
 name: bash example
@@ -55,9 +57,9 @@ workflow:
       type: local-file
 ```
 
-### HDFS inputs
+### Working with HDFS files
 
-Cloudgene takes care of all file staging operation. Thus, all HDFS inputs are automatically exported to the local filesystem and can be used without manual exportation. In this example wir use the `cat` command to show the content of an hdfs file:
+All HDFS inputs are automatically exported to the local filesystem and can be used without manual exportation. In this example we use the `cat` command to show the content of an `hdfs-file` input parameter:
 
 ```yaml
 name: hdfs example

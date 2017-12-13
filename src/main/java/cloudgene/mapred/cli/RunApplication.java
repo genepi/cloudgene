@@ -17,6 +17,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlException;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -244,6 +248,16 @@ public class RunApplication extends BaseTool {
 		if (!RBinary.isInstalled()){
 			settings.disable(Technology.R);
 		}
+		
+		try {
+			DockerClient docker = DefaultDockerClient.fromEnv().build();
+			docker.info();
+			docker.close();
+		} catch (DockerException | DockerCertificateException | InterruptedException e1) {
+			settings.disable(Technology.DOCKER);
+			printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
+		}
+		
 		
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());

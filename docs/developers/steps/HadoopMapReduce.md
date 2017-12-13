@@ -11,49 +11,48 @@ Cloudgene supports both the execution of Hadoop jar files (written in Java) and 
 
 ## Examples
 
-### Wordcount
+### Hadoop MapReduce jar
 
-The following example shows how easy a Hadoop jar file can be integrated:
+The following example shows how to execute a Hadoop jar file:
 
-    mapred:
-
-      jar: file.jar
+```yaml
+name: Hadoop MapReduce
+version: 1.0
+workflow:
+  steps:
+    - jar: file.jar
       params: -param $input_param -param2 $output_param
+  inputs:
+    - id: input_param
+      description: HDFS-Input
+      type: hdfs-folder
+  outputs:
+    - id: output_param
+      description: HDFS-Output
+      type: hdfs-folder
+```
 
-      inputs:
+### Hadoop MapReduce streaming mode
 
-        - id: input_param
-          description: Parameter Description
-          type: hdfs-folder
+The following example shows how to integrate a streaming job:
 
-        - ...
-
-      outputs:
-
-        - id: output_param
-          description: HDFS-Output
-          type: hdfs-folder
-
-        - ...
-
-
-## Hadoop MapReduce streaming mode
-
-The following example shows how easy a streaming job can be integrated:
-
-    mapred:
-
-      mapper: map.sh
+```yaml
+name: Hadoop MapReduce
+version: 1.0
+workflow:
+  steps:
+    - mapper: map.sh
       reducer: reducer.sh
       params: -input $input
               -output $output
               -file map.sh
               -file reducer.sh
-
-      inputs:
-
-        - ...
-
-      outputs:
-
-        - ...
+  inputs:
+    - id: input_param
+      description: HDFS-Input
+      type: hdfs-folder
+  outputs:
+    - id: output_param
+      description: HDFS-Output
+      type: hdfs-folder
+```

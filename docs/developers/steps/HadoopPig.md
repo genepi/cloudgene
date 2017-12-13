@@ -11,10 +11,23 @@ Apache PIG scripts can be integrated as tasks in order to transform datasets cre
 
 ## Examples
 
-The following example shows how easy a pig script can be integrated:
+The following example shows how to integrate a pig script:
 
-    steps:
-      - name: Running pig script
-        pig: filter_results.pig
-        params: -param input=$hdfs_output_tmp
-                -param output=$hdfs_output
+```yaml
+name: Hadoop PIG
+version: 1.0
+workflow:
+  steps:
+    - name: Running pig script
+      pig: filter_results.pig
+      params: -param input=$hdfs_input
+              -param output=$hdfs_output
+  inputs:
+    - id: hdfs_input
+      description: HDFS-Input
+      type: hdfs-folder
+  outputs:
+    - id: hdfs_output
+      description: HDFS-Output
+      type: hdfs-folder
+```

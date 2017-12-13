@@ -14,6 +14,11 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
@@ -127,6 +132,22 @@ public class GetClusterDetails extends BaseResource {
 		} else {
 			object.put("rmarkdown_enabled", false);
 			object.put("rmarkdown_error", "R Markdown support is disabled. Please check your configuration.");
+		}
+
+		if (getSettings().isEnable(Technology.DOCKER)) {
+			try {
+				DockerClient docker = DefaultDockerClient.fromEnv().build();
+				object.put("docker_enabled", true);
+				object.put("docker_details", "Docker is installed and running (Client version: "
+						+ docker.version().version() + ", Client API Version: " + docker.version().apiVersion() + ")");
+				docker.close();
+			} catch (DockerException | DockerCertificateException | InterruptedException e1) {
+				object.put("docker_enabled", false);
+				object.put("docker_error", "Docker support is disabled. " + e1.toString());
+			}
+		} else {
+			object.put("docker_enabled", false);
+			object.put("docker_error", "Docker support is disabled. Please install or start Docker.");
 		}
 
 		// database
