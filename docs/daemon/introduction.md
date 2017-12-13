@@ -2,8 +2,6 @@
 
 This page helps you to run Cloudgene in production.
 
-## Requirements
+You will need  [Appache Common JSVC](https://commons.apache.org/proper/commons-daemon/jsvc.html) installed on your server.
 
-You will need the following things properly installed on your server:
-
-- [Appache Common JSVC](https://commons.apache.org/proper/commons-daemon/jsvc.html)
+Moreover, we recommend to use [MySQL](/daemon/configuration/#database-connection) and setup [SSL certificates](/daemon/configuration/#https-certificate-and-security).

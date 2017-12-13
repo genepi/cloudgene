@@ -35,7 +35,7 @@ cloudgene run cloudgene.yaml <workflow parameters> --docker --image myuser/my-im
 Navigate to the folder where your cloudgene.yaml file is located and execute your workflow with the `--host` flag to set the ip address of your remote Hadoop cluster:
 
 ```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --host <remote-ip>
+cloudgene run cloudgene.yaml <workflow parameters> --host <remote-ip>
 ```
 
 Cloudgene executes your MapReduce steps on the remote cluster. You can use the `--user` flag to set the username which should be used to execute your job (e.g. it uses the HDFS directory of this user for all files):

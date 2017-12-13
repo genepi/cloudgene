@@ -164,7 +164,7 @@ cloudgene server
 
 The webservice is available on [http://localhost:8082](http://localhost:8082). Please use username `admin` and password `admin1978` to login.
 
-You can install different workflows in the same instance and can use the [Admin Dashboard]() to define who has access to each of them.
+You can install different workflows in the same instance and can define in the [Admin Dashboard](/daemon/permissions) who has access to each of them.
 
 !!! tip
     For production you should use the `cloudgene-daemon.sh` script. [Learn more]()

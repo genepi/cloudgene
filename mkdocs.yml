@@ -11,7 +11,6 @@ pages:
 - Cloudgene CLI:
     - Introduction: cli/introduction.md
     - cloudgene install: cli/cloudgene-install.md
-    - cloudgene update: cli/cloudgene-update.md
     - cloudgene remove: cli/cloudgene-remove.md
     - cloudgene ls: cli/cloudgene-ls.md
     - cloudgene validate: cli/cloudgene-validate.md
