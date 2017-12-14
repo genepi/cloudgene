@@ -75,7 +75,7 @@ public class Settings {
 
 	private boolean streaming = true;
 
-	private boolean removeHdfsWorkspace = false;
+	private boolean removeHdfsWorkspace = true;
 
 	private static final Log log = LogFactory.getLog(Settings.class);
 

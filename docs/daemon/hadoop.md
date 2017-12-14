@@ -19,7 +19,7 @@ cluster:
 
 ## Validate Configuration
 
-Open the **Admin Panel** and click on the **Server** tab. You see a summary of the Hadoop cluster where you can recheck if Hadoop is `running` as well as all nodes were found:
+Open the **Admin Panel** and click on the **Server** tab. You will see a summary of the Hadoop cluster where you can check if Hadoop is `running` as well as all nodes were found:
 
 
 ![Hadoop](/daemon/images/hadoop.png)
