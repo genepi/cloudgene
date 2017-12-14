@@ -1,9 +1,11 @@
 # Groovy step
 
-In addition to the tasks described in the previous sections, user-defined tasks can be integrated directly by implementing a Groovy function. No compilation is needed and your script can be included directly.
+User-defined tasks can also be integrated by implementing a [Groovy](http://groovy-lang.org/) function. Compared to the [Java Interface](/developers/steps/JavaInterface/), there is no compilation needed and a script can be included directly.
 
-!!! danger
-    This step is currently in alpha and interfaces/methods can be changed in future releases.
+Groovy provides a simple but rich [IO API](http://groovy-lang.org/groovy-dev-kit.html#_working_with_io) to read/write files or to execute external processes.
+
+!!! attention
+    This step is currently under development and interfaces/methods can be changed in future releases.
 
 
 ## Parameters
@@ -14,6 +16,8 @@ In addition to the tasks described in the previous sections, user-defined tasks 
 | `script` | yes | The filename of your Groovy script (*.groovy) |
 
 ## Examples
+
+### Hello World
 
 The following example demonstrates how to execute a Groovy script and write feedback to Cloudgene:
 
@@ -31,7 +35,7 @@ workflow:
     - id: name
       description: Name
       type: text
-      value: John Lennon
+      value: World
 ```
 
 #### step.groovy
@@ -43,15 +47,42 @@ import genepi.hadoop.common.WorkflowContext
 
 def run(WorkflowContext context) {
 
+	// get input parameter 'name'
 	def name = context.get("name");
 
 	for (int i = 1; i <= 10; i++){
+		// write to step output
 		context.ok("Hello ${name}! I am Groovy Step Nr. " + i);
 	}
 
 	return true;
 }
 ```
+
+### Using external libraries
+
+Cloudgene supports `@Grab` annotations to download missing dependencies automatically (e.g. from a Maven repository). The following example shows a Groovy script which parses a csv file using [GroovyCSV](https://github.com/xlson/groovycsv):
+
+```groovy
+@Grab('com.xlson.groovycsv:groovycsv:1.1')
+
+import static com.xlson.groovycsv.CsvParser.parseCsv
+import genepi.hadoop.common.WorkflowContext
+
+def run(WorkflowContext context) {
+
+	// get input parameter 'csv'
+	def csvFilename = context.get('csv');
+
+	def data = parseCsv(new FileReader(csvFilename), separator: '\t')
+	for(line in data) {
+		context.ok("$line.Name $line.Lastname")
+	}
+
+	return true;
+}
+```
+
 
 ## Learn more
 

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.26.0</version>
+	<version>1.27.0</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -239,6 +239,14 @@
     <artifactId>groovy-all</artifactId>
     <version>2.4.13</version>
 </dependency>
+
+
+<dependency>
+  <groupId>org.apache.ivy</groupId>
+  <artifactId>ivy</artifactId>
+  <version>2.4.0</version>
+</dependency>
+
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-hdfs</artifactId>

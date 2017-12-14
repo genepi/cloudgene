@@ -1,20 +1,15 @@
 package cloudgene.mapred.steps;
 
-import genepi.hadoop.common.WorkflowContext;
-import genepi.io.FileUtil;
-import groovy.util.GroovyScriptEngine;
+import com.google.common.base.Throwables;
+
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.common.WorkflowContext;
+import genepi.io.FileUtil;
+import groovy.util.GroovyScriptEngine;
 
 public class GroovyStep extends CloudgeneStep {
-
-	static void runWithGroovyScriptEngine() throws Exception {
-		// Declaring a class to conform to a java interface class would get rid
-		// of
-		// a lot of the reflection here
-
-	}
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -26,7 +21,7 @@ public class GroovyStep extends CloudgeneStep {
 		String filename = FileUtil.path(workingDirectory, script);
 
 		try {
-			
+
 			Class scriptClass = new GroovyScriptEngine(".", getClass().getClassLoader()).loadScriptByName(filename);
 			Object scriptInstance = scriptClass.newInstance();
 			Object result = scriptClass.getDeclaredMethod("run", new Class[] { WorkflowContext.class })
@@ -36,9 +31,13 @@ public class GroovyStep extends CloudgeneStep {
 			} else {
 				return true;
 			}
-			
+
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (e.getCause() != null) {
+				context.error("Error in script " + script + ":\n" + Throwables.getStackTraceAsString(e.getCause()));
+			} else {
+				context.error("Error in script " + script + ":\n" + Throwables.getStackTraceAsString(e));
+			}
 			return false;
 		}
 

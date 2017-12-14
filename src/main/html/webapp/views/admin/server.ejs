@@ -134,7 +134,7 @@
 
 <hr>
 
-<h4>R</h4>
+<h4>Technologies</h4>
 <% if (cluster.attr('r_enabled')) { %>
 	<div class="alert alert-success" id="success-message">
 		<%== cluster.attr('r_details') %></pre>
@@ -145,10 +145,6 @@
     <%== cluster.attr('r_error') %>
 	</div>
 <% }%>
-
-<hr>
-
-<h4>R Markdown</h4>
 <% if (cluster.attr('rmarkdown_enabled')) { %>
 	<div class="alert alert-success" id="success-message">
 		<%== cluster.attr('rmarkdown_details') %>
@@ -156,6 +152,15 @@
 <% } else { %>
 	<div class="alert alert-error" id="success-message">
 	  	<%== cluster.attr('rmarkdown_error') %>
+	</div>
+<% }%>
+<% if (cluster.attr('docker_enabled')) { %>
+	<div class="alert alert-success" id="success-message">
+		<%== cluster.attr('docker_details') %>
+	</div>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+	  	<%== cluster.attr('docker_error') %>
 	</div>
 <% }%>
 
