@@ -38,6 +38,7 @@ public class StartServer extends BaseTool {
 	@Override
 	public int run() {
 
+		
 		if (getValue("host") != null) {
 
 			String host = getValue("host").toString();
@@ -68,7 +69,9 @@ public class StartServer extends BaseTool {
 			HadoopCluster.init(cluster.getIpAddress(), "cloudgene");
 
 		} else {
-			System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
+			if (settings.getCluster() == null){
+				System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
+			}
 		}
 
 		// check cluster status

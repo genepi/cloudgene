@@ -215,8 +215,10 @@ public class RunApplication extends BaseTool {
 			HadoopCluster.init(cluster.getIpAddress(), "cloudgene");
 
 		} else {
-			printText(0, spaces("[INFO]", 8)
-					+ "No external Haddop cluster set. Be sure you execute Cloudgene on your namenode.");
+			if (settings.getCluster() == null) {
+				printText(0, spaces("[INFO]", 8)
+						+ "No external Haddop cluster set. Be sure you execute Cloudgene on your namenode.");
+			}
 		}
 
 		// check cluster status
@@ -241,14 +243,14 @@ public class RunApplication extends BaseTool {
 			return 1;
 		}
 
-		if (!hadoopSupport){
+		if (!hadoopSupport) {
 			settings.disable(Technology.HADOOP_CLUSTER);
 		}
-		
-		if (!RBinary.isInstalled()){
+
+		if (!RBinary.isInstalled()) {
 			settings.disable(Technology.R);
 		}
-		
+
 		try {
 			DockerClient docker = DefaultDockerClient.fromEnv().build();
 			docker.info();
@@ -257,8 +259,7 @@ public class RunApplication extends BaseTool {
 			settings.disable(Technology.DOCKER);
 			printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
 		}
-		
-		
+
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
 

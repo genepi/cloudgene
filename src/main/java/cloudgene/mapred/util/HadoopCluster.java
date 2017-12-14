@@ -6,11 +6,15 @@ import genepi.hadoop.HdfsUtil;
 
 public class HadoopCluster {
 	public static void init(String host, String username) {
-		System.setProperty("HADOOP_USER_NAME", username);
-		Configuration configuration = new Configuration();
-		configuration.set("fs.defaultFS", "hdfs://" + host + ":8020");
-		configuration.set("mapred.job.tracker", host + ":8021");
-		HdfsUtil.setDefaultConfiguration(configuration);
+		if (username != null) {
+			System.setProperty("HADOOP_USER_NAME", username);
+		}
+		if (host != null) {
+			Configuration configuration = new Configuration();
+			configuration.set("fs.defaultFS", "hdfs://" + host + ":8020");
+			configuration.set("mapred.job.tracker", host + ":8021");
+			HdfsUtil.setDefaultConfiguration(configuration);
+		}
 	}
 
 	public static String getJobTracker() {

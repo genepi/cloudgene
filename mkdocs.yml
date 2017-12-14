@@ -22,6 +22,7 @@ pages:
     - Start Daemon: daemon/start-daemon.md
     - Stop Daemon: daemon/stop-daemon.md
     - Configuration: daemon/configuration.md
+    - Enable Hadoop Support: daemon/hadoop.md
     - Manage Jobs: daemon/jobs.md
     - Manage Permissions: daemon/permissions.md
     - Maintenance: daemon/administration.md

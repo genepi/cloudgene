@@ -57,6 +57,8 @@ public class Settings {
 
 	private Map<String, String> database;
 
+	private Map<String, String> cluster;
+
 	private List<Application> apps;
 
 	private int retireAfter = 6;
@@ -66,8 +68,6 @@ public class Settings {
 	private int threadsSetupQueue = 5;
 
 	private int threadsQueue = 5;
-
-	// private int maxRunningJobs = 20;
 
 	private int maxRunningJobsPerUser = 2;
 
@@ -149,6 +149,13 @@ public class Settings {
 		log.info("Retire jobs after " + settings.retireAfter + " days.");
 		log.info("Notify user after " + settings.notificationAfter + " days.");
 		log.info("Write statistics: " + settings.writeStatistics);
+
+		if (settings.cluster != null) {
+			String host = settings.cluster.get("host");
+			String username = settings.cluster.get("username");
+			log.info("Use external Haddop cluster running on " + host + " with username " + username);
+			HadoopCluster.init(host, username);
+		}
 
 		return settings;
 
@@ -285,6 +292,14 @@ public class Settings {
 
 	public void setMail(Map<String, String> mail) {
 		this.mail = mail;
+	}
+
+	public Map<String, String> getCluster() {
+		return cluster;
+	}
+
+	public void setCluster(Map<String, String> cluster) {
+		this.cluster = cluster;
 	}
 
 	public String getSlack() {

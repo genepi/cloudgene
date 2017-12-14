@@ -37,6 +37,7 @@ mail:
   port: 25
   user: username
   password: password
+  # the email address that Cloudgene uses to send emails
   name: noreply@domain.com
 ```
 
@@ -113,11 +114,4 @@ autoRetire: true
 ```yaml
 uploadLimit
 urlPrefix
-```
-
-```yaml
-cluster:
-  type: hadoop
-  host: localhost
-  user: cloudgene
 ```
