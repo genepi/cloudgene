@@ -136,7 +136,11 @@ public abstract class Queue implements Runnable {
 						}
 
 						for (AbstractJob job : complete) {
-							onComplete(job);
+							try {
+								onComplete(job);
+							} catch (Exception e) {
+								log.warn(name + ": Job " + job.getId() + ": On complete failed. ", e);
+							}
 							futures.remove(job);
 							if (updatePositions) {
 								updatePositionInQueue();
@@ -146,19 +150,15 @@ public abstract class Queue implements Runnable {
 					}
 				}
 
-				try {
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
 			} catch (Exception e) {
-
-				log.warn(name + ": Concurrency Exception!! ");
-				e.printStackTrace();
-
+				log.warn(name + ": Concurrency Exception!! ", e);
 			}
 
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -263,7 +263,7 @@ public abstract class Queue implements Runnable {
 
 			synchronized (queue) {
 				Future<?> oldFuture = futures.get(job);
-				if (oldFuture != null){
+				if (oldFuture != null) {
 					oldFuture.cancel(false);
 				}
 				job.setPriority(priority);
