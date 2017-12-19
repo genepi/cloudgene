@@ -116,6 +116,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private boolean forceInstallation = false;
 
+	private String workspaceSize = null;
+	
 	public String getId() {
 		return id;
 	}
@@ -244,6 +246,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return positionInQueue;
 	}
 
+	public void setWorkspaceSize(String workspaceSize) {
+		this.workspaceSize = workspaceSize;
+	}
+	
+	public String getWorkspaceSize() {
+		return workspaceSize;
+	}
+	
 	public boolean afterSubmission() {
 		try {
 
