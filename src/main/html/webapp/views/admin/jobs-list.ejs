@@ -1,11 +1,22 @@
+
+<p class="pull-right">
+<%if (this.attr('running') > 0) {%><b><%= this.attr('running') %></b> jobs are <b>running</b>.<% } %>
+<%if (this.attr('waiting') > 0) {%><b><%= this.attr('waiting') %></b> jobs are <b>waiting</b>.<% } %>
+<%if (this.attr('success') > 0) {%><b><%= this.attr('success') %></b> jobs are <b>succeeded</b>.<% } %>
+<%if (this.attr('failed') > 0) {%><b><%= this.attr('failed') %></b> jobs are <b>failed</b>.<% } %>
+<%if (this.attr('pending') > 0) {%><b><%= this.attr('pending') %></b> jobs are <b>pending</b>.<% } %>
+<%if (this.attr('canceld') > 0) {%><b><%= this.attr('canceld') %></b> jobs are <b>canceld</b>.<% } %>
+</p>
+
+<table class="table table-striped table-bordered">
 <thead>
 	<tr>
 		<th style="width: 40px;"><small>Priority</small></th>
 		<th style="width: 80px;"></th>
 		<th>Job</th>
 		<th style="width: 100px;">Username</th>
-		<th style="width: 150px;">Execution Time</th>
-		<th style="width: 180px;">Valid until</th>
+		<th style="width: 150px;">Time Running</th>
+		<th style="width: 180px;">Valid Until</th>
 		<th style="width: 16px;"></th>
 		<th style="width: 16px;"></th>
 		<th style="width: 16px;"></th>
@@ -120,3 +131,4 @@
 		</tr>
 	<% }) %>
 </tbody>
+</table>
