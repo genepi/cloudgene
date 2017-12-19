@@ -1,6 +1,5 @@
 package cloudgene.mapred.jobs;
 
-
 public class Message {
 
 	public static final int OK = 0;
@@ -30,7 +29,11 @@ public class Message {
 	}
 
 	public String getMessage() {
-		return message;
+		if (message != null) {
+			return message;
+		} else {
+			return "";
+		}
 	}
 
 	public void setMessage(String message) {
