@@ -1,5 +1,6 @@
 package cloudgene.mapred.api.v2.admin;
 
+import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
@@ -7,6 +8,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
+import org.apache.commons.io.FileUtils;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -17,6 +19,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
+import genepi.io.FileUtil;
 
 public class GetAllJobs extends BaseResource {
 
@@ -97,6 +100,15 @@ public class GetAllJobs extends BaseResource {
 		int running = 0;
 
 		for (AbstractJob job : jobs) {
+			
+			String workspace = getSettings().getLocalWorkspace();
+			String folder = FileUtil.path(workspace, job.getId());
+			File file = new File(folder);
+			if (file.exists()) {
+				long size = FileUtils.sizeOfDirectory(file);
+				job.setWorkspaceSize(FileUtils.byteCountToDisplaySize(size));
+			}
+			
 			if (job.getState() == AbstractJob.STATE_EXPORTING || job.getState() == AbstractJob.STATE_RUNNING) {
 				running++;
 			}

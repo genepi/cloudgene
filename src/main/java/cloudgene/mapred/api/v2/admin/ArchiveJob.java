@@ -9,11 +9,11 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Template;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
-public class ChangeRetireDate extends BaseResource {
+public class ArchiveJob extends BaseResource {
 
 	@Get
 	public Representation get() {
@@ -32,9 +32,9 @@ public class ChangeRetireDate extends BaseResource {
 			return new StringRepresentation("The request requires administration rights.");
 		}
 
-		String jobId = getAttribute("job");
+		Settings settings = getSettings();
 
-		int days = Integer.parseInt(getAttribute("days"));
+		String jobId = getAttribute("job");
 
 		JobDao dao = new JobDao(getDatabase());
 
@@ -50,23 +50,31 @@ public class ChangeRetireDate extends BaseResource {
 			return new StringRepresentation("Job " + jobId + " not found.");
 		}
 
-		if (job.getState() == AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND
-				|| job.getState() == AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND) {
+		if (job.getState() == AbstractJob.STATE_SUCCESS || job.getState() == AbstractJob.STATE_FAILED
+				|| job.getState() == AbstractJob.STATE_CANCELED) {
 
 			try {
 
-				job.setDeletedOn(job.getDeletedOn() + (days * 24 * 60 * 60 * 1000));
+				// delete local directory and hdfs directory
+				String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 
+				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
+
+				FileUtil.deleteDirectory(localOutput);
+				HdfsUtil.delete(hdfsOutput);
+
+				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 
-				return new StringRepresentation("Update delete on date for job " + job.getId() + ".");
+				return new StringRepresentation("Retired job " + jobId);
 
 			} catch (Exception e) {
 
-				return new StringRepresentation("Update delete date for job " + job.getId() + " failed.");
+				return new StringRepresentation("Retire " + job.getId() + " failed.");
 			}
 
 		} else {
+
 			return new StringRepresentation("Job " + jobId + " has wrong state for this operation.");
 		}
 

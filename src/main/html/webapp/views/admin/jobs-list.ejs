@@ -17,6 +17,8 @@
 		<th style="width: 100px;">Username</th>
 		<th style="width: 150px;">Time Running</th>
 		<th style="width: 180px;">Valid Until</th>
+		<th style="width: 80px;">Size</th>
+		<th style="width: 16px;"></th>
 		<th style="width: 16px;"></th>
 		<th style="width: 16px;"></th>
 		<th style="width: 16px;"></th>
@@ -99,17 +101,27 @@
 			</td>
 
 			<td>
+				 <%= job.attr('workspaceSize') ? job.attr('workspaceSize') : '-' %>
+			</td>
+
+			<td>
 				<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-						<span class="icon-time" style="cursor: pointer;"></span>
+						<span class="icon-time" title="Reset download counter" style="cursor: pointer;"></span>
 				<% } %>
 			</td>
 
 			<td>
 				<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
-					<span class="icon-fire" style="cursor: pointer;"></span>
+					<span class="icon-fire" title="Send retire notification now" style="cursor: pointer;"></span>
 				<% } %>
 				<% if( job.attr('state') == '8' || job.attr('state') == '9'){ %>
-					<span class="icon-plus" style="cursor: pointer;"></span>
+					<span class="icon-plus" title="Increase Valid Until date by one day" style="cursor: pointer;"></span>
+				<% } %>
+			</td>
+
+			<td>
+				<% if( job.attr('state') == '4' || job.attr('state') != '5' || job.attr('state') != '6'){ %>
+					<span class="icon-folder-close" title="Retire job now and delete workspace" style="cursor: pointer;"></span>
 				<% } %>
 			</td>
 

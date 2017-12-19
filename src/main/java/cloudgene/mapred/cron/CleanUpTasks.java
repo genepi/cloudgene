@@ -1,15 +1,10 @@
 package cloudgene.mapred.cron;
 
-import genepi.db.Database;
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.classification.InterfaceAudience.Public;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
@@ -17,6 +12,9 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
+import genepi.db.Database;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
 public class CleanUpTasks {
 

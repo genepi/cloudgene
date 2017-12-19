@@ -16,6 +16,7 @@ import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 
+import cloudgene.mapred.api.v2.admin.ArchiveJob;
 import cloudgene.mapred.api.v2.admin.ChangeGroup;
 import cloudgene.mapred.api.v2.admin.ChangePriority;
 import cloudgene.mapred.api.v2.admin.ChangeRetireDate;
@@ -165,7 +166,9 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/retire", HotRetireJob.class);
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/priority", ChangePriority.class);
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/change-retire/{days}", ChangeRetireDate.class);
+		router.attach(prefix + "/api/v2/admin/jobs/{job}/archive", ArchiveJob.class);
 
+		
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
 		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);

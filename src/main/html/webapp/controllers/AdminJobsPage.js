@@ -65,6 +65,24 @@ AdminJobsPage = can.Control({
 		});
 	},
 
+	'.icon-folder-close click': function(el, ev) {
+		job = el.closest('tr').data('job');
+		that = this;
+		bootbox.animate(false);
+		bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
+			if (result) {
+				request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive');
+				request.success(function(data) {
+					bootbox.alert(data);
+					that.init(that.element, that.options);
+				});
+				request.error(function(data) {
+					bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+				});
+			}
+		});
+	},
+
 	'.icon-time click': function(el, ev) {
 		job = el.closest('tr').data('job');
 		that = this;
