@@ -76,6 +76,10 @@ public abstract class Queue implements Runnable {
 
 			log.info(name + ": Cancel Job " + job.getId() + "...");
 
+			if (job.getSetupStartTime() > 0 && job.getSetupEndTime() == 0){
+				job.setSetupEndTime(System.currentTimeMillis());
+			}
+			
 			job.kill();
 			job.cancel();
 
@@ -94,6 +98,10 @@ public abstract class Queue implements Runnable {
 					if (runnable != null) {
 						scheduler.kill(runnable);
 					}
+					if (job.getSetupStartTime() > 0 && job.getSetupEndTime() == 0){
+						job.setSetupEndTime(System.currentTimeMillis());
+					}
+					
 					job.cancel();
 					queue.remove(job);
 					futures.remove(job);
