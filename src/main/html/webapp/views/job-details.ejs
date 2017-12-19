@@ -43,21 +43,28 @@
 
 	<tr>
 		<td style="width: 150px;">
-			<b>Started:</b>
+			<b>Submitted On:</b>
 		</td>
-		<td><%= prettyDate(job.attr('startTime')) %></td>
+		<td><%= prettyDate(job.attr('submittedOn')) %></td>
 	</tr>
 	<tr>
 		<td>
-			<b>Finished:</b>
+			<b>Completed On:</b>
 		</td>
-		<td><%= prettyDate(job.attr('endTime')) %></td>
+		<td><%= prettyDate(job.attr('finishedOn')) %></td>
+	</tr>
+	<tr>
+		<td>
+			<b>Setup Time:</b>
+		</td>
+		<td><%= prettyTime(job.attr('setupStartTime'), job.attr('setupEndTime')); %></td>
 	</tr>
 	<tr>
 		<td>
 			<b>Execution Time:</b>
 		</td>
-		<td><%= prettyTime(job.attr('executionTime'), job.attr('state')); %></td>
+		<td>
+			<%= prettyTime(job.attr('startTime'), job.attr('endTime')); %></td>
 	</tr>
 	<tr>
 		<td>
@@ -71,7 +78,7 @@
 
 			<% if( job.attr('state') == '1' ){ %>
 				<% if( job.attr('setupRunning')){ %>
-				<span class="label" style="width: 50px">Validate</span>
+				<span class="label" style="width: 50px">Setup</span>
 				<% } else { %>
 				<span class="label" style="width: 50px">Waiting</span>
 				<% } %>

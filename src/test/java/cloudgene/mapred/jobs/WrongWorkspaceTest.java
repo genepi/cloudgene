@@ -33,7 +33,7 @@ public class WrongWorkspaceTest extends TestCase {
 
 		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
-		while (job.isRunning()) {
+		while (!job.isComplete()) {
 			Thread.sleep(1000);
 		}
 		Thread.sleep(10000);
@@ -47,8 +47,7 @@ public class WrongWorkspaceTest extends TestCase {
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
 
-	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
-			throws Exception {
+	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
 		User user = TestServer.getInstance().getUser();
 		Settings settings = TestServer.getInstance().getSettings();

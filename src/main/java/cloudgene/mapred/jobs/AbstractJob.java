@@ -1,7 +1,5 @@
 package cloudgene.mapred.jobs;
 
-import genepi.io.FileUtil;
-
 import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
 import cloudgene.mapred.util.Settings;
+import genepi.io.FileUtil;
 
 abstract public class AbstractJob extends PriorityRunnable {
 
@@ -61,6 +60,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private long endTime = 0;
 
+	private long setupStartTime = 0;
+
+	private long setupEndTime = 0;
+
+	private long submittedOn = 0;
+
+	private long finishedOn = 0;
+
 	private String name;
 
 	private User user;
@@ -73,14 +80,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private String error = "";
 
-	private int map = -1;
-
-	private int reduce = -1;
+	private int progress = -1;
 
 	private boolean setupComplete = false;
 
 	private boolean setupRunning = false;
 
+	private boolean complete = true;
+	
 	private int positionInQueue = -1;
 
 	protected List<CloudgeneParameter> inputParams = new Vector<CloudgeneParameter>();
@@ -106,6 +113,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private String hdfsWorkspace;
 
 	private boolean canceld = false;
+
+	private boolean forceInstallation = false;
 
 	public String getId() {
 		return id;
@@ -139,12 +148,36 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.endTime = endTime;
 	}
 
-	public int getExecutionTime() {
-		if (endTime == 0) {
-			return (int) (System.currentTimeMillis() - startTime);
-		} else {
-			return (int) (endTime - startTime);
-		}
+	public void setSetupStartTime(long setupStartTime) {
+		this.setupStartTime = setupStartTime;
+	}
+
+	public long getSetupStartTime() {
+		return setupStartTime;
+	}
+
+	public void setSetupEndTime(long setupEndTime) {
+		this.setupEndTime = setupEndTime;
+	}
+
+	public long getSetupEndTime() {
+		return setupEndTime;
+	}
+
+	public void setSubmittedOn(long submitedOn) {
+		this.submittedOn = submitedOn;
+	}
+
+	public long getSubmittedOn() {
+		return submittedOn;
+	}
+
+	public void setFinishedOn(long finishedOn) {
+		this.finishedOn = finishedOn;
+	}
+
+	public long getFinishedOn() {
+		return finishedOn;
 	}
 
 	public String getName() {
@@ -171,20 +204,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.error = error;
 	}
 
-	public void setMap(int map) {
-		this.map = map;
+	public void setProgress(int progress) {
+		this.progress = progress;
 	}
 
-	public int getMap() {
-		return map;
-	}
-
-	public void setReduce(int reduce) {
-		this.reduce = reduce;
-	}
-
-	public int getReduce() {
-		return reduce;
+	public int getProgress() {
+		return progress;
 	}
 
 	public void setDeletedOn(long deletedOn) {
@@ -230,7 +255,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 		} catch (Exception e1) {
 
-			setEndTime(System.currentTimeMillis());
+			// setEndTime(System.currentTimeMillis());
 
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
@@ -244,14 +269,21 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void runSetupSteps() {
 
-		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
+		log.info("Job " + getId() + ": executing installation...");
+		writeLog("Executing Job installation....");
+
+		// execute installation
+
+		boolean result = executeInstallation(forceInstallation);
+
+		if (result == false || state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
+			setState(AbstractJob.STATE_FAILED);
 			onFailure();
-			setStartTime(System.currentTimeMillis());
-			setEndTime(System.currentTimeMillis());
-			setError("Job Execution failed.");
 			setSetupComplete(false);
 			return;
 		}
+
+		// execute setup steps
 
 		try {
 
@@ -265,7 +297,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 				log.info("Job " + getId() + ":  executed successful. job has steps.");
 				setSetupComplete(true);
-
 				return;
 
 			} else if (succesfull && !hasSteps()) {
@@ -284,8 +315,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 					if (successfulAfter) {
 
-						setEndTime(System.currentTimeMillis());
-
 						setState(AbstractJob.STATE_SUCCESS);
 						setSetupComplete(true);
 						log.info("Job " + getId() + ": data export successful.");
@@ -293,7 +322,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 					} else {
 
-						setEndTime(System.currentTimeMillis());
 						setSetupComplete(false);
 						setState(AbstractJob.STATE_FAILED);
 						log.error("Job " + getId() + ": data export failed.");
@@ -301,9 +329,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 					}
 
-				} catch (Exception e) {
-
-					setEndTime(System.currentTimeMillis());
+				} catch (Error | Exception e) {
 
 					Writer writer = new StringWriter();
 					PrintWriter printWriter = new PrintWriter(writer);
@@ -313,20 +339,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 					setState(AbstractJob.STATE_FAILED);
 					log.error("Job " + getId() + ": data export failed.", e);
 					writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
-					setSetupComplete(false);
 
-				} catch (Error e) {
-
-					setEndTime(System.currentTimeMillis());
-
-					Writer writer = new StringWriter();
-					PrintWriter printWriter = new PrintWriter(writer);
-					e.printStackTrace(printWriter);
-					String s = writer.toString();
-
-					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": data export failed.", e);
-					writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
 					setSetupComplete(false);
 
 				}
@@ -338,8 +351,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 				closeStdOutFiles();
 
+				
 			} else if (!succesfull) {
-				setEndTime(System.currentTimeMillis());
 
 				setState(AbstractJob.STATE_FAILED);
 				log.error("Job " + getId() + ": execution failed. " + getError());
@@ -355,33 +368,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 				setSetupComplete(false);
 
 				closeStdOutFiles();
+				
 			}
 
-		} catch (Exception e1) {
-
-			setEndTime(System.currentTimeMillis());
-
-			setState(AbstractJob.STATE_FAILED);
-			log.error("Job " + getId() + ": initialization failed.", e1);
-
-			Writer writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			e1.printStackTrace(printWriter);
-			String s = writer.toString();
-
-			writeLog("Initialization failed: " + e1.getLocalizedMessage() + "\n" + s);
-
-			writeLog("Cleaning up...");
-			onFailure();
-			log.info("Job " + getId() + ": cleanup successful.");
-			writeLog("Cleanup successful.");
-			setSetupComplete(false);
-
-			closeStdOutFiles();
-
-		} catch (Error e) {
-
-			setEndTime(System.currentTimeMillis());
+		} catch (Exception | Error e) {
 
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e);
@@ -401,6 +391,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			closeStdOutFiles();
 
+			setSetupRunning(false);
+			
 		}
 	}
 
@@ -409,24 +401,20 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
 			onFailure();
-			setStartTime(System.currentTimeMillis());
-			setEndTime(System.currentTimeMillis());
 			setError("Job Execution failed.");
 			return;
 		}
 
 		log.info("Job " + getId() + ": running.");
+		setStartTime(System.currentTimeMillis());
 
 		try {
 			setState(AbstractJob.STATE_RUNNING);
-			setStartTime(System.currentTimeMillis());
 			writeLog("Details:");
 			writeLog("  Name: " + getName());
 			writeLog("  Job-Id: " + getId());
-			writeLog("  Started At: " + getStartTime());
-			writeLog("  Finished At: " + getExecutionTime());
-			writeLog("  Execution Time: " + getExecutionTime());
-
+			writeLog("  Submitted On: " + new Date(getSubmittedOn()).toString());
+			writeLog("  Completed On: " + new Date(getFinishedOn()).toString());
 			writeLog("  Inputs:");
 			for (CloudgeneParameter parameter : inputParams) {
 				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
@@ -470,15 +458,11 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 						if (successfulAfter) {
 
-							setEndTime(System.currentTimeMillis());
-
 							setState(AbstractJob.STATE_SUCCESS);
 							log.info("Job " + getId() + ": data export successful.");
 							writeLog("Data export successful.");
 
 						} else {
-
-							setEndTime(System.currentTimeMillis());
 
 							setState(AbstractJob.STATE_FAILED);
 							log.error("Job " + getId() + ": data export failed.");
@@ -486,22 +470,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 						}
 
-					} catch (Exception e) {
-
-						setEndTime(System.currentTimeMillis());
-
-						Writer writer = new StringWriter();
-						PrintWriter printWriter = new PrintWriter(writer);
-						e.printStackTrace(printWriter);
-						String s = writer.toString();
-
-						setState(AbstractJob.STATE_FAILED);
-						log.error("Job " + getId() + ": data export failed.", e);
-						writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
-
-					} catch (Error e) {
-
-						setEndTime(System.currentTimeMillis());
+					} catch (Error | Exception e) {
 
 						Writer writer = new StringWriter();
 						PrintWriter printWriter = new PrintWriter(writer);
@@ -515,8 +484,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 					}
 
 				} else {
-
-					setEndTime(System.currentTimeMillis());
 
 					setState(AbstractJob.STATE_FAILED);
 					log.error("Job " + getId() + ": execution failed. " + getError());
@@ -546,30 +513,9 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			closeStdOutFiles();
 
-		} catch (Exception e1) {
-
 			setEndTime(System.currentTimeMillis());
 
-			setState(AbstractJob.STATE_FAILED);
-			log.error("Job " + getId() + ": initialization failed.", e1);
-
-			Writer writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			e1.printStackTrace(printWriter);
-			String s = writer.toString();
-
-			writeLog("Initialization failed: " + e1.getLocalizedMessage() + "\n" + s);
-
-			writeLog("Cleaning up...");
-			onFailure();
-			log.info("Job " + getId() + ": cleanup successful.");
-			writeLog("Cleanup successful.");
-
-			return;
-
-		} catch (Error e) {
-
-			setEndTime(System.currentTimeMillis());
+		} catch (Exception | Error e) {
 
 			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e);
@@ -586,12 +532,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 			log.info("Job " + getId() + ": cleanup successful.");
 			writeLog("Cleanup successful.");
 
+			closeStdOutFiles();
+
+			setEndTime(System.currentTimeMillis());
+
 		}
 	}
 
 	public void cancel() {
-
-		setEndTime(System.currentTimeMillis());
 
 		writeLog("Canceled by user.");
 		log.info("Job " + getId() + ": canceld by user.");
@@ -650,7 +598,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 				initStdOutFiles();
 			}
 
-			stdOutStream.write((formatter.format(new Date()) + " ").getBytes());
 			stdOutStream.write(line.getBytes());
 			stdOutStream.write("\n".getBytes());
 			stdOutStream.flush();
@@ -775,14 +722,28 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public String getApplicationId() {
 		return applicationId;
 	}
-
-	public boolean isRunning() {
-		return (state == STATE_WAITING) || (state == STATE_RUNNING) || (state == STATE_EXPORTING);
+	
+	public void setComplete(boolean complete) {
+		this.complete = complete;
+	}
+	
+	public boolean isComplete() {
+		return this.complete;
 	}
 
+	public boolean isCanceld() {
+		return canceld;
+	}
+
+	public boolean isRunning(){
+		return !complete;
+	}
+	
 	abstract public boolean execute();
 
 	abstract public boolean executeSetupSteps();
+
+	abstract public boolean executeInstallation(boolean forceInstallation);
 
 	abstract public boolean setup();
 
@@ -804,6 +765,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void kill() {
 
+	}
+
+	public void setForceInstallation(boolean forceInstallation) {
+		this.forceInstallation = forceInstallation;
 	}
 
 }

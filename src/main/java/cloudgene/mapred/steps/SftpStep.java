@@ -46,7 +46,7 @@ public class SftpStep extends WorkflowStep {
 						String url = url2 + ";" + username + ";" + password;
 						String target = FileUtil.path(context.getLocalTemp(), "importer", input);
 						FileUtil.createDirectory(target);
-						context.println("Import to local workspace " + target + "...");
+						context.log("Import to local workspace " + target + "...");
 
 						try {
 

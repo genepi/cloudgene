@@ -78,3 +78,10 @@ alter table user add column api_token varchar(300) null default null;
 alter table user add column login_attempts integer null default 0;
 alter table user add column locked_until timestamp null default null;
 alter table user add column last_login timestamp null default null;
+
+-- 1.26.0
+
+alter table job add column submitted_on bigint not null default 0;
+alter table job add column finished_on bigint not null default 0;
+alter table job add column setup_start_time bigint not null default 0;
+alter table job add column setup_end_time bigint not null default 0;

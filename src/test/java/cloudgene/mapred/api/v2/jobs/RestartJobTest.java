@@ -27,7 +27,7 @@ public class RestartJobTest extends JobsApiTestCase {
 		// submit job
 		String id = submitJobPublic("write-text-to-file", form);
 
-		Thread.sleep(10);
+		Thread.sleep(5);
 
 		// stop engine
 		TestServer.getInstance().reStartWebServer();
@@ -44,10 +44,12 @@ public class RestartJobTest extends JobsApiTestCase {
 
 		// TODO: change!
 		Thread.sleep(5000);
-
+		
 		// get details
 		result = getJobDetails(id);
 
+		System.out.println(result.toString());
+		
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		// get path and download file

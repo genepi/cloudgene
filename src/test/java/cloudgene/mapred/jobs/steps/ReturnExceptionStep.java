@@ -13,7 +13,7 @@ public class ReturnExceptionStep extends WorkflowStep {
 			throw new IndexOutOfBoundsException();
 			
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new IndexOutOfBoundsException();
 
 		}

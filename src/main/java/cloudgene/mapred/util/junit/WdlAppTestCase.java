@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
 import org.junit.BeforeClass;
 
 import cloudgene.mapred.core.User;
@@ -24,7 +22,7 @@ public class WdlAppTestCase {
 	public static String LOCAL_WORKSPACE = "test-cluster-local";
 
 	public static String HDFS_WORKSPACE = "test-cluster-hdfs";
-	
+
 	@BeforeClass
 	public static void startServers() throws IOException, SQLException {
 
@@ -38,14 +36,13 @@ public class WdlAppTestCase {
 
 	public void execute(CloudgeneJob job) throws InterruptedException {
 		engine.submit(job);
-		while (job.isRunning()) {
+		while (!job.isComplete()) {
 			Thread.sleep(1000);
 		}
-		Thread.sleep(4000);
+		//Thread.sleep(4000);
 	}
 
-	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
-			throws Exception {
+	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
 		User user = TestServer.getInstance().getUser();
 		Settings settings = TestServer.getInstance().getSettings();

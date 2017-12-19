@@ -126,20 +126,20 @@ public class Planner {
 
 	private boolean stepConsumesParameter(WdlStep step, WdlParameter param, CloudgeneContext context) {
 
-		if (step.getParams() != null) {
-			if (step.getParams().contains(context.get(param.getId()))) {
+		if (step.get("params") != null) {
+			if (step.get("params").contains(context.get(param.getId()))) {
 				return true;
 			}
 		}
 
-		if (step.getMapper() != null) {
-			if (step.getMapper().contains(context.get(param.getId()))) {
+		if (step.get("mapper") != null) {
+			if (step.get("mapper").contains(context.get(param.getId()))) {
 				return true;
 			}
 		}
 
-		if (step.getReducer() != null) {
-			if (step.getReducer().contains(context.get(param.getId()))) {
+		if (step.get("reducer") != null) {
+			if (step.get("reducer").contains(context.get(param.getId()))) {
 				return true;
 			}
 		}
@@ -149,9 +149,11 @@ public class Planner {
 	}
 
 	private boolean stepProducesParameter(WdlStep step, WdlParameter param, CloudgeneContext context) {
-
-		return (step.getGenerates().contains(context.get(param.getId())));
-
+		if (step.getGenerates() != null) {
+			return (step.getGenerates().contains(context.get(param.getId())));
+		} else {
+			return false;
+		}
 	}
 
 }

@@ -33,7 +33,7 @@
 
 				<% if( job.attr('state') == '1' ){ %>
 					<% if( job.attr('setupRunning')){ %>
-					<span class="label" style="width: 50px">Validate</span>
+					<span class="label" style="width: 50px">Setup</span>
 					<% } else { %>
 					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') + 1 %>)</span>
 					<% } %>
@@ -75,7 +75,7 @@
 
 			<td>
 				<% if( job.attr('state') != '6' ){ %>
-					<%= prettyTime(job.attr('executionTime'), job.attr('state')); %>
+					<%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime')); %>
 				<% } %>
 			</td>
 

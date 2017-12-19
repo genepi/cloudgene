@@ -112,4 +112,8 @@ public class Application {
 		setChanged(!wdlContent.equals(newWdlContent));
 	}
 
+	public boolean isInstalled(String hdfsAppFolder){
+		return false;
+	}
+	
 }

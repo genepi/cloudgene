@@ -59,17 +59,9 @@ public class Executor {
 		}
 	}
 
-	public int getMapProgress() {
+	public int getProgress() {
 		if (executableNode != null) {
-			return executableNode.getMapProgress();
-		} else {
-			return 0;
-		}
-	}
-
-	public int getReduceProgress() {
-		if (executableNode != null) {
-			return executableNode.getReduceProgress();
+			return executableNode.getProgress();
 		} else {
 			return 0;
 		}

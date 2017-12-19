@@ -1,8 +1,5 @@
 package cloudgene.mapred.jobs.engine.graph;
 
-import genepi.hadoop.common.WorkflowStep;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -20,9 +17,20 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
+import cloudgene.mapred.jobs.CloudgeneStepFactory;
+import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.ErrorStep;
-import cloudgene.mapred.steps.ExternStep;
+import cloudgene.mapred.steps.JavaInternalStep;
+import cloudgene.mapred.steps.JavaExternalStep;
+import cloudgene.mapred.steps.HadoopMapReduceStep;
+import cloudgene.mapred.steps.HadoopPigStep;
+import cloudgene.mapred.steps.RMarkdownStep;
+import cloudgene.mapred.steps.RMarkdown2Step;
+import cloudgene.mapred.steps.HadoopSparkStep;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.common.WorkflowStep;
+import genepi.io.FileUtil;
 
 public class GraphNode implements Runnable {
 	private WdlStep step;
@@ -48,8 +56,7 @@ public class GraphNode implements Runnable {
 	private String id = "";
 
 	public GraphNode(WdlStep step, CloudgeneContext context)
-			throws MalformedURLException, ClassNotFoundException,
-			InstantiationException, IllegalAccessException {
+			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		this.step = step;
 		this.context = context;
 		this.job = context.getJob();
@@ -66,53 +73,15 @@ public class GraphNode implements Runnable {
 		this.step = step;
 	}
 
-	private void instance() throws MalformedURLException,
-			ClassNotFoundException, InstantiationException,
-			IllegalAccessException {
+	private void instance()
+			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 
 		id = step.getName().toLowerCase().replace(" ", "_");
 
-		if (step.getPig() != null) {
+		// find step implementation
 
-			// pig script
-			step.setClassname("cloudgene.mapred.steps.PigHadoop");
-
-		}
-		if (step.getSpark() != null) {
-
-			// spark
-			step.setClassname("cloudgene.mapred.steps.SparkStep");
-
-		} else if (step.getRmd() != null) {
-
-			// rscript
-			step.setClassname("cloudgene.mapred.steps.RMarkdown");
-			
-		} else if (step.getRmd2() != null) {
-
-			// rscript
-			step.setClassname("cloudgene.mapred.steps.RMarkdown2");
-
-		} else if (step.getTemplate() != null) {
-
-			// template step
-			step.setClassname("cloudgene.mapred.steps.TemplateStep");
-
-		} else if (step.getClassname() != null) {
-
-			// custom class
-
-		} else if (step.getExec() != null) {
-
-			// command
-			step.setClassname("cloudgene.mapred.steps.Command");
-
-		} else {
-
-			// mapreduce
-			step.setClassname("cloudgene.mapred.steps.MapReduce");
-
-		}
+		String classname = CloudgeneStepFactory.getClassname(step);
+		step.setClassname(classname);
 
 		// create instance
 
@@ -127,8 +96,7 @@ public class GraphNode implements Runnable {
 
 				URL url = file.toURL();
 
-				URLClassLoader urlCl = new URLClassLoader(new URL[] { url },
-						CloudgeneJob.class.getClassLoader());
+				URLClassLoader urlCl = new URLClassLoader(new URL[] { url }, CloudgeneJob.class.getClassLoader());
 				Class myClass = urlCl.loadClass(step.getClassname());
 
 				Object object = myClass.newInstance();
@@ -136,24 +104,25 @@ public class GraphNode implements Runnable {
 				if (object instanceof CloudgeneStep) {
 					instance = (CloudgeneStep) object;
 				} else if (object instanceof WorkflowStep) {
-					instance = new ExternStep((WorkflowStep) object);
+					instance = new JavaInternalStep((WorkflowStep) object);
 				} else {
-					instance = new ErrorStep(
-							"Error during initialization: class "
-									+ step.getClassname()
-									+ " ( "
-									+ object.getClass().getSuperclass()
-											.getCanonicalName()
-									+ ") "
-									+ " has to extend CloudgeneStep or WorkflowStep. ");
+					instance = new ErrorStep("Error during initialization: class " + step.getClassname() + " ( "
+							+ object.getClass().getSuperclass().getCanonicalName() + ") "
+							+ " has to extend CloudgeneStep or WorkflowStep. ");
 
+				}
+
+				// check requirements
+				for (Technology technology : instance.getRequirements()) {
+					if (!context.getSettings().isEnable(technology)) {
+						instance = new ErrorStep(
+								"Requirements not fullfilled. This steps needs " + technology.toString());
+					}
 				}
 
 			} else {
 
-				instance = new ErrorStep(
-						"Error during initialization: Jar file '" + jar
-								+ "' not found.");
+				instance = new ErrorStep("Error during initialization: Jar file '" + jar + "' not found.");
 
 			}
 
@@ -178,9 +147,9 @@ public class GraphNode implements Runnable {
 
 		job.onStepStarted(instance);
 
-		job.writeOutputln("------------------------------------------------------");
-		job.writeOutputln(step.getName());
-		job.writeOutputln("------------------------------------------------------");
+		job.writeLog("------------------------------------------------------");
+		job.writeLog(step.getName());
+		job.writeLog("------------------------------------------------------");
 
 		long start = System.currentTimeMillis();
 
@@ -206,8 +175,7 @@ public class GraphNode implements Runnable {
 				long h = (long) (Math.floor((time / 1000) / 60 / 60));
 				long m = (long) ((Math.floor((time / 1000) / 60)) % 60);
 
-				String t = (h > 0 ? h + " h " : "")
-						+ (m > 0 ? m + " min " : "")
+				String t = (h > 0 ? h + " h " : "") + (m > 0 ? m + " min " : "")
 						+ (int) ((Math.floor(time / 1000)) % 60) + " sec";
 
 				job.writeLog("  " + step.getName() + " [" + t + "]");
@@ -251,17 +219,9 @@ public class GraphNode implements Runnable {
 		}
 	}
 
-	public int getMapProgress() {
+	public int getProgress() {
 		if (instance != null) {
-			return instance.getMapProgress();
-		} else {
-			return 0;
-		}
-	}
-
-	public int getReduceProgress() {
-		if (instance != null) {
-			return instance.getReduceProgress();
+			return instance.getProgress();
 		} else {
 			return 0;
 		}

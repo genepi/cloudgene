@@ -53,20 +53,23 @@ public class Apps extends BaseResource {
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("An application with the id '" + id + "' is already installed.");
 		}
-System.out.println("ID: " + id);
+
 		try {
 
 			Application application = null;
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				application = getSettings().installApplicationFromUrl(id, url);
+				// application = getSettings().installApplicationFromUrl(id,
+				// url);
 			} else {
 				if (url.endsWith(".zip")) {
-					application = getSettings().installApplicationFromZipFile(id, url);
+					// application =
+					// getSettings().installApplicationFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
 					application = getSettings().installApplicationFromYaml(id, url);
 				} else {
-					application = getSettings().installApplicationFromDirectory(id, url);
+					// application =
+					// getSettings().installApplicationFromDirectory(id, url);
 				}
 			}
 

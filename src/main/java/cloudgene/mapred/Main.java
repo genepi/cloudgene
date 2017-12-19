@@ -33,13 +33,27 @@ import cloudgene.mapred.util.Settings;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "1.25.0";
+	public static final String VERSION = "1.27.0";
 
 	private Database database;
 
 	private WebServer server;
 
-	public void runCloudgene(String[] args) throws Exception {
+	public void runCloudgene(Settings settings, String[] args) throws Exception {
+
+		// load default config when not yet loaded
+		if (settings == null) {
+			if (new File("config/settings.yaml").exists()) {
+				System.out.println("Loading settings from " + "config/settings.yaml" + "...");
+				settings = Settings.load("config/settings.yaml");
+			} else {
+				settings = new Settings();
+			}
+
+			if (!settings.testPaths()) {
+				System.exit(1);
+			}
+		}
 
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
@@ -92,25 +106,6 @@ public class Main implements Daemon {
 
 			System.exit(1);
 
-		}
-
-		// load config
-		Settings settings = null;
-		if (new File("config/settings.yaml").exists()) {
-
-			settings = Settings.load("config/settings.yaml");
-
-		} else {
-
-			log.warn("Config file not found. (config/settings.yaml).");
-			log.info("This is a fresh installation of Cloudgene. Init config with sample application.");
-
-			settings = new Settings();
-
-		}
-
-		if (!settings.testPaths()) {
-			System.exit(1);
 		}
 
 		database = new Database();
@@ -181,8 +176,6 @@ public class Main implements Daemon {
 
 			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
 
-			PropertyConfigurator.configure("config/log4j.properties");
-
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 
@@ -236,7 +229,7 @@ public class Main implements Daemon {
 	@Override
 	public void init(DaemonContext context) throws DaemonInitException, Exception {
 		String[] args = context.getArguments();
-		runCloudgene(args);
+		runCloudgene(null, args);
 	}
 
 	@Override
@@ -257,6 +250,6 @@ public class Main implements Daemon {
 
 	public static void main(String[] args) throws Exception {
 		Main main = new Main();
-		main.runCloudgene(args);
+		main.runCloudgene(null, args);
 	}
 }

@@ -68,15 +68,6 @@
 
 	<tr>
 		<td style="width: 150px;">
-			<b>Max Jobs:</b>
-		</td>
-		<td>
-			<%= cluster.attr('max_jobs') %>
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 150px;">
 			<b>Max Jobs per User:</b>
 		</td>
 		<td><%= cluster.attr('max_jobs_user') %></td>
@@ -106,6 +97,72 @@
 	</tr>
 
 </table>
+
+<hr>
+
+<h4>Hadoop</h4>
+<% if (cluster.attr('hadoop_enabled')) { %>
+<table class="table table-bordered">
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Mode:</b>
+		</td>
+		<td>
+			<% if (cluster.attr('hadoop_safemode')) { %>
+				<span class="label label-important">SAFEMODE!</span>
+			<% } else { %>
+				<span class="label label-success">Running</span>
+			<% } %>
+		</td>
+	</tr>
+
+	<tr>
+		<td style="width: 150px;">
+			<b>Details:</b>
+		</td>
+		<td>
+			<pre><%== cluster.attr('hadoop_details') %></pre>
+		</td>
+	</tr>
+</table>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+	    <%== cluster.attr('hadoop_error') %>
+	</div>
+<% }%>
+
+<hr>
+
+<h4>Technologies</h4>
+<% if (cluster.attr('r_enabled')) { %>
+	<div class="alert alert-success" id="success-message">
+		<%== cluster.attr('r_details') %></pre>
+	</div>
+</table>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+    <%== cluster.attr('r_error') %>
+	</div>
+<% }%>
+<% if (cluster.attr('rmarkdown_enabled')) { %>
+	<div class="alert alert-success" id="success-message">
+		<%== cluster.attr('rmarkdown_details') %>
+	</div>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+	  	<%== cluster.attr('rmarkdown_error') %>
+	</div>
+<% }%>
+<% if (cluster.attr('docker_enabled')) { %>
+	<div class="alert alert-success" id="success-message">
+		<%== cluster.attr('docker_details') %>
+	</div>
+<% } else { %>
+	<div class="alert alert-error" id="success-message">
+	  	<%== cluster.attr('docker_error') %>
+	</div>
+<% }%>
 
 <hr>
 
@@ -149,35 +206,6 @@
 		</td>
 	</tr>
 
-</table>
-
-<hr>
-
-<h4>Hadoop</h4>
-
-<table class="table table-bordered">
-
-	<tr>
-		<td style="width: 150px;">
-			<b>Mode:</b>
-		</td>
-		<td>
-			<% if (cluster.attr('safemode')) { %>
-				<span class="label label-important">SAFEMODE!</span>
-			<% } else { %>
-				<span class="label label-success">Running</span>
-			<% } %>
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 150px;">
-			<b>Details:</b>
-		</td>
-		<td>
-			<pre><%== cluster.attr('cluster') %></pre>
-		</td>
-	</tr>
 </table>
 
 <hr>

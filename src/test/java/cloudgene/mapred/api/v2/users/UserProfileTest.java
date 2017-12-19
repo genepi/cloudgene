@@ -48,7 +48,6 @@ public class UserProfileTest extends JobsApiTestCase {
 	}
 
 	public void testGetWithWrongCredentials() throws JSONException, IOException {
-		// try to get profile of test1
 		ClientResource resource = createClientResource("/api/v2/users/test1/profile");
 		try {
 			resource.get();
@@ -124,6 +123,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		assertEquals("Login successfull.", object.getString("message"));
 		assertEquals(true, object.get("success"));
 		assertEquals(1, resource.getResponse().getCookieSettings().size());
+		resource.release();
 	}
 
 	public void testUpdateWithWrongCredentials() throws JSONException, IOException {
@@ -155,8 +155,9 @@ public class UserProfileTest extends JobsApiTestCase {
 
 		// try to update password with missing csrf token
 
-		ClientResource resource = createClientResource("/api/v2/users/me/profile");
-		resource.getCookies().add(token.getCookie());
+		token.setCsrfToken("");
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
+
 
 		Form form = new Form();
 		form.set("username", "test1");

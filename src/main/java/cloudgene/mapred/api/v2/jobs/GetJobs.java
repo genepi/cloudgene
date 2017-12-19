@@ -69,7 +69,7 @@ public class GetJobs extends BaseResource {
 		// exclude unused parameters
 		JsonConfig config = new JsonConfig();
 		config.setExcludes(new String[] { "user", "outputParams",
-				"inputParams", "output", "endTime", "startTime", "error",
+				"inputParams", "output", "error",
 				"s3Url", "task", "config", "mapReduceJob", "job", "step",
 				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"logs", "removeHdfsWorkspace", "settings", "setupComplete",

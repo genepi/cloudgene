@@ -27,7 +27,9 @@ public class JobsApiTestCase extends TestCase {
 	public ClientResource createClientResource(String path, LoginToken loginToken) {
 		ClientResource resource = createClientResource(path);
 		if (loginToken != null) {
+			if (loginToken.getCookie() != null){
 			resource.getCookies().add(loginToken.getCookie());
+			}
 			setupCrfToken(resource, loginToken.getCsrfToken());
 		}
 		return resource;
@@ -40,7 +42,9 @@ public class JobsApiTestCase extends TestCase {
 			requestHeader = new Series(Header.class);
 			resource.getRequest().getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, requestHeader);
 		}
+		if (token != null){
 		requestHeader.add("X-CSRF-Token", token);
+		}
 	}
 
 	public void setupApiToken(ClientResource resource, String token) {
@@ -148,9 +152,10 @@ public class JobsApiTestCase extends TestCase {
 		JSONObject object = new JSONObject(resourceStatus.getResponseEntity().getText());
 		resourceStatus.release();
 
-		boolean running = object.getBoolean("running");
+		boolean running = object.getInt("state") == 1 || object.getInt("state") == 2 || object.getInt("state") == 3;
+		System.out.println(running);
 		if (running) {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 			waitForJob(id, loginCookie);
 		}
 	}
@@ -165,9 +170,8 @@ public class JobsApiTestCase extends TestCase {
 		JSONObject object = new JSONObject(resourceStatus.getResponseEntity().getText());
 		resourceStatus.release();
 
-		boolean running = object.getBoolean("running");
-		if (running) {
-			Thread.sleep(1000);
+		boolean running = object.getInt("state") == 1 || object.getInt("state") == 2 || object.getInt("state") == 3;		if (running) {
+			Thread.sleep(500);
 			waitForJobWithApiToken(id, token);
 		}
 	}

@@ -54,9 +54,8 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 		dao.update(job);
 	}
 
+	@Override
 	protected void jobCompleted(AbstractJob job) {
-
-		dao.update(job);
 
 		DownloadDao downloadDao = new DownloadDao(database);
 
@@ -70,6 +69,7 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 						download.setParameterId(parameter.getId());
 						download.setParameter(parameter);
 						downloadDao.insert(download);
+						System.out.println("OK <--");
 					}
 
 				}
@@ -111,6 +111,10 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 			}
 		}
+		
+		//update job updates (state, endtime, ....)
+		dao.update(job);
+
 	}
 
 	@Override

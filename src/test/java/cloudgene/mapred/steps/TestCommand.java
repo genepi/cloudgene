@@ -29,8 +29,8 @@ public class TestCommand extends TestCase {
 		engine = TestServer.getInstance().startWorkflowEngineWithoutServer();
 
 	}
-	
-	public void testValidCommand() throws Exception{
+
+	public void testValidCommand() throws Exception {
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/valid-command.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -38,31 +38,35 @@ public class TestCommand extends TestCase {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
+		while (!job.isComplete()) {
 			Thread.sleep(1000);
 		}
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
-		
+
 		List<Message> messages = job.getSteps().get(0).getLogMessages();
 		assertEquals(1, messages.size());
-		assertEquals(messages.get(0).getType(), WorkflowContext.OK);		
+		assertEquals(messages.get(0).getType(), WorkflowContext.OK);
 		assertTrue(messages.get(0).getMessage().contains("Execution successful."));
-		
-		String stdout = FileUtil.path(TestServer.getInstance().getSettings()
-				.getLocalWorkspace(), job.getId(), "std.out");
+
+		String stdout = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(),
+				"std.out");
 		System.out.println(stdout);
 		String contentStdOut = FileUtil.readFileAsString(stdout);
-		
-		//simple ls result check
+
+		// simple ls result check
 		assertTrue(contentStdOut.contains("invalid-command.yaml"));
-		
-		//simple check if exit code = 0
-		assertTrue(contentStdOut.contains("Exit Code: 0"));
-		
+
+		String jobLog = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(),
+				"job.txt");
+		String contentjobLog = FileUtil.readFileAsString(jobLog);
+
+		// simple check if exit code = 0
+		assertTrue(contentjobLog.contains("Exit Code: 0"));
+
 	}
-	
-	public void testInvalidCommand() throws Exception{
+
+	public void testInvalidCommand() throws Exception {
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/invalid-command.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -70,54 +74,52 @@ public class TestCommand extends TestCase {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
+		while (!job.isComplete()) {
 			Thread.sleep(1000);
 		}
 
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
-		
+
 		List<Message> messages = job.getSteps().get(0).getLogMessages();
 		assertEquals(1, messages.size());
-		assertEquals(messages.get(0).getType(), WorkflowContext.ERROR);		
+		assertEquals(messages.get(0).getType(), WorkflowContext.ERROR);
 		assertTrue(messages.get(0).getMessage().contains("Command '/bin/lukas/forer' was not found."));
 	}
-	
-	/*public void testInvalidParameters() throws Exception{
-		WdlApp app = WdlReader.loadAppFromFile("test-data/command/invalid-parameters.yaml");
 
-		Map<String, String> params = new HashMap<String, String>();
-		params.put("input", "input-file");
+	/*
+	 * public void testInvalidParameters() throws Exception{ WdlApp app =
+	 * WdlReader.loadAppFromFile("test-data/command/invalid-parameters.yaml");
+	 * 
+	 * Map<String, String> params = new HashMap<String, String>();
+	 * params.put("input", "input-file");
+	 * 
+	 * AbstractJob job = createJobFromWdl(app, params); engine.submit(job);
+	 * while (job.isRunning()) { Thread.sleep(1000); }
+	 * 
+	 * assertEquals(AbstractJob.STATE_FAILED, job.getState());
+	 * 
+	 * List<Message> messages = job.getSteps().get(0).getLogMessages();
+	 * assertEquals(1, messages.size()); assertEquals(messages.get(0).getType(),
+	 * WorkflowContext.ERROR);
+	 * assertTrue(messages.get(0).getMessage().contains("Execution failed."));
+	 * 
+	 * String stdout = FileUtil.path(TestServer.getInstance().getSettings()
+	 * .getLocalWorkspace(), job.getId(), "std.out");
+	 * System.out.println(stdout); String contentStdOut =
+	 * FileUtil.readFileAsString(stdout);
+	 * 
+	 * //simple check for unrecognized option
+	 * assertTrue(contentStdOut.contains("unrecognized option"));
+	 * 
+	 * //simple check if exit code = 1
+	 * assertFalse(contentStdOut.contains("Exit Code: 0"));
+	 * 
+	 * }
+	 */
 
-		AbstractJob job = createJobFromWdl(app, params);
-		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
-		}
+	// TODO: check file staging
 
-		assertEquals(AbstractJob.STATE_FAILED, job.getState());
-		
-		List<Message> messages = job.getSteps().get(0).getLogMessages();
-		assertEquals(1, messages.size());
-		assertEquals(messages.get(0).getType(), WorkflowContext.ERROR);		
-		assertTrue(messages.get(0).getMessage().contains("Execution failed."));
-		
-		String stdout = FileUtil.path(TestServer.getInstance().getSettings()
-				.getLocalWorkspace(), job.getId(), "std.out");
-		System.out.println(stdout);
-		String contentStdOut = FileUtil.readFileAsString(stdout);
-		
-		//simple check for unrecognized option
-		assertTrue(contentStdOut.contains("unrecognized option"));
-		
-		//simple check if exit code = 1
-		assertFalse(contentStdOut.contains("Exit Code: 0"));
-		
-	}*/
-	
-	//TODO: check file staging
-	
-	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
-			throws Exception {
+	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
 		User user = TestServer.getInstance().getUser();
 		Settings settings = TestServer.getInstance().getSettings();

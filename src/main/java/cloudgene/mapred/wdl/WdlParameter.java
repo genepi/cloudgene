@@ -16,8 +16,6 @@ public abstract class WdlParameter {
 
 	private boolean input;
 
-	private boolean temp = false;
-
 	private boolean download = true;
 
 	private boolean autoExport = false;
@@ -35,8 +33,6 @@ public abstract class WdlParameter {
 	private boolean visible = true;
 
 	private boolean adminOnly = false;
-
-	private boolean readOnly = false;
 
 	public static final String LOCAL_FOLDER = "local-folder";
 
@@ -122,12 +118,13 @@ public abstract class WdlParameter {
 		this.makeAbsolute = absolute;
 	}
 
+	@Deprecated
 	public boolean isTemp() {
-		return temp;
+		return false;
 	}
 
+	@Deprecated
 	public void setTemp(boolean temp) {
-		this.temp = temp;
 	}
 
 	public void setZip(boolean zip) {
@@ -136,14 +133,6 @@ public abstract class WdlParameter {
 
 	public boolean isZip() {
 		return zip;
-	}
-
-	public void setReadOnly(boolean readOnly) {
-		this.readOnly = readOnly;
-	}
-
-	public boolean isReadOnly() {
-		return readOnly;
 	}
 
 	public void setRemoveHeader(boolean removeHeader) {

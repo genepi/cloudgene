@@ -34,10 +34,15 @@ public class WorkflowEngineTest extends TestCase {
 
 		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
 
@@ -50,97 +55,143 @@ public class WorkflowEngineTest extends TestCase {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
 
 	public void testReturnExceptionStep() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/return-exception.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/return-exception.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
 
 	public void testReturnTrueInSetupStep() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/return-true-in-setup.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true-in-setup.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
 
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// no steps
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
 
 	public void testReturnFalseInSetupStep() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/return-false-in-setup.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/return-false-in-setup.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// no steps
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
-	
 
 	public void testReturnTrueInSecondSetupStep() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/return-true-in-setup2.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true-in-setup2.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
 
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// no steps
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
-	
-	
+
+	public void testReturnTrueInSecondSetupStepAndNormalStep() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true-in-setup3.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("input", "input-file");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// one steps
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+	}
+
 	public void testReturnWriteFileInSecondSetupStep() throws Exception {
 
 		String myContent = "test-test-test-test-text";
-		
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/write-file-in-setup.yaml");
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/write-file-in-setup.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", myContent);
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 
@@ -149,77 +200,90 @@ public class WorkflowEngineTest extends TestCase {
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
 		assertEquals(myContent, content);
-	
-		app = WdlReader
-				.loadAppFromFile("test-data/write-file-in-setup-failure.yaml");
+
+		app = WdlReader.loadAppFromFile("test-data/write-file-in-setup-failure.yaml");
 
 		params = new HashMap<String, String>();
 		params.put("inputtext", myContent);
 
 		job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
-		
-		System.out.println("ok:" +  job.getOutputParams().get(0).getValue());
-		
+
+		System.out.println("ok:" + job.getOutputParams().get(0).getValue());
+
 		path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		content = FileUtil.readFileAsString(filename);
 		assertEquals(myContent, content);
-		
-		
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// one steps
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+
 	}
 
-	
 	public void testEmptyStepList() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/no-steps.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/no-steps.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "test");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
-	
+
 	public void testReturnFalseInSecondSetupStep() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/return-false-in-setup2.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/return-false-in-setup2.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
 
 	public void testWriteTextToFileJob() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/write-text-to-file.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "lukas_text");
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 
 		Settings settings = TestServer.getInstance().getSettings();
@@ -227,45 +291,54 @@ public class WorkflowEngineTest extends TestCase {
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
 
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_SUCCESS);
 	}
 
 	public void testWriteTextToFileOnFailureInStepJob() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/write-text-to-file-on-failure.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file-on-failure.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "lukas_text");
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 		Thread.sleep(4000);
 		Settings settings = TestServer.getInstance().getSettings();
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
 
 	public void testWriteTextToFileOnFailureInSetupJob() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/write-text-to-file-on-failure2.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file-on-failure2.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "lukas_text");
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 
 		Thread.sleep(4000);
@@ -274,23 +347,28 @@ public class WorkflowEngineTest extends TestCase {
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// steps not executed
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
-	
+
 	public void testWriteTextToFileOnFailureInSecondSetupJob() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/write-text-to-file-on-failure3.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file-on-failure3.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("inputtext", "lukas_text");
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 
 		Thread.sleep(4000);
@@ -299,7 +377,13 @@ public class WorkflowEngineTest extends TestCase {
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
-
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		// no steps executed
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
@@ -313,8 +397,8 @@ public class WorkflowEngineTest extends TestCase {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -328,31 +412,34 @@ public class WorkflowEngineTest extends TestCase {
 		assertEquals(WorkflowContext.OK, messages.get(1).getType());
 		assertEquals("cloudgene-task3", messages.get(2).getMessage());
 		assertEquals(WorkflowContext.OK, messages.get(2).getType());
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 	}
 
 	public void testWriteTextToStdOutStep() throws Exception {
 
-		WdlApp app = WdlReader
-				.loadAppFromFile("test-data/write-text-to-std-out.yaml");
+		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-std-out.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("input", "input-file");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (job.isRunning()) {
-			Thread.sleep(1000);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
 		}
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 
-		String stdout = FileUtil.path(TestServer.getInstance().getSettings()
-				.getLocalWorkspace(), job.getId(), "std.out");
+		String stdout = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(),
+				"std.out");
 		String contentStdOut = FileUtil.readFileAsString(stdout);
 
-		String log = FileUtil.path(TestServer.getInstance().getSettings()
-				.getLocalWorkspace(), job.getId(), "job.txt");
+		String log = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(), "job.txt");
 		String contentlog = FileUtil.readFileAsString(log);
 
 		assertTrue(contentStdOut.contains("taks write to system out"));
@@ -362,19 +449,23 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(contentlog.contains("taks write to log"));
 		assertTrue(contentlog.contains("taks write to log2"));
 		assertTrue(contentlog.contains("taks write to log3"));
-
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 	}
 
 	// TODO: merge and zip export.
-		
+
 	// TODO: write to hdfs temp and local temp (temp output params)!
 
 	// TODO: check if removehdfsworkspace works!
 
 	// TODO: check cloudgene counters (successful and failed)
 
-	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs)
-			throws Exception {
+	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
 		User user = TestServer.getInstance().getUser();
 		Settings settings = TestServer.getInstance().getSettings();

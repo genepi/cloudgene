@@ -10,10 +10,6 @@ mapred:
   setup:
    name: ReturnTrueStep
    classname: cloudgene.mapred.jobs.steps.ReturnTrueStep
-
-  steps:
-    - name: ReturnTrueStep
-      classname: cloudgene.mapred.jobs.steps.ReturnTrueStep
     
   inputs:
     

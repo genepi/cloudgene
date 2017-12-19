@@ -7,8 +7,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
@@ -23,7 +25,6 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
-import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -36,15 +37,13 @@ public class Settings {
 
 	private String sparkPath = "/usr/bin/spark-submit";
 
-	private String rPath = "/usr/";
-
-	private String outputPath = "output";
-
 	private String tempPath = "tmp";
 
 	private String localWorkspace = "workspace";
 
-	private String hdfsWorkspace = "cloudgene";
+	private String hdfsWorkspace = "cloudgene/data";
+
+	private String hdfsAppWorkspace = "cloudgene/apps";
 
 	private String streamingJar = "";
 
@@ -58,6 +57,8 @@ public class Settings {
 
 	private Map<String, String> database;
 
+	private Map<String, String> cluster;
+
 	private List<Application> apps;
 
 	private int retireAfter = 6;
@@ -65,10 +66,8 @@ public class Settings {
 	private int notificationAfter = 4;
 
 	private int threadsSetupQueue = 5;
-	
-	private int threadsQueue = 5;
 
-	private int maxRunningJobs = 20;
+	private int threadsQueue = 5;
 
 	private int maxRunningJobsPerUser = 2;
 
@@ -76,7 +75,7 @@ public class Settings {
 
 	private boolean streaming = true;
 
-	private boolean removeHdfsWorkspace = false;
+	private boolean removeHdfsWorkspace = true;
 
 	private static final Log log = LogFactory.getLog(Settings.class);
 
@@ -104,12 +103,11 @@ public class Settings {
 
 	private int uploadLimit = -1;
 
+	private Set<Technology> technologies = new HashSet<Technology>();
+
 	public Settings() {
 
 		apps = new Vector<Application>();
-		apps.add(new Application("hello", "admin", "sample/cloudgene.yaml"));
-		apps.add(new Application("hello", "public", "sample/cloudgene-public.yaml"));
-
 		reloadApplications();
 
 		mail = new HashMap<String, String>();
@@ -131,6 +129,11 @@ public class Settings {
 		database.put("user", "mapred");
 		database.put("password", "mapred");
 
+		// enable all technologies
+		for (Technology technology : Technology.values()) {
+			enable(technology);
+		}
+
 	}
 
 	public static Settings load(String filename) throws FileNotFoundException, YamlException {
@@ -140,33 +143,19 @@ public class Settings {
 		YamlReader reader = new YamlReader(new FileReader(filename), config);
 
 		Settings settings = reader.read(Settings.class);
-
-		// auto-search
-
-		if (settings.streamingJar.isEmpty() || !(new File(settings.streamingJar).exists())) {
-
-			String version = HadoopUtil.getInstance().getVersion();
-			String jar = "hadoop-streaming-" + version + ".jar";
-			settings.streamingJar = FileUtil.path(settings.hadoopPath, "contrib", "streaming", jar);
-
-			if (new File(settings.streamingJar).exists()) {
-
-				log.info("Found streamingJar at " + settings.streamingJar + "");
-				settings.streaming = true;
-
-			} else {
-
-				log.warn(
-						"Streaming Jar could not be found automatically. Please specify it in config/settings.yaml. Streaming mode is disabled.");
-				settings.streaming = false;
-			}
-
-		}
+		settings.enable(Technology.HADOOP_CLUSTER);
 
 		log.info("Auto retire: " + settings.isAutoRetire());
 		log.info("Retire jobs after " + settings.retireAfter + " days.");
 		log.info("Notify user after " + settings.notificationAfter + " days.");
 		log.info("Write statistics: " + settings.writeStatistics);
+
+		if (settings.cluster != null) {
+			String host = settings.cluster.get("host");
+			String username = settings.cluster.get("username");
+			log.info("Use external Haddop cluster running on " + host + " with username " + username);
+			HadoopCluster.init(host, username);
+		}
 
 		return settings;
 
@@ -208,14 +197,6 @@ public class Settings {
 	 * public void setAppsPath(String appsPath) { this.appsPath = appsPath; }
 	 */
 
-	public String getOutputPath() {
-		return outputPath;
-	}
-
-	public void setOutputPath(String outputPath) {
-		this.outputPath = outputPath;
-	}
-
 	public String getTempPath() {
 		return tempPath;
 	}
@@ -240,6 +221,14 @@ public class Settings {
 		this.hdfsWorkspace = hdfsWorkspace;
 	}
 
+	public String getHdfsAppWorkspace() {
+		return hdfsAppWorkspace;
+	}
+
+	public void setHdfsAppWorkspace(String hdfsAppWorkspace) {
+		this.hdfsAppWorkspace = hdfsAppWorkspace;
+	}
+
 	public String getStreamingJar() {
 		return streamingJar;
 	}
@@ -254,14 +243,6 @@ public class Settings {
 
 	public void setStreaming(boolean streaming) {
 		this.streaming = streaming;
-	}
-
-	public String getRPath() {
-		return rPath;
-	}
-
-	public void setRPath(String rPath) {
-		this.rPath = rPath;
 	}
 
 	public boolean isRemoveHdfsWorkspace() {
@@ -311,6 +292,14 @@ public class Settings {
 
 	public void setMail(Map<String, String> mail) {
 		this.mail = mail;
+	}
+
+	public Map<String, String> getCluster() {
+		return cluster;
+	}
+
+	public void setCluster(Map<String, String> cluster) {
+		this.cluster = cluster;
 	}
 
 	public String getSlack() {
@@ -435,30 +424,48 @@ public class Settings {
 
 	public void deleteApplication(Application application) throws IOException {
 
-		// execute install steps
-		if (application.getWdlApp().getDeinstallation() != null) {
-
-			HashMap<String, String> environment = getEnvironment(application);
-			application.getWdlApp().deinstall(environment);
-		}
-
 		// download
 		String id = application.getId();
-		String appPath = FileUtil.path("apps", id);
-		FileUtil.deleteDirectory(appPath);
+		// String appPath = FileUtil.path("apps", id);
+		// FileUtil.deleteDirectory(appPath);
 		apps.remove(application);
 		reloadApplications();
 
 	}
 
-	public Application installApplicationFromUrl(String id, String url) throws IOException {
+	public List<Application> installApplicationFromUrl(String id, String url) throws IOException {
 		// download file from url
-		String zipFilename = FileUtil.path(getTempPath(), "download.zip");
-		FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
-		return installApplicationFromZipFile(id, zipFilename);
+		if (url.endsWith(".zip")) {
+			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
+			FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
+			return installApplicationFromZipFile(id, zipFilename);
+		} else {
+			try {
+				String appPath = FileUtil.path("apps", id);
+				FileUtil.createDirectory("apps");
+				FileUtil.createDirectory(appPath);
+
+				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
+
+				FileUtils.copyURLToFile(new URL(url), new File(yamlFilename));
+				Application application = installApplicationFromYaml(id, yamlFilename);
+
+				List<Application> installed = new Vector<Application>();
+				if (application != null) {
+					installed.add(application);
+				}
+
+				return installed;
+
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw e;
+			}
+		}
+
 	}
 
-	public Application installApplicationFromZipFile(String id, String zipFilename) throws IOException {
+	public List<Application> installApplicationFromZipFile(String id, String zipFilename) throws IOException {
 
 		// extract in apps folder
 		String appPath = FileUtil.path("apps", id);
@@ -477,40 +484,43 @@ public class Settings {
 
 	}
 
-	public Application installApplicationFromDirectory(String id, String path) throws IOException {
+	public List<Application> installApplicationFromDirectory(String id, String path) throws IOException {
 		// find all cloudgene workflows (use filename as id)
 		System.out.println("Search in folder " + path);
 		String[] files = FileUtil.getFiles(path, "*.yaml");
+
+		List<Application> installed = new Vector<Application>();
+
 		for (String filename : files) {
-
-			return installApplicationFromYaml(id, filename);
-
+			String newId = id;
+			if (files.length > 0) {
+				newId = id + "-" + FileUtil.getFilename(filename).replaceAll(".yaml", "");
+			}
+			Application application = installApplicationFromYaml(newId, filename);
+			if (application != null) {
+				installed.add(application);
+			}
 		}
 
 		// search in subfolders
 		for (String directory : getDirectories(path)) {
-			return installApplicationFromDirectory(id, directory);
+			installed.addAll(installApplicationFromDirectory(id, directory));
 		}
-		return null;
+		return installed;
 
 	}
 
 	public Application installApplicationFromYaml(String id, String filename) throws IOException {
+
+		if (indexApps.get(id) != null) {
+			throw new IOException("Application " + id + " is already installed");
+		}
 
 		Application application = new Application();
 		application.setId(id);
 		application.setFilename(filename);
 		application.setPermission("user");
 		application.loadWorkflow();
-
-		// TODO: check requirements (e.g. hadoop, rmd, spark, ...)
-
-		// execute install steps
-		if (application.getWdlApp().getInstallation() != null) {
-
-			HashMap<String, String> environment = getEnvironment(application);
-			application.getWdlApp().install(environment);
-		}
 
 		apps.add(application);
 		indexApps.put(application.getId(), application);
@@ -629,14 +639,6 @@ public class Settings {
 		return threadsQueue;
 	}
 
-	public int getMaxRunningJobs() {
-		return maxRunningJobs;
-	}
-
-	public void setMaxRunningJobs(int maxRunningJobs) {
-		this.maxRunningJobs = maxRunningJobs;
-	}
-
 	public int getMaxRunningJobsPerUser() {
 		return maxRunningJobsPerUser;
 	}
@@ -716,20 +718,32 @@ public class Settings {
 
 		return names;
 	}
-	
+
+	public void enable(Technology technology) {
+		technologies.add(technology);
+	}
+
+	public void disable(Technology technology) {
+		technologies.remove(technology);
+	}
+
+	public boolean isEnable(Technology technology) {
+		return technologies.contains(technology);
+	}
+
 	public void setThreadsSetupQueue(int threadsSetupQueue) {
 		this.threadsSetupQueue = threadsSetupQueue;
 	}
+
 	public int getThreadsSetupQueue() {
 		return threadsSetupQueue;
 	}
 
 	public HashMap<String, String> getEnvironment(Application application) {
 		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(getHdfsWorkspace(), "apps", application.getId());
-		String localFolder = FileUtil.path("apps", application.getId());
+		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId(), application.getWdlApp().getVersion());
+		String localFolder = new File(application.getFilename()).getParentFile().getAbsolutePath();
 		environment.put("hdfs_app_folder", hdfsFolder);
-		environment.put("apps", "apps");
 		environment.put("local_app_folder", localFolder);
 		return environment;
 	}
