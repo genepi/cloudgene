@@ -52,7 +52,7 @@ public class CleanUpTasks {
 
 		File workspace = new File(settings.getLocalWorkspace());
 
-		int free =  Math.round(workspace.getTotalSpace() / 1024 / 1024 / 1024);		
+		int free =  Math.round(workspace.getFreeSpace() / 1024 / 1024 / 1024);		
 		MailUtil.notifySlack(settings, "Hi! I retired " + deleted + " jobs. There are now " + free + " GB free :+1:");
 		
 		log.info(deleted + " jobs retired.");

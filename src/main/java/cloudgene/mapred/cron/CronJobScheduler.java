@@ -3,6 +3,7 @@ package cloudgene.mapred.cron;
 import static org.quartz.CronScheduleBuilder.cronSchedule;
 import static org.quartz.CronScheduleBuilder.dailyAtHourAndMinute;
 import static org.quartz.JobBuilder.newJob;
+import static org.quartz.SimpleScheduleBuilder.simpleSchedule;
 import static org.quartz.TriggerBuilder.newTrigger;
 
 import org.quartz.JobDetail;
@@ -17,7 +18,7 @@ import cloudgene.mapred.util.Settings;
 public class CronJobScheduler {
 
 	private WebApp app;
-	
+
 	private Scheduler sched;
 
 	public CronJobScheduler(WebApp app) {
@@ -35,53 +36,51 @@ public class CronJobScheduler {
 
 		if (settings.isAutoRetire()) {
 
-			// Reitre job every day at 1:00AM
-			JobDetail jobRetire = newJob(RetireJob.class).withIdentity(
-					"retire", "jobs").build();
+			// Reitre job every 5 hours
+			JobDetail jobRetire = newJob(RetireJob.class).withIdentity("retire", "jobs").build();
 			jobRetire.getJobDataMap().put("application", app);
-			runJobDailyAt(sched, "retire-trigger", jobRetire, 1, 00);
+			Trigger trigger = newTrigger().withIdentity("norification-trigger", "jobs").startNow()
+					.withSchedule(simpleSchedule().withIntervalInHours(settings.getAutoRetireInterval()) // every
+																			// 5
+																			// hours
+							.repeatForever())
+					.build();
+			sched.scheduleJob(jobRetire, trigger);
 
-			// Notification job every day at 00:30AM
-			JobDetail jobNotification = newJob(NotificationJob.class)
-					.withIdentity("notification", "jobs").build();
+			// Notification job every 5 hours
+			JobDetail jobNotification = newJob(NotificationJob.class).withIdentity("notification", "jobs").build();
 			jobNotification.getJobDataMap().put("application", app);
-			runJobDailyAt(sched, "notification-trigger", jobNotification, 0, 30);
+			Trigger trigger2 = newTrigger().withIdentity("norification-trigger", "jobs").startNow()
+					.withSchedule(simpleSchedule().withIntervalInHours(settings.getAutoRetireInterval()) // every
+																			// 5
+																			// hours
+							.repeatForever())
+					.build();
+			sched.scheduleJob(jobNotification, trigger2);
 
 		}
 
 		if (settings.isWriteStatistics()) {
 
 			// Statistics (every 5 minutes)
-			JobDetail statisticsJob = newJob(StatisticsJob.class).withIdentity(
-					"stats", "jobs").build();
+			JobDetail statisticsJob = newJob(StatisticsJob.class).withIdentity("stats", "jobs").build();
 			statisticsJob.getJobDataMap().put("application", app);
-			Trigger trigger = newTrigger()
-					.withIdentity("stats-trigger", "jobs").startNow()
+			Trigger trigger = newTrigger().withIdentity("stats-trigger", "jobs").startNow()
 					.withSchedule(cronSchedule("0 0/5 * * * ?")).build();
 			sched.scheduleJob(statisticsJob, trigger);
 
 		}
 
 		// Alerts (every 1 minutes)
-		JobDetail alerJobDetail = newJob(AlertJob.class).withIdentity("alerts",
-				"jobs").build();
+		JobDetail alerJobDetail = newJob(AlertJob.class).withIdentity("alerts", "jobs").build();
 		alerJobDetail.getJobDataMap().put("application", app);
-		Trigger trigger = newTrigger().withIdentity("alert-trigger", "jobs")
-				.startNow().withSchedule(cronSchedule("0 0/1 * * * ?")).build();
+		Trigger trigger = newTrigger().withIdentity("alert-trigger", "jobs").startNow()
+				.withSchedule(cronSchedule("0 0/1 * * * ?")).build();
 		sched.scheduleJob(alerJobDetail, trigger);
 
 	}
 
-	private void runJobDailyAt(Scheduler scheduler, String triggerName,
-			JobDetail job, int hour, int minutes) throws SchedulerException {
-		Trigger trigger = newTrigger().withIdentity(triggerName, "jobs")
-				.startNow().withSchedule(dailyAtHourAndMinute(hour, minutes))
-				.build();
-		scheduler.scheduleJob(job, trigger);
-	}
-
-	
-	public void stop() throws SchedulerException{
+	public void stop() throws SchedulerException {
 		sched.shutdown();
 	}
 }

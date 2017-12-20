@@ -112,8 +112,11 @@ To change the default values please adapt the following parameters in your `sett
 retireAfter: 6
 # sent notification after x days [default: 4]
 notificationAfter: 4
-# perform retire as a cronjob once a day [default: false].
+# perform retire as a cronjob [default: false].
 autoRetire: true
+# perform retire cronjobevery x hours [default: 5].
+autoRetireInterval: 5
+
 ```
 
 !!! Important

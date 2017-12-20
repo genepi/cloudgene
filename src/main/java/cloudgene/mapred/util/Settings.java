@@ -61,6 +61,8 @@ public class Settings {
 
 	private List<Application> apps;
 
+	private int autoRetireInterval = 5;
+
 	private int retireAfter = 6;
 
 	private int notificationAfter = 4;
@@ -746,6 +748,14 @@ public class Settings {
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
 		return environment;
+	}
+
+	public int getAutoRetireInterval() {
+		return autoRetireInterval;
+	}
+
+	public void setAutoRetireInterval(int autoRetireInterval) {
+		this.autoRetireInterval = autoRetireInterval;
 	}
 
 }
