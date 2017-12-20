@@ -39,7 +39,7 @@ public class CronJobScheduler {
 			// Reitre job every 5 hours
 			JobDetail jobRetire = newJob(RetireJob.class).withIdentity("retire", "jobs").build();
 			jobRetire.getJobDataMap().put("application", app);
-			Trigger trigger = newTrigger().withIdentity("norification-trigger", "jobs").startNow()
+			Trigger trigger = newTrigger().withIdentity("retire-trigger", "jobs").startNow()
 					.withSchedule(simpleSchedule().withIntervalInHours(settings.getAutoRetireInterval()) // every
 																			// 5
 																			// hours
@@ -50,7 +50,7 @@ public class CronJobScheduler {
 			// Notification job every 5 hours
 			JobDetail jobNotification = newJob(NotificationJob.class).withIdentity("notification", "jobs").build();
 			jobNotification.getJobDataMap().put("application", app);
-			Trigger trigger2 = newTrigger().withIdentity("norification-trigger", "jobs").startNow()
+			Trigger trigger2 = newTrigger().withIdentity("notification-trigger", "jobs").startNow()
 					.withSchedule(simpleSchedule().withIntervalInHours(settings.getAutoRetireInterval()) // every
 																			// 5
 																			// hours
