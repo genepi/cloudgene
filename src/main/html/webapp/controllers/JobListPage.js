@@ -17,6 +17,20 @@ JobListPage = can.Control({
 			page: options.page2
 		}, function(jobs) {
 			$.each(jobs, function(key, job) {
+				$.each(jobs, function(key, job) {
+					if (job.attr('startTime') > 0 && job.attr('endTime') === 0){
+						//running
+						job.attr('endTime', job.attr('currentTime'));
+					}else{
+						job.attr('endTime', job.attr('endTime'));
+					}
+					if (job.attr('setupStartTime') > 0 && job.attr('setupEndTime') === 0){
+						//running
+						job.attr('setupEndTime', job.attr('currentTime'));
+					}else{
+						job.attr('setupEndTime', job.attr('setupEndTime'));
+					}
+				});				
 				if (JobRefresher.needsUpdate(job)) {
 					refresher = new JobRefresher();
 					refresher.setJob(job);
