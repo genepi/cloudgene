@@ -130,13 +130,13 @@ JobRefresher = can.Control({
 
 			if (currentJob.attr('startTime') > 0 && currentJob.attr('endTime') === 0){
 				//running
-				currentJob.attr('endTime', Date.now());
+				currentJob.attr('endTime', currentJob.attr('currentTime'));
 			}else{
 				currentJob.attr('endTime', currentJob.attr('endTime'));
 			}
 			if (currentJob.attr('setupStartTime') > 0 && currentJob.attr('setupEndTime') === 0){
 				//running
-				currentJob.attr('setupEndTime', Date.now());
+				currentJob.attr('setupEndTime', currentJob.attr('currentTime'));
 			}else{
 				currentJob.attr('setupEndTime', currentJob.attr('setupEndTime'));
 			}

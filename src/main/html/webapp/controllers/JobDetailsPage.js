@@ -148,14 +148,14 @@ JobDetailsPage = can.Control({
 			that.job.attr('startTime', currentJob.attr('startTime'));
 			if (currentJob.attr('startTime') > 0 && currentJob.attr('endTime') === 0){
 				//running
-				that.job.attr('endTime', Date.now());
+				that.job.attr('endTime', currentJob.attr('currentTime'));
 			}else{
 				that.job.attr('endTime', currentJob.attr('endTime'));
 			}
 			that.job.attr('setupStartTime', currentJob.attr('setupStartTime'));
 			if (currentJob.attr('setupStartTime') > 0 && currentJob.attr('setupEndTime') === 0){
 				//running
-				that.job.attr('setupEndTime', Date.now());
+				that.job.attr('setupEndTime', currentJob.attr('currentTime'));
 			}else{
 				that.job.attr('setupEndTime', currentJob.attr('setupEndTime'));
 			}
