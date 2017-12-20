@@ -777,7 +777,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	}
 
-	public void setForceInstallation(boolean forceInstallation) {
+	public void forceInstallation(boolean forceInstallation) {
 		this.forceInstallation = forceInstallation;
 	}
 	
