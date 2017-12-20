@@ -18,14 +18,14 @@ can.ejs.Helpers.prototype.prettyState = function(state) {
 
 };
 
-can.ejs.Helpers.prototype.prettyTime = function(start, end) {
+can.ejs.Helpers.prototype.prettyTime = function(start, end, current) {
 
 	if (start === 0 && end === 0) {
 		return '-';
 	}
 
 	if (start > 0 && end === 0){
-		executionTime = Date.now() - start;
+		executionTime = current - start;
 	}else{
 		executionTime =end - start;
 	}

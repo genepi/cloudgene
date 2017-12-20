@@ -780,5 +780,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public void setForceInstallation(boolean forceInstallation) {
 		this.forceInstallation = forceInstallation;
 	}
+	
+	public long getCurrentTime(){
+		return System.currentTimeMillis();
+	}
+	
+	public void setCurrentTime(long time){
+		
+	}
 
 }

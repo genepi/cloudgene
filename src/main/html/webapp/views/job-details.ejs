@@ -57,14 +57,14 @@
 		<td>
 			<b>Setup Time:</b>
 		</td>
-		<td><%= prettyTime(job.attr('setupStartTime'), job.attr('setupEndTime')); %></td>
+		<td><%= prettyTime(job.attr('setupStartTime'), job.attr('setupEndTime'), job.attr('currentTime')); %></td>
 	</tr>
 	<tr>
 		<td>
 			<b>Execution Time:</b>
 		</td>
 		<td>
-			<%= prettyTime(job.attr('startTime'), job.attr('endTime')); %></td>
+			<%= prettyTime(job.attr('startTime'), job.attr('endTime'), job.attr('currentTime')); %></td>
 	</tr>
 	<tr>
 		<td>

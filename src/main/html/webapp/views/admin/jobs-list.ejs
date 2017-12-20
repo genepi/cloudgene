@@ -88,7 +88,7 @@
 
 			<td>
 				<% if( job.attr('state') != '6' ){ %>
-					<%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime')); %>
+					<%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>
 				<% } %>
 			</td>
 
