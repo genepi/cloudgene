@@ -76,7 +76,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
 
-				<configuration> present).
+				<configuration>
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
@@ -154,7 +154,7 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-io</artifactId>
-			<version>1.0.5</version>
+			<version>1.0.6</version>
 		</dependency>
 
 		<dependency>
