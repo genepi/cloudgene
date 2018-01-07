@@ -15,6 +15,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterOutputType;
 
 public class CloudgeneContext extends WorkflowContext {
 
@@ -40,9 +41,9 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private User user;
 
-	private Map<String, CloudgeneParameter> inputParameters;
+	private Map<String, CloudgeneParameterInput> inputParameters;
 
-	private Map<String, CloudgeneParameter> outputParameters;
+	private Map<String, CloudgeneParameterOutput> outputParameters;
 
 	private Map<String, Integer> counters = new HashMap<String, Integer>();
 
@@ -78,13 +79,13 @@ public class CloudgeneContext extends WorkflowContext {
 
 		localInput = new File(FileUtil.path(job.getLocalWorkspace(), "input")).getAbsolutePath();
 
-		inputParameters = new HashMap<String, CloudgeneParameter>();
-		for (CloudgeneParameter param : job.getInputParams()) {
+		inputParameters = new HashMap<String, CloudgeneParameterInput>();
+		for (CloudgeneParameterInput param : job.getInputParams()) {
 			inputParameters.put(param.getName(), param);
 		}
 
-		outputParameters = new HashMap<String, CloudgeneParameter>();
-		for (CloudgeneParameter param : job.getOutputParams()) {
+		outputParameters = new HashMap<String, CloudgeneParameterOutput>();
+		for (CloudgeneParameterOutput param : job.getOutputParams()) {
 			outputParameters.put(param.getName(), param);
 		}
 
@@ -118,11 +119,11 @@ public class CloudgeneContext extends WorkflowContext {
 		FileUtil.createDirectory(getLocalTemp());
 
 		// create output directories
-		for (CloudgeneParameter param : outputParameters.values()) {
+		for (CloudgeneParameterOutput param : outputParameters.values()) {
 
 			switch (param.getType()) {
-			case WdlParameter.HDFS_FILE:
-			case WdlParameter.HDFS_FOLDER:
+			case HDFS_FILE:
+			case HDFS_FOLDER:
 
 				String value = "";
 
@@ -144,7 +145,7 @@ public class CloudgeneContext extends WorkflowContext {
 				param.setValue(value);
 				break;
 
-			case WdlParameter.LOCAL_FILE:
+			case LOCAL_FILE:
 				String parent = getLocalOutput();
 				if (!param.isDownload()){
 					parent = getLocalTemp();
@@ -157,7 +158,7 @@ public class CloudgeneContext extends WorkflowContext {
 				param.setValue(filename);
 				break;
 
-			case WdlParameter.LOCAL_FOLDER:
+			case LOCAL_FOLDER:
 				String parent2 = getLocalOutput();
 				if (!param.isDownload()){
 					parent2 = getLocalTemp();
@@ -306,13 +307,13 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void setInput(String input, String value) {
 
-		CloudgeneParameter parameter = inputParameters.get(input);
+		CloudgeneParameterInput parameter = inputParameters.get(input);
 		parameter.setValue(value);
 	}
 
 	public void setOutput(String input, String value) {
 
-		CloudgeneParameter parameter = outputParameters.get(input);
+		CloudgeneParameterOutput parameter = outputParameters.get(input);
 		parameter.setValue(value);
 
 	}
@@ -346,7 +347,7 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public String createLinkToFile(String id) {
 
-		CloudgeneParameter out = outputParameters.get(id);
+		CloudgeneParameterOutput out = outputParameters.get(id);
 
 		if (out != null) {
 
@@ -361,7 +362,7 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public String createLinkToFile(String id, String filename) {
 
-		CloudgeneParameter out = outputParameters.get(id);
+		CloudgeneParameterOutput out = outputParameters.get(id);
 
 		if (out != null) {
 

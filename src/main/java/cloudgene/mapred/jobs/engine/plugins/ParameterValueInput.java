@@ -8,13 +8,15 @@ import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import genepi.io.WildCardFileFilter;
 import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 
-public class ParameterValue {
+public class ParameterValueInput {
 
-	private WdlParameter parameter;
+	private WdlParameterInput parameter;
 	private String value;
 
-	public ParameterValue(WdlParameter parameter, String value) {
+	public ParameterValueInput(WdlParameterInput parameter, String value) {
 		this.parameter = parameter;
 		this.value = value;
 	}
@@ -26,7 +28,7 @@ public class ParameterValue {
 
 	public String[] listFiles(String ext) {
 
-		if (parameter.getType().equals(WdlParameter.HDFS_FOLDER)) {
+		if (parameter.getTypeAsEnum() == WdlParameterInputType.HDFS_FOLDER) {
 			List<String> files = null;
 			try {
 
@@ -45,7 +47,7 @@ public class ParameterValue {
 			}
 		}
 
-		if (parameter.getType().equals(WdlParameter.LOCAL_FOLDER)) {
+		if (parameter.getTypeAsEnum() == WdlParameterInputType.LOCAL_FOLDER) {
 
 			System.out.println("---> " + value);
 

@@ -3,9 +3,11 @@ package cloudgene.mapred.jobs;
 import java.util.List;
 import java.util.Vector;
 
-import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterOutput;
+import cloudgene.mapred.wdl.WdlParameterOutputType;
 
-public class CloudgeneParameter {
+public class CloudgeneParameterOutput {
 
 	private int id;
 
@@ -13,15 +15,11 @@ public class CloudgeneParameter {
 
 	private String value = "";
 
-	private String type = "";
-
-	private boolean input;
+	private WdlParameterOutputType type;
 
 	private boolean download = true;
 
 	private String name = "";
-
-	private String format = "";
 
 	private List<Download> files;
 
@@ -41,18 +39,15 @@ public class CloudgeneParameter {
 
 	private boolean adminOnly = false;
 
-	public CloudgeneParameter() {
+	public CloudgeneParameterOutput() {
 
 	}
 
-	public CloudgeneParameter(WdlParameter parameter) {
+	public CloudgeneParameterOutput(WdlParameterOutput parameter) {
 		setName(parameter.getId());
-		setValue(parameter.getValue());
-		setType(parameter.getType());
-		setInput(parameter.isInput());
+		setType(parameter.getTypeAsEnum());
 		setDownload(parameter.isDownload());
 		setDescription(parameter.getDescription());
-		setFormat(parameter.getFormat());
 		setMakeAbsolute(parameter.isMakeAbsolute());
 		setAutoExport(parameter.isAutoExport());
 		setZip(parameter.isZip());
@@ -86,20 +81,12 @@ public class CloudgeneParameter {
 		this.value = value;
 	}
 
-	public String getType() {
+	public WdlParameterOutputType getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(WdlParameterOutputType type) {
 		this.type = type;
-	}
-
-	public boolean isInput() {
-		return input;
-	}
-
-	public void setInput(boolean input) {
-		this.input = input;
 	}
 
 	public boolean isDownload() {
@@ -116,14 +103,6 @@ public class CloudgeneParameter {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getFormat() {
-		return format;
-	}
-
-	public void setFormat(String format) {
-		this.format = format;
 	}
 
 	public List<Download> getFiles() {

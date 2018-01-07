@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.io.FileUtil;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -14,10 +12,11 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
+import genepi.io.FileUtil;
 
 public class DownloadResults extends BaseResource {
 
@@ -71,7 +70,7 @@ public class DownloadResults extends BaseResource {
 			// job is running and not in database --> download possible of
 			// autoexport params
 			if (download == null) {
-				for (CloudgeneParameter param : job.getOutputParams()) {
+				for (CloudgeneParameterOutput param : job.getOutputParams()) {
 					if (param.isAutoExport()) {
 						if (param.getFiles() != null) {
 							for (Download download2 : param.getFiles()) {

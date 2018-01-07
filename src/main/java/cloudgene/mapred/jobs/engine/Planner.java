@@ -13,12 +13,15 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphEdge;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
-import cloudgene.mapred.jobs.engine.plugins.ParameterValue;
+import cloudgene.mapred.jobs.engine.plugins.ParameterValueInput;
+import cloudgene.mapred.jobs.engine.plugins.ParameterValueOutput;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlWorkflow;
 import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
 import cloudgene.mapred.wdl.WdlStep;
+import cloudgene.mapred.wdl.WdlWorkflow;
 
 public class Planner {
 
@@ -28,13 +31,13 @@ public class Planner {
 		VelocityContext context2 = new VelocityContext();
 
 		// add input values to context
-		for (WdlParameter param : config.getInputs()) {
-			context2.put(param.getId(), new ParameterValue(param, context.getInput(param.getId())));
+		for (WdlParameterInput param : config.getInputs()) {
+			context2.put(param.getId(), new ParameterValueInput(param, context.getInput(param.getId())));
 		}
 
 		// add output values to context
-		for (WdlParameter param : config.getOutputs()) {
-			context2.put(param.getId(), new ParameterValue(param, context.getOutput(param.getId())));
+		for (WdlParameterOutput param : config.getOutputs()) {
+			context2.put(param.getId(), new ParameterValueOutput(param, context.getOutput(param.getId())));
 		}
 
 		context2.put("workdir", new File(context.getWorkingDirectory()).getAbsolutePath());

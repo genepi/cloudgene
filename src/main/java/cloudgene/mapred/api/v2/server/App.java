@@ -20,6 +20,7 @@ import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlHeader;
 import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -67,7 +68,7 @@ public class App extends BaseResource {
 		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
 		JSONObject jsonObject = JSONObject.fromObject(wdlHeader, config);
 
-		List<WdlParameter> params = wdlApp.getWorkflow().getInputs();
+		List<WdlParameterInput> params = wdlApp.getWorkflow().getInputs();
 		JSONArray jsonArray = JSONArray.fromObject(params);
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));

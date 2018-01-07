@@ -1,9 +1,5 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
-import genepi.db.IRowMapper;
-import genepi.db.JdbcDataAccessObject;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -13,8 +9,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterInput;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
+import cloudgene.mapred.wdl.WdlParameterInputType;
+import cloudgene.mapred.wdl.WdlParameterOutputType;
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
 
 public class ParameterDao extends JdbcDataAccessObject {
 
@@ -24,7 +26,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 		super(database);
 	}
 
-	public boolean insert(CloudgeneParameter parameter) {
+	public boolean insert(CloudgeneParameterInput parameter) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format, admin_only) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?)");
@@ -32,22 +34,51 @@ public class ParameterDao extends JdbcDataAccessObject {
 		try {
 
 			Object[] params = new Object[9];
-			params[0] = parameter.getDescription().substring(0,
-					Math.min(parameter.getDescription().length(), 100));
+			params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
 			params[1] = parameter.getValue();
-			params[2] = parameter.isInput();
+			params[2] = true;
 			params[3] = parameter.getJob().getId();
-			params[4] = parameter.getType();
+			params[4] = parameter.getType().toString();
 			params[5] = parameter.getName();
-			params[6] = parameter.isDownload();
-			params[7] = parameter.getFormat();
+			params[6] = false;
+			params[7] = "";
 			params[8] = parameter.isAdminOnly();
 
 			int paramId = insert(sql.toString(), params);
 			parameter.setId(paramId);
 
-			log.debug("insert parameter '" + parameter.getId()
-					+ "' successful.");
+			log.debug("insert parameter '" + parameter.getId() + "' successful.");
+
+		} catch (SQLException e) {
+			log.error("insert parameter '" + parameter.getId() + "' failed.", e);
+			return false;
+		}
+
+		return true;
+	}
+
+	public boolean insert(CloudgeneParameterOutput parameter) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format, admin_only) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?)");
+
+		try {
+
+			Object[] params = new Object[9];
+			params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
+			params[1] = parameter.getValue();
+			params[2] = false;
+			params[3] = parameter.getJob().getId();
+			params[4] = parameter.getType().toString();
+			params[5] = parameter.getName();
+			params[6] = parameter.isDownload();
+			params[7] = "";
+			params[8] = parameter.isAdminOnly();
+
+			int paramId = insert(sql.toString(), params);
+			parameter.setId(paramId);
+
+			log.debug("insert parameter '" + parameter.getId() + "' successful.");
 
 		} catch (SQLException e) {
 			log.error("insert parameter '" + parameter.getId() + "' failed.", e);
@@ -58,7 +89,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<CloudgeneParameter> findAllInputByJob(AbstractJob job) {
+	public List<CloudgeneParameterInput> findAllInputByJob(AbstractJob job) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
@@ -68,25 +99,23 @@ public class ParameterDao extends JdbcDataAccessObject {
 		Object[] params = new Object[1];
 		params[0] = job.getId();
 
-		List<CloudgeneParameter> result = new Vector<CloudgeneParameter>();
+		List<CloudgeneParameterInput> result = new Vector<CloudgeneParameterInput>();
 
 		try {
 
-			result = query(sql.toString(), params, new ParameterMapper());
+			result = query(sql.toString(), params, new ParameterInputMapper());
 
-			log.debug("find all input parameters for job '" + job.getId()
-					+ "' successful. results: " + result.size());
+			log.debug("find all input parameters for job '" + job.getId() + "' successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
-			log.error("find all input parameters for job '" + job.getId()
-					+ "' failed.", e);
+			log.error("find all input parameters for job '" + job.getId() + "' failed.", e);
 			return null;
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<CloudgeneParameter> findAllOutputByJob(AbstractJob job) {
+	public List<CloudgeneParameterOutput> findAllOutputByJob(AbstractJob job) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
@@ -96,46 +125,59 @@ public class ParameterDao extends JdbcDataAccessObject {
 		Object[] params = new Object[1];
 		params[0] = job.getId();
 
-		List<CloudgeneParameter> result = new Vector<CloudgeneParameter>();
+		List<CloudgeneParameterOutput> result = new Vector<CloudgeneParameterOutput>();
 
 		try {
 
-			result = query(sql.toString(), params, new ParameterMapper());
+			result = query(sql.toString(), params, new ParameterOutputMapper());
 
 			DownloadDao downloadDao = new DownloadDao(database);
-			for (CloudgeneParameter parameter : result) {
-				List<Download> downloads = downloadDao
-						.findAllByParameter(parameter);
+			for (CloudgeneParameterOutput parameter : result) {
+				List<Download> downloads = downloadDao.findAllByParameter(parameter);
 				for (Download download : downloads) {
 					download.setUsername(job.getUser().getUsername());
 				}
 				parameter.setFiles(downloads);
 			}
 
-			log.debug("find all output parameters for job '" + job.getId()
-					+ "' successful. results: " + result.size());
+			log.debug("find all output parameters for job '" + job.getId() + "' successful. results: " + result.size());
 
 			return result;
 		} catch (SQLException e) {
-			log.error("find all output parameters for job '" + job.getId()
-					+ "' failed.", e);
+			log.error("find all output parameters for job '" + job.getId() + "' failed.", e);
 			return null;
 		}
 	}
 
-	class ParameterMapper implements IRowMapper {
+	class ParameterInputMapper implements IRowMapper {
 
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {
-			CloudgeneParameter parameter = new CloudgeneParameter();
+			CloudgeneParameterInput parameter = new CloudgeneParameterInput();
 			parameter.setDescription(rs.getString("name"));
 			parameter.setValue(rs.getString("value"));
 			parameter.setName(rs.getString("variable"));
-			parameter.setInput(rs.getBoolean("input"));
 			parameter.setJobId(rs.getString("job_id"));
-			parameter.setType(rs.getString("type"));
+			parameter.setType(WdlParameterInputType.getEnum(rs.getString("type")));
+			parameter.setId(rs.getInt("id"));
+			parameter.setAdminOnly(rs.getBoolean("admin_only"));
+			return parameter;
+
+		}
+
+	}
+
+	class ParameterOutputMapper implements IRowMapper {
+
+		@Override
+		public Object mapRow(ResultSet rs, int row) throws SQLException {
+			CloudgeneParameterOutput parameter = new CloudgeneParameterOutput();
+			parameter.setDescription(rs.getString("name"));
+			parameter.setValue(rs.getString("value"));
+			parameter.setName(rs.getString("variable"));
+			parameter.setJobId(rs.getString("job_id"));
+			parameter.setType(WdlParameterOutputType.getEnum(rs.getString("type")));
 			parameter.setDownload(rs.getBoolean("download"));
-			parameter.setFormat(rs.getString("format"));
 			parameter.setId(rs.getInt("id"));
 			parameter.setAdminOnly(rs.getBoolean("admin_only"));
 			return parameter;

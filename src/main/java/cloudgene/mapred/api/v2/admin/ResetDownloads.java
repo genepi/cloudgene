@@ -12,7 +12,7 @@ import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
 
@@ -54,7 +54,7 @@ public class ResetDownloads extends BaseResource {
 
 				DownloadDao downloadDao = new DownloadDao(getDatabase());
 				int count = 0;
-				for (CloudgeneParameter param : job.getOutputParams()) {
+				for (CloudgeneParameterOutput param : job.getOutputParams()) {
 					if (param.isDownload()) {
 						List<Download> downloads = param.getFiles();
 

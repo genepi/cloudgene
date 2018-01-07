@@ -1,12 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
-
 import java.util.List;
 import java.util.Vector;
-
-import net.sf.json.JSONObject;
 
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
@@ -18,10 +13,13 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PublicUser;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
+import net.sf.json.JSONObject;
 
 public class GetJobDetails extends BaseResource {
 
@@ -64,9 +62,9 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		// removes outputs that are for admin only
-		List<CloudgeneParameter> adminParams = new Vector<>();
+		List<CloudgeneParameterOutput> adminParams = new Vector<>();
 		if (!user.isAdmin()) {
-			for (CloudgeneParameter param : job.getOutputParams()) {
+			for (CloudgeneParameterOutput param : job.getOutputParams()) {
 				if (param.isAdminOnly()) {
 					adminParams.add(param);
 				}
@@ -74,7 +72,7 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		// remove all outputs that are not downloadable
-		for (CloudgeneParameter param : job.getOutputParams()) {
+		for (CloudgeneParameterOutput param : job.getOutputParams()) {
 			if (!param.isDownload()) {
 				adminParams.add(param);
 			}

@@ -10,7 +10,6 @@ import java.util.UUID;
 
 import org.apache.commons.fileupload.FileItemIterator;
 import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException;
 import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -30,6 +29,7 @@ import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
@@ -165,12 +165,10 @@ public class SubmitJob extends BaseResource {
 						boolean hdfs = false;
 						boolean folder = false;
 
-						for (WdlParameter input : app.getWorkflow().getInputs()) {
+						for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 							if (input.getId().equals(fieldName)) {
-								hdfs = (input.getType().equals(WdlParameter.HDFS_FOLDER)
-										|| input.getType().equals(WdlParameter.HDFS_FILE));
-								folder = (input.getType().equals(WdlParameter.HDFS_FOLDER))
-										|| (input.getType().equals(WdlParameter.LOCAL_FOLDER));
+								hdfs = input.isHdfs();
+								folder = input.isFolder();
 							}
 						}
 
@@ -211,7 +209,7 @@ public class SubmitJob extends BaseResource {
 							}
 
 						}
-						
+
 						// deletes temporary file
 						FileUtil.deleteFile(tmpFile);
 
@@ -255,7 +253,7 @@ public class SubmitJob extends BaseResource {
 			return null;
 
 		}
-		for (WdlParameter input : app.getWorkflow().getInputs()) {
+		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 			if (props.containsKey(input.getId())) {
 				if (input.getType().equals("checkbox")) {
 					params.put(input.getId(), input.getValues().get("true"));

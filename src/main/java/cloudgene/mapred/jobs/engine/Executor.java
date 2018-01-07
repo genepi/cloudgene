@@ -3,7 +3,7 @@ package cloudgene.mapred.jobs.engine;
 import java.util.List;
 
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 
@@ -71,7 +71,7 @@ public class Executor {
 
 		CloudgeneJob job = (CloudgeneJob) graph.getContext().getJob();
 
-		for (CloudgeneParameter out : job.getOutputParams()) {
+		for (CloudgeneParameterOutput out : job.getOutputParams()) {
 			if (out.isAutoExport() && node.getOutputs().contains(out.getName())) {
 				graph.getContext().println(
 						"Export parameter '" + out.getName() + "'...");

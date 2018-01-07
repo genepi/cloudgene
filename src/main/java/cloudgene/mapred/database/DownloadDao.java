@@ -1,9 +1,5 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
-import genepi.db.IRowMapper;
-import genepi.db.JdbcDataAccessObject;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -12,8 +8,11 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
 
 public class DownloadDao extends JdbcDataAccessObject {
 
@@ -74,7 +73,7 @@ public class DownloadDao extends JdbcDataAccessObject {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Download> findAllByParameter(CloudgeneParameter parameter) {
+	public List<Download> findAllByParameter(CloudgeneParameterOutput parameter) {
 
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");

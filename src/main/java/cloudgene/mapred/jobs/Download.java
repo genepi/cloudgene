@@ -8,7 +8,7 @@ public class Download implements Comparable<Download> {
 	private String hash = "";
 	private int count = 0;
 	private String size;
-	private CloudgeneParameter parameter;
+	private CloudgeneParameterOutput parameter;
 	private int parameterId;
 	private String user;
 
@@ -52,11 +52,11 @@ public class Download implements Comparable<Download> {
 		this.size = size;
 	}
 
-	public void setParameter(CloudgeneParameter parameter) {
+	public void setParameter(CloudgeneParameterOutput parameter) {
 		this.parameter = parameter;
 	}
 
-	public CloudgeneParameter getParameter() {
+	public CloudgeneParameterOutput getParameter() {
 		return parameter;
 	}
 

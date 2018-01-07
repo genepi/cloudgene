@@ -90,9 +90,9 @@ abstract public class AbstractJob extends PriorityRunnable {
 	
 	private int positionInQueue = -1;
 
-	protected List<CloudgeneParameter> inputParams = new Vector<CloudgeneParameter>();
+	protected List<CloudgeneParameterInput> inputParams = new Vector<CloudgeneParameterInput>();
 
-	protected List<CloudgeneParameter> outputParams = new Vector<CloudgeneParameter>();
+	protected List<CloudgeneParameterOutput> outputParams = new Vector<CloudgeneParameterOutput>();
 
 	protected List<CloudgeneStep> steps = new Vector<CloudgeneStep>();
 
@@ -222,19 +222,19 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return deletedOn;
 	}
 
-	public List<CloudgeneParameter> getInputParams() {
+	public List<CloudgeneParameterInput> getInputParams() {
 		return inputParams;
 	}
 
-	public void setInputParams(List<CloudgeneParameter> inputParams) {
+	public void setInputParams(List<CloudgeneParameterInput> inputParams) {
 		this.inputParams = inputParams;
 	}
 
-	public List<CloudgeneParameter> getOutputParams() {
+	public List<CloudgeneParameterOutput> getOutputParams() {
 		return outputParams;
 	}
 
-	public void setOutputParams(List<CloudgeneParameter> outputParams) {
+	public void setOutputParams(List<CloudgeneParameterOutput> outputParams) {
 		this.outputParams = outputParams;
 	}
 
@@ -426,14 +426,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 			writeLog("  Submitted On: " + new Date(getSubmittedOn()).toString());
 			writeLog("  Completed On: " + new Date(getFinishedOn()).toString());
 			writeLog("  Inputs:");
-			for (CloudgeneParameter parameter : inputParams) {
+			for (CloudgeneParameterInput parameter : inputParams) {
 				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
 			}
 
 			// TODO: check if all input parameters are set
 
 			writeLog("  Outputs:");
-			for (CloudgeneParameter parameter : outputParams) {
+			for (CloudgeneParameterOutput parameter : outputParams) {
 				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
 			}
 

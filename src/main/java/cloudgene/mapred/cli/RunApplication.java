@@ -12,8 +12,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -33,7 +31,8 @@ import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
+import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
 import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.HdfsUtil;
@@ -413,7 +412,7 @@ public class RunApplication extends BaseTool {
 	public void printParameters(CloudgeneJob job, WdlApp app) {
 		if (app.getWorkflow().getInputs().size() > 0) {
 			printText(2, "Input values: ");
-			for (WdlParameter input : app.getWorkflow().getInputs()) {
+			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 				if (!input.getType().equals("agbcheckbox") && !input.isAdminOnly() && input.isVisible()) {
 					printText(4, input.getId() + ": " + job.getContext().get(input.getId()));
 				}
@@ -422,7 +421,7 @@ public class RunApplication extends BaseTool {
 
 		if (app.getWorkflow().getOutputs().size() > 0) {
 			printText(2, "Results:");
-			for (WdlParameter output : app.getWorkflow().getOutputs()) {
+			for (WdlParameterOutput output : app.getWorkflow().getOutputs()) {
 				if (output.isDownload() && !output.isAdminOnly()) {
 					printText(4, output.getDescription() + ": " + job.getContext().get(output.getId()));
 				}

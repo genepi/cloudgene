@@ -7,9 +7,9 @@ public class WdlWorkflow {
 
 	private List<WdlStep> steps = new Vector<WdlStep>();
 
-	private List<WdlParameter> inputs = new Vector<WdlParameter>();
+	private List<WdlParameterInput> inputs = new Vector<WdlParameterInput>();
 
-	private List<WdlParameter> outputs = new Vector<WdlParameter>();
+	private List<WdlParameterOutput> outputs = new Vector<WdlParameterOutput>();
 
 	private String path;
 
@@ -23,19 +23,19 @@ public class WdlWorkflow {
 
 	private WdlStep onFailure = null;
 
-	public List<WdlParameter> getInputs() {
+	public List<WdlParameterInput> getInputs() {
 		return inputs;
 	}
 
-	public void setInputs(List<WdlParameter> inputs) {
+	public void setInputs(List<WdlParameterInput> inputs) {
 		this.inputs = inputs;
 	}
 
-	public List<WdlParameter> getOutputs() {
+	public List<WdlParameterOutput> getOutputs() {
 		return outputs;
 	}
 
-	public void setOutputs(List<WdlParameter> outputs) {
+	public void setOutputs(List<WdlParameterOutput> outputs) {
 		this.outputs = outputs;
 	}
 
@@ -96,7 +96,7 @@ public class WdlWorkflow {
 	}
 
 	public boolean hasHdfsOutputs() {
-		for (WdlParameter output : outputs) {
+		for (WdlParameterOutput output : outputs) {
 			if (output.isHdfs()) {
 				return true;
 			}
@@ -105,7 +105,7 @@ public class WdlWorkflow {
 	}
 
 	public boolean hasHdfsInputs() {
-		for (WdlParameter input : inputs) {
+		for (WdlParameterInput input : inputs) {
 			if (input.isHdfs()) {
 				return true;
 			}

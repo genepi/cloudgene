@@ -1,9 +1,5 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
-import genepi.db.IRowMapper;
-import genepi.db.JdbcDataAccessObject;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -16,8 +12,12 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao.UserMapper;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameter;
+import cloudgene.mapred.jobs.CloudgeneParameterInput;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.CloudgeneStep;
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
 
 public class JobDao extends JdbcDataAccessObject {
 
@@ -406,8 +406,8 @@ public class JobDao extends JdbcDataAccessObject {
 			if (loadParams && job != null) {
 
 				ParameterDao parameterDao = new ParameterDao(database);
-				List<CloudgeneParameter> inputParams = parameterDao.findAllInputByJob(job);
-				List<CloudgeneParameter> outputParams = parameterDao.findAllOutputByJob(job);
+				List<CloudgeneParameterInput> inputParams = parameterDao.findAllInputByJob(job);
+				List<CloudgeneParameterOutput> outputParams = parameterDao.findAllOutputByJob(job);
 				job.setInputParams(inputParams);
 				job.setOutputParams(outputParams);
 

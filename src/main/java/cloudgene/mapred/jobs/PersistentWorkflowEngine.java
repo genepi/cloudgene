@@ -59,11 +59,11 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 		DownloadDao downloadDao = new DownloadDao(database);
 
-		for (CloudgeneParameter parameter : job.getOutputParams()) {
+		for (CloudgeneParameterOutput parameter : job.getOutputParams()) {
 
 			if (parameter.isDownload()) {
 
-				if (((CloudgeneParameter) parameter).getFiles() != null) {
+				if (parameter.getFiles() != null) {
 
 					for (Download download : parameter.getFiles()) {
 						download.setParameterId(parameter.getId());
@@ -123,12 +123,12 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 		ParameterDao dao = new ParameterDao(database);
 
-		for (CloudgeneParameter parameter : job.getInputParams()) {
+		for (CloudgeneParameterInput parameter : job.getInputParams()) {
 			parameter.setJobId(job.getId());
 			dao.insert(parameter);
 		}
 
-		for (CloudgeneParameter parameter : job.getOutputParams()) {
+		for (CloudgeneParameterOutput parameter : job.getOutputParams()) {
 			parameter.setJobId(job.getId());
 			dao.insert(parameter);
 		}
