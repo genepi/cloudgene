@@ -11,7 +11,7 @@ workflow:
   outputs:
     - id: output
       description: Output Folder
-      type: hdfs-folder
+      type: local_folder
       mergeOutput: false
       download: true
       zip: false
@@ -29,21 +29,21 @@ workflow:
   outputs:
     - id: output
       description: Output Folder
-      type: local-folder
+      type: local_folder
       mergeOutput: false
       download: true
       zip: false
 ```
 
-## General properties
+## Properties
 
-These properties define the basic behaviour of an output parameter and are independent of its type:
+These properties define the basic behaviour of an output parameter:
 
 | Property | Required | Description |
 | ---- | --- | --- |
-| `id` | yes |  |
-| `description` | yes | |
-| `type` | yes |  |
+| `id` | yes | Defines a id for the parameter |
+| `description` | yes | Defines a description for the parameter |
+| `type` | yes | One of the following [types](/developers/outputs/#types) |
 | `download` | no | If `download` is set to true, the file or folder can be downloaded (default: **true**). |
 | `adminOnly` | no | (default: **false**). |
 
@@ -51,17 +51,17 @@ These properties define the basic behaviour of an output parameter and are indep
 
 At the moment the following types of output parameters are supported:
 
-#### local-file
+### `local_file`
 
-#### local-folder
+### `local_folder`
 
-#### hdfs-file
+### `hdfs_file`
 
 | Property | Required | Description |
 | --- | --- | --- |
 | `zip` | no | If `zip` is set to true, all files in a hdfs-folder or local-folder are automatically compressed into a zip file (default: **true**). |
 
-#### hdfs-folder
+### `hdfs_folder`
 
 | Property            | Required | Description |
 | ------------------- | --- | --- |

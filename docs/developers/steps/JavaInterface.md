@@ -71,6 +71,14 @@ workflow:
     - name: Input Validation
       jar: your-jar-file.jar
       classname: your.package.YourValidation
+  inputs:
+    - id: input
+      description: Input Parameter
+      type: text
+  outputs:
+    - id: output
+      description: Output Parameter
+      type: loca_file
 ```
 
 A Eclipse project including a maven file and a cloudgene.yaml file can be forked [here]().

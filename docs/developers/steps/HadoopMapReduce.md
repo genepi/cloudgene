@@ -25,11 +25,11 @@ workflow:
   inputs:
     - id: input_param
       description: HDFS-Input
-      type: hdfs-folder
+      type: hdfs_folder
   outputs:
     - id: output_param
       description: HDFS-Output
-      type: hdfs-folder
+      type: hdfs_folder
 ```
 
 ### Hadoop MapReduce streaming mode
@@ -50,9 +50,9 @@ workflow:
   inputs:
     - id: input_param
       description: HDFS-Input
-      type: hdfs-folder
+      type: hdfs_folder
   outputs:
     - id: output_param
       description: HDFS-Output
-      type: hdfs-folder
+      type: hdfs_folder
 ```

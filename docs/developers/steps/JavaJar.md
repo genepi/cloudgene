@@ -28,5 +28,5 @@ workflow:
   inputs:
     - id: file1
       description: Input File
-      type: local-file
+      type: local_file
 ```

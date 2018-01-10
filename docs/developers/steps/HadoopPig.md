@@ -25,9 +25,9 @@ workflow:
   inputs:
     - id: hdfs_input
       description: HDFS-Input
-      type: hdfs-folder
+      type: hdfs_folder
   outputs:
     - id: hdfs_output
       description: HDFS-Output
-      type: hdfs-folder
+      type: hdfs_folder
 ```

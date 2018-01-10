@@ -54,7 +54,7 @@ workflow:
   outputs:
     - id: output
       description: Output File
-      type: local-file
+      type: local_file
 ```
 
 ### Working with HDFS files
@@ -72,5 +72,5 @@ workflow:
   inputs:
     - id: input
       description: Output File
-      type: hdfs-file
+      type: hdfs_file
 ```

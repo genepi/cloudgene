@@ -24,9 +24,9 @@ workflow:
   inputs:
     - id: dataset
       description: Dataset
-      type: hdfs-file
+      type: hdfs_file
   outputs:
     - id: report
       description: HDFS-Output
-      type: local-file
+      type: local_file
 ```

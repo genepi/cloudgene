@@ -107,7 +107,12 @@ function buildForm(application, element, params, submitButtonText) {
 }
 
 function buildLabel(element, param) {
-	var label = $('<label for="' + param.id + '" class="control-label">' + param.description + '</label>');
+ var caption = param.description;
+	if (param.help){
+		caption += '&nbsp;<a href="' + param.help + '" target="_blank"><i class="icon-question-sign"></i></a>';
+	}
+	var label = $('<label for="' + param.id + '" class="control-label">' + caption + '</label>');
+
 	//label.text(param.description);
 	//label.attr("for", param.id);
 	//label.attr("class", "control-label");

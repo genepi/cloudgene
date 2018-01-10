@@ -1,7 +1,7 @@
 package cloudgene.mapred.wdl;
 
 public enum WdlParameterOutputType {
-	LOCAL_FOLDER("local-folder"), LOCAL_FILE("local-file"), HDFS_FOLDER("hdfs-folder"), HDFS_FILE("hdfs-file");
+	LOCAL_FOLDER("local_folder"), LOCAL_FILE("local_file"), HDFS_FOLDER("hdfs_folder"), HDFS_FILE("hdfs_file");
 
 	private String value;
 
@@ -20,7 +20,7 @@ public enum WdlParameterOutputType {
 
 	public static WdlParameterOutputType getEnum(String value) {
 		for (WdlParameterOutputType v : values())
-			if (v.getValue().equalsIgnoreCase(value))
+			if (v.getValue().equalsIgnoreCase(value.replaceAll("-", "_")))
 				return v;
 		throw new IllegalArgumentException("Value '" + value + "' is not a valid type.");
 	}

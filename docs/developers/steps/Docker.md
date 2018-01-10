@@ -33,9 +33,9 @@ workflow:
   inputs:
     - id: vcf
       description: VCF File
-      type: local-file
+      type: local_file
   outputs:
     - id: output
       description: Frequencies
-      type: local-file
+      type: local_file
 ```

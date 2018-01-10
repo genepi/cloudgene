@@ -20,6 +20,8 @@ public class WdlParameterInput implements WdlParameter {
 
 	private boolean adminOnly = false;
 
+	private String help = null;
+
 	public String getId() {
 		return id;
 	}
@@ -100,6 +102,14 @@ public class WdlParameterInput implements WdlParameter {
 
 	public boolean isFolder() {
 		return (type == WdlParameterInputType.HDFS_FOLDER || type == WdlParameterInputType.LOCAL_FOLDER);
+	}
+
+	public void setHelp(String help) {
+		this.help = help;
+	}
+
+	public String getHelp() {
+		return help;
 	}
 
 }

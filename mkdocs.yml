@@ -1,4 +1,4 @@
-site_name: Cloudgene v3
+site_name: Cloudgene 3
 theme: material
 pages:
 - Home: index.md
