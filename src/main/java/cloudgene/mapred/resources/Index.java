@@ -15,7 +15,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
-import cloudgene.mapred.wdl.WdlHeader;
+import cloudgene.mapred.wdl.WdlApp;
 import freemarker.template.Configuration;
 
 public class Index extends BaseResource {
@@ -35,7 +35,7 @@ public class Index extends BaseResource {
 		
 		System.out.println("Template Folder: " + new File(app.getRootFolder()).getAbsolutePath());
 		
-		List<WdlHeader> apps = getSettings().getAppsByUser(null);
+		List<WdlApp> apps = getSettings().getAppsByUser(null);
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());

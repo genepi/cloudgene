@@ -24,7 +24,6 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlHeader;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -192,12 +191,6 @@ public class Settings {
 	public String getPigPath() {
 		return pigPath;
 	}
-
-	/*
-	 * public String getAppsPath() { return appsPath; }
-	 * 
-	 * public void setAppsPath(String appsPath) { this.appsPath = appsPath; }
-	 */
 
 	public String getTempPath() {
 		return tempPath;
@@ -381,9 +374,13 @@ public class Settings {
 
 	}
 
-	public List<WdlHeader> getAppsByUser(User user) {
+	public List<WdlApp> getAppsByUser(User user) {
+		return getAppsByUser(user, true);
+	}
 
-		List<WdlHeader> listApps = new Vector<WdlHeader>();
+	public List<WdlApp> getAppsByUser(User user, boolean appsOnly) {
+
+		List<WdlApp> listApps = new Vector<WdlApp>();
 
 		for (Application application : getApps()) {
 
@@ -408,11 +405,16 @@ public class Settings {
 			if (using) {
 
 				if (application.isEnabled() && application.isLoaded() && !application.hasSyntaxError()) {
-					if (application.getWdlApp().getWorkflow() != null) {
+					if (appsOnly) {
+						if (application.getWdlApp().getWorkflow() != null) {
+							WdlApp app = application.getWdlApp();
+							app.setId(application.getId());
+							listApps.add(app);
+						}
+					} else {
 						WdlApp app = application.getWdlApp();
-						WdlHeader meta = (WdlHeader) app;
 						app.setId(application.getId());
-						listApps.add(meta);
+						listApps.add(app);
 					}
 				}
 

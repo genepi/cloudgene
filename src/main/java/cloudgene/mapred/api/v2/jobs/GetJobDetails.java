@@ -84,7 +84,7 @@ public class GetJobDetails extends BaseResource {
 			job.setLogs("logs/" + job.getId());
 		}
 
-		JSONObject object = JSONConverter.fromJob(job);
+		JSONObject object = JSONConverter.convert(job);
 		if (publicMode) {
 			object.put("public", publicMode);
 		}
@@ -134,7 +134,7 @@ public class GetJobDetails extends BaseResource {
 		job.setState(AbstractJob.STATE_DELETED);
 		dao.update(job);
 
-		JSONObject object = JSONConverter.fromJob(job);
+		JSONObject object = JSONConverter.convert(job);
 
 		return new StringRepresentation(object.toString());
 

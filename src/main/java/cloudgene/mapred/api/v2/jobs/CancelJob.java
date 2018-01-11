@@ -41,7 +41,7 @@ public class CancelJob extends BaseResource {
 
 		getWorkflowEngine().cancel(job);
 
-		JSONObject object = JSONConverter.fromJob(job);
+		JSONObject object = JSONConverter.convert(job);
 
 		return new StringRepresentation(object.toString());
 

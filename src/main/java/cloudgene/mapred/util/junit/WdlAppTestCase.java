@@ -44,7 +44,7 @@ public class WdlAppTestCase {
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
-		User user = TestServer.getInstance().getUser();
+		User user = TestServer.getInstance().getAdminUser();
 		Settings settings = TestServer.getInstance().getSettings();
 
 		String id = "test_" + System.currentTimeMillis();

@@ -159,7 +159,7 @@ public class CloudgeneJob extends AbstractJob {
 			return true;
 
 		} catch (Exception e) {
-			 e.printStackTrace();
+			e.printStackTrace();
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
 			return false;
@@ -207,7 +207,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	@Override
 	public boolean executeInstallation(boolean forceInstallation) {
-				
+
 		try {
 
 			Settings setttings = getSettings();
@@ -226,7 +226,7 @@ public class CloudgeneJob extends AbstractJob {
 				String value = input.getValue();
 				if (value.startsWith("apps@")) {
 					String appId = value.replaceAll("apps@", "");
-					Application app2 = setttings.getApp(appId);
+					Application app2 = setttings.getAppByIdAndUser(appId, getUser());
 					if (app2 != null) {
 						applications.add(app2);
 						// update evenirnoment variables
@@ -246,7 +246,7 @@ public class CloudgeneJob extends AbstractJob {
 					}
 				}
 			}
-			
+
 			for (Application app : applications) {
 
 				log.info("Job " + getId() + ": executing installation for " + app.getId() + "...");
@@ -263,7 +263,8 @@ public class CloudgeneJob extends AbstractJob {
 					if (!installed || forceInstallation) {
 						try {
 
-							//context.beginTask("Installing application " + app.getId() + "...");
+							// context.beginTask("Installing application " +
+							// app.getId() + "...");
 
 							HdfsUtil.delete(target);
 							writeLog("  Installing Application...");
@@ -275,11 +276,13 @@ public class CloudgeneJob extends AbstractJob {
 							lineWriter.close();
 
 							log.info("Installation of application " + app.getId() + " finished.");
-							//context.endTask("Installation of application " + app.getId() + " finished.",
-							//		WorkflowContext.OK);
+							// context.endTask("Installation of application " +
+							// app.getId() + " finished.",
+							// WorkflowContext.OK);
 							writeLog("  Installation finished.");
 						} catch (IOException e) {
-							//context.endTask("Installing application " + app.getId() + "failed.", WorkflowContext.ERROR);
+							// context.endTask("Installing application " +
+							// app.getId() + "failed.", WorkflowContext.ERROR);
 
 							writeOutput("Installation of application " + app.getId() + " failed.");
 							writeOutput(e.getMessage());

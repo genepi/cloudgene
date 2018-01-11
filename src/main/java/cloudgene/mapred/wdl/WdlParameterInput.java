@@ -22,6 +22,8 @@ public class WdlParameterInput implements WdlParameter {
 
 	private String help = null;
 
+	private String category = null;
+
 	public String getId() {
 		return id;
 	}
@@ -110,6 +112,14 @@ public class WdlParameterInput implements WdlParameter {
 
 	public String getHelp() {
 		return help;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getCategory() {
+		return category;
 	}
 
 }

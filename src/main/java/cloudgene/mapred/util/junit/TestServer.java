@@ -35,6 +35,8 @@ public class TestServer {
 
 	protected WebServer server;
 
+	protected User adminUser;
+	
 	protected User user;
 
 	protected Settings settings = new Settings();
@@ -157,6 +159,24 @@ public class TestServer {
 			app16.setFilename("test-data/sftp-import.yaml");
 			app16.setPermission("public");
 			applications.add(app16);
+
+			Application app17 = new Application();
+			app17.setId("app-links");
+			app17.setFilename("test-data/app-links.yaml");
+			app17.setPermission("public");
+			applications.add(app17);
+			
+			Application app18 = new Application();
+			app18.setId("app-links-child");
+			app18.setFilename("test-data/app-links-child.yaml");
+			app18.setPermission("public");
+			applications.add(app18);
+			
+			Application app19 = new Application();
+			app19.setId("app-links-child-protected");
+			app19.setFilename("test-data/app-links-child.yaml");
+			app19.setPermission("protected");
+			applications.add(app19);
 			
 			settings.setApps(applications);
 
@@ -222,13 +242,27 @@ public class TestServer {
 
 			// insert user admin
 			UserDao dao = new UserDao(database);
-			user = dao.findByUsername(username);
+			adminUser = dao.findByUsername(username);
+			if (adminUser == null) {
+				adminUser = new User();
+				adminUser.setUsername(username);
+				password = HashUtil.getMD5(password);
+				adminUser.setPassword(password);
+				adminUser.setRole("admin");
+				dao.insert(adminUser);
+			}
+			
+			String usernameUser = "user";
+			String passwordUser = "admin1978";
+
+			// insert user admin
+			user = dao.findByUsername(usernameUser);
 			if (user == null) {
 				user = new User();
-				user.setUsername(username);
-				password = HashUtil.getMD5(password);
-				user.setPassword(password);
-				user.setRole("admin");
+				user.setUsername(usernameUser);
+				password = HashUtil.getMD5(passwordUser);
+				user.setPassword(passwordUser);
+				user.setRole("public");
 				dao.insert(user);
 			}
 		} catch (Exception e) {
@@ -242,6 +276,10 @@ public class TestServer {
 
 	public WorkflowEngine startWorkflowEngineWithoutServer() throws SQLException {
 		if (engine == null) {
+			
+			registerApplications();
+
+			
 			database = createDatabase(true);
 			// start workflow engine
 			engine = new PersistentWorkflowEngine(database, 1, 1);
@@ -338,7 +376,11 @@ public class TestServer {
 
 	}
 
-	public User getUser() {
+	public User getAdminUser() {
+		return adminUser;
+	}
+	
+	public User getUser(){
 		return user;
 	}
 

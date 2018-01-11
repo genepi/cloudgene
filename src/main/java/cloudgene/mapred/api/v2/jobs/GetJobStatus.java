@@ -54,7 +54,7 @@ public class GetJobStatus extends BaseResource {
 			return error403("Access denied.");
 		}
 
-		JSONObject object = JSONConverter.fromJob(job);
+		JSONObject object = JSONConverter.convert(job);
 
 		return new StringRepresentation(object.toString());
 

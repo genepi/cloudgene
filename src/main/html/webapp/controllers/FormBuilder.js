@@ -24,7 +24,7 @@ function buildForm(application, element, params, submitButtonText) {
 			if (param.type == "label") {
 				divControls = $("<div></div>");
 				divControls.html(param.description);
-			} else if (param.type == "list") {
+			} else if (param.type == "list" || param.type == "app_list") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
@@ -34,12 +34,12 @@ function buildForm(application, element, params, submitButtonText) {
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
 				buildNumber(divControls, param);
-			} else if (param.type == "hdfs-file" || param.type == "local-file") {
+			} else if (param.type == "hdfs_file" || param.type == "local_file") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
 				buildHdfsFile(divControls, param);
-			} else if (param.type == "hdfs-folder" || param.type == "local-folder") {
+			} else if (param.type == "hdfs_folder" || param.type == "local_folder") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
 				divControls.attr("class", "controls");
@@ -61,7 +61,7 @@ function buildForm(application, element, params, submitButtonText) {
 				buildText(divControls, param);
 			}
 
-			if (param.type == "hdfs-folder" || param.type == "local-folder") {
+			if (param.type == "hdfs_folder" || param.type == "local_folder") {
 				divControls.append('<span class="help-block">Multiple files can be selected by using the <span class="label">ctrl</span> / <span class="label">cmd</span> or <span class="label">shift</span> keys.</span>');
 			} else {
 				divControls.append('<span class="help-block"></span>');
@@ -465,6 +465,7 @@ function buildList(element, param) {
 	$(element).append(select);
 
 }
+
 
 function buildText(element, param) {
 	var input = $("<input></input>");

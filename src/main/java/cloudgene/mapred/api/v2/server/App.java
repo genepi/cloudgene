@@ -15,10 +15,11 @@ import org.restlet.resource.Put;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlHeader;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import net.sf.json.JSONArray;
@@ -34,13 +35,14 @@ public class App extends BaseResource {
 
 		String appId = getAttribute("tool");
 
-		Application application = getSettings().getAppByIdAndUser(appId, user);
+		Settings settings = getSettings();
+		
+		Application application = settings.getAppByIdAndUser(appId, user);
 		WdlApp wdlApp = null;
-		WdlHeader wdlHeader = null;
 		try {
 			wdlApp = application.getWdlApp();
-			wdlHeader = (WdlHeader) wdlApp;
-			wdlHeader.setId(appId);
+			//wdlHeader = (WdlHeader) wdlApp;
+			//wdlHeader.setId(appId);
 
 		} catch (Exception e1) {
 
@@ -50,26 +52,29 @@ public class App extends BaseResource {
 
 		}
 
-		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
+		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
 
 			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
 			return new StringRepresentation("This functionality is currently under maintenance.");
 
 		}
 
-		if (wdlApp.getWorkflow().hasHdfsInputs() && !getSettings().isEnable(Technology.HADOOP_CLUSTER)) {
+		if (wdlApp.getWorkflow().hasHdfsInputs() && !settings.isEnable(Technology.HADOOP_CLUSTER)) {
 
 			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
 			return new StringRepresentation("Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
 
 		}
+
+		List<WdlApp> apps = settings.getAppsByUser(user, false);
 		
-		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "mapred", "installed", "cluster" });
-		JSONObject jsonObject = JSONObject.fromObject(wdlHeader, config);
+		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
 
 		List<WdlParameterInput> params = wdlApp.getWorkflow().getInputs();
-		JSONArray jsonArray = JSONArray.fromObject(params);
+		JSONArray jsonArray = JSONConverter.convert(params, apps);
+		
+		//fill app list with values depending on auth user
+		
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
 

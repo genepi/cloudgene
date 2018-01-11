@@ -10,6 +10,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.junit.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
@@ -457,6 +458,80 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(job.getEndTime() > 0);
 	}
 
+	public void testApplicationLinks() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("app", "apps@app-links-child");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+		
+		Message message = job.getSteps().get(0).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().contains("property1:hey!"));
+		assertTrue(message.getMessage().contains("property2:hey2!"));
+		assertTrue(message.getMessage().contains("property3:hey3!"));
+
+		
+	}
+	
+	public void testApplicationLinksWrongApplication() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("app", "apps@app-links-child-wrong-id");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
+		assertEquals(AbstractJob.STATE_FAILED, job.getState());		
+		
+	}
+	
+	
+	public void testApplicationLinksWrongPermissions() throws Exception {
+		
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("app", "apps@app-links-child-protected");
+
+		AbstractJob job = createJobFromWdlAsUser(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() == 0);
+		assertTrue(job.getEndTime() == 0);
+		assertEquals(AbstractJob.STATE_FAILED, job.getState());		
+		
+	}
+	
 	// TODO: merge and zip export.
 
 	// TODO: write to hdfs temp and local temp (temp output params)!
@@ -467,7 +542,19 @@ public class WorkflowEngineTest extends TestCase {
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
+		User user = TestServer.getInstance().getAdminUser();
+		return createJobFromWdl(app, inputs, user);
+	}
+
+	
+	public CloudgeneJob createJobFromWdlAsUser(WdlApp app, Map<String, String> inputs) throws Exception {
+
 		User user = TestServer.getInstance().getUser();
+		return createJobFromWdl(app, inputs, user);
+	}
+	
+	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs, User user) throws Exception {
+
 		Settings settings = TestServer.getInstance().getSettings();
 
 		String id = "test_" + System.currentTimeMillis();
@@ -488,5 +575,5 @@ public class WorkflowEngineTest extends TestCase {
 
 		return job;
 	}
-
+	
 }
