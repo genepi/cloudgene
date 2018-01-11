@@ -1,0 +1,12 @@
+name: app-links
+version: 1.0.0
+workflow:
+  inputs:
+    - id: app
+      description: Linked Application
+      type: app_list
+      category: app-links-test
+  steps:
+    - name: print properties from selected app
+      type: groovy
+      script: print-properties.groovy

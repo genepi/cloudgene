@@ -1,0 +1,7 @@
+name: app-links-child
+version: 1.0.0
+category: app-links-test
+properties:
+  property1: hey!
+  property2: hey2!
+  property3: hey3!
