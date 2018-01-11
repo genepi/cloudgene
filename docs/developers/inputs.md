@@ -66,6 +66,7 @@ At the moment the following types of input parameters are supported to build for
 | [`text`](#text) | ![](/images/inputs/text.png) |
 | [`number`](#number) | ![](/images/inputs/number.png) |
 | [`list`](#list) | ![](/images/inputs/list.png)
+| [`app_list`](#app_list) | ![](/images/inputs/list.png)
 | [`checkbox`](#checkbox) | ![](/images/inputs/checkbox.png) |
 
 ### `local_file`
@@ -139,6 +140,19 @@ Creates a checkbox with two different states. The `values` property contains val
     true: valueTrue
     false: valueFalse  
 ```
+
+### `app_list`
+
+Creates a drop-down list where the user can select an application. The property `category` is optional and can be used to display only applications with the provided category. The value of this parameter contains the **Application Link** of the selected application.
+
+```yaml
+- id: refData
+  description: Reference Data
+  type: app_list
+  category: ref-data
+```
+
+Learn more about [Application Links](/tutorials/application-links) and their advantages.
 
 ## Layout and Groups
 

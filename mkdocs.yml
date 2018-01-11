@@ -26,7 +26,7 @@ pages:
     - Manage Jobs: daemon/jobs.md
     - Manage Permissions: daemon/permissions.md
     - Maintenance: daemon/administration.md
-- Developers:
+- cloudgene.yaml:
     - Introduction: developers/introduction.md
     - Steps:
         - BashCommand: developers/steps/BashCommand.md
@@ -40,6 +40,8 @@ pages:
     - Inputs: developers/inputs.md
     - Outputs: developers/outputs.md
     - Control patterns: developers/control-patterns.md
+- Tutorials:
+    - Using AppLinks to link to other applications: tutorials/application-links.md
 - API Reference:
     - Introduction: api/introduction.md
     - Authentication: api/authentication.md
