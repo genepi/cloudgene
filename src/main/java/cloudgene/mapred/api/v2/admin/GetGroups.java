@@ -24,23 +24,27 @@ public class GetGroups extends BaseResource {
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 
 		}
 
 		if (!user.isAdmin()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			return new StringRepresentation("The request requires administration rights.");
 		}
 
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
 		groups.add(new Group("User"));
 		for (Application application : getSettings().getApps()) {
-			if (!groups.contains(new Group(application.getPermission()))) {
-				groups.add(new Group(application.getPermission()));
+			Group group = new Group(application.getPermission());
+			if (!groups.contains(group)) {
+				group.addApp(application.getId());
+				groups.add(group);
+			} else {
+				int index = groups.indexOf(group);
+				group = groups.get(index);
+				group.addApp(application.getId());
 			}
 		}
 
@@ -54,6 +58,8 @@ public class GetGroups extends BaseResource {
 
 		private String name;
 
+		private List<String> apps = new Vector<String>();
+
 		public Group(String name) {
 			this.name = name;
 		}
@@ -65,10 +71,22 @@ public class GetGroups extends BaseResource {
 		public String getName() {
 			return name;
 		}
+
+		public void setApps(List<String> apps) {
+			this.apps = apps;
+		}
+
+		public List<String> getApps() {
+			return apps;
+		}
 		
+		public void addApp(String app){
+			apps.add(app);
+		}
+
 		@Override
-		public boolean equals(Object obj) {			
-			Group g = (Group) obj;			
+		public boolean equals(Object obj) {
+			Group g = (Group) obj;
 			return g.getName().toLowerCase().equals(getName().toLowerCase());
 		}
 	}

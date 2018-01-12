@@ -29,7 +29,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		testUser1.setUsername("test1");
 		testUser1.setFullName("test1");
 		testUser1.setMail("test1@test.com");
-		testUser1.setRole("User");
+		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.getMD5("Test1Password"));
@@ -39,7 +39,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		testUser2.setUsername("test2");
 		testUser2.setFullName("test2");
 		testUser2.setMail("test2@test.com");
-		testUser2.setRole("User");
+		testUser2.setRoles(new String[] { "User" });
 		testUser2.setActive(true);
 		testUser2.setActivationCode("");
 		testUser2.setPassword(HashUtil.getMD5("Test2Password"));
@@ -48,7 +48,9 @@ public class UserProfileTest extends JobsApiTestCase {
 	}
 
 	public void testGetWithWrongCredentials() throws JSONException, IOException {
-		ClientResource resource = createClientResource("/api/v2/users/test1/profile");
+		LoginToken token = new LoginToken();
+		token.setCsrfToken("wrong-token");
+		ClientResource resource = createClientResource("/api/v2/users/test1/profile", token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -158,7 +160,6 @@ public class UserProfileTest extends JobsApiTestCase {
 		token.setCsrfToken("");
 		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
 
-
 		Form form = new Form();
 		form.set("username", "test1");
 		form.set("full-name", "new full-name");
@@ -166,10 +167,10 @@ public class UserProfileTest extends JobsApiTestCase {
 		form.set("new-password", "new-Password27");
 		form.set("confirm-new-password", "new-Password27");
 
-		try{
-		resource.post(form);
+		try {
+			resource.post(form);
 			assertFalse(true);
-		}catch (Exception e) {
+		} catch (Exception e) {
 
 		}
 		assertEquals(401, resource.getStatus().getCode());

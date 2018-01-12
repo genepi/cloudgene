@@ -32,7 +32,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		testUser1.setUsername("testreset");
 		testUser1.setFullName("test1");
 		testUser1.setMail("testuser1@test.com");
-		testUser1.setRole("User");
+		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.getMD5("oldpassword"));
@@ -42,7 +42,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		testUse2.setUsername("testreset2");
 		testUse2.setFullName("test1");
 		testUse2.setMail("testuser1@test.com");
-		testUse2.setRole("User");
+		testUse2.setRoles(new String[] { "User" });
 		testUse2.setActive(false);
 		testUse2.setActivationCode("fdsfdsfsdfsdfsd");
 		testUse2.setPassword(HashUtil.getMD5("oldpassword"));

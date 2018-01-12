@@ -12,7 +12,6 @@ import org.restlet.ext.html.FormDataSet;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.ClientResource;
 
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -37,7 +36,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		testUser1.setUsername("testUserToken");
 		testUser1.setFullName("test1");
 		testUser1.setMail("test1@test.com");
-		testUser1.setRole("private");
+		testUser1.setRoles(new String[] { "private" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.getMD5("Test1Password"));
@@ -88,10 +87,10 @@ public class ApiTokensTest extends JobsApiTestCase {
 
 		resource.release();
 
-		//check if job list contains one job
+		// check if job list contains one job
 		JSONArray jobs = getJobsWithApiToken(apiToken);
 		assertEquals(1, jobs.length());
-		
+
 		// revoke token
 		resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
 		try {
@@ -106,28 +105,27 @@ public class ApiTokensTest extends JobsApiTestCase {
 		resource.release();
 
 		// check if token is invalid now
-		try{
+		try {
 			id = submitTestJob(apiToken);
 			assertTrue(false);
-		}catch (Exception e) {
-						
+		} catch (Exception e) {
+
 		}
 	}
-	
-	
+
 	public void testSubmitTokenWithInCorrectApitoken() throws JSONException, IOException, InterruptedException {
 
 		// submit job
 		String id = null;
-		try{
+		try {
 			id = submitTestJob("Wrong Token");
 			assertTrue(false);
-		}catch (Exception e) {
-			assertEquals(null, id);			
-		}		
-	
+		} catch (Exception e) {
+			assertEquals(null, id);
+		}
+
 	}
-	
+
 	private String submitTestJob(String apiToken) throws JSONException, IOException {
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);

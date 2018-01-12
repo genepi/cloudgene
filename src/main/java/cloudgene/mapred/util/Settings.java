@@ -111,12 +111,12 @@ public class Settings {
 		apps = new Vector<Application>();
 		reloadApplications();
 
-		mail = new HashMap<String, String>();
+		/*mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
 		mail.put("port", "25");
 		mail.put("user", "");
 		mail.put("password", "");
-		mail.put("name", "noreply@cloudgene");
+		mail.put("name", "noreply@cloudgene");*/
 
 		MenuItem helpMenuItem = new MenuItem();
 		helpMenuItem.setId("help");
@@ -349,7 +349,7 @@ public class Settings {
 				}
 			}
 
-			if (user.isAdmin() || app.getPermission().toLowerCase().equals(user.getRole().toLowerCase())
+			if (user.isAdmin() || user.hasRole(app.getPermission())
 					|| app.getPermission().toLowerCase().equals("public")) {
 				if (app.getWdlApp().getWorkflow() != null) {
 					return app;
@@ -396,7 +396,7 @@ public class Settings {
 
 				if (!user.isAdmin() && !application.getPermission().toLowerCase().equals("public")) {
 
-					if (!application.getPermission().toLowerCase().equals(user.getRole().toLowerCase())) {
+					if (!user.hasRole(application.getPermission())) {
 						using = false;
 					}
 				}

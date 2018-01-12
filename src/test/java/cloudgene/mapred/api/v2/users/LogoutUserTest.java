@@ -28,7 +28,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 		testUser1.setUsername("testuser99");
 		testUser1.setFullName("test1");
 		testUser1.setMail("testuser1@test.com");
-		testUser1.setRole("User");
+		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.getMD5("testuser99"));
@@ -39,8 +39,8 @@ public class LogoutUserTest extends JobsApiTestCase {
 	public void testLogout() throws JSONException, IOException {
 
 		LoginToken token = login("testuser99", "testuser99");
-		
-		//test protected resource
+
+		// test protected resource
 		ClientResource resource = createClientResource("/api/v2/users/testuser99/profile", token);
 		try {
 			resource.get();
@@ -49,8 +49,8 @@ public class LogoutUserTest extends JobsApiTestCase {
 		}
 		assertEquals(200, resource.getStatus().getCode());
 		resource.release();
-		
-		//logout
+
+		// logout
 		resource = createClientResource("/logout");
 		try {
 			resource.get();
@@ -59,8 +59,8 @@ public class LogoutUserTest extends JobsApiTestCase {
 		}
 		assertEquals(200, resource.getStatus().getCode());
 		resource.release();
-		
-		//test protected resource again
+
+		// test protected resource again
 		resource = createClientResource("/api/v2/users/testuser99/profile");
 		try {
 			resource.get();
@@ -70,7 +70,5 @@ public class LogoutUserTest extends JobsApiTestCase {
 		assertEquals(401, resource.getStatus().getCode());
 		resource.release();
 	}
-
-	
 
 }

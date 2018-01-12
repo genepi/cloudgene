@@ -30,7 +30,7 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		testUser1.setUsername("testupdate");
 		testUser1.setFullName("test1");
 		testUser1.setMail("testuser1@test.com");
-		testUser1.setRole("User");
+		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("ACTIVATION-CODE-FROM-MAIL");
 		testUser1.setPassword(HashUtil.getMD5("oldpassword"));
@@ -40,7 +40,7 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		testUse2.setUsername("testupdate2");
 		testUse2.setFullName("test1");
 		testUse2.setMail("testuser1@test.com");
-		testUse2.setRole("User");
+		testUse2.setRoles(new String[] { "User" });
 		testUse2.setActive(false);
 		testUse2.setActivationCode("ACTIVATION-CODE-FROM-MAIL");
 		testUse2.setPassword(HashUtil.getMD5("oldpassword"));
@@ -50,7 +50,7 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		testUser3.setUsername("testupdate3");
 		testUser3.setFullName("test1");
 		testUser3.setMail("testuser1@test.com");
-		testUser3.setRole("User");
+		testUser3.setRoles(new String[] { "User" });
 		testUser3.setActive(true);
 		testUser3.setActivationCode("ACTIVATION-CODE-FROM-MAIL-3");
 		testUser3.setPassword(HashUtil.getMD5("oldpassword"));
@@ -73,8 +73,8 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(false, object.get("success"));
 		assertEquals("Password must contain at least one uppercase letter (A-Z)!", object.get("message").toString());
-		resource.release();		
-		
+		resource.release();
+
 		// try to update password
 		resource = createClientResource("/api/v2/users/update-password");
 		form = new Form();
@@ -89,7 +89,7 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		assertEquals(true, object.get("success"));
 		assertEquals("Password sucessfully updated.", object.get("message").toString());
 		resource.release();
-		
+
 		// try login with old password
 		resource = createClientResource("/login");
 		form = new Form();
@@ -103,7 +103,7 @@ public class UpdatePasswordTest extends JobsApiTestCase {
 		assertEquals(false, object.get("success"));
 		assertEquals(0, resource.getResponse().getCookieSettings().size());
 		resource.release();
-		
+
 		// try login with new password
 		resource = createClientResource("/login");
 		form = new Form();

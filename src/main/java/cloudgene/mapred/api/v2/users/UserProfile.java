@@ -1,8 +1,5 @@
 package cloudgene.mapred.api.v2.users;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -16,6 +13,8 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
+import cloudgene.mapred.util.JSONConverter;
+import net.sf.json.JSONObject;
 
 public class UserProfile extends BaseResource {
 
@@ -32,11 +31,7 @@ public class UserProfile extends BaseResource {
 		UserDao dao = new UserDao(getDatabase());
 		User updatedUser = dao.findByUsername(user.getUsername());
 
-		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "password", "apiToken" });
-
-		JSONObject object = JSONObject.fromObject(updatedUser, config);
-		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());
+		JSONObject object = JSONConverter.convert(updatedUser);
 
 		StringRepresentation representation = new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 
@@ -58,7 +53,7 @@ public class UserProfile extends BaseResource {
 
 		String username = form.getFirstValue("username");
 		String fullname = form.getFirstValue("full-name");
-		String mail = form.getFirstValue("mail").toString();
+		String mail = form.getFirstValue("mail");
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 

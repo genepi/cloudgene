@@ -14,7 +14,7 @@ public class PublicUser {
 			user.setUsername("public");
 			String password = HashUtil.getMD5("public-password");
 			user.setPassword(password);
-			user.setRole("public");
+			user.setRoles(new String[]{"public"});
 			dao.insert(user);
 		}
 		return user;

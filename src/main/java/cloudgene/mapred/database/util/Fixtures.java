@@ -29,12 +29,19 @@ public class Fixtures {
 			user.setUsername(USERNAME);
 			PASSWORD = HashUtil.getMD5(PASSWORD);
 			user.setPassword(PASSWORD);
-			user.setRole("admin");
+			user.makeAdmin();
 
 			dao.insert(user);
 			log.info("User " + USERNAME + " created.");
-		} else {
+		} else {	
+			
 			log.info("User " + USERNAME + " already exists.");
+			
+			if (!user.isAdmin()){
+				user.makeAdmin();
+				dao.update(user);
+				log.info("User " + USERNAME + " has admin rights now.");
+			}
 		}
 
 		// insert template messages

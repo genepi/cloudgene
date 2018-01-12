@@ -282,7 +282,7 @@ public class RunApplication extends BaseTool {
 			User user = new User();
 			user.setUsername("local");
 			user.setPassword("local");
-			user.setRole("admin");
+			user.makeAdmin();
 			CloudgeneJob job = new CloudgeneJob(user, id, app.getWorkflow(), params) {
 				@Override
 				public boolean afterSubmission() {

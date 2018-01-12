@@ -61,7 +61,7 @@ public class RegisterUser extends BaseResource {
 		newUser.setUsername(username);
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
-		newUser.setRole(DEFAULT_ROLE);
+		newUser.setRoles(new String[] { DEFAULT_ROLE });
 		newUser.setPassword(HashUtil.getMD5(newPassword));
 
 		try {

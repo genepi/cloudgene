@@ -29,7 +29,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		testUser1.setUsername("testuser1");
 		testUser1.setFullName("test1");
 		testUser1.setMail("testuser1@test.com");
-		testUser1.setRole("User");
+		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.getMD5("test1"));
@@ -39,7 +39,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		testUser2.setUsername("testuser2");
 		testUser2.setFullName("test2");
 		testUser2.setMail("testuser2@test.com");
-		testUser2.setRole("User");
+		testUser2.setRoles(new String[] { "User" });
 		testUser2.setActive(false);
 		testUser2.setActivationCode("some-activation-code");
 		testUser2.setPassword(HashUtil.getMD5("test2"));
@@ -49,7 +49,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		testUser3.setUsername("lockeduser");
 		testUser3.setFullName("test1");
 		testUser3.setMail("testuser1@test.com");
-		testUser3.setRole("User");
+		testUser3.setRoles(new String[] { "User" });
 		testUser3.setActive(true);
 		testUser3.setActivationCode("");
 		testUser3.setPassword(HashUtil.getMD5("lockedpasssord"));
@@ -81,7 +81,6 @@ public class LoginUserTest extends JobsApiTestCase {
 		// try with correct password
 		for (int i = 1; i < 10; i++) {
 
-			
 			ClientResource resource = createClientResource("/login");
 			Form form = new Form();
 			form.set("loginUsername", "lockeduser");
@@ -93,8 +92,8 @@ public class LoginUserTest extends JobsApiTestCase {
 			assertEquals("Login successfull.", object.getString("message"));
 			assertEquals(true, object.get("success"));
 			assertEquals(1, resource.getResponse().getCookieSettings().size());
-			
-			//check login attempts are the same
+
+			// check login attempts are the same
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 			assertEquals(0, newLoginAttempts);
 			resource.release();
@@ -149,16 +148,15 @@ public class LoginUserTest extends JobsApiTestCase {
 			assertEquals(0, resource.getResponse().getCookieSettings().size());
 			resource.release();
 		}
-		
-		//update locked until to now
+
+		// update locked until to now
 		User user = dao.findByUsername("lockeduser");
 		user.setLockedUntil(new Date());
 		dao.update(user);
-		
+
 		// try with correct password
 		for (int i = 1; i < 10; i++) {
 
-			
 			ClientResource resource = createClientResource("/login");
 			Form form = new Form();
 			form.set("loginUsername", "lockeduser");
@@ -170,13 +168,13 @@ public class LoginUserTest extends JobsApiTestCase {
 			assertEquals("Login successfull.", object.getString("message"));
 			assertEquals(true, object.get("success"));
 			assertEquals(1, resource.getResponse().getCookieSettings().size());
-			
-			//check login attempts are the same
+
+			// check login attempts are the same
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 			assertEquals(0, newLoginAttempts);
 			resource.release();
 		}
-		
+
 	}
 
 	public void testInActivateUser() throws JSONException, IOException {

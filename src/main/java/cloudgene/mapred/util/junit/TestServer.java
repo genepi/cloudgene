@@ -36,7 +36,7 @@ public class TestServer {
 	protected WebServer server;
 
 	protected User adminUser;
-	
+
 	protected User user;
 
 	protected Settings settings = new Settings();
@@ -52,7 +52,7 @@ public class TestServer {
 	private static TestServer instance;
 
 	private TestServer() {
-		settings.getMail().put("port", TestMailServer.PORT+"");
+		settings.getMail().put("port", TestMailServer.PORT + "");
 	}
 
 	public List<Application> registerApplications() {
@@ -109,7 +109,6 @@ public class TestServer {
 			app71.setPermission("private");
 			applications.add(app71);
 
-			
 			Application app8 = new Application();
 			app8.setId("long-sleep");
 			app8.setFilename("test-data/long-sleep.yaml");
@@ -165,19 +164,19 @@ public class TestServer {
 			app17.setFilename("test-data/app-links.yaml");
 			app17.setPermission("public");
 			applications.add(app17);
-			
+
 			Application app18 = new Application();
 			app18.setId("app-links-child");
 			app18.setFilename("test-data/app-links-child.yaml");
 			app18.setPermission("public");
 			applications.add(app18);
-			
+
 			Application app19 = new Application();
 			app19.setId("app-links-child-protected");
 			app19.setFilename("test-data/app-links-child.yaml");
 			app19.setPermission("protected");
 			applications.add(app19);
-			
+
 			settings.setApps(applications);
 
 		}
@@ -201,9 +200,9 @@ public class TestServer {
 		}
 
 		// delete old database
-		if (newDatabase){
+		if (newDatabase) {
 			FileUtil.deleteDirectory("test-database");
-			//FileUtil.createDirectory("test-database");
+			// FileUtil.createDirectory("test-database");
 		}
 
 		H2Connector connector = new H2Connector("./test-database/mapred", "mapred", "mapred", false);
@@ -248,10 +247,10 @@ public class TestServer {
 				adminUser.setUsername(username);
 				password = HashUtil.getMD5(password);
 				adminUser.setPassword(password);
-				adminUser.setRole("admin");
+				adminUser.makeAdmin();
 				dao.insert(adminUser);
 			}
-			
+
 			String usernameUser = "user";
 			String passwordUser = "admin1978";
 
@@ -262,7 +261,7 @@ public class TestServer {
 				user.setUsername(usernameUser);
 				password = HashUtil.getMD5(passwordUser);
 				user.setPassword(passwordUser);
-				user.setRole("public");
+				user.setRoles(new String[] { "public" });
 				dao.insert(user);
 			}
 		} catch (Exception e) {
@@ -276,10 +275,9 @@ public class TestServer {
 
 	public WorkflowEngine startWorkflowEngineWithoutServer() throws SQLException {
 		if (engine == null) {
-			
+
 			registerApplications();
 
-			
 			database = createDatabase(true);
 			// start workflow engine
 			engine = new PersistentWorkflowEngine(database, 1, 1);
@@ -379,8 +377,8 @@ public class TestServer {
 	public User getAdminUser() {
 		return adminUser;
 	}
-	
-	public User getUser(){
+
+	public User getUser() {
 		return user;
 	}
 

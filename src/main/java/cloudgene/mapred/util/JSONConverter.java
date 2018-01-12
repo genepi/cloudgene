@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
@@ -43,7 +44,7 @@ public class JSONConverter {
 	public static JSONArray convert(List<WdlParameterInput> inputs, List<WdlApp> apps) {
 		JSONArray array = new JSONArray();
 		for (WdlParameterInput input : inputs) {
-			if (input.isVisible()){
+			if (input.isVisible()) {
 				array.add(convert(input, apps));
 			}
 		}
@@ -94,6 +95,40 @@ public class JSONConverter {
 			object.put("values", valuesObject);
 		}
 
+		return object;
+
+	}
+
+	public static JSONArray convert(List<User> users) {
+		JSONArray array = new JSONArray();
+		for (User user : users) {
+			array.add(convert(user));
+		}
+		return array;
+	}
+
+	public static JSONObject convert(User user) {
+
+		JSONObject object = new JSONObject();
+		object.put("id", user.getId());
+		object.put("username", user.getUsername());
+		object.put("fullName", user.getFullName());
+		if (user.getLastLogin() != null) {
+			object.put("lastLogin", user.getLastLogin().toString());
+		} else {
+			object.put("lastLogin", "");
+		}
+		if (user.getLockedUntil() != null) {
+			object.put("lockedUntil", user.getLockedUntil().toString());
+		} else {
+			object.put("lockedUntil", "");
+		}
+		object.put("active", user.isActive());
+		object.put("loginAttempts", user.getLoginAttempts());
+		object.put("role", String.join(User.ROLE_SEPARATOR, user.getRoles()));
+		object.put("mail", user.getMail());
+		object.put("admin", user.isAdmin());
+		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());
 		return object;
 
 	}

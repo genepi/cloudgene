@@ -1,5 +1,6 @@
 package cloudgene.mapred.core;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
 
@@ -15,7 +16,7 @@ public class User {
 
 	private String mail;
 
-	private String role;
+	private String[] roles = new String[0];
 
 	private boolean active = true;
 
@@ -28,6 +29,10 @@ public class User {
 	private Date lockedUntil;
 
 	private int loginAttempts;
+
+	public static final String ROLE_SEPARATOR = ",";
+
+	public static final String ROLE_ADMIN = "admin";
 
 	public void setUsername(String username) {
 		this.username = username;
@@ -69,20 +74,32 @@ public class User {
 		return mail;
 	}
 
-	public void setRole(String role) {
-		this.role = role;
+	public void setRoles(String[] roles) {
+		this.roles = roles;
 	}
 
-	public String getRole() {
-		return role;
+	public String[] getRoles() {
+		return roles;
+	}
+
+	public boolean hasRole(String role) {
+		if (roles == null) {
+			return false;
+		}
+		for (int i = 0; i < roles.length; i++) {
+			if (roles[i].equalsIgnoreCase(role)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isAdmin() {
-		if (role != null) {
-			return role.equalsIgnoreCase("admin");
-		} else {
-			return false;
-		}
+		return hasRole(ROLE_ADMIN);
+	}
+
+	public void makeAdmin() {
+		setRoles(new String[] { ROLE_ADMIN });
 	}
 
 	public boolean isActive() {

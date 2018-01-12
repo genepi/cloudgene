@@ -14,8 +14,8 @@ import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
 
-public class UserDao extends JdbcDataAccessObject {
-
+public class UserDao extends JdbcDataAccessObject {	
+	
 	private static final Log log = LogFactory.getLog(UserDao.class);
 
 	public UserDao(Database database) {
@@ -39,7 +39,7 @@ public class UserDao extends JdbcDataAccessObject {
 			params[6] = false;
 			params[7] = null;
 			params[8] = user.getMail();
-			params[9] = user.getRole();
+			params[9] = String.join(User.ROLE_SEPARATOR, user.getRoles());;
 			params[10] = false;
 			params[11] = user.getActivationCode();
 			params[12] = user.isActive();
@@ -79,7 +79,7 @@ public class UserDao extends JdbcDataAccessObject {
 			params[6] = false;
 			params[7] = null;
 			params[8] = user.getMail();
-			params[9] = user.getRole();
+			params[9] = String.join(User.ROLE_SEPARATOR, user.getRoles());
 			params[10] = false;
 			params[11] = user.isActive();
 			params[12] = user.getActivationCode();
@@ -238,7 +238,11 @@ public class UserDao extends JdbcDataAccessObject {
 			user.setPassword(rs.getString("user.password"));
 			user.setFullName(rs.getString("user.full_name"));
 			user.setMail(rs.getString("user.mail"));
-			user.setRole(rs.getString("user.role"));
+			if (rs.getString("user.role") != null){
+				user.setRoles(rs.getString("user.role").split(User.ROLE_SEPARATOR));	
+			}else{
+				user.setRoles(new String[0]);
+			}
 			user.setActivationCode(rs.getString("user.activation_code"));
 			user.setActive(rs.getBoolean("user.active"));
 			user.setApiToken(rs.getString("user.api_token"));
