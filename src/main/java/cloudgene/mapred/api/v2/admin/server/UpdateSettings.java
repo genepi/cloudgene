@@ -1,8 +1,7 @@
 package cloudgene.mapred.api.v2.admin.server;
 
-import genepi.io.FileUtil;
-
-import java.io.FileWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
@@ -12,8 +11,6 @@ import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
-
-import com.esotericsoftware.yamlbeans.YamlWriter;
 
 public class UpdateSettings extends BaseResource {
 
@@ -25,15 +22,13 @@ public class UpdateSettings extends BaseResource {
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 
 		}
 
 		if (!user.isAdmin()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			return new StringRepresentation("The request requires administration rights.");
 		}
 
 		Form form = new Form(entity);
@@ -45,11 +40,14 @@ public class UpdateSettings extends BaseResource {
 		String mailName = form.getFirstValue("mail-name");
 
 		getSettings().setName(name);
-		getSettings().getMail().put("smtp", mailSmtp);
-		getSettings().getMail().put("port", mailPort);
-		getSettings().getMail().put("user", mailUser);
-		getSettings().getMail().put("password", mailPassword);
-		getSettings().getMail().put("name", mailName);
+
+		Map<String, String> mail = new HashMap<String, String>();
+		mail.put("smtp", mailSmtp);
+		mail.put("port", mailPort);
+		mail.put("user", mailUser);
+		mail.put("password", mailPassword);
+		mail.put("name", mailName);
+		getSettings().setMail(mail);
 
 		getSettings().save();
 

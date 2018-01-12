@@ -111,13 +111,6 @@ public class Settings {
 		apps = new Vector<Application>();
 		reloadApplications();
 
-		/*mail = new HashMap<String, String>();
-		mail.put("smtp", "localhost");
-		mail.put("port", "25");
-		mail.put("user", "");
-		mail.put("password", "");
-		mail.put("name", "noreply@cloudgene");*/
-
 		MenuItem helpMenuItem = new MenuItem();
 		helpMenuItem.setId("help");
 		helpMenuItem.setName("Help");

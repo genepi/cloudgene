@@ -2,6 +2,8 @@ package cloudgene.mapred.api.v2.admin.server;
 
 import net.sf.json.JSONObject;
 
+import java.util.Map;
+
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -20,25 +22,32 @@ public class GetSettings extends BaseResource {
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			return new StringRepresentation("The request requires administration rights.");
 		}
-				
+
 		JSONObject object = new JSONObject();
 		object.put("name", getSettings().getName());
-		object.put("mail-smtp", getSettings().getMail().get("smtp"));
-		object.put("mail-port", getSettings().getMail().get("port"));
-		object.put("mail-user", getSettings().getMail().get("user"));
-		object.put("mail-password", getSettings().getMail().get("password"));
-		object.put("mail-name", getSettings().getMail().get("name"));
-
 		
+		Map<String, String> mail = getSettings().getMail();
+		if (getSettings().getMail() != null) {
+			object.put("mail-smtp", mail.get("smtp"));
+			object.put("mail-port",mail.get("port"));
+			object.put("mail-user", mail.get("user"));
+			object.put("mail-password", mail.get("password"));
+			object.put("mail-name", mail.get("name"));
+		} else {
+			object.put("mail-smtp", "");
+			object.put("mail-port", "");
+			object.put("mail-user", "");
+			object.put("mail-password", "");
+			object.put("mail-name", "");
+		}
+
 		return new StringRepresentation(object.toString());
 
 	}

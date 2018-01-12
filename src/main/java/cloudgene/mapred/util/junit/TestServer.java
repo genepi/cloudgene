@@ -3,6 +3,7 @@ package cloudgene.mapred.util.junit;
 import java.io.File;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -52,7 +53,13 @@ public class TestServer {
 	private static TestServer instance;
 
 	private TestServer() {
-		settings.getMail().put("port", TestMailServer.PORT + "");
+		HashMap<String, String> mail = new HashMap<String, String>();
+		mail.put("smtp", "localhost");
+		mail.put("port", TestMailServer.PORT + "");
+		mail.put("user", "");
+		mail.put("password", "");
+		mail.put("name", "noreply@cloudgene");
+		settings.setMail(mail);
 	}
 
 	public List<Application> registerApplications() {
