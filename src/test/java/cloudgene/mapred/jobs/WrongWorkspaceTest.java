@@ -58,7 +58,7 @@ public class WrongWorkspaceTest extends TestCase {
 		String localWorkspace = FileUtil.path("/gsfgdfgdf/vdadsadwa", id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getWorkflow(), inputs);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

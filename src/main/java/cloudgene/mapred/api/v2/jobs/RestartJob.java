@@ -66,7 +66,7 @@ public class RestartJob extends BaseResource {
 
 			}
 
-			((CloudgeneJob) job).loadConfig(app.getWorkflow());
+			((CloudgeneJob) job).loadConfig(app);
 
 			getWorkflowEngine().restart(job);
 

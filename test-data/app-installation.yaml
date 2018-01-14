@@ -1,0 +1,12 @@
+name: app-installation
+version: 1.0.0
+installation:
+  - import:
+      source: ${local_app_folder}/metafile.txt
+      target: ${hdfs_app_folder}/metafile.txt
+workflow:
+  steps:
+    - name: print content of hfs file
+      type: groovy
+      script: print-hdfs-file.groovy
+      file: ${hdfs_app_folder}/metafile.txt

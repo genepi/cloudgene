@@ -736,10 +736,10 @@ public class Settings {
 		return threadsSetupQueue;
 	}
 
-	public HashMap<String, String> getEnvironment(Application application) {
+	public HashMap<String, String> getEnvironment(WdlApp application) {
 		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId(), application.getWdlApp().getVersion());
-		String localFolder = new File(application.getFilename()).getParentFile().getAbsolutePath();
+		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId(), application.getVersion());
+		String localFolder = application.getPath();
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
 		return environment;

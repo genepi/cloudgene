@@ -39,7 +39,7 @@ public class WdlAppTestCase {
 		while (!job.isComplete()) {
 			Thread.sleep(1000);
 		}
-		//Thread.sleep(4000);
+		// Thread.sleep(4000);
 	}
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
@@ -53,7 +53,7 @@ public class WdlAppTestCase {
 		String localWorkspace = FileUtil.path(LOCAL_WORKSPACE, id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app.getWorkflow(), inputs);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

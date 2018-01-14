@@ -36,13 +36,13 @@ public class App extends BaseResource {
 		String appId = getAttribute("tool");
 
 		Settings settings = getSettings();
-		
+
 		Application application = settings.getAppByIdAndUser(appId, user);
 		WdlApp wdlApp = null;
 		try {
 			wdlApp = application.getWdlApp();
-			//wdlHeader = (WdlHeader) wdlApp;
-			//wdlHeader.setId(appId);
+			// wdlHeader = (WdlHeader) wdlApp;
+			// wdlHeader.setId(appId);
 
 		} catch (Exception e1) {
 
@@ -62,19 +62,20 @@ public class App extends BaseResource {
 		if (wdlApp.getWorkflow().hasHdfsInputs() && !settings.isEnable(Technology.HADOOP_CLUSTER)) {
 
 			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-			return new StringRepresentation("Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
+			return new StringRepresentation(
+					"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
 
 		}
 
 		List<WdlApp> apps = settings.getAppsByUser(user, false);
-		
+
 		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
 
 		List<WdlParameterInput> params = wdlApp.getWorkflow().getInputs();
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
-		
-		//fill app list with values depending on auth user
-		
+
+		// fill app list with values depending on auth user
+
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
 
@@ -145,7 +146,6 @@ public class App extends BaseResource {
 			try {
 				// enable or disable
 				if (enabled != null) {
-					HashMap<String, String> environment = getSettings().getEnvironment(application);
 					if (application.isEnabled() && enabled.equals("false")) {
 						application.setEnabled(false);
 						getSettings().reloadApplications();

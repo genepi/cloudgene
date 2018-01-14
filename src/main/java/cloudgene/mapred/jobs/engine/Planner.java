@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
@@ -15,6 +16,7 @@ import cloudgene.mapred.jobs.engine.graph.GraphEdge;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValueInput;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValueOutput;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
@@ -25,24 +27,30 @@ import cloudgene.mapred.wdl.WdlWorkflow;
 
 public class Planner {
 
-	public WdlApp evaluateWDL(WdlWorkflow config, CloudgeneContext context) throws Exception {
+	public WdlApp evaluateWDL(WdlApp app, CloudgeneContext context, Settings settings) throws Exception {
 
 		Velocity.setProperty("file.resource.loader.path", "/");
 		VelocityContext context2 = new VelocityContext();
 
 		// add input values to context
-		for (WdlParameterInput param : config.getInputs()) {
+		for (WdlParameterInput param : app.getWorkflow().getInputs()) {
 			context2.put(param.getId(), new ParameterValueInput(param, context.getInput(param.getId())));
 		}
 
 		// add output values to context
-		for (WdlParameterOutput param : config.getOutputs()) {
+		for (WdlParameterOutput param : app.getWorkflow().getOutputs()) {
 			context2.put(param.getId(), new ParameterValueOutput(param, context.getOutput(param.getId())));
 		}
 
 		context2.put("workdir", new File(context.getWorkingDirectory()).getAbsolutePath());
 
-		File manifest = new File(config.getManifestFile());
+		// add env variables
+		Map<String, String> env = settings.getEnvironment(app);
+		for (String key : env.keySet()) {
+			context2.put(key, env.get(key));
+		}
+
+		File manifest = new File(app.getManifestFile());
 
 		StringWriter sw = null;
 		try {
@@ -55,14 +63,14 @@ public class Planner {
 			throw e;
 		}
 
-		WdlApp app = WdlReader.loadAppFromString(manifest.getAbsolutePath(), sw.toString());
+		WdlApp app2 = WdlReader.loadAppFromString(manifest.getAbsolutePath(), sw.toString());
 
-		app.getWorkflow().setInputs(config.getInputs());
-		app.getWorkflow().setOutputs(config.getOutputs());
+		app2.getWorkflow().setInputs(app.getWorkflow().getInputs());
+		app2.getWorkflow().setOutputs(app.getWorkflow().getOutputs());
 
 		context.log("Planner: WDL evaluated.");
 
-		return app;
+		return app2;
 	}
 
 	public Graph buildDAG(List<WdlStep> steps, WdlWorkflow config, CloudgeneContext context)

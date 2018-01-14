@@ -11,10 +11,6 @@ public class WdlWorkflow {
 
 	private List<WdlParameterOutput> outputs = new Vector<WdlParameterOutput>();
 
-	private String path;
-
-	private String manifestFile;
-
 	private String type = "sequence";
 
 	private WdlStep setup = null;
@@ -47,28 +43,12 @@ public class WdlWorkflow {
 		this.steps = steps;
 	}
 
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
 	public void setType(String type) {
 		this.type = type;
 	}
 
 	public String getType() {
 		return type;
-	}
-
-	public void setManifestFile(String manifestFile) {
-		this.manifestFile = manifestFile;
-	}
-
-	public String getManifestFile() {
-		return manifestFile;
 	}
 
 	public void setSetup(WdlStep setup) {

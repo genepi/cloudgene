@@ -1,7 +1,6 @@
 package cloudgene.mapred.jobs;
 
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.hadoop.importer.FileItem;
 import genepi.hadoop.io.HdfsLineWriter;
 import genepi.io.FileUtil;
@@ -27,8 +26,6 @@ import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlWorkflow;
-import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
@@ -36,7 +33,7 @@ import cloudgene.mapred.wdl.WdlStep;
 
 public class CloudgeneJob extends AbstractJob {
 
-	private WdlWorkflow config;
+	private WdlApp app;
 
 	private String workingDirectory;
 
@@ -50,16 +47,16 @@ public class CloudgeneJob extends AbstractJob {
 		super();
 	}
 
-	public void loadConfig(WdlWorkflow config) {
+	public void loadConfig(WdlApp app) {
 
-		this.config = config;
-		workingDirectory = config.getPath();
+		this.app = app;
+		workingDirectory = app.getPath();
 
 		// set parameter properties that are not stored in database.
 		// needed for restart
 		for (CloudgeneParameterOutput outputParam : outputParams) {
 
-			for (WdlParameterOutput output : config.getOutputs()) {
+			for (WdlParameterOutput output : app.getWorkflow().getOutputs()) {
 
 				if (outputParam.getName().equals(output.getId())) {
 					outputParam.setMakeAbsolute(output.isMakeAbsolute());
@@ -75,16 +72,16 @@ public class CloudgeneJob extends AbstractJob {
 
 	}
 
-	public CloudgeneJob(User user, String id, WdlWorkflow config, Map<String, String> params) {
+	public CloudgeneJob(User user, String id, WdlApp app, Map<String, String> params) {
 		setComplete(false);
-		this.config = config;
+		this.app = app;
 		setId(id);
 		setUser(user);
-		this.workingDirectory = config.getPath();
+		workingDirectory = app.getPath();
 
 		// init parameters
 		inputParams = new Vector<CloudgeneParameterInput>();
-		for (WdlParameterInput input : config.getInputs()) {
+		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 			CloudgeneParameterInput newInput = new CloudgeneParameterInput(input);
 			newInput.setJob(this);
 
@@ -96,7 +93,7 @@ public class CloudgeneJob extends AbstractJob {
 		}
 
 		outputParams = new Vector<CloudgeneParameterOutput>();
-		for (WdlParameterOutput output : config.getOutputs()) {
+		for (WdlParameterOutput output : app.getWorkflow().getOutputs()) {
 			CloudgeneParameterOutput newOutput = new CloudgeneParameterOutput(output);
 			newOutput.setJob(this);
 			outputParams.add(newOutput);
@@ -109,7 +106,7 @@ public class CloudgeneJob extends AbstractJob {
 
 		context = new CloudgeneContext(this);
 		// context.updateInputParameters();
-		context.setupOutputParameters(config.hasHdfsOutputs());
+		context.setupOutputParameters(app.getWorkflow().hasHdfsOutputs());
 
 		return true;
 
@@ -120,7 +117,7 @@ public class CloudgeneJob extends AbstractJob {
 		try {
 			// evaluate WDL derictives
 			Planner planner = new Planner();
-			WdlApp app = planner.evaluateWDL(config, context);
+			WdlApp app = planner.evaluateWDL(this.app, context, getSettings());
 			return app.getWorkflow().getSteps().size() > 0;
 		} catch (Exception e) {
 			// e.printStackTrace();
@@ -139,7 +136,7 @@ public class CloudgeneJob extends AbstractJob {
 
 			// evaluate WDL derictives
 			Planner planner = new Planner();
-			WdlApp app = planner.evaluateWDL(config, context);
+			WdlApp app = planner.evaluateWDL(this.app, context, getSettings());
 
 			// create dag from wdl document
 			Graph graph = planner.buildDAG(app.getWorkflow().getSteps(), app.getWorkflow(), context);
@@ -173,7 +170,7 @@ public class CloudgeneJob extends AbstractJob {
 		try {
 			// evaluate WDL
 			Planner planner = new Planner();
-			WdlApp app = planner.evaluateWDL(config, context);
+			WdlApp app = planner.evaluateWDL(this.app, context, getSettings());
 
 			// if a single setup step is set, add it to setups
 			WdlStep setup = app.getWorkflow().getSetup();
@@ -213,14 +210,10 @@ public class CloudgeneJob extends AbstractJob {
 			Settings setttings = getSettings();
 
 			// find dependencies
-			List<Application> applications = new Vector<>();
+			List<WdlApp> applications = new Vector<>();
 
 			// install application
-			String id = getApplicationId();
-			if (id != null) {
-				Application app3 = setttings.getApp(id);
-				applications.add(app3);
-			}
+			applications.add(app);
 
 			for (CloudgeneParameterInput input : getInputParams()) {
 				String value = input.getValue();
@@ -228,9 +221,9 @@ public class CloudgeneJob extends AbstractJob {
 					String appId = value.replaceAll("apps@", "");
 					Application app2 = setttings.getAppByIdAndUser(appId, getUser());
 					if (app2 != null) {
-						applications.add(app2);
+						applications.add(app2.getWdlApp());
 						// update evenirnoment variables
-						HashMap<String, String> env = setttings.getEnvironment(app2);
+						HashMap<String, String> env = setttings.getEnvironment(app2.getWdlApp());
 						Map<String, String> properties = app2.getWdlApp().getProperties();
 						for (String property : properties.keySet()) {
 							String value2 = properties.get(property);
@@ -247,15 +240,15 @@ public class CloudgeneJob extends AbstractJob {
 				}
 			}
 
-			for (Application app : applications) {
+			for (WdlApp app : applications) {
 
 				log.info("Job " + getId() + ": executing installation for " + app.getId() + "...");
 
-				if (app.getWdlApp().getInstallation() != null && app.getWdlApp().getInstallation().size() > 0) {
+				if (app.getInstallation() != null && app.getInstallation().size() > 0) {
 
 					writeLog("  Preparing application " + app.getId() + "...");
-
-					String target = setttings.getEnvironment(app).get("hdfs_app_folder");
+					Map<String, String> env = setttings.getEnvironment(app);
+					String target = env.get("hdfs_app_folder");
 
 					String installationFile = HdfsUtil.path(target, "installed");
 					boolean installed = HdfsUtil.exists(installationFile);
@@ -268,8 +261,7 @@ public class CloudgeneJob extends AbstractJob {
 
 							HdfsUtil.delete(target);
 							writeLog("  Installing Application...");
-							ApplicationInstaller.runCommands(app.getWdlApp().getInstallation(),
-									setttings.getEnvironment(app));
+							ApplicationInstaller.runCommands(app.getInstallation(), env);
 
 							HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
 							lineWriter.write(System.currentTimeMillis() + "");
@@ -297,6 +289,7 @@ public class CloudgeneJob extends AbstractJob {
 			}
 			return true;
 		} catch (Exception e) {
+			e.printStackTrace();
 			writeOutput("Installation of application " + getApplicationId() + " failed.");
 			writeOutput(e.getMessage());
 			setError(e.getMessage());
@@ -321,7 +314,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	public boolean executeFailureStep(WdlStep failedStep) {
 
-		WdlStep step = getConfig().getOnFailure();
+		WdlStep step = app.getWorkflow().getOnFailure();
 
 		if (step != null) {
 			try {
@@ -374,7 +367,7 @@ public class CloudgeneJob extends AbstractJob {
 		writeLog("Cleaning up temporary local files...");
 		FileUtil.deleteDirectory(context.getLocalTemp());
 
-		if (config.hasHdfsOutputs()) {
+		if (app.getWorkflow().hasHdfsOutputs()) {
 
 			try {
 				// delete hdfs temp folders
@@ -536,8 +529,8 @@ public class CloudgeneJob extends AbstractJob {
 		return workingDirectory;
 	}
 
-	public WdlWorkflow getConfig() {
-		return config;
+	public WdlApp getApp() {
+		return app;
 	}
 
 	@Override

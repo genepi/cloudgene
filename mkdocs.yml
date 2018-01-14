@@ -42,6 +42,7 @@ pages:
     - Control patterns: developers/control-patterns.md
 - Tutorials:
     - Using AppLinks to link to other applications: tutorials/application-links.md
+    - Using InstallActions to import HDFS files: tutorials/installation-actions.md
 - API Reference:
     - Introduction: api/introduction.md
     - Authentication: api/authentication.md

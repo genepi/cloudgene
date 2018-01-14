@@ -31,6 +31,10 @@ public class WdlApp {
 
 	private Map<String, String> properties;
 
+	private String path;
+
+	private String manifestFile;
+	
 	public String getSource() {
 		return source;
 	}
@@ -145,4 +149,22 @@ public class WdlApp {
 		return properties;
 	}
 
+	/* intern variables */
+	
+	public String getPath() {
+		return path;
+	}
+
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	public void setManifestFile(String manifestFile) {
+		this.manifestFile = manifestFile;
+	}
+
+	public String getManifestFile() {
+		return manifestFile;
+	}
+	
 }
