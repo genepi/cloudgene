@@ -1,0 +1,9 @@
+name: app-installation-child
+category: app-installation-datasets
+version: 1.0.0
+properties:
+  metafile: ${hdfs_app_folder}/metafile2.txt
+installation:
+  - import:
+      source: ${local_app_folder}/metafile2.txt
+      target: ${hdfs_app_folder}/metafile2.txt

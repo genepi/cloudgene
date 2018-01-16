@@ -1,0 +1,12 @@
+name: app-installation2
+version: 1.0.0
+workflow:
+  steps:
+    - name: print content of hfs file
+      type: groovy
+      script: print-hdfs-file-dataset.groovy
+  inputs:
+    - id: dataset
+      description: Dataset
+      type: app_list
+      category: app-installation-datasets
