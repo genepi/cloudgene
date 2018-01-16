@@ -1,6 +1,7 @@
 package cloudgene.mapred.api.v2.server;
 
 import java.util.List;
+import java.util.Map;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
@@ -12,8 +13,12 @@ import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.wdl.WdlApp;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 public class Apps extends BaseResource {
 
@@ -105,11 +110,30 @@ public class Apps extends BaseResource {
 			getSettings().reloadApplications();
 		}
 
+		JSONArray jsonArray = new JSONArray();
+
 		List<Application> apps = getSettings().getApps();
 		for (Application app : apps) {
 			app.checkForChanges();
+
+			JSONObject jsonObject = JSONConverter.convert(app);
+
+			WdlApp wdlApp = app.getWdlApp();
+			if (wdlApp != null) {
+				if (wdlApp.needsInstallation()) {
+					Map<String, String> environment = getSettings().getEnvironment(wdlApp);
+					boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+					if (installed) {
+						jsonObject.put("state", "completed");
+					} else {
+						jsonObject.put("state", "on demand");
+					}
+				}else{
+					jsonObject.put("state", "n/a");
+				}
+			}
+			jsonArray.add(jsonObject);
 		}
-		JSONArray jsonArray = JSONArray.fromObject(apps);
 
 		return new StringRepresentation(jsonArray.toString());
 

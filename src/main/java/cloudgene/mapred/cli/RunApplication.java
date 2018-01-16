@@ -50,6 +50,8 @@ public class RunApplication extends BaseTool {
 
 	private boolean logging = true;
 
+	private boolean force = false;
+
 	public RunApplication(String[] args) {
 		super(args);
 	}
@@ -146,6 +148,12 @@ public class RunApplication extends BaseTool {
 		options.addOption(outputOption);
 
 		// add general options: run on docker
+		Option forceOption = new Option(null, "force", false,
+				"Force Cloudgene to reinstall application in HDFS even if it already installed.");
+		forceOption.setRequired(false);
+		options.addOption(forceOption);
+
+		// add general options: run on docker
 		Option dockerOption = new Option(null, "docker", false, "use docker hadoop cluster");
 		dockerOption.setRequired(false);
 		options.addOption(dockerOption);
@@ -189,6 +197,10 @@ public class RunApplication extends BaseTool {
 
 		if (line.hasOption("no-output")) {
 			output = false;
+		}
+
+		if (line.hasOption("force")) {
+			force = true;
 		}
 
 		if (line.hasOption("host")) {
@@ -341,6 +353,11 @@ public class RunApplication extends BaseTool {
 			job.setRemoveHdfsWorkspace(true);
 			job.setApplication(app.getName() + " " + app.getVersion());
 			job.setApplicationId(app.getId());
+			job.forceInstallation(force);
+
+			if (force) {
+				printText(0, spaces("[INFO]", 8) + "Force Cloudgene to reinstall application in HDFS");
+			}
 
 			printText(0, spaces("[INFO]", 8) + "Submit job " + id + "...");
 

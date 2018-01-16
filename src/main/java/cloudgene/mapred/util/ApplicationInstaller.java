@@ -8,10 +8,33 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
+import cloudgene.mapred.wdl.WdlApp;
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.io.HdfsLineWriter;
 import genepi.io.FileUtil;
 
 public class ApplicationInstaller {
+
+	public static boolean isInstalled(WdlApp app, Map<String, String> environment) {
+		String target = environment.get("hdfs_app_folder");
+		String installationFile = HdfsUtil.path(target, "installed");
+		return HdfsUtil.exists(installationFile);
+	}
+
+	public static void uninstall(WdlApp app, Map<String, String> environment) throws IOException {
+		String target = environment.get("hdfs_app_folder");
+		HdfsUtil.delete(target);
+	}
+
+	public static void install(WdlApp app, Map<String, String> environment) throws IOException {
+		String target = environment.get("hdfs_app_folder");
+		String installationFile = HdfsUtil.path(target, "installed");
+		HdfsUtil.delete(target);
+		ApplicationInstaller.runCommands(app.getInstallation(), environment);
+		HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
+		lineWriter.write(System.currentTimeMillis() + "");
+		lineWriter.close();
+	}
 
 	public static void runCommands(List<Map<String, Object>> commands, Map<String, String> environment)
 			throws IOException {

@@ -99,10 +99,18 @@ public class JSONConverter {
 
 	}
 
-	public static JSONArray convert(List<User> users) {
+	public static JSONArray convertUsers(List<User> users) {
 		JSONArray array = new JSONArray();
 		for (User user : users) {
 			array.add(convert(user));
+		}
+		return array;
+	}
+
+	public static JSONArray convertApplications(List<Application> applications) {
+		JSONArray array = new JSONArray();
+		for (Application application : applications) {
+			array.add(convert(application));
 		}
 		return array;
 	}
@@ -131,6 +139,20 @@ public class JSONConverter {
 		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());
 		return object;
 
+	}
+
+	public static JSONObject convert(Application application) {
+		JSONObject object = new JSONObject();
+		object.put("id", application.getId());
+		object.put("enabled", application.isEnabled());
+		object.put("filename", application.getFilename());
+		object.put("loaded", application.isLoaded());
+		object.put("errorMessage", application.getErrorMessage());
+		object.put("changed", application.isChanged());
+		object.put("permission", application.getPermission());
+		WdlApp wdlApp = application.getWdlApp();
+		object.put("wdlApp", wdlApp);		
+		return object;
 	}
 
 }

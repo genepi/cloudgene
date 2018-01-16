@@ -256,37 +256,20 @@ public class CloudgeneJob extends AbstractJob {
 
 				log.info("Job " + getId() + ": executing installation for " + app.getId() + "...");
 
-				if (app.getInstallation() != null && app.getInstallation().size() > 0) {
+				if (app.needsInstallation()) {
 
 					writeLog("  Preparing application " + app.getId() + "...");
-					Map<String, String> env = setttings.getEnvironment(app);
-					String target = env.get("hdfs_app_folder");
-
-					String installationFile = HdfsUtil.path(target, "installed");
-					boolean installed = HdfsUtil.exists(installationFile);
+					Map<String, String> environment = setttings.getEnvironment(app);
+					boolean installed = ApplicationInstaller.isInstalled(app, environment);
 
 					if (!installed || forceInstallation) {
 						try {
 
-							// context.beginTask("Installing application " +
-							// app.getId() + "...");
-
-							HdfsUtil.delete(target);
 							writeLog("  Installing Application...");
-							ApplicationInstaller.runCommands(app.getInstallation(), env);
-
-							HdfsLineWriter lineWriter = new HdfsLineWriter(installationFile);
-							lineWriter.write(System.currentTimeMillis() + "");
-							lineWriter.close();
-
+							ApplicationInstaller.install(app, environment);
 							log.info("Installation of application " + app.getId() + " finished.");
-							// context.endTask("Installation of application " +
-							// app.getId() + " finished.",
-							// WorkflowContext.OK);
 							writeLog("  Installation finished.");
 						} catch (IOException e) {
-							// context.endTask("Installing application " +
-							// app.getId() + "failed.", WorkflowContext.ERROR);
 							log.info("Installation of application " + app.getId() + " failed.", e);
 							writeOutput("Installation of application " + app.getId() + " failed.");
 							writeOutput(e.getMessage());

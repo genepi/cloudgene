@@ -74,7 +74,6 @@ public class App extends BaseResource {
 		List<WdlParameterInput> params = wdlApp.getWorkflow().getInputs();
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
-		// fill app list with values depending on auth user
 
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
@@ -157,6 +156,7 @@ public class App extends BaseResource {
 					}
 				}
 
+				// update permissions
 				if (permission != null) {
 					if (!application.getPermission().equals(permission)) {
 						application.setPermission(permission);
@@ -164,8 +164,7 @@ public class App extends BaseResource {
 						getSettings().save();
 					}
 				}
-
-				// update permissions
+				
 
 				return new JsonRepresentation(application);
 

@@ -167,4 +167,8 @@ public class WdlApp {
 		return manifestFile;
 	}
 	
+	public boolean needsInstallation(){
+		return getInstallation() != null && getInstallation().size() > 0;
+	}
+	
 }

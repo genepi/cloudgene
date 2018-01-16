@@ -37,7 +37,7 @@ public class GetUsers extends BaseResource {
 		UserDao dao = new UserDao(getDatabase());
 		List<User> users = dao.findAll();
 
-		JSONArray jsonArray = JSONConverter.convert(users);
+		JSONArray jsonArray = JSONConverter.convertUsers(users);
 		
 		return new StringRepresentation(jsonArray.toString());
 

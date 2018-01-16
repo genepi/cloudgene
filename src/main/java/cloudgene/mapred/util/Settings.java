@@ -311,11 +311,15 @@ public class Settings {
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {
 			log.info("Register application " + app.getId());
-
 			// load application
 			try {
 				log.info("Load workflow file " + app.getFilename());
 				app.loadWorkflow();
+				WdlApp wdlApp = app.getWdlApp();
+				//update wdl id with id from application
+				if (wdlApp != null){
+					wdlApp.setId(app.getId());
+				}
 			} catch (IOException e) {
 				log.error("Application " + app.getId() + " has syntax errors.", e);
 			}
@@ -401,12 +405,10 @@ public class Settings {
 					if (appsOnly) {
 						if (application.getWdlApp().getWorkflow() != null) {
 							WdlApp app = application.getWdlApp();
-							app.setId(application.getId());
 							listApps.add(app);
 						}
 					} else {
 						WdlApp app = application.getWdlApp();
-						app.setId(application.getId());
 						listApps.add(app);
 					}
 				}
@@ -520,6 +522,10 @@ public class Settings {
 		application.loadWorkflow();
 
 		apps.add(application);
+		WdlApp wdlApp = application.getWdlApp();
+		if (wdlApp != null){
+			wdlApp.setId(id);
+		}
 		indexApps.put(application.getId(), application);
 
 		return application;

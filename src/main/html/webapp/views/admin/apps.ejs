@@ -10,8 +10,10 @@
 <table class="table table-striped table-bordered" id="templates">
 	<thead>
 		<tr>
+			<th style="width: 30px;">Type</th>
 			<th style="width: 150px;">Id</th>
 			<th>Application</th>
+			<th style="width: 80px;">Installation</th>
 			<th style="width: 80px;">Permission</th>
 			<th style="width: 80px;"></th>
 			<th style="width: 16px;"></th>
@@ -22,6 +24,15 @@
 		<% applications.each(function( app ) { %>
 
 			<tr <%= (tr) -> can.data(tr, 'application', app) %>>
+				<td>
+					<% if(app.attr('wdlApp')) { %>
+						<% if(app.attr('wdlApp').attr('workflow')) { %>
+							<span class="label label-info">Application</span>
+						<% } else { %>
+							<span class="label label-warning"><%= app.attr('wdlApp').attr('category') %></span>
+						<% } %>
+					<% } %>
+				</td>
 				<td>
 					<%= app.attr('id') %>
 				</td>
@@ -46,8 +57,16 @@
 						<p>
 							<a href="<%= app.attr('wdlApp').attr('website') %>"><%= app.attr('wdlApp').attr('website') %></a>
 						</p>
-						<p>Category: <%= app.attr('wdlApp').attr('category') ? app.attr('wdlApp').attr('category') : '-' %></p>
 					<% } %>
+				</td>
+				<td>
+				<% if(app.attr('state') == 'completed') { %>
+					<span class="label label-success"><%= app.attr('state') %></span>
+				<% } else if(app.attr('state') == 'on demand') { %>
+					<span class="label label-info"><%= app.attr('state') %></span>
+				<% } else if(app.attr('state') == 'n/a') { %>
+					<small><%= app.attr('state') %></small>
+				<% } %>
 				</td>
 				<td>
 					<%= app.attr('permission') %> <span class="icon-pencil" style="cursor: pointer;"></span>
