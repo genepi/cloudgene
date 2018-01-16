@@ -27,6 +27,7 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 import cloudgene.mapred.wdl.WdlStep;
@@ -216,25 +217,36 @@ public class CloudgeneJob extends AbstractJob {
 			applications.add(app);
 
 			for (CloudgeneParameterInput input : getInputParams()) {
-				String value = input.getValue();
-				if (value.startsWith("apps@")) {
-					String appId = value.replaceAll("apps@", "");
-					Application app2 = setttings.getAppByIdAndUser(appId, getUser());
-					if (app2 != null) {
-						applications.add(app2.getWdlApp());
-						// update evenirnoment variables
-						HashMap<String, String> env = setttings.getEnvironment(app2.getWdlApp());
-						Map<String, String> properties = app2.getWdlApp().getProperties();
-						for (String property : properties.keySet()) {
-							String value2 = properties.get(property);
-							properties.put(property, ApplicationInstaller.env(value2, env));
-							System.out.println(ApplicationInstaller.env(value2, env));
+				if (input.getType() == WdlParameterInputType.APP_LIST) {
+					String value = input.getValue();
+					if (value.startsWith("apps@")) {
+						String appId = value.replaceAll("apps@", "");
+						Application app2 = setttings.getAppByIdAndUser(appId, getUser());
+						if (app2 != null) {
+							applications.add(app2.getWdlApp());
+							// update evenirnoment variables
+							HashMap<String, String> env = setttings.getEnvironment(app2.getWdlApp());
+							Map<String, String> properties = app2.getWdlApp().getProperties();
+							for (String property : properties.keySet()) {
+								String value2 = properties.get(property);
+								properties.put(property, ApplicationInstaller.env(value2, env));
+								System.out.println(ApplicationInstaller.env(value2, env));
 
+							}
+							getContext().setData(input.getName(), properties);
+						} else {
+							String error = "Application " + appId + " is not installed or wrong permissions.";
+							log.info(error);
+							writeOutput(error);
+							setError(error);
+							return false;
 						}
-						getContext().setData(input.getName(), properties);
 					} else {
-						writeOutput("Application " + appId + " is not installed.");
-						setError("Application " + appId + " is not installed.");
+						String error = "Paramter: " + input.getName() + " '" + value
+								+ "' is not a valid application link.";
+						log.info(error);
+						writeOutput(error);
+						setError(error);
 						return false;
 					}
 				}
@@ -275,14 +287,16 @@ public class CloudgeneJob extends AbstractJob {
 						} catch (IOException e) {
 							// context.endTask("Installing application " +
 							// app.getId() + "failed.", WorkflowContext.ERROR);
-
+							log.info("Installation of application " + app.getId() + " failed.", e);
 							writeOutput("Installation of application " + app.getId() + " failed.");
 							writeOutput(e.getMessage());
 							setError(e.getMessage());
 							return false;
 						}
 					} else {
-						writeLog("  Application is already installed.");
+						String info = "Application '" + app.getName() + "'is already installed.";
+						log.info(info);
+						writeLog("  " + info);
 					}
 				}
 

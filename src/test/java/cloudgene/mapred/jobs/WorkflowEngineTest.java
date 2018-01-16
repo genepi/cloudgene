@@ -10,7 +10,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.junit.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
@@ -555,6 +554,32 @@ public class WorkflowEngineTest extends TestCase {
 		Message message = job.getSteps().get(0).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of metafile.txt"));
+	}
+	
+	public void testApplicationInstallationAndLinks() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-installation2.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("dataset","apps@app-installation-child");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+				
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());		
+		
+		Message message = job.getSteps().get(0).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of metafile2.txt"));
 	}
 	
 	

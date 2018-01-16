@@ -184,6 +184,20 @@ public class TestServer {
 			app19.setPermission("protected");
 			applications.add(app19);
 
+			Application app20 = new Application();
+			app20.setId("app-installation2");
+			app20.setFilename("test-data/app-installation2.yaml");
+			app20.setPermission("public");
+			applications.add(app20);
+
+			
+			Application app21 = new Application();
+			app21.setId("app-installation-child");
+			app21.setFilename("test-data/app-installation-child.yaml");
+			app21.setPermission("public");
+			applications.add(app21);
+
+			
 			settings.setApps(applications);
 
 		}
