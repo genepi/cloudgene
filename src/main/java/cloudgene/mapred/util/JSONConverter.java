@@ -1,5 +1,6 @@
 package cloudgene.mapred.util;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +11,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
+import genepi.io.FileUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -151,7 +153,10 @@ public class JSONConverter {
 		object.put("changed", application.isChanged());
 		object.put("permission", application.getPermission());
 		WdlApp wdlApp = application.getWdlApp();
-		object.put("wdlApp", wdlApp);		
+		object.put("wdlApp", wdlApp);	
+		if (new File(application.getFilename()).exists()){
+			object.put("source",  FileUtil.readFileAsString(application.getFilename()));
+		}
 		return object;
 	}
 

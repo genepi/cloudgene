@@ -13,7 +13,7 @@
 			<th style="width: 30px;">Type</th>
 			<th style="width: 150px;">Id</th>
 			<th>Application</th>
-			<th style="width: 80px;">Installation</th>
+			<th style="width: 90px;">Installation</th>
 			<th style="width: 80px;">Permission</th>
 			<th style="width: 80px;"></th>
 			<th style="width: 16px;"></th>
@@ -25,11 +25,15 @@
 
 			<tr <%= (tr) -> can.data(tr, 'application', app) %>>
 				<td>
-					<% if(app.attr('wdlApp')) { %>
-						<% if(app.attr('wdlApp').attr('workflow')) { %>
-							<span class="label label-info">Application</span>
-						<% } else { %>
-							<span class="label label-warning"><%= app.attr('wdlApp').attr('category') %></span>
+					<% if (app.attr('errorMessage')) { %>
+						<span class="label label-important">Error</span>
+					<% } else { %>
+						<% if(app.attr('wdlApp')) { %>
+							<% if(app.attr('wdlApp').attr('workflow')) { %>
+								<span class="label label-info">Application</span>
+							<% } else { %>
+								<span class="label label-warning"><%= app.attr('wdlApp').attr('category') %></span>
+							<% } %>
 						<% } %>
 					<% } %>
 				</td>
@@ -51,9 +55,9 @@
 						<p class="text-error"><%= app.attr('errorMessage') %></p>
 					<% } else { %>
 						<p>
-							<b><%= app.attr('wdlApp').attr('name') %></b>
+							<b><a class="view-source-btn" style="cursor: pointer;"><%= app.attr('wdlApp').attr('name') %></a></b>
 							<%= app.attr('wdlApp').attr('version') %></p>
-						<p><%== app.attr('wdlApp').attr('description') %></p><br>
+						<p><%== app.attr('wdlApp').attr('description') %><br></p>
 						<p>
 							<a href="<%= app.attr('wdlApp').attr('website') %>"><%= app.attr('wdlApp').attr('website') %></a>
 						</p>
@@ -62,6 +66,8 @@
 				<td>
 				<% if(app.attr('state') == 'completed') { %>
 					<span class="label label-success"><%= app.attr('state') %></span>
+ 					<span class="icon-remove reinstall-btn" style="cursor: pointer;"></span>
+
 				<% } else if(app.attr('state') == 'on demand') { %>
 					<span class="label label-info"><%= app.attr('state') %></span>
 				<% } else if(app.attr('state') == 'n/a') { %>
@@ -69,13 +75,13 @@
 				<% } %>
 				</td>
 				<td>
-					<%= app.attr('permission') %> <span class="icon-pencil" style="cursor: pointer;"></span>
+					<%= app.attr('permission') %> <span class="icon-pencil edit-permission-btn" style="cursor: pointer;"></span>
 				</td>
 				<td>
 					<label class="checkbox"><input class="enabled-checkbox" type="checkbox" <%== app.attr('enabled') ? 'checked' : '' %>><%== app.attr('enabled') ? '<b>Enabled</b>' : 'Enable' %></label>
 				</td>
 				<td>
-					<span class="icon-trash" style="cursor: pointer;"></span>
+					<span class="icon-trash delete-app-btn" style="cursor: pointer;"></span>
 				</td>
 
 			</tr>

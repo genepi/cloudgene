@@ -314,7 +314,7 @@ public class Settings {
 			// load application
 			try {
 				log.info("Load workflow file " + app.getFilename());
-				app.loadWorkflow();
+				app.loadWdlApp();
 				WdlApp wdlApp = app.getWdlApp();
 				//update wdl id with id from application
 				if (wdlApp != null){
@@ -519,7 +519,7 @@ public class Settings {
 		application.setId(id);
 		application.setFilename(filename);
 		application.setPermission("user");
-		application.loadWorkflow();
+		application.loadWdlApp();
 
 		apps.add(application);
 		WdlApp wdlApp = application.getWdlApp();

@@ -6,7 +6,7 @@ import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 import genepi.io.FileUtil;
 
-public class Application {
+public class Application implements Comparable<Application> {
 
 	private String filename;
 
@@ -18,7 +18,7 @@ public class Application {
 
 	private boolean changed = true;
 
-	private WdlApp workflow = null;
+	private WdlApp wdlApp = null;
 
 	private String errorMessage = "";
 
@@ -60,15 +60,15 @@ public class Application {
 		return id;
 	}
 
-	public void loadWorkflow() throws IOException {
+	public void loadWdlApp() throws IOException {
 		try {
-			workflow = WdlReader.loadAppFromFile(getFilename());
+			wdlApp = WdlReader.loadAppFromFile(getFilename());
 			syntaxError = false;
 			errorMessage = "";
 			wdlContent = FileUtil.readFileAsString(getFilename());
 		} catch (IOException e) {
 			syntaxError = true;
-			workflow = null;
+			wdlApp = null;
 			errorMessage = e.getMessage();
 			wdlContent = FileUtil.readFileAsString(getFilename());
 			throw e;
@@ -76,7 +76,7 @@ public class Application {
 	}
 
 	public WdlApp getWdlApp() {
-		return workflow;
+		return wdlApp;
 	}
 
 	public boolean hasSyntaxError() {
@@ -88,7 +88,7 @@ public class Application {
 	}
 
 	public boolean isLoaded() {
-		return workflow != null;
+		return wdlApp != null;
 	}
 
 	public boolean isEnabled() {
@@ -112,8 +112,36 @@ public class Application {
 		setChanged(!wdlContent.equals(newWdlContent));
 	}
 
-	public boolean isInstalled(String hdfsAppFolder){
+	public boolean isInstalled(String hdfsAppFolder) {
 		return false;
 	}
-	
+
+	public String getType() {
+		if (isLoaded()) {
+			if (wdlApp.getWorkflow() != null) {
+				return "Application";
+			} else {
+				if (wdlApp.getCategory() != null && !wdlApp.getCategory().isEmpty()) {
+					return wdlApp.getCategory();
+				} else {
+					return "Package";
+				}
+			}
+		} else {
+			return "-";
+		}
+	}
+
+	@Override
+	public int compareTo(Application o) {
+		// sort by category
+		int result = getType().compareTo(o.getType());
+		if (result != 0) {
+			return result;
+		} else {
+			// sort by id
+			return getId().compareTo(o.getId());
+		}
+	}
+
 }

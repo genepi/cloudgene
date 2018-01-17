@@ -230,8 +230,6 @@ public class CloudgeneJob extends AbstractJob {
 							for (String property : properties.keySet()) {
 								String value2 = properties.get(property);
 								properties.put(property, ApplicationInstaller.env(value2, env));
-								System.out.println(ApplicationInstaller.env(value2, env));
-
 							}
 							getContext().setData(input.getName(), properties);
 						} else {

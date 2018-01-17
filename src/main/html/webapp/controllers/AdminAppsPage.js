@@ -96,7 +96,7 @@ AdminAppsPage = can.Control({
 		});
 	},
 
-	'.icon-trash click': function(el, ev) {
+	'.delete-app-btn click': function(el, ev) {
 
 		application = el.closest('tr').data('application');
 		bootbox.animate(false);
@@ -123,7 +123,7 @@ AdminAppsPage = can.Control({
 
 	},
 
-	'.icon-pencil click': function(el, ev) {
+	'.edit-permission-btn click': function(el, ev) {
 
 		application = el.closest('tr').data('application');
 		var permission = application.attr('permission');
@@ -140,6 +140,35 @@ AdminAppsPage = can.Control({
 			});
 
 
-	}
+	},
 
+	'.reinstall-btn click': function(el, ev) {
+
+		application = el.closest('tr').data('application');
+		var permission = application.attr('permission');
+		bootbox.animate(false);
+
+		bootbox.confirm('<h4>' + application.attr('id')+'</h4><p>Force reinstallation of application? <br>All metafile in HDFS are deleted and reimported on next job run.</p>',
+			function(result) {
+				if (result) {
+					application.attr('reinstall', 'true');
+					application.save();
+				}
+			});
+
+
+	},
+
+	'.view-source-btn click': function(el, ev) {
+
+		application = el.closest('tr').data('application');
+		bootbox.animate(false);
+
+		var env = '';
+		for(var property in application.attr('environment').attr()){
+			env += property+'='+application.attr('environment').attr(property) + '\n';
+		}
+
+		bootbox.alert('<h5>File</h5><p>'+ application.attr('filename')+'</p>'+ '<h5>Environment Variables</h5><p><pre><code>'+ env +'</pre></code></p>' + '<h5>Source</h5><p><pre><code>'+application.attr('source')+'</code></pre></p>');
+	}
 });

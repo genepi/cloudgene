@@ -1,7 +1,9 @@
 package cloudgene.mapred.api.v2.server;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
@@ -80,7 +82,9 @@ public class Apps extends BaseResource {
 
 			getSettings().save();
 			if (application != null) {
-				return new JsonRepresentation(application);
+				JSONObject jsonObject = JSONConverter.convert(application);
+				updateState(application, jsonObject);
+				return new JsonRepresentation(jsonObject.toString());
 			} else {
 				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 				return new StringRepresentation("Application not installed: No workflow file found.");
@@ -112,31 +116,37 @@ public class Apps extends BaseResource {
 
 		JSONArray jsonArray = new JSONArray();
 
-		List<Application> apps = getSettings().getApps();
+		List<Application> apps = new Vector<Application>(getSettings().getApps());
+		Collections.sort(apps);
+
 		for (Application app : apps) {
 			app.checkForChanges();
 
 			JSONObject jsonObject = JSONConverter.convert(app);
-
-			WdlApp wdlApp = app.getWdlApp();
-			if (wdlApp != null) {
-				if (wdlApp.needsInstallation()) {
-					Map<String, String> environment = getSettings().getEnvironment(wdlApp);
-					boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
-					if (installed) {
-						jsonObject.put("state", "completed");
-					} else {
-						jsonObject.put("state", "on demand");
-					}
-				}else{
-					jsonObject.put("state", "n/a");
-				}
-			}
+			updateState(app, jsonObject);
 			jsonArray.add(jsonObject);
 		}
 
 		return new StringRepresentation(jsonArray.toString());
 
+	}
+
+	private void updateState(Application app, JSONObject jsonObject) {
+		WdlApp wdlApp = app.getWdlApp();
+		if (wdlApp != null) {
+			Map<String, String> environment = getSettings().getEnvironment(wdlApp);
+			if (wdlApp.needsInstallation()) {
+				boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+				if (installed) {
+					jsonObject.put("state", "completed");
+				} else {
+					jsonObject.put("state", "on demand");
+				}
+			} else {
+				jsonObject.put("state", "n/a");
+			}
+			jsonObject.put("environment", environment);
+		}
 	}
 
 }

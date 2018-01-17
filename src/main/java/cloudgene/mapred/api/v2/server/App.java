@@ -1,7 +1,7 @@
 package cloudgene.mapred.api.v2.server;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
@@ -14,17 +14,16 @@ import org.restlet.resource.Put;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 public class App extends BaseResource {
 
@@ -38,18 +37,17 @@ public class App extends BaseResource {
 		Settings settings = getSettings();
 
 		Application application = settings.getAppByIdAndUser(appId, user);
-		WdlApp wdlApp = null;
-		try {
-			wdlApp = application.getWdlApp();
-			// wdlHeader = (WdlHeader) wdlApp;
-			// wdlHeader.setId(appId);
 
-		} catch (Exception e1) {
-
+		if (application == null) {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 			return new StringRepresentation(
 					"Application '" + appId + "' not found or the request requires user authentication..");
+		}
 
+		WdlApp wdlApp = application.getWdlApp();
+		if (wdlApp.getWorkflow() == null) {
+			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+			return new StringRepresentation("Application '" + appId + "' is a data package.");
 		}
 
 		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
@@ -73,7 +71,6 @@ public class App extends BaseResource {
 
 		List<WdlParameterInput> params = wdlApp.getWorkflow().getInputs();
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
-
 
 		jsonObject.put("params", jsonArray);
 		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
@@ -105,11 +102,14 @@ public class App extends BaseResource {
 			try {
 				getSettings().deleteApplication(application);
 				getSettings().save();
-				return new JsonRepresentation(application);
+
+				JSONObject jsonObject = JSONConverter.convert(application);
+				return new JsonRepresentation(jsonObject.toString());
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation("Application not installed: " + e.getMessage());
+				return new StringRepresentation("Application not removed: " + e.getMessage());
 			}
 		} else {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
@@ -137,6 +137,7 @@ public class App extends BaseResource {
 		Form form = new Form(entity);
 		String enabled = form.getFirstValue("enabled");
 		String permission = form.getFirstValue("permission");
+		String reinstall = form.getFirstValue("reinstall");
 
 		String tool = getAttribute("tool");
 		Application application = getSettings().getApp(tool);
@@ -164,9 +165,26 @@ public class App extends BaseResource {
 						getSettings().save();
 					}
 				}
-				
 
-				return new JsonRepresentation(application);
+				WdlApp wdlApp = application.getWdlApp();
+
+				// reinstall application
+				if (reinstall != null) {
+					if (reinstall.equals("true")) {
+						Map<String, String> environment = getSettings().getEnvironment(wdlApp);
+						boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+						if (installed) {
+							ApplicationInstaller.uninstall(wdlApp, environment);
+						}
+					}
+				}
+
+				application.checkForChanges();
+
+				JSONObject jsonObject = JSONConverter.convert(application);
+				updateState(application, jsonObject);
+			
+				return new JsonRepresentation(jsonObject.toString());
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -177,6 +195,24 @@ public class App extends BaseResource {
 		} else {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 			return new StringRepresentation("Application '" + tool + "' not found.");
+		}
+	}
+	
+	private void updateState(Application app, JSONObject jsonObject) {
+		WdlApp wdlApp = app.getWdlApp();
+		if (wdlApp != null) {
+			Map<String, String> environment = getSettings().getEnvironment(wdlApp);
+			if (wdlApp.needsInstallation()) {
+				boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+				if (installed) {
+					jsonObject.put("state", "completed");
+				} else {
+					jsonObject.put("state", "on demand");
+				}
+			} else {
+				jsonObject.put("state", "n/a");
+			}
+			jsonObject.put("environment", environment);
 		}
 	}
 
