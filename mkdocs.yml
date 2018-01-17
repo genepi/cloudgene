@@ -39,6 +39,7 @@ pages:
         - Groovy: developers/steps/Groovy.md
     - Inputs: developers/inputs.md
     - Outputs: developers/outputs.md
+    - Environment Variables: developers/environment_variables.md
     - Control patterns: developers/control-patterns.md
 - Tutorials:
     - Using AppLinks to link to other applications: tutorials/application-links.md

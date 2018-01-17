@@ -20,6 +20,7 @@ cloudgene run <app_or_filename> <params> [--host <hadoop_cluster_ip>] [--user <h
 | `--image <docker_image>` | no | Use a custom Docker image for the Hadoop Cluster (default: **seppinho/cdh5-hadoop-mrv1**) |
 | `--no-logging` | no | Don’t stream logging messages to terminal. |
 | `--no-output` | no | Don’t stream output to terminal. |
+| `--force` | no | Force Cloudgene to reinstall application in HDFS even if it already installed. |
 
 ## Examples
 

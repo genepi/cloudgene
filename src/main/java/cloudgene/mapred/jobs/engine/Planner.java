@@ -42,9 +42,18 @@ public class Planner {
 			context2.put(param.getId(), new ParameterValueOutput(param, context.getOutput(param.getId())));
 		}
 
+		// add meta variables
+		context2.put("job_id", context.getJobId());
+		context2.put("jobId", context.getJobId());
+		//same as app_local_folder
 		context2.put("workdir", new File(context.getWorkingDirectory()).getAbsolutePath());
-
-		// add env variables
+		context2.put("user_username", context.getUser().getUsername());
+		context2.put("user_mail", context.getUser().getMail());
+		context2.put("job_local_temp", context.getLocalTemp());
+		context2.put("job_hdfs_temp", context.getHdfsTemp());
+		context2.put("job_local_output", context.getLocalOutput());
+		context2.put("job_hdfs_output", context.getHdfsOutput());
+		// add env variables (app_* variables)
 		Map<String, String> env = settings.getEnvironment(app);
 		for (String key : env.keySet()) {
 			context2.put(key, env.get(key));

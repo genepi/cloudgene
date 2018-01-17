@@ -91,6 +91,9 @@ public class ApplicationInstaller {
 			if (source.endsWith(".zip")) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putZip(source, target);
+			} else if (source.endsWith(".gz")) {
+				HdfsUtil.createDirectory(target);
+				HdfsUtil.putTarGz(source, target);
 			} else {
 				HdfsUtil.put(source, target);
 			}

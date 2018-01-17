@@ -538,6 +538,7 @@ public class WorkflowEngineTest extends TestCase {
 		Map<String, String> params = new HashMap<String, String>();
 
 		AbstractJob job = createJobFromWdl(app, params);
+		job.forceInstallation(true);
 		engine.submit(job);
 		while (!job.isComplete()) {
 			Thread.sleep(500);
@@ -551,9 +552,45 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());		
 		
+		//single file
 		Message message = job.getSteps().get(0).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of metafile.txt"));
+		
+		//folder file1
+		message = job.getSteps().get(1).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of file1.txt"));
+		
+		//folder fil2
+		message = job.getSteps().get(2).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of file2.txt"));
+		
+		//zip file1
+		message = job.getSteps().get(3).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of file1.txt"));
+		
+		//zip fil2
+		message = job.getSteps().get(4).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of file2.txt"));
+		
+		//gz file1
+		message = job.getSteps().get(5).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of file1.txt"));
+		
+		//gz fil2
+		message = job.getSteps().get(6).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().equals("content of file2.txt"));
+		
+		//http
+		message = job.getSteps().get(7).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().contains("name: hello-cloudgene"));	
 	}
 	
 	public void testApplicationInstallationAndLinks() throws Exception {

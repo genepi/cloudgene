@@ -2,7 +2,84 @@
 
 **InstallActions allow you to execute user defined actions after the installation process of an application. This allows you for example to import files into HDFS.**
 
-In this tutorial we create an application that contains an InstallAction to import a file called `metafile.txt` into HDFS.
+## Installation-on-demand
+
+When the user starts an application, Cloudgene checks if the application is already installed and may starts importing the needed files. This shortens the configuration process of a new application and ensures that no additional manual steps are needed when you run Cloudgene on a different Hadoop cluster.
+
+## InstallActions
+
+The installation process of an application is full configurable by using so called *InstallActions*. This actions can be defined in the `installation` section in the `cloudgene.yaml` file.
+
+The simplest way to import a file during installation is to define an `import` action containing the filename in `source` and the HDFS folder in `target`:
+
+```yaml
+name: app-installation
+version: 1.0.0
+installation:
+  - import:
+      source: /local/file/metafile.txt
+      target: hdfs-path/metafile.txt
+```
+
+To avoid hard-coded paths and to create full portable applications, we recommender to use the provided environment variables:
+
+```yaml
+name: app-installation
+version: 1.0.0
+installation:
+  - import:
+      source: ${local_app_folder}/file.zip
+      target: ${hdfs_app_folder}/content-of-zip-file
+```
+
+The environment variable `${local_app_folder}` is the path of the application directory (i.e. the directory where your `cloudgene.yaml` file is located). `${local_app_folder}` points to directory in HDFS that is managed by Cloudgene and will be automatically deleted when you deinstall an application. This ensures, that files from removed applications don't litter your filesystem.
+
+If the filename in `source` points to a folder, Cloudgene imports all files and subfolders into HDFS and keeps the folder structure:
+
+```yaml
+name: app-installation
+version: 1.0.0
+installation:
+  - import:
+      source: ${local_app_folder}/folder
+      target: ${hdfs_app_folder}/folder
+```
+
+If the filename in `source` points to an archive file (ends with gz or zip), Cloudgene extracts the archive and imports all files and subfolders to the HDFS folder:
+
+```yaml
+name: app-installation
+version: 1.0.0
+installation:
+  - import:
+      source: ${local_app_folder}/file.zip
+      target: ${hdfs_app_folder}/content-of-zip
+```
+
+Finally, Cloudgene supports also URLs (http and https) to files or archives:
+
+```yaml
+name: app-installation
+version: 1.0.0
+installation:
+  - import:
+      source: http://example.com/downloads/file.zip
+      target: ${hdfs_app_folder}/folder
+```
+
+S3 Support: coming soon!
+
+## Application Life Cycle and Reinstallation
+
+TODO:
+
+- Describe states of application:
+    - `n/a`: no installation required
+    - `on demand`: installation on next job run.
+    - `completed`: installation completed
+- How to force Reinstall:
+    - `force` flag on commandline
+    - webinterface: admin panel, applications, if app is in state `completed`, then click on delete icon near `completed`. new state is `on demand`. (screenshot)
 
 ## Example
 
@@ -16,7 +93,7 @@ app-installation
 ```
 
 
-**cloudgene.yaml**
+### cloudgene.yaml
 
 ```yaml
 name: app-installation
@@ -33,7 +110,7 @@ workflow:
       file: ${hdfs_app_folder}/metafiles/metafile.txt
 ```
 
-**print-hdfs-file.groovy**
+### print-hdfs-file.groovy
 
 ```groovy
 import genepi.hadoop.common.WorkflowContext
@@ -54,9 +131,9 @@ def run(WorkflowContext context) {
 }
 ```
 
-## InstallAction
+### Install and Testing
 
 ```yaml
-clougene install app-installation app-installation.yaml
+cloudgene install app-installation app-installation.yaml
 cloudgene server
 ```
