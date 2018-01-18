@@ -21,18 +21,18 @@ installation:
       target: hdfs-path/metafile.txt
 ```
 
-To avoid hard-coded paths and to create full portable applications, we recommender to use the provided environment variables:
+To avoid hard-coded paths and to create full portable applications, we recommender to use the provided [environment variables](/developers/environment_variables.md):
 
 ```yaml
 name: app-installation
 version: 1.0.0
 installation:
   - import:
-      source: ${local_app_folder}/file.zip
-      target: ${hdfs_app_folder}/content-of-zip-file
+      source: ${app_local_folder}/file.zip
+      target: ${app_hdfs_folder}/content-of-zip-file
 ```
 
-The environment variable `${local_app_folder}` is the path of the application directory (i.e. the directory where your `cloudgene.yaml` file is located). `${local_app_folder}` points to directory in HDFS that is managed by Cloudgene and will be automatically deleted when you deinstall an application. This ensures, that files from removed applications don't litter your filesystem.
+The environment variable `${app_local_folder}` is the path of the application directory (i.e. the directory where your `cloudgene.yaml` file is located). `${app_hdfs_folder}` points to directory in HDFS that is managed by Cloudgene and will be automatically deleted when you deinstall an application. This ensures, that files from removed applications don't litter your filesystem.
 
 If the filename in `source` points to a folder, Cloudgene imports all files and subfolders into HDFS and keeps the folder structure:
 
@@ -41,8 +41,8 @@ name: app-installation
 version: 1.0.0
 installation:
   - import:
-      source: ${local_app_folder}/folder
-      target: ${hdfs_app_folder}/folder
+      source: ${app_local_folder}/folder
+      target: ${app_hdfs_folder}/folder
 ```
 
 If the filename in `source` points to an archive file (ends with gz or zip), Cloudgene extracts the archive and imports all files and subfolders to the HDFS folder:
@@ -52,8 +52,8 @@ name: app-installation
 version: 1.0.0
 installation:
   - import:
-      source: ${local_app_folder}/file.zip
-      target: ${hdfs_app_folder}/content-of-zip
+      source: ${app_local_folder}/file.zip
+      target: ${app_hdfs_folder}/content-of-zip
 ```
 
 Finally, Cloudgene supports also URLs (http and https) to files or archives:
@@ -64,7 +64,7 @@ version: 1.0.0
 installation:
   - import:
       source: http://example.com/downloads/file.zip
-      target: ${hdfs_app_folder}/folder
+      target: ${app_hdfs_folder}/folder
 ```
 
 S3 Support: coming soon!
@@ -100,14 +100,14 @@ name: app-installation
 version: 1.0.0
 installation:
   - import:
-      source: ${local_app_folder}/metafiles/metafile.txt
-      target: ${hdfs_app_folder}/metafiles/metafile.txt
+      source: ${app_local_folder}/metafiles/metafile.txt
+      target: ${app_hdfs_folder}/metafiles/metafile.txt
 workflow:
   steps:
     - name: print content of hfs file
       type: groovy
       script: print-hdfs-file.groovy
-      file: ${hdfs_app_folder}/metafiles/metafile.txt
+      file: ${app_hdfs_folder}/metafiles/metafile.txt
 ```
 
 ### print-hdfs-file.groovy

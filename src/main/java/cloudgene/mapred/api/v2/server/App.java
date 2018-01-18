@@ -13,6 +13,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
@@ -171,10 +172,9 @@ public class App extends BaseResource {
 				// reinstall application
 				if (reinstall != null) {
 					if (reinstall.equals("true")) {
-						Map<String, String> environment = getSettings().getEnvironment(wdlApp);
-						boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+						boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
 						if (installed) {
-							ApplicationInstaller.uninstall(wdlApp, environment);
+							ApplicationInstaller.uninstall(wdlApp, getSettings());
 						}
 					}
 				}
@@ -183,7 +183,7 @@ public class App extends BaseResource {
 
 				JSONObject jsonObject = JSONConverter.convert(application);
 				updateState(application, jsonObject);
-			
+
 				return new JsonRepresentation(jsonObject.toString());
 
 			} catch (Exception e) {
@@ -197,13 +197,12 @@ public class App extends BaseResource {
 			return new StringRepresentation("Application '" + tool + "' not found.");
 		}
 	}
-	
+
 	private void updateState(Application app, JSONObject jsonObject) {
 		WdlApp wdlApp = app.getWdlApp();
 		if (wdlApp != null) {
-			Map<String, String> environment = getSettings().getEnvironment(wdlApp);
 			if (wdlApp.needsInstallation()) {
-				boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+				boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
 				if (installed) {
 					jsonObject.put("state", "completed");
 				} else {
@@ -212,6 +211,7 @@ public class App extends BaseResource {
 			} else {
 				jsonObject.put("state", "n/a");
 			}
+			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, getSettings());
 			jsonObject.put("environment", environment);
 		}
 	}

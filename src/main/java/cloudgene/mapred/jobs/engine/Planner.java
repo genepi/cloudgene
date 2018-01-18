@@ -11,6 +11,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphEdge;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
@@ -42,21 +43,19 @@ public class Planner {
 			context2.put(param.getId(), new ParameterValueOutput(param, context.getOutput(param.getId())));
 		}
 
-		// add meta variables
-		context2.put("job_id", context.getJobId());
-		context2.put("jobId", context.getJobId());
-		//same as app_local_folder
-		context2.put("workdir", new File(context.getWorkingDirectory()).getAbsolutePath());
-		context2.put("user_username", context.getUser().getUsername());
-		context2.put("user_mail", context.getUser().getMail());
-		context2.put("job_local_temp", context.getLocalTemp());
-		context2.put("job_hdfs_temp", context.getHdfsTemp());
-		context2.put("job_local_output", context.getLocalOutput());
-		context2.put("job_hdfs_output", context.getHdfsOutput());
-		// add env variables (app_* variables)
-		Map<String, String> env = settings.getEnvironment(app);
-		for (String key : env.keySet()) {
-			context2.put(key, env.get(key));
+		// add job variables
+		Map<String, String> envJob = Environment.getJobVariables(context);
+		for (String key : envJob.keySet()) {
+			context2.put(key, envJob.get(key));
+			System.out.println(key + " = " + envJob.get(key));
+		}
+
+		// add app variables
+		Map<String, String> envApp = Environment.getApplicationVariables(app, settings);
+		for (String key : envApp.keySet()) {
+			context2.put(key, envApp.get(key));
+			System.out.println(key + " = " + envApp.get(key));
+
 		}
 
 		File manifest = new File(app.getManifestFile());

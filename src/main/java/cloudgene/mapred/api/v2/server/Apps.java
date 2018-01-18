@@ -14,6 +14,7 @@ import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
@@ -134,9 +135,8 @@ public class Apps extends BaseResource {
 	private void updateState(Application app, JSONObject jsonObject) {
 		WdlApp wdlApp = app.getWdlApp();
 		if (wdlApp != null) {
-			Map<String, String> environment = getSettings().getEnvironment(wdlApp);
 			if (wdlApp.needsInstallation()) {
-				boolean installed = ApplicationInstaller.isInstalled(wdlApp, environment);
+				boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
 				if (installed) {
 					jsonObject.put("state", "completed");
 				} else {
@@ -145,6 +145,7 @@ public class Apps extends BaseResource {
 			} else {
 				jsonObject.put("state", "n/a");
 			}
+			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, getSettings());
 			jsonObject.put("environment", environment);
 		}
 	}

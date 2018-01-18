@@ -316,8 +316,8 @@ public class Settings {
 				log.info("Load workflow file " + app.getFilename());
 				app.loadWdlApp();
 				WdlApp wdlApp = app.getWdlApp();
-				//update wdl id with id from application
-				if (wdlApp != null){
+				// update wdl id with id from application
+				if (wdlApp != null) {
 					wdlApp.setId(app.getId());
 				}
 			} catch (IOException e) {
@@ -523,7 +523,7 @@ public class Settings {
 
 		apps.add(application);
 		WdlApp wdlApp = application.getWdlApp();
-		if (wdlApp != null){
+		if (wdlApp != null) {
 			wdlApp.setId(id);
 		}
 		indexApps.put(application.getId(), application);
@@ -740,15 +740,6 @@ public class Settings {
 
 	public int getThreadsSetupQueue() {
 		return threadsSetupQueue;
-	}
-
-	public HashMap<String, String> getEnvironment(WdlApp application) {
-		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(hdfsAppWorkspace, application.getId(), application.getVersion());
-		String localFolder = application.getPath();
-		environment.put("hdfs_app_folder", hdfsFolder);
-		environment.put("local_app_folder", localFolder);
-		return environment;
 	}
 
 	public int getAutoRetireInterval() {

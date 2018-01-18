@@ -105,13 +105,13 @@ public class CloudgeneContext extends WorkflowContext {
 
 		// cleanup temp directories
 		if (hasHdfsOutputs) {
-			try{
+			try {
 				HdfsUtil.delete(getHdfsTemp());
-			}catch (Exception e) {
+			} catch (Exception e) {
 				System.out.println("Warning: problems during hdfs init.");
 			}
 		}
-		
+
 		FileUtil.deleteDirectory(getLocalTemp());
 
 		// create output directories
@@ -137,17 +137,17 @@ public class CloudgeneContext extends WorkflowContext {
 					value = HdfsUtil.makeAbsolute(value);
 				}
 				// delete (needed for restart)
-				try{
-				HdfsUtil.delete(value);
-				}catch (Exception e) {
+				try {
+					HdfsUtil.delete(value);
+				} catch (Exception e) {
 					System.out.println("Warning: problems during hdfs init.");
-				}				
+				}
 				param.setValue(value);
 				break;
 
 			case LOCAL_FILE:
 				String parent = getLocalOutput();
-				if (!param.isDownload()){
+				if (!param.isDownload()) {
 					parent = getLocalTemp();
 				}
 				String folder = FileUtil.path(parent, param.getName());
@@ -160,10 +160,10 @@ public class CloudgeneContext extends WorkflowContext {
 
 			case LOCAL_FOLDER:
 				String parent2 = getLocalOutput();
-				if (!param.isDownload()){
+				if (!param.isDownload()) {
 					parent2 = getLocalTemp();
 				}
-				
+
 				String folder2 = FileUtil.path(parent2, param.getName());
 				// delete and create (needed for restart)
 				FileUtil.deleteDirectory(folder2);
@@ -288,12 +288,11 @@ public class CloudgeneContext extends WorkflowContext {
 		return true;
 
 	}
-	
-	
+
 	@Override
 	public boolean sendNotification(String text) throws Exception {
-		Settings settings = getSettings();		
-		MailUtil.notifySlack(settings, text);		
+		Settings settings = getSettings();
+		MailUtil.notifySlack(settings, text);
 		return true;
 	}
 

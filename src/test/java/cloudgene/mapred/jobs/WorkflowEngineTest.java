@@ -476,16 +476,15 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
-		
+
 		Message message = job.getSteps().get(0).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().contains("property1:hey!"));
 		assertTrue(message.getMessage().contains("property2:hey2!"));
 		assertTrue(message.getMessage().contains("property3:hey3!"));
 
-		
 	}
-	
+
 	public void testApplicationLinksWrongApplication() throws Exception {
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
@@ -504,13 +503,12 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() == 0);
 		assertTrue(job.getEndTime() == 0);
-		assertEquals(AbstractJob.STATE_FAILED, job.getState());		
-		
+		assertEquals(AbstractJob.STATE_FAILED, job.getState());
+
 	}
-	
-	
+
 	public void testApplicationLinksWrongPermissions() throws Exception {
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -527,10 +525,10 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() == 0);
 		assertTrue(job.getEndTime() == 0);
-		assertEquals(AbstractJob.STATE_FAILED, job.getState());		
-		
+		assertEquals(AbstractJob.STATE_FAILED, job.getState());
+
 	}
-	
+
 	public void testApplicationInstallation() throws Exception {
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-installation.yaml");
@@ -543,83 +541,82 @@ public class WorkflowEngineTest extends TestCase {
 		while (!job.isComplete()) {
 			Thread.sleep(500);
 		}
-				
+
 		assertTrue(job.getSubmittedOn() > 0);
 		assertTrue(job.getFinishedOn() > 0);
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
-		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());		
-		
-		//single file
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		// single file
 		Message message = job.getSteps().get(0).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of metafile.txt"));
-		
-		//folder file1
+
+		// folder file1
 		message = job.getSteps().get(1).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of file1.txt"));
-		
-		//folder fil2
+
+		// folder file2
 		message = job.getSteps().get(2).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of file2.txt"));
-		
-		//zip file1
+
+		// zip file1
 		message = job.getSteps().get(3).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of file1.txt"));
-		
-		//zip fil2
+
+		// zip file2
 		message = job.getSteps().get(4).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of file2.txt"));
-		
-		//gz file1
+
+		// gz file1
 		message = job.getSteps().get(5).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of file1.txt"));
-		
-		//gz fil2
+
+		// gz file2
 		message = job.getSteps().get(6).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of file2.txt"));
-		
-		//http
+
+		// http single file
 		message = job.getSteps().get(7).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
-		assertTrue(message.getMessage().contains("name: hello-cloudgene"));	
+		assertTrue(message.getMessage().contains("name: hello-cloudgene"));
 	}
-	
+
 	public void testApplicationInstallationAndLinks() throws Exception {
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-installation2.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
-		params.put("dataset","apps@app-installation-child");
+		params.put("dataset", "apps@app-installation-child");
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
 		while (!job.isComplete()) {
 			Thread.sleep(500);
 		}
-				
+
 		assertTrue(job.getSubmittedOn() > 0);
 		assertTrue(job.getFinishedOn() > 0);
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
-		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());		
-		
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
 		Message message = job.getSteps().get(0).getLogMessages().get(0);
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of metafile2.txt"));
 	}
-	
-	
+
 	// TODO: merge and zip export.
 
 	// TODO: write to hdfs temp and local temp (temp output params)!
@@ -634,13 +631,12 @@ public class WorkflowEngineTest extends TestCase {
 		return createJobFromWdl(app, inputs, user);
 	}
 
-	
 	public CloudgeneJob createJobFromWdlAsUser(WdlApp app, Map<String, String> inputs) throws Exception {
 
 		User user = TestServer.getInstance().getUser();
 		return createJobFromWdl(app, inputs, user);
 	}
-	
+
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs, User user) throws Exception {
 
 		Settings settings = TestServer.getInstance().getSettings();
@@ -663,5 +659,5 @@ public class WorkflowEngineTest extends TestCase {
 
 		return job;
 	}
-	
+
 }

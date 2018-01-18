@@ -208,7 +208,7 @@ public class CloudgeneJob extends AbstractJob {
 
 		try {
 
-			Settings setttings = getSettings();
+			Settings settings = getSettings();
 
 			// find dependencies
 			List<WdlApp> applications = new Vector<>();
@@ -220,20 +220,25 @@ public class CloudgeneJob extends AbstractJob {
 				if (input.getType() == WdlParameterInputType.APP_LIST) {
 					String value = input.getValue();
 					if (value.startsWith("apps@")) {
-						String appId = value.replaceAll("apps@", "");
-						Application app2 = setttings.getAppByIdAndUser(appId, getUser());
-						if (app2 != null) {
-							applications.add(app2.getWdlApp());
+						String linkedAppId = value.replaceAll("apps@", "");
+						Application linkedApp = settings.getAppByIdAndUser(linkedAppId, getUser());
+						if (linkedApp != null) {
+							applications.add(linkedApp.getWdlApp());
 							// update evenirnoment variables
-							HashMap<String, String> env = setttings.getEnvironment(app2.getWdlApp());
-							Map<String, String> properties = app2.getWdlApp().getProperties();
+							Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(),
+									settings);
+							Map<String, String> envJob = Environment.getJobVariables(context);
+							Map<String, String> properties = linkedApp.getWdlApp().getProperties();
 							for (String property : properties.keySet()) {
-								String value2 = properties.get(property);
-								properties.put(property, ApplicationInstaller.env(value2, env));
+								String propertyValue = properties.get(property);
+								propertyValue = Environment.env(propertyValue, envApp);
+								propertyValue = Environment.env(propertyValue, envJob);
+								properties.put(property, propertyValue);
 							}
+
 							getContext().setData(input.getName(), properties);
 						} else {
-							String error = "Application " + appId + " is not installed or wrong permissions.";
+							String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
 							log.info(error);
 							writeOutput(error);
 							setError(error);
@@ -257,14 +262,11 @@ public class CloudgeneJob extends AbstractJob {
 				if (app.needsInstallation()) {
 
 					writeLog("  Preparing application " + app.getId() + "...");
-					Map<String, String> environment = setttings.getEnvironment(app);
-					boolean installed = ApplicationInstaller.isInstalled(app, environment);
-
+					boolean installed = ApplicationInstaller.isInstalled(app, settings);
 					if (!installed || forceInstallation) {
 						try {
-
 							writeLog("  Installing Application...");
-							ApplicationInstaller.install(app, environment);
+							ApplicationInstaller.install(app, settings);
 							log.info("Installation of application " + app.getId() + " finished.");
 							writeLog("  Installation finished.");
 						} catch (IOException e) {

@@ -1,31 +1,34 @@
 # Environment Variables
 
-Cloudgene supports several environment variables that can be used in your `cloudgene.yaml` files to get informations about the used application or the submitted job.
+Cloudgene supports several environment variables that can be used in your `cloudgene.yaml` files to get informations about the application itself and the submitted job.
 
 ## Application
 
 | Variable | Description |
 | --- | --- |
-| `${local_app_folder}` |  |
-| `${hdfs_app_folder}` |  |
+| `${app_local_folder}` | The path of the application directory.<br>This is the directory where your `cloudgene.yaml` file is located. |
+| `${app_hdfs_folder}` | The path of the application HDFS directory.<br>This is the directory where you should put meta files. |
+| `${local_app_folder}` | **Deprecreated**. Please use `${app_local_folder}` |
+| `${hdfs_app_folder}` | **Deprecreated** Please use `${app_hdfs_folder}` |
+| `${workdir}` | **Deprecreated**. Please use `${app_local_folder}` |
 
 ## Job
 
 | Variable | Description |
 | --- | --- |
-| `${job_id` |  |
-| `${job_local_output}` |  |
-| `${job_local_temp}` |  |
-| `${job_hdfs_output}` |  |
-| `${job_hdfs_temp}` |  |
+| `${job_id}` | The id of the submitted job. |
+| `${job_local_output}` | The workspace folder of the submitted job. |
+| `${job_local_temp}` | The folder of the submitted job that can be used for temporary files.<br>After the job is completed all files within this folder are deleted automatically. |
+| `${job_hdfs_output}` | The workspace HDFS folder of the submitted job in. |
+| `${job_hdfs_temp}` | The HDFS folder of the submitted job that can be used for temporary files.<br>After the job is completed all files within this folder are deleted automatically. |
 
 
 ## User
 
 | Variable | Description |
 | --- | --- |
-| `${user_username}` |  |
-| `${user_mail}` |  |
+| `${user_username}` | The username of the user who submitted the job. |
+| `${user_mail}` | The email address of the user who submitted the job. |
 
 
 ## Example
