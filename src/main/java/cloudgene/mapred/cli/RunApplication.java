@@ -143,9 +143,9 @@ public class RunApplication extends BaseTool {
 		options.addOption(loggingOption);
 
 		// add general options: run on docker
-		Option outputOption = new Option(null, "no-output", false, "Don’t stream output to stdout");
-		outputOption.setRequired(false);
-		options.addOption(outputOption);
+		Option noOutputOption = new Option(null, "no-output", false, "Don’t stream output to stdout");
+		noOutputOption.setRequired(false);
+		options.addOption(noOutputOption);
 
 		// add general options: run on docker
 		Option forceOption = new Option(null, "force", false,
@@ -173,6 +173,11 @@ public class RunApplication extends BaseTool {
 		Option confOption = new Option(null, "conf", true, "Hadoop configuration folder");
 		confOption.setRequired(false);
 		options.addOption(confOption);
+		
+		// add general options: hadoop hostname
+		Option outputFolderOption = new Option(null, "output", true, "Output folder");
+		outputFolderOption.setRequired(false);
+		options.addOption(outputFolderOption);
 
 		// add general options: hadoop user
 		Option usernameOption = new Option(null, "user", true,
@@ -296,9 +301,14 @@ public class RunApplication extends BaseTool {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String id = "job-" + sdf.format(new Date());
 		String hdfs = HdfsUtil.path("cloudgene-cli", id);
-		String local = FileUtil.path(id);
+		String local = FileUtil.path(id);		
+		if (line.hasOption("output")) {
+			local = line.getOptionValue("output");
+		}
+		
 		FileUtil.createDirectory(local);
 
+	
 		// file params with values from cmdline
 		try {
 			Map<String, String> params = CommandLineUtil.createParams(app, line, local, hdfs);
