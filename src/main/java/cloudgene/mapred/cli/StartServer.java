@@ -31,15 +31,25 @@ public class StartServer extends BaseTool {
 		addOptionalParameter("image", "use custom docker image [default: " + DEFAULT_DOCKER_IMAGE + "]", Tool.STRING);
 		addOptionalParameter("host", "Hadoop namenode hostname [default: localhost]", Tool.STRING);
 		addOptionalParameter("user", "Hadoop username [default: " + DEFAULT_HADOOP_USER + "]", Tool.STRING);
-		addOptionalParameter("port", "running webinterface on this port [default: 8082", Tool.STRING);
-
+		addOptionalParameter("port", "running webinterface on this port [default: 8082]", Tool.STRING);
+		addOptionalParameter("conf", "adoop configuration folder", Tool.STRING);
 	}
 
 	@Override
 	public int run() {
 
-		
-		if (getValue("host") != null) {
+		if (getValue("conf") != null) {
+
+			String conf = getValue("conf").toString();
+
+			String username = DEFAULT_HADOOP_USER;
+			if (getValue("user") != null) {
+				username = getValue("user").toString();
+			}
+			System.out.println("Use Haddop configuration folder " + conf + " with username " + username);
+			HadoopCluster.setConfPath(conf, username);
+
+		} else if (getValue("host") != null) {
 
 			String host = getValue("host").toString();
 
@@ -48,7 +58,7 @@ public class StartServer extends BaseTool {
 				username = getValue("user").toString();
 			}
 			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.init(host, username);
+			HadoopCluster.setHostname(host, username);
 
 		} else if (isFlagSet("docker")) {
 
@@ -66,10 +76,10 @@ public class StartServer extends BaseTool {
 				return 1;
 			}
 
-			HadoopCluster.init(cluster.getIpAddress(), "cloudgene");
+			HadoopCluster.setHostname(cluster.getIpAddress(), "cloudgene");
 
 		} else {
-			if (settings.getCluster() == null){
+			if (settings.getCluster() == null) {
 				System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
 			}
 		}
@@ -79,8 +89,8 @@ public class StartServer extends BaseTool {
 		boolean hadoopSupport = true;
 		if (details != null) {
 			int nodes = details.getActiveTrackerNames().size();
-			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMapTasks()
-					+ " map tasks and " + details.getReduceTasks() + " reduce tasks");
+			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMaxMapTasks()
+					+ " map tasks and " + details.getMaxReduceTasks() + " reduce tasks");
 			if (nodes == 0) {
 				printText(0,
 						spaces("[WARN]", 8) + "Cluster seems unreachable or misconfigured. Hadoop support disabled.");
@@ -105,7 +115,7 @@ public class StartServer extends BaseTool {
 				settings.disable(Technology.R_MARKDOWN);
 			}
 		}
-		
+
 		try {
 			DockerClient docker = DefaultDockerClient.fromEnv().build();
 			docker.info();
@@ -114,7 +124,6 @@ public class StartServer extends BaseTool {
 			settings.disable(Technology.DOCKER);
 			printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
 		}
-		
 
 		Main main = new Main();
 		try {

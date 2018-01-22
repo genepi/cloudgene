@@ -13,6 +13,7 @@ cloudgene server [--host <hadoop_cluster_ip>] [--user <hadoop_username>] [--dock
 | --- | --- | --- |
 | `--host <hadoop_cluster_ip>` | no | Execute all Hadoop steps on this Hadoop JobTracker (default: **use localhost as JobTracker**). |
 | `--user <hadoop_username>` | no | Execute Hadoop steps on behalf of this username (default: **cloudgene**) |
+| `--conf <HADOOP_CONF>` | no | Path to Hadoop configuration folder (e.g. /etc/hadoop/conf)) |
 | `--docker` | no | Start a Hadoop Cluster inside a Docker container and execute all Hadoop steps on this cluster. |
 | `--image <docker_image>` | no | Use a custom Docker image for the Hadoop Cluster (default: **seppinho/cdh5-hadoop-mrv1**) |
 | `--port` | no | Start the web-application on this port (default: **8082**)

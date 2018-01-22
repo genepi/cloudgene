@@ -47,15 +47,12 @@ public class Planner {
 		Map<String, String> envJob = Environment.getJobVariables(context);
 		for (String key : envJob.keySet()) {
 			context2.put(key, envJob.get(key));
-			System.out.println(key + " = " + envJob.get(key));
 		}
 
 		// add app variables
 		Map<String, String> envApp = Environment.getApplicationVariables(app, settings);
 		for (String key : envApp.keySet()) {
 			context2.put(key, envApp.get(key));
-			System.out.println(key + " = " + envApp.get(key));
-
 		}
 
 		File manifest = new File(app.getManifestFile());

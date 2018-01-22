@@ -148,7 +148,7 @@ public class Settings {
 			String host = settings.cluster.get("host");
 			String username = settings.cluster.get("username");
 			log.info("Use external Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.init(host, username);
+			HadoopCluster.setHostname(host, username);
 		}
 
 		return settings;
@@ -485,7 +485,6 @@ public class Settings {
 
 	public List<Application> installApplicationFromDirectory(String id, String path) throws IOException {
 		// find all cloudgene workflows (use filename as id)
-		System.out.println("Search in folder " + path);
 		String[] files = FileUtil.getFiles(path, "*.yaml");
 
 		List<Application> installed = new Vector<Application>();

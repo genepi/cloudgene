@@ -169,6 +169,11 @@ public class RunApplication extends BaseTool {
 		hostOption.setRequired(false);
 		options.addOption(hostOption);
 
+		// add general options: hadoop hostname
+		Option confOption = new Option(null, "conf", true, "Hadoop configuration folder");
+		confOption.setRequired(false);
+		options.addOption(confOption);
+
 		// add general options: hadoop user
 		Option usernameOption = new Option(null, "user", true,
 				"Hadoop username [default: " + DEFAULT_HADOOP_USER + "]");
@@ -203,12 +208,20 @@ public class RunApplication extends BaseTool {
 			force = true;
 		}
 
-		if (line.hasOption("host")) {
+		if (line.hasOption("conf")) {
+
+			String conf = line.getOptionValue("conf");
+			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
+			printText(0,
+					spaces("[INFO]", 8) + "Use Haddop configuration folder " + conf + " with username " + username);
+			HadoopCluster.setConfPath(conf, username);
+
+		} else if (line.hasOption("host")) {
 
 			String host = line.getOptionValue("host");
 			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
 			printText(0, spaces("[INFO]", 8) + "Use Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.init(host, username);
+			HadoopCluster.setHostname(host, username);
 
 		} else if (line.hasOption("docker")) {
 
@@ -223,7 +236,7 @@ public class RunApplication extends BaseTool {
 				return 1;
 			}
 
-			HadoopCluster.init(cluster.getIpAddress(), "cloudgene");
+			HadoopCluster.setHostname(cluster.getIpAddress(), "cloudgene");
 
 		} else {
 			if (settings.getCluster() == null) {
@@ -237,8 +250,8 @@ public class RunApplication extends BaseTool {
 		boolean hadoopSupport = true;
 		if (details != null) {
 			int nodes = details.getActiveTrackerNames().size();
-			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMapTasks()
-					+ " map tasks and " + details.getReduceTasks() + " reduce tasks");
+			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMaxMapTasks()
+					+ " map tasks and " + details.getMaxReduceTasks() + " reduce tasks");
 			if (nodes == 0) {
 				printText(0,
 						spaces("[WARN]", 8) + "Cluster seems unreachable or misconfigured. Hadoop support disabled.");
