@@ -63,82 +63,91 @@ public class CommandLineUtil {
 
 			if (input.isFileOrFolder()) {
 
-				File tmpFile = new File(value);
-				if (!tmpFile.exists()) {
-					throw new FileNotFoundException("File " + value + " not found.");
-				}
-				String entryName = tmpFile.getName();
-
-				if (input.isHdfs()) {
-					String targetPath = HdfsUtil.path(hdfs, "input", input.getId());
-					if (tmpFile.isDirectory()) {
-						String[] files = FileUtil.getFiles(value, "");
-						for (String sourceFile : files) {
-							if (!new File(sourceFile).isDirectory()) {
-								String name = FileUtil.getFilename(sourceFile);
-								String target = HdfsUtil.path(targetPath, name);
-								// System.out.println("Put file " + sourceFile +
-								// " to " + target);
-								HdfsUtil.put(sourceFile, target);
-							} else {
-								// System.out.println("Ignore sub-directory " +
-								// sourceFile);
-							}
-
-						}
-					} else {
-						String target = HdfsUtil.path(targetPath, entryName);
-						HdfsUtil.put(value, target);
-					}
-
-					if (input.isFolder()) {
-						// folder
-						props.put(input.getId(), HdfsUtil.path(hdfs, "input", input.getId()));
-					} else {
-						// file
-						props.put(input.getId(), HdfsUtil.path(hdfs, "input", input.getId(), entryName));
-					}
-
+				if (value.startsWith("http://") || value.startsWith("https://")) {
+					props.put(input.getId(), value);
 				} else {
 
-					String targetPath = FileUtil.path(local, "input", input.getId());
+					File tmpFile = new File(value);
+					if (!tmpFile.exists()) {
+						throw new FileNotFoundException("File " + value + " not found.");
+					}
+					String entryName = tmpFile.getName();
 
-					FileUtil.createDirectory(targetPath);
+					if (input.isHdfs()) {
+						String targetPath = HdfsUtil.path(hdfs, "input", input.getId());
+						if (tmpFile.isDirectory()) {
+							String[] files = FileUtil.getFiles(value, "");
+							for (String sourceFile : files) {
+								if (!new File(sourceFile).isDirectory()) {
+									String name = FileUtil.getFilename(sourceFile);
+									String target = HdfsUtil.path(targetPath, name);
+									// System.out.println("Put file " +
+									// sourceFile +
+									// " to " + target);
+									HdfsUtil.put(sourceFile, target);
+								} else {
+									// System.out.println("Ignore sub-directory
+									// " +
+									// sourceFile);
+								}
 
-					if (tmpFile.isDirectory()) {
-						String[] files = FileUtil.getFiles(value, "");
-						for (String sourceFile : files) {
-							if (!new File(sourceFile).isDirectory()) {
-								String name = FileUtil.getFilename(sourceFile);
-								String targetFile = FileUtil.path(targetPath, name);
-								// System.out.println("Copy file " + sourceFile
-								// + " to " + targetFile);
-								FileUtil.copy(sourceFile, targetFile);
-							} else {
-								// System.out.println("Ignore sub-directory " +
-								// sourceFile);
 							}
-
+						} else {
+							String target = HdfsUtil.path(targetPath, entryName);
+							HdfsUtil.put(value, target);
 						}
-					} else {
-						String targetFile = FileUtil.path(targetPath, entryName);
-						// System.out.println("Copy file " + value + " to " +
-						// targetFile);
-						FileUtil.copy(value, targetFile);
-					}
 
-					if (input.isFolder()) {
-						// folder
-						props.put(input.getId(),
-								new File(FileUtil.path(local, "input", input.getId())).getAbsolutePath());
-					} else {
-						// file
-						props.put(input.getId(),
-								new File(FileUtil.path(local, "input", input.getId(), entryName)).getAbsolutePath());
-					}
+						if (input.isFolder()) {
+							// folder
+							props.put(input.getId(), HdfsUtil.path(hdfs, "input", input.getId()));
+						} else {
+							// file
+							props.put(input.getId(), HdfsUtil.path(hdfs, "input", input.getId(), entryName));
+						}
 
+					} else {
+
+						String targetPath = FileUtil.path(local, "input", input.getId());
+
+						FileUtil.createDirectory(targetPath);
+
+						if (tmpFile.isDirectory()) {
+							String[] files = FileUtil.getFiles(value, "");
+							for (String sourceFile : files) {
+								if (!new File(sourceFile).isDirectory()) {
+									String name = FileUtil.getFilename(sourceFile);
+									String targetFile = FileUtil.path(targetPath, name);
+									// System.out.println("Copy file " +
+									// sourceFile
+									// + " to " + targetFile);
+									FileUtil.copy(sourceFile, targetFile);
+								} else {
+									// System.out.println("Ignore sub-directory
+									// " +
+									// sourceFile);
+								}
+
+							}
+						} else {
+							String targetFile = FileUtil.path(targetPath, entryName);
+							// System.out.println("Copy file " + value + " to "
+							// +
+							// targetFile);
+							FileUtil.copy(value, targetFile);
+						}
+
+						if (input.isFolder()) {
+							// folder
+							props.put(input.getId(),
+									new File(FileUtil.path(local, "input", input.getId())).getAbsolutePath());
+						} else {
+							// file
+							props.put(input.getId(), new File(FileUtil.path(local, "input", input.getId(), entryName))
+									.getAbsolutePath());
+						}
+
+					}
 				}
-
 			} else {
 
 				props.put(input.getId(), value);
