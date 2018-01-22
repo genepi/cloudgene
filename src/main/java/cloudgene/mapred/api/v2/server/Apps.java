@@ -64,27 +64,27 @@ public class Apps extends BaseResource {
 
 		try {
 
-			Application application = null;
+			List<Application> applications = new Vector<Application>();
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				// application = getSettings().installApplicationFromUrl(id,
-				// url);
+				applications = getSettings().installApplicationFromUrl(id, url);
 			} else {
 				if (url.endsWith(".zip")) {
-					// application =
-					// getSettings().installApplicationFromZipFile(id, url);
+					applications = getSettings().installApplicationFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
-					application = getSettings().installApplicationFromYaml(id, url);
+					Application application = getSettings().installApplicationFromYaml(id, url);
+					if (application != null) {
+						applications.add(application);
+					}
 				} else {
-					// application =
-					// getSettings().installApplicationFromDirectory(id, url);
+					applications = getSettings().installApplicationFromDirectory(id, url);
 				}
 			}
 
 			getSettings().save();
-			if (application != null) {
-				JSONObject jsonObject = JSONConverter.convert(application);
-				updateState(application, jsonObject);
+			if (applications != null && applications.size() > 0) {
+				JSONObject jsonObject = JSONConverter.convert(applications.get(0));
+				updateState(applications.get(0), jsonObject);
 				return new JsonRepresentation(jsonObject.toString());
 			} else {
 				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);

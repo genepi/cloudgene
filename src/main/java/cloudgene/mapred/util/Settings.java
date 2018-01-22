@@ -491,7 +491,7 @@ public class Settings {
 
 		for (String filename : files) {
 			String newId = id;
-			if (files.length > 0) {
+			if (files.length > 1) {
 				newId = id + "-" + FileUtil.getFilename(filename).replaceAll(".yaml", "");
 			}
 			Application application = installApplicationFromYaml(newId, filename);
