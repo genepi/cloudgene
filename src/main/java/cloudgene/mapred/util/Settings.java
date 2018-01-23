@@ -106,6 +106,8 @@ public class Settings {
 
 	private Set<Technology> technologies = new HashSet<Technology>();
 
+	protected Config config;
+
 	public Settings() {
 
 		apps = new Vector<Application>();
@@ -127,14 +129,46 @@ public class Settings {
 		for (Technology technology : Technology.values()) {
 			enable(technology);
 		}
+	}
+
+	public Settings(Config config) {
+
+		this();
+		this.config = config;
+
+		// workspace in config has higher priority
+		if (config.getWorkspace() != null) {
+			setLocalWorkspace(config.getWorkspace());
+		}
+
+		// database in config has higher priority
+		if (config.getDatabase() != null) {
+			Map<String, String> database = getDatabase();
+			if (database != null) {
+				if (database.get("driver") != null && database.get("driver").equals("h2")) {
+					database.put("database", config.getDatabase());
+					// check file and create parent folders
+					File databaseFile = new File(config.getDatabase());
+					if (!databaseFile.exists()) {
+						databaseFile.getParentFile().mkdirs();
+					}
+				}
+			} else {
+				database = new HashMap<String, String>();
+				database.put("driver", "h2");
+				database.put("database", config.getDatabase());
+				database.put("user", "mapred");
+				database.put("password", "mapred");
+			}
+		}
 
 	}
 
-	public static Settings load(String filename) throws FileNotFoundException, YamlException {
+	public static Settings load(Config config) throws FileNotFoundException, YamlException {
 
-		YamlConfig config = new YamlConfig();
-		config.setPropertyElementType(Settings.class, "apps", Application.class);
-		YamlReader reader = new YamlReader(new FileReader(filename), config);
+		YamlConfig yamlConfig = new YamlConfig();
+		yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
+		YamlReader reader = new YamlReader(new FileReader(config.getSettings()), yamlConfig);
 
 		Settings settings = reader.read(Settings.class);
 		settings.enable(Technology.HADOOP_CLUSTER);
@@ -151,6 +185,34 @@ public class Settings {
 			HadoopCluster.setHostname(host, username);
 		}
 
+		settings.config = config;
+
+		// workspace in config has higher priority
+		if (config.getWorkspace() != null) {
+			settings.setLocalWorkspace(config.getWorkspace());
+		}
+
+		// database in config has higher priority
+		if (config.getDatabase() != null) {
+			Map<String, String> database = settings.getDatabase();
+			if (database != null) {
+				if (database.get("driver") != null && database.get("driver").equals("h2")) {
+					database.put("database", config.getDatabase());
+					// check file and create parent folders
+					File databaseFile = new File(config.getDatabase());
+					if (!databaseFile.exists()) {
+						databaseFile.getParentFile().mkdirs();
+					}
+				}
+			} else {
+				database = new HashMap<String, String>();
+				database.put("driver", "h2");
+				database.put("database", config.getDatabase());
+				database.put("user", "mapred");
+				database.put("password", "mapred");
+			}
+		}
+
 		return settings;
 
 	}
@@ -158,8 +220,12 @@ public class Settings {
 	public void save() {
 		try {
 
-			FileUtil.createDirectory("config");
-			YamlWriter writer = new YamlWriter(new FileWriter(FileUtil.path("config", "settings.yaml")));
+			File file = new File(config.getSettings());
+			if (!file.exists()) {
+				file.getParentFile().mkdirs();
+			}
+
+			YamlWriter writer = new YamlWriter(new FileWriter(config.getSettings()));
 			writer.write(this);
 			writer.close();
 
@@ -423,10 +489,12 @@ public class Settings {
 
 	public void deleteApplication(Application application) throws IOException {
 
-		// download
+		// delete application in app folder
 		String id = application.getId();
-		// String appPath = FileUtil.path("apps", id);
+		// String appPath = FileUtil.path(config.getApps(), id);
 		// FileUtil.deleteDirectory(appPath);
+
+		// remove from app list
 		apps.remove(application);
 		reloadApplications();
 
@@ -440,8 +508,7 @@ public class Settings {
 			return installApplicationFromZipFile(id, zipFilename);
 		} else {
 			try {
-				String appPath = FileUtil.path("apps", id);
-				FileUtil.createDirectory("apps");
+				String appPath = FileUtil.path(config.getApps(), id);
 				FileUtil.createDirectory(appPath);
 
 				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
@@ -467,13 +534,11 @@ public class Settings {
 	public List<Application> installApplicationFromZipFile(String id, String zipFilename) throws IOException {
 
 		// extract in apps folder
-		String appPath = FileUtil.path("apps", id);
 
-		FileUtil.createDirectory("apps");
+		String appPath = FileUtil.path(config.getApps(), id);
 		FileUtil.createDirectory(appPath);
-		ZipFile file;
 		try {
-			file = new ZipFile(zipFilename);
+			ZipFile file = new ZipFile(zipFilename);
 			file.extractAll(appPath);
 		} catch (ZipException e) {
 			throw new IOException(e);

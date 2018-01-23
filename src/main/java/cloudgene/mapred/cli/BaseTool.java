@@ -1,6 +1,7 @@
 package cloudgene.mapred.cli;
 
 import java.io.File;
+import java.io.FileReader;
 import java.util.Collections;
 import java.util.List;
 
@@ -8,6 +9,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
+import com.esotericsoftware.yamlbeans.YamlReader;
+
+import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
 import genepi.base.Tool;
 
@@ -29,25 +33,39 @@ public abstract class BaseTool extends Tool {
 
 		turnOffLogging();
 
-		// load config
-		settings = null;
-		if (new File("config/settings.yaml").exists()) {
+		// load cloudgene.conf file. contains path to settings, db, apps, ..
+		Config config = new Config();
+		if (new File(Config.CONFIG_FILENAME).exists()) {
 			try {
-				settings = Settings.load("config/settings.yaml");
+				YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
+				config = reader.read(Config.class);
 			} catch (Exception e) {
-				printError("Error loading settings file:");
+				printError("Error loading cloudgene.conf file:");
+				printError(e.getMessage());
+				return;
+			}
+		}
+
+		// load default settings when not yet loaded
+		String settingsFilename = config.getSettings();
+		settings = null;
+		if (new File(settingsFilename).exists()) {
+			try {
+				settings = Settings.load(config);
+			} catch (Exception e) {
+				printError("Error loading settings file '" + settingsFilename + "' :");
 				printError(e.getMessage());
 				return;
 			}
 		} else {
-			settings = new Settings();
+			settings = new Settings(config);
 		}
 	}
 
 	public Settings getSettings() {
 		return settings;
 	}
-	
+
 	public String spaces(int n) {
 		return spaces("", n);
 	}

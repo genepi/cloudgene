@@ -19,6 +19,7 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
@@ -40,7 +41,7 @@ public class TestServer {
 
 	protected User user;
 
-	protected Settings settings = new Settings();
+	protected Settings settings = new Settings(new Config());
 
 	private Database database;
 

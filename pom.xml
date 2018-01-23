@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.28.0</version>
+	<version>1.29.0</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -160,7 +160,7 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-db</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.4</version>
 		</dependency>
 
 		<dependency>

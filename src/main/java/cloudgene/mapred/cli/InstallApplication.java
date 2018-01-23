@@ -62,14 +62,13 @@ public class InstallApplication extends BaseTool {
 				ListApplications.printApplicationList(applications);
 				return 0;
 			} else {
-				printlnInRed("[ERROR] 0 Applications not installed.\n");
+				printlnInRed("[ERROR] No valid Application found.\n");
 				return 1;
 			}
 
 		} catch (Exception e) {
 
 			printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
-
 			return 1;
 
 		}

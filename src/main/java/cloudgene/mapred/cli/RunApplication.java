@@ -301,7 +301,8 @@ public class RunApplication extends BaseTool {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String id = "job-" + sdf.format(new Date());
 		String hdfs = HdfsUtil.path("cloudgene-cli", id);
-		String local = FileUtil.path(id);		
+		String local = FileUtil.path(id);
+		
 		if (line.hasOption("output")) {
 			local = line.getOptionValue("output");
 		}

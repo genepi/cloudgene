@@ -6,6 +6,7 @@ import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.sql.SQLException;
 
@@ -24,16 +25,19 @@ import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
+import com.esotericsoftware.yamlbeans.YamlReader;
+
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BuildUtil;
+import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "1.28.0";
+	public static final String VERSION = "1.29.0";
 
 	private Database database;
 
@@ -41,13 +45,22 @@ public class Main implements Daemon {
 
 	public void runCloudgene(Settings settings, String[] args) throws Exception {
 
-		// load default config when not yet loaded
+		// load cloudgene.conf file. contains path to settings, db, apps, ..
+		Config config = new Config();
+		if (new File(Config.CONFIG_FILENAME).exists()) {
+			YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
+			config = reader.read(Config.class);
+		}
+
+		String settingsFilename = config.getSettings();
+
+		// load default settings when not yet loaded
 		if (settings == null) {
-			if (new File("config/settings.yaml").exists()) {
-				System.out.println("Loading settings from " + "config/settings.yaml" + "...");
-				settings = Settings.load("config/settings.yaml");
+			if (new File(settingsFilename).exists()) {
+				System.out.println("Loading settings from " + settingsFilename + "...");
+				settings = Settings.load(config);
 			} else {
-				settings = new Settings();
+				settings = new Settings(config);
 			}
 
 			if (!settings.testPaths()) {
@@ -140,7 +153,7 @@ public class Main implements Daemon {
 			InputStream is = Main.class.getResourceAsStream("/create-tables.sql");
 			connector.executeSQL(is);
 
-			File versionFile = new File("version.txt");
+			File versionFile = new File(config.getVersion());
 			if (versionFile.exists()) {
 				versionFile.delete();
 			}
@@ -148,7 +161,7 @@ public class Main implements Daemon {
 
 		// update database schema if needed
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, "version.txt", is, VERSION);
+		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, config.getVersion(), is, VERSION);
 
 		if (askimedUpdater.needUpdate()) {
 			log.info("Database needs update.");
@@ -163,6 +176,7 @@ public class Main implements Daemon {
 
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
+		FileUtil.createDirectory(settings.getLocalWorkspace());
 
 		// insert fixtures
 		Fixtures.insert(database);
@@ -193,8 +207,8 @@ public class Main implements Daemon {
 			}
 
 			String pagesFolder = "";
-			if (new File("pages").exists()) {
-				pagesFolder = "pages";
+			if (new File(config.getPages()).exists()) {
+				pagesFolder = config.getPages();
 			} else {
 				pagesFolder = "sample/pages";
 			}
