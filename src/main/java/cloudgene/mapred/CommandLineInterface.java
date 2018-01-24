@@ -6,6 +6,7 @@ import java.net.URLClassLoader;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
+import cloudgene.mapred.cli.CloneApplications;
 import cloudgene.mapred.cli.InstallApplication;
 import cloudgene.mapred.cli.ListApplications;
 import cloudgene.mapred.cli.RemoveApplication;
@@ -49,6 +50,7 @@ public class CommandLineInterface extends Toolbox {
 		CommandLineInterface toolbox = new CommandLineInterface("cloudgene", args);
 		toolbox.addTool("run", RunApplication.class);
 		toolbox.addTool("install", InstallApplication.class);
+		toolbox.addTool("clone", CloneApplications.class);
 		toolbox.addTool("ls", ListApplications.class);
 		toolbox.addTool("remove", RemoveApplication.class);
 		toolbox.addTool("server", StartServer.class);
