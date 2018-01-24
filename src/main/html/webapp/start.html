@@ -214,8 +214,9 @@ body {
 								tabs.show("home");
 							}
 
+							<#if apps?size gt 0>
 							can.route("run/:app", {app: "${apps[0].id}"});
-
+							</#if>
 							can.route.ready();
 
 
