@@ -113,10 +113,21 @@ public class Settings {
 		apps = new Vector<Application>();
 		reloadApplications();
 
+		// read default settings from env variables when set
+		String name = System.getenv().get("CLOUDGENE_SERVICE_NAME");
+		if (name != null) {
+			this.name = name;
+		}
+
 		MenuItem helpMenuItem = new MenuItem();
 		helpMenuItem.setId("help");
 		helpMenuItem.setName("Help");
-		helpMenuItem.setLink("#!pages/help");
+		String helpLink = System.getenv().get("CLOUDGENE_HELP_PAGE");
+		if (helpLink != null) {
+			helpMenuItem.setLink(helpLink);
+		} else {
+			helpMenuItem.setLink("#!pages/help");
+		}
 		navigation.add(helpMenuItem);
 
 		database = new HashMap<String, String>();
