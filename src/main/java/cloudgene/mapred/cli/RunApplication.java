@@ -173,7 +173,7 @@ public class RunApplication extends BaseTool {
 		Option confOption = new Option(null, "conf", true, "Hadoop configuration folder");
 		confOption.setRequired(false);
 		options.addOption(confOption);
-		
+
 		// add general options: hadoop hostname
 		Option outputFolderOption = new Option(null, "output", true, "Output folder");
 		outputFolderOption.setRequired(false);
@@ -216,9 +216,9 @@ public class RunApplication extends BaseTool {
 		if (line.hasOption("conf")) {
 
 			String conf = line.getOptionValue("conf");
-			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
-			printText(0,
-					spaces("[INFO]", 8) + "Use Haddop configuration folder " + conf + " with username " + username);
+			String username = line.getOptionValue("user", null);
+			printText(0, spaces("[INFO]", 8) + "Use Haddop configuration folder " + conf
+					+ (username != null ? " with username " + username : ""));
 			HadoopCluster.setConfPath(conf, username);
 
 		} else if (line.hasOption("host")) {
@@ -302,14 +302,13 @@ public class RunApplication extends BaseTool {
 		String id = "job-" + sdf.format(new Date());
 		String hdfs = HdfsUtil.path("cloudgene-cli", id);
 		String local = FileUtil.path(id);
-		
+
 		if (line.hasOption("output")) {
 			local = line.getOptionValue("output");
 		}
-		
+
 		FileUtil.createDirectory(local);
 
-	
 		// file params with values from cmdline
 		try {
 			Map<String, String> params = CommandLineUtil.createParams(app, line, local, hdfs);

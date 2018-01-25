@@ -42,11 +42,12 @@ public class StartServer extends BaseTool {
 
 			String conf = getValue("conf").toString();
 
-			String username = DEFAULT_HADOOP_USER;
+			String username = null;
 			if (getValue("user") != null) {
 				username = getValue("user").toString();
 			}
-			System.out.println("Use Haddop configuration folder " + conf + " with username " + username);
+			System.out.println(
+					"Use Haddop configuration folder " + conf + (username != null ? " with username " + username : ""));
 			HadoopCluster.setConfPath(conf, username);
 
 		} else if (getValue("host") != null) {
