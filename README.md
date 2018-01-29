@@ -1,18 +1,16 @@
 Cloudgene
 =========
 
-A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
-
 [ ![Codeship Status for lukfor/cloudgene](https://app.codeship.com/projects/2e592ca0-ba41-0134-daad-4e53c1da9345/status?branch=master)](https://app.codeship.com/projects/195236) [![codecov](https://codecov.io/gh/lukfor/cloudgene/branch/master/graph/badge.svg?token=b7fe2lDzlV)](https://codecov.io/gh/lukfor/cloudgene)
 
-## Key Features
+A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
 
 - **Build** your analysis pipeline in your favorite language or use Hadoop based technologies (MapReduce, Spark, Pig)
-- **Integrate** your analysis pipeline into Cloudgene with a simple configuration file
-- **Get** a powerful web application within minutes including user management, data transfer, error handling and user notification  
-- **Deploy** your application by using our built-in Cloud-adapters to scale up and to benefit from Hadoop
-- **Provide** your application as SaaS to other scientists
-- **Share** your application and enable scientists to clone your service to their own hardware or cloud instance
+- **Integrate** your analysis pipeline into Cloudgene by writing a simple [configuration file](http://docs.cloudgene.io/developers/introduction/)
+- **Get** a powerful web application with user management, data transfer, error handling and more
+- **Deploy** your application with one click to any Hadoop cluster or to public Clouds like Amazon AWS
+- **Provide** your application as SaaS to other scientists and handle thousands of jobs like a pro
+- **Share** your application and enable everyone to clone your service to its own hardware or private cloud instance
 
 ## Prerequisites
 
