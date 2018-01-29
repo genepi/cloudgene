@@ -1,7 +1,7 @@
 Cloudgene
 =========
 
-*Cloudgene is a toolkit to build Software As A Service (SaaS) platforms for data analysis pipelines.*
+*A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.*
 
 [ ![Codeship Status for lukfor/cloudgene](https://app.codeship.com/projects/2e592ca0-ba41-0134-daad-4e53c1da9345/status?branch=master)](https://app.codeship.com/projects/195236) [![codecov](https://codecov.io/gh/lukfor/cloudgene/branch/master/graph/badge.svg?token=b7fe2lDzlV)](https://codecov.io/gh/lukfor/cloudgene)
 
