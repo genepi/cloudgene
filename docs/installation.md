@@ -21,7 +21,7 @@ Download the latest version from our download page using the following commands:
 
 * `mkdir cloudgene`
 * `cd cloudgene`
-* `curl -fsSL cloudgene.uibk.ac.at/install | bash`
+* `curl -s install.cloudgene.io | bash`
 
 Test the installation with the following command:
 

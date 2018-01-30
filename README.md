@@ -1,7 +1,7 @@
 Cloudgene
 =========
 
-[ ![Codeship Status for lukfor/cloudgene](https://app.codeship.com/projects/2e592ca0-ba41-0134-daad-4e53c1da9345/status?branch=master)](https://app.codeship.com/projects/195236) [![codecov](https://codecov.io/gh/lukfor/cloudgene/branch/master/graph/badge.svg?token=b7fe2lDzlV)](https://codecov.io/gh/lukfor/cloudgene)
+[ ![Codeship Status for genepi/cloudgene](https://app.codeship.com/projects/2e592ca0-ba41-0134-daad-4e53c1da9345/status?branch=master)](https://app.codeship.com/projects/195236) [![codecov](https://codecov.io/gh/lukfor/cloudgene/branch/master/graph/badge.svg?token=b7fe2lDzlV)](https://codecov.io/gh/lukfor/cloudgene)
 
 A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
 
@@ -26,7 +26,7 @@ You will need the following things properly installed on your computer.
 
 * `mkdir cloudgene`
 * `cd cloudgene`
-* `curl -fsSL cloudgene.uibk.ac.at/install | bash`
+* `curl -s install.cloudgene.io | bash`
 
 Test the installation with the following command:
 
@@ -40,14 +40,14 @@ Test the installation with the following command:
 You can install applications by using the `install` command.
 
 ```sh
-./cloudgene install <name> <location> 
+./cloudgene install <name> <location>
 ```
 Location could be a zip file accessible via http or a yaml file on the local filesystem.
 
 A simple hello world workflow can be installed by using the following command:
 
 ```sh
-./cloudgene install hello-cloudgene http://cloudgene.uibk.ac.at/downloads/hello-cloudgene
+./cloudgene install hello-cloudgene http://www.cloudgene.io/downloads/hello-cloudgene
 ```
 
 
@@ -74,7 +74,7 @@ The webservice displays a graphical userinterface for all installed applications
 ```
 The webservice is available on http://localhost:8082. Please use username `admin` and password `admin1978` to login.
 
-*For production you should use the `cloudgene-daemon.sh` script.*
+*For production you should use the [`cloudgene-daemon`](http://docs.cloudgene.io/daemon/introduction/) script.*
 
 
 ### On the commandline

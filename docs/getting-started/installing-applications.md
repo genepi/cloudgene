@@ -14,7 +14,7 @@ The `id` parameter is a shorthand name of the application and is used to refer t
 A simple hello world workflow can be installed by using the following command:
 
 ```sh
-cloudgene install hello-cloudgene http://cloudgene.uibk.ac.at/downloads/hello-cloudgene
+cloudgene install hello-cloudgene http://www.cloudgene.io/downloads/hello-cloudgene
 ```
 
 
