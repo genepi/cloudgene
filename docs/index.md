@@ -1,10 +1,55 @@
-# Cloudgene
+# Welcome to Cloudgene's documentation!
 
-Transform your Data Analysis Pipelines into scalable and user-friendly Cloud Services:
+Contents:
 
-- **Build** your analysis pipeline in your favorite language or use Hadoop based technologies.
-- **Integrate** your analysis pipeline into Cloudgene with a simple configuration file.
-- **Get** a powerful web application with user management, data transfer, error handling and more.
-- **Deploy** your application with one click to any Hadoop cluster or to public Clouds like Amazon AWS.
-- **Provide** your application as SaaS to other scientists and handle thousands of jobs like a pro.
-- **Share** your application and enable scientists to clone your service to their own hardware or private cloud instance.
+- [Home](/index.md)
+- [Installation](/installation.md)
+- Getting started:
+     - [Install Apps](/getting-started/installing-applications.md)
+     - [Run Apps on the Commandline](/getting-started/commandline.md)
+     - [Run Apps in the Web Application](/getting-started/web-application.md)
+
+- Cloudgene CLI:
+    - [Introduction](/cli/introduction.md)
+    - [cloudgene install](/cli/cloudgene-install.md)
+    - [cloudgene clone](/cli/cloudgene-clone.md)
+    - [cloudgene remove](/cli/cloudgene-remove.md)
+    - [cloudgene ls](/cli/cloudgene-ls.md)
+    - [cloudgene validate](/cli/cloudgene-validate.md)
+    - [cloudgene run](/cli/cloudgene-run.md)
+    - [cloudgene server](/cli/cloudgene-server.md)
+    - [cloudgene version](/cli/cloudgene-version.md)
+- Cloudgene Daemon:
+    - [Introduction](/daemon/introduction.md)
+    - [Start Daemon](/daemon/start-daemon.md)
+    - [Stop Daemon](/daemon/stop-daemon.md)
+    - [Configuration](/daemon/configuration.md)
+    - [Enable Hadoop Support](/daemon/hadoop.md)
+    - [Manage Jobs](/daemon/jobs.md)
+    - [Manage Permissions](/daemon/permissions.md)
+    - [Maintenance](/daemon/administration.md)
+- cloudgene.yaml:
+    - [Introduction](/developers/introduction.md)
+    - Steps:
+        - [BashCommand](/developers/steps/BashCommand.md)
+        - [JavaJar](/developers/steps/JavaJar.md)
+        - [HadoopMapReduce](/developers/steps/HadoopMapReduce.md)
+        - [HadoopPig](/developers/steps/HadoopPig.md)
+        - [RMarkdown](/developers/steps/RMarkdown.md)
+        - [Docker](/developers/steps/Docker.md)
+        - [JavaInterface](/developers/steps/JavaInterface.md)
+        - [Groovy](/developers/steps/Groovy.md)
+    - [Inputs](/developers/inputs.md)
+    - [Outputs](/developers/outputs.md)
+    - [Environment Variables](/developers/environment_variables.md)
+    - [Control patterns](/developers/control-patterns.md)
+- Tutorials:
+    - [Using AppLinks to link to other applications](/tutorials/application-links.md)
+    - [Using InstallActions to import HDFS files](/tutorials/installation-actions.md)
+- API Reference:
+    - [Introduction](/api/introduction.md)
+    - [Authentication](/api/authentication.md)
+    - [Submit Job](/api/job-submission.md)
+    - [Job Status](/api/job-status.md)
+    - [List Jobs](/api/list-jobs.md)
+    - [Job Details](/api/job-details.md)
