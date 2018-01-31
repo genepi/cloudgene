@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.29.0</version>
+	<version>1.30.0</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
@@ -442,7 +442,7 @@
 		<dependency>
 			<groupId>com.spotify</groupId>
 			<artifactId>docker-client</artifactId>
-			<version>8.9.2</version>
+			<version>8.11.1</version>
 		</dependency>
 
 

@@ -12,6 +12,7 @@ import org.apache.commons.io.FileUtils;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.util.Application;
+import genepi.io.FileUtil;
 
 public class CloneApplications extends BaseTool {
 
@@ -49,6 +50,8 @@ public class CloneApplications extends BaseTool {
 			}
 		}
 
+		String folderRepo = new File(repo).getParentFile().getAbsolutePath();
+		
 		try {
 			YamlReader reader = new YamlReader(new FileReader(repo));
 			while (true) {
@@ -70,7 +73,12 @@ public class CloneApplications extends BaseTool {
 						if (url.startsWith("http://") || url.startsWith("https://")) {
 							applications = getSettings().installApplicationFromUrl(id, url);
 						} else {
-							if (url.endsWith(".zip")) {
+							
+							if (!url.startsWith("/")){
+								url = FileUtil.path(folderRepo, url);
+							}
+							
+							if (url.endsWith(".zip")) {								
 								applications = getSettings().installApplicationFromZipFile(id, url);
 							} else if (url.endsWith(".yaml")) {
 								Application application = getSettings().installApplicationFromYaml(id, url);
