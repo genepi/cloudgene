@@ -594,7 +594,12 @@ public class Settings {
 		application.setId(id);
 		application.setFilename(filename);
 		application.setPermission("user");
-		application.loadWdlApp();
+		try {
+			application.loadWdlApp();
+		} catch (IOException e) {
+			System.out.println("Ignore file " + filename + ". Not a valid cloudgene.yaml file.");
+			return null;
+		}
 
 		apps.add(application);
 		WdlApp wdlApp = application.getWdlApp();

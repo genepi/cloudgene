@@ -8,6 +8,7 @@ import java.util.jar.Manifest;
 
 import cloudgene.mapred.cli.CloneApplications;
 import cloudgene.mapred.cli.InstallApplication;
+import cloudgene.mapred.cli.InstallGitHubApplication;
 import cloudgene.mapred.cli.ListApplications;
 import cloudgene.mapred.cli.RemoveApplication;
 import cloudgene.mapred.cli.RunApplication;
@@ -50,6 +51,7 @@ public class CommandLineInterface extends Toolbox {
 		CommandLineInterface toolbox = new CommandLineInterface("cloudgene", args);
 		toolbox.addTool("run", RunApplication.class);
 		toolbox.addTool("install", InstallApplication.class);
+		toolbox.addTool("gh", InstallGitHubApplication.class);
 		toolbox.addTool("clone", CloneApplications.class);
 		toolbox.addTool("ls", ListApplications.class);
 		toolbox.addTool("remove", RemoveApplication.class);
