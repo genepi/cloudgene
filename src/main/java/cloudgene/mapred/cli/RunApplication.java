@@ -26,7 +26,6 @@ import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.DockerHadoopCluster;
 import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
@@ -39,8 +38,6 @@ import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 public class RunApplication extends BaseTool {
-
-	public static final String DEFAULT_DOCKER_IMAGE = "seppinho/cdh5-hadoop-mrv1";
 
 	public static final String DEFAULT_HADOOP_USER = "cloudgene";
 
@@ -153,17 +150,6 @@ public class RunApplication extends BaseTool {
 		forceOption.setRequired(false);
 		options.addOption(forceOption);
 
-		// add general options: run on docker
-		Option dockerOption = new Option(null, "docker", false, "use docker hadoop cluster");
-		dockerOption.setRequired(false);
-		options.addOption(dockerOption);
-
-		// add general options: run on custom docker image
-		Option dockerImageOption = new Option(null, "image", true,
-				"use custom docker image [default: " + DEFAULT_DOCKER_IMAGE + "]");
-		dockerImageOption.setRequired(false);
-		options.addOption(dockerImageOption);
-
 		// add general options: hadoop hostname
 		Option hostOption = new Option(null, "host", true, "Hadoop namenode hostname [default: localhost]");
 		hostOption.setRequired(false);
@@ -199,8 +185,6 @@ public class RunApplication extends BaseTool {
 			return 1;
 		}
 
-		DockerHadoopCluster cluster = null;
-
 		if (line.hasOption("no-logging")) {
 			logging = false;
 		}
@@ -227,21 +211,6 @@ public class RunApplication extends BaseTool {
 			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
 			printText(0, spaces("[INFO]", 8) + "Use Haddop cluster running on " + host + " with username " + username);
 			HadoopCluster.setHostname(host, username);
-
-		} else if (line.hasOption("docker")) {
-
-			String image = line.getOptionValue("image", DEFAULT_DOCKER_IMAGE);
-
-			cluster = new DockerHadoopCluster();
-			try {
-				cluster.start(image);
-			} catch (Exception e) {
-				printError("Error starting cluster.");
-				printError(e.getMessage());
-				return 1;
-			}
-
-			HadoopCluster.setHostname(cluster.getIpAddress(), "cloudgene");
 
 		} else {
 			if (settings.getCluster() == null) {
@@ -399,9 +368,6 @@ public class RunApplication extends BaseTool {
 
 			if (job.getState() == CloudgeneJob.STATE_SUCCESS) {
 
-				if (cluster != null) {
-					cluster.stop();
-				}
 				printlnInGreen("Done! Executed without errors.");
 				System.out.println("Results can be found in file://" + (new File(local)).getAbsolutePath());
 				System.out.println();
@@ -422,9 +388,6 @@ public class RunApplication extends BaseTool {
 					System.out.println();
 				}
 
-				if (cluster != null) {
-					cluster.stop();
-				}
 				System.out.println();
 
 				return 1;
@@ -436,14 +399,6 @@ public class RunApplication extends BaseTool {
 			e.printStackTrace();
 			System.out.println();
 			System.out.println();
-			if (cluster != null) {
-				try {
-					cluster.stop();
-				} catch (Exception e1) {
-					printlnInRed("Error: Stoping Cluster failed.");
-					System.out.println(e.getMessage());
-				}
-			}
 			return 1;
 		}
 

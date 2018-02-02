@@ -8,16 +8,13 @@ import com.spotify.docker.client.exceptions.DockerCertificateException;
 import com.spotify.docker.client.exceptions.DockerException;
 
 import cloudgene.mapred.Main;
-import cloudgene.mapred.util.Technology;
-import cloudgene.mapred.util.DockerHadoopCluster;
 import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.RBinary;
+import cloudgene.mapred.util.Technology;
 import genepi.base.Tool;
 import genepi.hadoop.HadoopUtil;
 
 public class StartServer extends BaseTool {
-
-	public static final String DEFAULT_DOCKER_IMAGE = "seppinho/cdh5-hadoop-mrv1";
 
 	public static final String DEFAULT_HADOOP_USER = "cloudgene";
 
@@ -27,8 +24,6 @@ public class StartServer extends BaseTool {
 
 	@Override
 	public void createParameters() {
-		addFlag("docker", "use docker hadoop cluster");
-		addOptionalParameter("image", "use custom docker image [default: " + DEFAULT_DOCKER_IMAGE + "]", Tool.STRING);
 		addOptionalParameter("host", "Hadoop namenode hostname [default: localhost]", Tool.STRING);
 		addOptionalParameter("user", "Hadoop username [default: " + DEFAULT_HADOOP_USER + "]", Tool.STRING);
 		addOptionalParameter("port", "running webinterface on this port [default: 8082]", Tool.STRING);
@@ -60,25 +55,7 @@ public class StartServer extends BaseTool {
 			}
 			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
 			HadoopCluster.setHostname(host, username);
-
-		} else if (isFlagSet("docker")) {
-
-			String image = DEFAULT_DOCKER_IMAGE;
-			if (getValue("image") != null) {
-				image = getValue("image").toString();
-			}
-
-			DockerHadoopCluster cluster = new DockerHadoopCluster();
-			try {
-				cluster.start(image);
-			} catch (Exception e) {
-				printError("Error starting cluster.");
-				printError(e.getMessage());
-				return 1;
-			}
-
-			HadoopCluster.setHostname(cluster.getIpAddress(), "cloudgene");
-
+			
 		} else {
 			if (settings.getCluster() == null) {
 				System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
