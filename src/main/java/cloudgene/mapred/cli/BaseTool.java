@@ -21,6 +21,8 @@ public abstract class BaseTool extends Tool {
 
 	protected Settings settings;
 
+	protected Config config;
+	
 	protected String[] args;
 
 	public BaseTool(String[] args) {
@@ -34,7 +36,7 @@ public abstract class BaseTool extends Tool {
 		turnOffLogging();
 
 		// load cloudgene.conf file. contains path to settings, db, apps, ..
-		Config config = new Config();
+		config = new Config();
 		if (new File(Config.CONFIG_FILENAME).exists()) {
 			try {
 				YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));

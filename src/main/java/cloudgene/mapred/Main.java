@@ -188,7 +188,7 @@ public class Main implements Daemon {
 					settings.getThreadsSetupQueue());
 			new Thread(engine).start();
 
-			int port = Integer.parseInt(line.getOptionValue("port", "8082"));
+			int port = Integer.parseInt(line.getOptionValue("port", config.getPort()));
 
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);

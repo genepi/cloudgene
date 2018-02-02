@@ -55,7 +55,7 @@ public class StartServer extends BaseTool {
 			}
 			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
 			HadoopCluster.setHostname(host, username);
-			
+
 		} else {
 			if (settings.getCluster() == null) {
 				System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
@@ -115,7 +115,7 @@ public class StartServer extends BaseTool {
 			if (getValue("port") != null) {
 				port = getValue("port").toString();
 			} else {
-				port = "8082";
+				port = config.getPort();
 			}
 			System.out.println();
 			System.out.println("Server is running on http://localhost:" + port);
