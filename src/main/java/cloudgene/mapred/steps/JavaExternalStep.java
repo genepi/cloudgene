@@ -56,6 +56,14 @@ public class JavaExternalStep extends CloudgeneStep {
 			return false;
 		}
 
+		String stdout = step.get("stdout", "false");
+		boolean streamStdout = stdout.equals("true");
+
+		StringBuilder output = null;
+		if (streamStdout) {
+			output = new StringBuilder();
+		}
+
 		String jar = step.getJar();
 		// params
 		String paramsString = step.get("params");
@@ -73,60 +81,27 @@ public class JavaExternalStep extends CloudgeneStep {
 		}
 		try {
 			context.beginTask("Running Java Application...");
-			boolean successful = executeCommand(command, context);
+			boolean successful = executeCommand(command, context, output);
 			if (successful) {
-				context.endTask("Execution successful.", Message.OK);
+				if (streamStdout) {
+					context.endTask(output.toString(), Message.OK);
+				} else {
+					context.endTask("Execution successful.", Message.OK);
+				}
 				return true;
 			} else {
-				context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
+				if (streamStdout) {
+					context.endTask(output.toString(), Message.ERROR);
+				} else {
+					context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
+				}
 				return false;
 			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
 		}
-	}
-
-	protected boolean executeCommand(List<String> command, WorkflowContext context)
-			throws IOException, InterruptedException {
-		// set global variables
-		for (int j = 0; j < command.size(); j++) {
-
-			String cmd = command.get(j).replaceAll("\\$job_id", context.getJobId());
-			command.set(j, cmd);
-		}
-
-		log.info(command);
-
-		context.log("Command: " + command);
-		context.log("Working Directory: " + new File(context.getWorkingDirectory()).getAbsolutePath());
-
-		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(new File(context.getWorkingDirectory()));
-		builder.redirectErrorStream(true);
-		process = builder.start();
-		InputStream is = process.getInputStream();
-		InputStreamReader isr = new InputStreamReader(is);
-		BufferedReader br = new BufferedReader(isr);
-		String line = null;
-
-		while ((line = br.readLine()) != null) {
-			context.println(line);
-		}
-
-		br.close();
-		isr.close();
-		is.close();
-
-		process.waitFor();
-		context.log("Exit Code: " + process.exitValue());
-
-		if (process.exitValue() != 0) {
-			return false;
-		} else {
-			process.destroy();
-		}
-		return true;
 	}
 
 	@Override

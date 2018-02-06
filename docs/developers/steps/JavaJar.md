@@ -9,6 +9,8 @@ Cloudgene supports the execution of jar files (written in Java).
 | `type` | yes | Type has to be `java` |
 | `jar` | yes | The filename of the jar (relativ to cloudgene.yaml file) |
 | `params` | no | The paramters that you want to use in your jar |
+| `stdout` | no | Use stdout as step's output (default: **false**) |
+
 
 ## Examples
 
