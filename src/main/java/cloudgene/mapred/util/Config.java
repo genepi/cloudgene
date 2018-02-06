@@ -14,6 +14,8 @@ public class Config {
 
 	private String pages = "pages";
 
+	private String port = "8082";
+	
 	private String version = "version.txt";
 
 	public String getDatabase() {
@@ -62,6 +64,14 @@ public class Config {
 
 	public String getVersion() {
 		return version;
+	}
+	
+	public String getPort() {
+		return port;
+	}
+	
+	public void setPort(String port) {
+		this.port = port;
 	}
 
 }

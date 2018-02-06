@@ -27,6 +27,7 @@ import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.model.FileHeader;
 
 public class Settings {
 
@@ -559,7 +560,34 @@ public class Settings {
 
 	}
 
+	public List<Application> installApplicationFromZipFile(String id, String zipFilename, String subFolder)
+			throws IOException {
+
+		String appPath = FileUtil.path(config.getApps(), id);
+		FileUtil.createDirectory(appPath);
+		try {
+			ZipFile file = new ZipFile(zipFilename);
+			for (Object header : file.getFileHeaders()) {
+				FileHeader fileHeader = (FileHeader) header;
+				String name = fileHeader.getFileName();
+				if (name.matches(subFolder)) {
+					file.extractFile(fileHeader, appPath);
+				}
+			}
+		} catch (ZipException e) {
+			throw new IOException(e);
+		}
+
+		return installApplicationFromDirectory(id, appPath);
+
+	}
+
 	public List<Application> installApplicationFromDirectory(String id, String path) throws IOException {
+		return installApplicationFromDirectory(id, path, false);
+	}
+
+	public List<Application> installApplicationFromDirectory(String id, String path, boolean multiple)
+			throws IOException {
 		// find all cloudgene workflows (use filename as id)
 		String[] files = FileUtil.getFiles(path, "*.yaml");
 
@@ -567,18 +595,23 @@ public class Settings {
 
 		for (String filename : files) {
 			String newId = id;
-			if (files.length > 1) {
+			if (multiple) {
 				newId = id + "-" + FileUtil.getFilename(filename).replaceAll(".yaml", "");
 			}
 			Application application = installApplicationFromYaml(newId, filename);
 			if (application != null) {
 				installed.add(application);
+				multiple = true;
 			}
 		}
 
 		// search in subfolders
 		for (String directory : getDirectories(path)) {
-			installed.addAll(installApplicationFromDirectory(id, directory));
+			List<Application> installedSubFolder = installApplicationFromDirectory(id, directory, multiple);
+			if (installedSubFolder.size() > 0) {
+				multiple = true;
+				installed.addAll(installedSubFolder);
+			}
 		}
 		return installed;
 
@@ -600,12 +633,13 @@ public class Settings {
 			System.out.println("Ignore file " + filename + ". Not a valid cloudgene.yaml file.");
 			return null;
 		}
-
+		System.out.println("Process file " + filename + "....");
 		apps.add(application);
 		WdlApp wdlApp = application.getWdlApp();
 		if (wdlApp != null) {
 			wdlApp.setId(id);
 		}
+		System.out.println("OJE");
 		indexApps.put(application.getId(), application);
 
 		return application;
