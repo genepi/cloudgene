@@ -2,6 +2,13 @@
 
 Cloudgene supports several environment variables that can be used in your `cloudgene.yaml` files to get informations about the application itself and the submitted job.
 
+## Requirements
+| Variable | Description |
+| --- | --- |
+| `${hadoop_installed}` |  |
+| `${docker_installed}` | |
+| `${r_markdown_installed}` | |
+
 ## Application
 
 | Variable | Description |

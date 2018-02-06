@@ -36,6 +36,7 @@ pages:
         - HadoopMapReduce: developers/steps/HadoopMapReduce.md
         - HadoopPig: developers/steps/HadoopPig.md
         - RMarkdown: developers/steps/RMarkdown.md
+        - RMarkdown (Docker): developers/steps/RMarkdownDocker.md
         - Docker: developers/steps/Docker.md
         - JavaInterface: developers/steps/JavaInterface.md
         - Groovy: developers/steps/Groovy.md

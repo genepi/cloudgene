@@ -5,6 +5,8 @@ import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -244,6 +246,14 @@ public class CloudgeneContext extends WorkflowContext {
 
 	public void println(String line) {
 		job.writeOutputln(line);
+	}
+
+	public void log(String line, Exception e) {
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		String sStackTrace = sw.toString(); // stack trace as a string
+		job.writeLog(line + "\n" + sStackTrace);
 	}
 
 	public void log(String line) {

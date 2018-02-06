@@ -7,6 +7,7 @@ import cloudgene.mapred.steps.HadoopMapReduceStep;
 import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.HadoopSparkStep;
 import cloudgene.mapred.steps.JavaExternalStep;
+import cloudgene.mapred.steps.RMarkdown2DockerStep;
 import cloudgene.mapred.steps.RMarkdown2Step;
 import cloudgene.mapred.steps.RMarkdownStep;
 import cloudgene.mapred.wdl.WdlStep;
@@ -14,20 +15,22 @@ import cloudgene.mapred.wdl.WdlStep;
 public class CloudgeneStepFactory {
 
 	public static String getClassname(WdlStep step) {
-		
+
 		String type = step.get("type");
-		
-		if (type != null){
-			switch(type.toLowerCase()){
+
+		if (type != null) {
+			switch (type.toLowerCase()) {
 			case "java":
 				return JavaExternalStep.class.getName();
 			case "docker":
 				return DockerStep.class.getName();
+			case "rmd_docker":
+				return RMarkdown2DockerStep.class.getName();
 			case "groovy":
 				return GroovyStep.class.getName();
 			}
 		}
-		
+
 		if (step.get("pig") != null) {
 
 			// pig script

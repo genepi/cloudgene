@@ -27,6 +27,6 @@ workflow:
       type: hdfs_file
   outputs:
     - id: report
-      description: HDFS-Output
+      description: Report
       type: local_file
 ```

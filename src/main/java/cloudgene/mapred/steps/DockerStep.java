@@ -25,6 +25,9 @@ public class DockerStep extends CloudgeneStep {
 
 	public static final String DOCKER_WORKSPACE = "/mnt/cloudgene";
 
+	public static final String DOCKER_WORKING = "/mnt/working";
+
+	
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
@@ -43,25 +46,35 @@ public class DockerStep extends CloudgeneStep {
 
 		String[] params = cmd.split(" ");
 
+		String image = step.get("image");
+
+		if (image == null) {
+			context.error("No 'image' parameter found.");
+		}
+
+		if (image.isEmpty()) {
+			context.error("'image' parameter cannot be an empty string.");
+		}
+
+		return runInDockerContainer(context, image, params, streamStdout);
+
+	}
+
+	protected boolean runInDockerContainer(CloudgeneContext context, String image, String[] cmd) {
+		return runInDockerContainer(context, image, cmd, false);
+	}
+
+	protected boolean runInDockerContainer(CloudgeneContext context, String image, String[] cmd, boolean streamStdout) {
+		context.beginTask("Starting docker container...");
+
+		String localWorkspace = new File(context.getJob().getLocalWorkspace()).getAbsolutePath();
+
 		try {
-			String image = step.get("image");
-
-			if (image == null) {
-				context.error("No 'image' parameter found.");
-			}
-
-			if (image.isEmpty()) {
-				context.error("'image' parameter cannot be an empty string.");
-			}
-
-			context.beginTask("Starting docker container...");
-
-			String localWorkspace = new File(context.getJob().getLocalWorkspace()).getAbsolutePath();
 
 			// replace all paths with paths in docker workspace
-			String[] newParams = new String[params.length];
+			String[] newParams = new String[cmd.length];
 			for (int i = 0; i < newParams.length; i++) {
-				String param = params[i];
+				String param = cmd[i];
 
 				// checkout hdfs file
 				if (param.startsWith("hdfs://")) {
@@ -73,11 +86,11 @@ public class DockerStep extends CloudgeneStep {
 						newParams[i] = localFilename;
 					} catch (IOException e) {
 						context.log(e.getMessage());
-						newParams[i] = params[i].replaceAll(localWorkspace, DOCKER_WORKSPACE);
+						newParams[i] = param.replaceAll(localWorkspace, DOCKER_WORKSPACE);
 					}
 
 				} else {
-					newParams[i] = params[i].replaceAll(localWorkspace, DOCKER_WORKSPACE);
+					newParams[i] = param.replaceAll(localWorkspace, DOCKER_WORKSPACE);
 				}
 			}
 
@@ -92,7 +105,8 @@ public class DockerStep extends CloudgeneStep {
 			docker.pull(image);
 
 			// mount workspace from host to container
-			String[] volumes = { localWorkspace + ":" + DOCKER_WORKSPACE };
+			String[] volumes = { localWorkspace + ":" + DOCKER_WORKSPACE,
+					context.getWorkingDirectory() + ":" + DOCKER_WORKING };
 			final HostConfig hostConfig = HostConfig.builder().privileged(false).binds(volumes).build();
 
 			// create container
@@ -145,10 +159,10 @@ public class DockerStep extends CloudgeneStep {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			context.log("Execeution failed.", e);
+			context.endTask("Execeution failed.", Message.ERROR);
 			return false;
 		}
-
 	}
 
 	@Override

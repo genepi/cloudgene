@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 
@@ -22,6 +23,10 @@ public class Environment {
 		// Deprecreated
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
+
+		environment.put("docker_installed", settings.isEnable(Technology.DOCKER) ? "true" : "false");
+		environment.put("hadoop_installed", settings.isEnable(Technology.HADOOP_CLUSTER) ? "true" : "false");
+		environment.put("r_markdown_installed", settings.isEnable(Technology.R_MARKDOWN) ? "true" : "false");
 
 		return environment;
 	}
@@ -50,5 +55,5 @@ public class Environment {
 
 		return value;
 	}
-	
+
 }
