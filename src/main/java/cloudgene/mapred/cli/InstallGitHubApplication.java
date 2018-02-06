@@ -1,14 +1,25 @@
 package cloudgene.mapred.cli;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.util.EntityUtils;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import cloudgene.mapred.util.Application;
 import genepi.io.FileUtil;
+import net.sf.json.JSONObject;
 
 public class InstallGitHubApplication extends BaseTool {
 
@@ -78,8 +89,6 @@ public class InstallGitHubApplication extends BaseTool {
 		String id = args[0];
 		String repo = args[1];
 
-		// TODO: check repo structure and support tags, commits
-
 		try {
 
 			List<Application> applications = new Vector<Application>();
@@ -102,9 +111,9 @@ public class InstallGitHubApplication extends BaseTool {
 			FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
 
 			if (repository.getDirectory() != null) {
-				//extract only sub dir
+				// extract only sub dir
 				applications = getSettings().installApplicationFromZipFile(id, zipFilename,
-						"^.*/" + repository.getDirectory()+".*");
+						"^.*/" + repository.getDirectory() + ".*");
 			} else {
 				applications = getSettings().installApplicationFromZipFile(id, zipFilename);
 			}
@@ -152,11 +161,40 @@ public class InstallGitHubApplication extends BaseTool {
 	}
 
 	public static String buildUrlFromRepository(Repository repo) {
-
+		String tag = repo.getTag();
+		if (tag != null && tag.equalsIgnoreCase("latest")) {
+			// get latest release tag
+			tag = getLatestReleaseFromRepository(repo);
+			if (tag == null) {
+				return null;
+			}
+		}
+		
 		String url = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/zipball";
-		if (repo.getTag() != null) {
-			url += "/" + repo.getTag();
+		if (tag != null) {
+			url += "/" + tag;
 		}
 		return url;
 	}
+
+	public static String getLatestReleaseFromRepository(Repository repo) {
+		String url = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
+		try {
+	        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+	        HttpGet request = new HttpGet(url);
+	        request.addHeader("content-type", "application/json");
+	        HttpResponse result = httpClient.execute(request);
+	        String json = EntityUtils.toString(result.getEntity(), "UTF-8");
+	        //"tag_name"
+	        
+	        JsonElement jelement = new JsonParser().parse(json);
+	        JsonObject  jobject = jelement.getAsJsonObject();
+	        return jobject.get("tag_name").getAsString();
+	    } catch (IOException ex) {
+	    	
+	    	return null;
+	    }
+		
+	}
+
 }

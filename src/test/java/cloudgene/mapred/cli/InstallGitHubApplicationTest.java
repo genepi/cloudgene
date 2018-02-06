@@ -71,6 +71,19 @@ public class InstallGitHubApplicationTest extends TestCase {
 				InstallGitHubApplication.buildUrlFromRepository(repository));
 	}
 	
+	public void testGetLatestReleaseFromRepository() {
+		Repository repository = new Repository();
+		repository.setUser("lukfor");
+		repository.setRepo("hello-cloudgene");
+		repository.setTag("latest");
+		
+		String latest = InstallGitHubApplication.getLatestReleaseFromRepository(repository);
+		assertEquals("1.1.0",latest);
+		
+		assertEquals("https://api.github.com/repos/lukfor/hello-cloudgene/zipball/1.1.0",
+				InstallGitHubApplication.buildUrlFromRepository(repository));
+	}
+	
 	public void testInstallFromRepository(){
 		String[] args = {"examples","genepi/cloudgene-examples"};
 		InstallGitHubApplication cmd = new InstallGitHubApplication(args){
@@ -103,4 +116,20 @@ public class InstallGitHubApplicationTest extends TestCase {
 		assertEquals(0, result);
 	}
 	
+	public void testInstallMTDNA(){
+		String[] args = {"hello","lukfor/hello-cloudgene@latest"};
+		InstallGitHubApplication cmd = new InstallGitHubApplication(args){
+			@Override
+			public void init() {
+				Config config = new Config();
+				config.setApps("test-github");
+				FileUtil.deleteDirectory("test-github");
+				settings = new Settings(config);
+			}
+		};
+		int result = cmd.start();
+		
+		assertEquals(0, result);
+	}
+		
 }
