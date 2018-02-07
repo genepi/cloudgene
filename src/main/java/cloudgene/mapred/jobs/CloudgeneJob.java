@@ -261,18 +261,18 @@ public class CloudgeneJob extends AbstractJob {
 
 				if (app.needsInstallation()) {
 
-					writeLog("  Preparing application " + app.getId() + "...");
+					writeLog("  Preparing Application '" + app.getName() + "'...");
 					boolean installed = ApplicationInstaller.isInstalled(app, settings);
 					if (!installed || forceInstallation) {
 						try {
-							writeLog("  Installing Application...");
+							writeLog("  Installing Application " + app.getId() + "...");
 							ApplicationInstaller.install(app, settings);
 							log.info("Installation of application " + app.getId() + " finished.");
 							writeLog("  Installation finished.");
 						} catch (IOException e) {
 							log.info("Installation of application " + app.getId() + " failed.", e);
-							writeOutput("Installation of application " + app.getId() + " failed.");
-							writeOutput(e.getMessage());
+							writeLog(" Installation failed.");
+							writeLog(e.getMessage());
 							setError(e.getMessage());
 							return false;
 						}
@@ -286,9 +286,8 @@ public class CloudgeneJob extends AbstractJob {
 			}
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
-			writeOutput("Installation of application " + getApplicationId() + " failed.");
-			writeOutput(e.getMessage());
+			writeLog("Installation of Application " + getApplicationId() + " failed.");
+			log.info("Installation of application " + app.getId() + " failed.", e);
 			setError(e.getMessage());
 			return false;
 		}
@@ -332,7 +331,7 @@ public class CloudgeneJob extends AbstractJob {
 						}
 					}
 
-					writeLog("Executed onFailure successful.");
+					writeLog("onFailure execution successful.");
 					return true;
 				} else {
 					writeLog("onFailure execution failed.");
@@ -378,7 +377,7 @@ public class CloudgeneJob extends AbstractJob {
 					HdfsUtil.delete(context.getHdfsInput());
 				}
 			} catch (Exception e) {
-				System.out.println("Warning: problems during hdfs cleanup.");
+				log.warn("Warning: problems during hdfs cleanup.");
 			}
 
 		}
@@ -395,9 +394,8 @@ public class CloudgeneJob extends AbstractJob {
 			if (out.isDownload() && !out.isAutoExport()) {
 				// export to local folder for faster download
 				exportParameter(out);
-			}
 
-			writeLog("Exporting data successful.");
+			}
 
 		}
 
@@ -405,6 +403,8 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	public boolean exportParameter(CloudgeneParameterOutput out) {
+
+		writeLog("  Exporting parameter " + out.getId() + "...");
 
 		String localOutput = context.getLocalOutput();
 		String workspace = getHdfsWorkspace();

@@ -314,7 +314,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 				log.info("Job " + getId() + ":  executed successful. job has no more steps.");
 
-				writeLog("Job executed successful.");
+				writeLog("Job execution successful.");
 				writeLog("Exporting Data...");
 
 				setState(AbstractJob.STATE_EXPORTING);
@@ -444,7 +444,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 				setState(AbstractJob.STATE_FAILED);
 				log.error("Job " + getId() + ": job preparation failed.");
-				writeLog("Job preparation failed.");
+				writeLog("Job Preparation failed.");
 
 			} else {
 
@@ -457,7 +457,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 					log.info("Job " + getId() + ":  executed successful.");
 
-					writeLog("Job executed successful.");
+					writeLog("Job Execution successful.");
 					writeLog("Exporting Data...");
 
 					setState(AbstractJob.STATE_EXPORTING);
@@ -470,13 +470,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 							setState(AbstractJob.STATE_SUCCESS);
 							log.info("Job " + getId() + ": data export successful.");
-							writeLog("Data export successful.");
+							writeLog("Data Export successful.");
 
 						} else {
 
 							setState(AbstractJob.STATE_FAILED);
 							log.error("Job " + getId() + ": data export failed.");
-							writeLog("Data export failed.");
+							writeLog("Data Export failed.");
 
 						}
 
@@ -489,7 +489,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 						setState(AbstractJob.STATE_FAILED);
 						log.error("Job " + getId() + ": data export failed.", e);
-						writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
+						writeLog("Data Export failed: " + e.getLocalizedMessage() + "\n" + s);
 
 					}
 
@@ -497,7 +497,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 					setState(AbstractJob.STATE_FAILED);
 					log.error("Job " + getId() + ": execution failed. " + getError());
-					writeLog("Job execution failed: " + getError());
+					writeLog("Job Execution failed: " + getError());
 
 				}
 			}
