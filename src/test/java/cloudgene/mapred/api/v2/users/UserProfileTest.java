@@ -56,7 +56,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		} catch (Exception e) {
 
 		}
-		assertEquals(401, resource.getStatus().getCode());
+		assertNotSame(200, resource.getStatus().getCode());
 		resource.release();
 	}
 
@@ -173,7 +173,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		} catch (Exception e) {
 
 		}
-		assertEquals(401, resource.getStatus().getCode());
+		assertNotSame(200, resource.getStatus().getCode());
 
 		resource.release();
 	}
