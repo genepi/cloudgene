@@ -13,4 +13,4 @@ before_install:
 
 script:
 - cd src/main/html/webapp;npm install;npm install;mkdir tmp;grunt
-- mvn install
+- cd ../../../../;mvn install
