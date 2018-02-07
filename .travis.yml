@@ -8,11 +8,9 @@ before_install:
 - sudo hostname "$(hostname | cut -c1-63)"
 - sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
 - cat /etc/hosts
-
-install:
 - npm install
 - npm install grunt-cli -g
 
 script:
-- cd src/main/html/webapp;sudo npm install;sudo npm install;mkdir tmp;grunt
+- cd src/main/html/webapp;npm install;npm install;mkdir tmp;grunt
 - mvn install
