@@ -117,7 +117,7 @@
 				<version>1.0.0.beta3</version>
 				<configuration>
 					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
-					<fileName>cloudgene-installer-${project.version}.sh</fileName>
+					<fileName>cloudgene-installer.sh</fileName>
 					<label>Install Cloudgene ${project.version}</label>
 					<notemp>true</notemp>
 					<current>true</current>
@@ -233,19 +233,17 @@
 			<version>${restlet.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>2.4.13</version>
+		</dependency>
 
-<dependency>
-    <groupId>org.codehaus.groovy</groupId>
-    <artifactId>groovy-all</artifactId>
-    <version>2.4.13</version>
-</dependency>
-
-
-<dependency>
-  <groupId>org.apache.ivy</groupId>
-  <artifactId>ivy</artifactId>
-  <version>2.4.0</version>
-</dependency>
+		<dependency>
+			<groupId>org.apache.ivy</groupId>
+			<artifactId>ivy</artifactId>
+			<version>2.4.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
