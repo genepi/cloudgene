@@ -1,16 +1,23 @@
 language: java
 jdk:
 - oraclejdk8
-node_js: "0.10"
-
+node_js: '0.10'
 before_install:
 - cat /etc/hosts
 - sudo hostname "$(hostname | cut -c1-63)"
-- sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo tee /etc/hosts
+- sed -e "s/^\\(127\\.0\\.0\\.1.*\\)/\\1 $(hostname | cut -c1-63)/" /etc/hosts | sudo
+  tee /etc/hosts
 - cat /etc/hosts
 - npm install
 - npm install grunt-cli -g
-
 script:
 - cd src/main/html/webapp;npm install;npm install;mkdir tmp;grunt
 - cd ../../../../;mvn install
+deploy:
+  provider: releases
+  api_key:
+    secure: PWCnBi2JrCuhfuoLpegW5ZtSNBtNPhlI1BkW2cSRZzeKXBC557E3H2E4GGhbbRLaAhRLt8a/VsfHEr4pqW+4GJKRJRHVBlx4miBPEUeHuIIA/TIML16SW4RI+LSyk7UwmGi6Z6tvf+KITCYr7ZNP/dOOIzfkX92fL35GSjPUjURmjGVAuEj2J2gFaVcH/11if8pQSuHr0jWzRzWTFYsHqgNkKfsRsx+FImJomq6cpmkOHqOGDm68+QaTHfhUoaFKPGMvvH2SHGGpj/NAavmVwtGtLteAJXuQSKcI1nVG3DsxHQVYwoj9KVWTy+/Ko3QkOSr7tCcFzXmfJbJuv0TyPaOr7PO5Dq5AK+weyENULL21IKmv/5PlziUCM5sp+odoir/iUmiHKLV5t0G86RlQgFRXRKw9JnjTAGYDsdlGGheDzEaFEUrpCPk2iucQayzuGhZDezPm4BAK95zXB4/UFgMhmQPPSa5e0loWPmzliCPchtTInwVICEdZ6DzZJfGMFvUqpn1PR9l9yxEVRpVCNF2xQs/aHuzYVBVK9PXWVolr9eNITxxHWRwRSWMJAPeToyaNp+W8+FqsqUXKQ7ctWE/kwW2VQcWoLFIzT2TDUoOomj9eKthwTfofHGwHr08e+riE6+TzHXm7dtdu1nEVushdRY4/7oPHudQO/vRdXUE=
+  skip_cleanup: true
+  file: target/cloudgene-installer.sh
+  on:
+    tags: true
