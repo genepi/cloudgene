@@ -33,4 +33,4 @@ Now you are ready to start and configure Cloudgene.
 
 ## Manual installation
 
-All releases are also available on [Github]()
+All releases are also available on [Github](https://github.com/genepi/cloudgene/releases).

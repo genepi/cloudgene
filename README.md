@@ -1,7 +1,9 @@
 Cloudgene
 =========
 
-[ ![Codeship Status for genepi/cloudgene](https://app.codeship.com/projects/2e592ca0-ba41-0134-daad-4e53c1da9345/status?branch=master)](https://app.codeship.com/projects/195236) [![codecov](https://codecov.io/gh/lukfor/cloudgene/branch/master/graph/badge.svg?token=b7fe2lDzlV)](https://codecov.io/gh/lukfor/cloudgene)
+[![Build Status](https://travis-ci.org/genepi/cloudgene.svg?branch=master)](https://travis-ci.org/genepi/cloudgene)
+[![GitHub release](https://img.shields.io/github/release/genepi/cloudgene.svg)](https://GitHub.com/genepi/cloudgene/releases/)
+
 
 A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
 
