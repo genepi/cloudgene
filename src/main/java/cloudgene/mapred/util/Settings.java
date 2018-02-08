@@ -511,6 +511,14 @@ public class Settings {
 		reloadApplications();
 
 	}
+	
+	public void deleteApplicationById(String id) throws IOException{
+		for (Application app: new Vector<Application>(getApps())){
+			if (app.getId().startsWith(id)){
+				deleteApplication(app);
+			}
+		}
+	}
 
 	public List<Application> installApplicationFromUrl(String id, String url) throws IOException {
 		// download file from url
@@ -548,6 +556,7 @@ public class Settings {
 		// extract in apps folder
 
 		String appPath = FileUtil.path(config.getApps(), id);
+		FileUtil.deleteDirectory(appPath);
 		FileUtil.createDirectory(appPath);
 		try {
 			ZipFile file = new ZipFile(zipFilename);
@@ -564,6 +573,7 @@ public class Settings {
 			throws IOException {
 
 		String appPath = FileUtil.path(config.getApps(), id);
+		FileUtil.deleteDirectory(appPath);
 		FileUtil.createDirectory(appPath);
 		try {
 			ZipFile file = new ZipFile(zipFilename);

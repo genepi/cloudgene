@@ -1,69 +1,24 @@
 package cloudgene.mapred.cli;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.GitHubUtil;
+import cloudgene.mapred.util.GitHubUtil.Repository;
 import genepi.io.FileUtil;
 
 public class InstallGitHubApplication extends BaseTool {
-
-	public static class Repository {
-		private String user;
-
-		private String repo;
-
-		private String tag;
-
-		private String directory;
-
-		public String getUser() {
-			return user;
-		}
-
-		public void setUser(String user) {
-			this.user = user;
-		}
-
-		public String getRepo() {
-			return repo;
-		}
-
-		public void setRepo(String repo) {
-			this.repo = repo;
-		}
-
-		public String getTag() {
-			return tag;
-		}
-
-		public void setTag(String tag) {
-			this.tag = tag;
-		}
-
-		public String getDirectory() {
-			return directory;
-		}
-
-		public void setDirectory(String directory) {
-			this.directory = directory;
-		}
-
-	}
 
 	private String cmd = "cloudgene";
 
@@ -78,34 +33,77 @@ public class InstallGitHubApplication extends BaseTool {
 
 	@Override
 	public int run() {
+		return 0;
+	}
 
-		if (args.length != 2) {
-			System.out.println("Usage: " + cmd + "gh <name> <GitHub repo> ");
+	@Override
+	public int start() {
+
+		// call init manualy
+		init();
+
+		if (args.length < 1) {
+			System.out.println("Usage: " + cmd + " gh <GitHub repo> [--name <name>] [--update]");
 			System.out.println();
 			System.exit(1);
 		}
 
-		String id = args[0];
-		String repo = args[1];
+		String repo = args[0];
+
+		// create the command line parser
+		CommandLineParser parser = new PosixParser();
+		Options options = new Options();
+		Option idOption = new Option(null, "name", true, "Custom application name");
+		idOption.setRequired(false);
+		options.addOption(idOption);
+		Option forceOption = new Option(null, "update", false, "Force application update");
+		forceOption.setRequired(false);
+		options.addOption(forceOption);
+
+		// parse the command line arguments
+		CommandLine line = null;
+		try {
+
+			line = parser.parse(options, args);
+
+		} catch (Exception e) {
+			printError(e.getMessage());
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("Arguments:", options);
+			System.out.println();
+			return 1;
+		}
 
 		try {
 
-			List<Application> applications = new Vector<Application>();
-
-			if (settings.getApp(id) != null) {
-				printlnInRed("[ERROR] An application with id '" + id + "' is already installed.\n");
-				return 1;
-			}
-
-			System.out.println("Installing application " + id + "...");
-
-			Repository repository = InstallGitHubApplication.parseShorthand(repo);
+			Repository repository = GitHubUtil.parseShorthand(repo);
 			if (repository == null) {
 				printlnInRed("[ERROR] " + repo + " is not a valid GitHub repo.\n");
 				return 1;
 			}
 
-			String url = InstallGitHubApplication.buildUrlFromRepository(repository);
+			// create id from github shorthand
+
+			String id = repository.getUser()+"-"+repository.getRepo();
+			if (line.hasOption("name")) {
+				id = line.getOptionValue("name");
+			}
+
+			List<Application> applications = new Vector<Application>();
+
+			if (settings.getApp(id) != null) {
+				if (line.hasOption("update")) {
+					System.out.println("Updating application " + id + "...");
+					settings.deleteApplicationById(id);
+				} else {
+					printlnInRed("[ERROR] An application with id '" + id + "' is already installed. Use --update to reinstall application.\n");
+					return 1;
+				}
+			} else {
+				System.out.println("Installing application " + id + "...");
+			}
+
+			String url = GitHubUtil.buildUrlFromRepository(repository);
 			String zipFilename = FileUtil.path(settings.getTempPath(), "github.zip");
 			FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
 
@@ -133,67 +131,6 @@ public class InstallGitHubApplication extends BaseTool {
 			return 1;
 
 		}
-	}
-
-	public static Repository parseShorthand(String shorthand) {
-		Repository repo = new Repository();
-		// username/repo[/subdir][@ref]
-		String[] tiles2 = shorthand.split("@");
-
-		String[] tiles = tiles2[0].split("/", 3);
-		if (tiles.length < 2) {
-			return null;
-		}
-		repo.setUser(tiles[0]);
-		repo.setRepo(tiles[1]);
-		if (tiles.length > 2) {
-			repo.setDirectory(tiles[2]);
-		}
-
-		if (tiles2.length == 2) {
-			repo.setTag(tiles2[1]);
-		} else if (tiles2.length > 2) {
-			return null;
-		}
-
-		return repo;
-	}
-
-	public static String buildUrlFromRepository(Repository repo) {
-		String tag = repo.getTag();
-		if (tag != null && tag.equalsIgnoreCase("latest")) {
-			// get latest release tag
-			tag = getLatestReleaseFromRepository(repo);
-			if (tag == null) {
-				return null;
-			}
-		}
-		
-		String url = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/zipball";
-		if (tag != null) {
-			url += "/" + tag;
-		}
-		return url;
-	}
-
-	public static String getLatestReleaseFromRepository(Repository repo) {
-		String url = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
-		try {
-	        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-	        HttpGet request = new HttpGet(url);
-	        request.addHeader("content-type", "application/json");
-	        HttpResponse result = httpClient.execute(request);
-	        String json = EntityUtils.toString(result.getEntity(), "UTF-8");
-	        //"tag_name"
-	        
-	        JsonElement jelement = new JsonParser().parse(json);
-	        JsonObject  jobject = jelement.getAsJsonObject();
-	        return jobject.get("tag_name").getAsString();
-	    } catch (IOException ex) {
-	    	
-	    	return null;
-	    }
-		
 	}
 
 }
