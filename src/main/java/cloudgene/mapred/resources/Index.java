@@ -32,9 +32,7 @@ public class Index extends BaseResource {
 				LocalReference.createFileReference(new File(app.getRootFolder())));
 
 		cfg.setTemplateLoader(loader);
-		
-		System.out.println("Template Folder: " + new File(app.getRootFolder()).getAbsolutePath());
-		
+			
 		List<WdlApp> apps = getSettings().getAppsByUser(null);
 
 		Map<String, Object> data = new HashMap<String, Object>();

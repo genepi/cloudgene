@@ -2,38 +2,12 @@ package cloudgene.mapred.cli;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 
-import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.DockerHadoopCluster;
-import cloudgene.mapred.util.HadoopCluster;
-import cloudgene.mapred.util.RBinary;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlReader;
-import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
 
 public class ValidateApplication extends BaseTool {
 

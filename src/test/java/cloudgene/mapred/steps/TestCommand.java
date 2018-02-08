@@ -51,7 +51,6 @@ public class TestCommand extends TestCase {
 
 		String stdout = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(),
 				"std.out");
-		System.out.println(stdout);
 		String contentStdOut = FileUtil.readFileAsString(stdout);
 
 		// simple ls result check

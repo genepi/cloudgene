@@ -47,9 +47,6 @@ public class ParameterValueOutput {
 		}
 
 		if (parameter.getTypeAsEnum() == WdlParameterOutputType.LOCAL_FOLDER) {
-
-			System.out.println("---> " + value);
-
 			return getFiles(value, ext);
 
 		}

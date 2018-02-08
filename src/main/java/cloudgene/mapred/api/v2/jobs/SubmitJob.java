@@ -246,7 +246,6 @@ public class SubmitJob extends BaseResource {
 
 			}
 		} catch (FileUploadIOException e) {
-			System.out.println("XXXXXGVGG");
 			throw e;
 		} catch (Exception e) {
 			e.printStackTrace();

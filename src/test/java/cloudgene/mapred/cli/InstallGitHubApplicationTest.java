@@ -116,8 +116,24 @@ public class InstallGitHubApplicationTest extends TestCase {
 		assertEquals(0, result);
 	}
 	
-	public void testInstallMTDNA(){
+	public void testInstallHello(){
 		String[] args = {"hello","lukfor/hello-cloudgene@latest"};
+		InstallGitHubApplication cmd = new InstallGitHubApplication(args){
+			@Override
+			public void init() {
+				Config config = new Config();
+				config.setApps("test-github");
+				FileUtil.deleteDirectory("test-github");
+				settings = new Settings(config);
+			}
+		};
+		int result = cmd.start();
+		
+		assertEquals(0, result);
+	}
+	
+	public void testInstallMTDNA(){
+		String[] args = {"hello","seppinho/mtdna-server-workflow@latest"};
 		InstallGitHubApplication cmd = new InstallGitHubApplication(args){
 			@Override
 			public void init() {

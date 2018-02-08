@@ -48,8 +48,7 @@ public class RestartJobTest extends JobsApiTestCase {
 		// get details
 		result = getJobDetails(id);
 
-		System.out.println(result.toString());
-		
+	
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		// get path and download file

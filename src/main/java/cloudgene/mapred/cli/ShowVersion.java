@@ -1,7 +1,5 @@
 package cloudgene.mapred.cli;
 
-import cloudgene.mapred.util.Application;
-
 public class ShowVersion extends BaseTool {
 
 	public ShowVersion(String[] args) {

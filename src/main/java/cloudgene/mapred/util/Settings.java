@@ -127,7 +127,7 @@ public class Settings {
 		if (helpLink != null) {
 			helpMenuItem.setLink(helpLink);
 		} else {
-			helpMenuItem.setLink("#!pages/help");
+			helpMenuItem.setLink("http://docs.cloudgene.io");
 		}
 		navigation.add(helpMenuItem);
 
@@ -639,7 +639,6 @@ public class Settings {
 		if (wdlApp != null) {
 			wdlApp.setId(id);
 		}
-		System.out.println("OJE");
 		indexApps.put(application.getId(), application);
 
 		return application;

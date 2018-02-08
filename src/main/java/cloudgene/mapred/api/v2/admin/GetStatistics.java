@@ -64,10 +64,7 @@ public class GetStatistics extends BaseResource {
 			}
 
 		}
-		System.out.println("before: " + stats.size());
-		System.out.println("to remove: " + toRemove.size());
 		stats.removeAll(toRemove);
-		System.out.println("after: " + stats.size());
 		JSONArray jsonArray = JSONArray.fromObject(stats);
 
 		return new StringRepresentation(jsonArray.toString());

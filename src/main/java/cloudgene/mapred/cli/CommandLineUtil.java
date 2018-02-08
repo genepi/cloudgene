@@ -10,7 +10,6 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
@@ -81,14 +80,7 @@ public class CommandLineUtil {
 								if (!new File(sourceFile).isDirectory()) {
 									String name = FileUtil.getFilename(sourceFile);
 									String target = HdfsUtil.path(targetPath, name);
-									// System.out.println("Put file " +
-									// sourceFile +
-									// " to " + target);
 									HdfsUtil.put(sourceFile, target);
-								} else {
-									// System.out.println("Ignore sub-directory
-									// " +
-									// sourceFile);
 								}
 
 							}
@@ -117,16 +109,8 @@ public class CommandLineUtil {
 								if (!new File(sourceFile).isDirectory()) {
 									String name = FileUtil.getFilename(sourceFile);
 									String targetFile = FileUtil.path(targetPath, name);
-									// System.out.println("Copy file " +
-									// sourceFile
-									// + " to " + targetFile);
 									FileUtil.copy(sourceFile, targetFile);
-								} else {
-									// System.out.println("Ignore sub-directory
-									// " +
-									// sourceFile);
 								}
-
 							}
 						} else {
 							String targetFile = FileUtil.path(targetPath, entryName);

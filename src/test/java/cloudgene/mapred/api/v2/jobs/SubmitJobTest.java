@@ -290,7 +290,6 @@ public class SubmitJobTest extends JobsApiTestCase {
 		JSONObject result = getJobDetails(id);
 
 		//check if no sftp url is in json
-		System.out.println(result.toString());
 		assertFalse(result.toString().contains(url));
 		
 		//get log file

@@ -44,6 +44,7 @@ public class RBinary {
 		script.save();
 		Command command = new Command(RSCRIPT_PATH, "verify.R");
 		command.saveStdErr(FileUtil.path("verify.txt"));
+		command.setSilent(true);
 		command.execute();
 		String output = FileUtil.readFileAsString("verify.txt");
 		FileUtil.deleteFile("verify.txt");

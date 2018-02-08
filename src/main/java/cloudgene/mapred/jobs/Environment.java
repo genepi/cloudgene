@@ -20,10 +20,10 @@ public class Environment {
 		String localFolder = application.getPath();
 		environment.put("app_hdfs_folder", hdfsFolder);
 		environment.put("app_local_folder", localFolder);
-		// Deprecreated
+		// Deprecated
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
-
+		// Technologies
 		environment.put("docker_installed", settings.isEnable(Technology.DOCKER) ? "true" : "false");
 		environment.put("hadoop_installed", settings.isEnable(Technology.HADOOP_CLUSTER) ? "true" : "false");
 		environment.put("r_markdown_installed", settings.isEnable(Technology.R_MARKDOWN) ? "true" : "false");
@@ -40,7 +40,7 @@ public class Environment {
 		environment.put("job_hdfs_output", context.getHdfsOutput());
 		environment.put("user_username", context.getUser().getUsername());
 		environment.put("user_mail", context.getUser().getMail());
-		// Deprecreated
+		// Deprecated
 		environment.put("workdir", new File(context.getWorkingDirectory()).getAbsolutePath());
 		environment.put("jobId", context.getJobId());
 

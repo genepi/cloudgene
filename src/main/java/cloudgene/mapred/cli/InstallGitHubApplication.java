@@ -19,7 +19,6 @@ import com.google.gson.JsonParser;
 
 import cloudgene.mapred.util.Application;
 import genepi.io.FileUtil;
-import net.sf.json.JSONObject;
 
 public class InstallGitHubApplication extends BaseTool {
 
@@ -120,7 +119,7 @@ public class InstallGitHubApplication extends BaseTool {
 
 			if (applications.size() > 0) {
 				settings.save();
-				printlnInGreen("[OK] " + applications.size() + " Applications installed: \n");
+				printlnInGreen("[OK] " + applications.size() + " Application(s) installed: \n");
 				ListApplications.printApplicationList(applications);
 				return 0;
 			} else {

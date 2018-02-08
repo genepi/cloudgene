@@ -69,7 +69,6 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 						download.setParameterId(parameter.getId());
 						download.setParameter(parameter);
 						downloadDao.insert(download);
-						System.out.println("OK <--");
 					}
 
 				}
