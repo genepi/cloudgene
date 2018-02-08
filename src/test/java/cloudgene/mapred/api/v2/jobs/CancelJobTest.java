@@ -1,7 +1,6 @@
 package cloudgene.mapred.api.v2.jobs;
 
 import org.json.JSONObject;
-import org.restlet.data.Form;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
 

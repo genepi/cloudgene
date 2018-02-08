@@ -1,11 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.hadoop.common.WorkflowContext;
-import genepi.io.FileUtil;
-
 import java.io.IOException;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.MediaType;
@@ -17,6 +13,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestCluster;
 import cloudgene.mapred.util.junit.TestServer;
+import genepi.io.FileUtil;
 
 public class GetLogsTest extends JobsApiTestCase {
 
@@ -76,8 +73,8 @@ public class GetLogsTest extends JobsApiTestCase {
 
 		// check content for some success messages
 		assertTrue(content.contains("Cleanup successful."));
-		assertTrue(content.contains("Data export successful."));
-		assertTrue(content.contains("Job executed successful."));
+		assertTrue(content.contains("Data Export successful."));
+		assertTrue(content.contains("Job Execution successful."));
 		assertTrue(content.contains("Input-Text: my-text"));
 		assertTrue(content.contains("Input-number: 27"));
 		assertTrue(content.contains("Input Checkbox: valueFalse"));
