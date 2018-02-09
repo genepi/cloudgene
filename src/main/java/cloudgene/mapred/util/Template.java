@@ -12,34 +12,24 @@ public class Template {
 
 	public static final String RETIRE_JOB_MAIL = "RETIRE_JOB_MAIL";
 
-	public static final String SUBMIT_BUTTON_TEXT = "SUBMIT_BUTTON_TEXT";
-
 	public static final Template[] SNIPPETS = new Template[] {
 
-			new Template(
-					MAINTENANCE_MESSAGE,
+			new Template(MAINTENANCE_MESSAGE,
 					"Sorry, our service is currently under maintenance. Imputation Server is expected to be down until <b>Tuesday 08:00 AM EDT</b>."),
 
-			new Template(
-					FOOTER,
+			new Template(FOOTER,
 					"<p>powered by <a href=\"http://cloudgene.uibk.ac.at\">Cloudgene</a> and supported by the <a href=\"http://www.nih.gov\">U.S. National Institutes of Health</a> and the <a href=\"http://www.fwf.ac.at\">FWF Austrian Science Fund</a></p>"),
 
-			new Template(
-					REGISTER_MAIL,
+			new Template(REGISTER_MAIL,
 					"Dear %s,\nThis email has been sent automatically by the \"%s\" system to confirm that your profile has now been registered.\n\n"
 							+ "To confirm your email address, please click on this activation link %s"),
 
-			new Template(
-					RETIRE_JOB_MAIL,
+			new Template(RETIRE_JOB_MAIL,
 					"Dear %s,\nYour job retires in %s days! All imputation results will be deleted at that time.\n\n"
 							+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/%s"),
 
-			new Template(
-					RECOVERY_MAIL,
-					"Dear %s,\nThis email has been sent automatically by the \"%s\" system.\n\n"
-							+ "To reset your password, please click on this link %s. "),
-
-			new Template(SUBMIT_BUTTON_TEXT, "Start Imputation")
+			new Template(RECOVERY_MAIL, "Dear %s,\nThis email has been sent automatically by the \"%s\" system.\n\n"
+					+ "To reset your password, please click on this link %s. "),
 
 	};
 

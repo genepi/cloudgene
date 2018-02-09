@@ -20,7 +20,6 @@ import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Technology;
-import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import net.sf.json.JSONArray;
@@ -74,7 +73,6 @@ public class App extends BaseResource {
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
 		jsonObject.put("params", jsonArray);
-		jsonObject.put("submitButton", getWebApp().getTemplate(Template.SUBMIT_BUTTON_TEXT));
 
 		return new StringRepresentation(jsonObject.toString());
 

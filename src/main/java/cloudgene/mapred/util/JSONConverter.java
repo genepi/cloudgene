@@ -39,6 +39,7 @@ public class JSONConverter {
 		object.put("description", app.getDescription());
 		object.put("author", app.getAuthor());
 		object.put("website", app.getWebsite());
+		object.put("submitButton", app.getSubmitButton());
 		return object;
 
 	}
@@ -153,9 +154,9 @@ public class JSONConverter {
 		object.put("changed", application.isChanged());
 		object.put("permission", application.getPermission());
 		WdlApp wdlApp = application.getWdlApp();
-		object.put("wdlApp", wdlApp);	
-		if (new File(application.getFilename()).exists()){
-			object.put("source",  FileUtil.readFileAsString(application.getFilename()));
+		object.put("wdlApp", wdlApp);
+		if (new File(application.getFilename()).exists()) {
+			object.put("source", FileUtil.readFileAsString(application.getFilename()));
 		}
 		return object;
 	}

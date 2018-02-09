@@ -21,6 +21,8 @@ public class WdlApp {
 
 	private String id;
 
+	private String submitButton = "Submit Job";
+
 	private WdlWorkflow workflow;
 
 	private Map<String, String> cluster;
@@ -34,7 +36,7 @@ public class WdlApp {
 	private String path;
 
 	private String manifestFile;
-	
+
 	public String getSource() {
 		return source;
 	}
@@ -149,8 +151,16 @@ public class WdlApp {
 		return properties;
 	}
 
+	public void setSubmitButton(String submitButton) {
+		this.submitButton = submitButton;
+	}
+
+	public String getSubmitButton() {
+		return submitButton;
+	}
+
 	/* intern variables */
-	
+
 	public String getPath() {
 		return path;
 	}
@@ -166,9 +176,9 @@ public class WdlApp {
 	public String getManifestFile() {
 		return manifestFile;
 	}
-	
-	public boolean needsInstallation(){
+
+	public boolean needsInstallation() {
 		return getInstallation() != null && getInstallation().size() > 0;
 	}
-	
+
 }
