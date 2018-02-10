@@ -3,7 +3,7 @@ package cloudgene.mapred.wdl;
 import java.util.List;
 import java.util.Map;
 
-public class WdlApp {
+public class WdlApp implements Comparable<WdlApp>{
 
 	private String source = "";
 
@@ -179,6 +179,11 @@ public class WdlApp {
 
 	public boolean needsInstallation() {
 		return getInstallation() != null && getInstallation().size() > 0;
+	}
+	
+	@Override
+	public int compareTo(WdlApp o) {
+			return getName().compareTo(o.getName());
 	}
 
 }

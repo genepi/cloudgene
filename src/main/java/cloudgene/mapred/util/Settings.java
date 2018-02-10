@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -495,6 +496,7 @@ public class Settings {
 
 		}
 
+		Collections.sort(listApps);
 		return listApps;
 
 	}
