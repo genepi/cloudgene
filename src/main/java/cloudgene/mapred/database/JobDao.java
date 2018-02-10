@@ -68,7 +68,8 @@ public class JobDao extends JdbcDataAccessObject {
 		sql.append("update job ");
 		sql.append("  set name = ?, state = ?, ");
 		sql.append("  start_time = ?, end_time = ?, ");
-		sql.append("  user_id = ?, s3_url = ?, type = ?, deleted_on = ?, application = ?, application_id = ?, submitted_on = ?, finished_on = ?, setup_start_time = ?, setup_end_time = ? ");
+		sql.append(
+				"  user_id = ?, s3_url = ?, type = ?, deleted_on = ?, application = ?, application_id = ?, submitted_on = ?, finished_on = ?, setup_start_time = ?, setup_end_time = ? ");
 		sql.append("where id = ? ");
 		try {
 
@@ -181,7 +182,6 @@ public class JobDao extends JdbcDataAccessObject {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public int countAllByUser(User user) {
 
 		StringBuilder sql = new StringBuilder();
@@ -329,7 +329,7 @@ public class JobDao extends JdbcDataAccessObject {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("join user on job.user_id = user.id ");
-		sql.append("where  state = ? AND end_time != 0 AND end_time < ?  ");
+		sql.append("where  state = ? AND finished_on != 0 AND finished_on < ? ");
 		sql.append("order by job.id desc ");
 
 		Object[] params = new Object[2];

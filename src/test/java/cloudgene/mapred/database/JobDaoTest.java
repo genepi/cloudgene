@@ -39,8 +39,8 @@ public class JobDaoTest extends JobsApiTestCase {
 		job1.setId("old-dummy-job-1-" + System.currentTimeMillis());
 		job1.setName("old-dummy-job-1" + System.currentTimeMillis());
 		job1.setState(CloudgeneJob.STATE_SUCCESS);
-		job1.setStartTime(System.currentTimeMillis() - (8 * DAYS_MS));
-		job1.setEndTime(System.currentTimeMillis() - (7 * DAYS_MS));
+		job1.setSubmittedOn(System.currentTimeMillis() - (8 * DAYS_MS));
+		job1.setFinishedOn(System.currentTimeMillis() - (7 * DAYS_MS));
 		job1.setUser(user);
 		job1.setApplication("appplication");
 		job1.setApplicationId("appplication-id");
@@ -50,8 +50,8 @@ public class JobDaoTest extends JobsApiTestCase {
 		job2.setId("old-dummy-job-2" + System.currentTimeMillis());
 		job2.setName("old-dummy-job-2" + System.currentTimeMillis());
 		job2.setState(CloudgeneJob.STATE_SUCCESS);
-		job2.setStartTime(System.currentTimeMillis() - (10 * DAYS_MS));
-		job2.setEndTime(System.currentTimeMillis() - (9 * DAYS_MS));
+		job2.setSubmittedOn(System.currentTimeMillis() - (10 * DAYS_MS));
+		job2.setFinishedOn(System.currentTimeMillis() - (9 * DAYS_MS));
 		job2.setUser(user);
 		job2.setApplication("appplication");
 		job2.setApplicationId("appplication-id");
@@ -61,8 +61,8 @@ public class JobDaoTest extends JobsApiTestCase {
 		job3.setId("old-dummy-job-3" + System.currentTimeMillis());
 		job3.setName("old-dummy-job-3" + System.currentTimeMillis());
 		job3.setState(CloudgeneJob.STATE_SUCCESS);
-		job3.setStartTime(System.currentTimeMillis() - (9 * DAYS_MS));
-		job3.setEndTime(System.currentTimeMillis() - (8 * DAYS_MS));
+		job3.setSubmittedOn(System.currentTimeMillis() - (9 * DAYS_MS));
+		job3.setFinishedOn(System.currentTimeMillis() - (8 * DAYS_MS));
 		job3.setUser(user);
 		job3.setApplication("appplication");
 		job3.setApplicationId("appplication-id");
@@ -72,14 +72,12 @@ public class JobDaoTest extends JobsApiTestCase {
 		job4.setId("old-dummy-job-4" + System.currentTimeMillis());
 		job4.setName("old-dummy-job-4" + System.currentTimeMillis());
 		job4.setState(CloudgeneJob.STATE_SUCCESS);
-		job4.setStartTime(System.currentTimeMillis() - (3 * DAYS_MS));
-		job4.setEndTime(System.currentTimeMillis() - (2 * DAYS_MS));
+		job4.setSubmittedOn(System.currentTimeMillis() - (3 * DAYS_MS));
+		job4.setFinishedOn(System.currentTimeMillis() - (2 * DAYS_MS));
 		job4.setUser(user);
 		job4.setApplication("appplication");
 		job4.setApplicationId("appplication-id");
 		jobDao.insert(job4);
-
-		System.out.println(jobDao.findAll().size());
 
 		assertTrue(jobDao.findAll().size() > 3);
 
@@ -106,12 +104,23 @@ public class JobDaoTest extends JobsApiTestCase {
 
 		JobDao jobDao = new JobDao(database);
 
+		CloudgeneJob jobr = new CloudgeneJob();
+		jobr.setId("old-dummy-job-1-" + System.currentTimeMillis());
+		jobr.setName("old-dummy-job-1" + System.currentTimeMillis());
+		jobr.setState(CloudgeneJob.STATE_RUNNING);
+		jobr.setSubmittedOn(System.currentTimeMillis() - (8 * DAYS_MS));
+		jobr.setFinishedOn(0);
+		jobr.setUser(user);
+		jobr.setApplication("appplication");
+		jobr.setApplicationId("appplication-id");
+		jobDao.insert(jobr);
+		
 		CloudgeneJob job1 = new CloudgeneJob();
 		job1.setId("old-dummy-job-1-" + System.currentTimeMillis());
 		job1.setName("old-dummy-job-1" + System.currentTimeMillis());
 		job1.setState(CloudgeneJob.STATE_FAILED);
-		job1.setStartTime(System.currentTimeMillis() - (8 * DAYS_MS));
-		job1.setEndTime(System.currentTimeMillis() - (7 * DAYS_MS));
+		job1.setSubmittedOn(System.currentTimeMillis() - (8 * DAYS_MS));
+		job1.setFinishedOn(System.currentTimeMillis() - (7 * DAYS_MS));
 		job1.setUser(user);
 		job1.setApplication("appplication");
 		job1.setApplicationId("appplication-id");
@@ -121,8 +130,8 @@ public class JobDaoTest extends JobsApiTestCase {
 		job2.setId("old-dummy-job-2" + System.currentTimeMillis());
 		job2.setName("old-dummy-job-2" + System.currentTimeMillis());
 		job2.setState(CloudgeneJob.STATE_FAILED);
-		job2.setStartTime(System.currentTimeMillis() - (10 * DAYS_MS));
-		job2.setEndTime(System.currentTimeMillis() - (9 * DAYS_MS));
+		job2.setSubmittedOn(System.currentTimeMillis() - (10 * DAYS_MS));
+		job2.setFinishedOn(System.currentTimeMillis() - (9 * DAYS_MS));
 		job2.setUser(user);
 		job2.setApplication("appplication");
 		job2.setApplicationId("appplication-id");
@@ -132,8 +141,8 @@ public class JobDaoTest extends JobsApiTestCase {
 		job3.setId("old-dummy-job-3" + System.currentTimeMillis());
 		job3.setName("old-dummy-job-3" + System.currentTimeMillis());
 		job3.setState(CloudgeneJob.STATE_FAILED);
-		job3.setStartTime(System.currentTimeMillis() - (9 * DAYS_MS));
-		job3.setEndTime(System.currentTimeMillis() - (8 * DAYS_MS));
+		job3.setSubmittedOn(System.currentTimeMillis() - (9 * DAYS_MS));
+		job3.setFinishedOn(System.currentTimeMillis() - (8 * DAYS_MS));
 		job3.setUser(user);
 		job3.setApplication("appplication");
 		job3.setApplicationId("appplication-id");
@@ -143,14 +152,12 @@ public class JobDaoTest extends JobsApiTestCase {
 		job4.setId("old-dummy-job-4" + System.currentTimeMillis());
 		job4.setName("old-dummy-job-4" + System.currentTimeMillis());
 		job4.setState(CloudgeneJob.STATE_SUCCESS);
-		job4.setStartTime(System.currentTimeMillis() - (3 * DAYS_MS));
-		job4.setEndTime(System.currentTimeMillis() - (2 * DAYS_MS));
+		job4.setSubmittedOn(System.currentTimeMillis() - (3 * DAYS_MS));
+		job4.setFinishedOn(System.currentTimeMillis() - (2 * DAYS_MS));
 		job4.setUser(user);
 		job4.setApplication("appplication");
 		job4.setApplicationId("appplication-id");
 		jobDao.insert(job4);
-
-		System.out.println(jobDao.findAll().size());
 
 		assertTrue(jobDao.findAll().size() > 3);
 
