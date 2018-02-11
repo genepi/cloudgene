@@ -3,7 +3,17 @@
 <p>This page helps you to install applications and to manage permissions.</p>
 <br>
 <p>
-	<span class="btn btn-primary" id="install-app-btn">Install App</span>&nbsp;<span class="btn btn-default" id="reload-apps-btn">Reload Apps from filesystem</span>
+	<div class="btn-group">
+  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+    Install App
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu">
+		<li><a id="install-app-github-btn">from GitHub...</a></li>
+    <li><a id="install-app-url-btn">from URL...</a></li>
+  </ul>
+</div>
+	&nbsp;<span class="btn btn-default" id="reload-apps-btn">Reload Apps from filesystem</span>
 </p>
 <br>
 

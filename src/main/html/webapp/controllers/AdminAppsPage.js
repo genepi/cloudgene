@@ -15,10 +15,10 @@ AdminAppsPage = can.Control({
 
 	},
 
-	'#install-app-btn click': function(el, ev) {
+	'#install-app-url-btn click': function(el, ev) {
 		bootbox.animate(false);
 		bootbox.confirm(
-			'<h4>Install App from URL</h4><form onsubmit="return false;"><p>Please enter an unique id for the application:</p><input class="field span5" id="id" name="id" value=""/><p>Please enter the URL of the zip file of the application.</p><input class="field span5" id="url" name="url" value="http://"/></form>',
+			can.view('views/admin/apps.install.url.ejs'),
 			function(result) {
 				if (result) {
 					var id = $('#id').val();
@@ -26,6 +26,39 @@ AdminAppsPage = can.Control({
 					app = new Application();
 					app.attr('url', url);
 					app.attr('name', id);
+
+					bootbox.dialog('<h4>Install application</h4>' +
+						'<p>Please wait while the application is configured.</p>' +
+						'<div class="progress progress-striped active">' +
+						'<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
+						'</div>'
+					);
+
+					app.save(function(application) {
+						bootbox.hideAll();
+						bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
+							location.reload();
+						});
+
+					}, function(data) {
+						bootbox.hideAll();
+						bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+					});
+
+				}
+			});
+
+	},
+
+	'#install-app-github-btn click': function(el, ev) {
+		bootbox.animate(false);
+		bootbox.confirm(
+			can.view('views/admin/apps.install.github.ejs'),
+			function(result) {
+				if (result) {
+					var url = 'github://' + $('#url').val();
+					app = new Application();
+					app.attr('url', url);
 
 					bootbox.dialog('<h4>Install application</h4>' +
 						'<p>Please wait while the application is configured.</p>' +
