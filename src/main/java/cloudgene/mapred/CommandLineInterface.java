@@ -52,6 +52,7 @@ public class CommandLineInterface extends Toolbox {
 		toolbox.addTool("run", RunApplication.class);
 		toolbox.addTool("install", InstallApplication.class);
 		toolbox.addTool("gh", InstallGitHubApplication.class);
+		toolbox.addTool("github-install", InstallGitHubApplication.class);
 		toolbox.addTool("clone", CloneApplications.class);
 		toolbox.addTool("ls", ListApplications.class);
 		toolbox.addTool("remove", RemoveApplication.class);

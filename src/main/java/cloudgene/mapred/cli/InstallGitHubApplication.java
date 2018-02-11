@@ -1,9 +1,6 @@
 package cloudgene.mapred.cli;
 
-import java.io.File;
-import java.net.URL;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -11,12 +8,10 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.io.FileUtils;
 
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
-import genepi.io.FileUtil;
 
 public class InstallGitHubApplication extends BaseTool {
 
@@ -84,36 +79,13 @@ public class InstallGitHubApplication extends BaseTool {
 
 			// create id from github shorthand
 
-			String id = repository.getUser()+"-"+repository.getRepo();
+			String id = repository.getUser() + "-" + repository.getRepo();
 			if (line.hasOption("name")) {
 				id = line.getOptionValue("name");
 			}
 
-			List<Application> applications = new Vector<Application>();
-
-			if (settings.getApp(id) != null) {
-				if (line.hasOption("update")) {
-					System.out.println("Updating application " + id + "...");
-					settings.deleteApplicationById(id);
-				} else {
-					printlnInRed("[ERROR] An application with id '" + id + "' is already installed. Use --update to reinstall application.\n");
-					return 1;
-				}
-			} else {
-				System.out.println("Installing application " + id + "...");
-			}
-
-			String url = GitHubUtil.buildUrlFromRepository(repository);
-			String zipFilename = FileUtil.path(settings.getTempPath(), "github.zip");
-			FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
-
-			if (repository.getDirectory() != null) {
-				// extract only sub dir
-				applications = getSettings().installApplicationFromZipFile(id, zipFilename,
-						"^.*/" + repository.getDirectory() + ".*");
-			} else {
-				applications = getSettings().installApplicationFromZipFile(id, zipFilename);
-			}
+			boolean update = line.hasOption("update");
+			List<Application> applications = getSettings().installApplicationFromGitHub(id, repository, update);
 
 			if (applications.size() > 0) {
 				settings.save();

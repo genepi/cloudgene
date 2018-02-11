@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -513,10 +515,10 @@ public class Settings {
 		reloadApplications();
 
 	}
-	
-	public void deleteApplicationById(String id) throws IOException{
-		for (Application app: new Vector<Application>(getApps())){
-			if (app.getId().startsWith(id)){
+
+	public void deleteApplicationById(String id) throws IOException {
+		for (Application app : new Vector<Application>(getApps())) {
+			if (app.getId().startsWith(id)) {
 				deleteApplication(app);
 			}
 		}
@@ -568,6 +570,37 @@ public class Settings {
 		}
 
 		return installApplicationFromDirectory(id, appPath);
+
+	}
+
+	public List<Application> installApplicationFromGitHub(String id, Repository repository, boolean update)
+			throws MalformedURLException, IOException {
+
+		List<Application> applications = new Vector<Application>();
+
+		if (getApp(id) != null) {
+			if (update) {
+				System.out.println("Updating application " + id + "...");
+				deleteApplicationById(id);
+			} else {
+				return applications;
+			}
+		} else {
+			System.out.println("Installing application " + id + "...");
+		}
+
+		String url = GitHubUtil.buildUrlFromRepository(repository);
+		String zipFilename = FileUtil.path(getTempPath(), "github.zip");
+		FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
+
+		if (repository.getDirectory() != null) {
+			// extract only sub dir
+			applications = installApplicationFromZipFile(id, zipFilename, "^.*/" + repository.getDirectory() + ".*");
+		} else {
+			applications = installApplicationFromZipFile(id, zipFilename);
+		}
+
+		return applications;
 
 	}
 

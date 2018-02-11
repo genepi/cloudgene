@@ -18,7 +18,9 @@ import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -46,11 +48,6 @@ public class Apps extends BaseResource {
 		String id = form.getFirstValue("name");
 		String url = form.getFirstValue("url");
 
-		if (id == null) {
-			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return new StringRepresentation("No id set.");
-		}
-
 		if (url == null) {
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("No url or file location set.");
@@ -67,8 +64,26 @@ public class Apps extends BaseResource {
 			List<Application> applications = new Vector<Application>();
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
+				if (id == null) {
+					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					return new StringRepresentation("No id set.");
+				}
 				applications = getSettings().installApplicationFromUrl(id, url);
+			} else if (url.startsWith("github://")) {
+				String shorthand = url.replaceAll("github://", "");
+				Repository repository = GitHubUtil.parseShorthand(shorthand);
+				if (repository == null) {
+					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					return new StringRepresentation(shorthand + " is not a valid GitHub repo.");
+
+				}
+				String newId = repository.getUser() + "-" + repository.getRepo();
+				applications = getSettings().installApplicationFromGitHub(newId, repository, false);
 			} else {
+				if (id == null) {
+					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					return new StringRepresentation("No id set.");
+				}
 				if (url.endsWith(".zip")) {
 					applications = getSettings().installApplicationFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
