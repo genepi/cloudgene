@@ -80,6 +80,9 @@ public class InstallGitHubApplication extends BaseTool {
 			// create id from github shorthand
 
 			String id = repository.getUser() + "-" + repository.getRepo();
+			if (repository.getDirectory() != null){
+				id += "-" + repository.getDirectory();
+			}
 			if (line.hasOption("name")) {
 				id = line.getOptionValue("name");
 			}
