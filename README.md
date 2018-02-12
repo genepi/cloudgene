@@ -1,11 +1,12 @@
 Cloudgene
 =========
 
-[![Build Status](https://travis-ci.org/genepi/cloudgene.svg?branch=master)](https://travis-ci.org/genepi/cloudgene)
-[![GitHub release](https://img.shields.io/github/release/genepi/cloudgene.svg)](https://GitHub.com/genepi/cloudgene/releases/)
+[![Build Status](https://travis-ci.org/genepi/cloudgene.svg?branch=master)](https://travis-ci.org/genepi/cloudgene) [![GitHub release](https://img.shields.io/github/release/genepi/cloudgene.svg)](https://GitHub.com/genepi/cloudgene/releases/)
 
 
 A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
+
+## Features
 
 - :wrench: **Build** your analysis pipeline in your favorite language or use Hadoop based technologies (MapReduce, Spark, Pig)
 - :page_facing_up: **Integrate** your analysis pipeline into Cloudgene by writing a simple [configuration file](http://docs.cloudgene.io/developers/introduction/)
@@ -14,7 +15,7 @@ A framework to build Software As A Service (SaaS) platforms for data analysis pi
 - :cloud: **Provide** your application as SaaS to other scientists and handle thousands of jobs like a pro
 - :earth_americas: **Share** your application and enable everyone to clone your service to its own hardware or private cloud instance
 
-## Prerequisites
+## Requirements
 
 You will need the following things properly installed on your computer.
 
@@ -26,9 +27,13 @@ You will need the following things properly installed on your computer.
 
 ## Installation
 
-* `mkdir cloudgene`
-* `cd cloudgene`
-* `curl -s install.cloudgene.io | bash`
+You can install Cloudgene via our install script:
+
+```sh
+mkdir cloudgene
+cd cloudgene
+curl -s install.cloudgene.io | bash
+```
 
 Test the installation with the following command:
 
@@ -36,101 +41,51 @@ Test the installation with the following command:
 ./cloudgene version
 ```
 
+We provide a [Docker image](https://github.com/genepi/cloudgene-docker) to get a full-working Cloudgene instance in minutes without any installation.
 
-## Install an application
 
-You can install applications by using the `install` command.
+## Getting started
 
-```sh
-./cloudgene install <name> <location>
-```
-Location could be a zip file accessible via http or a yaml file on the local filesystem.
-
-A simple hello world workflow can be installed by using the following command:
+The *hello-cloudgene* application can be installed by using the following command:
 
 ```sh
-./cloudgene install hello-cloudgene http://www.cloudgene.io/downloads/hello-cloudgene
+./cloudgene github-install lukfor/hello-cloudgene
 ```
 
-
-## List installed applications
-
-```sh
-./cloudgene ls
-```
-
-## Remove applications
-
-```sh
-./cloudgene remove <name>
-```
-
-## Running a pipeline
-
-### Web-Interface
-
-The webservice displays a graphical userinterface for all installed applications. The webserver can be started with the following command:
+The webserver can be started with the following command:
 
 ```sh
 ./cloudgene server
 ```
-The webservice is available on http://localhost:8082. Please use username `admin` and password `admin1978` to login.
 
-*For production you should use the [`cloudgene-daemon`](http://docs.cloudgene.io/daemon/introduction/) script.*
+The webservice is available on http://localhost:8082. Please open this address in your web browser and enter as username `admin` and as password `admin1978` to login.
 
+Click on *Run* to start the application.
 
-### On the commandline
-
-Navigate to the folder where your cloudgene.yaml file is located and start your workflow with the following command:
-
-```sh
-./cloudgene run cloudgene.yaml <workflow parameters>
-```
-or if you installed an application you can start it by entering the name. For example:
-
-```sh
-./cloudgene run hello-cloudgene
-```
-
-## Running a pipeline with Hadoop steps
-
-Cloudgene needs a Hadoop cluster to execute MapReduce steps. If Cloudgene is installed on the Hadoop Namenode you have to use the `--conf` flag and provide the `$HADOOP_CONF` folder. For example:
-
-```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --conf /etc/hadoop/conf
-```
+![image](docs/images/hello-cloudgene-saas.png)
 
 
-## Running Hadoop steps on a remote Hadoop cluster
+A job can be started by filling out the form and clicking on the blue submit button. The *hello-cloudgene* application displays several inspiring quotes:
 
-Navigate to the folder where your cloudgene.yaml file is located and execute your workflow with the `--host` flag to set the ip address of your remote Hadoop cluster:
-
-```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --host <remote-ip>
-```
-
-Cloudgene executes your MapReduce steps on the remote cluster. You can use the `--user` flag to set the username which should be used to execute your job (e.g. it uses the HDFS directory of this user for all files):
-
-```sh
-./cloudgene run cloudgene.yaml <workflow parameters> --host <remote-ip> --user <remote-user>
-```
+![image](docs/images/hello-cloudgene-saas-results.png)
 
 
-## Development
+The documentation is available at http://docs.cloudgene.io
 
-### How to build the Webinterface
+More examples can be found in [genepi/cloudgene-examples](https://github.com/genepi/cloudgene-examples).
 
+## Cloudgene and Genomics
 
-- install nodejs and grunt (see google)
+See Cloudgene in action:
 
-- ``cd src/main/html/webapp``
+- [Michigan Imputation Server](https://imputationserver.sph.umich.edu)
+- [mtDNA Server](https://mtdna-server.uibk.ac.at)
+- [Laser Server](https://laser.sph.umich.edu)
 
-- ``sudo npm install``
+## Developing
 
-- ``mkdir tmp``
+More about how to build Cloudgene from source can be found [here](https://github.com/genepi/cloudgene/blob/master/DEVLOPING.md).
 
-- ``grunt``
+## License
 
-- webapp is in dist
-
-- maven builds all jar files and bundles it with webapp
+Cloudgene is licensed under [AGPL-3.0](https://opensource.org/licenses/AGPL-3.0).
