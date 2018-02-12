@@ -77,7 +77,7 @@ public class GitHubUtilTest extends TestCase {
 		String latest = GitHubUtil.getLatestReleaseFromRepository(repository);
 		assertEquals("1.2.0", latest);
 
-		assertEquals("https://api.github.com/repos/lukfor/hello-cloudgene/zipball/1.1.0",
+		assertEquals("https://api.github.com/repos/lukfor/hello-cloudgene/zipball/1.2.0",
 				GitHubUtil.buildUrlFromRepository(repository));
 	}
 
