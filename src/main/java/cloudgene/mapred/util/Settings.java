@@ -18,15 +18,21 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
+import com.spotify.docker.client.DefaultDockerClient;
+import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -890,6 +896,42 @@ public class Settings {
 
 	public boolean isEnable(Technology technology) {
 		return technologies.contains(technology);
+	}
+
+	public void checkTechnologies() {
+		// check cluster status
+		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
+		if (details != null) {
+			int nodes = details.getActiveTrackerNames().size();
+			if (nodes == 0) {
+				disable(Technology.HADOOP_CLUSTER);
+			} else {
+				enable(Technology.HADOOP_CLUSTER);
+			}
+		} else {
+			disable(Technology.HADOOP_CLUSTER);
+		}
+
+		if (!RBinary.isInstalled()) {
+			disable(Technology.R);
+			disable(Technology.R_MARKDOWN);
+		} else {
+			enable(Technology.R);
+			if (!RBinary.isMarkdownInstalled()) {
+				disable(Technology.R_MARKDOWN);
+			} else {
+				enable(Technology.R_MARKDOWN);
+			}
+		}
+
+		try {
+			DockerClient docker = DefaultDockerClient.fromEnv().build();
+			docker.info();
+			docker.close();
+			enable(Technology.DOCKER);
+		} catch (DockerException | DockerCertificateException | InterruptedException e1) {
+			disable(Technology.DOCKER);
+		}
 	}
 
 	public void setThreadsSetupQueue(int threadsSetupQueue) {

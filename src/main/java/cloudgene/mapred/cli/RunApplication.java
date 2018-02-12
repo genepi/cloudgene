@@ -219,42 +219,26 @@ public class RunApplication extends BaseTool {
 			}
 		}
 
-		// check cluster status
-		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
-		boolean hadoopSupport = true;
-		if (details != null) {
+		// enable/disable technologies
+		settings.checkTechnologies();
+
+		// print summary and warnigns
+		if (settings.isEnable(Technology.HADOOP_CLUSTER)) {
+			ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
 			int nodes = details.getActiveTrackerNames().size();
 			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMaxMapTasks()
 					+ " map tasks and " + details.getMaxReduceTasks() + " reduce tasks");
-			if (nodes == 0) {
-				printText(0,
-						spaces("[WARN]", 8) + "Cluster seems unreachable or misconfigured. Hadoop support disabled.");
-				hadoopSupport = false;
-			}
 		} else {
 			printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
-			hadoopSupport = false;
 		}
 
-		if (!hadoopSupport && (app.getWorkflow().hasHdfsOutputs() || app.getWorkflow().hasHdfsInputs())) {
+		if (!settings.isEnable(Technology.HADOOP_CLUSTER)
+				&& (app.getWorkflow().hasHdfsOutputs() || app.getWorkflow().hasHdfsInputs())) {
 			printError("This application needs a working Hadoop cluster.");
 			return 1;
 		}
 
-		if (!hadoopSupport) {
-			settings.disable(Technology.HADOOP_CLUSTER);
-		}
-
-		if (!RBinary.isInstalled()) {
-			settings.disable(Technology.R);
-		}
-
-		try {
-			DockerClient docker = DefaultDockerClient.fromEnv().build();
-			docker.info();
-			docker.close();
-		} catch (DockerException | DockerCertificateException | InterruptedException e1) {
-			settings.disable(Technology.DOCKER);
+		if (!settings.isEnable(Technology.DOCKER)) {
 			printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
 		}
 

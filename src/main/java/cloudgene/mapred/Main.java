@@ -67,6 +67,8 @@ public class Main implements Daemon {
 				System.exit(1);
 			}
 		}
+		
+		settings.checkTechnologies();
 
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
