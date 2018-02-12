@@ -1,0 +1,80 @@
+name: PrintHiddenInputs
+version: 1.0.1
+
+workflow:
+
+  steps:
+    - name: text1
+      cmd: "/bin/echo text1: ${text1}"
+      bash: true
+      stdout: true
+    - name: checkbox1
+      cmd: "/bin/echo checkbox1: ${checkbox1}"
+      bash: true
+      stdout: true
+    - name: list1
+      cmd: "/bin/echo list1: ${list1}"
+      bash: true
+      stdout: true
+    - name: text2
+      cmd: "/bin/echo text2: ${text2}"
+      bash: true
+      stdout: true
+    - name: checkbox2
+      cmd: "/bin/echo checkbox2: ${checkbox2}"
+      bash: true
+      stdout: true
+    - name: list2
+      cmd: "/bin/echo list2: ${list2}"
+      bash: true
+      stdout: true
+
+  inputs:
+
+    - id: text1
+      description: Input-Text
+      type: text
+      value: my-value
+      visible: true
+
+    - id: checkbox1
+      description: Input-Text
+      type: checkbox
+      value: true
+      values:
+        false: false
+        true: true
+      visible: true
+
+    - id: list1
+      description: Input-Text
+      type: list
+      value: value1
+      values:
+        value1: Value 1
+        value2: Value 2
+      visible: true
+
+    - id: text2
+      description: Input-Text
+      type: text
+      value: my-value
+      visible: false
+
+    - id: checkbox2
+      description: Input-Text
+      type: checkbox
+      value: true
+      values:
+        false: false
+        true: true
+      visible: false
+
+    - id: list2
+      description: Input-Text
+      type: list
+      value: value1
+      values:
+        value1: Value 1
+        value2: Value 2
+      visible: false

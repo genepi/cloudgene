@@ -179,6 +179,36 @@ public class WorkflowEngineTest extends TestCase {
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
 
+	public void testHiddenInputsAndDefaultValues() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/print-hidden-inputs.yaml");
+
+		Map<String, String> inputs = new HashMap<String, String>();
+
+		AbstractJob job = createJobFromWdl(app, inputs);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+		
+		//check step ouputs
+		assertEquals("text1: my-value\n",  job.getSteps().get(0).getLogMessages().get(0).getMessage());
+		assertEquals("checkbox1: true\n",  job.getSteps().get(1).getLogMessages().get(0).getMessage());
+		assertEquals("list1: value1\n",  job.getSteps().get(2).getLogMessages().get(0).getMessage());
+		assertEquals("text2: my-value\n",  job.getSteps().get(3).getLogMessages().get(0).getMessage());
+		assertEquals("checkbox2: true\n",  job.getSteps().get(4).getLogMessages().get(0).getMessage());
+		assertEquals("list2: value1\n",  job.getSteps().get(5).getLogMessages().get(0).getMessage());
+		
+		
+	}
+	
 	public void testReturnWriteFileInSecondSetupStep() throws Exception {
 
 		String myContent = "test-test-test-test-text";

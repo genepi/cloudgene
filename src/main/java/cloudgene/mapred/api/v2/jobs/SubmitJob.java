@@ -28,7 +28,6 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
@@ -90,6 +89,9 @@ public class SubmitJob extends BaseResource {
 
 		try {
 			inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
+			for (String k : inputParams.keySet()) {
+				System.out.println(" Parsed: " + k);
+			}
 		} catch (FileUploadIOException e) {
 			return error400("Upload limit reached.");
 		}
@@ -260,7 +262,8 @@ public class SubmitJob extends BaseResource {
 					params.put(input.getId(), props.get(input.getId()));
 				}
 			} else {
-				if (input.getType().equals("checkbox")) {
+				// ignore invisible input parameters
+				if (input.getType().equals("checkbox") && input.isVisible()) {
 					params.put(input.getId(), input.getValues().get("false"));
 				}
 			}
