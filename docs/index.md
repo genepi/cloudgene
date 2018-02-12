@@ -1,55 +1,60 @@
 # Welcome to Cloudgene's documentation!
 
-Contents:
+A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
 
-- [Home](/index.md)
-- [Installation](/installation.md)
-- Getting started:
-     - [Install Apps](/getting-started/installing-applications.md)
-     - [Run Apps on the Commandline](/getting-started/commandline.md)
-     - [Run Apps in the Web Application](/getting-started/web-application.md)
+## Requirements
 
-- Cloudgene CLI:
-    - [Introduction](/cli/introduction.md)
-    - [cloudgene install](/cli/cloudgene-install.md)
-    - [cloudgene clone](/cli/cloudgene-clone.md)
-    - [cloudgene remove](/cli/cloudgene-remove.md)
-    - [cloudgene ls](/cli/cloudgene-ls.md)
-    - [cloudgene validate](/cli/cloudgene-validate.md)
-    - [cloudgene run](/cli/cloudgene-run.md)
-    - [cloudgene server](/cli/cloudgene-server.md)
-    - [cloudgene version](/cli/cloudgene-version.md)
-- Cloudgene Daemon:
-    - [Introduction](/daemon/introduction.md)
-    - [Start Daemon](/daemon/start-daemon.md)
-    - [Stop Daemon](/daemon/stop-daemon.md)
-    - [Configuration](/daemon/configuration.md)
-    - [Enable Hadoop Support](/daemon/hadoop.md)
-    - [Manage Jobs](/daemon/jobs.md)
-    - [Manage Permissions](/daemon/permissions.md)
-    - [Maintenance](/daemon/administration.md)
-- cloudgene.yaml:
-    - [Introduction](/developers/introduction.md)
-    - Steps:
-        - [BashCommand](/developers/steps/BashCommand.md)
-        - [JavaJar](/developers/steps/JavaJar.md)
-        - [HadoopMapReduce](/developers/steps/HadoopMapReduce.md)
-        - [HadoopPig](/developers/steps/HadoopPig.md)
-        - [RMarkdown](/developers/steps/RMarkdown.md)
-        - [Docker](/developers/steps/Docker.md)
-        - [JavaInterface](/developers/steps/JavaInterface.md)
-        - [Groovy](/developers/steps/Groovy.md)
-    - [Inputs](/developers/inputs.md)
-    - [Outputs](/developers/outputs.md)
-    - [Environment Variables](/developers/environment_variables.md)
-    - [Control patterns](/developers/control-patterns.md)
-- Tutorials:
-    - [Using AppLinks to link to other applications](/tutorials/application-links.md)
-    - [Using InstallActions to import HDFS files](/tutorials/installation-actions.md)
-- API Reference:
-    - [Introduction](/api/introduction.md)
-    - [Authentication](/api/authentication.md)
-    - [Submit Job](/api/job-submission.md)
-    - [Job Status](/api/job-status.md)
-    - [List Jobs](/api/list-jobs.md)
-    - [Job Details](/api/job-details.md)
+You will need the following things properly installed on your computer.
+
+* [Java 8 or higher](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [Hadoop](http://hadoop.apache.org/) (Optional)
+* [Docker](https://www.docker.com/) (Optional)
+* MySQL Server (Optional)
+
+
+## Installation
+
+You can install Cloudgene via our install script:
+
+```sh
+mkdir cloudgene
+cd cloudgene
+curl -s install.cloudgene.io | bash
+```
+
+Test the installation with the following command:
+
+```sh
+./cloudgene version
+```
+
+We provide a [Docker image](https://github.com/genepi/cloudgene-docker) to get a full-working Cloudgene instance in minutes without any installation.
+
+
+## Getting started
+
+The *hello-cloudgene* application can be installed by using the following command:
+
+```sh
+./cloudgene github-install lukfor/hello-cloudgene
+```
+
+The webserver can be started with the following command:
+
+```sh
+./cloudgene server
+```
+
+The webservice is available on http://localhost:8082. Please open this address in your web browser and enter as username `admin` and as password `admin1978` to login.
+
+Click on *Run* to start the application.
+
+![image](images/hello-cloudgene-saas.png)
+
+
+A job can be started by filling out the form and clicking on the blue submit button. The *hello-cloudgene* application displays several inspiring quotes:
+
+![image](images/hello-cloudgene-saas-results.png)
+
+
+More examples can be found in [genepi/cloudgene-examples](https://github.com/genepi/cloudgene-examples).
