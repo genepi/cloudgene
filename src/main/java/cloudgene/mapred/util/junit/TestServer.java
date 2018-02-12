@@ -198,6 +198,11 @@ public class TestServer {
 			app21.setPermission("public");
 			applications.add(app21);
 
+			Application app22 = new Application();
+			app22.setId("print-hidden-inputs");
+			app22.setFilename("test-data/print-hidden-inputs.yaml");
+			app22.setPermission("public");
+			applications.add(app22);
 			
 			settings.setApps(applications);
 
