@@ -78,6 +78,9 @@ public class Apps extends BaseResource {
 
 				}
 				String newId = repository.getUser() + "-" + repository.getRepo();
+				if (repository.getDirectory() != null){
+					newId += "-" + repository.getDirectory();
+				}				
 				applications = getSettings().installApplicationFromGitHub(newId, repository, false);
 			} else {
 				if (id == null) {

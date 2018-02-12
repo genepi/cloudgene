@@ -8,10 +8,14 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.restlet.data.Status;
+import org.restlet.representation.StringRepresentation;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.util.Application;
+import cloudgene.mapred.util.GitHubUtil;
+import cloudgene.mapred.util.GitHubUtil.Repository;
 import genepi.io.FileUtil;
 
 public class CloneApplications extends BaseTool {
@@ -51,7 +55,7 @@ public class CloneApplications extends BaseTool {
 		}
 
 		String folderRepo = new File(repo).getParentFile().getAbsolutePath();
-		
+
 		try {
 			YamlReader reader = new YamlReader(new FileReader(repo));
 			while (true) {
@@ -72,13 +76,26 @@ public class CloneApplications extends BaseTool {
 
 						if (url.startsWith("http://") || url.startsWith("https://")) {
 							applications = getSettings().installApplicationFromUrl(id, url);
+						} else if (url.startsWith("github://")) {
+							String shorthand = url.replaceAll("github://", "");
+							Repository repository = GitHubUtil.parseShorthand(shorthand);
+							if (repository == null) {
+								printlnInRed("[ERROR] " + shorthand + " is not a valid GitHub repo.");
+								return 1;
+
+							}
+							String newId = repository.getUser() + "-" + repository.getRepo();
+							if (repository.getDirectory() != null) {
+								newId += "-" + repository.getDirectory();
+							}
+							applications = getSettings().installApplicationFromGitHub(newId, repository, false);
 						} else {
-							
-							if (!url.startsWith("/")){
+
+							if (!url.startsWith("/")) {
 								url = FileUtil.path(folderRepo, url);
 							}
-							
-							if (url.endsWith(".zip")) {								
+
+							if (url.endsWith(".zip")) {
 								applications = getSettings().installApplicationFromZipFile(id, url);
 							} else if (url.endsWith(".yaml")) {
 								Application application = getSettings().installApplicationFromYaml(id, url);
