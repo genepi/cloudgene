@@ -75,7 +75,7 @@ public class GitHubUtilTest extends TestCase {
 		repository.setTag("latest");
 
 		String latest = GitHubUtil.getLatestReleaseFromRepository(repository);
-		assertEquals("1.1.0", latest);
+		assertEquals("1.2.0", latest);
 
 		assertEquals("https://api.github.com/repos/lukfor/hello-cloudgene/zipball/1.1.0",
 				GitHubUtil.buildUrlFromRepository(repository));
