@@ -1,0 +1,30 @@
+<h4>Install Apps</h4>
+
+<p><b><%= applications.length %></b> applications published in <a href="http://apps.cloudgene.io" target="_blank">apps.cloudgene.io</a></p>
+
+<div id="application-repository">
+
+<% applications.each(function( app ) { %>
+
+	<div class="thumbnail">
+		<div class="caption">
+			<h5><a href="<%= app.attr('details') %>" target="_blank"><%= app.attr('title') %></a>&nbsp;<small><%= app.attr('version') %></small></h5>
+			<p><%= app.attr('description_short') %></p>
+
+			<p>
+				<% app.attr('authors').each(function( author ) { %>
+				<img src="<%= author.attr('avatar') %>" title="<%= author.attr('name') %>"/>
+				<% }) %>
+				<% if (installedId.includes(app.attr('id'))){ %>
+					<a class="pull-right btn btn-default disabled">Installed</a>
+				<% } else { %>
+					<a class="install-app-btn pull-right btn btn-success" data-app-url="<%= app.attr('package_url') %>" data-app-id="<%= app.attr('id') %>">Install</a>
+				<% } %>
+			</p>
+			<p></p>
+		</div>
+	</div>
+<br>
+
+<% }) %>
+</div>

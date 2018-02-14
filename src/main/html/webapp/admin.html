@@ -92,6 +92,7 @@ body {
 	<script src="assets/js/lib/morris.min.js"></script>
 	<script src="assets/js/lib/md5.min.js"></script>
 
+	<script src="models/CloudgeneApplication.js"></script>
   <script src="models/Application.js"></script>
 	<script src="models/Cluster.js"></script>
 	<script src="models/Counter.js"></script>
@@ -111,6 +112,7 @@ body {
 	<script src="controllers/AdminJobsPage.js"></script>
 	<script src="controllers/AdminUsersPage.js"></script>
 	<script src="controllers/AdminSettingsPage.js"></script>
+	<script src="controllers/AdminAppsInstallerDialog.js"></script>
 	<script src="controllers/AdminAppsPage.js"></script>
 	<script src="controllers/AdminTemplatesPage.js"></script>
 	<script src="controllers/AdminServerPage.js"></script>
@@ -138,8 +140,9 @@ body {
 
 								// get data
 								var data = JSON.parse(localStorage.getItem("cloudgene"));
-								xhr.setRequestHeader("X-CSRF-Token", data.csrf);
-
+								if (this.url != 'http://apps.cloudgene.io/api/apps.json'){
+									xhr.setRequestHeader("X-CSRF-Token", data.csrf);
+								}
 							} catch (e) {
 
 							}
