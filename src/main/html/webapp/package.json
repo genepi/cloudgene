@@ -1,6 +1,6 @@
 {
   "name": "Cloudgene",
-  "version": "1.30.3",
+  "version": "1.30.4",
   "devDependencies": {
     "can-compile": "",
     "grunt": "~0.4.5",

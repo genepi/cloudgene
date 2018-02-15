@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>1.30.3</version>
+	<version>1.30.4</version>
 	<repositories>
 		<repository>
 			<id>maven-restlet</id>
