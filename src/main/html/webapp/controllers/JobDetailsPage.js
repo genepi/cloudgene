@@ -34,7 +34,7 @@ JobDetailsPage = can.Control({
 
   '#btn-delete click': function(el, ev) {
     var that = this;
-    bootbox.animate(false);
+    
     bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -64,7 +64,7 @@ JobDetailsPage = can.Control({
 
   '#btn-cancel click': function(el, ev) {
     var that = this;
-    bootbox.animate(false);
+    
     bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -94,7 +94,7 @@ JobDetailsPage = can.Control({
 
   '#btn-restart click': function(el, ev) {
     var that = this;
-    bootbox.animate(false);
+    
     bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -127,7 +127,7 @@ JobDetailsPage = can.Control({
 
   '.share-file click': function(e) {
     output = e.closest('tr').data('output');
-    bootbox.animate(false);
+    
     bootbox.alert(can.view('/views/share-file.ejs', {
       hostname: location.protocol + '//' + location.host,
       output: output
@@ -136,7 +136,7 @@ JobDetailsPage = can.Control({
 
   '.share-folder click': function(e) {
     files = e.closest('tr').data('files');
-    bootbox.animate(false);
+    
     bootbox.alert(can.view('/views/share-folder.ejs', {
       hostname: location.protocol + '//' + location.host,
       files: files

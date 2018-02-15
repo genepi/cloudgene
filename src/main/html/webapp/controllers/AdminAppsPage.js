@@ -16,7 +16,7 @@ AdminAppsPage = can.Control({
   },
 
   '#install-app-url-btn click': function(el, ev) {
-    bootbox.animate(false);
+
     bootbox.confirm(
       can.view('views/admin/apps.install.url.ejs'),
       function(result) {
@@ -51,7 +51,7 @@ AdminAppsPage = can.Control({
   },
 
   '#install-app-github-btn click': function(el, ev) {
-    bootbox.animate(false);
+
     bootbox.confirm(
       can.view('views/admin/apps.install.github.ejs'),
       function(result) {
@@ -101,7 +101,7 @@ AdminAppsPage = can.Control({
           installedId: installedId
 
         });
-        bootbox.animate(false);
+
         bootbox.confirm(content);
         new AdminAppsInstallerDialog('#application-repository', {});
       }, function(dadsad) {
@@ -130,7 +130,7 @@ AdminAppsPage = can.Control({
   '.enabled-checkbox click': function(el, ev) {
 
     application = el.closest('tr').data('application');
-    bootbox.animate(false);
+
     enabled = el.is(":checked");
     bootbox.confirm("Are you sure you want to " + (enabled ? "enable" : "disable") + " application <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -161,7 +161,7 @@ AdminAppsPage = can.Control({
   '.delete-app-btn click': function(el, ev) {
 
     application = el.closest('tr').data('application');
-    bootbox.animate(false);
+
     bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -189,7 +189,7 @@ AdminAppsPage = can.Control({
 
     application = el.closest('tr').data('application');
     var permission = application.attr('permission');
-    bootbox.animate(false);
+
 
     bootbox.confirm('<h4> Change permission of ' + application.attr('id') +
       '</h4><form><input class="field span2" id="message" name="message" value="' + permission + '"></input></form>',
@@ -208,7 +208,7 @@ AdminAppsPage = can.Control({
 
     application = el.closest('tr').data('application');
     var permission = application.attr('permission');
-    bootbox.animate(false);
+
 
     bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafile in HDFS are deleted and reimported on next job run.</p>',
       function(result) {
@@ -224,7 +224,7 @@ AdminAppsPage = can.Control({
   '.view-source-btn click': function(el, ev) {
 
     application = el.closest('tr').data('application');
-    bootbox.animate(false);
+
 
     var env = '';
     for (var property in application.attr('environment').attr()) {

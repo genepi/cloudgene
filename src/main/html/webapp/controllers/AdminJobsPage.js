@@ -44,7 +44,7 @@ AdminJobsPage = can.Control({
   '.icon-trash click': function(el, ev) {
 
     job = el.closest('tr').data('job');
-    bootbox.animate(false);
+    
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
         job.destroy();
@@ -56,7 +56,7 @@ AdminJobsPage = can.Control({
   '.icon-remove click': function(el, ev) {
 
     job = el.closest('tr').data('job');
-    bootbox.animate(false);
+    
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
         // cancel
@@ -100,7 +100,7 @@ AdminJobsPage = can.Control({
   '.icon-folder-close click': function(el, ev) {
     job = el.closest('tr').data('job');
     that = this;
-    bootbox.animate(false);
+    
     bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
       if (result) {
         request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive');

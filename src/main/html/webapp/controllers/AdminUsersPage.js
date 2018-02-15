@@ -22,7 +22,7 @@ AdminUsersPage = can
         '.icon-trash click': function(el, ev) {
 
             user = el.parent().parent().data('user');
-            bootbox.animate(false);
+            
             bootbox.confirm("Are you sure you want to delete <b>" + user.attr('username') + "</b>?", function(result) {
                 if (result) {
                     user.destroy();
@@ -50,7 +50,7 @@ AdminUsersPage = can
                         }
                         options = options + '<b>' + group.attr('name') + '</b><br>Access to: ' + group.attr('apps').join(', ') + '</label>';
                     });
-                    bootbox.animate(false);
+                    
                     bootbox.confirm(
                         '<h4>Edit roles of user ' + user.attr('username') + '</h4><hr><form id="role-form">' + options + '</form>',
                         function(result) {
