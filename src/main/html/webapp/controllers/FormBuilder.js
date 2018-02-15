@@ -4,7 +4,7 @@ function buildForm(application, element, params, submitButtonText) {
 	labelGroup = null;
 
 	divGroup = $("<div></div>");
-	divGroup.attr("class", "control-group");
+	divGroup.attr("class", "form-group row");
 	buildJobName(element);
 
 	params.forEach(function(param, index) {
@@ -16,7 +16,7 @@ function buildForm(application, element, params, submitButtonText) {
 			labelOpen = true;
 		} else {
 			divGroup = $("<div></div>");
-			divGroup.attr("class", "control-group");
+			divGroup.attr("class", "form-group row");
 			if (param.visible !== true) {
 				divGroup.attr("style", "display:none");
 			}
@@ -27,26 +27,26 @@ function buildForm(application, element, params, submitButtonText) {
 			} else if (param.type == "list" || param.type == "app_list") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
-				divControls.attr("class", "controls");
+				divControls.attr("class", "col-sm-3");
 				buildList(divControls, param);
 			} else if (param.type == "number") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
-				divControls.attr("class", "controls");
+				divControls.attr("class", "col-sm-10");
 				buildNumber(divControls, param);
 			} else if (param.type == "hdfs_file" || param.type == "local_file") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
-				divControls.attr("class", "controls");
+				divControls.attr("class", "col-sm-10");
 				buildHdfsFile(divControls, param);
 			} else if (param.type == "hdfs_folder" || param.type == "local_folder") {
 				buildLabel(divGroup, param);
 				divControls = $("<div></div>");
-				divControls.attr("class", "controls");
+				divControls.attr("class", "col-sm-10");
 				buildHdfsFolder(divControls, param);
 			} else if (param.type == "checkbox") {
 				divControls = $("<div></div>");
-				divControls.attr("class", "controls");
+				divControls.attr("class", "col-sm-10");
 				buildCheckbox(divControls, param);
 				//buildLabel(divGroup, param);
 
@@ -94,7 +94,7 @@ function buildForm(application, element, params, submitButtonText) {
 
 	// submit-button
 	divGroup = $("<div></div>");
-	divGroup.attr("class", "control-group");
+	divGroup.attr("class", "form-group");
 
 	divControls = $("<div></div>");
 	divControls.attr("class", "controls");
@@ -111,7 +111,7 @@ function buildLabel(element, param) {
 	if (param.help){
 		caption += '&nbsp;<a href="' + param.help + '" target="_blank"><i class="icon-question-sign"></i></a>';
 	}
-	var label = $('<label for="' + param.id + '" class="control-label">' + caption + '</label>');
+	var label = $('<label for="' + param.id + '" class="col-sm-2 col-form-label">' + caption + '</label>');
 
 	//label.text(param.description);
 	//label.attr("for", param.id);
@@ -175,6 +175,7 @@ function buildHdfsFolder(element, param) {
 
 	//input source selection
 	var select = $("<select></select>");
+  select.attr("class", "form-control");
 	select.attr("name", param.id + "-source");
 
 	var option = $("<option></option>");
@@ -201,7 +202,7 @@ function buildHdfsFolder(element, param) {
 	$(element).append(select);
 
 	//file upload div
-	temp = '<div id="' + param.id + '-upload-div">' + '<div class="fileupload fileupload-new" data-provides="fileupload" id="' + param.id + '-upload-widget">' + '  <ul class="my-fileupload-preview uneditable-input" style="height: 150px; width: 600px;"></ul>' + '  <div id="' + param.id + '-upload-2">' + '    <span class="btn btn-file"><span class="fileupload-new">Select Files</span><span class="fileupload-exists">Change</span>' + '	<input type="file" id ="' + param.id + '-upload" name ="' + param.id + '-upload" ' +
+	temp = '<div id="' + param.id + '-upload-div">' + '<div class="form-control fileupload fileupload-new" data-provides="fileupload" id="' + param.id + '-upload-widget">' + '  <ul class="my-fileupload-preview uneditable-input" style="height: 150px; width: 600px;"></ul>' + '  <div id="' + param.id + '-upload-2">' + '    <span class="btn btn-file"><span class="fileupload-new">Select Files</span><span class="fileupload-exists">Change</span>' + '	<input type="file" id ="' + param.id + '-upload" name ="' + param.id + '-upload" ' +
 		(param.required ? 'data-required="true"' : '') +
 		' multiple="" /></span>' + '    <a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove All</a>' + '  </div>' + '</div>' + '  </div>';
 
@@ -430,7 +431,7 @@ function buildHdfsFolder(element, param) {
 
 function buildList(element, param) {
 	var defaultSelection = false;
-	var select = $("<select></select>");
+	var select = $('<select class="form-control"></select>');
 	select.attr("name", param.id);
 	if (param.readOnly) {
 		select.attr("disabled", "true");
@@ -471,6 +472,7 @@ function buildText(element, param) {
 	var input = $("<input></input>");
 	input.attr("name", param.id);
 	input.attr("type", "text");
+	input.attr("class", "form-control");
 	input.attr("value", param.value);
 	if (param.readOnly) {
 		input.attr("disabled", "true");
@@ -484,18 +486,19 @@ function buildText(element, param) {
 function buildJobName(element) {
 
 	divGroup = $("<div></div>");
-	divGroup.attr("class", "control-group");
+	divGroup.attr("class", "form-group row");
 
-	var label = $('<label for="job-name" class="control-label">Name</label>');
+	var label = $('<label for="job-name" class="col-sm-2 col-form-label">Name</label>');
 	$(divGroup).append(label);
 
 	divControls = $("<div></div>");
-	divControls.attr("class", "controls");
+	divControls.attr("class", "col-sm-3");
 
 	var input = $("<input></input>");
 	input.attr("name", "job-name");
 	input.attr("type", "text");
 	input.attr("value", "");
+	input.attr("class", "form-control");
   input.attr("placeholder","optional job name");
 	$(divControls).append(input);
 
