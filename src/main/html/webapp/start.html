@@ -18,7 +18,7 @@
     <link href="assets/css/cloudgene.css" rel="stylesheet">
   </head>
 
-  <body>
+  <body class="bg-light">
 
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
       <div class="container d-flex justify-content-between">
@@ -90,6 +90,7 @@
      </div>
      </nav>
 
+   <div class=" py-5 bg-white">
     <div class="container">
 
 			<#if maintenaceMessage??>
@@ -97,9 +98,19 @@
 						${maintenaceMessage}</div>
 					</#if>
 
-					<div id="content"></div>
+					<div id="content" class="bd-content"></div>
 
     </div><!-- /.container -->
+   </div>
+
+    <footer class="text-muted">
+      <div class="container">
+        <p class="float-right">
+          <a href="#">Back to top</a>
+        </p>
+        <p>${footer}</p>
+      </div>
+    </footer>
 
 
     <!-- Bootstrap core JavaScript
