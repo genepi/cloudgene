@@ -21,7 +21,7 @@ AdminTemplatesPage = can.Control({
     '.icon-pencil click': function(el, ev) {
 
         template = el.parent().parent().data('template');
-        bootbox.animate(false);
+        
         var oldText = template.attr('text');
         bootbox.confirm(
             '<h4>' + template.attr('key') + '</h4><form><textarea class="field span5" id="message" rows="10" name="message" width="30" height="20">' + oldText + '</textarea></form>',

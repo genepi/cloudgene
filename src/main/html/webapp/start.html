@@ -1,140 +1,119 @@
+
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
 
-<head>
-<meta charset="utf-8">
-<title>${appname}</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="">
-<meta name="author" content="">
-<!-- Le styles -->
+    <title>${appname}</title>
 
-<!--(if target dev)><!-->
-<link href="assets/css/bootstrap.css" rel="stylesheet">
-<link href="assets/css/bootstrap-fileupload.css" rel="stylesheet">
-<link href="assets/css/morris.css" rel="stylesheet">
-<link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
-<!--<!(endif)-->
+    <!-- Bootstrap core CSS -->
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
+    <!-- Custom styles for this template -->
+    <link href="assets/css/cloudgene.css" rel="stylesheet">
+  </head>
 
-<!--(if target dist)>
-<link href="cloudgene.vendor.min.css" rel="stylesheet">
-<!(endif)-->
+  <body>
 
+		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container d-flex justify-content-between">
 
-<style>
-body {
-	padding-top: 60px; /* 60px to make the container go all the way
-      to the bottom of the topbar */
-}
-</style>
+       <a class="navbar-brand" href="#!pages/home">${appname}</a>
+       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+         <span class="navbar-toggler-icon"></span>
+       </button>
 
-<link rel="shortcut icon" href="assets/ico/favicon.ico">
-<link rel="apple-touch-icon-precomposed" sizes="144x144"
-	href="assets/ico/apple-touch-icon-144-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="114x114"
-	href="assets/ico/apple-touch-icon-114-precomposed.png">
-<link rel="apple-touch-icon-precomposed" sizes="72x72"
-	href="assets/ico/apple-touch-icon-72-precomposed.png">
-<link rel="apple-touch-icon-precomposed"
-	href="assets/ico/apple-touch-icon-57-precomposed.png">
-<style>
-</style>
-</head>
-<body>
-	<div class="navbar navbar-fixed-top nav-pills">
-		<div class="navbar-inner">
-			<div class="container">
-				<a id="home" class="brand" href="#!pages/home"> ${appname} </a>
-				<ul class="nav pull-left"  id="tabfolder">
-					<li><a id="home" href="#!pages/home"> Home </a></li>
-					<#if apps?size gt 0>
-					<#if apps?size == 1>
-										<li class=""><a id="run" href="#!run/${apps[0].id}"> Run </a></li>
+       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+         <ul class="navbar-nav mr-auto">
+           <li class="nav-item active">
+             <a class="nav-link" href="#!pages/home">Home <span class="sr-only">(current)</span></a>
+           </li>
 
-					<#else>
-					<li class="dropdown">
-					  <a class="dropdown-toggle" id="run" role="button" data-toggle="dropdown"> Run <b class="caret"></b></a>
-						<ul class="dropdown-menu" role="menu" aria-labelledby="run">
-
-							<#list apps as app>
-
-							<li role="presentation">
-								<a role="menuitem" tabindex="-1" href="#!run/${app.id}"> ${app.name}</a>
+					 <#if apps?size gt 0>
+					 	<#if apps?size == 1>
+					 		<li class="nav-item">
+								<a class="nav-link" href="#!run/${apps[0].id}"> Run</a>
 							</li>
-
-							</#list>
-
-						</ul>
-					</li>
-					</#if>
-					</#if>
-
-					<li class=""><a id="jobs" href="#!pages/jobs"> Jobs </a></li>
-
-					<#list navigation as item>
-						<#if item.link??>
-							<li><a id="${item.id}" href="${item.link}"> ${item.name} </a></li>
 						<#else>
-							<li class="dropdown">
-								<a class="dropdown-toggle" id="${item.id}" role="button" data-toggle="dropdown"> ${item.name} <b class="caret"></b></a>
-								<ul class="dropdown-menu" role="menu" aria-labelledby="${item.id}">
-									<#list item.items as subitem>
-									<li role="presentation"><a role="menuitem" tabindex="-1"  id="${subitem.id}" href="${subitem.link}"> ${subitem.name} </a></li>
-									</#list>
-								</ul>
-							</li>
-						</#if>
-					</#list>
+	           	<li class="nav-item dropdown">
+	             <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Run</a>
+	             <div class="dropdown-menu" aria-labelledby="dropdown01">
+								 <#list apps as app>
+	               <a class="dropdown-item" href="#!run/${app.id}">${app.name}</a>
+								 </#list>
+	             </div>
+	           	</li>
+					 	</#if>
+					 </#if>
+           <li class="nav-item">
+             <a class="nav-link" href="#!pages/jobs">Jobs</a>
+           </li>
+           <#list navigation as item>
+ 						<#if item.link??>
+						<li class="nav-item">
+							<a class="nav-link" href="${item.link}"> ${item.name}</a>
+						</li>
+ 						<#else>
+						<li class="nav-item dropdown">
+							<a class="nav-link dropdown-toggle" href="#" id="${item.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${item.name}</a>
+							<div class="dropdown-menu" aria-labelledby="${item.id}">
+ 									<#list item.items as subitem>
+									<a class="dropdown-item" href="${subitem.link}"> ${subitem.name}</a>
+ 									</#list>
+ 								</ul>
+ 							</li>
+ 						</#if>
+ 					</#list>
 
-					<li><a id="contact" href="#!pages/contact"> Contact </a></li>
-				</ul>
-				<ul class="nav pull-right">
-					<li id="account" class="dropdown"><a class="dropdown-toggle"
-						id="luki" role="button" data-toggle="dropdown" href="#"><i
-							class="icon-user"></i> ${username} <b class="caret"></b> </a>
-						<ul class="dropdown-menu" role="menu" aria-labelledby="luki">
-							<li role="presentation"><a role="menuitem" tabindex="-1"
-								href="#!pages/profile"> <i class="icon-user"></i> Profile
-							</a></li>
-							<li role="presentation" class="divider"></li> <#if admin == true>
-							<li role="presentation"><a role="menuitem" tabindex="-1"
-								href="admin.html"> <i class="icon-cog"></i> Admin Panel
-							</a></li>
-							<li role="presentation" class="divider"></li> </#if>
+					 <li class="nav-item">
+             <a class="nav-link" href="#!pages/contact">Contact</a>
+           </li>
+         </ul>
+         <ul class="navbar-nav my-2 my-lg-0">
+           <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user-circle" aria-hidden="true"></i> ${username}</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown02">
+              <a class="dropdown-item" href="#!pages/profile">Profile</a>
+              <#if admin == true>
+                <a class="dropdown-item" href="admin.html">Admin Panel</a>
+              </#if>
+              <a class="dropdown-item" href="logout">Logout</a>
+            </div>
+           </li>
+         </ul>
+       </div>
+     </div>
+     </nav>
 
-							<li role="presentation"><a role="menuitem" tabindex="-1"
-								href="logout"> <i class="icon-off"></i> Logout
-							</a></li>
-						</ul></li>
-				</ul>
-			</div>
-		</div>
-	</div>
-	<div class="container">
+    <div class="container">
 
-		<#if maintenaceMessage??>
-		<div class="alert alert-error" id="system-error">
-			${maintenaceMessage}</div>
-		</#if>
+			<#if maintenaceMessage??>
+					<div class="alert alert-error" id="system-error">
+						${maintenaceMessage}</div>
+					</#if>
 
-		<div id="content"></div>
+					<div id="content"></div>
 
-		<hr>
-		<footer>
-			<p>${footer}</p>
-		</footer>
-	</div>
+    </div><!-- /.container -->
 
-	<!--(if target dev)><!-->
-	<script src="assets/js/lib/date.format.js"></script>
-	<script src="assets/js/lib/jquery.js"></script>
-	<script src="assets/js/lib/jquery.form.js"></script>
-	<script src="assets/js/lib/bootstrap.min.js"></script>
-	<script src="assets/js/lib/bootbox.min.js"></script>
-	<script src="assets/js/lib/can.jquery.js"></script>
-	<script src="assets/js/lib/bootstrap-fileupload.js"></script>
-  <script src="models/Application.js"></script>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+		<!--(if target dev)><!-->
+		<script src="assets/js/lib/date.format.js"></script>
+		<script src="assets/js/lib/jquery-3.3.1.min.js"></script>
+		<script src="assets/js/lib/jquery.form.js"></script>
+		<script src="assets/js/lib/bootstrap.min.js"></script>
+		<script src="assets/js/lib/bootbox.min.js"></script>
+		<script src="assets/js/lib/can.jquery.js"></script>
+
+    <script src="models/Application.js"></script>
 	<script src="models/Cluster.js"></script>
 	<script src="models/Counter.js"></script>
 	<script src="models/Group.js"></script>
@@ -159,46 +138,39 @@ body {
 	<script src="controllers/JobListPage.js"></script>
 	<script src="controllers/JobDetailsPage.js"></script>
 	<script src="controllers/Tabs.js"></script>
-	<!--<!(endif)-->
-
-	<!--(if target dist)>
-	<script src="cloudgene.vendor.min.js"></script>
-	<script src="cloudgene.min.js"></script>
-	<!(endif)-->
+		<!--<!(endif)-->
 
 
-	<script>
+		<!--(if target dist)>
+		<script src="cloudgene.vendor.min.js"></script>
+		<script src="cloudgene.min.js"></script>
+		<!(endif)-->
+
+
+
+    <script>
 		var app;
-
 		$(document)
 				.ready(
 						function() {
-
 						$(document.links).filter(function() {
 						  return this.hostname != window.location.hostname;
 						}).attr('target', '_blank');
-
 							// add token to every ajax request
 							$.ajaxPrefilter(function(options) {
-
 								if (!options.beforeSend) {
 									options.beforeSend = function(xhr) {
 										if (localStorage.getItem("cloudgene")) {
 											try {
-
 												// get data
 												var data = JSON.parse(localStorage.getItem("cloudgene"));
 												xhr.setRequestHeader("X-CSRF-Token", data.csrf);
-
 											} catch (e) {
-
 											}
 										}
 									}
 								}
-
 							});
-
 							app = app
 									|| (function() {
 										var process = $('<div id="process" class="modal hide" tabindex="-1" data-backdrop="static" style="width: 80px;  margin-left:-40px; height: 80px;  margin-top:100px;"><div class="modal-header"><h1>lf</h1></div><div class="modal-body"><img src="assets/img/spinner.gif"/></div></div>');
@@ -209,27 +181,21 @@ body {
 											hideProcess : function() {
 												process.modal('hide');
 											},
-
 										};
 									})();
-
 							tabs = new Tabs("#tabfolder");
 							if (window.location.hash == '') {
 								tabs.activate("home");
 								tabs.show("home");
 							}
-
 							<#if apps?size gt 0>
 							can.route("run/:app", {app: "${apps[0].id}"});
 							</#if>
 							can.route.ready();
-
-
 							//default route!
 							//can.route("pages/:page", {page: "home"});
 							//can.route.attr({page: "home"});
 						});
 	</script>
-
-</body>
+  </body>
 </html>

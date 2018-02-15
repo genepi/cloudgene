@@ -33,7 +33,7 @@ AdminSettingsPage = can.Control({
 
         this.settings.save();
 
-        bootbox.animate(false);
+        
         bootbox.alert("Settings updated.");
 
         return false;

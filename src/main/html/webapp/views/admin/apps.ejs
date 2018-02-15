@@ -4,16 +4,15 @@
 <br>
 <p>
 	<div class="btn-group">
-  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
-    Install App
-    <span class="caret"></span>
-  </a>
-  <ul class="dropdown-menu">
-		<li><a id="install-app-cloudgene-io-btn">from apps.cloudgene.io...</a></li>
-		<li><a id="install-app-github-btn">from GitHub...</a></li>
-    <li><a id="install-app-url-btn">from URL...</a></li>
-  </ul>
-</div>
+		<button id="btnGroupDrop1" type="button" class="btn primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+		        Install App
+		    </button>
+		    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+		      <a class="dropdown-item" id="install-app-cloudgene-io-btn">from apps.cloudgene.io...</a>
+		      <a class="dropdown-item" id="install-app-github-btn">from GitHub...</a>
+					<a class="dropdown-item" id="install-app-url-btn">from URL...</a>
+		    </div>
+	</div>
 	&nbsp;<span class="btn btn-default" id="reload-apps-btn">Reload Apps from filesystem</span>
 </p>
 <br>
