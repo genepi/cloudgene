@@ -1,7 +1,109 @@
-<h2><%= details.attr('name') %></h2>
-<p><%== details.attr('description') %><br><br></p>
+<h2><%= application.attr('name') %></h2>
+<p><%== application.attr('description') %><br><br></p>
 <div class="container">
-<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/<%= details.attr('id') %>" method="POST" enctype="multipart/form-data"></form>
+<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/<%= application.attr('id') %>" method="POST" enctype="multipart/form-data" novalidate>
+
+<div class="form-group row">
+	<label for="job-name" class="col-sm-2 col-form-label">Name</label>
+	<div class="col-sm-3">
+		<input name="job-name" type="text" value="" class="form-control" placeholder="optional job name"></input>
+	</div>
+</div>
+
+<hr/>
+
+<% application.attr('params').each(function(param, index) { %>
+<div class="form-group form-row" style="<%= param.visible !== true ? 'display:none':'' %>">
+
+	<!-- Label -->
+	<% if (param.attr('type') !== "label" && param.attr('type') !== "checkbox" && param.attr('type') !== "agbcheckbox") { %>
+		<label for="<%= param.attr('id') %>" class="col-sm-2 col-form-label"><%== param.attr('description') %></label>
+	<% } else { %>
+		<div class="col-sm-2 col-form-label">
+		</div>
+	<% } %>
+
+  <% if (param.attr('type') == "list" || param.attr('type') == "app_list") { %>
+		<!-- Combobox -->
+		<div class="col-sm-3">
+			<select name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" class="form-control" <%= param.attr('required') ? 'required' : '' %> >
+				<option value="">-- select an option --</option>
+				<% param.attr('values').each(function( item ) { %>
+					<option value="<%= item.attr('key') %>" <%= item.attr('key') == param.attr('value') ? "selected" : '' %>>
+						<%= item.attr('value') %>
+					</option>
+				<% }) %>
+			</select>
+			<div class="invalid-feedback">
+				This parameter is required.
+			</div>
+		</div>
+	<% } %>
+
+	<% if (param.attr('type') == "text" || param.attr('type') == "number") { %>
+		<!-- Textfield -->
+		<div class="col-sm-3">
+			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" class="form-control" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
+			<div class="invalid-feedback">
+				This parameter is required.
+			</div>
+		</div>
+	<% } %>
+
+	<% if (param.attr('type') == "checkbox") { %>
+		<!-- Checkbox -->
+		<div class="col-sm-7">
+			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="form-check-input"
+				<% param.attr('values').each(function( item ) { %> <% if (item.attr('key') == 'false') { %> data-unchecked-value="<%= item.attr('value') %>" <% } %> <% if (item.attr('key') == 'true') { %> value="<%= item.attr('value') %>" <% if (item.attr('value') == param.attr('value')) { %> checked <% } %> <% } %> <% }) %>
+			>
+			<label class="form-check-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
+		</div>
+	<% } %>
+
+	<% if (param.attr('type') == "local_file" || param.attr('type') == "hdfs_file") { %>
+		<!-- Single File Upload -->
+		<div class="col-sm-3">
+			<div class="custom-file">
+			  <input type="file" class="custom-file-input" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" <%= param.attr('required') ? 'required' : '' %>>
+			  <label class="custom-file-label" for="<%= param.attr('id') %>">Choose file</label>
+				<div class="invalid-feedback">
+					This parameter is required.
+				</div>
+			</div>
+		</div>
+	<% } %>
+
+	<% if (param.attr('type') == "local_folder" || param.attr('type') == "hdfs_folder") { %>
+		<!-- Multiple File Upload -->
+		<div class="col-sm-3">
+			<div class="custom-file">
+				<input type="file" class="custom-file-input"name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" <%= param.attr('required') ? 'required' : '' %> multiple>
+				<label class="custom-file-label" ffor="<%= param.attr('id') %>">Choose one or more file</label>
+				<div class="invalid-feedback">
+					This parameter is required.
+				</div>
+			</div>
+		</div>
+	<% } %>
+
+	<% if (param.attr('type') == "agbcheckbox") { %>
+		<!-- AGB checkbox. Has to be true before submission. -->
+		<div class="col-sm-10">
+			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="agb form-check-input" required value="accepted" >
+			<label class="form-check-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
+			<div class="invalid-feedback">
+				Please agree to the terms and conditions.
+			</div>
+		</div>
+	<% } %>
+
+</div>
+<% }) %>
+
+<!-- Submit Button -->
+<button class="btn btn-primary" type="submit" data-loading-text="Uploading"><%= application.attr('submitButton') %></button>
+
+</form>
 </div>
 
 <div id="waiting-dialog" class="modal hide">

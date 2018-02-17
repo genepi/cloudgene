@@ -70,32 +70,40 @@ public class JSONConverter {
 		object.put("help", input.getHelp());
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
 				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
-			JSONObject valuesObject = new JSONObject();
-
+			JSONArray array = new JSONArray();
 			Map<String, String> values = input.getValues();
 			List<String> keys = new ArrayList<String>(values.keySet());
 			Collections.sort(keys);
 			for (String key : keys) {
+				JSONObject valuesObject = new JSONObject();
 				String value = values.get(key);
-				valuesObject.put(key, value);
+				valuesObject.put("key", key);
+				valuesObject.put("value", value);
+				array.add(valuesObject);
 			}
-			object.put("values", valuesObject);
+			object.put("values", array);
 		}
 
 		if (input.getTypeAsEnum() == WdlParameterInputType.APP_LIST) {
-			JSONObject valuesObject = new JSONObject();
+			JSONArray array = new JSONArray();
 			for (WdlApp app : apps) {
 				String category = input.getCategory();
 				if (category != null && !category.isEmpty()) {
 					// filter by category
 					if (app.getCategory() != null && app.getCategory().equals(category)) {
-						valuesObject.put("apps@" + app.getId(), app.getName());
+						JSONObject valuesObject = new JSONObject();
+						valuesObject.put("key", "apps@" + app.getId());
+						valuesObject.put("value", app.getName());
+						array.add(valuesObject);
 					}
 				} else {
-					valuesObject.put("apps@" + app.getId(), app.getName());
+					JSONObject valuesObject = new JSONObject();
+					valuesObject.put("key", "apps@" + app.getId());
+					valuesObject.put("value", app.getName());
+					array.add(valuesObject);
 				}
 			}
-			object.put("values", valuesObject);
+			object.put("values", array);
 		}
 
 		return object;
