@@ -40,41 +40,8 @@
 
 			<td style="width: 80px;text-align:center;">
 
-				<% if( job.attr('state') == '-1' ){ %>
-					<span class="label label-inverse" style="width: 50px">Pending</span>
-				<% } %>
+				<%== can.view.render('views/components/status.ejs', {job: job}) %>
 
-				<% if( job.attr('state') == '1' ){ %>
-					<% if( job.attr('setupRunning')){ %>
-					<span class="label" style="width: 50px">Setup</span>
-					<% } else { %>
-					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') + 1 %>)</span>
-					<% } %>
-				<% } %>
-				<% if( job.attr('state') == '2' ){ %>
-					<span class="label label-info" style="width: 50px">Running</span>
-				<% } %>
-				<% if( job.attr('state') == '3' ){ %>
-					<span class="label label-info" style="width: 50px">Running</span>
-				<% } %>
-				<% if( job.attr('state') == '4' ){ %>
-					<span class="label label-success" style="width: 50px">Success</span>
-				<% } %>
-				<% if( job.attr('state') == '5' ){ %>
-					<span class="label label-important" style="width: 50px">Failed</span>
-				<% } %>
-				<% if( job.attr('state') == '6' ){ %>
-					<span class="label label-important" style="width: 50px">Canceled</span>
-				<% } %>
-				<% if( job.attr('state') == '7' ){ %>
-					<span class="label label-inverse" style="width: 50px">Retired</span>
-				<% } %>
-				<% if( job.attr('state') == '8' ){ %>
-					<span class="label label-success" style="width: 50px">Success</span>
-				<% } %>
-				<% if( job.attr('state') == '9' ){ %>
-					<span class="label label-important" style="width: 50px">Failed</span>
-				<% } %>
 			</td>
 
 			<td>
