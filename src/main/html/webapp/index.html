@@ -20,6 +20,8 @@
   <body>
 
 		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <div class="container d-flex justify-content-between">
+
        <a class="navbar-brand" href="#!pages/home">${appname}</a>
        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
          <span class="navbar-toggler-icon"></span>
@@ -76,18 +78,20 @@
            </li>
          </ul>
        </div>
+     </div>
      </nav>
-
-    <div class="container">
+     <div class=" py-5 bg-white">
+      <div class="container">
 
 			<#if maintenaceMessage??>
 					<div class="alert alert-error" id="system-error">
 						${maintenaceMessage}</div>
 					</#if>
 
-					<div id="content"></div>
+					<div id="content" class="bd-content"></div>
 
     </div><!-- /.container -->
+  </div>
 
 
     <!-- Bootstrap core JavaScript
