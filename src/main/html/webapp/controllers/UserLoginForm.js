@@ -31,7 +31,6 @@ UserLoginForm = can.Control({
 				} else {
 					// shows error
 					password.addClass('is-invalid');
-					console.log(password.closest('.invalid-feedback'));
 					password.closest('.form-group').find('.invalid-feedback').html(data.message);
 				}
 			},
