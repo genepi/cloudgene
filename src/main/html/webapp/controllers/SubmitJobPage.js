@@ -33,9 +33,6 @@ SubmitJobPage = can.Control({
 
             tool = this.element.find('tool');
 
-            console.log("submit job...");
-
-
             $("#waiting-dialog").modal();
             var csrfToken;
             if (localStorage.getItem("cloudgene")) {
@@ -87,7 +84,6 @@ SubmitJobPage = can.Control({
 
                 uploadProgress: function(event, position, total, percentComplete) {
                     $("#waiting-progress").css("width", percentComplete + "%");
-                    console.log(percentComplete + "%");
                 }
             });
         } catch (e) {

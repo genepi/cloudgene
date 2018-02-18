@@ -86,15 +86,12 @@ AdminAppsPage = can.Control({
   '#install-app-cloudgene-io-btn click': function(el, ev) {
 
     that = this;
-    console.log(that.options.installedApplications);
 
     CloudgeneApplication.findAll({}, function(applications) {
         var installedId = [];
         can.each(that.options.installedApplications, function(value, index) {
           installedId.push(value.attr('id'));
         });
-
-        console.log(installedId);
 
         var content = can.view('views/admin/apps.repository.ejs', {
           applications: applications,
@@ -104,9 +101,8 @@ AdminAppsPage = can.Control({
 
         bootbox.confirm(content);
         new AdminAppsInstallerDialog('#application-repository', {});
-      }, function(dadsad) {
-
-        console.log(dadsad);
+      }, function(response) {
+        console.log(response);
       }
 
     );
