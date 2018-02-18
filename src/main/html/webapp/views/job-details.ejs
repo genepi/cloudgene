@@ -11,26 +11,16 @@
 
 <ul class="nav nav-tabs">
 
-	<% if( !results ){  %>
-		<li class="active">
-		<% } else { %>
-		<li>
-		<% } %>
-
-		<a href="#!jobs/<%= job.attr('id') %>">
+	<li class="nav-item">
+		<a class="nav-link <%= !results ? 'active': '' %>" href="#!jobs/<%= job.attr('id') %>">
 			Details
 		</a>
 	</li>
 
 	<% if( job.attr('state') != '7' ){ %>
 
-		<% if(results ){  %>
-			<li class="active">
-			<% } else { %>
-			<li>
-			<% } %>
-
-			<a href="#!jobs/<%= job.attr('id') %>/results">
+		<li class="nav-item">
+			<a class="nav-link <%= results ? 'active': '' %>" href="#!jobs/<%= job.attr('id') %>/results">
 				Results
 			</a>
 		</li>
@@ -38,7 +28,7 @@
 	<% } %>
 
 </ul>
-
+<br>
 <table class="table table-bordered">
 
 	<tr>
@@ -72,38 +62,8 @@
 		</td>
 		<td>
 
-			<% if( job.attr('state') == '-1' ){ %>
-				<span class="label label-inverse" style="width: 50px">Pending</span>
-			<% } %>
+			<%== can.view.render('views/components/status.ejs', {job: job}) %>
 
-			<% if( job.attr('state') == '1' ){ %>
-				<% if( job.attr('setupRunning')){ %>
-				<span class="label" style="width: 50px">Setup</span>
-				<% } else { %>
-				<span class="label" style="width: 50px">Waiting</span>
-				<% } %>
-			<% } %>
-			<% if( job.attr('state') == '2' ){ %>
-				<span class="label label-info" style="width: 50px">Running</span>
-			<% } %>
-			<% if( job.attr('state') == '3' ){ %>
-				<span class="label label-info" style="width: 50px">Running</span>
-			<% } %>
-			<% if( job.attr('state') == '4'  || job.attr('state') == '8'){ %>
-				<span class="label label-success" style="width: 50px">Success</span>
-			<% } %>
-			<% if( job.attr('state') == '5' ){ %>
-				<span class="label label-important" style="width: 50px">Failed</span>
-			<% } %>
-			<% if( job.attr('state') == '6' ){ %>
-				<span class="label label-important" style="width: 50px">Canceled</span>
-			<% } %>
-			<% if( job.attr('state') == '7' ){ %>
-				<span class="label label-inverse" style="width: 50px">Retired</span>
-			<% } %>
-			<% if( job.attr('state') == '1' && job.attr('positionInQueue') != -1){ %>
-				<small> &nbsp; queue position <b><%= job.attr('positionInQueue') + 1 %></b> <%== job.attr('positionInQueue')+1 > 70 ? '<span class="icon-warning-sign"  style="color:#FFA500;" title="server under heavy load"></span>' : '' %></small>
-			<% } %>
 		</td>
 	</tr>
 	<% if( job.attr('logs') ){ %>
@@ -131,13 +91,13 @@
 
 				<div class="btn-group">
 					<% if( job.attr('state') == '-1' && admin){ %>
-						<button class="btn" id="btn-restart">Restart</button>
+						<button class="btn btn-outline-success" id="btn-restart">Restart</button>
 					<% } %>
 					<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-						<button class="btn" id="btn-cancel">Cancel</button>
+						<button class="btn btn-outline-danger" id="btn-cancel">Cancel</button>
 					<% } %>
 					<% if( job.attr('state') > '3' ){ %>
-						<button class="btn" id="btn-delete">Delete</button>
+						<button class="btn btn-outline-danger" id="btn-delete">Delete</button>
 					<% } %>
 				</div>
 
@@ -182,17 +142,17 @@
 									<td style="width: 40px;text-align:center;">
 
 										<% if( log.attr('type') == '0' ){ %>
-											<span class="label label-success" style="width: 20px">
+											<span class="badge badge-success" style="width: 20px">
 												<i class="icon-ok icon-white"></i>
 											</span>
 										<% } %>
 										<% if( log.attr('type') == '1' ){ %>
-											<span class="label label-important" style="width: 20px">
+											<span class="badge badge-danger" style="width: 20px">
 												<i class="icon-remove icon-white"></i>
 											</span>
 										<% } %>
 										<% if( log.attr('type') == '2' ){ %>
-											<span class="label label-warning" style="width: 20px">
+											<span class="badge badge-warning" style="width: 20px">
 												<i class="icon-eye-open icon-white"></i>
 											</span>
 										<% } %>
@@ -200,7 +160,7 @@
 											<img src="assets/img/jobs/running.gif"/>
 										<% } %>
 										<% if( log.attr('type') == '3' && job.attr('state') == 6){ %>
-											<span class="label label-important" style="width: 20px">
+											<span class="badge badge-danger" style="width: 20px">
 												<i class="icon-remove icon-white"></i>
 											</span>
 										<% } %>
