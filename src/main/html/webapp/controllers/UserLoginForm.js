@@ -30,9 +30,9 @@ UserLoginForm = can.Control({
 					localStorage.setItem('cloudgene', JSON.stringify(dataToken));
 				} else {
 					// shows error
-					username.closest('.control-group').addClass('error');
-					password.closest('.control-group').addClass('error');
-					password.closest('.control-group').find('.help-block').html(data.message);
+					password.addClass('is-invalid');
+					console.log(password.closest('.invalid-feedback'));
+					password.closest('.form-group').find('.invalid-feedback').html(data.message);
 				}
 			},
 			error: function(message) {
