@@ -41,10 +41,10 @@ AdminJobsPage = can.Control({
 
   },
 
-  '.icon-trash click': function(el, ev) {
+  '.delete-btn click': function(el, ev) {
 
     job = el.closest('tr').data('job');
-    
+
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
         job.destroy();
@@ -53,10 +53,10 @@ AdminJobsPage = can.Control({
 
   },
 
-  '.icon-remove click': function(el, ev) {
+  '.cancel-btn click': function(el, ev) {
 
     job = el.closest('tr').data('job');
-    
+
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
         // cancel
@@ -84,74 +84,73 @@ AdminJobsPage = can.Control({
 
   },
 
-  '.icon-arrow-up click': function(el, ev) {
+  '.priority-btn click': function(el, ev) {
     job = el.closest('tr').data('job');
     that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority');
-    request.success(function(data) {
-      bootbox.alert(data);
-      that.init(that.element, that.options);
-    });
-    request.error(function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
-    });
+    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority').then(
+      function(data) {
+        bootbox.alert(data);
+        that.init(that.element, that.options);
+      },
+      function(data) {
+        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      });
   },
 
-  '.icon-folder-close click': function(el, ev) {
+  '.archive-btn click': function(el, ev) {
     job = el.closest('tr').data('job');
     that = this;
-    
+
     bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
       if (result) {
-        request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive');
-        request.success(function(data) {
-          bootbox.alert(data);
-          that.init(that.element, that.options);
-        });
-        request.error(function(data) {
-          bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
-        });
+        request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive').then(
+          function(data) {
+            bootbox.alert(data);
+            that.init(that.element, that.options);
+          },
+          function(data) {
+            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+          });
       }
     });
   },
 
-  '.icon-time click': function(el, ev) {
+  '.reset-downloads-btn click': function(el, ev) {
     job = el.closest('tr').data('job');
     that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset');
-    request.success(function(data) {
-      bootbox.alert(data);
-      that.init(that.element, that.options);
-    });
-    request.error(function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
-    });
+    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset').then(
+      function(data) {
+        bootbox.alert(data);
+      },
+      function(data) {
+        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      });
   },
 
-  '.icon-fire click': function(el, ev) {
+  '.retire-btn click': function(el, ev) {
     job = el.closest('tr').data('job');
     that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire');
-    request.success(function(data) {
-      bootbox.alert(data);
-      that.init(that.element, that.options);
-    });
-    request.error(function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
-    });
+    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire').then(
+      function(data) {
+        bootbox.alert(data);
+        that.init(that.element, that.options);
+      },
+      function(data) {
+        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      });
   },
 
-  '.icon-plus click': function(el, ev) {
+  '.change-retire-date-btn click': function(el, ev) {
     job = el.closest('tr').data('job');
     that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/1');
-    request.success(function(data) {
-      bootbox.alert(data);
-      that.init(that.element, that.options);
-    });
-    request.error(function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
-    });
+    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/1').then(
+      function(data) {
+        bootbox.alert(data);
+        that.init(that.element, that.options);
+      },
+      function(data) {
+        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      });
   }
 
 });
