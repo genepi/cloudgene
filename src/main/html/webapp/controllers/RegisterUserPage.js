@@ -15,25 +15,28 @@ RegisterUserPage = can.Control({
 
 		// username
 		username = this.element.find("[name='username']");
-		error = user.checkUsername(username.val());
-		this.updateControl(username, error);
+		usernameError = user.checkUsername(username.val());
+		this.updateControl(username, usernameError);
 
 		// fullname
 		fullname = this.element.find("[name='full-name']");
-		error = user.checkName(fullname.val());
-		this.updateControl(fullname, error);
+		fullnameError = user.checkName(fullname.val());
+		this.updateControl(fullname, fullnameError);
 
 		// mail
 		mail = this.element.find("[name='mail']");
-		error = user.checkMail(mail.val());
-		this.updateControl(mail, error);
+		mailError = user.checkMail(mail.val());
+		this.updateControl(mail, mailError);
 
 		// password
 		newPassword = this.element.find("[name='new-password']");
 		confirmNewPassword = this.element.find("[name='confirm-new-password']");
-		error = user.checkPassword(newPassword.val(), confirmNewPassword.val());
-		this.updateControl(newPassword, error);
+		passwordError = user.checkPassword(newPassword.val(), confirmNewPassword.val());
+		this.updateControl(newPassword, passwordError);
 
+		if (usernameError || fullnameError ||  mailError || passwordError){
+			return false;
+		}
 
 		$('#save').button('loading');
 
