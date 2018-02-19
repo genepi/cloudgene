@@ -46,11 +46,11 @@ JobListPage = can.Control({
 
   },
 
-  '.icon-trash click': function(el, ev) {
+  '.delete-btn click': function(el, ev) {
     var that = this;
 
     job = el.closest('tr').data('job');
-    
+
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -78,7 +78,7 @@ JobListPage = can.Control({
 
   },
 
-  '.icon-remove click': function(el, ev) {
+  '.cancel-btn click': function(el, ev) {
     var that = this;
 
     job = el.closest('tr').data('job');
