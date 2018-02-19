@@ -25,12 +25,12 @@ module.exports = function(grunt) {
       vendor: {
         src: [
           'assets/js/lib/date.format.js',
-          'assets/js/lib/jquery.js',
+          'assets/js/lib/jquery-3.3.1.js',
+          'assets/js/lib/popper.js',
           'assets/js/lib/jquery.form.js',
-          'assets/js/lib/bootstrap.min.js',
+          'assets/js/lib/bootstrap.js',
           'assets/js/lib/bootbox.min.js',
           'assets/js/lib/can.jquery.js',
-          'assets/js/lib/bootstrap-fileupload.js',
           'assets/js/lib/md5.min.js',
           'assets/js/lib/raphael.min.js',
           'assets/js/lib/morris.min.js'
@@ -61,9 +61,8 @@ module.exports = function(grunt) {
         files: {
           'dist/cloudgene.vendor.min.css': [
             'assets/css/bootstrap.css',
-            'assets/css/bootstrap-fileupload.css',
             'assets/css/morris.css',
-            'assets/css/bootstrap-responsive.css'
+            'assets/css/cloudgene.css'
           ]
         }
       }
