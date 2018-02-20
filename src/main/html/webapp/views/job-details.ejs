@@ -75,45 +75,46 @@
 				<p><br></p>
 
 
-						<% job.attr('steps').each(function( step ) { %>
-
-							<h3><%==step.attr('name') %></h3>
+						<% job.attr('steps').each(function( step, index ) { %>
+							<div class="list-group">
+							  <div class="list-group-item bg-light  flex-column align-items-start">
+							    <div class="d-flex w-100 justify-content-between">
+							      <h5 class="mb-1"><%==step.attr('name') %></h5>
+							      <!-- <small><i class="fas fa-spinner fa-spin"></i></small> -->
+										<!-- <i class="far fa-check-circle text-success"></i> -->
+							    </div>
+							  </div>
 							<% step.attr('logMessages').each(function( log ) { %>
+
 										<% if( log.attr('type') == '0' ){ %>
-											<div class="card mb-12 job-success my-2">
-												<div class="card-body">
-											<%==log.attr('message').replace(/\n/g, "<br>") %>
-												</div>
-											</div>
+
+											<div class="list-group-item flex-column align-items-start step-success">
+												<p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
 
 										<% } %>
 										<% if( log.attr('type') == '1' ){ %>
-											<div class="card mb-12 job-danger my-2">
-												<div class="card-body">
-											<%==log.attr('message').replace(/\n/g, "<br>") %>
-												</div>
-											</div>
+											<div class="list-group-item flex-column align-items-start step-danger">
+										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
 										<% } %>
 										<% if( log.attr('type') == '2' ){ %>
-											<div class="card mb-12 job-warning my-2">
-												<div class="card-body">
-											<%==log.attr('message').replace(/\n/g, "<br>") %>
-												</div>
-											</div>
+											<div class="list-group-item flex-column align-items-start step-warning">
+										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
 										<% } %>
 										<% if( log.attr('type') == '3' && job.attr('state') != 6){ %>
-											<div class="card mb-12 job-primary my-2">
-												<div class="card-body">
-											<%==log.attr('message').replace(/\n/g, "<br>") %>
+											<div class="list-group-item flex-column align-items-start step-primary">
+												<div class="d-flex w-100 justify-content-between">
+												<p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+												<small><i class="fas fa-spinner fa-spin"></i></small>
 												</div>
-											</div>
+										  </div>
 										<% } %>
 										<% if( log.attr('type') == '3' && job.attr('state') == 6){ %>
-											<div class="card mb-12 job-danger my-2">
-												<div class="card-body">
-											<%==log.attr('message').replace(/\n/g, "<br>") %>
-												</div>
-											</div>
+											<div class="list-group-item flex-column align-items-start step-danger">
+										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
 										<% } %>
 									</div>
 							<% }) %>

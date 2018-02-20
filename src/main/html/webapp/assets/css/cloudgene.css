@@ -101,3 +101,33 @@ footer p {
   border-left-width: 10px;
   border-left-color: #ffc107;
 }
+
+
+.step-success{
+  border-left-width: 3px;
+  border-left-color: #28a745;
+}
+
+.step-danger{
+  border-left-width: 3px;
+  border-left-color: #dc3545;
+}
+
+.step-primary{
+  border-left-width: 3px;
+  border-left-color: #0062cc;
+  animation: colorchange 3s;
+  animation-iteration-count:infinite;
+}
+
+@keyframes colorchange
+{
+  0%   {border-left:3px solid rgba(8, 85, 178, 1);}
+  50%   {border-left:3px solid #7AB7FF;}
+  100% {border-left:3px solid rgba(8, 85, 178, 1);}
+}
+
+.step-warning{
+  border-left-width: 3px;
+  border-left-color: #ffc107;
+}
