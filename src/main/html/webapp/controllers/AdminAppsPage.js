@@ -27,12 +27,13 @@ AdminAppsPage = can.Control({
           app.attr('url', url);
           app.attr('name', id);
 
-          bootbox.dialog('<h4>Install application</h4>' +
-            '<p>Please wait while the application is configured.</p>' +
-            '<div class="progress progress-striped active">' +
-            '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-            '</div>'
-          );
+          bootbox.dialog({
+            message: '<h4>Install application</h4>' +
+              '<p>Please wait while the application is configured.</p>' +
+              '<div class="progress progress-striped active">' +
+              '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
+              '</div>'
+          });
 
           app.save(function(application) {
             bootbox.hideAll();
@@ -60,12 +61,13 @@ AdminAppsPage = can.Control({
           app = new Application();
           app.attr('url', url);
 
-          bootbox.dialog('<h4>Install application</h4>' +
-            '<p>Please wait while the application is configured.</p>' +
-            '<div class="progress progress-striped active">' +
-            '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-            '</div>'
-          );
+          bootbox.dialog({
+            message: '<h4>Install application</h4>' +
+              '<p>Please wait while the application is configured.</p>' +
+              '<div class="progress progress-striped active">' +
+              '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
+              '</div>'
+          });
 
           app.save(function(application) {
             bootbox.hideAll();
@@ -132,12 +134,13 @@ AdminAppsPage = can.Control({
       if (result) {
         application.attr('enabled', enabled);
 
-        bootbox.dialog((enabled ? '<h4>Install application</h4>' : '<h4>Uninstall application</h4>') +
-          '<p>Please wait while the application is configured.</p>' +
-          '<div class="progress progress-striped active">' +
-          '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-          '</div>'
-        );
+        bootbox.dialog({
+          message: (enabled ? '<h4>Install application</h4>' : '<h4>Uninstall application</h4>') +
+            '<p>Please wait while the application is configured.</p>' +
+            '<div class="progress progress-striped active">' +
+            '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
+            '</div>'
+        });
 
         application.save(function(application) {
           bootbox.hideAll();
@@ -161,12 +164,13 @@ AdminAppsPage = can.Control({
     bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
 
-        bootbox.dialog('<h4>Uninstall application</h4>' +
-          '<p>Please wait while the application is configured.</p>' +
-          '<div class="progress progress-striped active">' +
-          '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-          '</div>'
-        );
+        bootbox.dialog({
+          message: '<h4>Uninstall application</h4>' +
+            '<p>Please wait while the application is configured.</p>' +
+            '<div class="progress progress-striped active">' +
+            '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
+            '</div>'
+        });
 
         application.destroy(function(application) {
           bootbox.hideAll();
@@ -186,7 +190,6 @@ AdminAppsPage = can.Control({
     application = el.closest('tr').data('application');
     var permission = application.attr('permission');
 
-
     bootbox.confirm('<h4> Change permission of ' + application.attr('id') +
       '</h4><form><input class="field span2" id="message" name="message" value="' + permission + '"></input></form>',
       function(result) {
@@ -205,7 +208,6 @@ AdminAppsPage = can.Control({
     application = el.closest('tr').data('application');
     var permission = application.attr('permission');
 
-
     bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafile in HDFS are deleted and reimported on next job run.</p>',
       function(result) {
         if (result) {
@@ -220,7 +222,6 @@ AdminAppsPage = can.Control({
   '.view-source-btn click': function(el, ev) {
 
     application = el.closest('tr').data('application');
-
 
     var env = '';
     for (var property in application.attr('environment').attr()) {

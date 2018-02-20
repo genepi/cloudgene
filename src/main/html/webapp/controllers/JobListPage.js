@@ -49,7 +49,7 @@ JobListPage = can.Control({
   '.delete-btn click': function(el, ev) {
     var that = this;
 
-    job = el.closest('tr').data('job');
+    job = el.closest('.card').data('job');
 
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -81,7 +81,7 @@ JobListPage = can.Control({
   '.cancel-btn click': function(el, ev) {
     var that = this;
 
-    job = el.closest('tr').data('job');
+    job = el.closest('.card').data('job');
 
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {

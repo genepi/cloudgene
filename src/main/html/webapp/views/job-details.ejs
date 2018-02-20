@@ -1,6 +1,30 @@
-<br><p><a href="#!pages/jobs">Jobs</a> / <%= job.attr('id') %></p><hr>
 
-	<h2><%= job.attr('id') != job.attr('name') ? job.attr('name') : job.attr('id') %></h2>
+<div class="d-flex justify-content-between align-items-center">
+	<div>
+		<h2><%= job.attr('id') != job.attr('name') ? job.attr('name') : job.attr('id') %></h2>
+		<small class="text-muted"><i class="far fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="far fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>&nbsp;&nbsp;<i class="far fa-user"></i> username&nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
+	</div>
+	<div>
+		<%== can.view.render('views/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+		<div class="dropdown-menu" aria-labelledby="<%=  job.attr('id') %>">
+			<% if( admin){ %>
+					<% if( job.attr('state') == '-1'){ %>
+						<a id="restart-btn" class="dropdown-item" style="cursor:pointer">Restart</a>
+					<% } %>
+				<a class="dropdown-item" href="/logs/<%= job.attr('id') %>" target="_blank">Logs</a>
+				<div class="dropdown-divider"></div>
+			<% } %>
+			<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
+				<a id="cancel-btn" class="dropdown-item" style="cursor:pointer">Cancel.</a>
+			<% } %>
+			<% if( job.attr('state') > '3'){ %>
+				<a id="delete-btn" class="dropdown-item" style="cursor:pointer">Delete</a>
+			<% } %>
+		</div>
+	</div>
+</div>
+
+<br>
 <br>
 <% if( job.attr('public')){ %>
 	<div class="alert alert-info">Please bookmark this page to monitor your job and to download your results!
@@ -28,84 +52,7 @@
 	<% } %>
 
 </ul>
-<br>
-<table class="table table-bordered">
 
-	<tr>
-		<td style="width: 150px;">
-			<b>Submitted On:</b>
-		</td>
-		<td><%= prettyDate(job.attr('submittedOn')) %></td>
-	</tr>
-	<tr>
-		<td>
-			<b>Completed On:</b>
-		</td>
-		<td><%= prettyDate(job.attr('finishedOn')) %></td>
-	</tr>
-	<tr>
-		<td>
-			<b>Setup Time:</b>
-		</td>
-		<td><%= prettyTime(job.attr('setupStartTime'), job.attr('setupEndTime'), job.attr('currentTime')); %></td>
-	</tr>
-	<tr>
-		<td>
-			<b>Execution Time:</b>
-		</td>
-		<td>
-			<%= prettyTime(job.attr('startTime'), job.attr('endTime'), job.attr('currentTime')); %></td>
-	</tr>
-	<tr>
-		<td>
-			<b>State:</b>
-		</td>
-		<td>
-
-			<%== can.view.render('views/components/status.ejs', {job: job}) %>
-
-		</td>
-	</tr>
-	<% if( job.attr('logs') ){ %>
-		<tr>
-			<td>
-				<b>Logs:</b>
-			</td>
-			<td>
-				<a href="<%= job.attr('logs')  %>">View</td>
-			</tr>
-		<% } %>
-
-		<tr>
-			<td>
-				<b>Application:</b>
-			</td>
-			<td><%= job.attr('application') %></td>
-		</tr>
-
-		<tr>
-			<td>
-				<b>Actions:</b>
-			</td>
-			<td>
-
-				<div class="btn-group">
-					<% if( job.attr('state') == '-1' && admin){ %>
-						<button class="btn btn-outline-success" id="btn-restart">Restart</button>
-					<% } %>
-					<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-						<button class="btn btn-outline-danger" id="btn-cancel">Cancel</button>
-					<% } %>
-					<% if( job.attr('state') > '3' ){ %>
-						<button class="btn btn-outline-danger" id="btn-delete">Delete</button>
-					<% } %>
-				</div>
-
-			</td>
-
-		</tr>
-
-	</table>
 
 	<div class="tab-content">
 
@@ -127,51 +74,53 @@
 
 				<p><br></p>
 
-				<table id="table-steps" class="table table-bordered" style="opacity: <%=  job.attr('state') == '7' ? '0.5' : '1.0' %>;">
 
-					<tbody>
 						<% job.attr('steps').each(function( step ) { %>
-							<tr>
-								<td colspan="2">
-									<b><%==step.attr('name') %></b>
-								</td>
-							</tr>
+
+							<h3><%==step.attr('name') %></h3>
 							<% step.attr('logMessages').each(function( log ) { %>
-
-								<tr >
-									<td style="width: 40px;text-align:center;">
-
 										<% if( log.attr('type') == '0' ){ %>
-											<span class="badge badge-success" style="width: 20px">
-												<i class="icon-ok icon-white"></i>
-											</span>
+											<div class="card mb-12 job-success my-2">
+												<div class="card-body">
+											<%==log.attr('message').replace(/\n/g, "<br>") %>
+												</div>
+											</div>
+
 										<% } %>
 										<% if( log.attr('type') == '1' ){ %>
-											<span class="badge badge-danger" style="width: 20px">
-												<i class="icon-remove icon-white"></i>
-											</span>
+											<div class="card mb-12 job-danger my-2">
+												<div class="card-body">
+											<%==log.attr('message').replace(/\n/g, "<br>") %>
+												</div>
+											</div>
 										<% } %>
 										<% if( log.attr('type') == '2' ){ %>
-											<span class="badge badge-warning" style="width: 20px">
-												<i class="icon-eye-open icon-white"></i>
-											</span>
+											<div class="card mb-12 job-warning my-2">
+												<div class="card-body">
+											<%==log.attr('message').replace(/\n/g, "<br>") %>
+												</div>
+											</div>
 										<% } %>
 										<% if( log.attr('type') == '3' && job.attr('state') != 6){ %>
-											<img src="assets/img/jobs/running.gif"/>
+											<div class="card mb-12 job-primary my-2">
+												<div class="card-body">
+											<%==log.attr('message').replace(/\n/g, "<br>") %>
+												</div>
+											</div>
 										<% } %>
 										<% if( log.attr('type') == '3' && job.attr('state') == 6){ %>
-											<span class="badge badge-danger" style="width: 20px">
-												<i class="icon-remove icon-white"></i>
-											</span>
+											<div class="card mb-12 job-danger my-2">
+												<div class="card-body">
+											<%==log.attr('message').replace(/\n/g, "<br>") %>
+												</div>
+											</div>
 										<% } %>
-									</td>
-									<td><%==log.attr('message').replace(/\n/g, "<br>") %></td>
-								</tr>
+									</div>
 							<% }) %>
+<br>
 						<% }) %>
 
-					</tbody>
-				</table>
+
 
 			</div>
 
@@ -191,7 +140,7 @@
 									<td colspan="2">
 										<b><%=param.attr('description') %></b>
 									</td>
-									<td><span class="share-folder icon-share" style="cursor: pointer;" title="Share All Data..."></span></td>
+									<td><span class="share-folder-btn fas fa-share-square" style="cursor: pointer;" title="Share All Data..."></span></td>
 								</tr>
 
 								<% param.attr('files').each(function( output ) { %>
@@ -210,7 +159,7 @@
 										</td>
 										<td style="width: 100px;text-align:right;"><%=output.attr('size') %></td>
 										<td style="width: 16px;text-align:center;">
-											<span class="share-file icon-share-alt" style="cursor: pointer;" title="Share Data..."></span>
+											<span class="share-file-btn fas fa-share" style="cursor: pointer;" title="Share Data..."></span>
 										</td>
 									</tr>
 

@@ -2,11 +2,11 @@
 The private links for this folder are:<br><br>
 
 <ul id="myTab" class="nav nav-tabs">
-	<li class="active">
-		<a href="#links" data-toggle="tab">Links to share (<%= files.length %>)</a>
+	<li class="nav-item">
+		<a class="nav-link active" href="#links" data-toggle="tab">Links to share (<%= files.length %>)</a>
 	</li>
-	<li class="">
-		<a href="#wget" data-toggle="tab">wget commands (<%= files.length %>)</a>
+	<li class="nav-item">
+		<a class="nav-link" href="#wget" data-toggle="tab">wget commands (<%= files.length %>)</a>
 	</li>
 </ul>
 
@@ -16,7 +16,7 @@ The private links for this folder are:<br><br>
 		<% files.each(function(output2){
 			value += hostname  + '/share/results/' + output2.attr('hash') +'/'+ output2.attr('name') + '\n';
 		 })%>
-		 <textarea class="field span6" id="message" rows="10"><%= value %></textarea>
+		 <textarea class="form-control" id="message" rows="10"><%= value %></textarea>
 	</div>
 
 	<% value2 = '' %>
@@ -24,6 +24,6 @@ The private links for this folder are:<br><br>
 		value2 += 'wget ' + hostname  + '/share/results/' + output2.attr('hash') +'/'+ output2.attr('name') + '\n';
 	 })%>
 	<div class="tab-pane" id="wget">
-	<textarea class="field span6" id="message" rows="10"><%= value2 %></textarea>
+	<textarea class="form-control" id="message" rows="10"><%= value2 %></textarea>
 	</div>
 </div>
