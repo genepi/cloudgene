@@ -13,10 +13,11 @@
     <!--(if target dev)><!-->
     <!-- Bootstrap core CSS -->
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="assets/css/cloudgene.css" rel="stylesheet">
     <!--<!(endif)-->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+
 
     <!--(if target dist)>
     <link href="cloudgene.vendor.min.css" rel="stylesheet">
@@ -100,11 +101,12 @@
     <div class="container">
 
 			<#if maintenaceMessage??>
-					<div class="alert alert-error" id="system-error">
-						${maintenaceMessage}</div>
-					</#if>
+					<div class="alert alert-danger" id="system-error">
+						${maintenaceMessage}
+          </div>
+			</#if>
 
-					<div id="content" class="bd-content"></div>
+			<div id="content" class="bd-content"></div>
 
     </div><!-- /.container -->
    </div>

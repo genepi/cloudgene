@@ -32,9 +32,9 @@ JobDetailsPage = can.Control({
 
   // delete job
 
-  '#btn-delete click': function(el, ev) {
+  '#delete-btn click': function(el, ev) {
     var that = this;
-    
+
     bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -62,9 +62,9 @@ JobDetailsPage = can.Control({
 
   // cancel job
 
-  '#btn-cancel click': function(el, ev) {
+  '#cancel-btn click': function(el, ev) {
     var that = this;
-    
+
     bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -92,9 +92,9 @@ JobDetailsPage = can.Control({
 
   },
 
-  '#btn-restart click': function(el, ev) {
+  '#restart-btn click': function(el, ev) {
     var that = this;
-    
+
     bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -125,22 +125,26 @@ JobDetailsPage = can.Control({
     });
   },
 
-  '.share-file click': function(e) {
+  '.share-file-btn click': function(e) {
     output = e.closest('tr').data('output');
-    
+
     bootbox.alert(can.view('/views/share-file.ejs', {
       hostname: location.protocol + '//' + location.host,
       output: output
-    }));
+    }), function() {
+
+    });
   },
 
-  '.share-folder click': function(e) {
+  '.share-folder-btn click': function(e) {
     files = e.closest('tr').data('files');
-    
+
     bootbox.alert(can.view('/views/share-folder.ejs', {
       hostname: location.protocol + '//' + location.host,
       files: files
-    }));
+    }), function() {
+
+    });
   },
 
   // refresh if job is running

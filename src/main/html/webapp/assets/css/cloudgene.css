@@ -81,3 +81,23 @@ footer p {
     max-width: 80%
   }
 }
+
+.job-success{
+  border-left-width: 10px;
+  border-left-color: #28a745;
+}
+
+.job-danger{
+  border-left-width: 10px;
+  border-left-color: #dc3545;
+}
+
+.job-primary{
+  border-left-width: 10px;
+  border-left-color: #0062cc;
+}
+
+.job-warning{
+  border-left-width: 10px;
+  border-left-color: #ffc107;
+}
