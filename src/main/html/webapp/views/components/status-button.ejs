@@ -7,22 +7,22 @@
 <% if( job.attr('state') == '1' ){ %>
   <% if( job.attr('setupRunning')){ %>
     <button style="width: 100px;" class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Setup
+       <i class="fas fa-cog fa-spin"></i> Setup
     </button>
   <% } else { %>
     <button style="width: 100px;" class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-      Waiting
+       <i class="far fa-hourglass fa-spin"></i> Waiting
     </button>
   <% } %>
 <% } %>
 <% if( job.attr('state') == '2' ){ %>
   <button style="width: 100px;" class="btn btn-sm btn-primary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Running
+     <i class="fas fa-circle-notch fa-spin"></i> Running
   </button>
 <% } %>
 <% if( job.attr('state') == '3' ){ %>
   <button style="width: 100px;" class="btn btn-sm btn-primary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Running
+     <i class="fas fa-circle-notch fa-spin"></i> Running
   </button>
 <% } %>
 <% if( job.attr('state') == '4'  || job.attr('state') == '8'){ %>
