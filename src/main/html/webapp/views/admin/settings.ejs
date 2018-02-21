@@ -8,11 +8,9 @@ This page enables to customize your Cloudgene installation and to connect it wit
 
 	<h4>General</h4>
 
-	<div class="control-group">
-		<label for="loginUsername" class="control-label">Service Name:</label>
-		<div class="controls">
-			<input name="name" type="text" data-required="true" value="<%= settings.attr('name') %>">
-		</div>
+	<div class="form-group">
+		<label for="name" class="control-label">Service Name:</label>
+		<input id="name" name="name" type="text" class="form-control col-md-4" value="<%= settings.attr('name') %>">
 	</div>
 
 	<hr>
@@ -23,45 +21,32 @@ This page enables to customize your Cloudgene installation and to connect it wit
 	<p>Customize the SMTP mailing system used by Cloudgene to handle outgoing e-mails.
 	</p>
 
-	<div class="control-group">
-		<label for="loginUsername" class="control-label">Server:</label>
-		<div class="controls">
-			<input name="mail-smtp" type="text" data-required="true" value="<%= settings.attr('mail-smtp') %>">
-		</div>
+	<div class="form-group">
+		<label for="mail-smtp">Server:</label>
+		<input id="mail-smtp" name="mail-smtp" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-smtp') %>">
 	</div>
 
-	<div class="control-group">
-		<label for="loginUsername" class="control-label">Port:</label>
-		<div class="controls">
-			<input name="mail-port" type="text" data-required="true" value="<%= settings.attr('mail-port') %>">
-		</div>
+	<div class="form-group">
+		<label for="mail-port">Port:</label>
+		<input id="mail-port" name="mail-port" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-port') %>">
 	</div>
 
-	<div class="control-group">
-		<label for="loginUsername" class="control-label">User:</label>
-		<div class="controls">
-			<input name="mail-user" type="text" data-required="true" value="<%= settings.attr('mail-user') %>">
-		</div>
+	<div class="form-group">
+		<label for="mail-user">User:</label>
+		<input id="mail-user" name="mail-user" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-user') %>">
 	</div>
 
-	<div class="control-group">
-		<label for="loginUsername" class="control-label">Password:</label>
-		<div class="controls">
-			<input name="mail-password" type="password" data-required="true" value="<%= settings.attr('mail-password') %>">
-		</div>
+	<div class="form-group">
+		<label for="mail-password">Password:</label>
+		<input id="mail-password" name="mail-password" type="password" class="form-control col-md-4" value="<%= settings.attr('mail-password') %>">
 	</div>
 
-	<div class="control-group">
-		<label for="loginUsername" class="control-label">Sender:</label>
-		<div class="controls">
-			<input name="mail-name" type="text" data-required="true" value="<%= settings.attr('mail-name') %>">
-		</div>
+	<div class="form-group">
+		<label for="mail-name">Sender:</label>
+		<input id="mail-name" name="mail-name" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-name') %>">
 	</div>
 
-	<div class="control-group">
-		<div class="controls">
-			<button id="save" class="btn btn-primary" data-loading-text="please wait...">Save</button>
-
-		</div>
+	<div class="form-group">
+		<button id="save" class="btn btn-primary" data-loading-text="please wait...">Save</button>
 	</div>
 </form>
