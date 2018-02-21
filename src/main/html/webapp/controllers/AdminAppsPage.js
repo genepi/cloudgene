@@ -27,28 +27,30 @@ AdminAppsPage = can.Control({
           app.attr('url', url);
           app.attr('name', id);
 
-          bootbox.dialog({
+          var waitingDialog = bootbox.dialog({
             message: '<h4>Install application</h4>' +
               '<p>Please wait while the application is configured.</p>' +
               '<div class="progress progress-striped active">' +
               '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-              '</div>'
+              '</div>',
+            show: false
           });
+          waitingDialog.on('shown.bs.modal', function() {
+            app.save(function(application) {
+              waitingDialog.modal('hide');
+              bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
+                location.reload();
+              });
 
-          app.save(function(application) {
-            bootbox.hideAll();
-            bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
-              location.reload();
+            }, function(data) {
+              waitingDialog.modal('hide');
+              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
             });
-
-          }, function(data) {
-            bootbox.hideAll();
-            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
           });
 
+          waitingDialog.modal('show');
         }
       });
-
   },
 
   '#install-app-github-btn click': function(el, ev) {
@@ -57,57 +59,37 @@ AdminAppsPage = can.Control({
       can.view('views/admin/apps.install.github.ejs'),
       function(result) {
         if (result) {
+
           var url = 'github://' + $('#url').val();
           app = new Application();
           app.attr('url', url);
 
-          bootbox.dialog({
+          var waitingDialog = bootbox.dialog({
             message: '<h4>Install application</h4>' +
               '<p>Please wait while the application is configured.</p>' +
               '<div class="progress progress-striped active">' +
               '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-              '</div>'
+              '</div>',
+            show: false
           });
 
-          app.save(function(application) {
-            bootbox.hideAll();
-            bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
-              location.reload();
+          waitingDialog.on('shown.bs.modal', function() {
+
+            app.save(function(application) {
+              waitingDialog.modal('hide');
+              bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
+                location.reload();
+              });
+
+            }, function(data) {
+              waitingDialog.modal('hide');
+              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
             });
-
-          }, function(data) {
-            bootbox.hideAll();
-            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
           });
 
+          waitingDialog.modal('show');
         }
       });
-
-  },
-
-  '#install-app-cloudgene-io-btn click': function(el, ev) {
-
-    that = this;
-
-    CloudgeneApplication.findAll({}, function(applications) {
-        var installedId = [];
-        can.each(that.options.installedApplications, function(value, index) {
-          installedId.push(value.attr('id'));
-        });
-
-        var content = can.view('views/admin/apps.repository.ejs', {
-          applications: applications,
-          installedId: installedId
-
-        });
-
-        bootbox.confirm(content);
-        new AdminAppsInstallerDialog('#application-repository', {});
-      }, function(response) {
-        console.log(response);
-      }
-
-    );
   },
 
   '#reload-apps-btn click': function(el, ev) {
@@ -134,22 +116,27 @@ AdminAppsPage = can.Control({
       if (result) {
         application.attr('enabled', enabled);
 
-        bootbox.dialog({
+        var waitingDialog = bootbox.dialog({
           message: (enabled ? '<h4>Install application</h4>' : '<h4>Uninstall application</h4>') +
             '<p>Please wait while the application is configured.</p>' +
             '<div class="progress progress-striped active">' +
             '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-            '</div>'
+            '</div>',
+          show: false
         });
+        waitingDialog.on('shown.bs.modal', function() {
 
-        application.save(function(application) {
-          bootbox.hideAll();
-          bootbox.alert(enabled ? '<h4>Congratulations</h4><p>The application installation was successful.</p>' : '<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
+          application.save(function(application) {
+            waitingDialog.modal('hide');
+            bootbox.alert(enabled ? '<h4>Congratulations</h4><p>The application installation was successful.</p>' : '<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
 
-        }, function(data) {
-          bootbox.hideAll();
-          bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+          }, function(data) {
+            waitingDialog.modal('hide');
+            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+          });
         });
+        waitingDialog.modal('show');
+
       } else {
         //reset checkbox
         el.prop("checked", !enabled);
@@ -164,22 +151,29 @@ AdminAppsPage = can.Control({
     bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
 
-        bootbox.dialog({
+        var waitingDialog = bootbox.dialog({
           message: '<h4>Uninstall application</h4>' +
             '<p>Please wait while the application is configured.</p>' +
             '<div class="progress progress-striped active">' +
             '<div id="waiting-progress" class="bar" style="width: 100%;"></div>' +
-            '</div>'
+            '</div>',
+          show: false
         });
 
-        application.destroy(function(application) {
-          bootbox.hideAll();
-          bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
+        waitingDialog.on('shown.bs.modal', function() {
 
-        }, function(data) {
-          bootbox.hideAll();
-          bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+          application.destroy(function(application) {
+            waitingDialog.modal('hide');
+            bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
+
+          }, function(data) {
+            waitingDialog.modal('hide');
+            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+          });
+
         });
+
+        waitingDialog.modal('show');
       }
     });
 
