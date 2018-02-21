@@ -28,9 +28,9 @@
 		</td>
 		<td>
 			<% if (cluster.attr('maintenance')) { %>
-				<span class="label label-important">Maintenance Mode</span>
+				<span class="badge badge-danger">Maintenance Mode</span>
 			<% } else { %>
-				<span class="label label-success">Running</span>
+				<span class="badge badge-success">Running</span>
 			<% } %>
 		</td>
 	</tr>
@@ -41,9 +41,9 @@
 		</td>
 		<td>
 			<% if (cluster.attr('blocked')) { %>
-				<span class="label label-important">Blocked</span>
+				<span class="badge badge-danger">Blocked</span>
 			<% } else { %>
-				<span class="label label-success">Running</span>
+				<span class="badge badge-success">Running</span>
 			<% } %>
 		</td>
 	</tr>
@@ -86,9 +86,12 @@
 			<b>Disk Usage:</b>
 		</td>
 		<td>
-			<div class="progress progress-info" style="width: 150px;">
-				<div class="bar" style="width: <%== ((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%"></div>
-			</div><%== cluster.attr('total_disc_space') - cluster.attr('free_disc_space') %>
+			<div class="progress" style="width: 150px">
+			  <div class="progress-bar bg-danger" role="progressbar" style="width: <%== ((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+				<div class="progress-bar bg-success" role="progressbar" style="width: <%== 100-((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+			</div>
+
+			<%== cluster.attr('total_disc_space') - cluster.attr('free_disc_space') %>
 			GB used,
 			<b><%== cluster.attr('free_disc_space') %>
 				GB free</b>
@@ -127,7 +130,7 @@
 	</tr>
 </table>
 <% } else { %>
-	<div class="alert alert-error" id="success-message">
+	<div class="alert alert-danger" id="success-message">
 	    <%== cluster.attr('hadoop_error') %>
 	</div>
 <% }%>
@@ -141,7 +144,7 @@
 	</div>
 </table>
 <% } else { %>
-	<div class="alert alert-error" id="success-message">
+	<div class="alert alert-danger" id="success-message">
     <%== cluster.attr('r_error') %>
 	</div>
 <% }%>
@@ -150,7 +153,7 @@
 		<%== cluster.attr('rmarkdown_details') %>
 	</div>
 <% } else { %>
-	<div class="alert alert-error" id="success-message">
+	<div class="alert alert-danger" id="success-message">
 	  	<%== cluster.attr('rmarkdown_error') %>
 	</div>
 <% }%>
@@ -159,7 +162,7 @@
 		<%== cluster.attr('docker_details') %>
 	</div>
 <% } else { %>
-	<div class="alert alert-error" id="success-message">
+	<div class="alert alert-danger" id="success-message">
 	  	<%== cluster.attr('docker_error') %>
 	</div>
 <% }%>
