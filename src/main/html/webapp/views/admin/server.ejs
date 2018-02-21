@@ -28,9 +28,9 @@
 		</td>
 		<td>
 			<% if (cluster.attr('maintenance')) { %>
-				<span class="badge badge-danger">Maintenance Mode</span>
+				<span class="badge badge-danger"><i class="fas fa-cogs"></i> Maintenance Mode</span>
 			<% } else { %>
-				<span class="badge badge-success">Running</span>
+				<span class="badge badge-success"><i class="fas fa-flag-checkered"></i> Production Mode</span>
 			<% } %>
 		</td>
 	</tr>
@@ -41,9 +41,9 @@
 		</td>
 		<td>
 			<% if (cluster.attr('blocked')) { %>
-				<span class="badge badge-danger">Blocked</span>
+				<span class="badge badge-danger"><i class="fas fa-pause"></i> Blocked</span>
 			<% } else { %>
-				<span class="badge badge-success">Running</span>
+				<span class="badge badge-success"><i class="fas fa-play"></i> Running</span>
 			<% } %>
 		</td>
 	</tr>
@@ -220,8 +220,12 @@
 </p>
 <br>
 <p>
-	<span class="btn btn-danger" id ="maintenance-enter-btn">Enter Maintenance Mode</span>
-	<span class="btn btn-success" id="maintenance-exit-btn">Exit Maintenance Mode</span>
+	 <% if (cluster.attr('maintenance')) { %>
+		 <span class="btn btn-success" id="maintenance-exit-btn"><i class="fas fa-flag-checkered"></i> Exit Maintenance Mode</span>
+	<% } else { %>
+		<span class="btn btn-danger" id="maintenance-enter-btn"><i class="fas fa-cogs"></i> Enter Maintenance Mode</span>
+
+	<% } %>
 </p>
 
 <hr>
@@ -230,8 +234,11 @@
 <p>Blocks the queue. All running jobs are executed and all other jobs are waiting until the queue is manually opened.</p>
 <br>
 <p>
-	<span class="btn btn-danger" id ="queue-block-btn">Block Queue</span>
-	<span class="btn btn-success" id ="queue-open-btn">Open Queue</span>
+	 <% if (cluster.attr('blocked')) { %>
+		 <span class="btn btn-success" id ="queue-open-btn"><i class="fas fa-play"></i> Open Queue</span>
+	<% } else { %>
+		<span class="btn btn-danger" id ="queue-block-btn"><i class="fas fa-pause"></i> Block Queue</span>
+	<% } %>
 </p>
 
 <hr>

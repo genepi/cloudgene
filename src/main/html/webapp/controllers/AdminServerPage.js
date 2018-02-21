@@ -14,12 +14,37 @@ AdminServerPage = can.Control({
 
   "#maintenance-enter-btn click": function() {
     that = this;
-    request = $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
-      bootbox.alert(data);
-      that.init(that.element, that.options);
-    }, function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+
+    Template.findOne({
+      key: 'MAINTENANCE_MESSAGE'
+    }, function(template) {
+
+      var oldText = template.attr('text');
+      bootbox.confirm(
+        '<h4>Maintenance Message</h4><form><textarea class="form-control span5" id="message" rows="10" name="message" width="30" height="20">' + oldText + '</textarea></form>',
+        function(result) {
+          if (result) {
+            var text = $('#message').val();
+            template.attr('text', text);
+            template.save();
+
+            request = $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
+              bootbox.alert(data);
+              that.init(that.element, that.options);
+            }, function(data) {
+              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+            });
+
+          }
+        });
+
+    }, function(message) {
+      new ErrorPage(that.element, {
+        status: message.statusText,
+        message: message.responseText
+      });
     });
+
   },
 
   "#maintenance-exit-btn click": function() {

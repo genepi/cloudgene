@@ -6,9 +6,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.Template;
 
 public class EnterMaintenance extends BaseResource {
 
@@ -32,13 +30,7 @@ public class EnterMaintenance extends BaseResource {
 		}
 
 		getSettings().setMaintenance(true);
-
-		TemplateDao dao = new TemplateDao(getDatabase());
-		dao.update(new Template(
-				Template.MAINTENANCE_MESSAGE,
-				"Sorry, our service is currently under maintenance. Imputation Server is expected to be down until <b>Tuesday 08:00 AM EDT</b>."));
-
-		getWebApp().reloadTemplates();
+		getSettings().save();
 
 		return new StringRepresentation("Enter Maintenance mode.");
 

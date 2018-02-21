@@ -182,7 +182,8 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
-		router.attach(prefix + "/api/v2/admin/server/templates/update", UpdateTemplate.class);
+		router.attach(prefix + "/api/v2/admin/server/templates/{id}", UpdateTemplate.class);
+
 		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
