@@ -99,7 +99,7 @@ TabsPublic = can.Control({
 
 		switch (id) {
 		case "home":
-			this.page = new HomePage("#content", {
+			this.page = new HomePage("#fullsize-content", {
 				login : true
 			});
 			break;
