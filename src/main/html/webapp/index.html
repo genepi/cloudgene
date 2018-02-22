@@ -85,16 +85,18 @@
        </div>
      </div>
      </nav>
+
+     <#if maintenaceMessage??>
+       <div class="alert alert-danger" style="margin-bottom: 0px;">
+         <div class="container">
+           <i class="fas fa-exclamation-triangle"></i> ${maintenaceMessage}
+         </div>
+       </div>
+     </#if>
+
      <div class=" py-5 bg-white">
       <div class="container">
-
-			<#if maintenaceMessage??>
-					<div class="alert alert-danger" id="system-error">
-						${maintenaceMessage}</div>
-					</#if>
-
 					<div id="content" class="bd-content"></div>
-
     </div><!-- /.container -->
   </div>
 

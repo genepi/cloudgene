@@ -66,6 +66,15 @@ Tabs = can.Control({
 
 	activate : function(id) {
 
+		if (id == "home"){
+			$("#content").empty();
+		}else{
+			console.log("empty");
+			console.log($("#fullsize-content"));
+			$("#fullsize-content").empty();
+		}
+
+
 		// destroy active page
 		if (this.page != null) {
 			this.page.destroy();
@@ -92,7 +101,7 @@ Tabs = can.Control({
 			break;
 
 		case "home":
-			this.page = new HomePage("#content", {login: false});
+			this.page = new HomePage("#fullsize-content", {login: false});
 			break;
 
 		case "help":
