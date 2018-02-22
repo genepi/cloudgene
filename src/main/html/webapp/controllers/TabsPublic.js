@@ -25,12 +25,12 @@ TabsPublic = can.Control({
 	},
 
 	'run/:app route' : function(data) {
-		
-		this.activate('run');	
+
+		this.activate('run');
 		this.page = new SubmitJobPage("#content", {tool: data.app});
 	},
-	
-	
+
+
 	'pages/:page route' : function(data) {
 		this.activate(data.page);
 		this.show(data.page);
@@ -45,7 +45,7 @@ TabsPublic = can.Control({
 		this.activate(data.page);
 		this.show(data.page);
 	},
-	
+
 	'jobs/:job/results route' : function(data) {
 		this.activate('jobs');
 		this.options.detailsPage = new JobDetailsPage("#content", {
@@ -67,6 +67,14 @@ TabsPublic = can.Control({
 
 
 	activate : function(id) {
+
+		if (id == "home"){
+			$("#content").empty();
+		}else{
+			$("#fullsize-content").empty();
+		}
+
+		$(window).scrollTop(0);
 
 		// destroy active page
 		if (this.page != null) {
@@ -106,10 +114,10 @@ TabsPublic = can.Control({
 		case "register":
 			this.page = new RegisterUserPage("#content");
 			break;
-			
+
 		case "login":
 			this.page = new UserLoginForm("#content");
-			break;			
+			break;
 
 		case "reset-password":
 			this.page = new ResetPasswordPage("#content");

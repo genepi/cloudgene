@@ -69,11 +69,10 @@ Tabs = can.Control({
 		if (id == "home"){
 			$("#content").empty();
 		}else{
-			console.log("empty");
-			console.log($("#fullsize-content"));
 			$("#fullsize-content").empty();
 		}
 
+		$(window).scrollTop(0);
 
 		// destroy active page
 		if (this.page != null) {
