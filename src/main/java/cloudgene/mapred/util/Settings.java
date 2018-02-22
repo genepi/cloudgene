@@ -60,6 +60,8 @@ public class Settings {
 
 	private String name = "Cloudgene";
 
+	private Map<String, String> colors;
+
 	private String secretKey = "default-key-change-me";
 
 	private Map<String, String> mail;
@@ -141,11 +143,10 @@ public class Settings {
 		navigation.add(helpMenuItem);
 
 		database = new HashMap<String, String>();
-		database.put("driver", "h2");
-		database.put("database", "data/mapred");
-		database.put("user", "mapred");
-		database.put("password", "mapred");
+		initDefaultDatabase(database, "data/mapred");
 
+		colors = getDefaultColors();
+		
 		// enable all technologies
 		for (Technology technology : Technology.values()) {
 			enable(technology);
@@ -176,10 +177,7 @@ public class Settings {
 				}
 			} else {
 				database = new HashMap<String, String>();
-				database.put("driver", "h2");
-				database.put("database", config.getDatabase());
-				database.put("user", "mapred");
-				database.put("password", "mapred");
+				initDefaultDatabase(database, config.getDatabase());
 			}
 		}
 
@@ -227,15 +225,26 @@ public class Settings {
 				}
 			} else {
 				database = new HashMap<String, String>();
-				database.put("driver", "h2");
-				database.put("database", config.getDatabase());
-				database.put("user", "mapred");
-				database.put("password", "mapred");
+				initDefaultDatabase(database, config.getDatabase());
 			}
 		}
 
 		return settings;
 
+	}
+
+	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
+		database.put("driver", "h2");
+		database.put("database", defaultSchema);
+		database.put("user", "mapred");
+		database.put("password", "mapred");
+	}
+
+	public static Map<String, String> getDefaultColors() {
+		Map<String, String> colors = new HashMap<String, String>();
+		colors.put("background", "#343a40");
+		colors.put("foreground", "#ffffff");
+		return colors;
 	}
 
 	public void save() {
@@ -948,6 +957,14 @@ public class Settings {
 
 	public void setAutoRetireInterval(int autoRetireInterval) {
 		this.autoRetireInterval = autoRetireInterval;
+	}
+
+	public Map<String, String> getColors() {
+		return colors;
+	}
+
+	public void setColors(Map<String, String> colors) {
+		this.colors = colors;
 	}
 
 }

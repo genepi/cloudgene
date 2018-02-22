@@ -32,11 +32,13 @@ public class GetSettings extends BaseResource {
 
 		JSONObject object = new JSONObject();
 		object.put("name", getSettings().getName());
-		
+		object.put("background-color", getSettings().getColors().get("background"));
+		object.put("foreground-color", getSettings().getColors().get("foreground"));
+
 		Map<String, String> mail = getSettings().getMail();
 		if (getSettings().getMail() != null) {
 			object.put("mail-smtp", mail.get("smtp"));
-			object.put("mail-port",mail.get("port"));
+			object.put("mail-port", mail.get("port"));
 			object.put("mail-user", mail.get("user"));
 			object.put("mail-password", mail.get("password"));
 			object.put("mail-name", mail.get("name"));

@@ -19,6 +19,8 @@ AdminSettingsPage = can.Control({
     'submit': function() {
 
         this.settings.attr('name', this.element.find("[name='name']").val());
+        this.settings.attr('background-color', this.element.find("[name='background-color']").val());
+        this.settings.attr('foreground-color', this.element.find("[name='foreground-color']").val());
 
         this.settings.attr('hadoopPath', this.element.find("[name='hadoopPath']").val());
         this.settings.attr('userApp', this.element.find("[name='userApp']").val());
@@ -33,7 +35,7 @@ AdminSettingsPage = can.Control({
 
         this.settings.save();
 
-        
+
         bootbox.alert("Settings updated.");
 
         return false;
