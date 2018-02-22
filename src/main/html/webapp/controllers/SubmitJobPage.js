@@ -103,6 +103,53 @@ SubmitJobPage = can.Control({
     //show upload dialog. fires uploading files.
     uploadDialog.modal('show');
     return false;
+  },
+
+  // custom file upload controls
+
+  '#select-files click': function(button) {
+    // trigger click to open file dialog
+    fileUpload = button.parent().find(":file");
+    fileUpload.trigger("click");
+  },
+
+  '.file-upload-field change': function(fileUpload) {
+    //update list of files
+    fileList = fileUpload.parent().find(".file-list");
+    fileList.empty();
+    for (var i = 0; i < fileUpload[0].files.length; i++) {
+      fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + fileUpload[0].files[i].name + '</li>');
+    }
+
+    fileUpload.parent().find("#change-files");
+
+    if (fileUpload[0].files.length > 0) {
+      fileUpload.parent().find("#select-files").hide();
+      fileUpload.parent().find("#change-files").show();
+      fileUpload.parent().find("#remove-all-files").show();
+    } else {
+      fileUpload.parent().find("#select-files").show();
+      fileUpload.parent().find("#change-files").hide();
+      fileUpload.parent().find("#remove-all-files").hide();
+    }
+  },
+
+  '#change-files click': function(button) {
+    // trigger click to open file dialog
+    fileUpload = button.parent().find(":file");
+    fileUpload.trigger("click");
+  },
+
+  '#remove-all-files click': function(button) {
+    //clear hidden file upload field
+    fileUpload = button.parent().find(":file");
+    fileUpload.val('');
+    //clear list of files
+    fileList = button.parent().find(".file-list");
+    fileList.empty();
+    fileUpload.parent().find("#select-files").show();
+    fileUpload.parent().find("#change-files").hide();
+    fileUpload.parent().find("#remove-all-files").hide();
   }
 
 });
