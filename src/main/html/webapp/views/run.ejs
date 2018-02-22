@@ -66,12 +66,15 @@
 	<% if (param.attr('type') == "local_file" || param.attr('type') == "hdfs_file") { %>
 		<!-- Single File Upload -->
 		<div class="col-sm-3">
-			<div class="custom-file">
-			  <input type="file" class="custom-file-input" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" <%= param.attr('required') ? 'required' : '' %>>
-			  <label class="custom-file-label" for="<%= param.attr('id') %>">Choose file</label>
-				<div class="invalid-feedback">
-					This parameter is required.
+			<div class="input-group mb-3">
+				<input type ="text" class="form-control file-name-control" disabled>
+				<div class="input-group-append">
+					<button id="select-single-file" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i></button>
 				</div>
+			</div>
+			<input type="file" class="form-control file-upload-field-single" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" <%= param.attr('required') ? 'required' : '' %> style="display:none;">
+			<div class="invalid-feedback">
+				Please choose one file.
 			</div>
 		</div>
 	<% } %>
@@ -82,14 +85,16 @@
 			<select class="form-control" name="<%= param.attr('id') %>-source">
 				<option value="upload" selected>File Upload</option>
 			</select>
-			<div class="form-control" style="overflow:auto; height: 200px;">
+			<div class="form-control file-list-control">
 				<ul class="fa-ul file-list">
 				</ul>
 			</div>
-			<button id="select-files" type="button" class="btn btn-sm btn-light btn-outline-secondary"><i class="fa fa-folder-open"></i> Select Files</button>
-			<button style="display:none;" id="change-files" type="button" class="btn btn-sm btn-light btn-outline-secondary"><i class="fa fa-folder-open"></i> Change</button>
-			<button style="display:none;" id="remove-all-files" type="button" class="btn btn-sm btn-light btn-outline-secondary"><i class="fa fa-trash"></i> Remove All</button>
-			<input style="display:none;" class="form-control file-upload-field" type="file" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" <%= param.attr('required') ? 'required' : '' %> multiple>
+			<button id="select-files" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i> Select Files</button>
+			<button id="change-files" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-folder-open"></i> Change</button>
+			<button id="remove-all-files" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-trash"></i> Remove All</button>
+			<input class="form-control file-upload-field-multiple" type="file" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" <%= param.attr('required') ? 'required' : '' %> style="display:none;" multiple>
+			<small class="form-text text-muted">Multiple files can be selected by using the  <span class="badge badge-secondary">ctrl</span> /  <span class="badge badge-secondary">cmd</span> or  <span class="badge badge-secondary">shift</span> keys.</small>
+
 			<div class="invalid-feedback">
 				Please choose one or more files.
 			</div>

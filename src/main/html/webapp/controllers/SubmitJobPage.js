@@ -107,13 +107,28 @@ SubmitJobPage = can.Control({
 
   // custom file upload controls
 
+  '#select-single-file click': function(button) {
+    // trigger click to open file dialog
+    fileUpload = button.closest('.col-sm-3').find(":file");
+    fileUpload.trigger("click");
+  },
+
   '#select-files click': function(button) {
     // trigger click to open file dialog
     fileUpload = button.parent().find(":file");
     fileUpload.trigger("click");
   },
 
-  '.file-upload-field change': function(fileUpload) {
+  '.file-upload-field-single change': function(fileUpload) {
+    filenameControl = fileUpload.parent().find(".file-name-control");
+    if (fileUpload[0].files.length > 0) {
+      filenameControl.val(fileUpload[0].files[0].name);
+    } else {
+      filenameControl.val('');
+    }
+  },
+
+  '.file-upload-field-multiple change': function(fileUpload) {
     //update list of files
     fileList = fileUpload.parent().find(".file-list");
     fileList.empty();
