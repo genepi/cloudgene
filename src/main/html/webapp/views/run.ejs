@@ -54,10 +54,12 @@
 	<% if (param.attr('type') == "checkbox") { %>
 		<!-- Checkbox -->
 		<div class="col-sm-7">
-			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="form-check-input"
+			<div class="custom-control custom-checkbox">
+			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="custom-control-input"
 				<% param.attr('values').each(function( item ) { %> <% if (item.attr('key') == 'false') { %> data-unchecked-value="<%= item.attr('value') %>" <% } %> <% if (item.attr('key') == 'true') { %> value="<%= item.attr('value') %>" <% if (item.attr('value') == param.attr('value')) { %> checked <% } %> <% } %> <% }) %>
 			>
-			<label class="form-check-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
+			<label class="custom-control-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
+			</div>
 		</div>
 	<% } %>
 
@@ -90,10 +92,12 @@
 	<% if (param.attr('type') == "agbcheckbox") { %>
 		<!-- AGB checkbox. Has to be true before submission. -->
 		<div class="col-sm-10">
-			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="agb form-check-input" required value="accepted" >
-			<label class="form-check-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
-			<div class="invalid-feedback">
-				Please agree to the terms and conditions.
+			<div class="custom-control custom-checkbox">
+				<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="agb custom-control-input" required value="accepted" >
+				<label class="custom-control-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
+				<div class="invalid-feedback">
+					Please agree to the terms and conditions.
+				</div>
 			</div>
 		</div>
 	<% } %>
