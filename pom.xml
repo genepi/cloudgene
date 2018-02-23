@@ -166,7 +166,7 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-hadoop</artifactId>
-			<version>mr1-1.2.0</version>
+			<version>mr1-1.2.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>

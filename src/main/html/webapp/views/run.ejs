@@ -15,7 +15,6 @@
 
 <% application.attr('params').each(function(param, index) { %>
 <div class="form-group form-row" style="<%= param.visible !== true ? 'display:none':'' %>">
-
 	<!-- Label -->
 	<% if (param.attr('type') !== "label" && param.attr('type') !== "checkbox" && param.attr('type') !== "agbcheckbox") { %>
 		<label for="<%= param.attr('id') %>" class="col-sm-2 col-form-label"><%== param.attr('description') %></label>
@@ -69,7 +68,7 @@
 			<div class="input-group mb-3">
 				<input type ="text" class="form-control file-name-control" disabled>
 				<div class="input-group-append">
-					<button id="select-single-file" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i></button>
+					<button id="select-single-file-btn" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i></button>
 				</div>
 			</div>
 			<input type="file" class="form-control file-upload-field-single" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>"
@@ -85,24 +84,30 @@
 
 	<% if (param.attr('type') == "local_folder" || param.attr('type') == "hdfs_folder") { %>
 		<!-- Multiple File Upload -->
-		<div class="col-sm-7">
-			<select class="form-control" name="<%= param.attr('id') %>-source">
+		<div class="col-sm-7" <%= (div) -> can.data(div, 'param', param) %>>
+			<select class="form-control folder-source" name="<%= param.attr('id') %>-source">
 				<option value="upload" selected>File Upload</option>
+				<option value="http">URLs (HTTP)</option>
 			</select>
 			<div class="form-control file-list-control">
 				<ul class="fa-ul file-list">
 				</ul>
 			</div>
-			<button id="select-files" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i> Select Files</button>
-			<button id="change-files" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-folder-open"></i> Change</button>
-			<button id="remove-all-files" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-trash"></i> Remove All</button>
-			<input class="form-control file-upload-field-multiple" type="file" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>"
-				<%= param.attr('required') ? 'required' : '' %>
-				<%= param.attr('accept') ? 'accept="'+ param.attr('accept')+'"' : '' %>
-			 	style="display:none;" multiple
-			>
-			<small class="form-text text-muted">Multiple files can be selected by using the  <span class="badge badge-secondary">ctrl</span> /  <span class="badge badge-secondary">cmd</span> or  <span class="badge badge-secondary">shift</span> keys.</small>
-
+			<% if (param.attr('source') == 'upload') { %>
+				<button id="select-files-btn" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i> Select Files</button>
+				<button id="change-files-btn" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-folder-open"></i> Change</button>
+				<button id="remove-all-files-btn" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-trash"></i> Remove All</button>
+				<input class="form-control file-upload-field-multiple" type="file" name="<%= param.attr('id') %>" id="<%= param.attr('id') %>"
+					<%= param.attr('required') ? 'required' : '' %>
+					<%= param.attr('accept') ? 'accept="'+ param.attr('accept')+'"' : '' %>
+				 	style="display:none;" multiple
+				>
+				<small class="form-text text-muted">Multiple files can be selected by using the  <span class="badge badge-secondary">ctrl</span> /  <span class="badge badge-secondary">cmd</span> or  <span class="badge badge-secondary">shift</span> keys.</small>
+				<% } %>
+				<% if (param.attr('source') == 'http') { %>
+					<button id="add-urls-btn" type="button" class="btn btn-sm btn-secondary">Add URLs</button>
+					<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" style="display:none;" class="form-control hidden-parameter" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
+			<% } %>
 			<div class="invalid-feedback">
 				Please choose one or more files.
 			</div>
@@ -125,8 +130,14 @@
 </div>
 <% }) %>
 
+<hr/>
+
 <!-- Submit Button -->
-<button class="btn btn-primary" type="submit" data-loading-text="Uploading"><i class="far fa-play-circle"></i> <%= application.attr('submitButton') %></button>
+<div class="form-group form-row">
+	<div class="col-sm-2 col-form-label">
+	</div>
+	<button class="btn btn-primary" type="submit" data-loading-text="Uploading"><i class="far fa-play-circle"></i> <%= application.attr('submitButton') %></button>
+</div>
 
 </form>
 </div>

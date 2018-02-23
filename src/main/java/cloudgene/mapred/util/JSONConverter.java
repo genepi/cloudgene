@@ -73,6 +73,10 @@ public class JSONConverter {
 			object.put("accept", input.getAccept());
 		}
 		
+		if (input.isFolder()){
+			object.put("source", "upload");
+		}
+		
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
 				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
 			JSONArray array = new JSONArray();
