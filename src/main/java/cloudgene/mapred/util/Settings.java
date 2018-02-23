@@ -243,7 +243,7 @@ public class Settings {
 	public static Map<String, String> getDefaultColors() {
 		Map<String, String> colors = new HashMap<String, String>();
 		colors.put("background", "#343a40");
-		colors.put("foreground", "#ffffff");
+		colors.put("foreground", "navbar-dark");
 		return colors;
 	}
 
