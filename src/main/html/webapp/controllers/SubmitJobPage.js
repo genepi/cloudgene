@@ -195,12 +195,9 @@ SubmitJobPage = can.Control({
 
 
         urlDialog = bootbox.confirm(
-            '<h4>Import data from public URLs</h4>' +
-            '<p>Please enter your URLs. </p>' +
-            '<form>' +
-            '<textarea class="form-control" id="urls" placeholder="http://www.example.com/test-data.txt" rows="8" name="urls" width="30" height="20">' + paramInputField.val() + '</textarea>' +
-            '<small class="text-muted">To specify more than one url, separate the urls with a space or new line.</small>' +
-            '</form>',
+            can.view('views/run.http.ejs', {
+                value: paramInputField.val()
+            }),
             function(result) {
                 if (result) {
                     var urls = $('#urls').val();
@@ -232,6 +229,74 @@ SubmitJobPage = can.Control({
                             bootbox.alert("Error: " + message.responseText);
                         }
                     });
+
+                    return false;
+                }
+            });
+    },
+
+    '#add-sftp-files-btn click': function(button) {
+
+        parent = button.parent();
+
+        fileList = parent.find(".file-list");
+        //fileList.empty();
+
+        paramInputField = parent.find(".hidden-parameter");
+
+
+        urlDialog = bootbox.confirm(
+            can.view('views/run.sftp.ejs'),
+            function(result) {
+                if (result) {
+                    var path = $('#path').val();
+                    var username = $('#username').val();
+                    var password = $('#password').val();
+
+                    waitingDialog = bootbox.dialog({
+                        close: false,
+                        message: '<p><i class="fa fa-spin fa-spinner"></i> Connecting...</p>',
+                        show: false
+                    });
+
+                    waitingDialog.on('shown.bs.modal', function() {
+
+                        $.ajax({
+                            url: "api/v2/importer/files",
+                            type: "POST",
+                            data: {
+                                input: path + ';' + username + ';' + password
+                            },
+
+                            success: function(data) {
+
+                                waitingDialog.modal('hide');
+
+                                var arr = $.parseJSON(data);
+                                fileList.empty();
+                                $.each(arr, function(index, value) {
+                                    fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
+                                });
+
+                                //update value
+                                if (arr.length > 0) {
+                                    paramInputField.val(path + ';' + username + ';' + password);
+                                    urlDialog.modal('hide');
+                                } else {
+                                    paramInputField.val("");
+                                    bootbox.alert('<p class="text-danger">Error: No valid files found on the provided urls. Please check your credentials and your file path.');
+                                }
+
+                            },
+                            error: function(message) {
+                                waitingDialog.modal('hide');
+                                bootbox.alert('<p class="text-danger">Error: ' + message.responseText + '</p>');
+                            }
+                        });
+
+                    });
+
+                    waitingDialog.modal('show');
 
                     return false;
                 }

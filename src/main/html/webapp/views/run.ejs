@@ -88,6 +88,7 @@
 			<select class="form-control folder-source" name="<%= param.attr('id') %>-source">
 				<option value="upload" selected>File Upload</option>
 				<option value="http">URLs (HTTP)</option>
+				<option value="sftp">Secure File Transfer Protocol (SFTP)</option>
 			</select>
 			<div class="form-control file-list-control">
 				<ul class="fa-ul file-list">
@@ -105,9 +106,13 @@
 				<small class="form-text text-muted">Multiple files can be selected by using the  <span class="badge badge-secondary">ctrl</span> /  <span class="badge badge-secondary">cmd</span> or  <span class="badge badge-secondary">shift</span> keys.</small>
 				<% } %>
 				<% if (param.attr('source') == 'http') { %>
-					<button id="add-urls-btn" type="button" class="btn btn-sm btn-secondary">Add URLs</button>
+					<button id="add-urls-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-link"></i> Add URLs</button>
 					<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" style="display:none;" class="form-control hidden-parameter" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
-			<% } %>
+				<% } %>
+				<% if (param.attr('source') == 'sftp') { %>
+					<button id="add-sftp-files-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> Import Files</button>
+					<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" style="display:none;" class="form-control hidden-parameter" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
+				<% } %>
 			<div class="invalid-feedback">
 				Please choose one or more files.
 			</div>
