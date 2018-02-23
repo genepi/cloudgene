@@ -24,6 +24,8 @@ public class WdlParameterInput implements WdlParameter {
 
 	private String category = null;
 
+	private String accept = null;
+
 	public String getId() {
 		return id;
 	}
@@ -120,6 +122,14 @@ public class WdlParameterInput implements WdlParameter {
 
 	public String getCategory() {
 		return category;
+	}
+
+	public void setAccept(String accept) {
+		this.accept = accept;
+	}
+
+	public String getAccept() {
+		return accept;
 	}
 
 }

@@ -1,13 +1,15 @@
 site_name: Cloudgene
-theme: material
+theme:
+  name: material
+  feature:
+    tabs: true
 google_analytics: ['UA-873221-12', 'docs.cloudgene.io']
 pages:
 - Home: index.md
 - Installation: installation.md
-- Getting started:
-     - Install Apps: getting-started/installing-applications.md
-     - Run Apps on the Commandline: getting-started/commandline.md
-     - Run Apps in the Web Application: getting-started/web-application.md
+- Install Apps: getting-started/installing-applications.md
+- Run Apps on the Commandline: getting-started/commandline.md
+- Run Apps in the Web Application: getting-started/web-application.md
 
 - Cloudgene CLI:
     - Introduction: cli/introduction.md
@@ -28,7 +30,7 @@ pages:
     - Manage Jobs: daemon/jobs.md
     - Manage Permissions: daemon/permissions.md
     - Maintenance: daemon/administration.md
-- cloudgene.yaml:
+- Development:
     - Introduction: developers/introduction.md
     - Steps:
         - BashCommand: developers/steps/BashCommand.md
@@ -40,7 +42,17 @@ pages:
         - Docker: developers/steps/Docker.md
         - JavaInterface: developers/steps/JavaInterface.md
         - Groovy: developers/steps/Groovy.md
-    - Inputs: developers/inputs.md
+    - Inputs:
+      - Introduction: developers/inputs.md
+      - Files and Folders: developers/inputs/files-folders.md
+      - Text: developers/inputs/text.md
+      - Number: developers/inputs/number.md
+      - List: developers/inputs/list.md
+      - Checkbox: developers/inputs/checkbox.md
+      - App List: developers/inputs/app-list.md
+      - Layout: developers/inputs/layout.md
+
+
     - Outputs: developers/outputs.md
     - Environment Variables: developers/environment_variables.md
     - Control patterns: developers/control-patterns.md

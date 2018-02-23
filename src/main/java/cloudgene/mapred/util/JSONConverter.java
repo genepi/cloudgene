@@ -68,6 +68,11 @@ public class JSONConverter {
 		object.put("required", input.isRequired());
 		object.put("adminOnly", input.isAdminOnly());
 		object.put("help", input.getHelp());
+		
+		if (input.getAccept() != null){
+			object.put("accept", input.getAccept());
+		}
+		
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
 				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
 			JSONArray array = new JSONArray();
