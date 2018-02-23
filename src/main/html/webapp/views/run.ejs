@@ -14,6 +14,16 @@
 <hr/>
 
 <% application.attr('params').each(function(param, index) { %>
+
+<% if (param.attr('type') == "separator") { %>
+	<!-- Separator -->
+	<hr/>
+<% } else if (param.attr('type') == "info") { %>
+		<!-- Full size label -->
+		<p><%== param.attr('description') %></p>
+
+<% } else { %>
+
 <div class="form-group form-row" style="<%= param.visible !== true ? 'display:none':'' %>">
 	<!-- Label -->
 	<% if (param.attr('type') !== "label" && param.attr('type') !== "checkbox" && param.attr('type') !== "agbcheckbox") { %>
@@ -21,6 +31,13 @@
 	<% } else { %>
 		<div class="col-sm-2 col-form-label">
 		</div>
+	<% } %>
+
+	<% if (param.attr('type') == "label") { %>
+			<!-- Label -->
+			<div class="col-sm-7">
+				<p><%== param.attr('description') %></p>
+			</div>
 	<% } %>
 
   <% if (param.attr('type') == "list" || param.attr('type') == "app_list") { %>
@@ -40,7 +57,7 @@
 		</div>
 	<% } %>
 
-	<% if (param.attr('type') == "text" || param.attr('type') == "number") { %>
+	<% if (param.attr('type') == "text" || param.attr('type') == "number" || param.attr('type') == "string" ) { %>
 		<!-- Textfield -->
 		<div class="col-sm-3">
 			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" class="form-control" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
@@ -49,6 +66,17 @@
 			</div>
 		</div>
 	<% } %>
+
+	<% if (param.attr('type') == "textarea") { %>
+		<!-- Textarea -->
+		<div class="col-sm-7">
+			<textarea name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" rows="6" class="form-control" <%= param.attr('required') ? 'required' : '' %>> <%= param.attr('value') %></textarea>
+			<div class="invalid-feedback">
+				This parameter is required.
+			</div>
+		</div>
+	<% } %>
+
 
 	<% if (param.attr('type') == "checkbox") { %>
 		<!-- Checkbox -->
@@ -133,6 +161,7 @@
 	<% } %>
 
 </div>
+<% } %>
 <% }) %>
 
 <hr/>

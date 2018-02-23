@@ -1,9 +1,37 @@
 package cloudgene.mapred.wdl;
 
 public enum WdlParameterInputType {
-	LOCAL_FOLDER("local_folder"), LOCAL_FILE("local_file"), HDFS_FOLDER("hdfs_folder"), HDFS_FILE("hdfs_file"), TEXT(
-			"text"), STRING("string"), CHECKBOX("checkbox"), LIST("list"), NUMBER(
-					"number"), LABEL("label"), AGBCHECKBOX("agbcheckbox"), GROUP("group"), APP_LIST("app_list");
+	LOCAL_FOLDER("local_folder"),
+
+	LOCAL_FILE("local_file"),
+
+	HDFS_FOLDER("hdfs_folder"),
+
+	HDFS_FILE("hdfs_file"),
+
+	TEXT("text"),
+
+	STRING("string"),
+
+	CHECKBOX("checkbox"),
+
+	LIST("list"),
+
+	NUMBER("number"),
+
+	LABEL("label"),
+
+	INFO("info"),
+
+	AGBCHECKBOX("agbcheckbox"),
+
+	GROUP("group"),
+
+	APP_LIST("app_list"),
+
+	SEPARATOR("separator"),
+
+	TEXTAREA("textarea");
 
 	private String value;
 
