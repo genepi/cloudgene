@@ -28,6 +28,13 @@ TabsAdmin = can.Control({
     this.page = this.options.detailsPage;
   },
 
+  '.* route': function(data) {
+    new ErrorPage("#content", {
+        status: "404",
+        message: "Oops, Sorry We Can't Find That Page!"
+    });
+  },
+
   activate: function(id) {
 
     // stop and destroy page
@@ -120,7 +127,7 @@ TabsAdmin = can.Control({
 
 
       default:
-        this.page = new Error404Page("#content");
+        this.page = new StaticPage("#content", {template: 'static/'+ id + '.ejs'});
         break;
 
     }

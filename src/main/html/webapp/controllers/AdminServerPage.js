@@ -38,11 +38,8 @@ AdminServerPage = can.Control({
           }
         });
 
-    }, function(message) {
-      new ErrorPage(that.element, {
-        status: message.statusText,
-        message: message.responseText
-      });
+    }, function(response) {
+      new ErrorPage(that.element, response);
     });
 
   },

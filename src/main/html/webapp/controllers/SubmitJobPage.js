@@ -12,11 +12,8 @@ SubmitJobPage = can.Control({
             }));
             element.fadeIn();
 
-        }, function(message) {
-            new ErrorPage(that.element, {
-                status: message.statusText,
-                message: message.responseText
-            });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
     },
@@ -82,12 +79,9 @@ SubmitJobPage = can.Control({
                     }
                 },
 
-                error: function(message) {
+                error: function(response) {
                     uploadDialog.modal('hide');
-                    new ErrorPage("#content", {
-                        status: message.statusText,
-                        message: message.responseText
-                    });
+                    new ErrorPage("#content", response);
 
                 },
 

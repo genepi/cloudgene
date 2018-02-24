@@ -20,11 +20,8 @@ JobDetailsPage = can.Control({
         that.job = job;
         that.refresh();
 
-      }, function(message) {
-        new ErrorPage(that.element, {
-          status: message.statusText,
-          message: message.responseText
-        });
+      }, function(response) {
+        new ErrorPage(that.element, response);
       }
 
     );
@@ -45,12 +42,8 @@ JobDetailsPage = can.Control({
           // go to jobs page
           bootbox.hideAll();
           window.location.hash = "!pages/jobs";
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -77,12 +70,8 @@ JobDetailsPage = can.Control({
         operation.save(function() {
           bootbox.hideAll();
           that.refresh();
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -111,12 +100,8 @@ JobDetailsPage = can.Control({
           } else {
             window.location.hash = "!pages/jobs";
           }
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -190,12 +175,8 @@ JobDetailsPage = can.Control({
             }));
           }
 
-        }, function(message) {
-
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
 
         });
 

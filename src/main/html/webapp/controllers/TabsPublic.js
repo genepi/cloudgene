@@ -65,6 +65,12 @@ TabsPublic = can.Control({
 		this.page = this.options.detailsPage;
 	},
 
+	'.* route': function(data) {
+    new ErrorPage("#content", {
+        status: "404",
+        message: "Oops, Sorry We Can't Find That Page!"
+    });
+  },
 
 	activate : function(id) {
 

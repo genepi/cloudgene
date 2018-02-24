@@ -67,12 +67,8 @@ UpdateProfilePage = can.Control({
 
 				}
 			},
-			error: function(message) {
-				new ErrorPage(that.element, {
-					status: message.statusText,
-					message: message.responseText
-				});
-
+			error: function(response) {
+	      new ErrorPage(that.element, response);
 			}
 		});
 

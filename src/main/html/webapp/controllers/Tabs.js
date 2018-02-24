@@ -52,15 +52,22 @@ Tabs = can.Control({
 
 	'recovery/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
-			status : "27",
+			status : "276",
 			message : "Please log out for password recovery."
 		});
 	},
 
 	'activate/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
-			status : "27",
+			status : "276",
 			message : "Please log out for user activation."
+		});
+	},
+
+	'.* route': function(data) {
+		new ErrorPage("#content", {
+				status: "404",
+				message: "Oops, Sorry We Can't Find That Page!"
 		});
 	},
 

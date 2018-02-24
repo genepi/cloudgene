@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.restlet.data.LocalReference;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.ContextTemplateLoader;
 import org.restlet.ext.freemarker.TemplateRepresentation;
+import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -29,8 +31,11 @@ public class Start extends BaseResource {
 		User user = getAuthUser(false);
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
+			//Redirect to index
+			  final Reference newRef = new Reference(
+	                    getRootRef().toString() + "/index.html");
+	            redirectSeeOther(newRef);
+	            return new EmptyRepresentation();
 		}
 
 		WebApp app = getWebApp();

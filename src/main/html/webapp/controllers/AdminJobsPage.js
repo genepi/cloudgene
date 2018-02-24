@@ -32,11 +32,8 @@ AdminJobsPage = can.Control({
         }
       });
       $(element).html(can.view('views/admin/jobs-list.ejs', jobs));
-    }, function(message) {
-      new ErrorPage(that.element, {
-        status: message.statusText,
-        message: message.responseText
-      });
+    }, function(response) {
+      new ErrorPage(that.element, response);
     });
 
   },
@@ -70,12 +67,8 @@ AdminJobsPage = can.Control({
         operation.save(function() {
           // go to jobs page
           bootbox.hideAll();
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
