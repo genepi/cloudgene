@@ -70,7 +70,7 @@
 	<% if (param.attr('type') == "textarea") { %>
 		<!-- Textarea -->
 		<div class="col-sm-7">
-			<textarea name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" rows="6" class="form-control" <%= param.attr('required') ? 'required' : '' %>> <%= param.attr('value') %></textarea>
+			<textarea name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" rows="6" class="form-control" <%= param.attr('required') ? 'required' : '' %>><%= param.attr('value') %></textarea>
 			<div class="invalid-feedback">
 				This parameter is required.
 			</div>
