@@ -392,7 +392,7 @@ public class RunApplication extends BaseTool {
 		if (app.getWorkflow().getInputs().size() > 0) {
 			printText(2, "Input values: ");
 			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-				if (!input.getType().equals("agbcheckbox") && !input.isAdminOnly() && input.isVisible()) {
+				if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox") && !input.isAdminOnly() && input.isVisible()) {
 					printText(4, input.getId() + ": " + job.getContext().get(input.getId()));
 				}
 			}

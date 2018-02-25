@@ -22,7 +22,7 @@ public class CommandLineUtil {
 			return options;
 		}
 		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-			if (!input.getType().equals("agbcheckbox") && !input.isAdminOnly() && input.isVisible()) {
+			if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox") && !input.isAdminOnly() && input.isVisible()) {
 				Option option = new Option(null, input.getId(), true, input.getDescription());
 
 				boolean hasDefault = input.getValue() != null && !input.getValue().trim().isEmpty();
@@ -142,7 +142,7 @@ public class CommandLineUtil {
 
 		Map<String, String> params = new HashMap<String, String>();
 		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-			if (!input.getType().equals("agbcheckbox")) {
+			if (!input.getType().equals("agbcheckbox") &&! input.getType().equals("terms_checkbox")) {
 				if (props.containsKey(input.getId())) {
 					if (input.getType().equals("checkbox")) {
 						params.put(input.getId(), input.getValues().get("true"));

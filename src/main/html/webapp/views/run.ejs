@@ -26,7 +26,7 @@
 
 <div class="form-group form-row" style="<%= param.visible !== true ? 'display:none':'' %>">
 	<!-- Label -->
-	<% if (param.attr('type') !== "label" && param.attr('type') !== "checkbox" && param.attr('type') !== "agbcheckbox") { %>
+	<% if (param.attr('type') !== "label" && param.attr('type') !== "checkbox" && param.attr('type') !== "agbcheckbox" && param.attr('type') !== "terms_checkbox") { %>
 		<label for="<%= param.attr('id') %>" class="col-sm-2 col-form-label"><%== param.attr('description') %></label>
 	<% } else { %>
 		<div class="col-sm-2 col-form-label">
@@ -147,7 +147,7 @@
 		</div>
 	<% } %>
 
-	<% if (param.attr('type') == "agbcheckbox") { %>
+	<% if (param.attr('type') == "agbcheckbox" || param.attr('type') == "terms_checkbox" ) { %>
 		<!-- AGB checkbox. Has to be true before submission. -->
 		<div class="col-sm-10">
 			<div class="custom-control custom-checkbox">

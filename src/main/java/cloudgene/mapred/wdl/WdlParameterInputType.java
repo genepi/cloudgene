@@ -25,6 +25,8 @@ public enum WdlParameterInputType {
 
 	AGBCHECKBOX("agbcheckbox"),
 
+	TERMS_CHECKBOX("terms_checkbox"),
+	
 	GROUP("group"),
 
 	APP_LIST("app_list"),
