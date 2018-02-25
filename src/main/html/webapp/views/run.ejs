@@ -26,13 +26,14 @@
 
 <div class="form-group form-row" style="<%= param.visible !== true ? 'display:none':'' %>">
 	<!-- Label -->
+<div class="col-sm-2">
 	<% if (param.attr('type') !== "label" && param.attr('type') !== "checkbox" && param.attr('type') !== "agbcheckbox" && param.attr('type') !== "terms_checkbox") { %>
-		<label for="<%= param.attr('id') %>" class="col-sm-2 col-form-label"><%== param.attr('description') %></label>
-	<% } else { %>
-		<div class="col-sm-2 col-form-label">
-		</div>
+		<label for="<%= param.attr('id') %>" class="col-form-label"><%== param.attr('description') %></label>
+		<% if (param.attr('help')) { %>
+			&nbsp;<a href="<%= param.attr('help') %>" target="_blank"><i class="far fa-question-circle"></i></a>
+		<% } %>
 	<% } %>
-
+</div>
 	<% if (param.attr('type') == "label") { %>
 			<!-- Label -->
 			<div class="col-sm-7">
