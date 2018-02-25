@@ -12,6 +12,9 @@
   <% } else { %>
     <button style="width: 100px;" class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
        Waiting
+       <% if(  job.attr('positionInQueue') != -1){ %>
+         (<%= job.attr('positionInQueue') + 1 %>)
+       <% } %>
     </button>
   <% } %>
 <% } %>
@@ -30,7 +33,7 @@
     Success
   </button>
 <% } %>
-<% if( job.attr('state') == '5' ){ %>
+<% if( job.attr('state') == '5' || job.attr('state') == '9' ){ %>
   <button style="width: 100px;" class="btn btn-sm btn-danger dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Failed
   </button>
@@ -44,7 +47,4 @@
   <button style="width: 100px;" class="btn btn-sm btn-dark dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     Retired
   </button>
-<% } %>
-<% if( job.attr('state') == '1' && job.attr('positionInQueue') != -1){ %>
-  <small> &nbsp; queue position <b><%= job.attr('positionInQueue') + 1 %></b> <%== job.attr('positionInQueue')+1 > 70 ? '<span class="icon-warning-sign"  style="color:#FFA500;" title="server under heavy load"></span>' : '' %></small>
 <% } %>

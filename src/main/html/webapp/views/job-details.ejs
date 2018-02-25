@@ -2,7 +2,7 @@
 <div class="d-flex justify-content-between align-items-center">
 	<div>
 		<h2><%= job.attr('id') != job.attr('name') ? job.attr('name') : job.attr('id') %></h2>
-		<small class="text-muted"><i class="far fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="far fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>&nbsp;&nbsp;<i class="far fa-user"></i> username&nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
+		<small class="text-muted"><i class="fas fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="fas fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>&nbsp;&nbsp;<i class="fas fa-user"></i> <%=  job.attr('username') %>&nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
 	</div>
 	<div>
 		<%== can.view.render('views/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
@@ -11,11 +11,15 @@
 					<% if( job.attr('state') == '-1'){ %>
 						<a id="restart-btn" class="dropdown-item" style="cursor:pointer">Restart</a>
 					<% } %>
-				<a class="dropdown-item" href="/logs/<%= job.attr('id') %>" target="_blank">Logs</a>
+			<% } %>
+
+			<% if (job.attr('logs')) { %>
+				<a class="dropdown-item" href="<%= job.attr('logs') %>" target="_blank">Logs</a>
 				<div class="dropdown-divider"></div>
 			<% } %>
+
 			<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-				<a id="cancel-btn" class="dropdown-item" style="cursor:pointer">Cancel.</a>
+				<a id="cancel-btn" class="dropdown-item" style="cursor:pointer">Cancel</a>
 			<% } %>
 			<% if( job.attr('state') > '3'){ %>
 				<a id="delete-btn" class="dropdown-item" style="cursor:pointer">Delete</a>
@@ -23,6 +27,14 @@
 		</div>
 	</div>
 </div>
+
+<% if( job.attr('state') == 1 && job.attr('positionInQueue') != -1){ %>
+	<br>
+	<div class="alert alert-info">
+		Job is in queue on position <b><%= job.attr('positionInQueue') + 1 %></b>.
+	</div>
+<% } %>
+
 <% if( job.attr('public')){ %>
 	<br>
 	<div class="alert alert-info">
