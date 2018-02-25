@@ -30,9 +30,12 @@
 						<h5 class="card-title" >Syntax Error</h5>
 					<% } %>
 					<div style="height: 150px; display: block; " >
-					<% if (app.attr('errorMessage')) { %>
-						<span class="text-danger"><%= app.attr('errorMessage') %></span>
-					<% } else { %>
+						<% if (app.attr('changed')) { %>
+							<small class="text-danger">Warning: File <b><%= app.attr('filename') %></b> changed on disk. Reload Apps to solve this issue.</small>
+						<% } %>
+						<% if (app.attr('errorMessage')) { %>
+							<small class="text-danger"><%= app.attr('errorMessage') %></small>
+						<% } else { %>
 						<p class="card-text"><%== app.attr('wdlApp').attr('description').length > 200 ? app.attr('wdlApp').attr('description').substring(0,200)+'...' : app.attr('wdlApp').attr('description') %><br>
 							<small><a href="<%= app.attr('wdlApp').attr('website') %>" target="_blank"><%= app.attr('wdlApp').attr('website') %></a></small>
 						</p>
