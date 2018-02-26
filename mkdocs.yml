@@ -48,6 +48,7 @@ pages:
       - Text: developers/inputs/text.md
       - Number: developers/inputs/number.md
       - List: developers/inputs/list.md
+      - Radio: developers/inputs/radio.md
       - Checkbox: developers/inputs/checkbox.md
       - App List: developers/inputs/app-list.md
       - Terms Checkbox: developers/inputs/terms_checkbox.md

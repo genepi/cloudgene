@@ -17,6 +17,8 @@ public enum WdlParameterInputType {
 
 	LIST("list"),
 
+	RADIO("radio"),
+
 	NUMBER("number"),
 
 	LABEL("label"),

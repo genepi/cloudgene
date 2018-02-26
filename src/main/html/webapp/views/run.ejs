@@ -58,6 +58,25 @@
 		</div>
 	<% } %>
 
+	<% if (param.attr('type') == "radio") { %>
+		<!-- Radio -->
+		<div class="col-sm-3">
+				<% param.attr('values').each(function( item, index ) { %>
+					<div class="custom-control custom-radio">
+					  <input class="custom-control-input" type="radio" name="<%= param.attr('id') %>" id="<%= param.attr('id')+'_'+index %>" value="<%= item.attr('key') %>" <%= param.attr('required') ? 'required' : '' %> <%= item.attr('key') == param.attr('value') ? "checked" : '' %>>
+					  <label class="custom-control-label" for="<%= param.attr('id')+'_'+index %>">
+							<%= item.attr('value') %>
+					  </label>
+					</div>
+					<% if (index == param.attr('values'). length - 1) { %>
+						<div class="invalid-feedback">
+							This parameter is required.
+						</div>
+					<% } %>
+				<% }) %>
+		</div>
+	<% } %>
+
 	<% if (param.attr('type') == "text" || param.attr('type') == "number" || param.attr('type') == "string" ) { %>
 		<!-- Textfield -->
 		<div class="col-sm-3">

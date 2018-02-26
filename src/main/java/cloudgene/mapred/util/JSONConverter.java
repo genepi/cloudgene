@@ -68,17 +68,18 @@ public class JSONConverter {
 		object.put("required", input.isRequired());
 		object.put("adminOnly", input.isAdminOnly());
 		object.put("help", input.getHelp());
-		
-		if (input.getAccept() != null){
+
+		if (input.getAccept() != null) {
 			object.put("accept", input.getAccept());
 		}
-		
-		if (input.isFolder()){
+
+		if (input.isFolder()) {
 			object.put("source", "upload");
 		}
-		
+
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
-				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
+				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX
+				|| input.getTypeAsEnum() == WdlParameterInputType.RADIO) {
 			JSONArray array = new JSONArray();
 			Map<String, String> values = input.getValues();
 			List<String> keys = new ArrayList<String>(values.keySet());
