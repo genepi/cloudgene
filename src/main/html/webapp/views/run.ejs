@@ -52,6 +52,9 @@
 					</option>
 				<% }) %>
 			</select>
+			<% if (param.attr('details')) { %>
+				<small class="form-text text-muted"><%== param.attr('details') %></small>
+			<% } %>
 			<div class="invalid-feedback">
 				This parameter is required.
 			</div>
@@ -69,6 +72,9 @@
 					  </label>
 					</div>
 					<% if (index == param.attr('values'). length - 1) { %>
+						<% if (param.attr('details')) { %>
+							<small class="form-text text-muted"><%== param.attr('details') %></small>
+						<% } %>
 						<div class="invalid-feedback">
 							This parameter is required.
 						</div>
@@ -81,6 +87,9 @@
 		<!-- Textfield -->
 		<div class="col-sm-3">
 			<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" class="form-control" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
+			<% if (param.attr('details')) { %>
+				<small class="form-text text-muted"><%== param.attr('details') %></small>
+			<% } %>
 			<div class="invalid-feedback">
 				This parameter is required.
 			</div>
@@ -91,6 +100,9 @@
 		<!-- Textarea -->
 		<div class="col-sm-7">
 			<textarea name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" rows="6" class="form-control" <%= param.attr('required') ? 'required' : '' %>><%= param.attr('value') %></textarea>
+			<% if (param.attr('details')) { %>
+				<small class="form-text text-muted"><%== param.attr('details') %></small>
+			<% } %>
 			<div class="invalid-feedback">
 				This parameter is required.
 			</div>
@@ -107,6 +119,9 @@
 			>
 			<label class="custom-control-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
 			</div>
+			<% if (param.attr('details')) { %>
+				<small class="form-text text-muted"><%== param.attr('details') %></small>
+			<% } %>
 		</div>
 	<% } %>
 
@@ -124,6 +139,9 @@
 				 <%= param.attr('accept') ? 'accept="'+ param.attr('accept')+'"' : '' %>
 				 style="display:none;"
 			>
+			<% if (param.attr('details')) { %>
+				<small class="form-text text-muted"><%== param.attr('details') %></small>
+			<% } %>
 			<div class="invalid-feedback">
 				Please choose one file.
 			</div>
@@ -161,6 +179,9 @@
 					<button id="add-sftp-files-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> Import Files</button>
 					<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="text" style="display:none;" class="form-control hidden-parameter" <%= param.attr('required') ? 'required' : '' %> value="<%= param.attr('value') %>">
 				<% } %>
+				<% if (param.attr('details')) { %>
+					<small class="form-text text-muted"><%== param.attr('details') %></small>
+				<% } %>
 			<div class="invalid-feedback">
 				Please choose one or more files.
 			</div>
@@ -173,6 +194,9 @@
 			<div class="custom-control custom-checkbox">
 				<input name="<%= param.attr('id') %>" id="<%= param.attr('id') %>" type ="checkbox" class="agb custom-control-input" required value="accepted" >
 				<label class="custom-control-label" for="<%= param.attr('id') %>"><%== param.attr('description') %></label>
+				<% if (param.attr('details')) { %>
+					<small class="form-text text-muted"><%== param.attr('details') %></small>
+				<% } %>
 				<div class="invalid-feedback">
 					Please agree to the terms and conditions.
 				</div>

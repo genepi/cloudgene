@@ -74,6 +74,10 @@ public class JSONConverter {
 			object.put("accept", input.getAccept());
 		}
 
+		if (input.getDetails() != null) {
+			object.put("details", input.getDetails());
+		}
+		
 		if (input.isFolder()) {
 			object.put("source", "upload");
 		}
