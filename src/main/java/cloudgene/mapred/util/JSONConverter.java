@@ -3,6 +3,7 @@ package cloudgene.mapred.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -148,7 +149,11 @@ public class JSONConverter {
 			object.put("lastLogin", "");
 		}
 		if (user.getLockedUntil() != null) {
-			object.put("lockedUntil", user.getLockedUntil().toString());
+			if (user.getLockedUntil().after(new Date())){
+				object.put("lockedUntil", user.getLockedUntil().toString());
+			}else{
+				object.put("lockedUntil", "");
+			}
 		} else {
 			object.put("lockedUntil", "");
 		}

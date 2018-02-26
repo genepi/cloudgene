@@ -22,10 +22,10 @@
     <tr <%= (tr) -> can.data(tr, 'user', user) %>>
 			<td>
 				<% if (user.attr('lockedUntil')) { %>
-					<span class="icon-lock"></span>
+					<i class="fas fa-lock"></i>
 				<% } else {%>
 					<% if (user.attr('active') == true) { %>
-						<span class="icon-ok-sign"></span>
+						<i class="fas fa-check-circle"></i>
 						<% } %>
 				<% } %>
 			</td>
