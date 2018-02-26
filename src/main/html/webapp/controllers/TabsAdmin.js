@@ -4,6 +4,11 @@ TabsAdmin = can.Control({
     this.page = null;
   },
 
+  'route': function(data) {
+    this.activate('admin-home');
+    this.show('admin-home');
+  },
+
   'pages/:page route': function(data) {
     this.activate(data.page);
     this.show(data.page);

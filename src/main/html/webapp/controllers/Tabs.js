@@ -5,8 +5,12 @@ Tabs = can.Control({
 		this.page = null;
 	},
 
-	'run/:app route' : function(data) {
+	'route' : function(data) {
+		this.activate('home');
+		this.show('home');
+	},
 
+	'run/:app route' : function(data) {
 		this.activate('run');
 		this.page = new SubmitJobPage("#content", {tool: data.app});
 	},

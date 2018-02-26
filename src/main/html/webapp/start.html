@@ -195,30 +195,13 @@
 									}
 								}
 							});
-							app = app
-									|| (function() {
-										var process = $('<div id="process" class="modal hide" tabindex="-1" data-backdrop="static" style="width: 80px;  margin-left:-40px; height: 80px;  margin-top:100px;"><div class="modal-header"><h1>lf</h1></div><div class="modal-body"><img src="assets/img/spinner.gif"/></div></div>');
-										return {
-											showProcess : function() {
-												process.modal('show');
-											},
-											hideProcess : function() {
-												process.modal('hide');
-											},
-										};
-									})();
+
 							tabs = new Tabs("#tabfolder");
-							if (window.location.hash == '') {
-								tabs.activate("home");
-								tabs.show("home");
-							}
 							<#if apps?size gt 0>
 							can.route("run/:app", {app: "${apps[0].id}"});
 							</#if>
 							can.route.ready();
-							//default route!
-							//can.route("pages/:page", {page: "home"});
-							//can.route.attr({page: "home"});
+
 						});
 	</script>
 

@@ -1,162 +1,174 @@
 TabsPublic = can.Control({
 
-	"init" : function(element, options) {
-		this.page = null;
-	},
-
-	'activate/:user/:key route' : function(data) {
-		this.activate('register');
-
-		$.ajax({
-			url : "users/activate/" + data.user + "/" + data.key,
-			type : "GET",
-			data : $(this).serialize(),
-			dataType : 'json',
-			success : function(data) {
-				$("#content").hide().html(can.view('views/activate.ejs', {
-					data : data
-				})).fadeIn();
-			},
-			error : function(message) {
-				alert('failure: ' + message);
-			}
-
-		});
-	},
-
-	'run/:app route' : function(data) {
-
-		this.activate('run');
-		this.page = new SubmitJobPage("#content", {tool: data.app});
-	},
+  "init": function(element, options) {
+    this.page = null;
+  },
 
 
-	'pages/:page route' : function(data) {
-		this.activate(data.page);
-		this.show(data.page);
-	},
+  'route': function(data) {
+    this.activate('home');
+    this.show('home');
+  },
 
-	'recovery/:user/:key route' : function(data) {
-		this.activate('register');
-		this.show('recovery', data);
-	},
+  'activate/:user/:key route': function(data) {
+    this.activate('register');
 
-	'pages/:page route' : function(data) {
-		this.activate(data.page);
-		this.show(data.page);
-	},
+    $.ajax({
+      url: "users/activate/" + data.user + "/" + data.key,
+      type: "GET",
+      data: $(this).serialize(),
+      dataType: 'json',
+      success: function(data) {
+        $("#content").hide().html(can.view('views/activate.ejs', {
+          data: data
+        })).fadeIn();
+      },
+      error: function(message) {
+        alert('failure: ' + message);
+      }
 
-	'jobs/:job/results route' : function(data) {
-		this.activate('jobs');
-		this.options.detailsPage = new JobDetailsPage("#content", {
-			jobId : data.job,
-			results : true
-		});
-		this.page = this.options.detailsPage;
-	},
-
-	'jobs/:job route' : function(data) {
-		this.activate('jobs');
-		this.options.detailsPage = new JobDetailsPage("#content", {
-			jobId : data.job,
-			admin: false,
-			results : false
-		});
-		this.page = this.options.detailsPage;
-	},
-
-	'.* route': function(data) {
-    new ErrorPage("#content", {
-        status: "404",
-        message: "Oops, Sorry We Can't Find That Page!"
     });
   },
 
-	activate : function(id) {
+  'run/:app route': function(data) {
 
-		if (id == "home"){
-			$("#content").empty();
-		}else{
-			$("#fullsize-content").empty();
-		}
+    this.activate('run');
+    this.page = new SubmitJobPage("#content", {
+      tool: data.app
+    });
+  },
 
-		$(window).scrollTop(0);
 
-		// destroy active page
-		if (this.page != null) {
-			this.page.destroy();
-		}
+  'pages/:page route': function(data) {
+    this.activate(data.page);
+    this.show(data.page);
+  },
 
-		this.activePage = id;
+  'recovery/:user/:key route': function(data) {
+    this.activate('register');
+    this.show('recovery', data);
+  },
 
-		// activated li
-		this.element.find('li').each(function() {
-			li = $(this);
-			li.removeClass('active', '');
-			$(this).find('a').each(function() {
-				if ($(this).attr('id') == id) {
-					li.addClass('active');
-				}
-			});
-		});
-	},
+  'pages/:page route': function(data) {
+    this.activate(data.page);
+    this.show(data.page);
+  },
 
-	show : function(id, data) {
+  'jobs/:job/results route': function(data) {
+    this.activate('jobs');
+    this.options.detailsPage = new JobDetailsPage("#content", {
+      jobId: data.job,
+      results: true
+    });
+    this.page = this.options.detailsPage;
+  },
 
-		switch (id) {
-		case "home":
-			this.page = new HomePage("#fullsize-content", {
-				login : true
-			});
-			break;
+  'jobs/:job route': function(data) {
+    this.activate('jobs');
+    this.options.detailsPage = new JobDetailsPage("#content", {
+      jobId: data.job,
+      admin: false,
+      results: false
+    });
+    this.page = this.options.detailsPage;
+  },
 
-		case "activate":
+  '.* route': function(data) {
+    new ErrorPage("#content", {
+      status: "404",
+      message: "Oops, Sorry We Can't Find That Page!"
+    });
+  },
 
-			this.page = new StaticPage("#content", {
-				template : 'views/activate.ejs'
-			});
-			break;
+  activate: function(id) {
 
-		case "register":
-			this.page = new RegisterUserPage("#content");
-			break;
+    if (id == "home") {
+      $("#content").empty();
+    } else {
+      $("#fullsize-content").empty();
+    }
 
-		case "login":
-			this.page = new UserLoginForm("#content");
-			break;
+    $(window).scrollTop(0);
 
-		case "reset-password":
-			this.page = new ResetPasswordPage("#content");
-			break;
+    // destroy active page
+    if (this.page != null) {
+      this.page.destroy();
+    }
 
-		case "recovery":
-			this.page = new NewPasswordPage("#content", {data:data});
-			break;
+    this.activePage = id;
 
-		case "help":
-			this.page = new StaticPage("#content", {
-				template : 'static/help.ejs'
-			});
-			break;
+    // activated li
+    this.element.find('li').each(function() {
+      li = $(this);
+      li.removeClass('active', '');
+      $(this).find('a').each(function() {
+        if ($(this).attr('id') == id) {
+          li.addClass('active');
+        }
+      });
+    });
+  },
 
-		case "contact":
-			this.page = new StaticPage("#content", {
-				template : 'static/contact.ejs'
-			});
-			break;
+  show: function(id, data) {
 
-		case "run":
-		case "jobs":
-			this.page = new ErrorPage("#content", {
-				status : "401",
-				message : "The request requires user authentication."
-			});
-			break;
+    switch (id) {
+      case "home":
+        this.page = new HomePage("#fullsize-content", {
+          login: true
+        });
+        break;
 
-		default:
-			this.page = new StaticPage("#content", {template: 'static/'+ id + '.ejs'});
-			break;
-		}
+      case "activate":
 
-	}
+        this.page = new StaticPage("#content", {
+          template: 'views/activate.ejs'
+        });
+        break;
+
+      case "register":
+        this.page = new RegisterUserPage("#content");
+        break;
+
+      case "login":
+        this.page = new UserLoginForm("#content");
+        break;
+
+      case "reset-password":
+        this.page = new ResetPasswordPage("#content");
+        break;
+
+      case "recovery":
+        this.page = new NewPasswordPage("#content", {
+          data: data
+        });
+        break;
+
+      case "help":
+        this.page = new StaticPage("#content", {
+          template: 'static/help.ejs'
+        });
+        break;
+
+      case "contact":
+        this.page = new StaticPage("#content", {
+          template: 'static/contact.ejs'
+        });
+        break;
+
+      case "run":
+      case "jobs":
+        this.page = new ErrorPage("#content", {
+          status: "401",
+          message: "The request requires user authentication."
+        });
+        break;
+
+      default:
+        this.page = new StaticPage("#content", {
+          template: 'static/' + id + '.ejs'
+        });
+        break;
+    }
+
+  }
 });

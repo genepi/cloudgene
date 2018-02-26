@@ -147,9 +147,7 @@
 									try {
 										// get data
 										var data = JSON.parse(localStorage.getItem("cloudgene"));
-										if (this.url != 'http://apps.cloudgene.io/api/apps.json'){
-											xhr.setRequestHeader("X-CSRF-Token", data.csrf);
-										}
+										xhr.setRequestHeader("X-CSRF-Token", data.csrf);
 									} catch (e) {
 									}
 								}
@@ -157,10 +155,6 @@
 						}
 					});
 					tabs = new TabsAdmin("#tabfolder");
-					if (window.location.hash == '') {
-						tabs.activate("admin-home");
-						tabs.show("admin-home");
-					}
 					can.route.ready()
 					//default route!
 					//can.route("pages/:page", {page: "home"});
