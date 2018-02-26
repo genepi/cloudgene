@@ -1,11 +1,11 @@
 // controller
-AdminTemplatesPage = can.Control({
+AdminSettingsTemplatesPage = can.Control({
 
     "init": function(element, options) {
         var that = this;
         Template.findAll({}, function(templates) {
 
-            that.element.html(can.view('views/admin/templates.ejs', {
+            that.element.html(can.view('views/admin/settings.templates.ejs', {
                 templates: templates,
             }));
             $("#content").fadeIn();

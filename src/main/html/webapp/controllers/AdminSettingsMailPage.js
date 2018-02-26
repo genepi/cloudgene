@@ -1,12 +1,12 @@
 // controller
-AdminSettingsPage = can.Control({
+AdminSettingsMailPage = can.Control({
 
     "init": function(element, options) {
         var that = this;
 
         Settings.findOne({}, function(settings) {
 
-            that.element.html(can.view('views/admin/settings.ejs', {
+            that.element.html(can.view('views/admin/settings.mail.ejs', {
                 settings: settings
             }));
             that.settings = settings;
@@ -16,16 +16,15 @@ AdminSettingsPage = can.Control({
 
     },
 
+    '#mail change' : function(e){
+        if (e[0].checked){
+          this.settings.attr('mail', "true");
+        }else{
+          this.settings.attr('mail', "false");
+        }
+    },
+
     'submit': function() {
-
-        this.settings.attr('name', this.element.find("[name='name']").val());
-        this.settings.attr('background-color', this.element.find("[name='background-color']").val());
-        this.settings.attr('foreground-color', this.element.find("[name='foreground-color']").val());
-        this.settings.attr('google-analytics', this.element.find("[name='google-analytics']").val());
-
-        this.settings.attr('hadoopPath', this.element.find("[name='hadoopPath']").val());
-        this.settings.attr('userApp', this.element.find("[name='userApp']").val());
-        this.settings.attr('adminApp', this.element.find("[name='adminApp']").val());
 
         this.settings.attr('mail-smtp', this.element.find("[name='mail-smtp']").val());
         this.settings.attr('mail-port', this.element.find("[name='mail-port']").val());
@@ -36,8 +35,7 @@ AdminSettingsPage = can.Control({
 
         this.settings.save();
 
-
-        bootbox.alert("Settings updated.");
+        bootbox.alert("E-Mail configuration updated.");
 
         return false;
     }

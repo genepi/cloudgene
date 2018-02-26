@@ -35,8 +35,8 @@ TabsAdmin = can.Control({
 
   '.* route': function(data) {
     new ErrorPage("#content", {
-        status: "404",
-        message: "Oops, Sorry We Can't Find That Page!"
+      status: "404",
+      message: "Oops, Sorry We Can't Find That Page!"
     });
   },
 
@@ -114,8 +114,16 @@ TabsAdmin = can.Control({
         this.page = new AdminServerPage("#content");
         break;
 
-      case "admin-settings":
-        this.page = new AdminSettingsPage("#content");
+      case "admin-settings-general":
+        this.page = new AdminSettingsGeneralPage("#content");
+        break;
+
+      case "admin-settings-mail":
+        this.page = new AdminSettingsMailPage("#content");
+        break;
+
+      case "admin-settings-templates":
+        this.page = new AdminSettingsTemplatesPage("#content");
         break;
 
       case "admin-apps":
@@ -132,7 +140,9 @@ TabsAdmin = can.Control({
 
 
       default:
-        this.page = new StaticPage("#content", {template: 'static/'+ id + '.ejs'});
+        this.page = new StaticPage("#content", {
+          template: 'static/' + id + '.ejs'
+        });
         break;
 
     }

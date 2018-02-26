@@ -1,14 +1,10 @@
-<h2>Settings</h2>
+<h2>General</h2>
 
-This page enables to customize your Cloudgene installation.
+<p>Customize your Cloudgene instance by setting a unique service name and adapating colors.</p>
 
 <hr>
 
 <form class="form-horizontal" id="settings-form">
-
-	<h4>General</h4>
-
-	<p>Customize your Cloudgene instance by setting a unique service name and adapating colors.</p>
 
 	<div class="form-group">
 		<label for="name" class="control-label">Service Name:</label>
@@ -33,43 +29,10 @@ This page enables to customize your Cloudgene installation.
 		<small class="form-text text-muted">Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking.</small>
 	</div>
 
-	<div class="form-group">
-		<button id="save" class="btn btn-primary" data-loading-text="please wait..."><i class="far fa-save"></i> Save changes</button>
-	</div>
-
-	<hr>
-
-
-	<h4>Configure SMTP</h4>
-
-	<p>Customize the SMTP mailing system used by Cloudgene to handle outgoing e-mails.</p>
-
-	<div class="form-group">
-		<label for="mail-smtp">Server:</label>
-		<input id="mail-smtp" name="mail-smtp" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-smtp') %>">
-	</div>
-
-	<div class="form-group">
-		<label for="mail-port">Port:</label>
-		<input id="mail-port" name="mail-port" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-port') %>">
-	</div>
-
-	<div class="form-group">
-		<label for="mail-user">User:</label>
-		<input id="mail-user" name="mail-user" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-user') %>">
-	</div>
-
-	<div class="form-group">
-		<label for="mail-password">Password:</label>
-		<input id="mail-password" name="mail-password" type="password" class="form-control col-md-4" value="<%= settings.attr('mail-password') %>">
-	</div>
-
-	<div class="form-group">
-		<label for="mail-name">Sender:</label>
-		<input id="mail-name" name="mail-name" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-name') %>">
-	</div>
+<hr>
 
 	<div class="form-group">
 		<button id="save" class="btn btn-primary" data-loading-text="please wait..."><i class="far fa-save"></i> Save changes</button>
 	</div>
+
 </form>
