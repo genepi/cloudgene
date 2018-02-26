@@ -34,7 +34,8 @@ public class GetSettings extends BaseResource {
 		object.put("name", getSettings().getName());
 		object.put("background-color", getSettings().getColors().get("background"));
 		object.put("foreground-color", getSettings().getColors().get("foreground"));
-
+		object.put("google-analytics", getSettings().getGoogleAnalytics());
+		
 		Map<String, String> mail = getSettings().getMail();
 		if (getSettings().getMail() != null) {
 			object.put("mail-smtp", mail.get("smtp"));

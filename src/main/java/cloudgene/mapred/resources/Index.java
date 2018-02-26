@@ -27,30 +27,30 @@ public class Index extends BaseResource {
 
 		Configuration cfg = new Configuration();
 
-		ContextTemplateLoader loader = new ContextTemplateLoader(
-				getContext(),
+		ContextTemplateLoader loader = new ContextTemplateLoader(getContext(),
 				LocalReference.createFileReference(new File(app.getRootFolder())));
 
 		cfg.setTemplateLoader(loader);
-			
+
 		List<WdlApp> apps = getSettings().getAppsByUser(null);
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());
 		data.put("background", getSettings().getColors().get("background"));
-		data.put("foreground", getSettings().getColors().get("foreground"));		
+		data.put("foreground", getSettings().getColors().get("foreground"));
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 		data.put("apps", apps);
 		data.put("navigation", getSettings().getNavigation());
-
-		if (getSettings().isMaintenance()) {
-			data.put("maintenaceMessage",
-					getWebApp()
-							.getTemplate(Template.MAINTENANCE_MESSAGE));
+		String googleAnalytics = getSettings().getGoogleAnalytics();
+		if (googleAnalytics != null && !googleAnalytics.trim().isEmpty()) {
+			data.put("google_analytics", googleAnalytics);
 		}
 
-		return new TemplateRepresentation("index.html", cfg, data,
-				MediaType.TEXT_HTML);
+		if (getSettings().isMaintenance()) {
+			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
+		}
+
+		return new TemplateRepresentation("index.html", cfg, data, MediaType.TEXT_HTML);
 
 	}
 

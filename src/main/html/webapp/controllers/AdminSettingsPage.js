@@ -21,6 +21,7 @@ AdminSettingsPage = can.Control({
         this.settings.attr('name', this.element.find("[name='name']").val());
         this.settings.attr('background-color', this.element.find("[name='background-color']").val());
         this.settings.attr('foreground-color', this.element.find("[name='foreground-color']").val());
+        this.settings.attr('google-analytics', this.element.find("[name='google-analytics']").val());
 
         this.settings.attr('hadoopPath', this.element.find("[name='hadoopPath']").val());
         this.settings.attr('userApp', this.element.find("[name='userApp']").val());

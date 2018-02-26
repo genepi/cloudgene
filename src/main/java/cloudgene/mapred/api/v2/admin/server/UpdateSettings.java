@@ -36,6 +36,7 @@ public class UpdateSettings extends BaseResource {
 		String name = form.getFirstValue("name");
 		String background = form.getFirstValue("background-color");
 		String foreground = form.getFirstValue("foreground-color");
+		String googleAnalytics = form.getFirstValue("google-analytics");
 
 		String mailSmtp = form.getFirstValue("mail-smtp");
 		String mailPort = form.getFirstValue("mail-port");
@@ -47,6 +48,7 @@ public class UpdateSettings extends BaseResource {
 		settings.setName(name);
 		settings.getColors().put("background", background);
 		settings.getColors().put("foreground", foreground);
+		settings.setGoogleAnalytics(googleAnalytics);
 
 		Map<String, String> mail = new HashMap<String, String>();
 		mail.put("smtp", mailSmtp);

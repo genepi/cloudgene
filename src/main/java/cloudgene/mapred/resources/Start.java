@@ -58,7 +58,11 @@ public class Start extends BaseResource {
 		data.put("username", user.getUsername());
 		data.put("apps", apps);
 		data.put("navigation", getSettings().getNavigation());
-
+		String googleAnalytics = getSettings().getGoogleAnalytics();
+		if (googleAnalytics != null && !googleAnalytics.trim().isEmpty()) {
+			data.put("google_analytics", googleAnalytics);
+		}
+		
 		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
 		}

@@ -118,6 +118,8 @@ public class Settings {
 
 	private Set<Technology> technologies = new HashSet<Technology>();
 
+	private String googleAnalytics = "";
+
 	protected Config config;
 
 	public Settings() {
@@ -146,7 +148,7 @@ public class Settings {
 		initDefaultDatabase(database, "data/mapred");
 
 		colors = getDefaultColors();
-		
+
 		// enable all technologies
 		for (Technology technology : Technology.values()) {
 			enable(technology);
@@ -965,6 +967,14 @@ public class Settings {
 
 	public void setColors(Map<String, String> colors) {
 		this.colors = colors;
+	}
+
+	public void setGoogleAnalytics(String googleAnalytics) {
+		this.googleAnalytics = googleAnalytics;
+	}
+
+	public String getGoogleAnalytics() {
+		return googleAnalytics;
 	}
 
 }
