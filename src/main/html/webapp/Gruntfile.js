@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         version: '2.2.6'
       },
       dist: {
-        src: ['views/*.ejs', 'views/admin/*.ejs','views/components/*.ejs'],
+        src: ['views/*.ejs', 'views/admin/*.ejs', 'views/components/*.ejs'],
         dest: 'tmp/cloudgene.views.js'
       }
     },
@@ -81,19 +81,24 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: [{
-          expand: true,
-          src: ['assets/images/**'],
-          dest: 'dist'
-        }, {
-          expand: true,
-          src: ['assets/img/**'],
-          dest: 'dist'
-        }, {
-          expand: true,
-					cwd: 'assets/img',
-					src: ['glyph*'],
-          dest: 'dist/img'
-        }]
+            expand: true,
+            src: ['assets/images/**'],
+            dest: 'dist'
+          }, {
+            src: ['assets/js/lib/fontawesome-5.0.6.js'],
+            dest: 'dist/assets/fontawesome-5.0.6.js'
+          },
+          {
+            expand: true,
+            src: ['assets/img/**'],
+            dest: 'dist'
+          }, {
+            expand: true,
+            cwd: 'assets/img',
+            src: ['glyph*'],
+            dest: 'dist/img'
+          }
+        ]
       }
     }
   });
@@ -102,7 +107,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-	grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('can-compile');
   grunt.loadNpmTasks('grunt-targethtml');
 
