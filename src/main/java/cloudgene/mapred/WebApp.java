@@ -50,6 +50,7 @@ import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.api.v2.server.App;
 import cloudgene.mapred.api.v2.server.Apps;
+import cloudgene.mapred.api.v2.server.CloudgeneApps;
 import cloudgene.mapred.api.v2.server.GetCounter;
 import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.users.ActivateUser;
@@ -156,6 +157,9 @@ public class WebApp extends Application {
 		// returns a list of all installed apps
 		router.attach(prefix + "/api/v2/server/apps", Apps.class);
 
+		// returns a list of all apps registed on cloudgene.io
+		router.attach(prefix + "/api/v2/server/cloudgene-apps", CloudgeneApps.class);
+		
 		// returns current version as svg image
 		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
 

@@ -45,6 +45,7 @@ public class WebServer extends Component {
 		// Add the connectors
 		// ------------------
 		getServers().add(Protocol.HTTP, port);
+		getClients().add(Protocol.HTTP);
 		
 		if (useSSL) {
 
