@@ -2,8 +2,10 @@
 AdminServerPage = can.Control({
 
   "init": function(element, options) {
+    that = this;
     element.hide();
     Cluster.findOne({}, function(cluster) {
+      that.cluster = cluster;
       element.html(can.view('views/admin/server.ejs', {
         cluster: cluster
       }));
@@ -52,6 +54,10 @@ AdminServerPage = can.Control({
     }, function(data) {
       bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
     });
+  },
+
+  "#hadoop-details-btn click": function(){
+      bootbox.alert('<pre>'+ this.cluster.attr('hadoop_details')+'</pre>');
   },
 
   "#queue-block-btn click": function() {

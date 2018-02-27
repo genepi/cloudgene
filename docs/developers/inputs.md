@@ -51,5 +51,6 @@ These properties define the basic behaviour of an input parameter::
 | `value` | no | Defines the default value of this parameter. This value is preselected in the job submission form (default: **empty**). |
 | `visible` | no | Defines if the input control is visible or hidden (default: **true**). |
 | `required` | no | Defines if the parameter is mandatory or can be submitted empty by the user (default: **true**). |
+| `details` | no | Prints more details about  (default: **empty**). |
 | `help` | no | Contains the link to a help page for this parameter (default: **empty**).<br>If a link is provided, a icon appears nearby the label:<br> ![](/images/inputs/help.png)
 |

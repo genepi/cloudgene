@@ -11,6 +11,15 @@ pages:
 - Run Apps on the Commandline: getting-started/commandline.md
 - Run Apps in the Web Application: getting-started/web-application.md
 
+- Cloudgene Server:
+    - Introduction: daemon/introduction.md
+    - Start Daemon: daemon/start-daemon.md
+    - Stop Daemon: daemon/stop-daemon.md
+    - Configuration: daemon/configuration.md
+    - Enable Hadoop Support: daemon/hadoop.md
+    - Manage Jobs: daemon/jobs.md
+    - Manage Permissions: daemon/permissions.md
+    - Maintenance: daemon/administration.md
 - Cloudgene CLI:
     - Introduction: cli/introduction.md
     - cloudgene install: cli/cloudgene-install.md
@@ -21,15 +30,6 @@ pages:
     - cloudgene run: cli/cloudgene-run.md
     - cloudgene server: cli/cloudgene-server.md
     - cloudgene version: cli/cloudgene-version.md
-- Cloudgene Daemon:
-    - Introduction: daemon/introduction.md
-    - Start Daemon: daemon/start-daemon.md
-    - Stop Daemon: daemon/stop-daemon.md
-    - Configuration: daemon/configuration.md
-    - Enable Hadoop Support: daemon/hadoop.md
-    - Manage Jobs: daemon/jobs.md
-    - Manage Permissions: daemon/permissions.md
-    - Maintenance: daemon/administration.md
 - Development:
     - Introduction: developers/introduction.md
     - Steps:

@@ -5,12 +5,12 @@
 	<br>
 </p>
 
-<h4>Status</h4>
+<h3>Status</h3>
 
 <table class="table table-bordered">
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Version:</b>
 		</td>
 		<td>
@@ -23,7 +23,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Mode:</b>
 		</td>
 		<td>
@@ -36,7 +36,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Queue:</b>
 		</td>
 		<td>
@@ -49,7 +49,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Threads Setup Queue:</b>
 		</td>
 		<td>
@@ -58,7 +58,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Threads Processing Queue:</b>
 		</td>
 		<td>
@@ -67,26 +67,18 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Max Jobs per User:</b>
 		</td>
 		<td><%= cluster.attr('max_jobs_user') %></td>
 	</tr>
 
-</table>
-
-<hr>
-
-<h4>Server</h4>
-
-<table class="table table-bordered">
-
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Disk Usage:</b>
 		</td>
 		<td>
-			<div class="progress" style="width: 150px">
+			<div class="progress" style="width: 400px">
 			  <div class="progress-bar bg-danger" role="progressbar" style="width: <%== ((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
 				<div class="progress-bar bg-success" role="progressbar" style="width: <%== 100-((cluster.attr('total_disc_space') - cluster.attr('free_disc_space')) / cluster.attr('total_disc_space') * 100) %>%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
@@ -100,81 +92,124 @@
 	</tr>
 
 </table>
+<br>
+<h3>Resources</h3>
 
-<hr>
+<div class="container"  id="application-repository">
+	<div class="row">
 
-<h4>Hadoop</h4>
-<% if (cluster.attr('hadoop_enabled')) { %>
+		<div class="col-md-4">
+			<div class="card mb-4 box-shadow">
+				<div class="card-body" style="height: 300px">
+
+
+						<% if (cluster.attr('hadoop_enabled')) { %>
+							<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> <%= cluster.attr('hadoop_cluster') %></h5>
+						<% } else { %>
+							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Hadoop Cluster</h5>
+						<% } %>
+
+
+					<% if (cluster.attr('hadoop_enabled')) { %>
+
+						<p>Type: Hadoop<br>
+							Status:
+						<% if (cluster.attr('hadoop_safemode')) { %>
+							<span class="badge badge-important">SAFEMODE!</span>
+						<% } else { %>
+							<span class="badge badge-success">Running</span>
+						<% } %>
+					<br>
+					JobTracker: <%= cluster.attr('hadoop_jobtracker') %><br>
+					Execute as: <%= cluster.attr('hadoop_username') %><br>
+					Active Nodes: <%= cluster.attr('hadoop_active_nodes') %>/<%= cluster.attr('hadoop_active_nodes') + cluster.attr('hadoop_inactive_nodes') %><br>
+					Map Tasks: <%= cluster.attr('hadoop_map_tasks') %><br>
+					Reduce Tasks: <%= cluster.attr('hadoop_map_tasks') %><br></p>
+ 				<p><span class="float-right btn btn-secondary" id ="hadoop-details-btn">Details</span></p>
+
+					<% } else { %>
+						    <%== cluster.attr('hadoop_error') %>
+					<% }%>
+
+				</div>
+			</div>
+		</div>
+
+		<div class="col-md-4">
+			<div class="card mb-4 box-shadow">
+				<div class="card-body" style="height: 300px">
+
+					<h5 class="card-title">
+						<% if (cluster.attr('r_enabled')) { %>
+							<i class="fas fa-check-circle text-success"></i>
+						<% } else { %>
+							<i class="fas fa-times-circle text-danger"></i>
+						<% } %>
+						R</h5>
+
+					<% if (cluster.attr('r_enabled')) { %>
+							<%== cluster.attr('r_details') %>
+					<% } else { %>
+					    <%== cluster.attr('r_error') %>
+					<% } %>
+					</div>
+				</div>
+		</div>
+
+		<div class="col-md-4">
+			<div class="card mb-4 box-shadow">
+				<div class="card-body" style="height: 300px">
+
+					<h5 class="card-title">
+						<% if (cluster.attr('rmarkdown_enabled')) { %>
+							<i class="fas fa-check-circle text-success"></i>
+						<% } else { %>
+							<i class="fas fa-times-circle text-danger"></i>
+						<% } %>
+						RMarkdown</h5>
+
+					<% if (cluster.attr('rmarkdown_enabled')) { %>
+							<%== cluster.attr('rmarkdown_details') %>
+					<% } else { %>
+						  <%== cluster.attr('rmarkdown_error') %>
+					<% }%>
+
+				</div>
+			</div>
+	</div>
+
+		<div class="col-md-4">
+			<div class="card mb-4 box-shadow">
+				<div class="card-body" style="height: 300px">
+
+				<h5 class="card-title">
+					<% if (cluster.attr('docker_enabled')) { %>
+						<i class="fas fa-check-circle text-success"></i>
+					<% } else { %>
+						<i class="fas fa-times-circle text-danger"></i>
+					<% } %>
+					Docker</h5>
+
+				<% if (cluster.attr('docker_enabled')) { %>
+						<%== cluster.attr('docker_details') %>
+				<% } else { %>
+					  <%== cluster.attr('docker_error') %>
+				<% }%>
+
+					</div>
+				</div>
+		</div>
+
+	</div>
+</div>
+
+
+<h3>Database Connection Pool</h3>
+
 <table class="table table-bordered">
 
 	<tr>
-		<td style="width: 150px;">
-			<b>Mode:</b>
-		</td>
-		<td>
-			<% if (cluster.attr('hadoop_safemode')) { %>
-				<span class="label label-important">SAFEMODE!</span>
-			<% } else { %>
-				<span class="label label-success">Running</span>
-			<% } %>
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 150px;">
-			<b>Details:</b>
-		</td>
-		<td>
-			<pre><%== cluster.attr('hadoop_details') %></pre>
-		</td>
-	</tr>
-</table>
-<% } else { %>
-	<div class="alert alert-danger" id="success-message">
-	    <%== cluster.attr('hadoop_error') %>
-	</div>
-<% }%>
-
-<hr>
-
-<h4>Technologies</h4>
-<% if (cluster.attr('r_enabled')) { %>
-	<div class="alert alert-success" id="success-message">
-		<%== cluster.attr('r_details') %></pre>
-	</div>
-</table>
-<% } else { %>
-	<div class="alert alert-danger" id="success-message">
-    <%== cluster.attr('r_error') %>
-	</div>
-<% }%>
-<% if (cluster.attr('rmarkdown_enabled')) { %>
-	<div class="alert alert-success" id="success-message">
-		<%== cluster.attr('rmarkdown_details') %>
-	</div>
-<% } else { %>
-	<div class="alert alert-danger" id="success-message">
-	  	<%== cluster.attr('rmarkdown_error') %>
-	</div>
-<% }%>
-<% if (cluster.attr('docker_enabled')) { %>
-	<div class="alert alert-success" id="success-message">
-		<%== cluster.attr('docker_details') %>
-	</div>
-<% } else { %>
-	<div class="alert alert-danger" id="success-message">
-	  	<%== cluster.attr('docker_error') %>
-	</div>
-<% }%>
-
-<hr>
-
-<h4>Database Connection Pool</h4>
-
-<table class="table table-bordered">
-
-	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Active </b><br><i>Number of instances currently borrowed from this pool.</i>
 		</td>
 		<td>
@@ -183,7 +218,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Max active:</b>
 		</td>
 		<td>
@@ -192,7 +227,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Idle:</b><br><i>Number of instances currently idle in this pool.</i>
 		</td>
 		<td>
@@ -201,7 +236,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 150px;">
+		<td style="width: 400px;">
 			<b>Max idle:</b>
 		</td>
 		<td>
@@ -211,9 +246,11 @@
 
 </table>
 
-<hr>
+<br>
 
-<h4>Maintenance Mode</h4>
+<br>
+
+<h3>Maintenance Mode</h3>
 <p>Maintenance mode is for preventing any users other than administrators from submitting jobs. The front page will appear as normal when your site is in maintenance mode. Users will only see the maintenance mode message when they attempt to submit a job.</p>
 <p>
 	<i>Note: You can create a customized maintenance mode message by change the MAINTENANCE_MESSAGE variable (see Settings).</i>
@@ -228,9 +265,11 @@
 	<% } %>
 </p>
 
-<hr>
+<br>
 
-<h4>Queue</h4>
+<br>
+
+<h3>Queue</h3>
 <p>Blocks the queue. All running jobs are executed and all other jobs are waiting until the queue is manually opened.</p>
 <br>
 <p>
@@ -241,11 +280,13 @@
 	<% } %>
 </p>
 
-<hr>
+<br>
 
-<h4>Auto Retire</h4>
+<br>
+
+<h3>Auto Retire</h3>
 <p>Retires old jobs and send notifications.</p>
 <br>
 <p>
-	<span class="btn btn-primary" id="retire-btn">Start Retire</span>
+	<span class="btn btn-primary" id="retire-btn"><i class="fas fa-trash"></i> Start Retire</span>
 </p>

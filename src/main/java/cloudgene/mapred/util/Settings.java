@@ -149,10 +149,6 @@ public class Settings {
 
 		colors = getDefaultColors();
 
-		// enable all technologies
-		for (Technology technology : Technology.values()) {
-			enable(technology);
-		}
 	}
 
 	public Settings(Config config) {
@@ -200,10 +196,14 @@ public class Settings {
 		log.info("Write statistics: " + settings.writeStatistics);
 
 		if (settings.cluster != null) {
-			String host = settings.cluster.get("host");
-			String username = settings.cluster.get("username");
-			log.info("Use external Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.setHostname(host, username);
+			String conf = settings.cluster.get("conf");
+			String username = settings.cluster.get("user");
+			String name = settings.cluster.get("name");
+			if (conf != null) {
+				log.info("Use Haddop configuration folder '" + conf + "'"
+						+ (username != null ? " with username " + username : ""));
+				HadoopCluster.setConfPath(name, conf, username);
+			}
 		}
 
 		settings.config = config;
@@ -898,10 +898,12 @@ public class Settings {
 	}
 
 	public void enable(Technology technology) {
+		log.info("Enable technology " + technology);
 		technologies.add(technology);
 	}
 
 	public void disable(Technology technology) {
+		log.info("Disable technology " + technology);
 		technologies.remove(technology);
 	}
 
