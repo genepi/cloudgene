@@ -1,8 +1,14 @@
-# Installing applications
+# Install Applications
 
-An online repository of all available applications can be found [here]().
+An online repository of all available applications can be found [here](http://apps.cloudgene.io).
 
-## Install an application
+## Web interface
+
+TODO
+
+## Commandline
+
+### Install an application
 
 You can install applications by using the `install` command. Cloudgene installs all applications in the folder `apps`.
 
@@ -18,7 +24,7 @@ cloudgene install hello-cloudgene http://www.cloudgene.io/downloads/hello-cloudg
 ```
 
 
-## List installed applications
+### List installed applications
 
 A list of all installed applications can be shown with the `ls` command:
 
@@ -30,7 +36,7 @@ cloudgene ls
 This list prints the name and the version of an application and shows you if an application has no syntax errors.
 
 
-## Remove applications
+### Remove applications
 
 An installed application can be removed with the `remove` command:
 
@@ -38,8 +44,3 @@ An installed application can be removed with the `remove` command:
 ```sh
 cloudgene remove <name>
 ```
-
-
-## What's next?
-
-Please have a look at the developer documentation or visit our application repository to explore all available Cloudgene applications.

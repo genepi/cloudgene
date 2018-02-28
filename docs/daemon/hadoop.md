@@ -9,7 +9,7 @@ When you execute workflows with Hadoop steps, Cloudgene needs to know where the 
 
 When you plan to run Cloudgene on a different server than the Namenode, then you have to copy the confioguration files from the cluster to your Cloudgene instance.
 
-Copy the following configuration files from the cluster to a directory on your Cloudgene instance (e.g. `cloudgene/hadoop-conf/`):
+Copy the following configuration files from the `$HADOOP_HOME/conf` on your Namenode to a directory on your Cloudgene instance (e.g. `cloudgene/hadoop-conf/`):
 
 - core-site.xml
 - hbase-site.xml
@@ -23,6 +23,8 @@ If you are using [Cloudera Manager](https://www.cloudera.com/products/product-co
 ## Configure Cluster Connection
 
 Next, you have to define the cluster and the path to its configuration files in your `config/settings.yaml` file:
+
+If yo
 
 ```yaml
 cluster:
