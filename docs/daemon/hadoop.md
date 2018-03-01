@@ -24,12 +24,11 @@ If you are using [Cloudera Manager](https://www.cloudera.com/products/product-co
 
 Next, you have to define the cluster and the path to its configuration files in your `config/settings.yaml` file:
 
-If yo
 
 ```yaml
 cluster:
-  # name your cluster
-  name: My Big Cluster
+  # cluster name
+  name: Test Cluster
   # the cluster type. Currently, the only cluster supported is hadoop.
   type: hadoop
   # configuration files from your cluster
@@ -45,7 +44,7 @@ cluster:
 cloudgene verify-cluster
 ```
 
-Open the **Admin Panel** and click on the **Server** tab. You will see a summary of the Hadoop cluster where you can check if Hadoop is `running` as well as all nodes were found:
+Open the **Admin Panel** and click on the **Server** tab. In the section **Resources** you will see if Cloudgene was able to establish a connection to your Hadoop cluster as well as all nodes were found:
 
 
-![Hadoop](/daemon/images/hadoop.png)
+![Hadoop](/images/screenshots/hadoop-cluster.png)

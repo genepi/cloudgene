@@ -1,34 +1,10 @@
 # Getting started
 
-You will need the following things properly installed on your computer.
+This guide helps you to start Cloudgene and to install your first application. You have to install Cloudgene properly on your computer before you can start.
 
-* [Java 8 or higher](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-* [Hadoop](http://hadoop.apache.org/) (Optional)
-* [Docker](https://www.docker.com/) (Optional)
-* MySQL Server (Optional)
+## Start Cloudgene Server
 
-
-## Installation
-
-You can install Cloudgene via our install script:
-
-```sh
-mkdir cloudgene
-cd cloudgene
-curl -s install.cloudgene.io | bash
-```
-
-Test the installation with the following command:
-
-```sh
-./cloudgene version
-```
-
-We provide a [Docker image](https://github.com/genepi/cloudgene-docker) to get a full-working Cloudgene instance in minutes without any installation.
-
-## Start server
-
-The webservice displays a graphical userinterface for all installed applications. The webserver can be started with the following command:
+The webserver can be started with the following command:
 
 ```sh
 cloudgene server
@@ -39,3 +15,36 @@ The webservice is available on [http://localhost:8082](http://localhost:8082). P
 ```sh
 cloudgene server --port 8085
 ```
+
+## Install your first application
+
+Stop the webservice by pressing `CTRL-C`. The **hello-cloudgene** application can be installed by using the following command:
+
+```sh
+./cloudgene github-install lukfor/hello-cloudgene
+```
+
+Next, restart Cloudgene with the following command:
+
+```sh
+./cloudgene server
+```
+
+Open Cloudgene in your browser and login. A new menu item **Run** appears in the menubar. Click on it to start the application:
+
+![image](/images/screenshots/menubar.png)
+
+Fill out the form and click on the blue submit button to start a new job:
+
+![image](/images/screenshots/hello-cloudgene.png)
+
+The **hello-cloudgene** application displays several inspiring quotes:
+
+![image](/images/screenshots/hello-cloudgene-results.png)
+
+
+## What's next?
+
+- [Install additional applications](/daemon/install-apps)
+- [Configure and customize Cloudgene](/daemon/configuration) to support E-Mail notification, SSL cerificates,
+- Learn how to [manage permissions](/daemon/permissions) and [handle jobs](/daemon/jobs)

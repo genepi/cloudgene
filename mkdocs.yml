@@ -3,10 +3,12 @@ theme:
   name: material
   feature:
     tabs: true
+extra_css:
+  - extra.css
 google_analytics: ['UA-873221-12', 'docs.cloudgene.io']
 pages:
 - Cloudgene:
-    - Home: index.md
+    - Installation: index.md
     - Getting started: daemon/getting-started.md
     - Install Applications: daemon/install-apps.md
     - Configuration: daemon/configuration.md
