@@ -6,15 +6,21 @@ An online repository of all available applications can be found [here](http://ap
 
 Open the **Admin Panel** and click on the **Applications** tab to see all installed applications.
 
-![Install Apps](/images/screenshots/install-apps.png)
+<div class="screenshot">
+<img src="/images/screenshots/install-apps.png">
+</div>
 
 After clicking on **Install App** > **from apps.clougene.io** a list of all available applications registed in our [repository](http://apps.cloudgene.io) appears. Choose an application you want to use an click on **Install** to start the installatiojn process.
 
-![Install Apps](/images/screenshots/install--app-from-repo.png)
+<div class="screenshot">
+<img src="/images/screenshots/install--app-from-repo.png">
+</div>
 
 Depending on your Internet connection and computer resources it could take several minutes. If the installation was successful, you should see your application in the the **Applications** tab:
 
-![Install Apps](/images/screenshots/apps.png)
+<div class="screenshot">
+<img src="/images/screenshots/apps.png">
+</div>
 
 You can click on **Disable** to deactivate the application or on **Uninstall** to remove it from your Cloudgene instance.
 
