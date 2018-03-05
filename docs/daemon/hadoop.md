@@ -46,5 +46,6 @@ cloudgene verify-cluster
 
 Open the **Admin Panel** and click on the **Server** tab. In the section **Resources** you will see if Cloudgene was able to establish a connection to your Hadoop cluster as well as all nodes were found:
 
-
-![Hadoop](/images/screenshots/hadoop-cluster.png)
+<div class="screenshot">
+<img src="/images/screenshots/hadoop-cluster.png">
+</div>

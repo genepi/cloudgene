@@ -30,18 +30,18 @@ Next, restart Cloudgene with the following command:
 ./cloudgene server
 ```
 
-Open Cloudgene in your browser and login. A new menu item **Run** appears in the menubar. Click on it to start the application:
+Open Cloudgene in your browser and login. A new menu item **Run** appears in the menubar. Click on it to start a new job:
 
-![image](/images/screenshots/menubar.png)
-
-Fill out the form and click on the blue submit button to start a new job:
-
-![image](/images/screenshots/hello-cloudgene.png)
+<div class="screenshot">
+<img src="/images/screenshots/menubar.png">
+<img src="/images/screenshots/hello-cloudgene.png">
+</div>
 
 The **hello-cloudgene** application displays several inspiring quotes:
 
-![image](/images/screenshots/hello-cloudgene-results.png)
-
+<div class="screenshot">
+<img src="/images/screenshots/hello-cloudgene-results.png">
+</div>
 
 ## What's next?
 
