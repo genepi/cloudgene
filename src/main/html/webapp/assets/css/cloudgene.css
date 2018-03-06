@@ -39,6 +39,11 @@ footer p {
   margin-bottom: 1rem
 }
 
+.bd-content img {
+  max-width: 100%;
+  height: auto !important;
+}
+
 @media (max-width:991.98px) {
   .bd-content>table {
     display: block;
@@ -80,6 +85,25 @@ footer p {
   .bd-content>ol, .bd-content>p, .bd-content>ul {
     max-width: 80%
   }
+}
+
+.job-header {
+  /*border: 1px solid rgba(0,0,0,.125);*/
+  padding-right: 20px;
+}
+
+.status {
+  height: 80px;
+  padding-top: 0px;
+  line-height: 80px;
+  width: 80px;
+  font-size: 220%;
+  margin-right: 20px;
+  filter: alpha(opacity=60);
+  /* IE */
+  -moz-opacity: 0.6;
+  /* Mozilla */
+  opacity: 0.6;
 }
 
 .job-success {

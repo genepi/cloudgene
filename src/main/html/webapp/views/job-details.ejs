@@ -1,10 +1,13 @@
-
-<div class="d-flex justify-content-between align-items-center">
+<hr>
+<div class="job-header d-flex justify-content-start align-items-center">
+<div>
+	<%== can.view.render('views/components/status-image.ejs', {job: job, buttonId: job.attr('id')}) %>
+</div>
 	<div>
 		<h2><%= job.attr('id') != job.attr('name') ? job.attr('name') : job.attr('id') %></h2>
 		<small class="text-muted"><i class="fas fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="fas fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>&nbsp;&nbsp;<i class="fas fa-user"></i> <%=  job.attr('username') %>&nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
 	</div>
-	<div>
+	<div class="ml-auto">
 		<%== can.view.render('views/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
 		<div class="dropdown-menu" aria-labelledby="<%=  job.attr('id') %>">
 			<% if( admin){ %>
@@ -49,7 +52,7 @@
 	</div>
 <% } %>
 
-
+<hr>
 <br>
 <br>
 <% if( job.attr('public')){ %>
@@ -133,7 +136,7 @@
 											<div class="list-group-item flex-column align-items-start step-primary">
 												<div class="d-flex w-100 justify-content-between">
 												<p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
-												<small><i class="fas fa-spinner fa-spin"></i></small>
+												<small><i class="fas fa-circle-notch fa-spin"></i></small>
 												</div>
 										  </div>
 										<% } %>
