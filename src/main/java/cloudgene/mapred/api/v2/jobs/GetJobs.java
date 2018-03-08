@@ -73,7 +73,7 @@ public class GetJobs extends BaseResource {
 				"s3Url", "task", "config", "mapReduceJob", "job", "step",
 				"context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"logs", "removeHdfsWorkspace", "settings", "setupComplete",
-				"stdOutFile", "steps", "workingDirectory", "application",
+				"stdOutFile", "steps", "workingDirectory", 
 				"map", "reduce", "logOutFile", "deletedOn","applicationId","running" });
 
 		JSONObject object = new JSONObject();

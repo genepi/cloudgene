@@ -41,6 +41,7 @@ import cloudgene.mapred.api.v2.admin.server.UpdateTemplate;
 import cloudgene.mapred.api.v2.data.ImporterFileList;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
+import cloudgene.mapred.api.v2.jobs.GetChunk;
 import cloudgene.mapred.api.v2.jobs.GetJobDetails;
 import cloudgene.mapred.api.v2.jobs.GetJobStatus;
 import cloudgene.mapred.api.v2.jobs.GetJobs;
@@ -50,6 +51,7 @@ import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.api.v2.server.App;
 import cloudgene.mapred.api.v2.server.Apps;
+import cloudgene.mapred.api.v2.server.CloudgeneApps;
 import cloudgene.mapred.api.v2.server.GetCounter;
 import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.users.ActivateUser;
@@ -128,6 +130,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/chunks/{filename}", GetChunk.class);
 
 		// user registration
 		router.attach(prefix + "/api/v2/users/register", RegisterUser.class);
@@ -156,6 +159,9 @@ public class WebApp extends Application {
 		// returns a list of all installed apps
 		router.attach(prefix + "/api/v2/server/apps", Apps.class);
 
+		// returns a list of all apps registed on cloudgene.io
+		router.attach(prefix + "/api/v2/server/cloudgene-apps", CloudgeneApps.class);
+
 		// returns current version as svg image
 		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
 
@@ -168,7 +174,6 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/change-retire/{days}", ChangeRetireDate.class);
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/archive", ArchiveJob.class);
 
-		
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
 		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);
@@ -182,7 +187,8 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
-		router.attach(prefix + "/api/v2/admin/server/templates/update", UpdateTemplate.class);
+		router.attach(prefix + "/api/v2/admin/server/templates/{id}", UpdateTemplate.class);
+
 		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);

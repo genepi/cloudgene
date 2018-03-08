@@ -9,7 +9,7 @@ module.exports = function(grunt) {
         version: '2.2.6'
       },
       dist: {
-        src: ['views/*.ejs', 'views/admin/*.ejs','views/components/*.ejs'],
+        src: ['views/*.ejs', 'views/admin/*.ejs', 'views/components/*.ejs'],
         dest: 'tmp/cloudgene.views.js'
       }
     },
@@ -25,12 +25,12 @@ module.exports = function(grunt) {
       vendor: {
         src: [
           'assets/js/lib/date.format.js',
-          'assets/js/lib/jquery.js',
+          'assets/js/lib/jquery-3.3.1.js',
+          'assets/js/lib/popper.js',
           'assets/js/lib/jquery.form.js',
-          'assets/js/lib/bootstrap.min.js',
+          'assets/js/lib/bootstrap.js',
           'assets/js/lib/bootbox.min.js',
           'assets/js/lib/can.jquery.js',
-          'assets/js/lib/bootstrap-fileupload.js',
           'assets/js/lib/md5.min.js',
           'assets/js/lib/raphael.min.js',
           'assets/js/lib/morris.min.js'
@@ -61,9 +61,8 @@ module.exports = function(grunt) {
         files: {
           'dist/cloudgene.vendor.min.css': [
             'assets/css/bootstrap.css',
-            'assets/css/bootstrap-fileupload.css',
             'assets/css/morris.css',
-            'assets/css/bootstrap-responsive.css'
+            'assets/css/cloudgene.css'
           ]
         }
       }
@@ -82,19 +81,24 @@ module.exports = function(grunt) {
     copy: {
       main: {
         files: [{
-          expand: true,
-          src: ['assets/images/**'],
-          dest: 'dist'
-        }, {
-          expand: true,
-          src: ['assets/img/**'],
-          dest: 'dist'
-        }, {
-          expand: true,
-					cwd: 'assets/img',
-					src: ['glyph*'],
-          dest: 'dist/img'
-        }]
+            expand: true,
+            src: ['assets/images/**'],
+            dest: 'dist'
+          }, {
+            src: ['assets/js/lib/fontawesome-5.0.6.js'],
+            dest: 'dist/assets/fontawesome-5.0.6.js'
+          },
+          {
+            expand: true,
+            src: ['assets/img/**'],
+            dest: 'dist'
+          }, {
+            expand: true,
+            cwd: 'assets/img',
+            src: ['glyph*'],
+            dest: 'dist/img'
+          }
+        ]
       }
     }
   });
@@ -103,7 +107,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-	grunt.loadNpmTasks('grunt-contrib-copy');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('can-compile');
   grunt.loadNpmTasks('grunt-targethtml');
 

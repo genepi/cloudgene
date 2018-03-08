@@ -1,0 +1,46 @@
+<h2>Mail</h2>
+
+<p>Customize the SMTP mailing system used by Cloudgene to handle outgoing e-mails.</p>
+
+<hr>
+
+<form class="form-horizontal" id="settings-form">
+
+		<div class="custom-control custom-checkbox">
+			<input name="mail" id="mail" value="true" type ="checkbox" class="custom-control-input" <%= settings.attr('mail') == 'true' ? 'checked' : '' %> >
+			<label class="custom-control-label" for="mail">E-Mail Notifications</label>
+			<small class="form-text text-muted">Send users an activation code and notification about their job status.</small>
+		</div>
+
+	<div class="form-group">
+		<label for="mail-smtp" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>Server:</label>
+		<input id="mail-smtp" name="mail-smtp" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-smtp') %>" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>
+	</div>
+
+	<div class="form-group">
+		<label for="mail-port" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>Port:</label>
+		<input id="mail-port" name="mail-port" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-port') %>" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>
+	</div>
+
+	<div class="form-group">
+		<label for="mail-user" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>User:</label>
+		<input id="mail-user" name="mail-user" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-user') %>" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>
+	</div>
+
+	<div class="form-group">
+		<label for="mail-password" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>Password:</label>
+		<input id="mail-password" name="mail-password" type="password" class="form-control col-md-4" value="<%= settings.attr('mail-password') %>" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>
+	</div>
+
+	<div class="form-group">
+		<label for="mail-name" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>Sender:</label>
+		<input id="mail-name" name="mail-name" type="text" class="form-control col-md-4" value="<%= settings.attr('mail-name') %>" <%= settings.attr('mail') != 'true' ? 'disabled' : '' %>>
+	</div>
+
+	<hr>
+
+	<div class="form-group">
+		<button id="save" class="btn btn-primary" data-loading-text="please wait..."><i class="far fa-save"></i> Save changes</button>
+	</div>
+
+</form>

@@ -89,9 +89,6 @@ public class SubmitJob extends BaseResource {
 
 		try {
 			inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
-			for (String k : inputParams.keySet()) {
-				System.out.println(" Parsed: " + k);
-			}
 		} catch (FileUploadIOException e) {
 			return error400("Upload limit reached.");
 		}

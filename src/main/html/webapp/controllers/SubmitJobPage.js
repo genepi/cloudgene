@@ -1,158 +1,300 @@
 // controller
 SubmitJobPage = can.Control({
 
-	"init": function(element, options) {
-		that = this;
-		Application.findOne({
-			tool: options.tool
-		}, function(details) {
-			element.hide();
-			element.html(can.view('views/run.ejs', {
-				details: details
-			}));
-			buildForm(options.tool, "#parameters", details.params, details.submitButton);
-			element.fadeIn();
+    "init": function(element, options) {
+        that = this;
+        Application.findOne({
+            tool: options.tool
+        }, function(application) {
+            element.hide();
+            element.html(can.view('views/run.ejs', {
+                application: application
+            }));
+            element.fadeIn();
 
-		}, function(message) {
-			new ErrorPage(that.element, {
-				status: message.statusText,
-				message: message.responseText
-			});
-		});
+        }, function(response) {
+          new ErrorPage(that.element, response);
+        });
 
-	},
+    },
 
-	'submit': function(tr) {
-		try {
-			tool = this.element.find('tool');
+    '#parameters submit': function(form) {
 
-			console.log("submit job...");
+        // check required parameters.
+        if (form[0].checkValidity() === false) {
+            form[0].classList.add('was-validated');
+            return false;
+        }
 
-			// ---- listboxes
+        //show upload dialog
+        var uploadDialog = bootbox.dialog({
+            message: can.view('views/run.uploading.ejs'),
+            closeButton: false,
+            className: 'upload-dialog',
+            shown: false
+        });
 
-			// reset
+        //start uploading when dialog is shown
+        uploadDialog.on('shown.bs.modal', function() {
 
-			this.element.find('select').filter(function() {
-				return true;
-			}).closest('.control-group').removeClass("error");
+            var csrfToken;
+            if (localStorage.getItem("cloudgene")) {
+                try {
 
-			this.element.find('select').filter(function() {
-				return true;
-			}).closest('.control-group').find('.help-block').html("");
+                    // get data
+                    var data = JSON.parse(localStorage.getItem("cloudgene"));
+                    csrfToken = data.csrf;
 
-			// validation
+                } catch (e) {
 
-			var faults2 = this.element.find('select').filter(
-				function() {
-					return $(this).data('required') && $(this).val() === "---empty---" && $(this).attr('disabled') != 'disabled';
-				}).closest('.control-group').addClass('error');
+                }
+            }
 
-			this.element.find('select').filter(
-				function() {
-					return $(this).data('required') && $(this).val() === "---empty---" && $(this).attr('disabled') != 'disabled';
-				}).closest('.control-group').find('.help-block').html(
-				"This parameter is required.");
+            //submit form and upload files
+            form.ajaxSubmit({
+                dataType: 'json',
 
-			// --- input fields
+                headers: {
+                    "X-CSRF-Token": csrfToken
+                },
 
-			// reset
-			this.element.find('input').filter(function() {
-				return true;
-			}).closest('.control-group').removeClass("error");
+                success: function(answer) {
 
-			this.element.find('input').filter(function() {
-				return true;
-			}).closest('.control-group').find('.help-block').html("");
+                    uploadDialog.modal('hide');
 
-			// validation
+                    if (answer.success) {
+                        can.route('jobs/:job');
+                        can.route.attr({
+                            route: 'jobs/:job',
+                            job: answer.id,
+                            page: 'jobs'
+                        });
 
-			var faults = this.element.find('input').filter(
-				function() {
-					return $(this).data('required') && $(this).val() === "" && $(this).attr('disabled') != 'disabled';
-				}).closest('.control-group').addClass('error');
+                    } else {
+                        new ErrorPage("#content", {
+                            status: "",
+                            message: answer.message
+                        });
 
-			this.element.find('input').filter(
-				function() {
-					return $(this).data('required') && $(this).val() === "" && $(this).attr('disabled') != 'disabled';
-				}).closest('.control-group').find('.help-block').html(
-				"This parameter is required.");
+                    }
+                },
+
+                error: function(response) {
+                    uploadDialog.modal('hide');
+                    new ErrorPage("#content", response);
+
+                },
+
+                //upade progress bar
+                uploadProgress: function(event, position, total, percentComplete) {
+                    $("#waiting-progress").css("width", percentComplete + "%");
+                }
+
+            });
+
+        });
+
+        //show upload dialog. fires uploading files.
+        uploadDialog.modal('show');
+        return false;
+    },
+
+    // custom file upload controls for single files
+
+    '#select-single-file-btn click': function(button) {
+        // trigger click to open file dialog
+        fileUpload = button.closest('.col-sm-3').find(":file");
+        fileUpload.trigger("click");
+    },
+
+    '.file-upload-field-single change': function(fileUpload) {
+        filenameControl = fileUpload.parent().find(".file-name-control");
+        if (fileUpload[0].files.length > 0) {
+            filenameControl.val(fileUpload[0].files[0].name);
+        } else {
+            filenameControl.val('');
+        }
+    },
+
+    // custom file upload controls for multiple files
+
+    '#select-files-btn click': function(button) {
+        // trigger click to open file dialog
+        fileUpload = button.parent().find(":file");
+        fileUpload.trigger("click");
+    },
+
+    '.file-upload-field-multiple change': function(fileUpload) {
+        //update list of files
+        fileList = fileUpload.parent().find(".file-list");
+        fileList.empty();
+        for (var i = 0; i < fileUpload[0].files.length; i++) {
+            fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + fileUpload[0].files[i].name + '</li>');
+        }
+
+        fileUpload.parent().find("#change-files");
+
+        if (fileUpload[0].files.length > 0) {
+            fileUpload.parent().find("#select-files").hide();
+            fileUpload.parent().find("#change-files").show();
+            fileUpload.parent().find("#remove-all-files").show();
+        } else {
+            fileUpload.parent().find("#select-files").show();
+            fileUpload.parent().find("#change-files").hide();
+            fileUpload.parent().find("#remove-all-files").hide();
+        }
+    },
+
+    '#change-files-btn click': function(button) {
+        // trigger click to open file dialog
+        fileUpload = button.parent().find(":file");
+        fileUpload.trigger("click");
+    },
+
+    '#remove-all-files-btn click': function(button) {
+        //clear hidden file upload field
+        fileUpload = button.parent().find(":file");
+        fileUpload.val('');
+        //clear list of files
+        fileList = button.parent().find(".file-list");
+        fileList.empty();
+        fileUpload.parent().find("#select-files").show();
+        fileUpload.parent().find("#change-files").hide();
+        fileUpload.parent().find("#remove-all-files").hide();
+    },
+
+    // custom handler for import urls
+
+    '.folder-source change': function(source) {
+
+        //delete filelist
+        parent = source.parent();
+
+        fileList = parent.find(".file-list");
+        fileList.empty();
+
+        //update parameter source
+        param = parent.data('param');
+        param.attr('source', source.val());
+    },
+
+    '#add-urls-btn click': function(button) {
+
+        parent = button.parent();
+
+        fileList = parent.find(".file-list");
+        //fileList.empty();
+
+        paramInputField = parent.find(".hidden-parameter");
 
 
-			// agb checkboxes
+        urlDialog = bootbox.confirm(
+            can.view('views/run.http.ejs', {
+                value: paramInputField.val()
+            }),
+            function(result) {
+                if (result) {
+                    var urls = $('#urls').val();
+                    $.ajax({
+                        url: "api/v2/importer/files",
+                        type: "POST",
+                        data: {
+                            input: urls
+                        },
+                        success: function(data) {
 
-			// reset
+                            var arr = $.parseJSON(data);
+                            fileList.empty();
+                            $.each(arr, function(index, value) {
+                                fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
+                            });
 
-			var faults3 = this.element.find('input').filter(
-				function() {
-					return $(this).attr('type') === 'checkbox' && $(this).attr('class') === 'agb' && $(this).attr('checked') != 'checked';
-				}).closest('.control-group').addClass('error');
+                            //update value
+                            if (arr.length > 0) {
+                                paramInputField.val(urls);
+                                urlDialog.modal('hide');
+                            } else {
+                                paramInputField.val("");
+                                bootbox.alert("Error: No valid files found on the provided urls.");
+                            }
 
-			this.element.find('input').filter(
-				function() {
-					return $(this).attr('type') === 'checkbox' && $(this).attr('class') === 'agb' && $(this).attr('checked') != 'checked';
-				}).closest('.control-group').find('.help-block').html("Please agree to the terms and conditions.");
+                        },
+                        error: function(message) {
+                            bootbox.alert("Error: " + message.responseText);
+                        }
+                    });
 
-			if (faults.length > 0 || faults2.length > 0 || faults3.length > 0)
-				return false; // if any required are empty, cancel submit
+                    return false;
+                }
+            });
+    },
 
-			$("#waiting-dialog").modal();
-			var csrfToken;
-			if (localStorage.getItem("cloudgene")) {
-				try {
+    '#add-sftp-files-btn click': function(button) {
 
-					// get data
-					var data = JSON.parse(localStorage.getItem("cloudgene"));
-					csrfToken = data.csrf;
+        parent = button.parent();
 
-				} catch (e) {
+        fileList = parent.find(".file-list");
+        //fileList.empty();
 
-				}
-			}
+        paramInputField = parent.find(".hidden-parameter");
 
-			this.element.find("#parameters").ajaxSubmit({
-				dataType: 'json',
 
-				headers: {
-					"X-CSRF-Token": csrfToken
-				},
+        urlDialog = bootbox.confirm(
+            can.view('views/run.sftp.ejs'),
+            function(result) {
+                if (result) {
+                    var path = $('#path').val();
+                    var username = $('#username').val();
+                    var password = $('#password').val();
 
-				success: function(answer) {
-					if (answer.success) {
-						$("#waiting-dialog").modal('hide');
-						can.route('jobs/:job');
-						can.route.attr({
-							route: 'jobs/:job',
-							job: answer.id,
-							page: 'jobs'
-						});
-					} else {
-						$("#waiting-dialog").modal('hide');
-						new ErrorPage("#content", {
-							status: "",
-							message: answer.message
-						});
+                    waitingDialog = bootbox.dialog({
+                        close: false,
+                        message: '<p><i class="fa fa-spin fa-spinner"></i> Connecting...</p>',
+                        show: false
+                    });
 
-					}
-				},
+                    waitingDialog.on('shown.bs.modal', function() {
 
-				error: function(message) {
-					$("#waiting-dialog").modal('hide');
-					new ErrorPage("#content", {
-						status: message.statusText,
-						message: message.responseText
-					});
+                        $.ajax({
+                            url: "api/v2/importer/files",
+                            type: "POST",
+                            data: {
+                                input: path + ';' + username + ';' + password
+                            },
 
-				},
+                            success: function(data) {
 
-				uploadProgress: function(event, position, total, percentComplete) {
-					$("#waiting-progress").css("width", percentComplete + "%");
-					console.log(percentComplete + "%");
-				}
-			});
-		} catch (e) {
-			console.log(e);
-		}
-		return false;
-	}
+                                waitingDialog.modal('hide');
+
+                                var arr = $.parseJSON(data);
+                                fileList.empty();
+                                $.each(arr, function(index, value) {
+                                    fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
+                                });
+
+                                //update value
+                                if (arr.length > 0) {
+                                    paramInputField.val(path + ';' + username + ';' + password);
+                                    urlDialog.modal('hide');
+                                } else {
+                                    paramInputField.val("");
+                                    bootbox.alert('<p class="text-danger">Error: No valid files found on the provided urls. Please check your credentials and your file path.');
+                                }
+
+                            },
+                            error: function(message) {
+                                waitingDialog.modal('hide');
+                                bootbox.alert('<p class="text-danger">Error: ' + message.responseText + '</p>');
+                            }
+                        });
+
+                    });
+
+                    waitingDialog.modal('show');
+
+                    return false;
+                }
+            });
+    }
 
 });

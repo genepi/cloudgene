@@ -23,41 +23,25 @@ UpdateProfilePage = can.Control({
 
 		// fullname
 		fullname = this.element.find("[name='full-name']");
-		error = user.checkName(fullname.val());
-		if (error) {
-			fullname.closest('.control-group').addClass('error');
-			fullname.closest('.control-group').find('.help-block').html(error);
-			return false;
-		} else {
-			fullname.closest('.control-group').find('.help-block').html('');
-			fullname.closest('.control-group').removeClass('error');
-		}
+		fullnameError = user.checkName(fullname.val());
+		this.updateControl(fullname, fullnameError);
 
 		// mail
 		mail = this.element.find("[name='mail']");
-		error = user.checkMail(mail.val());
-		if (error) {
-			mail.closest('.control-group').addClass('error');
-			mail.closest('.control-group').find('.help-block').html(error);
-			return false;
-		} else {
-			mail.closest('.control-group').find('.help-block').html('');
-			mail.closest('.control-group').removeClass('error');
-		}
+		mailError = user.checkMail(mail.val());
+		this.updateControl(mail, mailError);
 
 		// password if password is not empty. else no password update on server side
 		newPassword = this.element.find("[name='new-password']");
+		newPasswordError = undefined;
 		if (newPassword.val() !== "") {
 			confirmNewPassword = this.element.find("[name='confirm-new-password']");
-			error = user.checkPassword(newPassword.val(), confirmNewPassword.val());
-			if (error) {
-				newPassword.closest('.control-group').addClass('error');
-				newPassword.closest('.control-group').find('.help-block').html(error);
-				return false;
-			} else {
-				newPassword.closest('.control-group').find('.help-block').html('');
-				newPassword.closest('.control-group').removeClass('error');
-			}
+			newPasswordError = user.checkPassword(newPassword.val(), confirmNewPassword.val());
+			this.updateControl(confirmNewPassword, newPasswordError);
+		}
+
+		if (fullnameError ||  mailError || newPasswordError){
+			return false;
 		}
 
 		$.ajax({
@@ -71,6 +55,7 @@ UpdateProfilePage = can.Control({
 
 					// shows okey
 					$("#error-message").hide();
+					$("#account-form").hide();
 					$("#success-message").show();
 					$("#success-message").html(data.message);
 
@@ -82,12 +67,8 @@ UpdateProfilePage = can.Control({
 
 				}
 			},
-			error: function(message) {
-				new ErrorPage(that.element, {
-					status: message.statusText,
-					message: message.responseText
-				});
-
+			error: function(response) {
+	      new ErrorPage(that.element, response);
 			}
 		});
 
@@ -142,6 +123,18 @@ UpdateProfilePage = can.Control({
 			bootbox.alert('<h4>API Token</h4>Error: ' + message);
 		});
 
+	},
+
+	updateControl: function(control, error){
+		if (error){
+			control.removeClass('is-valid');
+			control.addClass('is-invalid');
+			control.closest('.form-group').find('.invalid-feedback').html(error);
+		}else{
+			control.removeClass('is-invalid');
+			control.addClass('is-valid');
+			control.closest('.form-group').find('.invalid-feedback').html('');
+		}
 	}
 
 

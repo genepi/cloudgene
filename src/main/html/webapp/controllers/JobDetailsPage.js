@@ -20,11 +20,8 @@ JobDetailsPage = can.Control({
         that.job = job;
         that.refresh();
 
-      }, function(message) {
-        new ErrorPage(that.element, {
-          status: message.statusText,
-          message: message.responseText
-        });
+      }, function(response) {
+        new ErrorPage(that.element, response);
       }
 
     );
@@ -32,9 +29,9 @@ JobDetailsPage = can.Control({
 
   // delete job
 
-  '#btn-delete click': function(el, ev) {
+  '#delete-btn click': function(el, ev) {
     var that = this;
-    bootbox.animate(false);
+
     bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -45,12 +42,8 @@ JobDetailsPage = can.Control({
           // go to jobs page
           bootbox.hideAll();
           window.location.hash = "!pages/jobs";
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -62,9 +55,9 @@ JobDetailsPage = can.Control({
 
   // cancel job
 
-  '#btn-cancel click': function(el, ev) {
+  '#cancel-btn click': function(el, ev) {
     var that = this;
-    bootbox.animate(false);
+
     bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -77,12 +70,8 @@ JobDetailsPage = can.Control({
         operation.save(function() {
           bootbox.hideAll();
           that.refresh();
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -92,9 +81,9 @@ JobDetailsPage = can.Control({
 
   },
 
-  '#btn-restart click': function(el, ev) {
+  '#restart-btn click': function(el, ev) {
     var that = this;
-    bootbox.animate(false);
+
     bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -111,12 +100,8 @@ JobDetailsPage = can.Control({
           } else {
             window.location.hash = "!pages/jobs";
           }
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -125,22 +110,26 @@ JobDetailsPage = can.Control({
     });
   },
 
-  '.share-file click': function(e) {
+  '.share-file-btn click': function(e) {
     output = e.closest('tr').data('output');
-    bootbox.animate(false);
+
     bootbox.alert(can.view('/views/share-file.ejs', {
       hostname: location.protocol + '//' + location.host,
       output: output
-    }));
+    }), function() {
+
+    });
   },
 
-  '.share-folder click': function(e) {
+  '.share-folder-btn click': function(e) {
     files = e.closest('tr').data('files');
-    bootbox.animate(false);
+
     bootbox.alert(can.view('/views/share-folder.ejs', {
       hostname: location.protocol + '//' + location.host,
       files: files
-    }));
+    }), function() {
+
+    });
   },
 
   // refresh if job is running
@@ -186,12 +175,8 @@ JobDetailsPage = can.Control({
             }));
           }
 
-        }, function(message) {
-
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
 
         });
 

@@ -107,6 +107,12 @@ public class GetClusterDetails extends BaseResource {
 				}
 				object.put("hadoop_details", state.toString());
 				object.put("hadoop_enabled", true);
+				object.put("hadoop_jobtracker", HadoopCluster.getJobTracker());
+				object.put("hadoop_hdfs", HadoopCluster.getDefaultFS());
+				object.put("hadoop_map_tasks", cluster.getMaxMapTasks());
+				object.put("hadoop_reduce_tasks", cluster.getMaxReduceTasks());
+				object.put("hadoop_active_nodes", cluster.getActiveTrackerNames().size());
+				object.put("hadoop_inactive_nodes", cluster.getBlacklistedTrackerNames().size());
 
 			} catch (Exception e) {
 				object.put("hadoop_enabled", false);
@@ -114,8 +120,27 @@ public class GetClusterDetails extends BaseResource {
 			}
 		} else {
 			object.put("hadoop_enabled", false);
-			object.put("hadoop_error", "Hadoop support is disabled. Please check your configuration.");
+			if (HadoopCluster.getConf() != null) {
+				if (new File(HadoopCluster.getConf()).exists()) {
+					String configName = "mapred-site.xml";
+					String configFile = FileUtil.path(HadoopCluster.getConf(), configName);
+					if (new File(configFile).exists()) {
+						object.put("hadoop_error", "Hadoop support is disabled. Please check your configuration.");
+					} else {
+						object.put("hadoop_error", "No '" + configName + "' file found in configuration folder '"
+								+ HadoopCluster.getConf() + "'.");
+					}
+				} else {
+					object.put("hadoop_error", "Configuration folder '" + HadoopCluster.getConf() + "' not found.");
+				}
+			} else {
+				object.put("hadoop_error", "Please define a cluster in file settings.yaml.");
+			}
 		}
+
+		object.put("hadoop_conf", HadoopCluster.getConf());
+		object.put("hadoop_username", HadoopCluster.getUsername());
+		object.put("hadoop_cluster", HadoopCluster.getName());
 
 		// r
 		if (getSettings().isEnable(Technology.R)) {

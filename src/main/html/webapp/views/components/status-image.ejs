@@ -1,0 +1,34 @@
+<% if( job.attr('state') == '-1' ){ %>
+  <span class="status badge badge-dark">Pending</span>
+<% } %>
+
+<% if( job.attr('state') == '1' ){ %>
+  <% if( job.attr('setupRunning')){ %>
+    <span class="status badge badge-secondary" > <i class="fas fa-cog fa-spin"></i></span>
+  <% } else { %>
+    <span class="status badge badge-secondary" >
+      <i class="far fa-pause-circle"></i>
+      <% if(  job.attr('positionInQueue') != -1){ %>
+        (<%= job.attr('positionInQueue') + 1 %>)
+      <% } %>
+    </span>
+  <% } %>
+<% } %>
+<% if( job.attr('state') == '2' ){ %>
+  <span class="status badge badge-primary"><i class="fas fa-circle-notch fa-spin"></i></span>
+<% } %>
+<% if( job.attr('state') == '3' ){ %>
+  <span class="status badge badge-primary"><i class="fas fa-circle-notch fa-spin"></i></span>
+<% } %>
+<% if( job.attr('state') == '4'  || job.attr('state') == '8'){ %>
+  <span class="status badge badge-success"><i class="far fa-check-circle"></i></span>
+<% } %>
+<% if( job.attr('state') == '5'  || job.attr('state') == '9'){ %>
+  <span class="status badge badge-danger"><i class="far fa-times-circle"></i></span>
+<% } %>
+<% if( job.attr('state') == '6' ){ %>
+  <span class="status badge badge-danger"><i class=<i class="far fa-stop-circle"></i></span>
+<% } %>
+<% if( job.attr('state') == '7' ){ %>
+  <span class="status badge badge-dark"><i class="far fa-dot-circle"></i></span>
+<% } %>

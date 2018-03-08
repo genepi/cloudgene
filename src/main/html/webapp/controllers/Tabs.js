@@ -5,8 +5,12 @@ Tabs = can.Control({
 		this.page = null;
 	},
 
-	'run/:app route' : function(data) {
+	'route' : function(data) {
+		this.activate('home');
+		this.show('home');
+	},
 
+	'run/:app route' : function(data) {
 		this.activate('run');
 		this.page = new SubmitJobPage("#content", {tool: data.app});
 	},
@@ -52,19 +56,34 @@ Tabs = can.Control({
 
 	'recovery/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
-			status : "27",
+			status : "276",
 			message : "Please log out for password recovery."
 		});
 	},
 
 	'activate/:user/:key route' : function(data) {
 		this.page = new ErrorPage("#content", {
-			status : "27",
+			status : "276",
 			message : "Please log out for user activation."
 		});
 	},
 
+	'.* route': function(data) {
+		new ErrorPage("#content", {
+				status: "404",
+				message: "Oops, Sorry We Can't Find That Page!"
+		});
+	},
+
 	activate : function(id) {
+
+		if (id == "home"){
+			$("#content").empty();
+		}else{
+			$("#fullsize-content").empty();
+		}
+
+		$(window).scrollTop(0);
 
 		// destroy active page
 		if (this.page != null) {
@@ -92,7 +111,7 @@ Tabs = can.Control({
 			break;
 
 		case "home":
-			this.page = new HomePage("#content", {login: false});
+			this.page = new HomePage("#fullsize-content", {login: false});
 			break;
 
 		case "help":

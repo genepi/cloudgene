@@ -55,6 +55,10 @@ public class RMarkdown2Step extends CloudgeneStep {
 
 		if (result == 0) {
 			context.endTask("Execution successful.", Message.OK);
+			String include = step.get("include");
+			if (include != null && include.equals("true")) {
+				context.addFile(output);
+			}
 			return true;
 		} else {
 			context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);

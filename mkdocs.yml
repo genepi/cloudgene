@@ -1,17 +1,25 @@
 site_name: Cloudgene
-theme: material
+theme:
+  name: material
+  feature:
+    tabs: true
+extra_css:
+  - extra.css
 google_analytics: ['UA-873221-12', 'docs.cloudgene.io']
 pages:
-- Home: index.md
-- Installation: installation.md
-- Getting started:
-     - Install Apps: getting-started/installing-applications.md
-     - Run Apps on the Commandline: getting-started/commandline.md
-     - Run Apps in the Web Application: getting-started/web-application.md
-
+- Cloudgene:
+    - Installation: index.md
+    - Getting started: daemon/getting-started.md
+    - Install Applications: daemon/install-apps.md
+    - Configuration: daemon/configuration.md
+    - Enable Hadoop Support: daemon/hadoop.md
+    - Manage Permissions: daemon/permissions.md
+    - Manage Jobs: daemon/jobs.md
+    - Administration Tasks: daemon/administration.md
 - Cloudgene CLI:
     - Introduction: cli/introduction.md
     - cloudgene install: cli/cloudgene-install.md
+    - cloudgene github-install: cli/cloudgene-github-install.md
     - cloudgene clone: cli/cloudgene-clone.md
     - cloudgene remove: cli/cloudgene-remove.md
     - cloudgene ls: cli/cloudgene-ls.md
@@ -19,16 +27,7 @@ pages:
     - cloudgene run: cli/cloudgene-run.md
     - cloudgene server: cli/cloudgene-server.md
     - cloudgene version: cli/cloudgene-version.md
-- Cloudgene Daemon:
-    - Introduction: daemon/introduction.md
-    - Start Daemon: daemon/start-daemon.md
-    - Stop Daemon: daemon/stop-daemon.md
-    - Configuration: daemon/configuration.md
-    - Enable Hadoop Support: daemon/hadoop.md
-    - Manage Jobs: daemon/jobs.md
-    - Manage Permissions: daemon/permissions.md
-    - Maintenance: daemon/administration.md
-- cloudgene.yaml:
+- Development:
     - Introduction: developers/introduction.md
     - Steps:
         - BashCommand: developers/steps/BashCommand.md
@@ -37,10 +36,23 @@ pages:
         - HadoopPig: developers/steps/HadoopPig.md
         - RMarkdown: developers/steps/RMarkdown.md
         - RMarkdown (Docker): developers/steps/RMarkdownDocker.md
+        - HTML-Widget: developers/steps/HtmlWidget.md
         - Docker: developers/steps/Docker.md
         - JavaInterface: developers/steps/JavaInterface.md
         - Groovy: developers/steps/Groovy.md
-    - Inputs: developers/inputs.md
+    - Inputs:
+      - Introduction: developers/inputs.md
+      - Files and Folders: developers/inputs/files-folders.md
+      - Text: developers/inputs/text.md
+      - Number: developers/inputs/number.md
+      - List: developers/inputs/list.md
+      - Radio: developers/inputs/radio.md
+      - Checkbox: developers/inputs/checkbox.md
+      - App List: developers/inputs/app-list.md
+      - Terms Checkbox: developers/inputs/terms_checkbox.md
+      - Layout: developers/inputs/layout.md
+
+
     - Outputs: developers/outputs.md
     - Environment Variables: developers/environment_variables.md
     - Control patterns: developers/control-patterns.md

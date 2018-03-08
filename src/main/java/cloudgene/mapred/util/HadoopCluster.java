@@ -1,5 +1,7 @@
 package cloudgene.mapred.util;
 
+import java.io.File;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
@@ -8,30 +10,43 @@ import genepi.io.FileUtil;
 
 public class HadoopCluster {
 
-	public static void setConfPath(String path, String username) {
+	private static String username;
+
+	private static String conf;
+
+	private static String name;
+
+	public static void setConfPath(String name, String path, String username) {
 		if (username != null) {
 			System.setProperty("HADOOP_USER_NAME", username);
+			HadoopCluster.username = username;
 		}
-		Configuration configuration = new Configuration();
-		// add all xml files from hadoop conf folder to default configuration
-		String[] xmlFiles = FileUtil.getFiles(path, "*.xml");
-		for (String xmlFile : xmlFiles) {
-			configuration.addResource(new Path(xmlFile));
+		HadoopCluster.conf = path;
+		HadoopCluster.name = name;
+		if (new File(path).exists()) {
+			Configuration configuration = new Configuration();
+			// add all xml files from hadoop conf folder to default
+			// configuration
+			String[] xmlFiles = FileUtil.getFiles(path, "*.xml");
+			for (String xmlFile : xmlFiles) {
+				configuration.addResource(new Path(xmlFile));
+			}
+
+			HdfsUtil.setDefaultConfiguration(configuration);
 		}
-		HdfsUtil.setDefaultConfiguration(configuration);
 
 	}
 
-	public static void setHostname(String host, String username) {
-		if (username != null) {
-			System.setProperty("HADOOP_USER_NAME", username);
-		}
-		if (host != null) {
-			Configuration configuration = new Configuration();
-			configuration.set("fs.defaultFS", "hdfs://" + host + ":8020");
-			configuration.set("mapred.job.tracker", host + ":8021");
-			HdfsUtil.setDefaultConfiguration(configuration);
-		}
+	public static String getUsername() {
+		return username;
+	}
+
+	public static String getConf() {
+		return conf;
+	}
+
+	public static String getName() {
+		return name;
 	}
 
 	public static String getJobTracker() {

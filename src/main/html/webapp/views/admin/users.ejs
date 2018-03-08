@@ -22,10 +22,10 @@
     <tr <%= (tr) -> can.data(tr, 'user', user) %>>
 			<td>
 				<% if (user.attr('lockedUntil')) { %>
-					<span class="icon-lock"></span>
+					<i class="fas fa-lock"></i>
 				<% } else {%>
 					<% if (user.attr('active') == true) { %>
-						<span class="icon-ok-sign"></span>
+						<i class="fas fa-check-circle"></i>
 						<% } %>
 				<% } %>
 			</td>
@@ -42,7 +42,7 @@
 			<%= user.attr('mail') %>
 		</td>
 		<td>
-			<%= user.attr('role') %> <span class="icon-pencil" style="cursor: pointer;"></span>
+			<%= user.attr('role') %> <span class="edit-role-btn fa fa-edit" style="cursor: pointer;"></span>
 		</td>
 		<td>
 			<%= user.attr('lastLogin') %>
@@ -51,7 +51,7 @@
 			<%= user.attr('loginAttempts') %>
 		</td>
 		<td>
-        	<span class="icon-trash" style="cursor: pointer;"></span>
+        	<span class="delete-user-btn fas fa-trash" style="cursor: pointer;"></span>
 		</td>
     </tr>
 <% }) %>

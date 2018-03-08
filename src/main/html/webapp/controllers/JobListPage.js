@@ -37,20 +37,17 @@ JobListPage = can.Control({
       }));
 
       that.element.fadeIn();
-    }, function(message) {
-      new ErrorPage(that.element, {
-        status: message.statusText,
-        message: message.responseText
-      });
+    }, function(response) {
+      new ErrorPage(that.element, response);
     });
 
   },
 
-  '.icon-trash click': function(el, ev) {
+  '.delete-btn click': function(el, ev) {
     var that = this;
 
-    job = el.closest('tr').data('job');
-    bootbox.animate(false);
+    job = el.closest('.card').data('job');
+
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
 
@@ -62,12 +59,8 @@ JobListPage = can.Control({
         job.destroy(function() {
           // go to jobs page
           bootbox.hideAll();
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -78,11 +71,11 @@ JobListPage = can.Control({
 
   },
 
-  '.icon-remove click': function(el, ev) {
+  '.cancel-btn click': function(el, ev) {
     var that = this;
 
-    job = el.closest('tr').data('job');
-    bootbox.animate(false);
+    job = el.closest('.card').data('job');
+
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
         // cancel
@@ -96,12 +89,8 @@ JobListPage = can.Control({
         operation.save(function() {
           // go to jobs page
           bootbox.hideAll();
-        }, function(message) {
-          // show error message
-          new ErrorPage(that.element, {
-            status: message.statusText,
-            message: message.responseText
-          });
+        }, function(response) {
+          new ErrorPage(that.element, response);
         });
 
         return false;
@@ -155,11 +144,8 @@ JobRefresher = can.Control({
           that.refresh();
         }, 5000);
       }
-    }, function(message) {
-      new ErrorPage(that.element, {
-        status: message.statusText,
-        message: message.responseText
-      });
+    }, function(response) {
+      new ErrorPage(that.element, response);
     });
 
   },

@@ -1,0 +1,38 @@
+<h2>General</h2>
+
+<p>Customize your Cloudgene instance by setting a unique service name and adapating colors.</p>
+
+<hr>
+
+<form class="form-horizontal" id="settings-form">
+
+	<div class="form-group">
+		<label for="name" class="control-label">Service Name:</label>
+		<input id="name" name="name" type="text" class="form-control col-md-4" value="<%= settings.attr('name') %>">
+	</div>
+
+	<div class="form-group">
+		<label for="background-color" class="control-label">Background Color:</label>
+		<input id="background-color" name="background-color" type="text" class="form-control col-md-4" value="<%= settings.attr('background-color') %>">
+	</div>
+
+
+	<div class="form-group">
+		<label for="foreground-color" class="control-label">Foreground Color:</label>
+		<input id="foreground-color" name="foreground-color" type="text" class="form-control col-md-4" value="<%= settings.attr('foreground-color') %>">
+		<small class="form-text text-muted">Choose from <b>navbar-light</b> for use with light background colors, or <b>navbar-dark</b> for dark background colors.</small>
+	</div>
+
+	<div class="form-group">
+		<label for="google-analytics" class="control-label">Google Analytics:</label>
+		<input id="google-analytics" name="google-analytics" type="text" class="form-control col-md-4" value="<%= settings.attr('google-analytics') %>">
+		<small class="form-text text-muted">Enter your Google Analytics web tracking code (e.g. UA-2110908-2) to activate tracking.</small>
+	</div>
+
+<hr>
+
+	<div class="form-group">
+		<button id="save" class="btn btn-primary" data-loading-text="please wait..."><i class="far fa-save"></i> Save changes</button>
+	</div>
+
+</form>

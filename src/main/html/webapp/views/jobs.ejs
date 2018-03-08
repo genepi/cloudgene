@@ -5,101 +5,32 @@
 	<br>
 </p>
 
-<table class="table table-striped table-bordered" id="job-list">
-	<thead>
-		<tr>
-			<th></th>
-			<th></th>
-			<th  style="width: 250px;">Job</th>
-			<th>Name</th>
-			<th style="width: 150px;">Time Running</th>
-			<th style="width: 16px;"></th>
-		</tr>
-	</thead>
-	<tbody>
+<div class="">
 		<% jobs.each(function( job ) { %>
 
-			<tr <%= (tr) -> can.data(tr, 'job', job) %>>
+			<div class="card mb-12 <%== getClassByJob(job) %>" <%= (div) -> can.data(div, 'job', job) %>>
 
-				<td style="width: 80px;text-align:center;">
-
-					<% if( job.attr('state') == '-1' ){ %>
-						<span class="label label-inverse" style="width: 50px">Pending</span>
-					<% } %>
-
-					<% if( job.attr('state') == '1' ){ %>
-						<% if( job.attr('setupRunning')){ %>
-						<span class="label" style="width: 50px">Setup</span>
-						<% } else { %>
-						<span class="label" style="width: 50px">Waiting</span>
+	  	<div class="card-body">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+			    <b><a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a></b><br>
+					<small class="text-muted"><i class="far fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="far fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %> &nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
+				</div>
+					<%== can.view.render('views/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+					<div class="dropdown-menu" aria-labelledby="<%=  job.attr('id') %>">
+						<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
+							<a class="cancel-btn dropdown-item" style="cursor:pointer">Cancel</a>
 						<% } %>
-					<% } %>
-
-					<% if( job.attr('state') == '2' ){ %>
-						<span class="label label-info" style="width: 50px">Running</span>
-					<% } %>
-					<% if( job.attr('state') == '3' ){ %>
-						<span class="label label-info" style="width: 50px">Running</span>
-					<% } %>
-					<% if( job.attr('state') == '4' ){ %>
-						<span class="label label-success" style="width: 50px">Success</span>
-					<% } %>
-					<% if( job.attr('state') == '5' ){ %>
-						<span class="label label-important" style="width: 50px">Failed</span>
-					<% } %>
-					<% if( job.attr('state') == '6' ){ %>
-						<span class="label label-important" style="width: 50px">Canceled</span>
-					<% } %>
-					<% if( job.attr('state') == '7' ){ %>
-						<span class="label label-inverse" style="width: 50px">Retired</span>
-					<% } %>
-					<% if( job.attr('state') == '8' ){ %>
-						<span class="label label-success" style="width: 50px">Success</span>
-					<% } %>
-					<% if( job.attr('state') == '9' ){ %>
-						<span class="label label-important" style="width: 50px">Failed</span>
-					<% } %>
-				</td>
-
-				<td style="width: 20px;text-align:center;">
-					<% if( job.attr('state') == '1' && job.attr('positionInQueue') != -1){ %>
-						<span class="badge"><%= job.attr('positionInQueue') + 1%></span>
-					<% } %>
-				</td>
-
-				<td>
-					<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('id') %></a>
-				</td>
-
-				<td>
-					<%= job.attr('name') != job.attr('id') ? job.attr('name') : '' %></a>
-				</td>
-
-				<td>
-					<%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>				</td>
-				<td>
-					<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-						<span class="icon-remove" style="cursor: pointer;"></span>
-					<% } %>
 					<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-						<span class="icon-trash" style="cursor: pointer;"></span>
+						<a class="delete-btn dropdown-item" style="cursor:pointer">Delete</a>
 					<% } %>
-				</td>
-
-			</tr>
+				</div>
+			</div>
+			  </div>
+			</div>
+<br>
 		<% }) %>
-	</tbody>
-</table>
 
 <%== can.view.render('views/components/pagination.ejs', { total: total, page: parseInt(page), perPage: perPage, link: "#!pages/jobs"}) %>
 
-
-<div class="modal hide" id="delete-dialog">
-	<div class="modal-body">
-		<p>Are you sure you want delete this job?</p>
-	</div>
-	<div class="modal-footer">
-		<button class="btn">Cancel</button>
-		<button class="btn btn-primary">Delete</button>
-	</div>
 </div>

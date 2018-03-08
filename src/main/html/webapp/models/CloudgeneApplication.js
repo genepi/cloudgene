@@ -1,5 +1,5 @@
 CloudgeneApplication = can.Model({
-    findAll: 'GET http://apps.cloudgene.io/api/apps.json',
+    findAll: 'GET /api/v2/server/cloudgene-apps',
 }, {
 
 });

@@ -34,7 +34,11 @@ public class ParameterDao extends JdbcDataAccessObject {
 		try {
 
 			Object[] params = new Object[9];
-			params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
+			if (parameter.getDescription() != null) {
+				params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
+			} else {
+				params[0] = "";
+			}
 			params[1] = parameter.getValue();
 			params[2] = true;
 			params[3] = parameter.getJob().getId();
