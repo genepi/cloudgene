@@ -6,6 +6,7 @@ import cloudgene.mapred.steps.GroovyStep;
 import cloudgene.mapred.steps.HadoopMapReduceStep;
 import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.HadoopSparkStep;
+import cloudgene.mapred.steps.HtmlWidgetStep;
 import cloudgene.mapred.steps.JavaExternalStep;
 import cloudgene.mapred.steps.RMarkdown2DockerStep;
 import cloudgene.mapred.steps.RMarkdown2Step;
@@ -28,6 +29,8 @@ public class CloudgeneStepFactory {
 				return RMarkdown2DockerStep.class.getName();
 			case "groovy":
 				return GroovyStep.class.getName();
+			case "html_widget":
+				return HtmlWidgetStep.class.getName();
 			}
 		}
 

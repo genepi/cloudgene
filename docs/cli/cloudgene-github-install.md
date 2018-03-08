@@ -1,4 +1,4 @@
-# `cloudgene install`
+# `cloudgene github-install`
 
 Installs an application from a GitHub repo to your local repository.
 

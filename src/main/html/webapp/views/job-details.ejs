@@ -82,6 +82,15 @@
 
 </ul>
 
+<script type="text/javascript">
+  function resizeIframe(iframe) {
+		height = iframe.contentWindow.document.body.scrollHeight + 10 + 10;
+		if (height < 480){
+			height = 480;
+		}
+    iframe.height =height+"px";
+  }
+</script>
 
 	<div class="tab-content">
 
@@ -144,6 +153,14 @@
 											<div class="list-group-item flex-column align-items-start step-danger">
 										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
 										  </div>
+										<% } %>
+
+										<% if( log.attr('type') == '27'){ %>
+											<div class="list-group-item flex-column align-items-start" style="padding: 0px;">
+												<div class="">
+												  <iframe class="" style="width: 100%;  border: 0px; overflow:hidden;" scrolling="no" onload="resizeIframe(this)"src="api/v2/jobs/<%= job.attr('id') %>/chunks/<%= log.attr('message') %>" allowfullscreen></iframe>
+												</div>
+											</div>
 										<% } %>
 									</div>
 							<% }) %>

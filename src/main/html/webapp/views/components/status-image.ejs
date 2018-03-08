@@ -4,10 +4,10 @@
 
 <% if( job.attr('state') == '1' ){ %>
   <% if( job.attr('setupRunning')){ %>
-  <span class="status badge badge-secondary" style="width: 100px"> <i class="fas fa-cog fa-spin"></span>
+    <span class="status badge badge-secondary" > <i class="fas fa-cog fa-spin"></i></span>
   <% } else { %>
-    <span class="status badge badge-secondary">Waiting
-      <i class="fas fa-hourglass-half fa-spin"></i>
+    <span class="status badge badge-secondary" >
+      <i class="far fa-pause-circle"></i>
       <% if(  job.attr('positionInQueue') != -1){ %>
         (<%= job.attr('positionInQueue') + 1 %>)
       <% } %>
