@@ -18,3 +18,7 @@
 /src/main/html/webapp/node_modules
 /apps
 *.DS_Store
+.idea
+*.iml
+*.iws
+*.ipr
