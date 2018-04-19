@@ -73,7 +73,6 @@ public class Planner {
 
 		if (settings.isMaintenance()) {
             context.log("Load app from manifest template: " + manifest.getAbsolutePath());
-            context.log("Load app from content:\n" + sw.toString());
         }
 
 		WdlApp app2;
