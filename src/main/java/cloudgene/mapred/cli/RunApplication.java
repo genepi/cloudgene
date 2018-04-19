@@ -1,25 +1,5 @@
 package cloudgene.mapred.cli;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-import org.apache.hadoop.mapred.ClusterStatus;
-
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -27,15 +7,28 @@ import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.HadoopCluster;
-import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
+import com.esotericsoftware.yamlbeans.YamlException;
 import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.hadoop.mapred.ClusterStatus;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 public class RunApplication extends BaseTool {
 
@@ -129,7 +122,7 @@ public class RunApplication extends BaseTool {
 		}
 
 		// create the command line parser
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 
 		// create options for each input param in yaml file
 		Options options = CommandLineUtil.createOptionsFromApp(app);
