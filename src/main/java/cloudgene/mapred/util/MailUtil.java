@@ -1,7 +1,10 @@
 package cloudgene.mapred.util;
 
-import java.util.Properties;
+import net.gpedro.integrations.slack.SlackApi;
+import net.gpedro.integrations.slack.SlackMessage;
+import org.apache.commons.logging.LogFactory;
 
+import javax.mail.AuthenticationFailedException;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
@@ -9,11 +12,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-
-import org.apache.commons.logging.LogFactory;
-
-import net.gpedro.integrations.slack.SlackApi;
-import net.gpedro.integrations.slack.SlackMessage;
+import java.util.Properties;
 
 public class MailUtil {
 
@@ -52,15 +51,19 @@ public class MailUtil {
 			final String name, String tos, String subject, String text) throws Exception {
 
 		Properties props = new Properties();
+
+		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+		props.put("mail.smtp.socketFactory.port", port);
+
 		props.put("mail.smtp.host", smtp);
 		props.put("mail.smtp.port", port);
 
 		Session session = null;
-
 		if (username != null && !username.isEmpty()) {
 
 			props.put("mail.smtp.auth", "true");
 			props.put("mail.smtp.starttls.enable", "true");
+
 			session = Session.getInstance(props, new javax.mail.Authenticator() {
 				protected PasswordAuthentication getPasswordAuthentication() {
 					return new PasswordAuthentication(username, password);
@@ -70,6 +73,12 @@ public class MailUtil {
 
 			session = Session.getInstance(props);
 
+		}
+
+		if (session != null) {
+			log.info("Connect SMTP server using: " + username);
+		} else {
+			log.error("Cannot find SMTP server at port.");
 		}
 
 		try {
@@ -82,12 +91,20 @@ public class MailUtil {
 			message.setSubject(subject);
 			message.setText(text);
 
+			log.info("E-Mail sending from: " + name + " to " + tos + ".");
+			log.info("E-Mail subject: " + subject);
+
 			Transport.send(message);
 
-			log.debug("E-Mail sent to " + tos + ".");
+		} catch (AuthenticationFailedException e) {
+
+			log.error(e);
+			throw new Exception("admin SMTP server auth failed.");
 
 		} catch (MessagingException e) {
-			throw new Exception("mail could not be sent: " + e.getMessage());
+
+			log.error(e);
+			throw new Exception("mail could not be sent.");
 		}
 	}
 }

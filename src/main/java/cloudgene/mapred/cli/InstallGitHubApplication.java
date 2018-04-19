@@ -1,17 +1,16 @@
 package cloudgene.mapred.cli;
 
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+
+import java.util.List;
 
 public class InstallGitHubApplication extends BaseTool {
 
@@ -46,7 +45,7 @@ public class InstallGitHubApplication extends BaseTool {
 		String repo = args[0];
 
 		// create the command line parser
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 		Options options = new Options();
 		Option idOption = new Option(null, "name", true, "Custom application name");
 		idOption.setRequired(false);

@@ -1,15 +1,5 @@
 package cloudgene.mapred.jobs.engine;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.jobs.engine.graph.Graph;
@@ -25,10 +15,23 @@ import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
 import cloudgene.mapred.wdl.WdlStep;
 import cloudgene.mapred.wdl.WdlWorkflow;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+
+import java.io.File;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
 
 public class Planner {
 
 	public WdlApp evaluateWDL(WdlApp app, CloudgeneContext context, Settings settings) throws Exception {
+
+		if (settings.isMaintenance()) {
+            context.log("Load workflow app: " + app.getPath());
+        }
 
 		Velocity.setProperty("file.resource.loader.path", "/");
 		VelocityContext context2 = new VelocityContext();
@@ -57,10 +60,10 @@ public class Planner {
 
 		File manifest = new File(app.getManifestFile());
 
-		StringWriter sw = null;
+		StringWriter sw;
 		try {
 
-			Template template = Velocity.getTemplate(manifest.getAbsolutePath());
+			Template template = Velocity.getTemplate(manifest.getAbsolutePath(), "UTF-8");
 			sw = new StringWriter();
 			template.merge(context2, sw);
 
@@ -68,12 +71,27 @@ public class Planner {
 			throw e;
 		}
 
-		WdlApp app2 = WdlReader.loadAppFromString(manifest.getAbsolutePath(), sw.toString());
+		if (settings.isMaintenance()) {
+            context.log("Load app from manifest template: " + manifest.getAbsolutePath());
+        }
 
-		app2.getWorkflow().setInputs(app.getWorkflow().getInputs());
-		app2.getWorkflow().setOutputs(app.getWorkflow().getOutputs());
+		WdlApp app2;
+		try {
+			app2 = WdlReader.loadAppFromString(manifest.getAbsolutePath(), sw.toString());
 
-		context.log("Planner: WDL evaluated.");
+			app2.getWorkflow().setInputs(app.getWorkflow().getInputs());
+			app2.getWorkflow().setOutputs(app.getWorkflow().getOutputs());
+
+			context.log("Planner: WDL evaluated.");
+
+		} catch (Exception e) {
+
+			if (settings.isMaintenance()) {
+				context.log("Validate app YAML or check Velocity context.");
+				e.printStackTrace();
+			}
+			throw new Exception(e);
+		}
 
 		return app2;
 	}

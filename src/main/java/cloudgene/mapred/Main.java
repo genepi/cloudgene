@@ -1,21 +1,23 @@
 package cloudgene.mapred;
 
+import cloudgene.mapred.database.util.DatabaseConnectorFactory;
+import cloudgene.mapred.database.util.Fixtures;
+import cloudgene.mapred.jobs.PersistentWorkflowEngine;
+import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.util.BuildUtil;
+import cloudgene.mapred.util.Config;
+import cloudgene.mapred.util.Settings;
+import com.esotericsoftware.yamlbeans.YamlReader;
 import genepi.db.Database;
 import genepi.db.DatabaseConnector;
 import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.sql.SQLException;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.apache.commons.daemon.DaemonInitException;
@@ -25,15 +27,10 @@ import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
-import com.esotericsoftware.yamlbeans.YamlReader;
-
-import cloudgene.mapred.database.util.DatabaseConnectorFactory;
-import cloudgene.mapred.database.util.Fixtures;
-import cloudgene.mapred.jobs.PersistentWorkflowEngine;
-import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.BuildUtil;
-import cloudgene.mapred.util.Config;
-import cloudgene.mapred.util.Settings;
+import java.io.File;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.sql.SQLException;
 
 public class Main implements Daemon {
 
@@ -96,7 +93,7 @@ public class Main implements Daemon {
 		log.info(BuildUtil.getBuildInfos());
 
 		// create the command line parser
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 
 		// create the Options
 		Options options = new Options();
@@ -173,7 +170,7 @@ public class Main implements Daemon {
 				System.exit(1);
 			}
 		} else {
-			log.info("Database is uptodate.");
+			log.info("Database is up to date.");
 		}
 
 		// create directories
@@ -186,16 +183,18 @@ public class Main implements Daemon {
 		// start workflow engine
 		try {
 
+			log.info("Start workflow engine.");
+
 			WorkflowEngine engine = new PersistentWorkflowEngine(database, settings.getThreadsQueue(),
 					settings.getThreadsSetupQueue());
 			new Thread(engine).start();
 
 			int port = Integer.parseInt(line.getOptionValue("port", config.getPort()));
 
+			log.info("Setting web server at port " + port);
+
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
-
-			log.info("Starting web server at port " + port);
 
 			String webAppFolder = "";
 
@@ -205,8 +204,8 @@ public class Main implements Daemon {
 				webAppFolder = FileUtil.path(
 						new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(),
 						"html", "webapp");
-				System.out.println(webAppFolder);
 			}
+			log.info("Setting webapp folder: " + webAppFolder);
 
 			String pagesFolder = "";
 			if (new File(config.getPages()).exists()) {
@@ -214,6 +213,7 @@ public class Main implements Daemon {
 			} else {
 				pagesFolder = "sample/pages";
 			}
+			log.info("Setting pages folder: " + pagesFolder);
 
 			server = new WebServer();
 			server.setPort(port);
@@ -232,7 +232,7 @@ public class Main implements Daemon {
 
 		} catch (Exception e) {
 
-			log.error("Can't launch the web server.\nAn unexpected " + "exception occured:", e);
+			log.error("Can't launch the web server.\nAn unexpected " + "exception occurred:", e);
 
 			database.disconnect();
 
