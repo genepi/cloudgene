@@ -73,7 +73,7 @@
  									<#list item.items as subitem>
 									<a class="dropdown-item" href="${subitem.link}"> ${subitem.name}</a>
  									</#list>
- 								</ul>
+ 								</div>
  							</li>
  						</#if>
  					</#list>
@@ -133,14 +133,15 @@
     <!-- Placed at the end of the document so the pages load faster -->
 		<!--(if target dev)><!-->
 		<script src="assets/js/lib/date.format.js"></script>
-		<script src="assets/js/lib/jquery-3.3.1.js"></script>
+		<script src="assets/js/lib/jquery-1.11.3.js"></script>
 		<script src="assets/js/lib/jquery.form.js"></script>
     <script src="assets/js/lib/popper.js"></script>
 		<script src="assets/js/lib/bootstrap.js"></script>
 		<script src="assets/js/lib/bootbox.min.js"></script>
 		<script src="assets/js/lib/can.jquery.js"></script>
 
-    <script src="models/Application.js"></script>
+
+  <script src="models/Application.js"></script>
 	<script src="models/Cluster.js"></script>
 	<script src="models/Counter.js"></script>
 	<script src="models/Group.js"></script>

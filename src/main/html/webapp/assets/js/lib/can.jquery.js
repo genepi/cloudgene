@@ -1,110 +1,6976 @@
 /*!
- * CanJS - 2.3.27
+ * CanJS - 2.2.6
  * http://canjs.com/
- * Copyright (c) 2018 Bitovi
- * Wed, 14 Feb 2018 16:56:17 GMT
+ * Copyright (c) 2015 Bitovi
+ * Wed, 17 Jun 2015 08:48:01 GMT
  * Licensed MIT
 
- * Includes: can/component/component,can/construct/construct,can/map/map,can/list/list,can/compute/compute,can/model/model,can/view/view,can/view/href/href,can/control/control,can/route/route,can/control/route/route,can/view/mustache/mustache,can/view/ejs/ejs
- * Download from: http://bitbuilder.herokuapp.com/can.custom.js?configuration=jquery&minify=true&plugins=can%2Fcomponent%2Fcomponent&plugins=can%2Fconstruct%2Fconstruct&plugins=can%2Fmap%2Fmap&plugins=can%2Flist%2Flist&plugins=can%2Fcompute%2Fcompute&plugins=can%2Fmodel%2Fmodel&plugins=can%2Fview%2Fview&plugins=can%2Fview%2Fhref%2Fhref&plugins=can%2Fcontrol%2Fcontrol&plugins=can%2Froute%2Froute&plugins=can%2Fcontrol%2Froute%2Froute&plugins=can%2Fview%2Fmustache%2Fmustache&plugins=can%2Fview%2Fejs%2Fejs
+ * Includes: can/component/component,can/construct/construct,can/map/map,can/list/list,can/compute/compute,can/model/model,can/view/view,can/control/control,can/route/route,can/control/route/route,can/view/mustache/mustache,can/view/ejs/ejs,can/view/ejs/system
+ * Download from: http://bitbuilder.herokuapp.com/can.custom.js?configuration=jquery&plugins=can%2Fcomponent%2Fcomponent&plugins=can%2Fconstruct%2Fconstruct&plugins=can%2Fmap%2Fmap&plugins=can%2Flist%2Flist&plugins=can%2Fcompute%2Fcompute&plugins=can%2Fmodel%2Fmodel&plugins=can%2Fview%2Fview&plugins=can%2Fcontrol%2Fcontrol&plugins=can%2Froute%2Froute&plugins=can%2Fcontrol%2Froute%2Froute&plugins=can%2Fview%2Fmustache%2Fmustache&plugins=can%2Fview%2Fejs%2Fejs&plugins=can%2Fview%2Fejs%2Fsystem
  */
 /*[global-shim-start]*/
-!function(exports,global){var origDefine=global.define,get=function(e){var o,l=e.split("."),n=global;for(o=0;o<l.length&&n;o++)n=n[l[o]];return n},modules=global.define&&global.define.modules||global._define&&global._define.modules||{},ourDefine=global.define=function(e,o,l){var n;"function"==typeof o&&(l=o,o=[]);var r,t=[];for(r=0;r<o.length;r++)t.push(exports[o[r]]?get(exports[o[r]]):modules[o[r]]||get(o[r]));if(!o.length&&l.length){n={exports:{}};var i=function(e){return exports[e]?get(exports[e]):modules[e]};t.push(i,n.exports,n)}else t[0]||"exports"!==o[0]?t[0]||"module"!==o[0]||(t[0]={id:e}):(n={exports:{}},t[0]=n.exports,"module"===o[1]&&(t[1]=n));global.define=origDefine;var a=l?l.apply(null,t):void 0;global.define=ourDefine,modules[e]=n&&n.exports?n.exports:a};global.define.orig=origDefine,global.define.modules=modules,global.define.amd=!0,ourDefine("@loader",[],function(){var noop=function(){};return{get:function(){return{prepareGlobal:noop,retrieveGlobal:noop}},global:global,__exec:function(__load){eval("(function() { "+__load.source+" \n }).call(global);")}}})}({},window);
+(function (exports, global){
+	var origDefine = global.define;
+
+	var get = function(name){
+		var parts = name.split("."),
+			cur = global,
+			i;
+		for(i = 0 ; i < parts.length; i++){
+			if(!cur) {
+				break;
+			}
+			cur = cur[parts[i]];
+		}
+		return cur;
+	};
+	var modules = (global.define && global.define.modules) ||
+		(global._define && global._define.modules) || {};
+	var ourDefine = global.define = function(moduleName, deps, callback){
+		var module;
+		if(typeof deps === "function") {
+			callback = deps;
+			deps = [];
+		}
+		var args = [],
+			i;
+		for(i =0; i < deps.length; i++) {
+			args.push( exports[deps[i]] ? get(exports[deps[i]]) : ( modules[deps[i]] || get(deps[i]) )  );
+		}
+		// CJS has no dependencies but 3 callback arguments
+		if(!deps.length && callback.length) {
+			module = { exports: {} };
+			var require = function(name) {
+				return exports[name] ? get(exports[name]) : modules[name];
+			};
+			args.push(require, module.exports, module);
+		}
+		// Babel uses only the exports objet
+		else if(!args[0] && deps[0] === "exports") {
+			module = { exports: {} };
+			args[0] = module.exports;
+		}
+
+		global.define = origDefine;
+		var result = callback ? callback.apply(null, args) : undefined;
+		global.define = ourDefine;
+
+		// Favor CJS module.exports over the return value
+		modules[moduleName] = module && module.exports ? module.exports : result;
+	};
+	global.define.orig = origDefine;
+	global.define.modules = modules;
+	global.define.amd = true;
+	global.System = {
+		define: function(__name, __code){
+			global.define = origDefine;
+			eval("(function() { " + __code + " \n }).call(global);");
+			global.define = ourDefine;
+		},
+		orig: global.System
+	};
+})({},window)
 /*can/util/can*/
-define("can/util/can",[],function(){var e="undefined"!=typeof window?window:"undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?self:global,n={};("undefined"==typeof GLOBALCAN||GLOBALCAN!==!1)&&(e.can=n),n.global=e,n.k=function(){},n.isDeferred=function(e){return n.dev&&n.dev.warn("can.isDeferred: this function is deprecated and will be removed in a future release. can.isPromise replaces the functionality of can.isDeferred."),e&&"function"==typeof e.then&&"function"==typeof e.pipe},n.isPromise=function(e){return!!e&&(window.Promise&&e instanceof Promise||n.isFunction(e.then)&&(void 0===n.List||!(e instanceof n.List)))},n.isMapLike=function(e){return n.Map&&(e instanceof n.Map||e&&e.___get)};var t=0;n.cid=function(e,n){return e._cid||(t++,e._cid=(n||"")+t),e._cid},n.VERSION="@EDGE",n.simpleExtend=function(e,n){for(var t in n)e[t]=n[t];return e},n.last=function(e){return e&&e[e.length-1]},n.isDOM=function(e){return(e.ownerDocument||e)===n.global.document},n.childNodes=function(e){var n=e.childNodes;if("length"in n)return n;for(var t=e.firstChild,o=[];t;)o.push(t),t=t.nextSibling;return o};var o=Function.prototype.bind;o?n.proxy=function(e,n){return o.call(e,n)}:n.proxy=function(e,n){return function(){return e.apply(n,arguments)}},n.frag=function(e,t){var o,r=t||n.document||n.global.document;return e&&"string"!=typeof e?11===e.nodeType?e:"number"==typeof e.nodeType?(o=r.createDocumentFragment(),o.appendChild(e),o):"number"==typeof e.length?(o=r.createDocumentFragment(),n.each(e,function(e){o.appendChild(n.frag(e))}),n.childNodes(o).length||o.appendChild(r.createTextNode("")),o):(o=n.buildFragment(""+e,r),n.childNodes(o).length||o.appendChild(r.createTextNode("")),o):(o=n.buildFragment(null==e?"":""+e,r),o.childNodes.length||o.appendChild(r.createTextNode("")),o)},n.scope=n.viewModel=function(e,t,o){e=n.$(e);var r=n.data(e,"scope")||n.data(e,"viewModel");switch(r||(r=new n.Map,n.data(e,"scope",r),n.data(e,"viewModel",r)),arguments.length){case 0:case 1:return r;case 2:return r.attr(t);default:return r.attr(t,o),e}};var r=function(e){var n=String(e).replace(/^\s+|\s+$/g,"").match(/^([^:\/?#]+:)?(\/\/(?:[^:@]*(?::[^:@]*)?@)?(([^:\/?#]*)(?::(\d*))?))?([^?#]*)(\?[^#]*)?(#[\s\S]*)?/);return n?{href:n[0]||"",protocol:n[1]||"",authority:n[2]||"",host:n[3]||"",hostname:n[4]||"",port:n[5]||"",pathname:n[6]||"",search:n[7]||"",hash:n[8]||""}:null};return n.joinURIs=function(e,n){function t(e){var n=[];return e.replace(/^(\.\.?(\/|$))+/,"").replace(/\/(\.(\/|$))+/g,"/").replace(/\/\.\.$/,"/../").replace(/\/?[^\/]*/g,function(e){"/.."===e?n.pop():n.push(e)}),n.join("").replace(/^\//,"/"===e.charAt(0)?"/":"")}return n=r(n||""),e=r(e||""),n&&e?(n.protocol||e.protocol)+(n.protocol||n.authority?n.authority:e.authority)+t(n.protocol||n.authority||"/"===n.pathname.charAt(0)?n.pathname:n.pathname?(e.authority&&!e.pathname?"/":"")+e.pathname.slice(0,e.pathname.lastIndexOf("/")+1)+n.pathname:e.pathname)+(n.protocol||n.authority||n.pathname?n.search:n.search||e.search)+n.hash:null},n["import"]=function(e,t){var o=new n.Deferred;return"object"==typeof window.System&&n.isFunction(window.System["import"])?window.System["import"](e,{name:t}).then(n.proxy(o.resolve,o),n.proxy(o.reject,o)):window.define&&window.define.amd?window.require([e],function(e){o.resolve(e)}):window.steal?steal.steal(e,function(e){o.resolve(e)}):window.require?o.resolve(window.require(e)):o.resolve(),o.promise()},n.__observe=function(){},n.isNode="object"==typeof process&&"[object process]"==={}.toString.call(process),n.isBrowserWindow="undefined"!=typeof window&&"undefined"!=typeof document&&"undefined"==typeof SimpleDOM,n.isWebWorker="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope,n});
+define('can/util/can', [], function () {
+    var glbl = typeof window !== 'undefined' ? window : global;
+    var can = {};
+    if (typeof GLOBALCAN === 'undefined' || GLOBALCAN !== false) {
+        glbl.can = can;
+    }
+    can.global = glbl;
+    can.k = function () {
+    };
+    can.isDeferred = can.isPromise = function (obj) {
+        return obj && typeof obj.then === 'function' && typeof obj.pipe === 'function';
+    };
+    can.isMapLike = function (obj) {
+        return can.Map && (obj instanceof can.Map || obj && obj.__get);
+    };
+    var cid = 0;
+    can.cid = function (object, name) {
+        if (!object._cid) {
+            cid++;
+            object._cid = (name || '') + cid;
+        }
+        return object._cid;
+    };
+    can.VERSION = '@EDGE';
+    can.simpleExtend = function (d, s) {
+        for (var prop in s) {
+            d[prop] = s[prop];
+        }
+        return d;
+    };
+    can.last = function (arr) {
+        return arr && arr[arr.length - 1];
+    };
+    var protoBind = Function.prototype.bind;
+    if (protoBind) {
+        can.proxy = function (fn, context) {
+            return protoBind.call(fn, context);
+        };
+    } else {
+        can.proxy = function (fn, context) {
+            return function () {
+                return fn.apply(context, arguments);
+            };
+        };
+    }
+    can.frag = function (item) {
+        var frag;
+        if (!item || typeof item === 'string') {
+            frag = can.buildFragment(item == null ? '' : '' + item, document.body);
+            if (!frag.childNodes.length) {
+                frag.appendChild(document.createTextNode(''));
+            }
+            return frag;
+        } else if (item.nodeType === 11) {
+            return item;
+        } else if (typeof item.nodeType === 'number') {
+            frag = document.createDocumentFragment();
+            frag.appendChild(item);
+            return frag;
+        } else if (typeof item.length === 'number') {
+            frag = document.createDocumentFragment();
+            can.each(item, function (item) {
+                frag.appendChild(can.frag(item));
+            });
+            return frag;
+        } else {
+            frag = can.buildFragment('' + item, document.body);
+            if (!frag.childNodes.length) {
+                frag.appendChild(document.createTextNode(''));
+            }
+            return frag;
+        }
+    };
+    can.scope = can.viewModel = function (el, attr, val) {
+        el = can.$(el);
+        var scope = can.data(el, 'scope') || can.data(el, 'viewModel');
+        if (!scope) {
+            scope = new can.Map();
+            can.data(el, 'scope', scope);
+            can.data(el, 'viewModel', scope);
+        }
+        switch (arguments.length) {
+        case 0:
+        case 1:
+            return scope;
+        case 2:
+            return scope.attr(attr);
+        default:
+            scope.attr(attr, val);
+            return el;
+        }
+    };
+    can['import'] = function (moduleName) {
+        var deferred = new can.Deferred();
+        if (typeof window.System === 'object' && can.isFunction(window.System['import'])) {
+            window.System['import'](moduleName).then(can.proxy(deferred.resolve, deferred), can.proxy(deferred.reject, deferred));
+        } else if (window.define && window.define.amd) {
+            window.require([moduleName], function (value) {
+                deferred.resolve(value);
+            });
+        } else if (window.steal) {
+            steal.steal(moduleName, function (value) {
+                deferred.resolve(value);
+            });
+        } else if (window.require) {
+            deferred.resolve(window.require(moduleName));
+        } else {
+            deferred.resolve();
+        }
+        return deferred.promise();
+    };
+    can.__observe = function () {
+    };
+    return can;
+});
 /*can/util/attr/attr*/
-define("can/util/attr/attr",["can/util/can"],function(t){var e=t.global.setImmediate||function(t){return setTimeout(t,0)},r={input:!0,textarea:!0,select:!0},n=function(e,n){return n in e||t.document&&r[e.nodeName.toLowerCase()]},a={MutationObserver:t.global.MutationObserver||t.global.WebKitMutationObserver||t.global.MozMutationObserver,map:{"class":function(t,e){return e=e||"","http://www.w3.org/2000/svg"===t.namespaceURI?t.setAttribute("class",e):t.className=e,e},value:"value",innertext:"innerText",innerhtml:"innerHTML",textcontent:"textContent","for":"htmlFor",checked:!0,disabled:!0,readonly:function(t,e){return t.readOnly=e||"string"==typeof e?!0:!1,e},required:!0,src:function(t,e){return null==e||""===e?(t.removeAttribute("src"),null):(t.setAttribute("src",e),e)},style:function(){var e=t.global.document&&document.createElement("div");return e&&e.style&&"cssText"in e.style?function(t,e){return t.style.cssText=e||""}:function(t,e){return t.setAttribute("style",e)}}()},defaultValue:["input","textarea"],setAttrOrProp:function(t,e,r){e=e.toLowerCase();var n=a.map[e];n!==!0||r?this.set(t,e,r):this.remove(t,e)},setSelectValue:function(t,e){if(null!=e)for(var r=t.getElementsByTagName("option"),n=0;n<r.length;n++)if(e==r[n].value)return void(r[n].selected=!0);t.selectedIndex=-1},set:function(e,r,u){var o=t.isDOM(e)&&a.MutationObserver;r=r.toLowerCase();var i;o||(i=a.get(e,r));var s,l=a.map[r];"function"==typeof l?s=l(e,u):l===!0&&n(e,r)?(s=e[r]=!0,"checked"===r&&"radio"===e.type&&t.inArray((e.nodeName+"").toLowerCase(),a.defaultValue)>=0&&(e.defaultChecked=!0)):"string"==typeof l&&n(e,l)?(s=u,(e[l]!==u||"OPTION"===e.nodeName.toUpperCase())&&(e[l]=u),"value"===l&&t.inArray((e.nodeName+"").toLowerCase(),a.defaultValue)>=0&&(e.defaultValue=u)):a.setAttribute(e,r,u),o||s===i||a.trigger(e,r,i)},setAttribute:function(){var e=t.global.document;if(e&&document.createAttribute)try{e.createAttribute("{}")}catch(r){var n={},a=document.createElement("div");return function(t,e,r){var u,o,i=e.charAt(0);"{"!==i&&"("!==i&&"*"!==i||!t.setAttributeNode?t.setAttribute(e,r):(u=n[e],u||(a.innerHTML="<div "+e+'=""></div>',u=n[e]=a.childNodes[0].attributes[0]),o=u.cloneNode(),o.value=r,t.setAttributeNode(o))}}return function(t,e,r){t.setAttribute(e,r)}}(),trigger:function(r,n,a){return t.data(t.$(r),"canHasAttributesBindings")?(n=n.toLowerCase(),e(function(){t.trigger(r,{type:"attributes",attributeName:n,target:r,oldValue:a,bubbles:!1},[])})):void 0},get:function(t,e){e=e.toLowerCase();var r=a.map[e];return"string"==typeof r&&n(t,r)?t[r]:r===!0&&n(t,e)?t[e]:t.getAttribute(e)},remove:function(t,e){e=e.toLowerCase();var r;a.MutationObserver||(r=a.get(t,e));var u=a.map[e];"function"==typeof u&&u(t,void 0),u===!0&&n(t,e)?t[e]=!1:"string"==typeof u&&n(t,u)?t[u]="":t.removeAttribute(e),a.MutationObserver||null==r||a.trigger(t,e,r)},has:function(){var e=t.global.document&&document.createElement("div");return e&&e.hasAttribute?function(t,e){return t.hasAttribute(e)}:function(t,e){return null!==t.getAttribute(e)}}()};return a});
+define('can/util/attr/attr', ['can/util/can'], function (can) {
+    var setImmediate = can.global.setImmediate || function (cb) {
+            return setTimeout(cb, 0);
+        }, attr = {
+            MutationObserver: can.global.MutationObserver || can.global.WebKitMutationObserver || can.global.MozMutationObserver,
+            map: {
+                'class': 'className',
+                'value': 'value',
+                'innertext': 'innerText',
+                'textcontent': 'textContent',
+                'checked': true,
+                'disabled': true,
+                'readonly': true,
+                'required': true,
+                src: function (el, val) {
+                    if (val == null || val === '') {
+                        el.removeAttribute('src');
+                        return null;
+                    } else {
+                        el.setAttribute('src', val);
+                        return val;
+                    }
+                },
+                style: function (el, val) {
+                    return el.style.cssText = val || '';
+                }
+            },
+            defaultValue: [
+                'input',
+                'textarea'
+            ],
+            set: function (el, attrName, val) {
+                attrName = attrName.toLowerCase();
+                var oldValue;
+                if (!attr.MutationObserver) {
+                    oldValue = attr.get(el, attrName);
+                }
+                var tagName = el.nodeName.toString().toLowerCase(), prop = attr.map[attrName], newValue;
+                if (typeof prop === 'function') {
+                    newValue = prop(el, val);
+                } else if (prop === true) {
+                    newValue = el[attrName] = true;
+                    if (attrName === 'checked' && el.type === 'radio') {
+                        if (can.inArray(tagName, attr.defaultValue) >= 0) {
+                            el.defaultChecked = true;
+                        }
+                    }
+                } else if (prop) {
+                    newValue = val;
+                    if (el[prop] !== val) {
+                        el[prop] = val;
+                    }
+                    if (prop === 'value' && can.inArray(tagName, attr.defaultValue) >= 0) {
+                        el.defaultValue = val;
+                    }
+                } else {
+                    el.setAttribute(attrName, val);
+                    newValue = val;
+                }
+                if (!attr.MutationObserver && newValue !== oldValue) {
+                    attr.trigger(el, attrName, oldValue);
+                }
+            },
+            trigger: function (el, attrName, oldValue) {
+                if (can.data(can.$(el), 'canHasAttributesBindings')) {
+                    attrName = attrName.toLowerCase();
+                    return setImmediate(function () {
+                        can.trigger(el, {
+                            type: 'attributes',
+                            attributeName: attrName,
+                            target: el,
+                            oldValue: oldValue,
+                            bubbles: false
+                        }, []);
+                    });
+                }
+            },
+            get: function (el, attrName) {
+                attrName = attrName.toLowerCase();
+                var prop = attr.map[attrName];
+                if (typeof prop === 'string' && el[prop]) {
+                    return el[prop];
+                }
+                return el.getAttribute(attrName);
+            },
+            remove: function (el, attrName) {
+                attrName = attrName.toLowerCase();
+                var oldValue;
+                if (!attr.MutationObserver) {
+                    oldValue = attr.get(el, attrName);
+                }
+                var setter = attr.map[attrName];
+                if (typeof setter === 'function') {
+                    setter(el, undefined);
+                }
+                if (setter === true) {
+                    el[attrName] = false;
+                } else if (typeof setter === 'string') {
+                    el[setter] = '';
+                } else {
+                    el.removeAttribute(attrName);
+                }
+                if (!attr.MutationObserver && oldValue != null) {
+                    attr.trigger(el, attrName, oldValue);
+                }
+            },
+            has: function () {
+                var el = can.global.document && document.createElement('div');
+                if (el && el.hasAttribute) {
+                    return function (el, name) {
+                        return el.hasAttribute(name);
+                    };
+                } else {
+                    return function (el, name) {
+                        return el.getAttribute(name) !== null;
+                    };
+                }
+            }()
+        };
+    return attr;
+});
 /*can/event/event*/
-define("can/event/event",["can/util/can"],function(t){return t.addEvent=function(t,n){var e=this.__bindEvents||(this.__bindEvents={}),i=e[t]||(e[t]=[]);return i.push({handler:n,name:t}),this},t.listenTo=function(n,e,i){var r=this.__listenToEvents;r||(r=this.__listenToEvents={});var s=t.cid(n),o=r[s];o||(o=r[s]={obj:n,events:{}});var a=o.events[e];a||(a=o.events[e]=[]),a.push(i),t.bind.call(n,e,i)},t.stopListening=function(n,e,i){var r=this.__listenToEvents,s=r,o=0;if(!r)return this;if(n){var a=t.cid(n);if((s={})[a]=r[a],!r[a])return this}for(var v in s){var l,h=s[v];n=r[v].obj,e?(l={})[e]=h.events[e]:l=h.events;for(var u in l){var d=l[u]||[];for(o=0;o<d.length;)i&&i===d[o]||!i?(t.unbind.call(n,u,d[o]),d.splice(o,1)):o++;d.length||delete h.events[u]}t.isEmptyObject(h.events)&&delete r[v]}return this},t.removeEvent=function(t,n,e){if(!this.__bindEvents)return this;for(var i,r=this.__bindEvents[t]||[],s=0,o="function"==typeof n;s<r.length;)i=r[s],(e?e(i,t,n):o&&i.handler===n||!o&&(i.cid===n||!n))?r.splice(s,1):s++;return this},t.dispatch=function(t,n){var e=this.__bindEvents;if(e){var i;"string"==typeof t?(i=t,t={type:t}):i=t.type;var r=e[i];if(r){r=r.slice(0);var s=[t];n&&s.push.apply(s,n);for(var o=0,a=r.length;a>o;o++)r[o].handler.apply(this,s);return t}}},t.one=function(n,e){var i=function(){return t.unbind.call(this,n,i),e.apply(this,arguments)};return t.bind.call(this,n,i),this},t.event={on:function(){return 0===arguments.length&&t.Control&&this instanceof t.Control?t.Control.prototype.on.call(this):t.addEvent.apply(this,arguments)},off:function(){return 0===arguments.length&&t.Control&&this instanceof t.Control?t.Control.prototype.off.call(this):t.removeEvent.apply(this,arguments)},bind:t.addEvent,unbind:t.removeEvent,delegate:function(n,e,i){return t.addEvent.call(this,e,i)},undelegate:function(n,e,i){return t.removeEvent.call(this,e,i)},trigger:t.dispatch,one:t.one,addEvent:t.addEvent,removeEvent:t.removeEvent,listenTo:t.listenTo,stopListening:t.stopListening,dispatch:t.dispatch},t.event});
-/*can/util/fragment*/
-define("can/util/fragment",["can/util/can"],function(e){var t=/^\s*<(\w+)[^>]*>/,i={}.toString,l=function(l,n,r){void 0===n&&(n=t.test(l)&&RegExp.$1),l&&"[object Function]"===i.call(l.replace)&&(l=l.replace(/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/gi,"<$1></$2>"));var d=r.createElement("div"),a=r.createElement("div");"tbody"===n||"tfoot"===n||"thead"===n||"colgroup"===n?(a.innerHTML="<table>"+l+"</table>",d=3===a.firstChild.nodeType?a.lastChild:a.firstChild):"col"===n?(a.innerHTML="<table><colgroup>"+l+"</colgroup></table>",d=3===a.firstChild.nodeType?a.lastChild:a.firstChild.firstChild):"tr"===n?(a.innerHTML="<table><tbody>"+l+"</tbody></table>",d=3===a.firstChild.nodeType?a.lastChild:a.firstChild.firstChild):"td"===n||"th"===n?(a.innerHTML="<table><tbody><tr>"+l+"</tr></tbody></table>",d=3===a.firstChild.nodeType?a.lastChild:a.firstChild.firstChild.firstChild):"option"===n?(a.innerHTML="<select>"+l+"</select>",d=3===a.firstChild.nodeType?a.lastChild:a.firstChild):d.innerHTML=""+l;var o={},h=e.childNodes(d);o.length=h.length;for(var c=0;c<h.length;c++)o[c]=h[c];return[].slice.call(o)};return e.buildFragment=function(e,t){if(e&&11===e.nodeType)return e;t?t.length&&(t=t[0]):t=document;for(var i=l(e,void 0,t),n=(t||document).createDocumentFragment(),r=0,d=i.length;d>r;r++)n.appendChild(i[r]);return n},function(){var t="<-\n>",i=e.buildFragment(t,document);if(t!==i.firstChild.nodeValue){var l=e.buildFragment;e.buildFragment=function(e,t){var i=l(e,t);return 1===i.childNodes.length&&3===i.childNodes[0].nodeType&&(i.childNodes[0].nodeValue=e),i}}}(),e});
-/*can/util/array/isArrayLike*/
-define("can/util/array/isArrayLike",["can/util/can"],function(n){n.isArrayLike=function(n){var e=n&&"boolean"!=typeof n&&"number"!=typeof n&&"length"in n&&n.length;return"function"!=typeof arr&&(0===e||"number"==typeof e&&e>0&&e-1 in n)}});
+define('can/event/event', ['can/util/can'], function (can) {
+    can.addEvent = function (event, handler) {
+        var allEvents = this.__bindEvents || (this.__bindEvents = {}), eventList = allEvents[event] || (allEvents[event] = []);
+        eventList.push({
+            handler: handler,
+            name: event
+        });
+        return this;
+    };
+    can.listenTo = function (other, event, handler) {
+        var idedEvents = this.__listenToEvents;
+        if (!idedEvents) {
+            idedEvents = this.__listenToEvents = {};
+        }
+        var otherId = can.cid(other);
+        var othersEvents = idedEvents[otherId];
+        if (!othersEvents) {
+            othersEvents = idedEvents[otherId] = {
+                obj: other,
+                events: {}
+            };
+        }
+        var eventsEvents = othersEvents.events[event];
+        if (!eventsEvents) {
+            eventsEvents = othersEvents.events[event] = [];
+        }
+        eventsEvents.push(handler);
+        can.bind.call(other, event, handler);
+    };
+    can.stopListening = function (other, event, handler) {
+        var idedEvents = this.__listenToEvents, iterIdedEvents = idedEvents, i = 0;
+        if (!idedEvents) {
+            return this;
+        }
+        if (other) {
+            var othercid = can.cid(other);
+            (iterIdedEvents = {})[othercid] = idedEvents[othercid];
+            if (!idedEvents[othercid]) {
+                return this;
+            }
+        }
+        for (var cid in iterIdedEvents) {
+            var othersEvents = iterIdedEvents[cid], eventsEvents;
+            other = idedEvents[cid].obj;
+            if (!event) {
+                eventsEvents = othersEvents.events;
+            } else {
+                (eventsEvents = {})[event] = othersEvents.events[event];
+            }
+            for (var eventName in eventsEvents) {
+                var handlers = eventsEvents[eventName] || [];
+                i = 0;
+                while (i < handlers.length) {
+                    if (handler && handler === handlers[i] || !handler) {
+                        can.unbind.call(other, eventName, handlers[i]);
+                        handlers.splice(i, 1);
+                    } else {
+                        i++;
+                    }
+                }
+                if (!handlers.length) {
+                    delete othersEvents.events[eventName];
+                }
+            }
+            if (can.isEmptyObject(othersEvents.events)) {
+                delete idedEvents[cid];
+            }
+        }
+        return this;
+    };
+    can.removeEvent = function (event, fn, __validate) {
+        if (!this.__bindEvents) {
+            return this;
+        }
+        var events = this.__bindEvents[event] || [], i = 0, ev, isFunction = typeof fn === 'function';
+        while (i < events.length) {
+            ev = events[i];
+            if (__validate ? __validate(ev, event, fn) : isFunction && ev.handler === fn || !isFunction && (ev.cid === fn || !fn)) {
+                events.splice(i, 1);
+            } else {
+                i++;
+            }
+        }
+        return this;
+    };
+    can.dispatch = function (event, args) {
+        var events = this.__bindEvents;
+        if (!events) {
+            return;
+        }
+        if (typeof event === 'string') {
+            event = { type: event };
+        }
+        var eventName = event.type, handlers = (events[eventName] || []).slice(0), passed = [event];
+        if (args) {
+            passed.push.apply(passed, args);
+        }
+        for (var i = 0, len = handlers.length; i < len; i++) {
+            handlers[i].handler.apply(this, passed);
+        }
+        return event;
+    };
+    can.one = function (event, handler) {
+        var one = function () {
+            can.unbind.call(this, event, one);
+            return handler.apply(this, arguments);
+        };
+        can.bind.call(this, event, one);
+        return this;
+    };
+    can.event = {
+        on: function () {
+            if (arguments.length === 0 && can.Control && this instanceof can.Control) {
+                return can.Control.prototype.on.call(this);
+            } else {
+                return can.addEvent.apply(this, arguments);
+            }
+        },
+        off: function () {
+            if (arguments.length === 0 && can.Control && this instanceof can.Control) {
+                return can.Control.prototype.off.call(this);
+            } else {
+                return can.removeEvent.apply(this, arguments);
+            }
+        },
+        bind: can.addEvent,
+        unbind: can.removeEvent,
+        delegate: function (selector, event, handler) {
+            return can.addEvent.call(this, event, handler);
+        },
+        undelegate: function (selector, event, handler) {
+            return can.removeEvent.call(this, event, handler);
+        },
+        trigger: can.dispatch,
+        one: can.one,
+        addEvent: can.addEvent,
+        removeEvent: can.removeEvent,
+        listenTo: can.listenTo,
+        stopListening: can.stopListening,
+        dispatch: can.dispatch
+    };
+    return can.event;
+});
 /*can/util/array/each*/
-define("can/util/array/each",["can/util/can","can/util/array/isArrayLike"],function(a){return a.each=function(e,t,r){var i,n,l,c=0;if(e)if(a.isArrayLike(e))if(a.List&&e instanceof a.List)for(n=e.attr("length");n>c&&(l=e.attr(c),t.call(r||l,l,c,e)!==!1);c++);else for(n=e.length;n>c&&(l=e[c],t.call(r||l,l,c,e)!==!1);c++);else if("object"==typeof e)if(a.Map&&e instanceof a.Map||e===a.route){var f=a.Map.keys(e);for(c=0,n=f.length;n>c&&(i=f[c],l=e.attr(i),t.call(r||l,l,i,e)!==!1);c++);}else for(i in e)if(Object.prototype.hasOwnProperty.call(e,i)&&t.call(r||e[i],e[i],i,e)===!1)break;return e},a});
+define('can/util/array/each', ['can/util/can'], function (can) {
+    var isArrayLike = function (obj) {
+        var length = 'length' in obj && obj.length;
+        return typeof arr !== 'function' && (length === 0 || typeof length === 'number' && length > 0 && length - 1 in obj);
+    };
+    can.each = function (elements, callback, context) {
+        var i = 0, key, len, item;
+        if (elements) {
+            if (isArrayLike(elements)) {
+                if (can.List && elements instanceof can.List) {
+                    for (len = elements.attr('length'); i < len; i++) {
+                        item = elements.attr(i);
+                        if (callback.call(context || item, item, i, elements) === false) {
+                            break;
+                        }
+                    }
+                } else {
+                    for (len = elements.length; i < len; i++) {
+                        item = elements[i];
+                        if (callback.call(context || item, item, i, elements) === false) {
+                            break;
+                        }
+                    }
+                }
+            } else if (typeof elements === 'object') {
+                if (can.Map && elements instanceof can.Map || elements === can.route) {
+                    var keys = can.Map.keys(elements);
+                    for (i = 0, len = keys.length; i < len; i++) {
+                        key = keys[i];
+                        item = elements.attr(key);
+                        if (callback.call(context || item, item, key, elements) === false) {
+                            break;
+                        }
+                    }
+                } else {
+                    for (key in elements) {
+                        if (elements.hasOwnProperty(key) && callback.call(context || elements[key], elements[key], key, elements) === false) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return elements;
+    };
+    return can;
+});
 /*can/util/inserted/inserted*/
-define("can/util/inserted/inserted",["can/util/can"],function(e){e.inserted=function(n,r){if(n.length){n=e.makeArray(n);for(var i,t,a=r||n[0].ownerDocument||n[0],d=!1,o=e.$(a.contains?a:a.body),s=0;void 0!==(t=n[s]);s++){if(!d){if(!t.getElementsByTagName)continue;if(!e.has(o,t).length)return;d=!0}if(d&&t.getElementsByTagName){i=e.makeArray(t.getElementsByTagName("*")),e.trigger(t,"inserted",[],!1);for(var f,c=0;void 0!==(f=i[c]);c++)e.trigger(f,"inserted",[],!1)}}}},e.appendChild=function(n,r,i){var t;t=11===r.nodeType?e.makeArray(e.childNodes(r)):[r],n.appendChild(r),e.inserted(t,i)},e.insertBefore=function(n,r,i,t){var a;a=11===r.nodeType?e.makeArray(e.childNodes(r)):[r],n.insertBefore(r,i),e.inserted(a,t)}});
+define('can/util/inserted/inserted', ['can/util/can'], function (can) {
+    can.inserted = function (elems) {
+        elems = can.makeArray(elems);
+        var inDocument = false, doc = can.$(document.contains ? document : document.body), children;
+        for (var i = 0, elem; (elem = elems[i]) !== undefined; i++) {
+            if (!inDocument) {
+                if (elem.getElementsByTagName) {
+                    if (can.has(doc, elem).length) {
+                        inDocument = true;
+                    } else {
+                        return;
+                    }
+                } else {
+                    continue;
+                }
+            }
+            if (inDocument && elem.getElementsByTagName) {
+                children = can.makeArray(elem.getElementsByTagName('*'));
+                can.trigger(elem, 'inserted', [], false);
+                for (var j = 0, child; (child = children[j]) !== undefined; j++) {
+                    can.trigger(child, 'inserted', [], false);
+                }
+            }
+        }
+    };
+    can.appendChild = function (el, child) {
+        var children;
+        if (child.nodeType === 11) {
+            children = can.makeArray(child.childNodes);
+        } else {
+            children = [child];
+        }
+        el.appendChild(child);
+        can.inserted(children);
+    };
+    can.insertBefore = function (el, child, ref) {
+        var children;
+        if (child.nodeType === 11) {
+            children = can.makeArray(child.childNodes);
+        } else {
+            children = [child];
+        }
+        el.insertBefore(child, ref);
+        can.inserted(children);
+    };
+});
 /*can/util/jquery/jquery*/
-define("can/util/jquery/jquery",["jquery/dist/jquery","can/util/can","can/util/attr/attr","can/event/event","can/util/fragment","can/util/array/each","can/util/inserted/inserted"],function(t,e,n,r){var i=function(t){return t.nodeName&&(1===t.nodeType||9===t.nodeType)||t==window||t.addEventListener};t=t||window.jQuery,t.extend(e,t,{trigger:function(n,r,a,s){i(n)?t.event.trigger(r,a,n,!s):n.trigger?n.trigger(r,a):("string"==typeof r&&(r={type:r}),r.target=r.target||n,a&&(a.length&&"string"==typeof a?a=[a]:a.length||(a=[a])),a||(a=[]),e.dispatch.call(n,r,a))},event:e.event,addEvent:e.addEvent,removeEvent:e.removeEvent,buildFragment:e.buildFragment,$:t,each:e.each,bind:function(n,r){return this.bind&&this.bind!==e.bind?this.bind(n,r):i(this)?t.event.add(this,n,r):e.addEvent.call(this,n,r),this},unbind:function(n,r){return this.unbind&&this.unbind!==e.unbind?this.unbind(n,r):i(this)?t.event.remove(this,n,r):e.removeEvent.call(this,n,r),this},delegate:function(n,r,a){return this.delegate?this.delegate(n,r,a):i(this)?t(this).delegate(n,r,a):e.bind.call(this,r,a),this},undelegate:function(n,r,a){return this.undelegate?this.undelegate(n,r,a):i(this)?t(this).undelegate(n,r,a):e.unbind.call(this,r,a),this},proxy:e.proxy,attr:n}),e.on=e.bind,e.off=e.unbind,t.each(["append","filter","addClass","remove","data","get","has"],function(t,n){e[n]=function(t){return t[n].apply(t,e.makeArray(arguments).slice(1))}});var a=t.cleanData;t.cleanData=function(n){t.each(n,function(t,n){n&&e.trigger(n,"removed",[],!1)}),a(n)};var s,u=t.fn.domManip;t.fn.domManip=function(t,e,n){for(var r=1;r<arguments.length;r++)if("function"==typeof arguments[r]){s=r;break}return u.apply(this,arguments)},t(document.createElement("div")).append(document.createElement("div"));var d=function(t){var n=t.childNodes;if("length"in n)return e.makeArray(n);for(var r=t.firstChild,i=[];r;)i.push(r),r=r.nextSibling;return i};void 0===s?(t.fn.domManip=u,e.each(["after","prepend","before","append","replaceWith"],function(n){var r=t.fn[n];t.fn[n]=function(){var t=[],n=e.makeArray(arguments);null!=n[0]&&("string"==typeof n[0]&&(n[0]=e.buildFragment(n[0])),t=11===n[0].nodeType?d(n[0]):e.isArrayLike(n[0])?e.makeArray(n[0]):[n[0]]);var i=r.apply(this,n);return e.inserted(t),i}})):t.fn.domManip=2===s?function(t,n,r){return u.call(this,t,n,function(t){var n;11===t.nodeType&&(n=e.makeArray(e.childNodes(t)));var i=r.apply(this,arguments);return e.inserted(n?n:[t]),i})}:function(t,n){return u.call(this,t,function(t){var r;11===t.nodeType&&(r=e.makeArray(e.childNodes(t)));var i=n.apply(this,arguments);return e.inserted(r?r:[t]),i})};var l=t.attr;t.attr=function(t,n){if(e.isDOM(t)&&e.attr.MutationObserver)return l.apply(this,arguments);var r,i;arguments.length>=3&&(r=l.call(this,t,n));var a=l.apply(this,arguments);return arguments.length>=3&&(i=l.call(this,t,n)),i!==r&&e.attr.trigger(t,n,r),a};var o=t.removeAttr;return t.removeAttr=function(t,n){if(e.isDOM(t)&&e.attr.MutationObserver)return o.apply(this,arguments);var r=l.call(this,t,n),i=o.apply(this,arguments);return null!=r&&e.attr.trigger(t,n,r),i},t.event.special.attributes={setup:function(){if(e.isDOM(this)&&e.attr.MutationObserver){var t=this,n=new e.attr.MutationObserver(function(n){n.forEach(function(n){var r=e.simpleExtend({},n);e.trigger(t,r,[])})});n.observe(this,{attributes:!0,attributeOldValue:!0}),e.data(e.$(this),"canAttributesObserver",n)}else e.data(e.$(this),"canHasAttributesBindings",!0)},teardown:function(){e.isDOM(this)&&e.attr.MutationObserver?(e.data(e.$(this),"canAttributesObserver").disconnect(),t.removeData(this,"canAttributesObserver")):t.removeData(this,"canHasAttributesBindings")}},t.event.special.inserted={},t.event.special.removed={},e});
+define('can/util/jquery/jquery', [
+    'jquery/dist/jquery',
+    'can/util/can',
+    'can/util/attr/attr',
+    'can/event/event',
+    'can/util/array/each',
+    'can/util/inserted/inserted'
+], function ($, can, attr, event) {
+    var isBindableElement = function (node) {
+        return node.nodeName && (node.nodeType === 1 || node.nodeType === 9) || node == window;
+    };
+    $ = $ || window.jQuery;
+    $.extend(can, $, {
+        trigger: function (obj, event, args, bubbles) {
+            if (isBindableElement(obj)) {
+                $.event.trigger(event, args, obj, !bubbles);
+            } else if (obj.trigger) {
+                obj.trigger(event, args);
+            } else {
+                if (typeof event === 'string') {
+                    event = { type: event };
+                }
+                event.target = event.target || obj;
+                if (args) {
+                    if (args.length && typeof args === 'string') {
+                        args = [args];
+                    } else if (!args.length) {
+                        args = [args];
+                    }
+                }
+                if (!args) {
+                    args = [];
+                }
+                can.dispatch.call(obj, event, args);
+            }
+        },
+        event: can.event,
+        addEvent: can.addEvent,
+        removeEvent: can.removeEvent,
+        buildFragment: function (elems, context) {
+            var ret;
+            elems = [elems];
+            context = context || document;
+            context = !context.nodeType && context[0] || context;
+            context = context.ownerDocument || context;
+            ret = $.buildFragment(elems, context);
+            return ret.cacheable ? $.clone(ret.fragment) : ret.fragment || ret;
+        },
+        $: $,
+        each: can.each,
+        bind: function (ev, cb) {
+            if (this.bind && this.bind !== can.bind) {
+                this.bind(ev, cb);
+            } else if (isBindableElement(this)) {
+                $.event.add(this, ev, cb);
+            } else {
+                can.addEvent.call(this, ev, cb);
+            }
+            return this;
+        },
+        unbind: function (ev, cb) {
+            if (this.unbind && this.unbind !== can.unbind) {
+                this.unbind(ev, cb);
+            } else if (isBindableElement(this)) {
+                $.event.remove(this, ev, cb);
+            } else {
+                can.removeEvent.call(this, ev, cb);
+            }
+            return this;
+        },
+        delegate: function (selector, ev, cb) {
+            if (this.delegate) {
+                this.delegate(selector, ev, cb);
+            } else if (isBindableElement(this)) {
+                $(this).delegate(selector, ev, cb);
+            } else {
+                can.bind.call(this, ev, cb);
+            }
+            return this;
+        },
+        undelegate: function (selector, ev, cb) {
+            if (this.undelegate) {
+                this.undelegate(selector, ev, cb);
+            } else if (isBindableElement(this)) {
+                $(this).undelegate(selector, ev, cb);
+            } else {
+                can.unbind.call(this, ev, cb);
+            }
+            return this;
+        },
+        proxy: can.proxy,
+        attr: attr
+    });
+    can.on = can.bind;
+    can.off = can.unbind;
+    $.each([
+        'append',
+        'filter',
+        'addClass',
+        'remove',
+        'data',
+        'get',
+        'has'
+    ], function (i, name) {
+        can[name] = function (wrapped) {
+            return wrapped[name].apply(wrapped, can.makeArray(arguments).slice(1));
+        };
+    });
+    var oldClean = $.cleanData;
+    $.cleanData = function (elems) {
+        $.each(elems, function (i, elem) {
+            if (elem) {
+                can.trigger(elem, 'removed', [], false);
+            }
+        });
+        oldClean(elems);
+    };
+    var oldDomManip = $.fn.domManip, cbIndex;
+    $.fn.domManip = function (args, cb1, cb2) {
+        for (var i = 1; i < arguments.length; i++) {
+            if (typeof arguments[i] === 'function') {
+                cbIndex = i;
+                break;
+            }
+        }
+        return oldDomManip.apply(this, arguments);
+    };
+    $(document.createElement('div')).append(document.createElement('div'));
+    $.fn.domManip = cbIndex === 2 ? function (args, table, callback) {
+        return oldDomManip.call(this, args, table, function (elem) {
+            var elems;
+            if (elem.nodeType === 11) {
+                elems = can.makeArray(elem.childNodes);
+            }
+            var ret = callback.apply(this, arguments);
+            can.inserted(elems ? elems : [elem]);
+            return ret;
+        });
+    } : function (args, callback) {
+        return oldDomManip.call(this, args, function (elem) {
+            var elems;
+            if (elem.nodeType === 11) {
+                elems = can.makeArray(elem.childNodes);
+            }
+            var ret = callback.apply(this, arguments);
+            can.inserted(elems ? elems : [elem]);
+            return ret;
+        });
+    };
+    if (!can.attr.MutationObserver) {
+        var oldAttr = $.attr;
+        $.attr = function (el, attrName) {
+            var oldValue, newValue;
+            if (arguments.length >= 3) {
+                oldValue = oldAttr.call(this, el, attrName);
+            }
+            var res = oldAttr.apply(this, arguments);
+            if (arguments.length >= 3) {
+                newValue = oldAttr.call(this, el, attrName);
+            }
+            if (newValue !== oldValue) {
+                can.attr.trigger(el, attrName, oldValue);
+            }
+            return res;
+        };
+        var oldRemove = $.removeAttr;
+        $.removeAttr = function (el, attrName) {
+            var oldValue = oldAttr.call(this, el, attrName), res = oldRemove.apply(this, arguments);
+            if (oldValue != null) {
+                can.attr.trigger(el, attrName, oldValue);
+            }
+            return res;
+        };
+        $.event.special.attributes = {
+            setup: function () {
+                can.data(can.$(this), 'canHasAttributesBindings', true);
+            },
+            teardown: function () {
+                $.removeData(this, 'canHasAttributesBindings');
+            }
+        };
+    } else {
+        $.event.special.attributes = {
+            setup: function () {
+                var self = this;
+                var observer = new can.attr.MutationObserver(function (mutations) {
+                        mutations.forEach(function (mutation) {
+                            var copy = can.simpleExtend({}, mutation);
+                            can.trigger(self, copy, []);
+                        });
+                    });
+                observer.observe(this, {
+                    attributes: true,
+                    attributeOldValue: true
+                });
+                can.data(can.$(this), 'canAttributesObserver', observer);
+            },
+            teardown: function () {
+                can.data(can.$(this), 'canAttributesObserver').disconnect();
+                $.removeData(this, 'canAttributesObserver');
+            }
+        };
+    }
+    (function () {
+        var text = '<-\n>', frag = can.buildFragment(text, document);
+        if (text !== frag.childNodes[0].nodeValue) {
+            var oldBuildFragment = can.buildFragment;
+            can.buildFragment = function (content, context) {
+                var res = oldBuildFragment(content, context);
+                if (res.childNodes.length === 1 && res.childNodes[0].nodeType === 3) {
+                    res.childNodes[0].nodeValue = content;
+                }
+                return res;
+            };
+        }
+    }());
+    $.event.special.inserted = {};
+    $.event.special.removed = {};
+    return can;
+});
 /*can/util/util*/
-define("can/util/util",["can/util/jquery/jquery"],function(u){return u});
+define('can/util/util', ['can/util/jquery/jquery'], function (can) {
+    return can;
+});
 /*can/view/view*/
-define("can/view/view",["can/util/util"],function(e){var r=e.isFunction,n=e.makeArray,t=1,i=function(e){var r=function(){return s.frag(e.apply(this,arguments))};return r.render=function(){return e.apply(e,arguments)},r},u=function(e,r){if(!e.length)throw new Error("can.view: No template or empty template:"+r)},o=function(n,t){if(r(n)){var i=e.Deferred();return i.resolve(n)}var o,a,c,d="string"==typeof n?n:n.url,f=n.engine&&"."+n.engine||d.match(/\.[\w\d]+$/);if(d.match(/^#/)&&(d=d.substr(1)),(a=document.getElementById(d))&&(f="."+a.type.match(/\/(x\-)?(.+)/)[2]),f||s.cached[d]||(d+=f=s.ext),e.isArray(f)&&(f=f[0]),c=s.toId(d),d.match(/^\/\//)&&(d=d.substr(2),d=window.steal?steal.config().root.mapJoin(""+steal.id(d)):d),window.require&&require.toUrl&&(d=require.toUrl(d)),o=s.types[f],s.cached[c])return s.cached[c];if(a)return s.registerView(c,a.innerHTML,o);var p=new e.Deferred;return e.ajax({async:t,url:d,dataType:"text",error:function(e){u("",d),p.reject(e)},success:function(e){u(e,d),s.registerView(c,e,o,p)}}),p},a=function(r){var n=[];if(e.isPromise(r))return[r];for(var t in r)e.isPromise(r[t])&&n.push(r[t]);return n},c=function(r){return e.isArray(r)&&"success"===r[1]?r[0]:r},s=e.view=e.template=function(e,n,t,i){return r(t)&&(i=t,t=void 0),s.renderAs("fragment",e,n,t,i)};return e.extend(s,{frag:function(e,r){return s.hookup(s.fragment(e),r)},fragment:function(r){return e.frag(r,document)},toId:function(r){return e.map(r.toString().split(/\/|\./g),function(e){return e?e:void 0}).join("_")},toStr:function(e){return null==e?"":""+e},hookup:function(r,n){var t,i,u=[];return e.each(r.childNodes?e.makeArray(r.childNodes):r,function(r){1===r.nodeType&&(u.push(r),u.push.apply(u,e.makeArray(r.getElementsByTagName("*"))))}),e.each(u,function(e){e.getAttribute&&(t=e.getAttribute("data-view-id"))&&(i=s.hookups[t])&&(i(e,n,t),delete s.hookups[t],e.removeAttribute("data-view-id"))}),r},hookups:{},hook:function(e){return s.hookups[++t]=e," data-view-id='"+t+"'"},cached:{},cachedRenderers:{},cache:!0,register:function(r){this.types["."+r.suffix]=r,e[r.suffix]=s[r.suffix]=function(e,n){var t,u;if(!n)return u=function(){return t||(t=r.fragRenderer?r.fragRenderer(null,e):i(r.renderer(null,e))),t.apply(this,arguments)},u.render=function(){var n=r.renderer(null,e);return n.apply(n,arguments)},u;var o=function(){return t||(t=r.fragRenderer?r.fragRenderer(e,n):r.renderer(e,n)),t.apply(this,arguments)};return r.fragRenderer?s.preload(e,o):s.preloadStringRenderer(e,o)}},types:{},ext:".ejs",registerScript:function(e,r,n){return"can.view.preloadStringRenderer('"+r+"',"+s.types["."+e].script(r,n)+");"},preload:function(r,n){var t=s.cached[r]=(new e.Deferred).resolve(function(e,r){return n.call(e,e,r)});return t.__view_id=r,s.cachedRenderers[r]=n,n},preloadStringRenderer:function(e,r){return this.preload(e,i(r))},render:function(r,n,t,i,u){return e.view.renderAs("string",r,n,t,i,u)},renderTo:function(e,r,n,t,i){return("string"===e&&r.render?r.render:r)(n,t,i)},renderAs:function(t,i,u,d,f,p){void 0!==f&&"string"==typeof f.expression&&(p=f,f=void 0),r(d)&&(f=d,d=void 0);var l,h,v,g,m=a(u);if(m.length)return l=new e.Deferred,h=e.extend({},u),m.push(o(i,!0)),e.when.apply(e,m).then(function(r){var i,o=n(arguments),a=o.pop();if(e.isPromise(u))h=c(r);else for(var s in u)e.isPromise(u[s])&&(h[s]=c(o.shift()));i=e.view.renderTo(t,a,h,d,p),l.resolve(i,h),f&&f(i,h)},function(){l.reject.apply(l,arguments)}),l;if(v=r(f),l=e.__notObserve(o)(i,v),v)g=l,l.then(function(r){f(u?e.view.renderTo(t,r,u,d,p):r)});else{if("resolved"===l.state()&&l.__view_id){var w=s.cachedRenderers[l.__view_id];return u?e.view.renderTo(t,w,u,d,p):w}l.then(function(r){g=u?e.view.renderTo(t,r,u,d,p):r})}return g},registerView:function(r,n,t,u){var o,a="object"==typeof t?t:s.types[t||s.ext];return o=a.fragRenderer?a.fragRenderer(r,n):i(a.renderer(r,n)),u=u||new e.Deferred,s.cache&&(s.cached[r]=u,u.__view_id=r,s.cachedRenderers[r]=o),u.resolve(o)},simpleHelper:function(r){return function(){var n=[],t=arguments;return e.each(t,function(e,r){if(r<=t.length){for(;e&&e.isComputed;)e=e();n.push(e)}}),r.apply(this,n)}}}),e});
+define('can/view/view', ['can/util/util'], function (can) {
+    var isFunction = can.isFunction, makeArray = can.makeArray, hookupId = 1;
+    var makeRenderer = function (textRenderer) {
+        var renderer = function () {
+            return $view.frag(textRenderer.apply(this, arguments));
+        };
+        renderer.render = function () {
+            return textRenderer.apply(textRenderer, arguments);
+        };
+        return renderer;
+    };
+    var checkText = function (text, url) {
+        if (!text.length) {
+            throw 'can.view: No template or empty template:' + url;
+        }
+    };
+    var getRenderer = function (obj, async) {
+        if (isFunction(obj)) {
+            var def = can.Deferred();
+            return def.resolve(obj);
+        }
+        var url = typeof obj === 'string' ? obj : obj.url, suffix = obj.engine && '.' + obj.engine || url.match(/\.[\w\d]+$/), type, el, id;
+        if (url.match(/^#/)) {
+            url = url.substr(1);
+        }
+        if (el = document.getElementById(url)) {
+            suffix = '.' + el.type.match(/\/(x\-)?(.+)/)[2];
+        }
+        if (!suffix && !$view.cached[url]) {
+            url += suffix = $view.ext;
+        }
+        if (can.isArray(suffix)) {
+            suffix = suffix[0];
+        }
+        id = $view.toId(url);
+        if (url.match(/^\/\//)) {
+            url = url.substr(2);
+            url = !window.steal ? url : steal.config().root.mapJoin('' + steal.id(url));
+        }
+        if (window.require) {
+            if (require.toUrl) {
+                url = require.toUrl(url);
+            }
+        }
+        type = $view.types[suffix];
+        if ($view.cached[id]) {
+            return $view.cached[id];
+        } else if (el) {
+            return $view.registerView(id, el.innerHTML, type);
+        } else {
+            var d = new can.Deferred();
+            can.ajax({
+                async: async,
+                url: url,
+                dataType: 'text',
+                error: function (jqXHR) {
+                    checkText('', url);
+                    d.reject(jqXHR);
+                },
+                success: function (text) {
+                    checkText(text, url);
+                    $view.registerView(id, text, type, d);
+                }
+            });
+            return d;
+        }
+    };
+    var getDeferreds = function (data) {
+        var deferreds = [];
+        if (can.isDeferred(data)) {
+            return [data];
+        } else {
+            for (var prop in data) {
+                if (can.isDeferred(data[prop])) {
+                    deferreds.push(data[prop]);
+                }
+            }
+        }
+        return deferreds;
+    };
+    var usefulPart = function (resolved) {
+        return can.isArray(resolved) && resolved[1] === 'success' ? resolved[0] : resolved;
+    };
+    var $view = can.view = can.template = function (view, data, helpers, callback) {
+            if (isFunction(helpers)) {
+                callback = helpers;
+                helpers = undefined;
+            }
+            return $view.renderAs('fragment', view, data, helpers, callback);
+        };
+    can.extend($view, {
+        frag: function (result, parentNode) {
+            return $view.hookup($view.fragment(result), parentNode);
+        },
+        fragment: function (result) {
+            if (typeof result !== 'string' && result.nodeType === 11) {
+                return result;
+            }
+            var frag = can.buildFragment(result, document.body);
+            if (!frag.childNodes.length) {
+                frag.appendChild(document.createTextNode(''));
+            }
+            return frag;
+        },
+        toId: function (src) {
+            return can.map(src.toString().split(/\/|\./g), function (part) {
+                if (part) {
+                    return part;
+                }
+            }).join('_');
+        },
+        toStr: function (txt) {
+            return txt == null ? '' : '' + txt;
+        },
+        hookup: function (fragment, parentNode) {
+            var hookupEls = [], id, func;
+            can.each(fragment.childNodes ? can.makeArray(fragment.childNodes) : fragment, function (node) {
+                if (node.nodeType === 1) {
+                    hookupEls.push(node);
+                    hookupEls.push.apply(hookupEls, can.makeArray(node.getElementsByTagName('*')));
+                }
+            });
+            can.each(hookupEls, function (el) {
+                if (el.getAttribute && (id = el.getAttribute('data-view-id')) && (func = $view.hookups[id])) {
+                    func(el, parentNode, id);
+                    delete $view.hookups[id];
+                    el.removeAttribute('data-view-id');
+                }
+            });
+            return fragment;
+        },
+        hookups: {},
+        hook: function (cb) {
+            $view.hookups[++hookupId] = cb;
+            return ' data-view-id=\'' + hookupId + '\'';
+        },
+        cached: {},
+        cachedRenderers: {},
+        cache: true,
+        register: function (info) {
+            this.types['.' + info.suffix] = info;
+            can[info.suffix] = $view[info.suffix] = function (id, text) {
+                var renderer, renderFunc;
+                if (!text) {
+                    renderFunc = function () {
+                        if (!renderer) {
+                            if (info.fragRenderer) {
+                                renderer = info.fragRenderer(null, id);
+                            } else {
+                                renderer = makeRenderer(info.renderer(null, id));
+                            }
+                        }
+                        return renderer.apply(this, arguments);
+                    };
+                    renderFunc.render = function () {
+                        var textRenderer = info.renderer(null, id);
+                        return textRenderer.apply(textRenderer, arguments);
+                    };
+                    return renderFunc;
+                }
+                var registeredRenderer = function () {
+                    if (!renderer) {
+                        if (info.fragRenderer) {
+                            renderer = info.fragRenderer(id, text);
+                        } else {
+                            renderer = info.renderer(id, text);
+                        }
+                    }
+                    return renderer.apply(this, arguments);
+                };
+                if (info.fragRenderer) {
+                    return $view.preload(id, registeredRenderer);
+                } else {
+                    return $view.preloadStringRenderer(id, registeredRenderer);
+                }
+            };
+        },
+        types: {},
+        ext: '.ejs',
+        registerScript: function (type, id, src) {
+            return 'can.view.preloadStringRenderer(\'' + id + '\',' + $view.types['.' + type].script(id, src) + ');';
+        },
+        preload: function (id, renderer) {
+            var def = $view.cached[id] = new can.Deferred().resolve(function (data, helpers) {
+                    return renderer.call(data, data, helpers);
+                });
+            def.__view_id = id;
+            $view.cachedRenderers[id] = renderer;
+            return renderer;
+        },
+        preloadStringRenderer: function (id, stringRenderer) {
+            return this.preload(id, makeRenderer(stringRenderer));
+        },
+        render: function (view, data, helpers, callback) {
+            return can.view.renderAs('string', view, data, helpers, callback);
+        },
+        renderTo: function (format, renderer, data, helpers) {
+            return (format === 'string' && renderer.render ? renderer.render : renderer)(data, helpers);
+        },
+        renderAs: function (format, view, data, helpers, callback) {
+            if (isFunction(helpers)) {
+                callback = helpers;
+                helpers = undefined;
+            }
+            var deferreds = getDeferreds(data);
+            var reading, deferred, dataCopy, async, response;
+            if (deferreds.length) {
+                deferred = new can.Deferred();
+                dataCopy = can.extend({}, data);
+                deferreds.push(getRenderer(view, true));
+                can.when.apply(can, deferreds).then(function (resolved) {
+                    var objs = makeArray(arguments), renderer = objs.pop(), result;
+                    if (can.isDeferred(data)) {
+                        dataCopy = usefulPart(resolved);
+                    } else {
+                        for (var prop in data) {
+                            if (can.isDeferred(data[prop])) {
+                                dataCopy[prop] = usefulPart(objs.shift());
+                            }
+                        }
+                    }
+                    result = can.view.renderTo(format, renderer, dataCopy, helpers);
+                    deferred.resolve(result, dataCopy);
+                    if (callback) {
+                        callback(result, dataCopy);
+                    }
+                }, function () {
+                    deferred.reject.apply(deferred, arguments);
+                });
+                return deferred;
+            } else {
+                reading = can.__clearReading();
+                async = isFunction(callback);
+                deferred = getRenderer(view, async);
+                if (reading) {
+                    can.__setReading(reading);
+                }
+                if (async) {
+                    response = deferred;
+                    deferred.then(function (renderer) {
+                        callback(data ? can.view.renderTo(format, renderer, data, helpers) : renderer);
+                    });
+                } else {
+                    if (deferred.state() === 'resolved' && deferred.__view_id) {
+                        var currentRenderer = $view.cachedRenderers[deferred.__view_id];
+                        return data ? can.view.renderTo(format, currentRenderer, data, helpers) : currentRenderer;
+                    } else {
+                        deferred.then(function (renderer) {
+                            response = data ? can.view.renderTo(format, renderer, data, helpers) : renderer;
+                        });
+                    }
+                }
+                return response;
+            }
+        },
+        registerView: function (id, text, type, def) {
+            var info = typeof type === 'object' ? type : $view.types[type || $view.ext], renderer;
+            if (info.fragRenderer) {
+                renderer = info.fragRenderer(id, text);
+            } else {
+                renderer = makeRenderer(info.renderer(id, text));
+            }
+            def = def || new can.Deferred();
+            if ($view.cache) {
+                $view.cached[id] = def;
+                def.__view_id = id;
+                $view.cachedRenderers[id] = renderer;
+            }
+            return def.resolve(renderer);
+        }
+    });
+    return can;
+});
 /*can/view/callbacks/callbacks*/
-define("can/view/callbacks/callbacks",["can/util/util","can/view/view"],function(t){var e=t.view.attr=function(t,e){if(!e){var i=a[t];if(!i)for(var n=0,l=r.length;l>n;n++){var o=r[n];if(o.match.test(t)){i=o.handler;break}}return i}"string"==typeof t?a[t]=e:r.push({match:t,handler:e})},a={},r=[],i=/[-\:]/,n=t.view.tag=function(e,a){if(!a){var r=l[e.toLowerCase()];return!r&&i.test(e)&&(r=function(){}),r}t.global.html5&&(t.global.html5.elements+=" "+e,t.global.html5.shivDocument()),l[e.toLowerCase()]=a},l={};return t.view.callbacks={_tags:l,_attributes:a,_regExpAttributes:r,tag:n,attr:e,tagHandler:function(e,a,r){var i,n=r.options.get("tags."+a,{proxyMethods:!1}),o=n||l[a],s=r.scope;if(i=o?t.__notObserve(o)(e,r):s,i&&r.subtemplate){s!==i&&(s=s.add(i));var c=r.subtemplate(s,r.options),v="string"==typeof c?t.view.frag(c):c;t.appendChild(e,v)}}},t.view.callbacks});
+define('can/view/callbacks/callbacks', [
+    'can/util/util',
+    'can/view/view'
+], function (can) {
+    var attr = can.view.attr = function (attributeName, attrHandler) {
+            if (attrHandler) {
+                if (typeof attributeName === 'string') {
+                    attributes[attributeName] = attrHandler;
+                } else {
+                    regExpAttributes.push({
+                        match: attributeName,
+                        handler: attrHandler
+                    });
+                }
+            } else {
+                var cb = attributes[attributeName];
+                if (!cb) {
+                    for (var i = 0, len = regExpAttributes.length; i < len; i++) {
+                        var attrMatcher = regExpAttributes[i];
+                        if (attrMatcher.match.test(attributeName)) {
+                            cb = attrMatcher.handler;
+                            break;
+                        }
+                    }
+                }
+                return cb;
+            }
+        };
+    var attributes = {}, regExpAttributes = [], automaticCustomElementCharacters = /[-\:]/;
+    var tag = can.view.tag = function (tagName, tagHandler) {
+            if (tagHandler) {
+                if (can.global.html5) {
+                    can.global.html5.elements += ' ' + tagName;
+                    can.global.html5.shivDocument();
+                }
+                tags[tagName.toLowerCase()] = tagHandler;
+            } else {
+                var cb = tags[tagName.toLowerCase()];
+                if (!cb && automaticCustomElementCharacters.test(tagName)) {
+                    cb = function () {
+                    };
+                }
+                return cb;
+            }
+        };
+    var tags = {};
+    can.view.callbacks = {
+        _tags: tags,
+        _attributes: attributes,
+        _regExpAttributes: regExpAttributes,
+        tag: tag,
+        attr: attr,
+        tagHandler: function (el, tagName, tagData) {
+            var helperTagCallback = tagData.options.attr('tags.' + tagName), tagCallback = helperTagCallback || tags[tagName];
+            var scope = tagData.scope, res;
+            if (tagCallback) {
+                var reads = can.__clearReading();
+                res = tagCallback(el, tagData);
+                can.__setReading(reads);
+            } else {
+                res = scope;
+            }
+            if (res && tagData.subtemplate) {
+                if (scope !== res) {
+                    scope = scope.add(res);
+                }
+                var result = tagData.subtemplate(scope, tagData.options);
+                var frag = typeof result === 'string' ? can.view.frag(result) : result;
+                can.appendChild(el, frag);
+            }
+        }
+    };
+    return can.view.callbacks;
+});
 /*can/view/elements*/
-define("can/view/elements",["can/util/util","can/view/view"],function(e){var t="undefined"!=typeof document?document:null,n=t&&function(){return 1===e.$(document.createComment("~")).length}(),o={tagToContentPropMap:{option:t&&"textContent"in document.createElement("option")?"textContent":"innerText",textarea:"value"},attrMap:e.attr.map,attrReg:/([^\s=]+)[\s]*=[\s]*/,defaultValue:e.attr.defaultValue,tagMap:{"":"span",colgroup:"col",table:"tbody",tr:"td",ol:"li",ul:"li",tbody:"tr",thead:"tr",tfoot:"tr",select:"option",optgroup:"option"},reverseTagMap:{col:"colgroup",tr:"tbody",option:"select",td:"tr",th:"tr",li:"ul"},selfClosingTags:{col:!0},getParentNode:function(e,t){return t&&11===e.parentNode.nodeType?t:e.parentNode},setAttr:e.attr.set,getAttr:e.attr.get,removeAttr:e.attr.remove,contentText:function(e){return"string"==typeof e?e:e||0===e?""+e:""},after:function(t,n){var o=t[t.length-1];o.nextSibling?e.insertBefore(o.parentNode,n,o.nextSibling,e.document):e.appendChild(o.parentNode,n,e.document)},replace:function(t,r){var a,l=t[0].parentNode;"SELECT"===l.nodeName.toUpperCase()&&l.selectedIndex>=0&&(a=l.value),o.after(t,r),e.remove(e.$(t)).length<t.length&&!n&&e.each(t,function(e){8===e.nodeType&&e.parentNode.removeChild(e)}),void 0!==a&&(l.value=a)}};return e.view.elements=o,o});
-/*can/util/bind/bind*/
-define("can/util/bind/bind",["can/util/util"],function(i){return i.bindAndSetup=function(){return i.addEvent.apply(this,arguments),this.__inSetup||(this._bindings?this._bindings++:(this._bindings=1,this._bindsetup&&this._bindsetup())),this},i.unbindAndTeardown=function(n,t){if(!this.__bindEvents)return this;var s=this.__bindEvents[n]||[],d=s.length;return i.removeEvent.apply(this,arguments),null===this._bindings?this._bindings=0:this._bindings=this._bindings-(d-s.length),!this._bindings&&this._bindteardown&&this._bindteardown(),this},i});
-/*can/util/batch/batch*/
-define("can/util/batch/batch",["can/util/can"],function(t){var a=1,n=0,c=null,e=null,s=[],u=!1;t.batch={start:function(t){if(n++,1===n){var c={events:[],callbacks:[],number:a++};s.push(c),t&&c.callbacks.push(t),e=c}},stop:function(a,l){if(a?n=0:n--,0===n){e=null;var h;if(u===!1){u=!0;for(var r,i=[];h=s.shift();){var b=h.events;i.push.apply(i,h.callbacks),c=h,t.batch.batchNum=h.number;var p;for(l&&t.batch.start(),r=0,p=b.length;p>r;r++)t.dispatch.apply(b[r][0],b[r][1]);t.batch._onDispatchedEvents(h.number),c=null,t.batch.batchNum=void 0}for(r=i.length-1;r>=0;r--)i[r]();u=!1}}},_onDispatchedEvents:function(){},trigger:function(a,n,c){a.__inSetup||(n="string"==typeof n?{type:n}:n,e?(n.batchNum=e.number,e.events.push([a,[n,c]])):n.batchNum?t.dispatch.call(a,n,c):s.length?(t.batch.start(),n.batchNum=e.number,e.events.push([a,[n,c]]),t.batch.stop()):t.dispatch.call(a,n,c))},afterPreviousEvents:function(a){var n=t.last(s);if(n){var c={};t.bind.call(c,"ready",a),n.events.push([c,[{type:"ready"},[]]])}else a({})},after:function(t){var a=e||c;a?a.callbacks.push(t):t({})}}});
-/*can/compute/read*/
-define("can/compute/read",["can/util/util"],function(e){var t=function(e,r,a){a=a||{};for(var o,s,i={foundObservable:!1},u=n(e,0,r,a,i),d=r.length,v=0;d>v;){s=u;for(var l=0,f=t.propertyReaders.length;f>l;l++){var c=t.propertyReaders[l];if(c.test(u)){u=c.read(u,r[v],v,a,i);break}}if(v+=1,u=n(u,v,r,a,i,s),o=typeof u,v<r.length&&(null===u||"function"!==o&&"object"!==o))return a.earlyExit&&a.earlyExit(s,v-1,u),{value:void 0,parent:s}}return void 0===u&&a.earlyExit&&a.earlyExit(s,v-1),{value:u,parent:s}},r=function(e,t){var r=t[e-1];return r&&r.at},n=function(e,r,n,a,o,s){var i;do{i=!1;for(var u=0,d=t.valueReaders.length;d>u;u++)t.valueReaders[u].test(e,r,n,a)&&(e=t.valueReaders[u].read(e,r,n,a,o,s))}while(i);return e};t.valueReaders=[{name:"compute",test:function(e,t,n,a){return e&&e.isComputed&&!r(t,n)},read:function(t,r,n,a,o){return a.readCompute===!1&&r===n.length?t:(!o.foundObservable&&a.foundObservable&&(a.foundObservable(t,r),o.foundObservable=!0),t instanceof e.Compute?t.get():t())}},{name:"function",test:function(t,r,n,a){var o=typeof t;return!("function"!==o||t.isComputed||e.Construct&&t.prototype instanceof e.Construct||e.route&&t===e.route)},read:function(t,n,a,o,s,i){return r(n,a)?n===a.length?e.proxy(t,i):t:o.callMethodsOnObservables&&e.isMapLike(i)?t.apply(i,o.args||[]):o.isArgument&&n===a.length?o.proxyMethods!==!1?e.proxy(t,i):t:t.apply(i,o.args||[])}}],t.propertyReaders=[{name:"map",test:e.isMapLike,read:function(e,t,r,n,a){!a.foundObservable&&n.foundObservable&&(n.foundObservable(e,r),a.foundObservable=!0);var o=e.attr(t.key);return void 0!==o?o:e[t.key]}},{name:"promise",test:function(t){return e.isPromise(t)},read:function(t,r,n,a,o){!o.foundObservable&&a.foundObservable&&(a.foundObservable(t,n),o.foundObservable=!0);var s=t.__observeData;return t.__observeData||(s=t.__observeData={isPending:!0,state:"pending",isResolved:!1,isRejected:!1,value:void 0,reason:void 0},e.cid(s),e.simpleExtend(s,e.event),t.then(function(e){s.isPending=!1,s.isResolved=!0,s.value=e,s.state="resolved",s.dispatch("state",["resolved","pending"])},function(e){s.isPending=!1,s.isRejected=!0,s.reason=e,s.state="rejected",s.dispatch("state",["rejected","pending"])})),e.__observe(s,"state"),r.key in s?s[r.key]:t[r.key]}},{name:"object",test:function(){return!0},read:function(e,t){return null==e?void 0:t.key in e?e[t.key]:t.at&&a[t.key]&&"@"+t.key in e?(t.at=!1,e["@"+t.key]):void 0}}];var a={index:!0,key:!0,event:!0,element:!0,viewModel:!0};return t.write=function(t,r,n,a){return a=a||{},e.isMapLike(t)?!a.isArgument&&t._data&&t._data[r]&&t._data[r].isComputed?t._data[r](n):t.attr(r,n):t[r]&&t[r].isComputed?t[r](n):void("object"==typeof t&&(t[r]=n))},t.reads=function(e){var t=[],r=0,n=!1;"@"===e.charAt(0)&&(r=1,n=!0);for(var a="",o=r;o<e.length;o++){var s=e.charAt(o);"."===s||"@"===s?"\\"!==e.charAt(o-1)?(t.push({key:a,at:n}),n="@"===s,a=""):a=a.substr(0,a.length-1)+".":a+=s}return t.push({key:a,at:n}),t},t});
-/*can/compute/get_value_and_bind*/
-define("can/compute/get_value_and_bind",["can/util/util"],function(e){function t(t,n,r){this.newObserved={},this.oldObserved=null,this.func=t,this.context=n,this.compute=r,this.onDependencyChange=e.proxy(this.onDependencyChange,this),this.depth=null,this.childDepths={},this.ignore=0,this.inBatch=!1,this.ready=!1,r.observedInfo=this,this.setReady=e.proxy(this._setReady,this)}e.simpleExtend(t.prototype,{getPrimaryDepth:function(){return this.compute._primaryDepth},_setReady:function(){this.ready=!0},getDepth:function(){return null!==this.depth?this.depth:this.depth=this._getDepth()},_getDepth:function(){var e=0,t=this.childDepths;for(var n in t)t[n]>e&&(e=t[n]);return e+1},addEdge:function(e){e.obj.bind(e.event,this.onDependencyChange),e.obj.observedInfo&&(this.childDepths[e.obj._cid]=e.obj.observedInfo.getDepth(),this.depth=null)},removeEdge:function(e){e.obj.unbind(e.event,this.onDependencyChange),e.obj.observedInfo&&(delete this.childDepths[e.obj._cid],this.depth=null)},dependencyChange:function(e){this.bound&&this.ready&&(void 0!==e.batchNum?e.batchNum!==this.batchNum&&(t.registerUpdate(this),this.batchNum=e.batchNum):this.updateCompute(e.batchNum))},onDependencyChange:function(e,t,n){this.dependencyChange(e,t,n)},updateCompute:function(e){if(this.bound){var t=this.value;this.getValueAndBind(),this.compute.updater(this.value,t,e)}},getValueAndBind:function(){this.bound=!0,this.oldObserved=this.newObserved||{},this.ignore=0,this.newObserved={},this.ready=!1,h.push(this),this.value=this.func.call(this.context),h.pop(),this.updateBindings(),e.batch.afterPreviousEvents(this.setReady)},updateBindings:function(){var e,t,n=this.newObserved,r=this.oldObserved;for(e in n)t=n[e],r[e]?r[e]=null:this.addEdge(t);for(e in r)t=r[e],t&&this.removeEdge(t)},teardown:function(){this.bound=!1;for(var e in this.newObserved){var t=this.newObserved[e];this.removeEdge(t)}this.newObserved={}}});var n,r=[],i=1/0,s=0;t.registerUpdate=function(e,t){var n=e.getDepth()-1,h=e.getPrimaryDepth();i=Math.min(h,i),s=Math.max(h,s);var o=r[h]||(r[h]={observeInfos:[],current:1/0,max:0}),a=o.observeInfos[n]||(o.observeInfos[n]=[]);a.push(e),o.current=Math.min(n,o.current),o.max=Math.max(n,o.max)},t.updateUntil=function(e,t){for(var h;;){if(!(s>=i&&e>=i))return;var o=r[i];if(o&&o.current<=o.max){if(o.current>t)return;var a=o.observeInfos[o.current];a&&(h=a.pop())?h.updateCompute(n):o.current++}else i++}},t.batchEnd=function(e){var t;for(n=e;;){if(!(s>=i))return r=[],i=1/0,void(s=0);var h=r[i];if(h&&h.current<=h.max){var o=h.observeInfos[h.current];o&&(t=o.pop())?t.updateCompute(e):h.current++}else i++}};var h=[];return e.__observe=function(e,t){var n=h[h.length-1];if(n&&!n.ignore){var r=t+"",i=e._cid+"|"+r;n.traps?n.traps.push({obj:e,event:r,name:i}):n.newObserved[i]||(n.newObserved[i]={obj:e,event:r})}},e.__reading=e.__observe,e.__trapObserves=function(){if(h.length){var e=h[h.length-1],t=e.traps=[];return function(){return e.traps=null,t}}return function(){return[]}},e.__observes=function(e){var t=h[h.length-1];if(t)for(var n=0,r=e.length;r>n;n++){var i=e[n],s=i.name;t.newObserved[s]||(t.newObserved[s]=i)}},e.__isRecordingObserves=function(){var e=h.length,t=h[e-1];return e&&0===t.ignore&&t},e.__notObserve=function(e){return function(){if(h.length){var t=h[h.length-1];t.ignore++;var n=e.apply(this,arguments);return t.ignore--,n}return e.apply(this,arguments)}},e.batch._onDispatchedEvents=t.batchEnd,t});
-/*can/compute/proto_compute*/
-define("can/compute/proto_compute",["can/util/util","can/util/bind/bind","can/compute/read","can/compute/get_value_and_bind","can/util/batch/batch"],function(t,e,n,i){t.Compute=function(e,n,i,s){t.cid(this,"compute");for(var u=[],r=0,h=arguments.length;h>r;r++)u[r]=arguments[r];var a=typeof u[1];"function"==typeof u[0]?this._setupGetterSetterFn(u[0],u[1],u[2],u[3]):u[1]?"string"===a?this._setupProperty(u[0],u[1],u[2]):"function"===a?this._setupSetter(u[0],u[1],u[2]):u[1]&&u[1].fn?this._setupAsyncCompute(u[0],u[1]):this._setupSettings(u[0],u[1]):this._setupSimpleValue(u[0]),this._args=u,this._primaryDepth=0,this.isComputed=!0},t.simpleExtend(t.Compute.prototype,{setPrimaryDepth:function(t){this._primaryDepth=t},_setupGetterSetterFn:function(e,n,i){this._set=n?t.proxy(e,n):e,this._get=n?t.proxy(e,n):e,this._canObserve=i===!1?!1:!0;var s=u(this,e,n||this);t.simpleExtend(this,s)},_setupProperty:function(e,n,i){var s,u=t.isMapLike(e),r=this;u?(s=function(t,e,n){r.updater(e,n,t.batchNum)},this.hasDependencies=!0,this._get=function(){return e.attr(n)},this._set=function(t){e.attr(n,t)}):(s=function(){r.updater(r._get(),r.value)},this._get=function(){return t.getObject(n,[e])},this._set=function(i){var s=n.split("."),u=s.pop(),r=t.getObject(s.join("."),[e]);r[u]=i}),this._on=function(u){t.bind.call(e,i||n,s),this.value=this._get()},this._off=function(){return t.unbind.call(e,i||n,s)}},_setupSetter:function(e,n,i){this.value=e,this._set=n,t.simpleExtend(this,i)},_setupSettings:function(t,e){if(this.value=t,this._set=e.set||this._set,this._get=e.get||this._get,!e.__selfUpdater){var n=this,i=this.updater;this.updater=function(){i.call(n,n._get(),n.value)}}this._on=e.on?e.on:this._on,this._off=e.off?e.off:this._off},_setupAsyncCompute:function(e,n){var i=this;this.value=e,this._setUpdates=!0,this.lastSetValue=new t.Compute(e),this._set=function(t){return t===i.lastSetValue.get()?this.value:i.lastSetValue.set(t)},this._get=function(){return r.call(n.context,i.lastSetValue.get())};var s,r=n.fn;if(0===r.length)s=u(this,r,n.context);else if(1===r.length)s=u(this,function(){return r.call(n.context,i.lastSetValue.get())},n);else{var h=this.updater,a=function(t){h.call(i,t,i.value)};this.updater=function(t){h.call(i,t,i.value)},s=u(this,function(){var t=r.call(n.context,i.lastSetValue.get(),a);return void 0!==t?t:this.value},this)}t.simpleExtend(this,s)},_setupSimpleValue:function(t){this.value=t},_bindsetup:t.__notObserve(function(){this.bound=!0,this._on(this.updater)}),_bindteardown:function(){this._off(this.updater),this.bound=!1},bind:t.bindAndSetup,unbind:t.unbindAndTeardown,clone:function(e){return e&&"function"==typeof this._args[0]?this._args[1]=e:e&&(this._args[2]=e),new t.Compute(this._args[0],this._args[1],this._args[2],this._args[3])},_on:t.k,_off:t.k,get:function(){var e=t.__isRecordingObserves();return e&&this._canObserve!==!1&&(t.__observe(this,"change"),this.bound||t.Compute.temporarilyBind(this)),this.bound?(e&&this.getDepth&&this.getDepth()>=e.getDepth()&&i.updateUntil(this.getPrimaryDepth(),this.getDepth()),this.value):this._get()},_get:function(){return this.value},set:function(t){var e=this.value,n=this._set(t,e);return this._setUpdates?this.value:this.hasDependencies?this._get():(void 0===n?this.value=this._get():this.value=n,s(this,this.value,e),this.value)},_set:function(t){return this.value=t},updater:function(t,e,n){this.value=t,s(this,t,e,n)},toFunction:function(){return t.proxy(this._computeFn,this)},_computeFn:function(t){return arguments.length?this.set(t):this.get()}});var s=function(e,n,i,s){var u=n!==i&&!(n!==n&&i!==i);u&&t.batch.trigger(e,{type:"change",batchNum:s},[n,i])},u=function(e,n,s){var u=new i(n,s,e);return{readInfo:u,_on:function(){u.getValueAndBind(),e.value=u.value,e.hasDependencies=!t.isEmptyObject(u.newObserved)},_off:function(){u.teardown()},getDepth:function(){return u.getDepth()},getPrimaryDepth:function(){return u.getPrimaryDepth()}}};t.Compute.temporarilyBind=function(e){var n=e.computeInstance||e;n.bind("change",t.k),r||(r=[],setTimeout(h,10)),r.push(n)};var r,h=function(){for(var e=0,n=r.length;n>e;e++)r[e].unbind("change",t.k);r=null};return t.Compute.async=function(e,n,i){return new t.Compute(e,{fn:n,context:i})},t.Compute.truthy=function(e){return new t.Compute(function(){var t=e.get();return"function"==typeof t&&(t=t.get()),!!t})},t.Compute.read=n,t.Compute.set=n.write,t.Compute});
-/*can/compute/compute*/
-define("can/compute/compute",["can/util/util","can/util/bind/bind","can/util/batch/batch","can/compute/proto_compute"],function(t,n){return t.compute=function(n,e,u,o){var c=new t.Compute(n,e,u,o),r=c.bind,i=c.unbind,p=function(t){return arguments.length?c.set(t):c.get()},m=t.cid(p,"compute"),a="__handler"+m;return p.bind=function(t,n){var e=n&&n[a];return n&&!e&&(e=n[a]=function(){n.apply(p,arguments)}),r.call(c,t,e)},p.unbind=function(t,n){var e=n&&n[a];return e?(delete n[a],c.unbind(t,e)):i.apply(c,arguments)},p.isComputed=c.isComputed,p.clone=function(u){return"function"==typeof n&&(e=u),t.compute(n,e,u,o)},p.computeInstance=c,p},t.compute.truthy=function(n){return t.compute(function(){var t=n();return"function"==typeof t&&(t=t()),!!t})},t.compute.async=function(n,e,u){return t.compute(n,{fn:e,context:u})},t.compute.read=t.Compute.read,t.compute.set=t.Compute.set,t.compute.temporarilyBind=t.Compute.temporarilyBind,t.compute});
-/*can/view/scope/compute_data*/
-define("can/view/scope/compute_data",["can/util/util","can/compute/compute","can/compute/get_value_and_bind"],function(e,n,t){var o=function(n){return n.reads&&1===n.reads.length&&n.root instanceof e.Map&&!e.isFunction(n.root[n.reads[0].key])},a=function(n,t,o,a,r){if(!(arguments.length>4)){if(a.root)return e.compute.read(a.root,a.reads,o).value;var u=n.read(t,o);return a.scope=u.scope,a.initialValue=u.value,a.reads=u.reads,a.root=u.rootObserve,a.setRoot=u.setRoot,u.value}var d=a.root||a.setRoot;if(d)if(d.isComputed)d(r);else if(a.reads.length){var c=a.reads.length-1,i=a.reads.length?e.compute.read(d,a.reads.slice(0,c)).value:d;e.compute.set(i,a.reads[c].key,r,o)}};return function(n,r,u){u=u||{args:[]};var d={},c=function(e){return arguments.length?a(n,r,u,d,e):a(n,r,u,d)},i=e.compute(void 0,{on:function(){s.getValueAndBind(),o(d)&&(s.dependencyChange=function(e,n){return"function"!=typeof n?this.newVal=n:(s.dependencyChange=t.prototype.dependencyChange,s.getValueAndBind=t.prototype.getValueAndBind),t.prototype.dependencyChange.call(this,e)},s.getValueAndBind=function(){this.value=this.newVal}),i.computeInstance.value=s.value,i.computeInstance.hasDependencies=!e.isEmptyObject(s.newObserved)},off:function(){s.dependencyChange=t.prototype.dependencyChange,s.getValueAndBind=t.prototype.getValueAndBind,s.teardown()},set:c,get:c,__selfUpdater:!0}),s=new t(c,null,i.computeInstance);return d.compute=i,d}});
+define('can/view/elements', [
+    'can/util/util',
+    'can/view/view'
+], function (can) {
+    var doc = typeof document !== 'undefined' ? document : null;
+    var selectsCommentNodes = doc && function () {
+            return can.$(document.createComment('~')).length === 1;
+        }();
+    var elements = {
+            tagToContentPropMap: {
+                option: doc && 'textContent' in document.createElement('option') ? 'textContent' : 'innerText',
+                textarea: 'value'
+            },
+            attrMap: can.attr.map,
+            attrReg: /([^\s=]+)[\s]*=[\s]*/,
+            defaultValue: can.attr.defaultValue,
+            tagMap: {
+                '': 'span',
+                colgroup: 'col',
+                table: 'tbody',
+                tr: 'td',
+                ol: 'li',
+                ul: 'li',
+                tbody: 'tr',
+                thead: 'tr',
+                tfoot: 'tr',
+                select: 'option',
+                optgroup: 'option'
+            },
+            reverseTagMap: {
+                col: 'colgroup',
+                tr: 'tbody',
+                option: 'select',
+                td: 'tr',
+                th: 'tr',
+                li: 'ul'
+            },
+            getParentNode: function (el, defaultParentNode) {
+                return defaultParentNode && el.parentNode.nodeType === 11 ? defaultParentNode : el.parentNode;
+            },
+            setAttr: can.attr.set,
+            getAttr: can.attr.get,
+            removeAttr: can.attr.remove,
+            contentText: function (text) {
+                if (typeof text === 'string') {
+                    return text;
+                }
+                if (!text && text !== 0) {
+                    return '';
+                }
+                return '' + text;
+            },
+            after: function (oldElements, newFrag) {
+                var last = oldElements[oldElements.length - 1];
+                if (last.nextSibling) {
+                    can.insertBefore(last.parentNode, newFrag, last.nextSibling);
+                } else {
+                    can.appendChild(last.parentNode, newFrag);
+                }
+            },
+            replace: function (oldElements, newFrag) {
+                elements.after(oldElements, newFrag);
+                if (can.remove(can.$(oldElements)).length < oldElements.length && !selectsCommentNodes) {
+                    can.each(oldElements, function (el) {
+                        if (el.nodeType === 8) {
+                            el.parentNode.removeChild(el);
+                        }
+                    });
+                }
+            }
+        };
+    can.view.elements = elements;
+    return elements;
+});
 /*can/util/string/string*/
-define("can/util/string/string",["can/util/util"],function(e){var r=/_|-/,n=/\=\=/,t=/([A-Z]+)([A-Z][a-z])/g,a=/([a-z\d])([A-Z])/g,u=/([a-z\d])([A-Z])/g,i=/\{([^\}]+)\}/g,c=/"/g,o=/'/g,l=/-+(.)?/g,p=/[a-z][A-Z]/g,f=function(e,r,n){var t=e[r];return void 0===t&&n===!0&&(t=e[r]={}),t},g=function(e){return/^f|^o/.test(typeof e)},d=function(e){var r=null===e||void 0===e||isNaN(e)&&""+e=="NaN";return""+(r?"":e)};return e.extend(e,{esc:function(e){return d(e).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(c,"&#34;").replace(o,"&#39;")},getObject:function(r,n,t){var a,u,i,c,o=r?r.split("."):[],l=o.length,p=0;if(n=e.isArray(n)?n:[n||window],c=n.length,!l)return n[0];for(p;c>p;p++){for(a=n[p],i=void 0,u=0;l>u&&g(a);u++)i=a,a=f(i,o[u]);if(void 0!==i&&void 0!==a)break}if(t===!1&&void 0!==a&&delete i[o[u-1]],t===!0&&void 0===a)for(a=n[0],u=0;l>u&&g(a);u++)a=f(a,o[u],!0);return a},capitalize:function(e,r){return e.charAt(0).toUpperCase()+e.slice(1)},camelize:function(e){return d(e).replace(l,function(e,r){return r?r.toUpperCase():""})},hyphenate:function(e){return d(e).replace(p,function(e,r){return e.charAt(0)+"-"+e.charAt(1).toLowerCase()})},underscore:function(e){return e.replace(n,"/").replace(t,"$1_$2").replace(a,"$1_$2").replace(u,"_").toLowerCase()},sub:function(r,n,t){var a=[];return r=r||"",a.push(r.replace(i,function(r,u){var i=e.getObject(u,n,t===!0?!1:void 0);return void 0===i||null===i?(a=null,""):g(i)&&a?(a.push(i),""):""+i})),null===a?a:a.length<=1?a[0]:a},replacer:i,undHash:r}),e});
+define('can/util/string/string', ['can/util/util'], function (can) {
+    var strUndHash = /_|-/, strColons = /\=\=/, strWords = /([A-Z]+)([A-Z][a-z])/g, strLowUp = /([a-z\d])([A-Z])/g, strDash = /([a-z\d])([A-Z])/g, strReplacer = /\{([^\}]+)\}/g, strQuote = /"/g, strSingleQuote = /'/g, strHyphenMatch = /-+(.)?/g, strCamelMatch = /[a-z][A-Z]/g, getNext = function (obj, prop, add) {
+            var result = obj[prop];
+            if (result === undefined && add === true) {
+                result = obj[prop] = {};
+            }
+            return result;
+        }, isContainer = function (current) {
+            return /^f|^o/.test(typeof current);
+        }, convertBadValues = function (content) {
+            var isInvalid = content === null || content === undefined || isNaN(content) && '' + content === 'NaN';
+            return '' + (isInvalid ? '' : content);
+        };
+    can.extend(can, {
+        esc: function (content) {
+            return convertBadValues(content).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(strQuote, '&#34;').replace(strSingleQuote, '&#39;');
+        },
+        getObject: function (name, roots, add) {
+            var parts = name ? name.split('.') : [], length = parts.length, current, r = 0, i, container, rootsLength;
+            roots = can.isArray(roots) ? roots : [roots || window];
+            rootsLength = roots.length;
+            if (!length) {
+                return roots[0];
+            }
+            for (r; r < rootsLength; r++) {
+                current = roots[r];
+                container = undefined;
+                for (i = 0; i < length && isContainer(current); i++) {
+                    container = current;
+                    current = getNext(container, parts[i]);
+                }
+                if (container !== undefined && current !== undefined) {
+                    break;
+                }
+            }
+            if (add === false && current !== undefined) {
+                delete container[parts[i - 1]];
+            }
+            if (add === true && current === undefined) {
+                current = roots[0];
+                for (i = 0; i < length && isContainer(current); i++) {
+                    current = getNext(current, parts[i], true);
+                }
+            }
+            return current;
+        },
+        capitalize: function (s, cache) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        },
+        camelize: function (str) {
+            return convertBadValues(str).replace(strHyphenMatch, function (match, chr) {
+                return chr ? chr.toUpperCase() : '';
+            });
+        },
+        hyphenate: function (str) {
+            return convertBadValues(str).replace(strCamelMatch, function (str, offset) {
+                return str.charAt(0) + '-' + str.charAt(1).toLowerCase();
+            });
+        },
+        underscore: function (s) {
+            return s.replace(strColons, '/').replace(strWords, '$1_$2').replace(strLowUp, '$1_$2').replace(strDash, '_').toLowerCase();
+        },
+        sub: function (str, data, remove) {
+            var obs = [];
+            str = str || '';
+            obs.push(str.replace(strReplacer, function (whole, inside) {
+                var ob = can.getObject(inside, data, remove === true ? false : undefined);
+                if (ob === undefined || ob === null) {
+                    obs = null;
+                    return '';
+                }
+                if (isContainer(ob) && obs) {
+                    obs.push(ob);
+                    return '';
+                }
+                return '' + ob;
+            }));
+            return obs === null ? obs : obs.length <= 1 ? obs[0] : obs;
+        },
+        replacer: strReplacer,
+        undHash: strUndHash
+    });
+    return can;
+});
 /*can/construct/construct*/
-define("can/construct/construct",["can/util/string/string"],function(t){var n,e=0;try{Object.getOwnPropertyDescriptor({}),n=!0}catch(r){n=!1}var o=function(t,n){var e=Object.getOwnPropertyDescriptor(t,n);return e&&(e.get||e.set)?e:null},s=function(n,e,r){r=r||n;var s;for(var i in n)(s=o(n,i))?this._defineProperty(r,e,i,s):t.Construct._overwrite(r,e,i,n[i])},i=function(n,e,r){r=r||n;for(var o in n)t.Construct._overwrite(r,e,o,n[o])};return t.Construct=function(){return arguments.length?t.Construct.extend.apply(t.Construct,arguments):void 0},t.extend(t.Construct,{constructorExtends:!0,newInstance:function(){var t,n=this.instance();return n.setup&&(n.__inSetup=!0,t=n.setup.apply(n,arguments),delete n.__inSetup),n.init&&n.init.apply(n,t||arguments),n},_inherit:n?s:i,_defineProperty:function(t,n,e,r){Object.defineProperty(t,e,r)},_overwrite:function(t,n,e,r){t[e]=r},setup:function(n,e){this.defaults=t.extend(!0,{},n.defaults,this.defaults)},instance:function(){e=1;var t=new this;return e=0,t},extend:function(n,r,o){function s(){return e?void 0:this.constructor!==a&&arguments.length&&a.constructorExtends?a.extend.apply(a,arguments):a.newInstance.apply(a,arguments)}var i=n,u=r,c=o;"string"!=typeof i&&(c=u,u=i,i=null),c||(c=u,u=null),c=c||{};var a,p,f,l,h,d,y,m,g,v=this,_=this.prototype;g=this.instance(),t.Construct._inherit(c,_,g),i?(p=i.split("."),y=p.pop()):u&&u.shortName?y=u.shortName:this.shortName&&(y=this.shortName),"undefined"==typeof constructorName&&(a=function(){return s.apply(this,arguments)});for(d in v)v.hasOwnProperty(d)&&(a[d]=v[d]);t.Construct._inherit(u,v,a),i&&(f=t.getObject(p.join("."),window,!0),m=f,l=t.underscore(i.replace(/\./g,"_")),h=t.underscore(y),f[y]=a),t.extend(a,{constructor:a,prototype:g,namespace:m,_shortName:h,fullName:i,_fullName:l}),void 0!==y&&(a.shortName=y),a.prototype.constructor=a;var w=[v].concat(t.makeArray(arguments)),C=a.setup.apply(a,w);return a.init&&a.init.apply(a,C||w),a}}),t.Construct.prototype.setup=function(){},t.Construct.prototype.init=function(){},t.Construct});
-/*can/map/bubble*/
-define("can/map/bubble",["can/util/util"],function(n){var i=n.bubble={bind:function(n,e){if(!n.__inSetup){var b,t=i.events(n,e),r=t.length;n._bubbleBindings||(n._bubbleBindings={});for(var u=0;r>u;u++)b=t[u],n._bubbleBindings[b]?n._bubbleBindings[b]++:(n._bubbleBindings[b]=1,i.childrenOf(n,b))}},unbind:function(e,b){for(var t,r=i.events(e,b),u=r.length,d=0;u>d;d++)t=r[d],e._bubbleBindings&&e._bubbleBindings[t]--,e._bubbleBindings&&!e._bubbleBindings[t]&&(delete e._bubbleBindings[t],i.teardownChildrenFrom(e,t),n.isEmptyObject(e._bubbleBindings)&&delete e._bubbleBindings)},add:function(e,b,t){if(b instanceof n.Map&&e._bubbleBindings)for(var r in e._bubbleBindings)e._bubbleBindings[r]&&(i.teardownFromParent(e,b,r),i.toParent(b,e,t,r))},addMany:function(n,e){for(var b=0,t=e.length;t>b;b++)i.add(n,e[b],b)},remove:function(e,b){if(b instanceof n.Map&&e._bubbleBindings)for(var t in e._bubbleBindings)e._bubbleBindings[t]&&i.teardownFromParent(e,b,t)},removeMany:function(n,e){for(var b=0,t=e.length;t>b;b++)i.remove(n,e[b])},set:function(e,b,t,r){return n.isMapLike(t)&&i.add(e,t,b),n.isMapLike(r)&&i.remove(e,r),t},events:function(n,i){return n.constructor._bubbleRule(i,n)},toParent:function(i,e,b,t){n.listenTo.call(e,i,t,function(){var r=n.makeArray(arguments),u=r.shift();r[0]=(n.List&&e instanceof n.List?e.indexOf(i):b)+(r[0]?"."+r[0]:""),u.triggeredNS=u.triggeredNS||{},u.triggeredNS[e._cid]||(u.triggeredNS[e._cid]=!0,n.trigger(e,u,r),"change"===t&&n.trigger(e,r[0],[r[2],r[3]]))})},childrenOf:function(n,e){n._each(function(b,t){b&&b.bind&&i.toParent(b,n,t,e)})},teardownFromParent:function(i,e,b){e&&e.unbind&&n.stopListening.call(i,e,b)},teardownChildrenFrom:function(n,e){n._each(function(b){i.teardownFromParent(n,b,e)})},isBubbling:function(n,i){return n._bubbleBindings&&n._bubbleBindings[i]}};return i});
-/*can/util/object/isplain/isplain*/
-define("can/util/object/isplain/isplain",["can/util/can"],function(t){var n=Object.prototype.hasOwnProperty,r=function(t){return null!==t&&t==t.window},o=function(t){if(!t||"object"!=typeof t||t.nodeType||r(t))return!1;try{if(t.constructor&&!n.call(t,"constructor")&&!n.call(t.constructor.prototype,"isPrototypeOf"))return!1}catch(o){return!1}var c;for(c in t);return void 0===c||n.call(t,c)};return t.isPlainObject=o,t});
-/*can/map/map_helpers*/
-define("can/map/map_helpers",["can/util/util","can/util/object/isplain/isplain"],function(n){var t={attrParts:function(n,t){return t?[n]:"object"==typeof n?n:(""+n).split(".")},canMakeObserve:function(t){return t&&!n.isPromise(t)&&(n.isArray(t)||n.isPlainObject(t))},serialize:function(){var e=null;return function(i,r,a){var u=n.cid(i),c=!1;return e||(c=!0,e={attr:{},serialize:{}}),e[r][u]=a,i.each(function(u,c){var o,d=n.isMapLike(u),l=d&&e[r][n.cid(u)];o=l?l:i["___"+r]?i["___"+r](c,u):t.getValue(i,c,u,r),void 0!==o&&(a[c]=o)}),c&&(e=null),a}}(),getValue:function(t,e,i,r){return n.isMapLike(i)?i[r]():i},define:null,addComputedAttr:function(n,t,e){n._computedAttrs[t]={compute:e,count:0,handler:function(e,i,r){n._triggerChange(t,"set",i,r,e.batchNum)}}},addToMap:function(t,r){var a;e||(a=i,e={});var u=t._cid,c=n.cid(t);return e[c]||(e[c]={obj:t,instance:r,added:!u}),a},getMapFromObject:function(n){return e&&e[n._cid]&&e[n._cid].instance}},e=null,i=function(){for(var n in e)e[n].added&&delete e[n].obj._cid;e=null};return t});
-/*can/map/map*/
-define("can/map/map",["can/util/util","can/util/bind/bind","can/map/bubble","can/map/map_helpers","can/construct/construct","can/util/batch/batch","can/compute/get_value_and_bind"],function(t,e,i,n){var r={constructor:!0},s=t.Map=t.Construct.extend({setup:function(){if(t.Construct.setup.apply(this,arguments),this._computedPropertyNames=[],t.Map){this.defaults||(this.defaults={});for(var e in this.prototype)"define"!==e&&"constructor"!==e&&("function"!=typeof this.prototype[e]||this.prototype[e].prototype instanceof t.Construct)?this.defaults[e]=this.prototype[e]:this.prototype[e].isComputed&&this._computedPropertyNames.push(e);n.define&&n.define(this)}!t.List||this.prototype instanceof t.List||(this.List=s.List.extend({Map:this},{}))},shortName:"Map",_bubbleRule:function(t){return"change"===t||t.indexOf(".")>=0?["change"]:[]},bind:t.bindAndSetup,unbind:t.unbindAndTeardown,id:"id",keys:function(e){var i=[];t.__observe(e,"__keys");for(var n in e._data)i.push(n);return i}},{setup:function(e){e instanceof t.Map&&(e=e.serialize()),this._data={},t.cid(this,".map"),this._setupComputedProperties();var i=e&&n.addToMap(e,this),r=this._setupDefaults(e),s=t.extend(t.extend(!0,{},r),e);this.attr(s),i&&i()},_setupComputedProperties:function(){this._computedAttrs={};for(var t=this.constructor._computedPropertyNames,e=0,i=t.length;i>e;e++){var r=t[e];n.addComputedAttr(this,r,this[r].clone(this))}},_setupDefaults:function(){return this.constructor.defaults||{}},attr:function(t,e){var i=typeof t;return void 0===t?this._getAttrs():"string"!==i&&"number"!==i?this._setAttrs(t,e):1===arguments.length?this._get(t+""):(this._set(t+"",e),this)},_get:function(e){var i=e.indexOf(".");if(i>=0){var n=this.___get(e);if(void 0!==n)return t.__observe(this,e),n;var r=e.substr(0,i),s=e.substr(i+1),o=this.__get(r);return o&&o._get?o._get(s):void 0}return this.__get(e)},__get:function(e){return r[e]||this._computedAttrs[e]||t.__observe(this,e),this.___get(e)},___get:function(t){if(void 0!==t){var e=this._computedAttrs[t];return e&&e.compute?e.compute():this._data.hasOwnProperty(t)?this._data[t]:void 0}return this._data},_set:function(e,i,n){var r,s=e.indexOf(".");if(s>=0&&!n){var o=e.substr(0,s),a=e.substr(s+1);if(r=this.__inSetup?void 0:this.___get(o),!t.isMapLike(r))throw new Error("can.Map: Object does not exist");r._set(a,i)}else r=this.__inSetup?void 0:this.___get(e),this.__convert&&(i=this.__convert(e,i)),this.__set(e,this.__type(i,e),r)},__type:function(e,i){if("object"==typeof e&&!(e instanceof t.Map)&&n.canMakeObserve(e)){var r=n.getMapFromObject(e);if(r)return r;if(t.isArray(e)){var s=t.List;return new s(e)}var o=this.constructor.Map||t.Map;return new o(e)}return e},__set:function(t,e,n){if(e!==n){var r=this._computedAttrs[t],s=r||void 0!==n||this.___get().hasOwnProperty(t)?"set":"add";this.___set(t,"object"==typeof e?i.set(this,t,e,n):e),r&&r.count||this._triggerChange(t,s,e,n),"object"==typeof n&&i.teardownFromParent(this,n)}},___set:function(t,e){var i=this._computedAttrs[t];i&&i.compute?i.compute(e):this._data[t]=e,"function"==typeof this.constructor.prototype[t]||i||(this[t]=e)},removeAttr:function(t){return this._remove(t)},_remove:function(t){var e=n.attrParts(t),i=e.shift(),r=this.___get(i);return e.length&&r?r.removeAttr(e):("string"==typeof t&&~t.indexOf(".")&&(i=t),this.__remove(i,r),r)},__remove:function(t,e){t in this._data&&(this.___remove(t),this._triggerChange(t,"remove",void 0,e))},___remove:function(t){delete this._data[t],t in this.constructor.prototype||delete this[t]},___serialize:function(t,e){return n.getValue(this,t,e,"serialize")},_getAttrs:function(){return n.serialize(this,"attr",{})},_setAttrs:function(e,i){e=t.simpleExtend({},e);var r,s,o=this;t.batch.start(),this._each(function(r,a){if("_cid"!==a){if(s=e[a],void 0===s)return void(i&&o.removeAttr(a));o.__convert&&(s=o.__convert(a,s)),t.isMapLike(r)&&n.canMakeObserve(s)?r.attr(s,i):r!==s&&o.__set(a,o.__type(s,a),r),delete e[a]}});for(r in e)"_cid"!==r&&(s=e[r],this._set(r,s,!0));return t.batch.stop(),this},serialize:function(){return n.serialize(this,"serialize",{})},_triggerChange:function(e,n,r,s,o){i.isBubbling(this,"change")&&t.batch.trigger(this,{type:"change",target:this,batchNum:o},[e,n,r,s]),t.batch.trigger(this,{type:e,target:this,batchNum:o},[r,s]),("remove"===n||"add"===n)&&t.batch.trigger(this,{type:"__keys",target:this,batchNum:o})},_bindsetup:function(){},_bindteardown:function(){},one:t.one,bind:function(e,n){var r=this._computedAttrs&&this._computedAttrs[e];return r&&r.compute&&(r.count?r.count++:(r.count=1,r.compute.bind("change",r.handler))),i.bind(this,e),t.bindAndSetup.apply(this,arguments)},unbind:function(e,n){var r=this._computedAttrs&&this._computedAttrs[e];return r&&(1===r.count?(r.count=0,r.compute.unbind("change",r.handler)):r.count--),i.unbind(this,e),t.unbindAndTeardown.apply(this,arguments)},compute:function(e){if(t.isFunction(this.constructor.prototype[e]))return t.compute(this[e],this);var i=t.compute.read.reads(e),n=i.length-1;return t.compute(function(e){return arguments.length?void t.compute.read(this,i.slice(0,n)).value.attr(i[n].key,e):t.compute.read(this,i,{args:[]}).value},this)},each:function(){return t.each.apply(void 0,[this].concat(t.makeArray(arguments)))},_each:function(t){var e=this.___get();for(var i in e)e.hasOwnProperty(i)&&t(e[i],i)},dispatch:t.dispatch});return s.prototype.on=s.prototype.bind,s.prototype.off=s.prototype.unbind,s.on=s.bind,s.off=s.unbind,s});
-/*can/list/list*/
-define("can/list/list",["can/util/util","can/map/map","can/map/bubble","can/map/map_helpers"],function(t,e,i,r){var s=[].splice,n=function(){var t={0:"a",length:1};return s.call(t,0,1),!t[0]}(),h=e.extend({Map:e},{setup:function(e,i){this.length=0,t.cid(this,".map"),this._setupComputedProperties(),e=e||[];var s;t.isPromise(e)?this.replace(e):(s=e.length&&r.addToMap(e,this),this.push.apply(this,t.makeArray(e||[]))),s&&s(),t.simpleExtend(this,i)},_triggerChange:function(i,r,s,n){e.prototype._triggerChange.apply(this,arguments);var h=+i;~(""+i).indexOf(".")||isNaN(h)||("add"===r?(t.batch.trigger(this,r,[s,h]),t.batch.trigger(this,"length",[this.length])):"remove"===r?(t.batch.trigger(this,r,[n,h]),t.batch.trigger(this,"length",[this.length])):t.batch.trigger(this,r,[s,h]))},___get:function(t){if(t){var e=this._computedAttrs[t];return e&&e.compute?e.compute():this[t]}return this},__set:function(e,i,r){if(e=isNaN(+e)||e%1?e:+e,"number"==typeof e&&e>this.length-1){var s=new Array(e+1-this.length);return s[s.length-1]=i,this.push.apply(this,s),s}return t.Map.prototype.__set.call(this,""+e,i,r)},___set:function(t,e){this[t]=e,+t>=this.length&&(this.length=+t+1)},__remove:function(t,e){isNaN(+t)?(delete this[t],this._triggerChange(t,"remove",void 0,e)):this.splice(t,1)},_each:function(t){for(var e=this.___get(),i=0;i<e.length;i++)t(e[i],i)},serialize:function(){return r.serialize(this,"serialize",[])},splice:function(e,r){var h,a,o,c=t.makeArray(arguments),l=[],u=c.length>2;for(e=e||0,h=0,a=c.length-2;a>h;h++)o=h+2,c[o]=this.__type(c[o],o),l.push(c[o]),this[h+e]!==c[o]&&(u=!1);if(u&&this.length<=l.length)return l;void 0===r&&(r=c[1]=this.length-e);var p=s.apply(this,c);if(!n)for(h=this.length;h<p.length+this.length;h++)delete this[h];return t.batch.start(),r>0&&(i.removeMany(this,p),this._triggerChange(""+e,"remove",void 0,p)),c.length>2&&(i.addMany(this,l),this._triggerChange(""+e,"add",l,p)),t.batch.stop(),p},_getAttrs:function(){return r.serialize(this,"attr",[])},_setAttrs:function(e,i){e=t.makeArray(e),t.batch.start(),this._updateAttrs(e,i),t.batch.stop()},_updateAttrs:function(e,i){for(var s=Math.min(e.length,this.length),n=0;s>n;n++){var h=this[n],a=e[n];t.isMapLike(h)&&r.canMakeObserve(a)?h.attr(a,i):h!==a&&this._set(n+"",a)}e.length>this.length?this.push.apply(this,e.slice(this.length)):e.length<this.length&&i&&this.splice(e.length)}}),a=function(e){return e[0]&&t.isArray(e[0])?e[0]:t.makeArray(e)};return t.each({push:"length",unshift:0},function(e,r){var s=[][r];h.prototype[r]=function(){t.batch.start();for(var r,n,h=[],a=e?this.length:0,o=arguments.length;o--;)n=arguments[o],h[o]=i.set(this,o,this.__type(n,o));return r=s.apply(this,h),(!this.comparator||h.length)&&this._triggerChange(""+a,"add",h,void 0),t.batch.stop(),r}}),t.each({pop:"length",shift:0},function(e,r){h.prototype[r]=function(){if(!this.length)return void 0;var s=a(arguments),n=e&&this.length?this.length-1:0,h=[][r].apply(this,s);return t.batch.start(),this._triggerChange(""+n,"remove",void 0,[h]),h&&h.unbind&&i.remove(this,h),t.batch.stop(),h}}),t.extend(h.prototype,{indexOf:function(e,i){return t.__observe(this,"length"),t.inArray(e,this,i)},join:function(){return t.__observe(this,"length"),[].join.apply(this,arguments)},reverse:function(){var e=[].reverse.call(t.makeArray(this));return this.replace(e)},slice:function(){t.__observe(this,"length");var e=Array.prototype.slice.apply(this,arguments);return new this.constructor(e)},concat:function(){var e=[];return t.each(t.makeArray(arguments),function(i,r){e[r]=i instanceof t.List?i.serialize():i}),new this.constructor(Array.prototype.concat.apply(this.serialize(),e))},forEach:function(e,i){return t.each(this,e,i||this)},replace:function(e){if(t.isPromise(e)){this._promise&&(this._promise.__isCurrentPromise=!1);var i=this._promise=e;i.__isCurrentPromise=!0;var r=this;e.then(function(t){i.__isCurrentPromise&&r.replace(t)})}else this.splice.apply(this,[0,this.length].concat(t.makeArray(e||[])));return this},filter:function(t,e){var i,r=new this.constructor,s=this;return this.each(function(n,h,a){i=t.call(e|s,n,h,s),i&&r.push(n)}),r},map:function(e,i){var r=new t.List,s=this;return this.each(function(t,n,h){var a=e.call(i|s,t,n,s);r.push(a)}),r}}),t.List=e.List=h,t.List});
-/*can/view/scope/scope*/
-define("can/view/scope/scope",["can/util/util","can/view/scope/compute_data","can/construct/construct","can/map/map","can/list/list","can/view/view","can/compute/compute"],function(t,e){function n(t,e,n){this._context=t,this._parent=e,this._meta=n||{},this.__cache={}}function r(t,e,r){t.helpers||t.partials||t.tags||(t={helpers:t}),n.call(this,t,e,r)}return t.simpleExtend(n,{read:t.compute.read,Refs:t.Map.extend({shortName:"ReferenceMap"},{}),refsScope:function(){return new t.view.Scope(new this.Refs)}}),t.simpleExtend(n.prototype,{add:function(t,e){return t!==this._context?new this.constructor(t,this,e):this},read:function(e,n){if("%root"===e)return{value:this.getRoot()};var r="./"===e.substr(0,2),s="../"===e.substr(0,3),o="."===e||"this"===e,i=".."===e,a=r||s||o||i;if(a&&this._meta.notContext)return this._parent.read(e,n);var u;if(r)u=!0,e=e.substr(2);else{if(s){for(var c=this._parent;c._meta.notContext;)c=c._parent;return c.read(e.substr(3)||".",n)}if(o)return{value:this._context};if(i)return{value:this._parent._context}}var f=t.compute.read.reads(e);return"*"===f[0].key.charAt(0)?this.getRefs()._read(f,n,!0):this._read(f,n,u)},_read:function(e,n,r){for(var s,o,i,a,u,c=this,f=[],p=-1,h=t.simpleExtend({foundObservable:function(t,n){o=t,i=e.slice(n)},earlyExit:function(t,e){e>p&&(u=o,a=i,p=e)}},n);c;){if(s=c._context,null!==s&&("object"==typeof s||"function"==typeof s)){var _=t.__trapObserves(),l=t.compute.read(s,e,h),v=_();if(void 0!==l.value)return t.__observes(v),{scope:c,rootObserve:o,value:l.value,reads:i};f.push.apply(f,v)}c=r?null:c._parent}return t.__observes(f),{setRoot:u,reads:a,value:void 0}},get:t.__notObserve(function(e,n){n=t.simpleExtend({isArgument:!0},n);var r=this.read(e,n);return r.value}),getScope:function(t){for(var e=this;e;){if(t(e))return e;e=e._parent}},getContext:function(t){var e=this.getScope(t);return e&&e._context},getRefs:function(){return this.getScope(function(t){return t._context instanceof n.Refs})},getRoot:function(){for(var t=this,e=this;t._parent;)e=t,t=t._parent;return t._context instanceof n.Refs&&(t=e),t._context},set:function(e,n,r){var s,o,i=e.lastIndexOf("."),a=e.lastIndexOf("/");if(a>i?(s=e.substring(0,a),o=e.substring(a+1,e.length)):-1!==i?(s=e.substring(0,i),o=e.substring(i+1,e.length)):(s=".",o=e),"*"===e.charAt(0))t.compute.set(this.getRefs()._context,e,n,r);else{var u=this.read(s,r).value;t.compute.set(u,o,n,r)}},attr:t.__notObserve(function(e,n,r){return r=t.simpleExtend({isArgument:!0},r),2===arguments.length?this.set(e,n,r):this.get(e,r)}),computeData:function(t,n){return e(this,t,n)},compute:function(t,e){return this.computeData(t,e).compute},cloneFromRef:function(){for(var e,r,s=[],o=this;o;){if(e=o._context,e instanceof n.Refs){r=o._parent;break}s.unshift(e),o=o._parent}return r?(t.each(s,function(t){r=r.add(t)}),r):this}}),t.view.Scope=n,r.prototype=new n,r.prototype.constructor=r,t.view.Options=r,n});
-/*can/view/stache/utils*/
-define("can/view/stache/utils",["can/util/util","can/view/scope/scope"],function(can){var Options=can.view.Options;return{isArrayLike:function(n){return n&&n.splice&&"number"==typeof n.length},isObserveLike:function(n){return n instanceof can.Map||n&&!!n._get},emptyHandler:function(){},jsonParse:function(str){return"'"===str[0]?str.substr(1,str.length-2):"undefined"===str?void 0:can.global.JSON?JSON.parse(str):eval("("+str+")")},mixins:{last:function(){return this.stack[this.stack.length-1]},add:function(n){this.last().add(n)},subSectionDepth:function(){return this.stack.length-1}},convertToScopes:function(n,e,t,r,i,s,o){i&&(n.fn=this.makeRendererConvertScopes(i,e,t,r,o)),s&&(n.inverse=this.makeRendererConvertScopes(s,e,t,r,o))},makeRendererConvertScopes:function(n,e,t,r,i){var s=function(t,r,i){return n(t||e,r,i)},o=function(n,i,o){void 0===n||n instanceof can.view.Scope||(n=e.add(n)),void 0===i||i instanceof Options||(i=t.add(i));var c=s(n,i||t,o||r);return c};return i?o:can.__notObserve(o)},Options:Options}});
-/*can/view/node_lists/node_lists*/
-define("can/view/node_lists/node_lists",["can/util/util","can/view/elements"],function(e){var n=!0;try{document.createTextNode("")._=0}catch(r){n=!1}var t={},i={},a="ejs_"+Math.random(),s=0,u=function(e,r){var t=r||i,u=l(e,t);return u?u:n||3!==e.nodeType?(++s,e[a]=(e.nodeName?"element_":"obj_")+s):(++s,t["text_"+s]=e,"text_"+s)},l=function(e,r){if(n||3!==e.nodeType)return e[a];for(var t in r)if(r[t]===e)return t},p=[].splice,c=[].push,d=function(e){for(var n=0,r=0,t=e.length;t>r;r++){var i=e[r];i.nodeType?n++:n+=d(i)}return n},o=function(e,n){for(var r={},t=0,i=e.length;i>t;t++){var a=h.first(e[t]);r[u(a,n)]=e[t]}return r},f=function(e,n,r){for(var t in n)r[t]||e.newDeepChildren.push(n[t])},h={id:u,update:function(n,r){var t=h.unregisterChildren(n);r=e.makeArray(r);var i=n.length;return p.apply(n,[0,i].concat(r)),n.replacements?(h.nestReplacements(n),n.deepChildren=n.newDeepChildren,n.newDeepChildren=[]):h.nestList(n),t},nestReplacements:function(e){for(var n=0,r={},t=o(e.replacements,r),i=e.replacements.length,a={};n<e.length&&i;){var s=e[n],u=l(s,r),p=t[u];p&&(e.splice(n,d(p),p),a[u]=!0,i--),n++}i&&f(e,t,a),e.replacements=[]},nestList:function(e){for(var n=0;n<e.length;){var r=e[n],i=t[u(r)];i?i!==e&&e.splice(n,d(i),i):t[u(r)]=e,n++}},last:function(e){var n=e[e.length-1];return n.nodeType?n:h.last(n)},first:function(e){var n=e[0];return n.nodeType?n:h.first(n)},flatten:function(e){for(var n=[],r=0;r<e.length;r++){var t=e[r];t.nodeType?n.push(t):n.push.apply(n,h.flatten(t))}return n},register:function(n,r,t,i){return e.cid(n),n.unregistered=r,n.parentList=t,n.nesting=t&&"undefined"!=typeof t.nesting?t.nesting+1:0,t?(n.deepChildren=[],n.newDeepChildren=[],n.replacements=[],t!==!0&&(i?t.replacements.push(n):t.newDeepChildren.push(n))):h.nestList(n),n},unregisterChildren:function(n){var r=[];return e.each(n,function(e){e.nodeType?(n.replacements||delete t[u(e)],r.push(e)):c.apply(r,h.unregister(e,!0))}),e.each(n.deepChildren,function(e){h.unregister(e,!0)}),r},unregister:function(e,n){var r=h.unregisterChildren(e,!0);if(e.unregistered){var t=e.unregistered;if(e.replacements=e.unregistered=null,!n){var i=e.parentList&&e.parentList.deepChildren;if(i){var a=i.indexOf(e);-1!==a&&i.splice(a,1)}}t()}return r},nodeMap:t};return e.view.nodeLists=h,h});
-/*can/view/parser/parser*/
-define("can/view/parser/parser",[],function(){function t(t,e){for(var a=0;a<t.length;a++)e(t[a],a)}function e(e){var a={},r=e.split(",");return t(r,function(t){a[t]=!0}),a}function a(t,e){for(var a=0,r=t.length;r>a;a++){var n=t[a];e[n.tokenType].apply(e,n.args)}return t}var r="A-Za-z0-9",n="-:_"+r,o="[^=>\\s\\/]+",i="\\s*=\\s*",l="\\{[^\\}\\{]\\}",s="\\{\\{[^\\}]\\}\\}\\}?",u="(?:"+i+"(?:(?:"+s+")|(?:"+l+")|(?:\"[^\"]*\")|(?:'[^']*')|[^>\\s]+))?",f="\\{\\{[^\\}]*\\}\\}\\}?",c="\\{\\{([^\\}]*)\\}\\}\\}?",g=new RegExp("^<(["+r+"]["+n+"]*)((?:\\s*(?:(?:(?:"+o+")?"+u+")|(?:"+f+")+))*)\\s*(\\/?)>"),p=new RegExp("^<\\/(["+n+"]+)[^>]*>"),m=new RegExp(c,"g"),d=/<|\{\{/,h=/\s/,b=e("area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed"),v=e("a,address,article,applet,aside,audio,blockquote,button,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,h1,h2,h3,h4,h5,h6,header,hgroup,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,output,p,pre,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video"),S=e("a,abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var"),k=e("altGlyph,altGlyphDef,altGlyphItem,animateColor,animateMotion,animateTransform,clipPath,feBlend,feColorMatrix,feComponentTransfer,feComposite,feConvolveMatrix,feDiffuseLighting,feDisplacementMap,feDistantLight,feFlood,feFuncA,feFuncB,feFuncG,feFuncR,feGaussianBlur,feImage,feMerge,feMergeNode,feMorphology,feOffset,fePointLight,feSpecularLighting,feSpotLight,feTile,feTurbulence,foreignObject,glyphRef,linearGradient,radialGradient,textPath"),F=e("colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr"),y=e("script"),V="start,end,close,attrStart,attrEnd,attrValue,chars,comment,special,done".split(","),x=function(){},E=function(e,r,n){function o(t,e,a,n){if(e=k[e]?e:e.toLowerCase(),v[e]&&!S[e])for(var o=C.last();o&&S[o]&&!v[o];)i("",o),o=C.last();F[e]&&C.last()===e&&i("",e),n=b[e]||!!n,r.start(e,n),n||C.push(e),E.parseAttrs(a,r),r.end(e,n)}function i(t,e){var a;if(e)for(e=k[e]?e:e.toLowerCase(),a=C.length-1;a>=0&&C[a]!==e;a--);else a=0;if(a>=0){for(var n=C.length-1;n>=a;n--)r.close&&r.close(C[n]);C.length=a}}function l(t,e){r.special&&r.special(e)}if("object"==typeof e)return a(e,r);var s=[];r=r||{},n&&t(V,function(t){var e=r[t]||x;r[t]=function(){e.apply(this,arguments)!==!1&&s.push({tokenType:t,args:[].slice.call(arguments,0)})}});var u,f,c,h=function(){A&&r.chars&&r.chars(A),A=""},C=[],N=e,A="";for(C.last=function(){return this[this.length-1]};e;){if(f=!0,C.last()&&y[C.last()])e=e.replace(new RegExp("([\\s\\S]*?)</"+C.last()+"[^>]*>"),function(t,e){return e=e.replace(/<!--([\s\S]*?)-->|<!\[CDATA\[([\s\S]*?)]]>/g,"$1$2"),r.chars&&r.chars(e),""}),i("",C.last());else if(0===e.indexOf("<!--")?(u=e.indexOf("-->"),u>=0&&(h(),r.comment&&r.comment(e.substring(4,u)),e=e.substring(u+3),f=!1)):0===e.indexOf("</")?(c=e.match(p),c&&(h(),e=e.substring(c[0].length),c[0].replace(p,i),f=!1)):0===e.indexOf("<")?(c=e.match(g),c&&(h(),e=e.substring(c[0].length),c[0].replace(g,o),f=!1)):0===e.indexOf("{{")&&(c=e.match(m),c&&(h(),e=e.substring(c[0].length),c[0].replace(m,l))),f){u=e.search(d),0===u&&e===N&&(A+=e.charAt(0),e=e.substr(1),u=e.search(d));var q=0>u?e:e.substring(0,u);e=0>u?"":e.substring(u),q&&(A+=q)}if(e===N)throw new Error("Parse Error: "+e);N=e}return h(),i(),r.done(),s},C=function(t,e,a,r){t.attrStart=r.substring("number"==typeof t.nameStart?t.nameStart:e,e),a.attrStart(t.attrStart),t.inName=!1},N=function(t,e,a,r){void 0!==t.valueStart&&t.valueStart<e?a.attrValue(r.substring(t.valueStart,e)):!t.inValue,a.attrEnd(t.attrStart),t.attrStart=void 0,t.valueStart=void 0,t.inValue=!1,t.inName=!1,t.lookingForEq=!1,t.inQuote=!1,t.lookingForName=!0};return E.parseAttrs=function(t,e){if(t){for(var a,r=0,n={inDoubleCurly:!1,inName:!1,nameStart:void 0,inValue:!1,valueStart:void 0,inQuote:!1,attrStart:void 0,lookingForName:!0,lookingForValue:!1,lookingForEq:!1};r<t.length;){a=r;var o=t.charAt(r),i=t.charAt(r+1),l=t.charAt(r+2);if(r++,"{"===o&&"{"===i)n.inValue&&a>n.valueStart?e.attrValue(t.substring(n.valueStart,a)):n.inName&&n.nameStart<a?(C(n,a,e,t),N(n,a,e,t)):n.lookingForValue?n.inValue=!0:n.lookingForEq&&n.attrStart&&N(n,a,e,t),n.inDoubleCurly=!0,n.doubleCurlyStart=a+2,r++;else if(n.inDoubleCurly){if("}"===o&&"}"===i){var s="}"===l?1:0;e.special(t.substring(n.doubleCurlyStart,a)),n.inDoubleCurly=!1,n.inValue&&(n.valueStart=a+2+s),r+=1+s}}else n.inValue?n.inQuote?o===n.inQuote&&N(n,a,e,t):h.test(o)&&N(n,a,e,t):"="===o&&(n.lookingForEq||n.lookingForName||n.inName)?(n.attrStart||C(n,a,e,t),n.lookingForValue=!0,n.lookingForEq=!1,n.lookingForName=!1):n.inName?h.test(o)&&(C(n,a,e,t),n.lookingForEq=!0):n.lookingForName?h.test(o)||(n.attrStart&&N(n,a,e,t),n.nameStart=a,n.inName=!0):n.lookingForValue&&(h.test(o)||(n.lookingForValue=!1,n.inValue=!0,"'"===o||'"'===o?(n.inQuote=o,n.valueStart=a+1):n.valueStart=a))}n.inName?(C(n,a+1,e,t),N(n,a+1,e,t)):n.lookingForEq?N(n,a+1,e,t):n.inValue&&N(n,a+1,e,t)}},E});
-/*can/util/array/diff*/
-define("can/util/array/diff",[],function(){var e=[].slice;return function(n,t){for(var i=0,r=0,l=n.length,u=t.length,s=[];l>i&&u>r;){var d=n[i],f=t[r];if(d!==f)if(u>r+1&&t[r+1]===d)s.push({index:r,deleteCount:0,insert:[t[r]]}),i++,r+=2;else{if(!(l>i+1&&n[i+1]===f))return s.push({index:r,deleteCount:l-i,insert:e.call(t,r)}),s;s.push({index:r,deleteCount:1,insert:[]}),i+=2,r++}else i++,r++}return r===u&&i===l?s:(s.push({index:r,deleteCount:l-i,insert:e.call(t,r)}),s)}});
-/*can/view/live/live*/
-define("can/view/live/live",["can/util/util","can/view/elements","can/view/view","can/view/node_lists/node_lists","can/view/parser/parser","can/util/array/diff"],function(t,e,n,r,a,i){e=e||t.view.elements,r=r||t.view.NodeLists,a=a||t.view.parser;var o=function(e,n,r){var a=!1,i=function(){return a||(a=!0,r(o),t.unbind.call(e,"removed",i)),!0},o={teardownCheck:function(t){return t?!1:i()}};return t.bind.call(e,"removed",i),n(o),o},c=function(t){var e=t.childNodes;if("length"in e)return e;for(var n=t.firstChild,r=[];n;)r.push(n),n=n.nextSibling;return r},l=function(t,e,n){return o(t,function(){e.computeInstance.bind("change",n)},function(t){e.computeInstance.unbind("change",n),t.nodeList&&r.unregister(t.nodeList)})},u=function(t){var e,n={};return a.parseAttrs(t,{attrStart:function(t){n[t]="",e=t},attrValue:function(t){n[e]+=t},attrEnd:function(){}}),n},d=[].splice,s=function(t){return t&&t.nodeType},f=function(t){t.firstChild||t.appendChild(t.ownerDocument.createTextNode(""))},p=function(e){var n="string"==typeof e,r=t.frag(e);return n?t.view.hookup(r):r},v=function(e,n,a,i,o){var l=[];n&&(r.register(l,null,!0,!0),l.parentList=n,l.expression="#each SUBEXPRESSION");var u=a.apply(i,o.concat([l])),d=p(u),s=t.makeArray(c(d));return n?(r.update(l,s),e.push(l)):e.push(r.register(s)),d},h=function(e,n,a){var i=e.splice(n+1,a),o=[];return t.each(i,function(t){var e=r.unregister(t);[].push.apply(o,e)}),o},b=function(t,n,r,a){if(n&&0===t.length){var i=[],o=v(i,a,n,t,[t]);e.after([r[0]],o),r.push(i[0])}},g={},C={registerChildMutationCallback:function(t,e){return e?void(g[t]=e):g[t]},callChildMutationCallback:function(t){var e=t&&g[t.nodeName.toLowerCase()];e&&e(t)},list:function(n,a,c,l,u,s,f){var p,g=s||[n],m=[],k=!1,w=!1,N=function(n,a,i){if(k){var o=x.ownerDocument.createDocumentFragment(),u=[],f=[];t.each(a,function(e,n){var r=t.compute(n+i),a=v(u,s,c,l,[e,r]);o.appendChild(a),f.push(r)});var p=i+1;if(!m.length){var b=h(g,0,g.length-1);t.remove(t.$(b))}if(g[p]){var w=r.first(g[p]);t.insertBefore(w.parentNode,o,w)}else e.after(1===p?[x]:[r.last(g[p-1])],o);d.apply(g,[p,0].concat(u)),d.apply(m,[i,0].concat(f));for(var N=i+f.length,y=m.length;y>N;N++)m[N](N);n.callChildMutationCallback!==!1&&C.callChildMutationCallback(x.parentNode)}},y=function(t,e,n){A({},{length:1},n,!0),N({},[e],n)},A=function(e,n,a,i,o){if(k&&(i||!S.teardownCheck(x.parentNode))){0>a&&(a=m.length+a);var c=h(g,a,n.length);m.splice(a,n.length);for(var l=a,u=m.length;u>l;l++)m[l](l);o?r.unregister(g):(b(p,f,g,s),t.remove(t.$(c)),e.callChildMutationCallback!==!1&&C.callChildMutationCallback(x.parentNode))}},M=function(e,n,a,i){if(k){a+=1,i+=1;var o,c=g[a],l=t.frag(r.flatten(g[i]));o=a>i?r.last(c).nextSibling:r.first(c);var u=g[0].parentNode;u.insertBefore(l,o);var d=g[i];[].splice.apply(g,[i,1]),[].splice.apply(g,[a,0,d]),a-=1,i-=1;var s=m[i];[].splice.apply(m,[i,1]),[].splice.apply(m,[a,0,s]);var f=Math.min(i,a),p=m.length;for(p;p>f;f++)m[f](f);e.callChildMutationCallback!==!1&&C.callChildMutationCallback(x.parentNode)}},x=n.ownerDocument.createTextNode(""),_=function(t){p&&p.unbind&&p.unbind("add",N).unbind("set",y).unbind("remove",A).unbind("move",M),A({callChildMutationCallback:!!t},{length:g.length-1},0,!0,t)},P=function(e,n,r){if(!w){if(k=!0,n&&r){p=n||[];var a=i(r,n);r.unbind&&r.unbind("add",N).unbind("set",y).unbind("remove",A).unbind("move",M);for(var o=0,c=a.length;c>o;o++){var l=a[o];l.deleteCount&&A({callChildMutationCallback:!1},{length:l.deleteCount},l.index,!0),l.insert.length&&N({callChildMutationCallback:!1},l.insert,l.index)}}else r&&_(),p=n||[],N({callChildMutationCallback:!1},p,0),b(p,f,g,s);C.callChildMutationCallback(x.parentNode),k=!1,p.bind&&p.bind("add",N).bind("set",y).bind("remove",A).bind("move",M),t.batch.afterPreviousEvents(function(){k=!0})}};u=e.getParentNode(n,u);var S=o(u,function(){t.isFunction(a)&&a.bind("change",P)},function(){t.isFunction(a)&&a.unbind("change",P),_(!0)});s?(e.replace(g,x),r.update(g,[x]),s.unregistered=function(){S.teardownCheck(),w=!0}):C.replace(g,x,S.teardownCheck),P({},t.isFunction(a)?a():a)},html:function(n,a,i,o){var u;i=e.getParentNode(n,i),u=l(i,a,function(t,e,n){var a=r.first(d).parentNode;a&&p(e);var i=r.first(d).parentNode;u.teardownCheck(i),C.callChildMutationCallback(i)});var d=o||[n],p=function(n){var a="function"==typeof n,o=s(n),l=t.frag(a?"":n),u=t.makeArray(d);f(l),o||a||(l=t.view.hookup(l,i)),u=r.update(d,c(l)),a&&n(l.firstChild),e.replace(u,l)};u.nodeList=d,o?o.unregistered=u.teardownCheck:r.register(d,u.teardownCheck),p(a())},replace:function(n,a,i){var o=n.slice(0),l=t.frag(a);return r.register(n,i),"string"==typeof a&&(l=t.view.hookup(l,n[0].parentNode)),r.update(n,c(l)),e.replace(o,l),n},text:function(n,a,i,o){var c=e.getParentNode(n,i),u=l(c,a,function(e,n,r){"unknown"!=typeof d.nodeValue&&(d.nodeValue=t.view.toStr(n)),u.teardownCheck(d.parentNode)}),d=n.ownerDocument.createTextNode(t.view.toStr(a()));o?(o.unregistered=u.teardownCheck,u.nodeList=o,r.update(o,[d]),e.replace([n],d)):u.nodeList=C.replace([n],d,u.teardownCheck)},setAttributes:function(e,n){var r=u(n);for(var a in r)t.attr.set(e,a,r[a])},attributes:function(n,r,a){var i={},o=function(r){var a,o=u(r);for(a in o){var c=o[a],l=i[a];c!==l&&t.attr.set(n,a,c),delete i[a]}for(a in i)e.removeAttr(n,a);i=o};l(n,r,function(t,e){o(e)}),arguments.length>=3?i=u(a):o(r())},attributePlaceholder:"__!!__",attributeReplace:/__!!__/g,attribute:function(n,r,a){l(n,a,function(t,a){e.setAttr(n,r,c.render())});var i,o=t.$(n);i=t.data(o,"hooks"),i||t.data(o,"hooks",i={});var c,u=String(e.getAttr(n,r)),d=u.split(C.attributePlaceholder),s=[];s.push(d.shift(),d.join(C.attributePlaceholder)),i[r]?i[r].computes.push(a):i[r]={render:function(){var t=0,n=u?u.replace(C.attributeReplace,function(){return e.contentText(c.computes[t++]())}):e.contentText(c.computes[t++]());return n},computes:[a],batchNum:void 0},c=i[r],s.splice(1,0,a()),e.setAttr(n,r,s.join(""))},specialAttribute:function(t,n,r){l(t,r,function(r,a){e.setAttr(t,n,k(a))}),e.setAttr(t,n,k(r()))},simpleAttribute:function(t,n,r){l(t,r,function(r,a){e.setAttr(t,n,a)}),e.setAttr(t,n,r())}};C.attr=C.simpleAttribute,C.attrs=C.attributes,C.getAttributeParts=u;var m=/(\r|\n)+/g,k=function(t){var n=/^["'].*["']$/;return t=t.replace(e.attrReg,"").replace(m,""),n.test(t)?t.substr(1,t.length-2):t};return t.view.live=C,C});
-/*can/view/stache/mustache_helpers*/
-define("can/view/stache/mustache_helpers",["can/util/util","can/view/stache/utils","can/view/live/live"],function(e,n,t){t=t||e.view.live;var r=function(t){return n.isObserveLike(t)&&n.isArrayLike(t)&&t.attr("length")?t:e.isFunction(t)?t():t},i=function(e){var n={};for(var t in e){var r=e[t];r&&r.isComputed?n[t]=r():n[t]=r}return n},o=function(e){return e&&"function"==typeof e.fn&&"function"==typeof e.inverse},s={each:function(i,o){var s,u,a,c=r(i),f=[];if(c instanceof e.List&&!o.stringOnly)return function(n){var r=[n];r.expression="live.list",e.view.nodeLists.register(r,null,o.nodeList,!0),e.view.nodeLists.update(o.nodeList,[n]);var s=function(e,n,t){return o.fn(o.scope.add({"%index":n,"@index":n},{notContext:!0}).add(e),o.options,t)};t.list(n,i,s,o.context,n.parentNode,r,function(e,n){return o.inverse(o.scope.add(e),o.options,n)})};var l=c;if(l&&n.isArrayLike(l)){var d=l instanceof e.List;for(a=0;a<(d?l.attr("length"):l.length);a++){var p=d?l.attr(a):l[a];f.push(o.fn(o.scope.add({"%index":a,"@index":a},{notContext:!0}).add(p)))}}else if(n.isObserveLike(l))for(s=e.Map.keys(l),a=0;a<s.length;a++)u=s[a],f.push(o.fn(o.scope.add({"%key":u,"@key":u},{notContext:!0}).add(l[u])));else if(l instanceof Object)for(u in l)f.push(o.fn(o.scope.add({"%key":u,"@key":u},{notContext:!0}).add(l[u])));return o.stringOnly?f.join(""):f},"@index":function(n,t){t||(t=n,n=0);var r=t.scope.attr("@index");return""+((e.isFunction(r)?r():r)+n)},"if":function(n,t){var i;return i=e.isFunction(n)?e.compute.truthy(n)():!!r(n),i?t.fn(t.scope||this):t.inverse(t.scope||this)},is:function(){var n,t,i=arguments[arguments.length-1];if(arguments.length-2<=0)return i.inverse();var o=arguments,s=e.compute(function(){for(var i=0;i<o.length-1;i++){if(t=r(o[i]),t=e.isFunction(t)?t():t,i>0&&t!==n)return!1;n=t}return!0});return s()?i.fn():i.inverse()},eq:function(){return s.is.apply(this,arguments)},unless:function(n,t){return s["if"].apply(this,[n,e.extend({},t,{fn:t.inverse,inverse:t.fn})])},"with":function(e,n){var t=e;return e=r(e),e?n.fn(t):void 0},log:function(e,n){"undefined"!=typeof console&&console.log&&(n?console.log(e,n.context):console.log(e.context))},data:function(n){var t=2===arguments.length?this:arguments[1];return function(r){e.data(e.$(r),n,t||this.context)}},"switch":function(e,n){r(e);var t=!1,i=n.helpers.add({"case":function(n,i){return t||r(e)!==r(n)?void 0:(t=!0,i.fn(i.scope||this))},"default":function(e){return t?void 0:e.fn(e.scope||this)}});return n.fn(n.scope,i)},joinBase:function(n){var t=[].slice.call(arguments),i=t.pop(),o=e.map(t,function(n){var t=r(n);return e.isFunction(t)?t():t}).join(""),s=i.helpers.attr("helpers.module"),u=s?s.uri:void 0,a="."===o[0];if(a&&u)return e.joinURIs(u,o);var c=e.baseURL||"undefined"!=typeof System&&(System.renderingLoader&&System.renderingLoader.baseURL||System.baseURL)||location.pathname;return"/"!==o[0]&&"/"!==c[c.length-1]&&(c+="/"),e.joinURIs(c,o)},routeUrl:function(n,t){return n||(n={}),"function"==typeof n.fn&&"function"==typeof n.inverse&&(n=i(n.hash)),e.route.url(n,"boolean"==typeof t?t:void 0)},routeCurrent:function(n){var t=e.last(arguments),r=t&&o(t);return!t||!r||t.exprData instanceof e.expression.Call?e.route.current(o(n)?{}:n||{}):e.route.current(i(n.hash||{}))?n.fn():n.inverse()}};s.routeCurrent.callAsMethod=!0,s.eachOf=s.each;var u=function(e,n){s[e]=n};return{registerHelper:u,registerSimpleHelper:function(n,t){u(n,e.view.simpleHelper(t))},getHelper:function(e,n){var t=n&&n.get("helpers."+e,{proxyMethods:!1});return t||(t=s[e]),t?{fn:t}:void 0}}});
-/*can/view/stache/expression*/
-define("can/view/stache/expression",["can/util/util","can/view/stache/utils","can/view/stache/mustache_helpers","can/view/scope/scope"],function(t,e,r,n){var o=function(e,r,n){var o=r.computeData(e,n);return t.compute.temporarilyBind(o.compute),o},s=function(t,e,r,n){var s=o(t,e,n);return s.compute.computeInstance.hasDependencies?{value:s.compute,computeData:s}:{value:s.initialValue,computeData:s}},p=function(t,e,n,o){var p=s(t,e,n,o);if(void 0===p.computeData.initialValue){"@"===t.charAt(0)&&"@index"!==t&&(t=t.substr(1));var a=r.getHelper(t,n);p.helper=a&&a.fn}return p},a=function(t){return t instanceof h||t instanceof i||t instanceof c?t:new h(t)},i=function(t){this._value=t};i.prototype.value=function(){return this._value};var u=function(t,e){this.key=t,this.rootExpr=e};u.prototype.value=function(t,e){var r=p(this.key,t,e);return this.isHelper=r.helper&&!r.helper.callAsMethod,r.helper||r.value};var l=function(t,e){u.apply(this,arguments)};l.prototype.value=function(t,e){return s(this.key,t,e).value};var h=function(t,e){this.expr=t,this.modifiers=e||{},this.isCompute=!1};h.prototype.value=function(){return this.expr.value.apply(this.expr,arguments)};var c=function(t){this.hashExprs=t};c.prototype.value=function(){var e={};for(var r in this.hashExprs){var n=this.hashExprs[r],o=n.value.apply(n,arguments);e[r]={call:o&&o.isComputed&&(!n.modifiers||!n.modifiers.compute),value:o}}return t.compute(function(){var t={};for(var r in e)t[r]=e[r].call?e[r].value():e[r].value;return t})};var f=function(e,r,n){n&&!t.isEmptyObject(n)&&r.push(new c(n)),this.methodExpr=e,this.argExprs=t.map(r,a)};f.prototype.args=function(t,e){for(var r=[],n=0,o=this.argExprs.length;o>n;n++){var s=this.argExprs[n],p=s.value.apply(s,arguments);r.push({call:p&&p.isComputed&&(!s.modifiers||!s.modifiers.compute),value:p})}return function(){for(var t=[],e=0,n=r.length;n>e;e++)t[e]=r[e].call?r[e].value():r[e].value;return t}},f.prototype.value=function(e,r,n){var o=this.methodExpr.value(e,r);this.isHelper=this.methodExpr.isHelper;var s=this.args(e,r);return t.compute(function(t){var e=o;if(e&&e.isComputed&&(e=e()),"function"==typeof e){var r=s();return n&&r.push(n),arguments.length&&r.unshift(new w.SetIdentifier(t)),e.apply(null,r)}})};var d=function(){u.apply(this,arguments)};d.prototype.value=function(t,e){var r=p(this.key,t,e,{isArgument:!0,args:[t.attr("."),t]});return r.helper||r.value};var v=function(){u.apply(this,arguments)};v.prototype.value=function(t,e){return s(this.key,t,e,{callMethodsOnObservables:!0,isArgument:!0,args:[t.attr("."),t]}).value};var y=function(t,e,r){this.methodExpr=t,this.argExprs=e,this.hashExprs=r,this.mode=null};y.prototype.args=function(t,e){for(var r=[],n=0,o=this.argExprs.length;o>n;n++){var s=this.argExprs[n];r.push(s.value.apply(s,arguments))}return r},y.prototype.hash=function(t,e){var r={};for(var n in this.hashExprs){var o=this.hashExprs[n];r[n]=o.value.apply(o,arguments)}return r},y.prototype.helperAndValue=function(e,n){var s,p,a,u,l=this.argExprs.length||!t.isEmptyObject(this.hashExprs),h=this.methodExpr instanceof i?""+this.methodExpr._value:this.methodExpr.key;if(l){s=r.getHelper(h,n);var c=e.attr(".");s||"function"!=typeof c[h]||(s={fn:c[h]})}if(!s){u=this.args(e,n);var f=o(h,e,{isArgument:!1,args:u&&u.length?u:[e.attr("."),e]}),d=f.compute;a=f.initialValue,p=f.compute.computeInstance.hasDependencies?d:a,l||void 0!==a||(s=r.getHelper(h,n))}return{value:p,args:u,helper:s&&s.fn}},y.prototype.evaluator=function(r,n,o,s,p,a,i,u){var l={fn:function(){},inverse:function(){},stringOnly:u},h=n.attr("."),c=this.args(n,o,p,a,i,u),f=this.hash(n,o,p,a,i,u);return e.convertToScopes(l,n,o,p,a,i,u),t.simpleExtend(l,{context:h,scope:n,contexts:n,hash:f,nodeList:p,exprData:this,helperOptions:o,helpers:o}),c.push(l),function(){return r.apply(h,c)}},y.prototype.value=function(e,r,n,o,s,p){var a=this.helperAndValue(e,r),i=a.helper;if(!i)return a.value;var u=this.evaluator(i,e,r,n,o,s,p),l=t.compute(u);return t.compute.temporarilyBind(l),l.computeInstance.hasDependencies?l:l()};var m=/[\w\.\\\-_@\/\&%]+/,g=/('.*?'|".*?"|=|[\w\.\\\-_@\/*%\$:]+|[\(\)]|,|\~)/g,k=/^('.*?'|".*?"|[0-9]+\.?[0-9]*|true|false|null|undefined)$/,x=function(t){return m.test(t)},A=/^[\.@]\w/,H=function(t){return x(t)&&A.test(t)},E=function(t){return t.children||(t.children=[]),t},C=function(){this.root={children:[],type:"Root"},this.current=this.root,this.stack=[this.root]};t.simpleExtend(C.prototype,{top:function(){return t.last(this.stack)},isRootTop:function(){return this.top()===this.root},popTo:function(t){this.popUntil(t),this.isRootTop()||this.stack.pop()},firstParent:function(e){for(var r=this.stack.length-2;r>0&&-1===t.inArray(this.stack[r].type,e);)r--;return this.stack[r]},popUntil:function(e){for(;-1===t.inArray(this.top().type,e)&&!this.isRootTop();)this.stack.pop();return this.top()},addTo:function(t,e){var r=this.popUntil(t);E(r).children.push(e)},addToAndPush:function(t,e){this.addTo(t,e),this.stack.push(e)},topLastChild:function(){return t.last(this.top().children)},replaceTopLastChild:function(t){var e=E(this.top()).children;return e.pop(),e.push(t),t},replaceTopLastChildAndPush:function(t){this.replaceTopLastChild(t),this.stack.push(t)},replaceTopAndPush:function(t){var e;return this.top()===this.root?e=E(this.top()).children:(this.stack.pop(),e=E(this.top()).children),e.pop(),e.push(t),this.stack.push(t),t}});var T=function(t){var e=t.lastIndexOf("./"),r=t.lastIndexOf(".");if(r>e)return t.substr(0,r)+"@"+t.substr(r+1);var n=-1===e?0:e+2,o=t.charAt(n);return"."===o||"@"===o?t.substr(0,n)+"@"+t.substr(n+1):t.substr(0,n)+"@"+t.substr(n)},L=function(t){return"Lookup"===t.type&&(t.key=T(t.key)),t},R=function(t){var e=t.top();if(e&&"Lookup"===e.type){var r=t.stack[t.stack.length-2];"Helper"!==r.type&&r&&t.replaceTopAndPush({type:"Helper",method:e})}},w={convertKeyToLookup:T,Literal:i,Lookup:u,ScopeLookup:l,Arg:h,Hashes:c,Call:f,Helper:y,HelperLookup:d,HelperScopeLookup:v,SetIdentifier:function(t){this.value=t},tokenize:function(e){var r=[];return(t.trim(e)+" ").replace(g,function(t,e){r.push(e)}),r},lookupRules:{"default":function(t,e,r){var n=("Helper"!==e||t.root?"":"Helper")+(r?"Scope":"")+"Lookup";return w[n]},method:function(t,e,r){return l}},methodRules:{"default":function(t){return"Call"===t.type?f:y},call:function(t){return f}},parse:function(t,e){e=e||{};var r=this.ast(t);e.lookupRule||(e.lookupRule="default"),"string"==typeof e.lookupRule&&(e.lookupRule=w.lookupRules[e.lookupRule]),e.methodRule||(e.methodRule="default"),"string"==typeof e.methodRule&&(e.methodRule=w.methodRules[e.methodRule]);var n=this.hydrateAst(r,e,e.baseMethodType||"Helper");return n},hydrateAst:function(e,r,n,o){var s,p=this;if("Lookup"===e.type)return new(r.lookupRule(e,n,o))(e.key,e.root&&this.hydrateAst(e.root,r,n));if("Literal"===e.type)return new i(e.value);if("Arg"===e.type)return new h(this.hydrateAst(e.children[0],r,n,o),{compute:!0});if("Hashes"===e.type)return s={},t.each(e.children,function(t){s[t.prop]=p.hydrateAst(t.children[0],r,e.type,!0)}),new c(s);if("Hash"===e.type)throw new Error("");if("Call"===e.type||"Helper"===e.type){var a=[];return s={},t.each(e.children,function(t){"Hash"===t.type?s[t.prop]=p.hydrateAst(t.children[0],r,e.type,!0):a.push(p.hydrateAst(t,r,e.type,!0))}),new(r.methodRule(e))(this.hydrateAst(e.method,r,e.type),a,s)}},ast:function(t){var e=this.tokenize(t);return this.parseAst(e,{index:0})},parseAst:function(r,n){for(var o,s=new C;n.index<r.length;){var p=r[n.index],a=r[n.index+1];if(n.index++,k.test(p))R(s),s.addTo(["Helper","Call","Hash"],{type:"Literal",value:e.jsonParse(p)});else if("="===a){if(o=s.top(),o&&"Lookup"===o.type){var i=s.firstParent(["Call","Helper","Hash"]);("Call"===i.type||"Root"===i.type)&&(s.popUntil(["Call"]),o=s.top(),s.replaceTopAndPush({type:"Helper",method:"Root"===o.type?t.last(o.children):o}))}o=s.popUntil(["Helper","Call","Hashes"]),"Call"===o.type&&s.addToAndPush(["Call"],{type:"Hashes"}),s.addToAndPush(["Helper","Hashes"],{type:"Hash",prop:p}),n.index++}else if(m.test(p)){var u=s.topLastChild();u&&"Call"===u.type&&H(p)?s.replaceTopLastChildAndPush({type:"Lookup",root:u,key:p}):(R(s),s.addToAndPush(["Helper","Call","Hash","Arg"],{type:"Lookup",key:p}))}else if("~"===p)R(s),s.addToAndPush(["Helper","Call","Hash"],{type:"Arg",key:p});else if("("===p){if(o=s.top(),"Lookup"!==o.type)throw new Error("Unable to understand expression "+r.join(""));s.replaceTopAndPush({type:"Call",method:L(o)})}else")"===p?s.popTo(["Call"]):","===p&&s.popUntil(["Call"])}return s.root.children[0]}};return t.expression=w,w});
-/*can/view/href/href*/
-define("can/view/href/href",["can/util/util","can/view/stache/expression","can/view/callbacks/callbacks","can/view/scope/scope"],function(e,n){var t=function(e){return"{"===e[0]&&"}"===e[e.length-1]?e.substr(1,e.length-2):e};e.view.attr("can-href",function(c,r){var a=n.parse("tmp("+t(c.getAttribute("can-href"))+")",{baseMethodType:"Call"}),i=a.argExprs[0].value(r.scope,null),u=e.compute(function(){return e.route.url(i())});c.setAttribute("href",u());var l=function(e,n){c.setAttribute("href",n)};u.bind("change",l),e.bind.call(c,"removed",function(){u.unbind("change",l)})})});
-/*can/view/bindings/bindings*/
-define("can/view/bindings/bindings",["can/util/util","can/view/stache/expression","can/view/callbacks/callbacks","can/view/live/live","can/view/scope/scope","can/view/href/href"],function(e,t,n,a){var i={viewModel:function(t,n,a,i){i=i||{};var r,o={},l=[],c={},u={},s=e.extend({},i);e.each(e.makeArray(t.attributes),function(e){var a=d(e,t,{templateType:n.templateType,scope:n.scope,semaphore:o,getViewModel:function(){return r},attributeViewModelBindings:s,alreadyUpdatedChild:!0,nodeList:n.parentNodeList});a&&(a.onCompleteBinding&&(a.bindingInfo.parentToChild&&void 0!==a.value&&(i[b(a.bindingInfo.childName)]=a.value),l.push(a.onCompleteBinding)),c[e.name]=a.onTeardown)}),r=a(i);for(var p=0,v=l.length;v>p;p++)l[p]();return e.bind.call(t,"attributes",function(e){var a=e.attributeName,i=t.getAttribute(a);c[a]&&c[a]();var o=u[a]&&"attribute"===u[a].parent;if(null!==i||o){var l=d({name:a,value:i},t,{templateType:n.templateType,scope:n.scope,semaphore:{},getViewModel:function(){return r},attributeViewModelBindings:s,initializeValues:!0,nodeList:n.parentNodeList});l&&(l.onCompleteBinding&&l.onCompleteBinding(),u[a]=l.bindingInfo,c[a]=l.onTeardown)}}),function(){for(var e in c)c[e]()}},data:function(t,n){if(!e.data(e.$(t),"preventDataBindings")){var a,i=e.viewModel(t),r={},o=d({name:n.attributeName,value:t.getAttribute(n.attributeName),nodeList:n.nodeList},t,{templateType:n.templateType,scope:n.scope,semaphore:r,getViewModel:function(){return i}});o.onCompleteBinding&&o.onCompleteBinding(),a=o.onTeardown,e.one.call(t,"removed",function(){a()}),e.bind.call(t,"attributes",function(e){var o=e.attributeName,l=t.getAttribute(o);if(o===n.attributeName&&(a&&a(),null!==l)){var c=d({name:o,value:l},t,{templateType:n.templateType,scope:n.scope,semaphore:r,getViewModel:function(){return i},initializeValues:!0,nodeList:n.nodeList});c&&(c.onCompleteBinding&&c.onCompleteBinding(),a=c.onTeardown)}})}},reference:function(t,n){t.getAttribute(n.attributeName)&&console.warn("*reference attributes can only export the view model.");var a=e.camelize(n.attributeName.substr(1).toLowerCase()),i=e.viewModel(t),r=n.scope.getRefs();r._context.attr("*"+a,i)},event:function(n,a){var i=a.attributeName,r=0===i.indexOf("can-"),o=0===i.indexOf("can-")?i.substr("can-".length):e.camelize(m(i,"(",")")),l=r;"$"===o.charAt(0)&&(o=o.substr(1),l=!0);var c=function(r){var o=n.getAttribute(i);if(o){var l=e.$(n),c=e.viewModel(l[0]),u=t.parse(m(o),{lookupRule:"method",methodRule:"call"});if(!(u instanceof t.Call||u instanceof t.Helper)){var d=e.map([a.scope._context,l].concat(e.makeArray(arguments)),function(e){return new t.Literal(e)});u=new t.Call(u,d,{})}var s=a.scope.add({"@element":l,"@event":r,"@viewModel":c,"@scope":a.scope,"@context":a.scope._context,"%element":this,$element:l,"%event":r,"%viewModel":c,"%scope":a.scope,"%context":a.scope._context},{notContext:!0}),p=s.read(u.methodExpr.key,{isArgument:!0});if(!p.value)return p=s.read(u.methodExpr.key,{isArgument:!0}),null;var v=u.args(s,null)();return p.value.apply(p.parent,v)}};if(g[o]){var u=g[o](a,n,c);c=u.handler,o=u.event}e.bind.call(l?n:e.viewModel(n),o,c);var d=function(t){t.attributeName!==i||this.getAttribute(i)||(e.unbind.call(l?n:e.viewModel(n),o,c),e.unbind.call(n,"attributes",d))};e.bind.call(n,"attributes",d)},value:function(t,n){var a,i="$value",o=e.trim(m(t.getAttribute("can-value")));if("input"!==t.nodeName.toLowerCase()||"checkbox"!==t.type&&"radio"!==t.type)v(t)&&(i="$innerHTML");else{var l=r.scope(t,n.scope,o,{},!0);if("checkbox"===t.type){var c=e.attr.has(t,"can-true-value")?t.getAttribute("can-true-value"):!0,u=e.attr.has(t,"can-false-value")?t.getAttribute("can-false-value"):!1;a=e.compute(function(e){return arguments.length?void l(e?c:u):l()==c})}else"radio"===t.type&&(a=e.compute(function(e){return arguments.length?void(e&&l(t.value)):l()==t.value}));i="$checked",o="getterSetter",n.scope=new e.view.Scope({getterSetter:a})}var s=d({name:"{("+i+"})",value:o},t,{templateType:n.templateType,scope:n.scope,semaphore:{},initializeValues:!0,legacyBindings:!0,syncChildWithParent:!0});e.one.call(t,"removed",function(){s.onTeardown()})}};e.view.attr(/^\{[^\}]+\}$/,i.data),e.view.attr(/\*[\w\.\-_]+/,i.reference),e.view.attr(/^\([\$?\w\.\-]+\)$/,i.event),e.view.attr(/can-[\w\.]+/,i.event),e.view.attr("can-value",i.value);var r={scope:function(n,a,i,r,o,l){if(i){if(o){var c=t.parse(i,{baseMethodType:"Call"});return c.value(a,new e.view.Options({}))}return function(e){a.attr(b(i),e)}}return e.compute()},viewModel:function(t,n,a,i,r,o){var l=b(a);return r?e.compute(function(t){var n=i.getViewModel();return arguments.length?void n.attr(l,t):"."===a?n:e.compute.read(n,e.compute.read.reads(a),{}).value}):function(t){var n,a=i.getViewModel();o?(n=a._get(l,{readCompute:!1}),n&&n.isComputed||(n=e.compute(),a._set(l,n,{readCompute:!1})),n(t)):a.attr(l,t)}},attribute:function(t,n,a,i,r,o,l){var c,u,d,s,p,v="select"===t.nodeName.toLowerCase(),m="value"===a&&v&&t.multiple,f=!1;l||(l="innerHTML"===a?["blur","change"]:"change"),e.isArray(l)||(l=[l]);var h=function(n){if(v&&!f&&(clearTimeout(d),d=setTimeout(function(){h(n)},1)),u=n,m){n&&"string"==typeof n?(n=n.split(";"),c=!0):n=n?e.makeArray(n):[];var r={};e.each(n,function(e){r[e]=!0}),e.each(t.childNodes,function(e){e.value&&(e.selected=!!r[e.value])})}else!i.legacyBindings&&v&&"selectedIndex"in t&&"value"===a?e.attr.setSelectValue(t,n):e.attr.setAttrOrProp(t,a,null==n?"":n);return n},b=function(){if(m){var n=[],i=t.childNodes;return e.each(i,function(e){e.selected&&e.value&&n.push(e.value)}),c?n.join(";"):n}return v&&"selectedIndex"in t&&-1===t.selectedIndex?void 0:e.attr.get(t,a)};v&&setTimeout(function(){f=!0},1),t.tagName&&"input"===t.tagName.toLowerCase()&&t.form&&(s=[{el:t.form,eventName:"reset",handler:function(){h(p)}}]);var g;return p=b(),e.compute(p,{on:function(n){if(e.each(l,function(a){e.bind.call(t,a,n)}),e.each(s,function(t){e.bind.call(t.el,t.eventName,t.handler)}),v){var a=function(e){o&&h(o()),n()};e.attr.MutationObserver?(g=new e.attr.MutationObserver(a),g.observe(t,{childList:!0,subtree:!0})):e.data(e.$(t),"canBindingCallback",{onMutation:a})}},off:function(n){e.each(l,function(a){e.unbind.call(t,a,n)}),e.each(s,function(t){e.unbind.call(t.el,t.eventName,t.handler)}),v&&(e.attr.MutationObserver?g.disconnect():e.data(e.$(t),"canBindingCallback",null))},get:b,set:h})}},o={childToParent:function(t,n,a,i,r,o){var l="function"==typeof n,c=function(t,c){i[r]||(l?(n(c),o&&n()!==a()&&(i[r]=(i[r]||0)+1,e.batch.start(),a(n()),e.batch.after(function(){--i[r]}),e.batch.stop())):n instanceof e.Map&&n.attr(c,!0))};return a&&a.isComputed&&a.bind("change",c),c},parentToChild:function(t,n,a,i,r){var o=function(t,n){i[r]=(i[r]||0)+1,e.batch.start(),a(n),e.batch.after(function(){--i[r]}),e.batch.stop()};return n&&n.isComputed&&n.bind("change",o),o}},l=function(t,a,i,r){var o,l=t.name,d=t.value||"",s=l.match(c);if(!s){var p=u.test(l),v=e.camelize(l);if(p||n.attr(l))return;var m="{"===d[0]&&"}"===e.last(d),f="legacy"===i?a[v]:!m,h=m?d.substr(1,d.length-2):d;return f?{bindingAttributeName:l,parent:"attribute",parentName:l,child:"viewModel",childName:v,parentToChild:!0,childToParent:!0}:{bindingAttributeName:l,parent:"scope",parentName:h,child:"viewModel",childName:v,parentToChild:!0,childToParent:!0}}var b=!!s[1],g=b||!!s[2],w=b||!g,C=s[3],T="$"===C.charAt(0);return T?(o={parent:"scope",child:"attribute",childToParent:g,parentToChild:w,bindingAttributeName:l,childName:C.substr(1),parentName:d,initializeValues:!0},"select"===r&&(o.stickyParentToChild=!0),o):(o={parent:"scope",child:"viewModel",childToParent:g,parentToChild:w,bindingAttributeName:l,childName:e.camelize(C),parentName:d,initializeValues:!0},"~"===d.trim().charAt(0)&&(o.stickyParentToChild=!0),o)},c=/\{(\()?(\^)?([^\}\)]+)\)?\}/,u=/^(data-view-id|class|id|\[[\w\.-]+\]|#[\w\.-])$/i,d=function(t,n,a){var i=l(t,a.attributeViewModelBindings,a.templateType,n.nodeName.toLowerCase());if(i){i.alreadyUpdatedChild=a.alreadyUpdatedChild,a.initializeValues&&(i.initializeValues=!0);var c,u,d,p=r[i.parent](n,a.scope,i.parentName,a,i.parentToChild),v=r[i.child](n,a.scope,i.childName,a,i.childToParent,i.stickyParentToChild&&p);a.nodeList&&(p&&p.isComputed&&p.computeInstance.setPrimaryDepth(a.nodeList.nesting+1),v&&v.isComputed&&v.computeInstance.setPrimaryDepth(a.nodeList.nesting+1)),i.parentToChild&&(u=o.parentToChild(n,p,v,a.semaphore,i.bindingAttributeName));var m=function(){i.childToParent?c=o.childToParent(n,p,v,a.semaphore,i.bindingAttributeName,a.syncChildWithParent):i.stickyParentToChild&&v.bind("change",d=e.k),i.initializeValues&&s(i,v,p,u,c)},b=function(){h(p,u),h(v,c),h(v,d)};return"viewModel"===i.child?{value:f(p),onCompleteBinding:m,bindingInfo:i,onTeardown:b}:(m(),{bindingInfo:i,onTeardown:b})}},s=function(e,t,n,a,i){var r=!1;e.parentToChild&&!e.childToParent?e.stickyParentToChild&&a({},f(n)):!e.parentToChild&&e.childToParent?r=!0:void 0===f(t)||void 0===f(n)&&(r=!0),r?i({},f(t)):e.alreadyUpdatedChild||a({},f(n))};if(!e.attr.MutationObserver){var p=function(t){var n=e.data(e.$(t),"canBindingCallback");n&&n.onMutation(t)};a.registerChildMutationCallback("select",p),a.registerChildMutationCallback("optgroup",function(e){p(e.parentNode)})}var v=function(){var e={"":!0,"true":!0,"false":!1},t=function(t){if(t&&t.getAttribute){var n=t.getAttribute("contenteditable");return e[n]}};return function(e){var n=t(e);return"boolean"==typeof n?n:!!t(e.parentNode)}}(),m=function(e,t,n){return t=t||"{",n=n||"}",e[0]===t&&e[e.length-1]===n?e.substr(1,e.length-2):e},f=function(e){return e&&e.isComputed?e():e},h=function(e,t){e&&e.isComputed&&"function"==typeof t&&e.unbind("change",t)},b=function(e){return e.replace(/@/g,"")},g={enter:function(e,t,n){return{event:"keyup",handler:function(e){return 13===e.keyCode?n.call(this,e):void 0}}}};return e.bindings={behaviors:i,getBindingInfo:l,special:g},e.bindings});
+define('can/construct/construct', ['can/util/string/string'], function (can) {
+    var initializing = 0;
+    var canGetDescriptor;
+    try {
+        Object.getOwnPropertyDescriptor({});
+        canGetDescriptor = true;
+    } catch (e) {
+        canGetDescriptor = false;
+    }
+    var getDescriptor = function (newProps, name) {
+            var descriptor = Object.getOwnPropertyDescriptor(newProps, name);
+            if (descriptor && (descriptor.get || descriptor.set)) {
+                return descriptor;
+            }
+            return null;
+        }, inheritGetterSetter = function (newProps, oldProps, addTo) {
+            addTo = addTo || newProps;
+            var descriptor;
+            for (var name in newProps) {
+                if (descriptor = getDescriptor(newProps, name)) {
+                    this._defineProperty(addTo, oldProps, name, descriptor);
+                } else {
+                    can.Construct._overwrite(addTo, oldProps, name, newProps[name]);
+                }
+            }
+        }, simpleInherit = function (newProps, oldProps, addTo) {
+            addTo = addTo || newProps;
+            for (var name in newProps) {
+                can.Construct._overwrite(addTo, oldProps, name, newProps[name]);
+            }
+        };
+    can.Construct = function () {
+        if (arguments.length) {
+            return can.Construct.extend.apply(can.Construct, arguments);
+        }
+    };
+    can.extend(can.Construct, {
+        constructorExtends: true,
+        newInstance: function () {
+            var inst = this.instance(), args;
+            if (inst.setup) {
+                args = inst.setup.apply(inst, arguments);
+            }
+            if (inst.init) {
+                inst.init.apply(inst, args || arguments);
+            }
+            return inst;
+        },
+        _inherit: canGetDescriptor ? inheritGetterSetter : simpleInherit,
+        _defineProperty: function (what, oldProps, propName, descriptor) {
+            Object.defineProperty(what, propName, descriptor);
+        },
+        _overwrite: function (what, oldProps, propName, val) {
+            what[propName] = val;
+        },
+        setup: function (base, fullName) {
+            this.defaults = can.extend(true, {}, base.defaults, this.defaults);
+        },
+        instance: function () {
+            initializing = 1;
+            var inst = new this();
+            initializing = 0;
+            return inst;
+        },
+        extend: function (name, staticProperties, instanceProperties) {
+            var fullName = name, klass = staticProperties, proto = instanceProperties;
+            if (typeof fullName !== 'string') {
+                proto = klass;
+                klass = fullName;
+                fullName = null;
+            }
+            if (!proto) {
+                proto = klass;
+                klass = null;
+            }
+            proto = proto || {};
+            var _super_class = this, _super = this.prototype, Constructor, parts, current, _fullName, _shortName, propName, shortName, namespace, prototype;
+            prototype = this.instance();
+            can.Construct._inherit(proto, _super, prototype);
+            if (fullName) {
+                parts = fullName.split('.');
+                shortName = parts.pop();
+            }
+            if (typeof constructorName === 'undefined') {
+                Constructor = function () {
+                    return init.apply(this, arguments);
+                };
+            }
+            function init() {
+                if (!initializing) {
+                    return this.constructor !== Constructor && arguments.length && Constructor.constructorExtends ? Constructor.extend.apply(Constructor, arguments) : Constructor.newInstance.apply(Constructor, arguments);
+                }
+            }
+            for (propName in _super_class) {
+                if (_super_class.hasOwnProperty(propName)) {
+                    Constructor[propName] = _super_class[propName];
+                }
+            }
+            can.Construct._inherit(klass, _super_class, Constructor);
+            if (fullName) {
+                current = can.getObject(parts.join('.'), window, true);
+                namespace = current;
+                _fullName = can.underscore(fullName.replace(/\./g, '_'));
+                _shortName = can.underscore(shortName);
+                current[shortName] = Constructor;
+            }
+            can.extend(Constructor, {
+                constructor: Constructor,
+                prototype: prototype,
+                namespace: namespace,
+                _shortName: _shortName,
+                fullName: fullName,
+                _fullName: _fullName
+            });
+            if (shortName !== undefined) {
+                Constructor.shortName = shortName;
+            }
+            Constructor.prototype.constructor = Constructor;
+            var t = [_super_class].concat(can.makeArray(arguments)), args = Constructor.setup.apply(Constructor, t);
+            if (Constructor.init) {
+                Constructor.init.apply(Constructor, args || t);
+            }
+            return Constructor;
+        }
+    });
+    can.Construct.prototype.setup = function () {
+    };
+    can.Construct.prototype.init = function () {
+    };
+    return can.Construct;
+});
 /*can/control/control*/
-define("can/control/control",["can/util/util","can/construct/construct"],function(t){var n,e=function(n,e,o){return t.bind.call(n,e,o),function(){t.unbind.call(n,e,o)}},o=t.isFunction,s=t.extend,r=t.each,i=[].slice,u=/\{([^\}]+)\}/g,c=t.getObject("$.event.special",[t])||{},l=function(n,e,o,s){return t.delegate.call(n,e,o,s),function(){t.undelegate.call(n,e,o,s)}},a=function(n,o,s,r){return r?l(n,t.trim(r),o,s):e(n,o,s)},h=t.Control=t.Construct({setup:function(){if(t.Construct.setup.apply(this,arguments),t.Control){var n,e=this;e.actions={};for(n in e.prototype)e._isAction(n)&&(e.actions[n]=e._action(n))}},_shifter:function(n,e){var s="string"==typeof e?n[e]:e;return o(s)||(s=n[s]),function(){return n.called=e,s.apply(n,[this.nodeName?t.$(this):this].concat(i.call(arguments,0)))}},_isAction:function(t){var n=this.prototype[t],e=typeof n;return"constructor"!==t&&("function"===e||"string"===e&&o(this.prototype[n]))&&!!(c[t]||f[t]||/[^\w]/.test(t))},_action:function(e,o){if(u.lastIndex=0,o||!u.test(e)){var s=o?t.sub(e,this._lookup(o)):e;if(!s)return null;var r=t.isArray(s),i=r?s[1]:s,c=i.split(/\s+/g),l=c.pop();return{processor:f[l]||n,parts:[i,c.join(" "),l],delegate:r?s[0]:void 0}}},_lookup:function(t){return[t,window]},processors:{},defaults:{}},{setup:function(n,e){var o,r=this.constructor,i=r.pluginName||r._fullName;return this.element=t.$(n),i&&"can_control"!==i&&this.element.addClass(i),o=t.data(this.element,"controls"),o||(o=[],t.data(this.element,"controls",o)),o.push(this),this.options=s({},r.defaults,e),this.on(),[this.element,this.options]},on:function(n,e,o,s){if(!n){this.off();var r,i,u=this.constructor,c=this._bindings,l=u.actions,h=this.element,f=t.Control._shifter(this,"destroy");for(r in l)l.hasOwnProperty(r)&&(i=l[r]||u._action(r,this.options,this),i&&(c.control[r]=i.processor(i.delegate||h,i.parts[2],i.parts[1],r,this)));return t.bind.call(h,"removed",f),c.user.push(function(n){t.unbind.call(n,"removed",f)}),c.user.length}return"string"==typeof n&&(s=o,o=e,e=n,n=this.element),void 0===s&&(s=o,o=e,e=null),"string"==typeof s&&(s=t.Control._shifter(this,s)),this._bindings.user.push(a(n,o,s,e)),this._bindings.user.length},off:function(){var t=this.element[0],n=this._bindings;n&&(r(n.user||[],function(n){n(t)}),r(n.control||{},function(n){n(t)})),this._bindings={user:[],control:{}}},destroy:function(){if(null!==this.element){var n,e=this.constructor,o=e.pluginName||e._fullName;this.off(),o&&"can_control"!==o&&this.element.removeClass(o),n=t.data(this.element,"controls"),n.splice(t.inArray(this,n),1),t.trigger(this,"destroyed"),this.element=null}}}),f=t.Control.processors;return n=function(n,e,o,s,r){return a(n,e,t.Control._shifter(r,s),o)},r(["change","click","contextmenu","dblclick","keydown","keyup","keypress","mousedown","mousemove","mouseout","mouseover","mouseup","reset","resize","scroll","select","submit","focusin","focusout","mouseenter","mouseleave","touchstart","touchmove","touchcancel","touchend","touchleave","inserted","removed","dragstart","dragenter","dragover","dragleave","drag","drop","dragend"],function(t){f[t]=n}),h});
+define('can/control/control', [
+    'can/util/util',
+    'can/construct/construct'
+], function (can) {
+    var bind = function (el, ev, callback) {
+            can.bind.call(el, ev, callback);
+            return function () {
+                can.unbind.call(el, ev, callback);
+            };
+        }, isFunction = can.isFunction, extend = can.extend, each = can.each, slice = [].slice, paramReplacer = /\{([^\}]+)\}/g, special = can.getObject('$.event.special', [can]) || {}, delegate = function (el, selector, ev, callback) {
+            can.delegate.call(el, selector, ev, callback);
+            return function () {
+                can.undelegate.call(el, selector, ev, callback);
+            };
+        }, binder = function (el, ev, callback, selector) {
+            return selector ? delegate(el, can.trim(selector), ev, callback) : bind(el, ev, callback);
+        }, basicProcessor;
+    var Control = can.Control = can.Construct({
+            setup: function () {
+                can.Construct.setup.apply(this, arguments);
+                if (can.Control) {
+                    var control = this, funcName;
+                    control.actions = {};
+                    for (funcName in control.prototype) {
+                        if (control._isAction(funcName)) {
+                            control.actions[funcName] = control._action(funcName);
+                        }
+                    }
+                }
+            },
+            _shifter: function (context, name) {
+                var method = typeof name === 'string' ? context[name] : name;
+                if (!isFunction(method)) {
+                    method = context[method];
+                }
+                return function () {
+                    context.called = name;
+                    return method.apply(context, [this.nodeName ? can.$(this) : this].concat(slice.call(arguments, 0)));
+                };
+            },
+            _isAction: function (methodName) {
+                var val = this.prototype[methodName], type = typeof val;
+                return methodName !== 'constructor' && (type === 'function' || type === 'string' && isFunction(this.prototype[val])) && !!(special[methodName] || processors[methodName] || /[^\w]/.test(methodName));
+            },
+            _action: function (methodName, options) {
+                paramReplacer.lastIndex = 0;
+                if (options || !paramReplacer.test(methodName)) {
+                    var convertedName = options ? can.sub(methodName, this._lookup(options)) : methodName;
+                    if (!convertedName) {
+                        return null;
+                    }
+                    var arr = can.isArray(convertedName), name = arr ? convertedName[1] : convertedName, parts = name.split(/\s+/g), event = parts.pop();
+                    return {
+                        processor: processors[event] || basicProcessor,
+                        parts: [
+                            name,
+                            parts.join(' '),
+                            event
+                        ],
+                        delegate: arr ? convertedName[0] : undefined
+                    };
+                }
+            },
+            _lookup: function (options) {
+                return [
+                    options,
+                    window
+                ];
+            },
+            processors: {},
+            defaults: {}
+        }, {
+            setup: function (element, options) {
+                var cls = this.constructor, pluginname = cls.pluginName || cls._fullName, arr;
+                this.element = can.$(element);
+                if (pluginname && pluginname !== 'can_control') {
+                    this.element.addClass(pluginname);
+                }
+                arr = can.data(this.element, 'controls');
+                if (!arr) {
+                    arr = [];
+                    can.data(this.element, 'controls', arr);
+                }
+                arr.push(this);
+                this.options = extend({}, cls.defaults, options);
+                this.on();
+                return [
+                    this.element,
+                    this.options
+                ];
+            },
+            on: function (el, selector, eventName, func) {
+                if (!el) {
+                    this.off();
+                    var cls = this.constructor, bindings = this._bindings, actions = cls.actions, element = this.element, destroyCB = can.Control._shifter(this, 'destroy'), funcName, ready;
+                    for (funcName in actions) {
+                        if (actions.hasOwnProperty(funcName)) {
+                            ready = actions[funcName] || cls._action(funcName, this.options, this);
+                            if (ready) {
+                                bindings.control[funcName] = ready.processor(ready.delegate || element, ready.parts[2], ready.parts[1], funcName, this);
+                            }
+                        }
+                    }
+                    can.bind.call(element, 'removed', destroyCB);
+                    bindings.user.push(function (el) {
+                        can.unbind.call(el, 'removed', destroyCB);
+                    });
+                    return bindings.user.length;
+                }
+                if (typeof el === 'string') {
+                    func = eventName;
+                    eventName = selector;
+                    selector = el;
+                    el = this.element;
+                }
+                if (func === undefined) {
+                    func = eventName;
+                    eventName = selector;
+                    selector = null;
+                }
+                if (typeof func === 'string') {
+                    func = can.Control._shifter(this, func);
+                }
+                this._bindings.user.push(binder(el, eventName, func, selector));
+                return this._bindings.user.length;
+            },
+            off: function () {
+                var el = this.element[0], bindings = this._bindings;
+                if (bindings) {
+                    each(bindings.user || [], function (value) {
+                        value(el);
+                    });
+                    each(bindings.control || {}, function (value) {
+                        value(el);
+                    });
+                }
+                this._bindings = {
+                    user: [],
+                    control: {}
+                };
+            },
+            destroy: function () {
+                if (this.element === null) {
+                    return;
+                }
+                var Class = this.constructor, pluginName = Class.pluginName || Class._fullName, controls;
+                this.off();
+                if (pluginName && pluginName !== 'can_control') {
+                    this.element.removeClass(pluginName);
+                }
+                controls = can.data(this.element, 'controls');
+                controls.splice(can.inArray(this, controls), 1);
+                can.trigger(this, 'destroyed');
+                this.element = null;
+            }
+        });
+    var processors = can.Control.processors;
+    basicProcessor = function (el, event, selector, methodName, control) {
+        return binder(el, event, can.Control._shifter(control, methodName), selector);
+    };
+    each([
+        'change',
+        'click',
+        'contextmenu',
+        'dblclick',
+        'keydown',
+        'keyup',
+        'keypress',
+        'mousedown',
+        'mousemove',
+        'mouseout',
+        'mouseover',
+        'mouseup',
+        'reset',
+        'resize',
+        'scroll',
+        'select',
+        'submit',
+        'focusin',
+        'focusout',
+        'mouseenter',
+        'mouseleave',
+        'touchstart',
+        'touchmove',
+        'touchcancel',
+        'touchend',
+        'touchleave',
+        'inserted',
+        'removed'
+    ], function (v) {
+        processors[v] = basicProcessor;
+    });
+    return Control;
+});
+/*can/util/bind/bind*/
+define('can/util/bind/bind', ['can/util/util'], function (can) {
+    can.bindAndSetup = function () {
+        can.addEvent.apply(this, arguments);
+        if (!this._init) {
+            if (!this._bindings) {
+                this._bindings = 1;
+                if (this._bindsetup) {
+                    this._bindsetup();
+                }
+            } else {
+                this._bindings++;
+            }
+        }
+        return this;
+    };
+    can.unbindAndTeardown = function (event, handler) {
+        var handlers = this.__bindEvents[event] || [];
+        var handlerCount = handlers.length;
+        can.removeEvent.apply(this, arguments);
+        if (this._bindings === null) {
+            this._bindings = 0;
+        } else {
+            this._bindings = this._bindings - (handlerCount - handlers.length);
+        }
+        if (!this._bindings && this._bindteardown) {
+            this._bindteardown();
+        }
+        return this;
+    };
+    return can;
+});
+/*can/map/bubble*/
+define('can/map/bubble', ['can/util/util'], function (can) {
+    var bubble = can.bubble = {
+            event: function (map, boundEventName) {
+                return map.constructor._bubbleRule(boundEventName, map);
+            },
+            childrenOf: function (parentMap, eventName) {
+                parentMap._each(function (child, prop) {
+                    if (child && child.bind) {
+                        bubble.toParent(child, parentMap, prop, eventName);
+                    }
+                });
+            },
+            teardownChildrenFrom: function (parentMap, eventName) {
+                parentMap._each(function (child) {
+                    bubble.teardownFromParent(parentMap, child, eventName);
+                });
+            },
+            toParent: function (child, parent, prop, eventName) {
+                can.listenTo.call(parent, child, eventName, function () {
+                    var args = can.makeArray(arguments), ev = args.shift();
+                    args[0] = (can.List && parent instanceof can.List ? parent.indexOf(child) : prop) + (args[0] ? '.' + args[0] : '');
+                    ev.triggeredNS = ev.triggeredNS || {};
+                    if (ev.triggeredNS[parent._cid]) {
+                        return;
+                    }
+                    ev.triggeredNS[parent._cid] = true;
+                    can.trigger(parent, ev, args);
+                });
+            },
+            teardownFromParent: function (parent, child, eventName) {
+                if (child && child.unbind) {
+                    can.stopListening.call(parent, child, eventName);
+                }
+            },
+            isBubbling: function (parent, eventName) {
+                return parent._bubbleBindings && parent._bubbleBindings[eventName];
+            },
+            bind: function (parent, eventName) {
+                if (!parent._init) {
+                    var bubbleEvents = bubble.event(parent, eventName), len = bubbleEvents.length, bubbleEvent;
+                    if (!parent._bubbleBindings) {
+                        parent._bubbleBindings = {};
+                    }
+                    for (var i = 0; i < len; i++) {
+                        bubbleEvent = bubbleEvents[i];
+                        if (!parent._bubbleBindings[bubbleEvent]) {
+                            parent._bubbleBindings[bubbleEvent] = 1;
+                            bubble.childrenOf(parent, bubbleEvent);
+                        } else {
+                            parent._bubbleBindings[bubbleEvent]++;
+                        }
+                    }
+                }
+            },
+            unbind: function (parent, eventName) {
+                var bubbleEvents = bubble.event(parent, eventName), len = bubbleEvents.length, bubbleEvent;
+                for (var i = 0; i < len; i++) {
+                    bubbleEvent = bubbleEvents[i];
+                    if (parent._bubbleBindings) {
+                        parent._bubbleBindings[bubbleEvent]--;
+                    }
+                    if (parent._bubbleBindings && !parent._bubbleBindings[bubbleEvent]) {
+                        delete parent._bubbleBindings[bubbleEvent];
+                        bubble.teardownChildrenFrom(parent, bubbleEvent);
+                        if (can.isEmptyObject(parent._bubbleBindings)) {
+                            delete parent._bubbleBindings;
+                        }
+                    }
+                }
+            },
+            add: function (parent, child, prop) {
+                if (child instanceof can.Map && parent._bubbleBindings) {
+                    for (var eventName in parent._bubbleBindings) {
+                        if (parent._bubbleBindings[eventName]) {
+                            bubble.teardownFromParent(parent, child, eventName);
+                            bubble.toParent(child, parent, prop, eventName);
+                        }
+                    }
+                }
+            },
+            removeMany: function (parent, children) {
+                for (var i = 0, len = children.length; i < len; i++) {
+                    bubble.remove(parent, children[i]);
+                }
+            },
+            remove: function (parent, child) {
+                if (child instanceof can.Map && parent._bubbleBindings) {
+                    for (var eventName in parent._bubbleBindings) {
+                        if (parent._bubbleBindings[eventName]) {
+                            bubble.teardownFromParent(parent, child, eventName);
+                        }
+                    }
+                }
+            },
+            set: function (parent, prop, value, current) {
+                if (can.Map.helpers.isObservable(value)) {
+                    bubble.add(parent, value, prop);
+                }
+                if (can.Map.helpers.isObservable(current)) {
+                    bubble.remove(parent, current);
+                }
+                return value;
+            }
+        };
+    return bubble;
+});
+/*can/util/batch/batch*/
+define('can/util/batch/batch', ['can/util/can'], function (can) {
+    var batchNum = 1, transactions = 0, batchEvents = [], stopCallbacks = [], currentBatchEvents = null;
+    can.batch = {
+        start: function (batchStopHandler) {
+            transactions++;
+            if (batchStopHandler) {
+                stopCallbacks.push(batchStopHandler);
+            }
+        },
+        stop: function (force, callStart) {
+            if (force) {
+                transactions = 0;
+            } else {
+                transactions--;
+            }
+            if (transactions === 0) {
+                if (currentBatchEvents !== null) {
+                    return;
+                }
+                currentBatchEvents = batchEvents.slice(0);
+                var callbacks = stopCallbacks.slice(0), i, len;
+                batchEvents = [];
+                stopCallbacks = [];
+                can.batch.batchNum = batchNum;
+                batchNum++;
+                if (callStart) {
+                    can.batch.start();
+                }
+                for (i = 0; i < currentBatchEvents.length; i++) {
+                    can.dispatch.apply(currentBatchEvents[i][0], currentBatchEvents[i][1]);
+                }
+                currentBatchEvents = null;
+                for (i = 0, len = callbacks.length; i < callbacks.length; i++) {
+                    callbacks[i]();
+                }
+                can.batch.batchNum = undefined;
+            }
+        },
+        trigger: function (item, event, args) {
+            if (!item._init) {
+                event = typeof event === 'string' ? { type: event } : event;
+                if (currentBatchEvents) {
+                    currentBatchEvents.push([
+                        item,
+                        [
+                            event,
+                            args
+                        ]
+                    ]);
+                } else if (transactions === 0) {
+                    return can.dispatch.call(item, event, args);
+                } else {
+                    event.batchNum = batchNum;
+                    batchEvents.push([
+                        item,
+                        [
+                            event,
+                            args
+                        ]
+                    ]);
+                }
+            }
+        },
+        afterPreviousEvents: function (handler) {
+            if (currentBatchEvents) {
+                var obj = {};
+                can.bind.call(obj, 'ready', handler);
+                currentBatchEvents.push([
+                    obj,
+                    [
+                        { type: 'ready' },
+                        []
+                    ]
+                ]);
+            } else {
+                handler();
+            }
+        }
+    };
+});
+/*can/map/map*/
+define('can/map/map', [
+    'can/util/util',
+    'can/util/bind/bind',
+    'can/map/bubble',
+    'can/construct/construct',
+    'can/util/batch/batch'
+], function (can, bind, bubble) {
+    var madeMap = null;
+    var teardownMap = function () {
+        for (var cid in madeMap) {
+            if (madeMap[cid].added) {
+                delete madeMap[cid].obj._cid;
+            }
+        }
+        madeMap = null;
+    };
+    var getMapFromObject = function (obj) {
+        return madeMap && madeMap[obj._cid] && madeMap[obj._cid].instance;
+    };
+    var serializeMap = null;
+    var Map = can.Map = can.Construct.extend({
+            setup: function () {
+                can.Construct.setup.apply(this, arguments);
+                if (can.Map) {
+                    if (!this.defaults) {
+                        this.defaults = {};
+                    }
+                    this._computes = [];
+                    for (var prop in this.prototype) {
+                        if (prop !== 'define' && prop !== 'constructor' && (typeof this.prototype[prop] !== 'function' || this.prototype[prop].prototype instanceof can.Construct)) {
+                            this.defaults[prop] = this.prototype[prop];
+                        } else if (this.prototype[prop].isComputed) {
+                            this._computes.push(prop);
+                        }
+                    }
+                    if (this.helpers.define) {
+                        this.helpers.define(this);
+                    }
+                }
+                if (can.List && !(this.prototype instanceof can.List)) {
+                    this.List = Map.List.extend({ Map: this }, {});
+                }
+            },
+            _bubble: bubble,
+            _bubbleRule: function (eventName) {
+                return eventName === 'change' || eventName.indexOf('.') >= 0 ? ['change'] : [];
+            },
+            _computes: [],
+            bind: can.bindAndSetup,
+            on: can.bindAndSetup,
+            unbind: can.unbindAndTeardown,
+            off: can.unbindAndTeardown,
+            id: 'id',
+            helpers: {
+                define: null,
+                attrParts: function (attr, keepKey) {
+                    if (keepKey) {
+                        return [attr];
+                    }
+                    return typeof attr === 'object' ? attr : ('' + attr).split('.');
+                },
+                addToMap: function (obj, instance) {
+                    var teardown;
+                    if (!madeMap) {
+                        teardown = teardownMap;
+                        madeMap = {};
+                    }
+                    var hasCid = obj._cid;
+                    var cid = can.cid(obj);
+                    if (!madeMap[cid]) {
+                        madeMap[cid] = {
+                            obj: obj,
+                            instance: instance,
+                            added: !hasCid
+                        };
+                    }
+                    return teardown;
+                },
+                isObservable: function (obj) {
+                    return obj instanceof can.Map || obj && obj === can.route;
+                },
+                canMakeObserve: function (obj) {
+                    return obj && !can.isDeferred(obj) && (can.isArray(obj) || can.isPlainObject(obj));
+                },
+                serialize: function (map, how, where) {
+                    var cid = can.cid(map), firstSerialize = false;
+                    if (!serializeMap) {
+                        firstSerialize = true;
+                        serializeMap = {
+                            attr: {},
+                            serialize: {}
+                        };
+                    }
+                    serializeMap[how][cid] = where;
+                    map.each(function (val, name) {
+                        var result, isObservable = Map.helpers.isObservable(val), serialized = isObservable && serializeMap[how][can.cid(val)];
+                        if (serialized) {
+                            result = serialized;
+                        } else {
+                            if (how === 'serialize') {
+                                result = Map.helpers._serialize(map, name, val);
+                            } else {
+                                result = Map.helpers._getValue(map, name, val, how);
+                            }
+                        }
+                        if (result !== undefined) {
+                            where[name] = result;
+                        }
+                    });
+                    can.__observe(map, '__keys');
+                    if (firstSerialize) {
+                        serializeMap = null;
+                    }
+                    return where;
+                },
+                _serialize: function (map, name, val) {
+                    return Map.helpers._getValue(map, name, val, 'serialize');
+                },
+                _getValue: function (map, name, val, how) {
+                    if (Map.helpers.isObservable(val)) {
+                        return val[how]();
+                    } else {
+                        return val;
+                    }
+                }
+            },
+            keys: function (map) {
+                var keys = [];
+                can.__observe(map, '__keys');
+                for (var keyName in map._data) {
+                    keys.push(keyName);
+                }
+                return keys;
+            }
+        }, {
+            setup: function (obj) {
+                if (obj instanceof can.Map) {
+                    obj = obj.serialize();
+                }
+                this._data = {};
+                can.cid(this, '.map');
+                this._init = 1;
+                this._computedBindings = {};
+                var defaultValues = this._setupDefaults(obj);
+                this._setupComputes(defaultValues);
+                var teardownMapping = obj && can.Map.helpers.addToMap(obj, this);
+                var data = can.extend(can.extend(true, {}, defaultValues), obj);
+                this.attr(data);
+                if (teardownMapping) {
+                    teardownMapping();
+                }
+                this.bind('change', can.proxy(this._changes, this));
+                delete this._init;
+            },
+            _setupComputes: function () {
+                var computes = this.constructor._computes;
+                for (var i = 0, len = computes.length, prop; i < len; i++) {
+                    prop = computes[i];
+                    this[prop] = this[prop].clone(this);
+                    this._computedBindings[prop] = { count: 0 };
+                }
+            },
+            _setupDefaults: function () {
+                return this.constructor.defaults || {};
+            },
+            _bindsetup: function () {
+            },
+            _bindteardown: function () {
+            },
+            _changes: function (ev, attr, how, newVal, oldVal) {
+                can.batch.trigger(this, {
+                    type: attr,
+                    batchNum: ev.batchNum,
+                    target: ev.target
+                }, [
+                    newVal,
+                    oldVal
+                ]);
+            },
+            _triggerChange: function (attr, how, newVal, oldVal) {
+                if (bubble.isBubbling(this, 'change')) {
+                    can.batch.trigger(this, {
+                        type: 'change',
+                        target: this
+                    }, [
+                        attr,
+                        how,
+                        newVal,
+                        oldVal
+                    ]);
+                } else {
+                    can.batch.trigger(this, attr, [
+                        newVal,
+                        oldVal
+                    ]);
+                }
+                if (how === 'remove' || how === 'add') {
+                    can.batch.trigger(this, {
+                        type: '__keys',
+                        target: this
+                    });
+                }
+            },
+            _each: function (callback) {
+                var data = this.__get();
+                for (var prop in data) {
+                    if (data.hasOwnProperty(prop)) {
+                        callback(data[prop], prop);
+                    }
+                }
+            },
+            attr: function (attr, val) {
+                var type = typeof attr;
+                if (type !== 'string' && type !== 'number') {
+                    return this._attrs(attr, val);
+                } else if (arguments.length === 1) {
+                    return this._get(attr);
+                } else {
+                    this._set(attr, val);
+                    return this;
+                }
+            },
+            each: function () {
+                return can.each.apply(undefined, [this].concat(can.makeArray(arguments)));
+            },
+            removeAttr: function (attr) {
+                var isList = can.List && this instanceof can.List, parts = can.Map.helpers.attrParts(attr), prop = parts.shift(), current = isList ? this[prop] : this._data[prop];
+                if (parts.length && current) {
+                    return current.removeAttr(parts);
+                } else {
+                    if (typeof attr === 'string' && !!~attr.indexOf('.')) {
+                        prop = attr;
+                    }
+                    this._remove(prop, current);
+                    return current;
+                }
+            },
+            _remove: function (prop, current) {
+                if (prop in this._data) {
+                    delete this._data[prop];
+                    if (!(prop in this.constructor.prototype)) {
+                        delete this[prop];
+                    }
+                    this._triggerChange(prop, 'remove', undefined, current);
+                }
+            },
+            _get: function (attr) {
+                attr = '' + attr;
+                var dotIndex = attr.indexOf('.');
+                if (dotIndex >= 0) {
+                    var value = this.__get(attr);
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    var first = attr.substr(0, dotIndex), second = attr.substr(dotIndex + 1);
+                    can.__observe(this, first);
+                    var current = this.__get(first);
+                    return current && current._get ? current._get(second) : undefined;
+                } else {
+                    can.__observe(this, attr);
+                    return this.__get(attr);
+                }
+            },
+            __get: function (attr) {
+                if (attr) {
+                    if (this._computedBindings[attr]) {
+                        return this[attr]();
+                    } else {
+                        return this._data[attr];
+                    }
+                } else {
+                    return this._data;
+                }
+            },
+            __type: function (value, prop) {
+                if (!(value instanceof can.Map) && can.Map.helpers.canMakeObserve(value)) {
+                    var cached = getMapFromObject(value);
+                    if (cached) {
+                        return cached;
+                    }
+                    if (can.isArray(value)) {
+                        var List = can.List;
+                        return new List(value);
+                    } else {
+                        var Map = this.constructor.Map || can.Map;
+                        return new Map(value);
+                    }
+                }
+                return value;
+            },
+            _set: function (attr, value, keepKey) {
+                attr = '' + attr;
+                var dotIndex = attr.indexOf('.'), current;
+                if (!keepKey && dotIndex >= 0) {
+                    var first = attr.substr(0, dotIndex), second = attr.substr(dotIndex + 1);
+                    current = this._init ? undefined : this.__get(first);
+                    if (Map.helpers.isObservable(current)) {
+                        current._set(second, value);
+                    } else {
+                        throw 'can.Map: Object does not exist';
+                    }
+                } else {
+                    if (this.__convert) {
+                        value = this.__convert(attr, value);
+                    }
+                    current = this._init ? undefined : this.__get(attr);
+                    this.__set(attr, this.__type(value, attr), current);
+                }
+            },
+            __set: function (prop, value, current) {
+                if (value !== current) {
+                    var changeType = current !== undefined || this.__get().hasOwnProperty(prop) ? 'set' : 'add';
+                    this.___set(prop, this.constructor._bubble.set(this, prop, value, current));
+                    if (!this._computedBindings[prop]) {
+                        this._triggerChange(prop, changeType, value, current);
+                    }
+                    if (current) {
+                        this.constructor._bubble.teardownFromParent(this, current);
+                    }
+                }
+            },
+            ___set: function (prop, val) {
+                if (this._computedBindings[prop]) {
+                    this[prop](val);
+                } else {
+                    this._data[prop] = val;
+                }
+                if (typeof this.constructor.prototype[prop] !== 'function' && !this._computedBindings[prop]) {
+                    this[prop] = val;
+                }
+            },
+            bind: function (eventName, handler) {
+                var computedBinding = this._computedBindings && this._computedBindings[eventName];
+                if (computedBinding) {
+                    if (!computedBinding.count) {
+                        computedBinding.count = 1;
+                        var self = this;
+                        computedBinding.handler = function (ev, newVal, oldVal) {
+                            can.batch.trigger(self, {
+                                type: eventName,
+                                batchNum: ev.batchNum,
+                                target: self
+                            }, [
+                                newVal,
+                                oldVal
+                            ]);
+                        };
+                        this[eventName].bind('change', computedBinding.handler);
+                    } else {
+                        computedBinding.count++;
+                    }
+                }
+                this.constructor._bubble.bind(this, eventName);
+                return can.bindAndSetup.apply(this, arguments);
+            },
+            unbind: function (eventName, handler) {
+                var computedBinding = this._computedBindings && this._computedBindings[eventName];
+                if (computedBinding) {
+                    if (computedBinding.count === 1) {
+                        computedBinding.count = 0;
+                        this[eventName].unbind('change', computedBinding.handler);
+                        delete computedBinding.handler;
+                    } else {
+                        computedBinding.count--;
+                    }
+                }
+                this.constructor._bubble.unbind(this, eventName);
+                return can.unbindAndTeardown.apply(this, arguments);
+            },
+            serialize: function () {
+                return can.Map.helpers.serialize(this, 'serialize', {});
+            },
+            _attrs: function (props, remove) {
+                if (props === undefined) {
+                    return Map.helpers.serialize(this, 'attr', {});
+                }
+                props = can.simpleExtend({}, props);
+                var prop, self = this, newVal;
+                can.batch.start();
+                this.each(function (curVal, prop) {
+                    if (prop === '_cid') {
+                        return;
+                    }
+                    newVal = props[prop];
+                    if (newVal === undefined) {
+                        if (remove) {
+                            self.removeAttr(prop);
+                        }
+                        return;
+                    }
+                    if (self.__convert) {
+                        newVal = self.__convert(prop, newVal);
+                    }
+                    if (Map.helpers.isObservable(newVal)) {
+                        self.__set(prop, self.__type(newVal, prop), curVal);
+                    } else if (Map.helpers.isObservable(curVal) && Map.helpers.canMakeObserve(newVal)) {
+                        curVal.attr(newVal, remove);
+                    } else if (curVal !== newVal) {
+                        self.__set(prop, self.__type(newVal, prop), curVal);
+                    }
+                    delete props[prop];
+                });
+                for (prop in props) {
+                    if (prop !== '_cid') {
+                        newVal = props[prop];
+                        this._set(prop, newVal, true);
+                    }
+                }
+                can.batch.stop();
+                return this;
+            },
+            compute: function (prop) {
+                if (can.isFunction(this.constructor.prototype[prop])) {
+                    return can.compute(this[prop], this);
+                } else {
+                    var reads = prop.split('.'), last = reads.length - 1, options = { args: [] };
+                    return can.compute(function (newVal) {
+                        if (arguments.length) {
+                            can.compute.read(this, reads.slice(0, last)).value.attr(reads[last], newVal);
+                        } else {
+                            return can.compute.read(this, reads, options).value;
+                        }
+                    }, this);
+                }
+            }
+        });
+    Map.prototype.on = Map.prototype.bind;
+    Map.prototype.off = Map.prototype.unbind;
+    return Map;
+});
+/*can/list/list*/
+define('can/list/list', [
+    'can/util/util',
+    'can/map/map',
+    'can/map/bubble'
+], function (can, Map, bubble) {
+    var splice = [].splice, spliceRemovesProps = function () {
+            var obj = {
+                    0: 'a',
+                    length: 1
+                };
+            splice.call(obj, 0, 1);
+            return !obj[0];
+        }();
+    var list = Map.extend({ Map: Map }, {
+            setup: function (instances, options) {
+                this.length = 0;
+                can.cid(this, '.map');
+                this._init = 1;
+                this._computedBindings = {};
+                this._setupComputes();
+                instances = instances || [];
+                var teardownMapping;
+                if (can.isDeferred(instances)) {
+                    this.replace(instances);
+                } else {
+                    teardownMapping = instances.length && can.Map.helpers.addToMap(instances, this);
+                    this.push.apply(this, can.makeArray(instances || []));
+                }
+                if (teardownMapping) {
+                    teardownMapping();
+                }
+                this.bind('change', can.proxy(this._changes, this));
+                can.simpleExtend(this, options);
+                delete this._init;
+            },
+            _triggerChange: function (attr, how, newVal, oldVal) {
+                Map.prototype._triggerChange.apply(this, arguments);
+                var index = +attr;
+                if (!~('' + attr).indexOf('.') && !isNaN(index)) {
+                    if (how === 'add') {
+                        can.batch.trigger(this, how, [
+                            newVal,
+                            index
+                        ]);
+                        can.batch.trigger(this, 'length', [this.length]);
+                    } else if (how === 'remove') {
+                        can.batch.trigger(this, how, [
+                            oldVal,
+                            index
+                        ]);
+                        can.batch.trigger(this, 'length', [this.length]);
+                    } else {
+                        can.batch.trigger(this, how, [
+                            newVal,
+                            index
+                        ]);
+                    }
+                }
+            },
+            __get: function (attr) {
+                if (attr) {
+                    if (this[attr] && this[attr].isComputed && can.isFunction(this.constructor.prototype[attr])) {
+                        return this[attr]();
+                    } else {
+                        return this[attr];
+                    }
+                } else {
+                    return this;
+                }
+            },
+            __set: function (prop, value, current) {
+                prop = isNaN(+prop) || prop % 1 ? prop : +prop;
+                if (typeof prop === 'number' && prop > this.length - 1) {
+                    var newArr = new Array(prop + 1 - this.length);
+                    newArr[newArr.length - 1] = value;
+                    this.push.apply(this, newArr);
+                    return newArr;
+                }
+                return can.Map.prototype.__set.call(this, '' + prop, value, current);
+            },
+            ___set: function (attr, val) {
+                this[attr] = val;
+                if (+attr >= this.length) {
+                    this.length = +attr + 1;
+                }
+            },
+            _remove: function (prop, current) {
+                if (isNaN(+prop)) {
+                    delete this[prop];
+                    this._triggerChange(prop, 'remove', undefined, current);
+                } else {
+                    this.splice(prop, 1);
+                }
+            },
+            _each: function (callback) {
+                var data = this.__get();
+                for (var i = 0; i < data.length; i++) {
+                    callback(data[i], i);
+                }
+            },
+            serialize: function () {
+                return Map.helpers.serialize(this, 'serialize', []);
+            },
+            splice: function (index, howMany) {
+                var args = can.makeArray(arguments), added = [], i, len, listIndex, allSame = args.length > 2;
+                index = index || 0;
+                for (i = 0, len = args.length - 2; i < len; i++) {
+                    listIndex = i + 2;
+                    args[listIndex] = this.__type(args[listIndex], listIndex);
+                    added.push(args[listIndex]);
+                    if (this[i + index] !== args[listIndex]) {
+                        allSame = false;
+                    }
+                }
+                if (allSame && this.length <= added.length) {
+                    return added;
+                }
+                if (howMany === undefined) {
+                    howMany = args[1] = this.length - index;
+                }
+                var removed = splice.apply(this, args);
+                if (!spliceRemovesProps) {
+                    for (i = this.length; i < removed.length + this.length; i++) {
+                        delete this[i];
+                    }
+                }
+                can.batch.start();
+                if (howMany > 0) {
+                    bubble.removeMany(this, removed);
+                    this._triggerChange('' + index, 'remove', undefined, removed);
+                }
+                if (args.length > 2) {
+                    for (i = 0, len = added.length; i < len; i++) {
+                        bubble.set(this, i, added[i]);
+                    }
+                    this._triggerChange('' + index, 'add', added, removed);
+                }
+                can.batch.stop();
+                return removed;
+            },
+            _attrs: function (items, remove) {
+                if (items === undefined) {
+                    return Map.helpers.serialize(this, 'attr', []);
+                }
+                items = can.makeArray(items);
+                can.batch.start();
+                this._updateAttrs(items, remove);
+                can.batch.stop();
+            },
+            _updateAttrs: function (items, remove) {
+                var len = Math.min(items.length, this.length);
+                for (var prop = 0; prop < len; prop++) {
+                    var curVal = this[prop], newVal = items[prop];
+                    if (Map.helpers.isObservable(curVal) && Map.helpers.canMakeObserve(newVal)) {
+                        curVal.attr(newVal, remove);
+                    } else if (curVal !== newVal) {
+                        this._set(prop, newVal);
+                    } else {
+                    }
+                }
+                if (items.length > this.length) {
+                    this.push.apply(this, items.slice(this.length));
+                } else if (items.length < this.length && remove) {
+                    this.splice(items.length);
+                }
+            }
+        }), getArgs = function (args) {
+            return args[0] && can.isArray(args[0]) ? args[0] : can.makeArray(args);
+        };
+    can.each({
+        push: 'length',
+        unshift: 0
+    }, function (where, name) {
+        var orig = [][name];
+        list.prototype[name] = function () {
+            var args = [], len = where ? this.length : 0, i = arguments.length, res, val;
+            while (i--) {
+                val = arguments[i];
+                args[i] = bubble.set(this, i, this.__type(val, i));
+            }
+            res = orig.apply(this, args);
+            if (!this.comparator || args.length) {
+                this._triggerChange('' + len, 'add', args, undefined);
+            }
+            return res;
+        };
+    });
+    can.each({
+        pop: 'length',
+        shift: 0
+    }, function (where, name) {
+        list.prototype[name] = function () {
+            if (!this.length) {
+                return undefined;
+            }
+            var args = getArgs(arguments), len = where && this.length ? this.length - 1 : 0;
+            var res = [][name].apply(this, args);
+            this._triggerChange('' + len, 'remove', undefined, [res]);
+            if (res && res.unbind) {
+                bubble.remove(this, res);
+            }
+            return res;
+        };
+    });
+    can.extend(list.prototype, {
+        indexOf: function (item, fromIndex) {
+            this.attr('length');
+            return can.inArray(item, this, fromIndex);
+        },
+        join: function () {
+            return [].join.apply(this.attr(), arguments);
+        },
+        reverse: function () {
+            var list = [].reverse.call(can.makeArray(this));
+            this.replace(list);
+        },
+        slice: function () {
+            var temp = Array.prototype.slice.apply(this, arguments);
+            return new this.constructor(temp);
+        },
+        concat: function () {
+            var args = [];
+            can.each(can.makeArray(arguments), function (arg, i) {
+                args[i] = arg instanceof can.List ? arg.serialize() : arg;
+            });
+            return new this.constructor(Array.prototype.concat.apply(this.serialize(), args));
+        },
+        forEach: function (cb, thisarg) {
+            return can.each(this, cb, thisarg || this);
+        },
+        replace: function (newList) {
+            if (can.isDeferred(newList)) {
+                newList.then(can.proxy(this.replace, this));
+            } else {
+                this.splice.apply(this, [
+                    0,
+                    this.length
+                ].concat(can.makeArray(newList || [])));
+            }
+            return this;
+        },
+        filter: function (callback, thisArg) {
+            var filteredList = new can.List(), self = this, filtered;
+            this.each(function (item, index, list) {
+                filtered = callback.call(thisArg | self, item, index, self);
+                if (filtered) {
+                    filteredList.push(item);
+                }
+            });
+            return filteredList;
+        }
+    });
+    can.List = Map.List = list;
+    return can.List;
+});
+/*can/compute/read*/
+define('can/compute/read', ['can/util/util'], function (can) {
+    var read = function (parent, reads, options) {
+        options = options || {};
+        var state = { foundObservable: false };
+        var cur = readValue(parent, 0, reads, options, state), type, prev, readLength = reads.length, i = 0;
+        while (i < readLength) {
+            prev = cur;
+            for (var r = 0, readersLength = read.propertyReaders.length; r < readersLength; r++) {
+                var reader = read.propertyReaders[r];
+                if (reader.test(cur)) {
+                    cur = reader.read(cur, reads[i], i, options, state);
+                    break;
+                }
+            }
+            i = i + 1;
+            cur = readValue(cur, i, reads, options, state, prev);
+            type = typeof cur;
+            if (i < reads.length && (cur === null || type !== 'function' && type !== 'object')) {
+                if (options.earlyExit) {
+                    options.earlyExit(prev, i - 1, cur);
+                }
+                return {
+                    value: undefined,
+                    parent: prev
+                };
+            }
+        }
+        if (cur === undefined) {
+            if (options.earlyExit) {
+                options.earlyExit(prev, i - 1);
+            }
+        }
+        return {
+            value: cur,
+            parent: prev
+        };
+    };
+    var readValue = function (value, index, reads, options, state, prev) {
+        var usedValueReader;
+        do {
+            usedValueReader = false;
+            for (var i = 0, len = read.valueReaders.length; i < len; i++) {
+                if (read.valueReaders[i].test(value, index, reads, options)) {
+                    value = read.valueReaders[i].read(value, index, reads, options, state, prev);
+                }
+            }
+        } while (usedValueReader);
+        return value;
+    };
+    read.valueReaders = [
+        {
+            name: 'compute',
+            test: function (value, i, reads, options) {
+                return value && value.isComputed;
+            },
+            read: function (value, i, reads, options, state) {
+                if (options.isArgument && i === reads.length) {
+                    return value;
+                }
+                if (!state.foundObservable && options.foundObservable) {
+                    options.foundObservable(value, i);
+                    state.foundObservable = true;
+                }
+                return value instanceof can.Compute ? value.get() : value();
+            }
+        },
+        {
+            name: 'function',
+            test: function (value, i, reads, options) {
+                var type = typeof value;
+                return type === 'function' && !value.isComputed && (options.executeAnonymousFunctions || options.isArgument && i === reads.length) && !(can.Construct && value.prototype instanceof can.Construct) && !(can.route && value === can.route);
+            },
+            read: function (value, i, reads, options, state, prev) {
+                if (options.isArgument && i === reads.length) {
+                    return options.proxyMethods !== false ? can.proxy(value, prev) : value;
+                }
+                return value.call(prev);
+            }
+        }
+    ];
+    read.propertyReaders = [
+        {
+            name: 'map',
+            test: can.isMapLike,
+            read: function (value, prop, index, options, state) {
+                if (!state.foundObservable && options.foundObservable) {
+                    options.foundObservable(value, index);
+                    state.foundObservable = true;
+                }
+                if (typeof value[prop] === 'function' && value.constructor.prototype[prop] === value[prop]) {
+                    if (options.returnObserveMethods) {
+                        return value[prop];
+                    } else if (prop === 'constructor' && value instanceof can.Construct || value[prop].prototype instanceof can.Construct) {
+                        return value[prop];
+                    } else {
+                        return value[prop].apply(value, options.args || []);
+                    }
+                } else {
+                    return value.attr(prop);
+                }
+            }
+        },
+        {
+            name: 'promise',
+            test: function (value) {
+                return can.isPromise(value);
+            },
+            read: function (value, prop, index, options, state) {
+                if (!state.foundObservable && options.foundObservable) {
+                    options.foundObservable(value, index);
+                    state.foundObservable = true;
+                }
+                var observeData = value.__observeData;
+                if (!value.__observeData) {
+                    observeData = value.__observeData = {
+                        isPending: true,
+                        state: 'pending',
+                        isResolved: false,
+                        isRejected: false,
+                        value: undefined,
+                        reason: undefined
+                    };
+                    can.cid(observeData);
+                    can.simpleExtend(observeData, can.event);
+                    value.then(function (value) {
+                        observeData.isPending = false;
+                        observeData.isResolved = true;
+                        observeData.value = value;
+                        observeData.state = 'resolved';
+                        observeData.dispatch('state', [
+                            'resolved',
+                            'pending'
+                        ]);
+                    }, function (reason) {
+                        observeData.isPending = false;
+                        observeData.isRejected = true;
+                        observeData.reason = reason;
+                        observeData.state = 'rejected';
+                        observeData.dispatch('state', [
+                            'rejected',
+                            'pending'
+                        ]);
+                    });
+                }
+                can.__observe(observeData, 'state');
+                return prop in observeData ? observeData[prop] : value[prop];
+            }
+        },
+        {
+            name: 'object',
+            test: function () {
+                return true;
+            },
+            read: function (value, prop) {
+                if (value == null) {
+                    return undefined;
+                } else {
+                    return value[prop];
+                }
+            }
+        }
+    ];
+    read.write = function (parent, key, value, options) {
+        options = options || {};
+        if (can.isMapLike(parent)) {
+            if (!options.isArgument && parent._data && parent._data[key] && parent._data[key].isComputed) {
+                return parent._data[key](value);
+            } else {
+                return parent.attr(key, value);
+            }
+        }
+        if (parent[key] && parent[key].isComputed) {
+            return parent[key](value);
+        }
+        if (typeof parent === 'object') {
+            parent[key] = value;
+        }
+    };
+    return read;
+});
+/*can/compute/get_value_and_bind*/
+define('can/compute/get_value_and_bind', ['can/util/util'], function () {
+    function observe(func, context, oldInfo, onchanged) {
+        var info = getValueAndObserved(func, context), newObserveSet = info.observed, oldObserved = oldInfo.observed;
+        if (info.names !== oldInfo.names) {
+            bindNewSet(oldObserved, newObserveSet, onchanged);
+            unbindOldSet(oldObserved, onchanged);
+        }
+        can.batch.afterPreviousEvents(function () {
+            info.ready = true;
+        });
+        return info;
+    }
+    var observedStack = [];
+    can.__isRecordingObserves = function () {
+        return observedStack.length;
+    };
+    can.__observe = can.__reading = function (obj, event) {
+        if (observedStack.length) {
+            var name = obj._cid + '|' + event, top = observedStack[observedStack.length - 1];
+            top.names += name;
+            top.observed[name] = {
+                obj: obj,
+                event: event + ''
+            };
+        }
+    };
+    can.__notObserve = function (fn) {
+        return function () {
+            var previousReads = can.__clearObserved();
+            var res = fn.apply(this, arguments);
+            can.__setObserved(previousReads);
+            return res;
+        };
+    };
+    can.__clearObserved = can.__clearReading = function () {
+        if (observedStack.length) {
+            var ret = observedStack[observedStack.length - 1];
+            observedStack[observedStack.length - 1] = { observed: {} };
+            return ret;
+        }
+    };
+    can.__setObserved = can.__setReading = function (o) {
+        if (observedStack.length) {
+            observedStack[observedStack.length - 1] = o;
+        }
+    };
+    can.__addObserved = can.__addReading = function (o) {
+        if (observedStack.length) {
+            can.simpleExtend(observedStack[observedStack.length - 1], o);
+        }
+    };
+    var getValueAndObserved = function (func, self) {
+        observedStack.push({
+            names: '',
+            observed: {}
+        });
+        var value = func.call(self);
+        var stackItem = observedStack.pop();
+        stackItem.value = value;
+        return stackItem;
+    };
+    var bindNewSet = function (oldObserved, newObserveSet, onchanged) {
+        for (var name in newObserveSet) {
+            bindOrPreventUnbinding(oldObserved, newObserveSet, name, onchanged);
+        }
+    };
+    var bindOrPreventUnbinding = function (oldObserved, newObserveSet, name, onchanged) {
+        if (oldObserved[name]) {
+            delete oldObserved[name];
+        } else {
+            var obEv = newObserveSet[name];
+            obEv.obj.bind(obEv.event, onchanged);
+        }
+    };
+    var unbindOldSet = function (oldObserved, onchanged) {
+        for (var name in oldObserved) {
+            var obEv = oldObserved[name];
+            obEv.obj.unbind(obEv.event, onchanged);
+        }
+    };
+    return observe;
+});
+/*can/compute/proto_compute*/
+define('can/compute/proto_compute', [
+    'can/util/util',
+    'can/util/bind/bind',
+    'can/compute/read',
+    'can/compute/get_value_and_bind',
+    'can/util/batch/batch'
+], function (can, bind, read, getValueAndBind) {
+    var updateOnChange = function (compute, newValue, oldValue, batchNum) {
+        if (newValue !== oldValue) {
+            can.batch.trigger(compute, batchNum ? {
+                type: 'change',
+                batchNum: batchNum
+            } : 'change', [
+                newValue,
+                oldValue
+            ]);
+        }
+    };
+    var setupComputeHandlers = function (compute, func, context, singleBind) {
+        var readInfo, onchanged, batchNum;
+        singleBind = false;
+        return {
+            on: function (updater) {
+                var self = this;
+                if (!onchanged) {
+                    onchanged = function (ev) {
+                        if (readInfo.ready && compute.bound && (ev.batchNum === undefined || ev.batchNum !== batchNum)) {
+                            var oldValue = readInfo.value, newValue;
+                            if (singleBind) {
+                                newValue = func.call(context);
+                                readInfo.value = newValue;
+                            } else {
+                                readInfo = getValueAndBind(func, context, readInfo, onchanged);
+                                newValue = readInfo.value;
+                            }
+                            self.updater(newValue, oldValue, ev.batchNum);
+                            batchNum = batchNum = ev.batchNum;
+                        }
+                    };
+                }
+                readInfo = getValueAndBind(func, context, { observed: {} }, onchanged);
+                if (singleBind) {
+                    func = can.__notObserve(func);
+                }
+                compute.value = readInfo.value;
+                compute.hasDependencies = !can.isEmptyObject(readInfo.observed);
+            },
+            off: function (updater) {
+                for (var name in readInfo.observed) {
+                    var ob = readInfo.observed[name];
+                    ob.obj.unbind(ob.event, onchanged);
+                }
+            }
+        };
+    };
+    var k = function () {
+    };
+    var updater = function (newVal, oldVal, batchNum) {
+            this.value = newVal;
+            updateOnChange(this, newVal, oldVal, batchNum);
+        }, asyncGet = function (fn, context, lastSetValue) {
+            return function () {
+                return fn.call(context, lastSetValue.get());
+            };
+        }, asyncUpdater = function (context, oldUpdater) {
+            return function (newVal) {
+                if (newVal !== undefined) {
+                    oldUpdater(newVal, context.value);
+                }
+            };
+        };
+    can.Compute = function (getterSetter, context, eventName, bindOnce) {
+        var args = [];
+        for (var i = 0, arglen = arguments.length; i < arglen; i++) {
+            args[i] = arguments[i];
+        }
+        var contextType = typeof args[1];
+        if (typeof args[0] === 'function') {
+            this._setupGetterSetterFn(args[0], args[1], args[2], args[3]);
+        } else if (args[1]) {
+            if (contextType === 'string') {
+                this._setupContextString(args[0], args[1], args[2]);
+            } else if (contextType === 'function') {
+                this._setupContextFunction(args[0], args[1], args[2]);
+            } else {
+                if (args[1] && args[1].fn) {
+                    this._setupAsyncCompute(args[0], args[1]);
+                } else {
+                    this._setupContextSettings(args[0], args[1]);
+                }
+            }
+        } else {
+            this._setupInitialValue(args[0]);
+        }
+        this._args = args;
+        this.isComputed = true;
+        can.cid(this, 'compute');
+    };
+    can.simpleExtend(can.Compute.prototype, {
+        _bindsetup: can.__notObserve(function () {
+            this.bound = true;
+            this._on(this.updater);
+        }),
+        _bindteardown: function () {
+            this._off(this.updater);
+            this.bound = false;
+        },
+        bind: can.bindAndSetup,
+        unbind: can.unbindAndTeardown,
+        clone: function (context) {
+            if (context && typeof this._args[0] === 'function') {
+                this._args[1] = context;
+            } else if (context) {
+                this._args[2] = context;
+            }
+            return new can.Compute(this._args[0], this._args[1], this._args[2], this._args[3]);
+        },
+        _on: k,
+        _off: k,
+        get: function () {
+            if (can.__isRecordingObserves() && this._canObserve !== false) {
+                can.__observe(this, 'change');
+                if (!this.bound) {
+                    can.Compute.temporarilyBind(this);
+                }
+            }
+            if (this.bound) {
+                return this.value;
+            } else {
+                return this._get();
+            }
+        },
+        _get: function () {
+            return this.value;
+        },
+        set: function (newVal) {
+            var old = this.value;
+            var setVal = this._set(newVal, old);
+            if (this.hasDependencies) {
+                if (this._setUpdates) {
+                    return this.value;
+                }
+                return this._get();
+            }
+            if (setVal === undefined) {
+                this.value = this._get();
+            } else {
+                this.value = setVal;
+            }
+            updateOnChange(this, this.value, old);
+            return this.value;
+        },
+        _set: function (newVal) {
+            return this.value = newVal;
+        },
+        updater: updater,
+        _computeFn: function (newVal) {
+            if (arguments.length) {
+                return this.set(newVal);
+            }
+            return this.get();
+        },
+        toFunction: function () {
+            return can.proxy(this._computeFn, this);
+        },
+        _setupGetterSetterFn: function (getterSetter, context, eventName, bindOnce) {
+            this._set = can.proxy(getterSetter, context);
+            this._get = can.proxy(getterSetter, context);
+            this._canObserve = eventName === false ? false : true;
+            var handlers = setupComputeHandlers(this, getterSetter, context || this, bindOnce);
+            this._on = handlers.on;
+            this._off = handlers.off;
+        },
+        _setupContextString: function (target, propertyName, eventName) {
+            var isObserve = can.isMapLike(target), self = this, handler = function (ev, newVal, oldVal) {
+                    self.updater(newVal, oldVal, ev.batchNum);
+                };
+            if (isObserve) {
+                this.hasDependencies = true;
+                this._get = function () {
+                    return target.attr(propertyName);
+                };
+                this._set = function (val) {
+                    target.attr(propertyName, val);
+                };
+                this._on = function (update) {
+                    target.bind(eventName || propertyName, handler);
+                    this.value = this._get();
+                };
+                this._off = function () {
+                    return target.unbind(eventName || propertyName, handler);
+                };
+            } else {
+                this._get = can.proxy(this._get, target);
+                this._set = can.proxy(this._set, target);
+            }
+        },
+        _setupContextFunction: function (initialValue, setter, eventName) {
+            this.value = initialValue;
+            this._set = setter;
+            can.simpleExtend(this, eventName);
+        },
+        _setupContextSettings: function (initialValue, settings) {
+            this.value = initialValue;
+            this._set = settings.set ? can.proxy(settings.set, settings) : this._set;
+            this._get = settings.get ? can.proxy(settings.get, settings) : this._get;
+            if (!settings.__selfUpdater) {
+                var self = this, oldUpdater = this.updater;
+                this.updater = function () {
+                    oldUpdater.call(self, self._get(), self.value);
+                };
+            }
+            this._on = settings.on ? settings.on : this._on;
+            this._off = settings.off ? settings.off : this._off;
+        },
+        _setupAsyncCompute: function (initialValue, settings) {
+            this.value = initialValue;
+            var oldUpdater = can.proxy(this.updater, this), self = this, fn = settings.fn, data;
+            this.updater = oldUpdater;
+            var lastSetValue = new can.Compute(initialValue);
+            this.lastSetValue = lastSetValue;
+            this._setUpdates = true;
+            this._set = function (newVal) {
+                if (newVal === lastSetValue.get()) {
+                    return this.value;
+                }
+                return lastSetValue.set(newVal);
+            };
+            this._get = asyncGet(fn, settings.context, lastSetValue);
+            if (fn.length === 0) {
+                data = setupComputeHandlers(this, fn, settings.context);
+            } else if (fn.length === 1) {
+                data = setupComputeHandlers(this, function () {
+                    return fn.call(settings.context, lastSetValue.get());
+                }, settings);
+            } else {
+                this.updater = asyncUpdater(this, oldUpdater);
+                data = setupComputeHandlers(this, function () {
+                    var res = fn.call(settings.context, lastSetValue.get(), function (newVal) {
+                            oldUpdater(newVal, self.value);
+                        });
+                    return res !== undefined ? res : this.value;
+                }, settings);
+            }
+            this._on = data.on;
+            this._off = data.off;
+        },
+        _setupInitialValue: function (initialValue) {
+            this.value = initialValue;
+        }
+    });
+    var computes, unbindComputes = function () {
+            for (var i = 0, len = computes.length; i < len; i++) {
+                computes[i].unbind('change', k);
+            }
+            computes = null;
+        };
+    can.Compute.temporarilyBind = function (compute) {
+        compute.bind('change', k);
+        if (!computes) {
+            computes = [];
+            setTimeout(unbindComputes, 10);
+        }
+        computes.push(compute);
+    };
+    can.Compute.async = function (initialValue, asyncComputer, context) {
+        return new can.Compute(initialValue, {
+            fn: asyncComputer,
+            context: context
+        });
+    };
+    can.Compute.read = read;
+    can.Compute.set = read.write;
+    can.Compute.truthy = function (compute) {
+        return new can.Compute(function () {
+            var res = compute.get();
+            if (typeof res === 'function') {
+                res = res.get();
+            }
+            return !!res;
+        });
+    };
+    return can.Compute;
+});
+/*can/compute/compute*/
+define('can/compute/compute', [
+    'can/util/util',
+    'can/util/bind/bind',
+    'can/util/batch/batch',
+    'can/compute/proto_compute'
+], function (can, bind) {
+    can.compute = function (getterSetter, context, eventName, bindOnce) {
+        var internalCompute = new can.Compute(getterSetter, context, eventName, bindOnce);
+        var compute = function (val) {
+            if (arguments.length) {
+                return internalCompute.set(val);
+            }
+            return internalCompute.get();
+        };
+        compute.bind = can.proxy(internalCompute.bind, internalCompute);
+        compute.unbind = can.proxy(internalCompute.unbind, internalCompute);
+        compute.isComputed = internalCompute.isComputed;
+        compute.clone = function (ctx) {
+            if (typeof getterSetter === 'function') {
+                context = ctx;
+            }
+            return can.compute(getterSetter, context, ctx, bindOnce);
+        };
+        compute.computeInstance = internalCompute;
+        return compute;
+    };
+    var k = function () {
+    };
+    var computes, unbindComputes = function () {
+            for (var i = 0, len = computes.length; i < len; i++) {
+                computes[i].unbind('change', k);
+            }
+            computes = null;
+        };
+    can.compute.temporarilyBind = function (compute) {
+        compute.bind('change', k);
+        if (!computes) {
+            computes = [];
+            setTimeout(unbindComputes, 10);
+        }
+        computes.push(compute);
+    };
+    can.compute.truthy = function (compute) {
+        return can.compute(function () {
+            var res = compute();
+            if (typeof res === 'function') {
+                res = res();
+            }
+            return !!res;
+        });
+    };
+    can.compute.async = function (initialValue, asyncComputer, context) {
+        return can.compute(initialValue, {
+            fn: asyncComputer,
+            context: context
+        });
+    };
+    can.compute.read = can.Compute.read;
+    can.compute.set = can.Compute.set;
+    return can.compute;
+});
 /*can/observe/observe*/
-define("can/observe/observe",["can/util/util","can/map/map","can/list/list","can/compute/compute"],function(t){return t.Observe=t.Map,t.Observe.startBatch=t.batch.start,t.Observe.stopBatch=t.batch.stop,t.Observe.triggerBatch=t.batch.trigger,t});
+define('can/observe/observe', [
+    'can/util/util',
+    'can/map/map',
+    'can/list/list',
+    'can/compute/compute'
+], function (can) {
+    can.Observe = can.Map;
+    can.Observe.startBatch = can.batch.start;
+    can.Observe.stopBatch = can.batch.stop;
+    can.Observe.triggerBatch = can.batch.trigger;
+    return can;
+});
+/*can/view/scope/compute_data*/
+define('can/view/scope/compute_data', [
+    'can/util/util',
+    'can/compute/compute',
+    'can/compute/get_value_and_bind'
+], function (can, compute, getValueAndBind) {
+    var isFastPath = function (computeData) {
+        return computeData.reads && computeData.reads.length === 1 && computeData.root instanceof can.Map && !can.isFunction(computeData.root[computeData.reads[0]]);
+    };
+    var getValueAndBindScopeRead = function (scopeRead, scopeReadChanged) {
+        return getValueAndBind(scopeRead, null, { observed: {} }, scopeReadChanged);
+    };
+    var unbindScopeRead = function (readInfo, scopeReadChanged) {
+        for (var name in readInfo.observed) {
+            var ob = readInfo.observed[name];
+            ob.obj.unbind(ob.event, scopeReadChanged);
+        }
+    };
+    var getValueAndBindSinglePropertyRead = function (computeData, singlePropertyReadChanged) {
+        var target = computeData.root, prop = computeData.reads[0];
+        target.bind(prop, singlePropertyReadChanged);
+        return {
+            value: computeData.initialValue,
+            observed: { something: true }
+        };
+    };
+    var unbindSinglePropertyRead = function (computeData, singlePropertyReadChanged) {
+        computeData.root.unbind(computeData.reads[0], singlePropertyReadChanged);
+    };
+    var scopeReader = function (scope, key, options, computeData, newVal) {
+        if (arguments.length > 4) {
+            if (computeData.root.isComputed) {
+                computeData.root(newVal);
+            } else if (computeData.reads.length) {
+                var last = computeData.reads.length - 1;
+                var obj = computeData.reads.length ? can.compute.read(computeData.root, computeData.reads.slice(0, last)).value : computeData.root;
+                can.compute.set(obj, computeData.reads[last], newVal, options);
+            }
+        } else {
+            if (computeData.root) {
+                return can.compute.read(computeData.root, computeData.reads, options).value;
+            }
+            var data = scope.read(key, options);
+            computeData.scope = data.scope;
+            computeData.initialValue = data.value;
+            computeData.reads = data.reads;
+            computeData.root = data.rootObserve;
+            return data.value;
+        }
+    };
+    return function (scope, key, options) {
+        options = options || { args: [] };
+        var computeData = {}, scopeRead = function (newVal) {
+                if (arguments.length) {
+                    return scopeReader(scope, key, options, computeData, newVal);
+                } else {
+                    return scopeReader(scope, key, options, computeData);
+                }
+            }, batchNum, readInfo, scopeReadChanged = function (ev) {
+                if (readInfo.ready && compute.computeInstance.bound && (ev.batchNum === undefined || ev.batchNum !== batchNum)) {
+                    var oldValue = readInfo.value, newValue;
+                    readInfo = getValueAndBind(scopeRead, null, readInfo, scopeReadChanged);
+                    newValue = readInfo.value;
+                    compute.computeInstance.updater(newValue, oldValue, ev.batchNum);
+                    batchNum = batchNum = ev.batchNum;
+                }
+            }, singlePropertyReadChanged = function (ev, newVal, oldVal) {
+                if (typeof newVal !== 'function') {
+                    compute.computeInstance.updater(newVal, oldVal, ev.batchNum);
+                } else {
+                    unbindSinglePropertyRead(computeData, singlePropertyReadChanged);
+                    readInfo = getValueAndBindScopeRead(scopeRead, scopeReadChanged);
+                    isFastPathBound = false;
+                    compute.computeInstance.updater(readInfo.value, oldVal, ev.batchNum);
+                }
+            }, isFastPathBound = false, compute = can.compute(undefined, {
+                on: function () {
+                    readInfo = getValueAndBindScopeRead(scopeRead, scopeReadChanged);
+                    if (isFastPath(computeData)) {
+                        var oldReadInfo = readInfo;
+                        readInfo = getValueAndBindSinglePropertyRead(computeData, singlePropertyReadChanged);
+                        unbindScopeRead(oldReadInfo, scopeReadChanged);
+                        isFastPathBound = true;
+                    }
+                    compute.computeInstance.value = readInfo.value;
+                    compute.computeInstance.hasDependencies = !can.isEmptyObject(readInfo.observed);
+                },
+                off: function () {
+                    if (isFastPathBound) {
+                        unbindSinglePropertyRead(computeData, singlePropertyReadChanged);
+                    } else {
+                        unbindScopeRead(readInfo, scopeReadChanged);
+                    }
+                },
+                set: scopeRead,
+                get: scopeRead,
+                __selfUpdater: true
+            });
+        computeData.compute = compute;
+        return computeData;
+    };
+});
+/*can/view/scope/scope*/
+define('can/view/scope/scope', [
+    'can/util/util',
+    'can/view/scope/compute_data',
+    'can/construct/construct',
+    'can/map/map',
+    'can/list/list',
+    'can/view/view',
+    'can/compute/compute'
+], function (can, makeComputeData) {
+    var escapeReg = /(\\)?\./g, escapeDotReg = /\\\./g, getNames = function (attr) {
+            var names = [], last = 0;
+            attr.replace(escapeReg, function (first, second, index) {
+                if (!second) {
+                    names.push(attr.slice(last, index).replace(escapeDotReg, '.'));
+                    last = index + first.length;
+                }
+            });
+            names.push(attr.slice(last).replace(escapeDotReg, '.'));
+            return names;
+        };
+    var Scope = can.Construct.extend({ read: can.compute.read }, {
+            init: function (context, parent) {
+                this._context = context;
+                this._parent = parent;
+                this.__cache = {};
+            },
+            attr: can.__notObserve(function (key, value) {
+                var options = {
+                        isArgument: true,
+                        returnObserveMethods: true,
+                        proxyMethods: false
+                    }, res = this.read(key, options);
+                if (arguments.length === 2) {
+                    var lastIndex = key.lastIndexOf('.'), readKey = lastIndex !== -1 ? key.substring(0, lastIndex) : '.', obj = this.read(readKey, options).value;
+                    if (lastIndex !== -1) {
+                        key = key.substring(lastIndex + 1, key.length);
+                    }
+                    can.compute.set(obj, key, value, options);
+                }
+                return res.value;
+            }),
+            add: function (context) {
+                if (context !== this._context) {
+                    return new this.constructor(context, this);
+                } else {
+                    return this;
+                }
+            },
+            computeData: function (key, options) {
+                return makeComputeData(this, key, options);
+            },
+            compute: function (key, options) {
+                return this.computeData(key, options).compute;
+            },
+            read: function (attr, options) {
+                var stopLookup;
+                if (attr.substr(0, 2) === './') {
+                    stopLookup = true;
+                    attr = attr.substr(2);
+                } else if (attr.substr(0, 3) === '../') {
+                    return this._parent.read(attr.substr(3), options);
+                } else if (attr === '..') {
+                    return { value: this._parent._context };
+                } else if (attr === '.' || attr === 'this') {
+                    return { value: this._context };
+                }
+                var names = attr.indexOf('\\.') === -1 ? attr.split('.') : getNames(attr), context, scope = this, defaultObserve, defaultReads = [], defaultPropertyDepth = -1, defaultComputeReadings, defaultScope, currentObserve, currentReads;
+                while (scope) {
+                    context = scope._context;
+                    if (context !== null && (typeof context === 'object' || typeof context === 'function')) {
+                        var data = can.compute.read(context, names, can.simpleExtend({
+                                foundObservable: function (observe, nameIndex) {
+                                    currentObserve = observe;
+                                    currentReads = names.slice(nameIndex);
+                                },
+                                earlyExit: function (parentValue, nameIndex) {
+                                    if (nameIndex > defaultPropertyDepth) {
+                                        defaultObserve = currentObserve;
+                                        defaultReads = currentReads;
+                                        defaultPropertyDepth = nameIndex;
+                                        defaultScope = scope;
+                                        defaultComputeReadings = can.__clearReading();
+                                    }
+                                },
+                                executeAnonymousFunctions: true
+                            }, options));
+                        if (data.value !== undefined) {
+                            return {
+                                scope: scope,
+                                rootObserve: currentObserve,
+                                value: data.value,
+                                reads: currentReads
+                            };
+                        }
+                    }
+                    can.__clearReading();
+                    if (!stopLookup) {
+                        scope = scope._parent;
+                    } else {
+                        scope = null;
+                    }
+                }
+                if (defaultObserve) {
+                    can.__setReading(defaultComputeReadings);
+                    return {
+                        scope: defaultScope,
+                        rootObserve: defaultObserve,
+                        reads: defaultReads,
+                        value: undefined
+                    };
+                } else {
+                    return {
+                        names: names,
+                        value: undefined
+                    };
+                }
+            }
+        });
+    can.view.Scope = Scope;
+    return Scope;
+});
 /*can/view/scanner*/
-define("can/view/scanner",["can/view/view","can/view/elements","can/view/callbacks/callbacks"],function(can,elements,viewCallbacks){var newLine=/(\r|\n)+/g,notEndTag=/\//,clean=function(t){return t.split("\\").join("\\\\").split("\n").join("\\n").split('"').join('\\"').split("	").join("\\t")},getTag=function(t,e,n){if(t)return t;for(;n<e.length;){if("<"===e[n]&&!notEndTag.test(e[n+1]))return elements.reverseTagMap[e[n+1]]||"span";n++}return""},bracketNum=function(t){return--t.split("{").length- --t.split("}").length},myEval=function(script){eval(script)},attrReg=/([^\s]+)[\s]*=[\s]*$/,startTxt="var ___v1ew = [];",finishTxt="return ___v1ew.join('')",put_cmd="___v1ew.push(\n",insert_cmd=put_cmd,htmlTag=null,quote=null,beforeQuote=null,rescan=null,getAttrName=function(){var t=beforeQuote.match(attrReg);return t&&t[1]},status=function(){return quote?"'"+getAttrName()+"'":htmlTag?1:0},top=function(t){return t[t.length-1]},Scanner;return can.view.Scanner=Scanner=function(t){can.extend(this,{text:{},tokens:[]},t),this.text.options=this.text.options||"",this.tokenReg=[],this.tokenSimple={"<":"<",">":">",'"':'"',"'":"'"},this.tokenComplex=[],this.tokenMap={};for(var e,n=0;e=this.tokens[n];n++)e[2]?(this.tokenReg.push(e[2]),this.tokenComplex.push({abbr:e[1],re:new RegExp(e[2]),rescan:e[3]})):(this.tokenReg.push(e[1]),this.tokenSimple[e[1]]=e[0]),this.tokenMap[e[0]]=e[1];this.tokenReg=new RegExp("("+this.tokenReg.slice(0).concat(["<",">",'"',"'"]).join("|")+")","g")},Scanner.prototype={helpers:[],scan:function(t,e){var n=[],s=0,a=this.tokenSimple,r=this.tokenComplex;t=t.replace(newLine,"\n"),this.transform&&(t=this.transform(t)),t.replace(this.tokenReg,function(e,i){var o=arguments[arguments.length-2];if(o>s&&n.push(t.substring(s,o)),a[e])n.push(e);else for(var u,c=0;u=r[c];c++)if(u.re.test(e)){n.push(u.abbr),u.rescan&&n.push(u.rescan(i));break}s=o+i.length}),s<t.length&&n.push(t.substr(s));var i,o,u,c,l="",p=[startTxt+(this.text.start||"")],h=function(t,e){p.push(put_cmd,'"',clean(t),'"'+(e||"")+");")},g=[],f=null,m=!1,k={attributeHookups:[],tagHookups:[],lastTagHookup:""},b=function(){k.lastTagHookup=k.tagHookups.pop()+k.tagHookups.length},v="",x=[],w=!1,T=!1,d=0,_=this.tokenMap;for(htmlTag=quote=beforeQuote=null;void 0!==(u=n[d++]);){if(null===f)switch(u){case _.left:case _.escapeLeft:case _.returnLeft:m=htmlTag&&1;case _.commentLeft:f=u,l.length&&h(l),l="";break;case _.escapeFull:m=htmlTag&&1,rescan=1,f=_.escapeLeft,l.length&&h(l),rescan=n[d++],l=rescan.content||rescan,rescan.before&&h(rescan.before),n.splice(d,0,_.right);break;case _.commentFull:break;case _.templateLeft:l+=_.left;break;case"<":0!==n[d].indexOf("!--")&&(htmlTag=1,m=0),l+=u;break;case">":htmlTag=0;var H="/"===l.substr(l.length-1)||"--"===l.substr(l.length-2),N="";if(k.attributeHookups.length&&(N="attrs: ['"+k.attributeHookups.join("','")+"'], ",k.attributeHookups=[]),v+k.tagHookups.length!==k.lastTagHookup&&v===top(k.tagHookups))H&&(l=l.substr(0,l.length-1)),p.push(put_cmd,'"',clean(l),'"',",can.view.pending({tagName:'"+v+"',"+N+"scope: "+(this.text.scope||"this")+this.text.options),H?(p.push("}));"),l="/>",b()):"<"===n[d]&&n[d+1]==="/"+v?(p.push("}));"),l=u,b()):(p.push(",subtemplate: function("+this.text.argNames+"){\n"+startTxt+(this.text.start||"")),l="");else if(m||!w&&elements.tagToContentPropMap[x[x.length-1]]||N){var R=",can.view.pending({"+N+"scope: "+(this.text.scope||"this")+this.text.options+'}),"';H?h(l.substr(0,l.length-1),R+'/>"'):h(l,R+'>"'),l="",m=0}else l+=u;(H||w)&&(x.pop(),v=x[x.length-1],w=!1),k.attributeHookups=[];break;case"'":case'"':if(htmlTag)if(quote&&quote===u){quote=null;var L=getAttrName();if(viewCallbacks.attr(L)&&k.attributeHookups.push(L),T){l+=u,h(l),p.push(finishTxt,"}));\n"),l="",T=!1;break}}else if(null===quote&&(quote=u,beforeQuote=i,c=getAttrName(),"img"===v&&"src"===c||"style"===c)){h(l.replace(attrReg,"")),l="",T=!0,p.push(insert_cmd,"can.view.txt(2,'"+getTag(v,n,d)+"',"+status()+",this,function(){",startTxt),h(c+"="+u);break}default:if("<"===i){v="!--"===u.substr(0,3)?"!--":u.split(/\s/)[0];var S,y=!1;0===v.indexOf("/")&&(y=!0,S=v.substr(1)),y?(top(x)===S&&(v=S,w=!0),top(k.tagHookups)===S&&(h(l.substr(0,l.length-1)),p.push(finishTxt+"}}) );"),l="><",b())):(v.lastIndexOf("/")===v.length-1&&(v=v.substr(0,v.length-1)),"!--"!==v&&viewCallbacks.tag(v)&&("content"===v&&elements.tagMap[top(x)]&&(u=u.replace("content",elements.tagMap[top(x)])),k.tagHookups.push(v)),x.push(v))}l+=u}else switch(u){case _.right:case _.returnRight:switch(f){case _.left:o=bracketNum(l),1===o?(p.push(insert_cmd,"can.view.txt(0,'"+getTag(v,n,d)+"',"+status()+",this,function(){",startTxt,l),g.push({before:"",after:finishTxt+"}));\n"})):(s=g.length&&-1===o?g.pop():{after:";"},s.before&&p.push(s.before),p.push(l,";",s.after));break;case _.escapeLeft:case _.returnLeft:o=bracketNum(l),o&&g.push({before:finishTxt,after:"}));\n"});for(var j=f===_.escapeLeft?1:0,C={insert:insert_cmd,tagName:getTag(v,n,d),status:status(),specialAttribute:T},q=0;q<this.helpers.length;q++){var E=this.helpers[q];if(E.name.test(l)){l=E.fn(l,C),E.name.source===/^>[\s]*\w*/.source&&(j=0);break}}"object"==typeof l?l.startTxt&&l.end&&T?p.push(insert_cmd,"can.view.toStr( ",l.content,"() ) );"):(l.startTxt?p.push(insert_cmd,"can.view.txt(\n"+("string"==typeof status()||(null!=l.escaped?l.escaped:j))+",\n'"+v+"',\n"+status()+",\nthis,\n"):l.startOnlyTxt&&p.push(insert_cmd,"can.view.onlytxt(this,\n"),p.push(l.content),l.end&&p.push("));")):T?p.push(insert_cmd,l,");"):p.push(insert_cmd,"can.view.txt(\n"+("string"==typeof status()||j)+",\n'"+v+"',\n"+status()+",\nthis,\nfunction(){ "+(this.text.escape||"")+"return ",l,o?startTxt:"}));\n"),rescan&&rescan.after&&rescan.after.length&&(h(rescan.after.length),rescan=null)}f=null,l="";break;case _.templateLeft:l+=_.left;break;default:l+=u}i=u}l.length&&h(l),p.push(";");var M=p.join(""),A={out:(this.text.outStart||"")+M+" "+finishTxt+(this.text.outEnd||"")};return myEval.call(A,"this.fn = (function("+this.text.argNames+"){"+A.out+"});\r\n//# sourceURL="+e+".js"),A}},can.view.pending=function(t){var e=can.view.getHooks();return can.view.hook(function(n){can.each(e,function(t){t(n)}),t.templateType="legacy",t.tagName&&viewCallbacks.tagHandler(n,t.tagName,t),can.each(t&&t.attrs||[],function(e){t.attributeName=e;var s=viewCallbacks.attr(e);s&&s(n,t)})})},can.view.tag("content",function(t,e){return e.scope}),can.view.Scanner=Scanner,Scanner});
+define('can/view/scanner', [
+    'can/view/view',
+    'can/view/elements',
+    'can/view/callbacks/callbacks'
+], function (can, elements, viewCallbacks) {
+    var newLine = /(\r|\n)+/g, notEndTag = /\//, clean = function (content) {
+            return content.split('\\').join('\\\\').split('\n').join('\\n').split('"').join('\\"').split('\t').join('\\t');
+        }, getTag = function (tagName, tokens, i) {
+            if (tagName) {
+                return tagName;
+            } else {
+                while (i < tokens.length) {
+                    if (tokens[i] === '<' && !notEndTag.test(tokens[i + 1])) {
+                        return elements.reverseTagMap[tokens[i + 1]] || 'span';
+                    }
+                    i++;
+                }
+            }
+            return '';
+        }, bracketNum = function (content) {
+            return --content.split('{').length - --content.split('}').length;
+        }, myEval = function (script) {
+            eval(script);
+        }, attrReg = /([^\s]+)[\s]*=[\s]*$/, startTxt = 'var ___v1ew = [];', finishTxt = 'return ___v1ew.join(\'\')', put_cmd = '___v1ew.push(\n', insert_cmd = put_cmd, htmlTag = null, quote = null, beforeQuote = null, rescan = null, getAttrName = function () {
+            var matches = beforeQuote.match(attrReg);
+            return matches && matches[1];
+        }, status = function () {
+            return quote ? '\'' + getAttrName() + '\'' : htmlTag ? 1 : 0;
+        }, top = function (stack) {
+            return stack[stack.length - 1];
+        }, Scanner;
+    can.view.Scanner = Scanner = function (options) {
+        can.extend(this, {
+            text: {},
+            tokens: []
+        }, options);
+        this.text.options = this.text.options || '';
+        this.tokenReg = [];
+        this.tokenSimple = {
+            '<': '<',
+            '>': '>',
+            '"': '"',
+            '\'': '\''
+        };
+        this.tokenComplex = [];
+        this.tokenMap = {};
+        for (var i = 0, token; token = this.tokens[i]; i++) {
+            if (token[2]) {
+                this.tokenReg.push(token[2]);
+                this.tokenComplex.push({
+                    abbr: token[1],
+                    re: new RegExp(token[2]),
+                    rescan: token[3]
+                });
+            } else {
+                this.tokenReg.push(token[1]);
+                this.tokenSimple[token[1]] = token[0];
+            }
+            this.tokenMap[token[0]] = token[1];
+        }
+        this.tokenReg = new RegExp('(' + this.tokenReg.slice(0).concat([
+            '<',
+            '>',
+            '"',
+            '\''
+        ]).join('|') + ')', 'g');
+    };
+    Scanner.prototype = {
+        helpers: [],
+        scan: function (source, name) {
+            var tokens = [], last = 0, simple = this.tokenSimple, complex = this.tokenComplex;
+            source = source.replace(newLine, '\n');
+            if (this.transform) {
+                source = this.transform(source);
+            }
+            source.replace(this.tokenReg, function (whole, part) {
+                var offset = arguments[arguments.length - 2];
+                if (offset > last) {
+                    tokens.push(source.substring(last, offset));
+                }
+                if (simple[whole]) {
+                    tokens.push(whole);
+                } else {
+                    for (var i = 0, token; token = complex[i]; i++) {
+                        if (token.re.test(whole)) {
+                            tokens.push(token.abbr);
+                            if (token.rescan) {
+                                tokens.push(token.rescan(part));
+                            }
+                            break;
+                        }
+                    }
+                }
+                last = offset + part.length;
+            });
+            if (last < source.length) {
+                tokens.push(source.substr(last));
+            }
+            var content = '', buff = [startTxt + (this.text.start || '')], put = function (content, bonus) {
+                    buff.push(put_cmd, '"', clean(content), '"' + (bonus || '') + ');');
+                }, endStack = [], lastToken, startTag = null, magicInTag = false, specialStates = {
+                    attributeHookups: [],
+                    tagHookups: [],
+                    lastTagHookup: ''
+                }, popTagHookup = function () {
+                    specialStates.lastTagHookup = specialStates.tagHookups.pop() + specialStates.tagHookups.length;
+                }, tagName = '', tagNames = [], popTagName = false, bracketCount, specialAttribute = false, i = 0, token, tmap = this.tokenMap, attrName;
+            htmlTag = quote = beforeQuote = null;
+            for (; (token = tokens[i++]) !== undefined;) {
+                if (startTag === null) {
+                    switch (token) {
+                    case tmap.left:
+                    case tmap.escapeLeft:
+                    case tmap.returnLeft:
+                        magicInTag = htmlTag && 1;
+                    case tmap.commentLeft:
+                        startTag = token;
+                        if (content.length) {
+                            put(content);
+                        }
+                        content = '';
+                        break;
+                    case tmap.escapeFull:
+                        magicInTag = htmlTag && 1;
+                        rescan = 1;
+                        startTag = tmap.escapeLeft;
+                        if (content.length) {
+                            put(content);
+                        }
+                        rescan = tokens[i++];
+                        content = rescan.content || rescan;
+                        if (rescan.before) {
+                            put(rescan.before);
+                        }
+                        tokens.splice(i, 0, tmap.right);
+                        break;
+                    case tmap.commentFull:
+                        break;
+                    case tmap.templateLeft:
+                        content += tmap.left;
+                        break;
+                    case '<':
+                        if (tokens[i].indexOf('!--') !== 0) {
+                            htmlTag = 1;
+                            magicInTag = 0;
+                        }
+                        content += token;
+                        break;
+                    case '>':
+                        htmlTag = 0;
+                        var emptyElement = content.substr(content.length - 1) === '/' || content.substr(content.length - 2) === '--', attrs = '';
+                        if (specialStates.attributeHookups.length) {
+                            attrs = 'attrs: [\'' + specialStates.attributeHookups.join('\',\'') + '\'], ';
+                            specialStates.attributeHookups = [];
+                        }
+                        if (tagName + specialStates.tagHookups.length !== specialStates.lastTagHookup && tagName === top(specialStates.tagHookups)) {
+                            if (emptyElement) {
+                                content = content.substr(0, content.length - 1);
+                            }
+                            buff.push(put_cmd, '"', clean(content), '"', ',can.view.pending({tagName:\'' + tagName + '\',' + attrs + 'scope: ' + (this.text.scope || 'this') + this.text.options);
+                            if (emptyElement) {
+                                buff.push('}));');
+                                content = '/>';
+                                popTagHookup();
+                            } else if (tokens[i] === '<' && tokens[i + 1] === '/' + tagName) {
+                                buff.push('}));');
+                                content = token;
+                                popTagHookup();
+                            } else {
+                                buff.push(',subtemplate: function(' + this.text.argNames + '){\n' + startTxt + (this.text.start || ''));
+                                content = '';
+                            }
+                        } else if (magicInTag || !popTagName && elements.tagToContentPropMap[tagNames[tagNames.length - 1]] || attrs) {
+                            var pendingPart = ',can.view.pending({' + attrs + 'scope: ' + (this.text.scope || 'this') + this.text.options + '}),"';
+                            if (emptyElement) {
+                                put(content.substr(0, content.length - 1), pendingPart + '/>"');
+                            } else {
+                                put(content, pendingPart + '>"');
+                            }
+                            content = '';
+                            magicInTag = 0;
+                        } else {
+                            content += token;
+                        }
+                        if (emptyElement || popTagName) {
+                            tagNames.pop();
+                            tagName = tagNames[tagNames.length - 1];
+                            popTagName = false;
+                        }
+                        specialStates.attributeHookups = [];
+                        break;
+                    case '\'':
+                    case '"':
+                        if (htmlTag) {
+                            if (quote && quote === token) {
+                                quote = null;
+                                var attr = getAttrName();
+                                if (viewCallbacks.attr(attr)) {
+                                    specialStates.attributeHookups.push(attr);
+                                }
+                                if (specialAttribute) {
+                                    content += token;
+                                    put(content);
+                                    buff.push(finishTxt, '}));\n');
+                                    content = '';
+                                    specialAttribute = false;
+                                    break;
+                                }
+                            } else if (quote === null) {
+                                quote = token;
+                                beforeQuote = lastToken;
+                                attrName = getAttrName();
+                                if (tagName === 'img' && attrName === 'src' || attrName === 'style') {
+                                    put(content.replace(attrReg, ''));
+                                    content = '';
+                                    specialAttribute = true;
+                                    buff.push(insert_cmd, 'can.view.txt(2,\'' + getTag(tagName, tokens, i) + '\',' + status() + ',this,function(){', startTxt);
+                                    put(attrName + '=' + token);
+                                    break;
+                                }
+                            }
+                        }
+                    default:
+                        if (lastToken === '<') {
+                            tagName = token.substr(0, 3) === '!--' ? '!--' : token.split(/\s/)[0];
+                            var isClosingTag = false, cleanedTagName;
+                            if (tagName.indexOf('/') === 0) {
+                                isClosingTag = true;
+                                cleanedTagName = tagName.substr(1);
+                            }
+                            if (isClosingTag) {
+                                if (top(tagNames) === cleanedTagName) {
+                                    tagName = cleanedTagName;
+                                    popTagName = true;
+                                }
+                                if (top(specialStates.tagHookups) === cleanedTagName) {
+                                    put(content.substr(0, content.length - 1));
+                                    buff.push(finishTxt + '}}) );');
+                                    content = '><';
+                                    popTagHookup();
+                                }
+                            } else {
+                                if (tagName.lastIndexOf('/') === tagName.length - 1) {
+                                    tagName = tagName.substr(0, tagName.length - 1);
+                                }
+                                if (tagName !== '!--' && viewCallbacks.tag(tagName)) {
+                                    if (tagName === 'content' && elements.tagMap[top(tagNames)]) {
+                                        token = token.replace('content', elements.tagMap[top(tagNames)]);
+                                    }
+                                    specialStates.tagHookups.push(tagName);
+                                }
+                                tagNames.push(tagName);
+                            }
+                        }
+                        content += token;
+                        break;
+                    }
+                } else {
+                    switch (token) {
+                    case tmap.right:
+                    case tmap.returnRight:
+                        switch (startTag) {
+                        case tmap.left:
+                            bracketCount = bracketNum(content);
+                            if (bracketCount === 1) {
+                                buff.push(insert_cmd, 'can.view.txt(0,\'' + getTag(tagName, tokens, i) + '\',' + status() + ',this,function(){', startTxt, content);
+                                endStack.push({
+                                    before: '',
+                                    after: finishTxt + '}));\n'
+                                });
+                            } else {
+                                last = endStack.length && bracketCount === -1 ? endStack.pop() : { after: ';' };
+                                if (last.before) {
+                                    buff.push(last.before);
+                                }
+                                buff.push(content, ';', last.after);
+                            }
+                            break;
+                        case tmap.escapeLeft:
+                        case tmap.returnLeft:
+                            bracketCount = bracketNum(content);
+                            if (bracketCount) {
+                                endStack.push({
+                                    before: finishTxt,
+                                    after: '}));\n'
+                                });
+                            }
+                            var escaped = startTag === tmap.escapeLeft ? 1 : 0, commands = {
+                                    insert: insert_cmd,
+                                    tagName: getTag(tagName, tokens, i),
+                                    status: status(),
+                                    specialAttribute: specialAttribute
+                                };
+                            for (var ii = 0; ii < this.helpers.length; ii++) {
+                                var helper = this.helpers[ii];
+                                if (helper.name.test(content)) {
+                                    content = helper.fn(content, commands);
+                                    if (helper.name.source === /^>[\s]*\w*/.source) {
+                                        escaped = 0;
+                                    }
+                                    break;
+                                }
+                            }
+                            if (typeof content === 'object') {
+                                if (content.startTxt && content.end && specialAttribute) {
+                                    buff.push(insert_cmd, 'can.view.toStr( ', content.content, '() ) );');
+                                } else {
+                                    if (content.startTxt) {
+                                        buff.push(insert_cmd, 'can.view.txt(\n' + (typeof status() === 'string' || (content.escaped != null ? content.escaped : escaped)) + ',\n\'' + tagName + '\',\n' + status() + ',\nthis,\n');
+                                    } else if (content.startOnlyTxt) {
+                                        buff.push(insert_cmd, 'can.view.onlytxt(this,\n');
+                                    }
+                                    buff.push(content.content);
+                                    if (content.end) {
+                                        buff.push('));');
+                                    }
+                                }
+                            } else if (specialAttribute) {
+                                buff.push(insert_cmd, content, ');');
+                            } else {
+                                buff.push(insert_cmd, 'can.view.txt(\n' + (typeof status() === 'string' || escaped) + ',\n\'' + tagName + '\',\n' + status() + ',\nthis,\nfunction(){ ' + (this.text.escape || '') + 'return ', content, bracketCount ? startTxt : '}));\n');
+                            }
+                            if (rescan && rescan.after && rescan.after.length) {
+                                put(rescan.after.length);
+                                rescan = null;
+                            }
+                            break;
+                        }
+                        startTag = null;
+                        content = '';
+                        break;
+                    case tmap.templateLeft:
+                        content += tmap.left;
+                        break;
+                    default:
+                        content += token;
+                        break;
+                    }
+                }
+                lastToken = token;
+            }
+            if (content.length) {
+                put(content);
+            }
+            buff.push(';');
+            var template = buff.join(''), out = { out: (this.text.outStart || '') + template + ' ' + finishTxt + (this.text.outEnd || '') };
+            myEval.call(out, 'this.fn = (function(' + this.text.argNames + '){' + out.out + '});\r\n//# sourceURL=' + name + '.js');
+            return out;
+        }
+    };
+    can.view.pending = function (viewData) {
+        var hooks = can.view.getHooks();
+        return can.view.hook(function (el) {
+            can.each(hooks, function (fn) {
+                fn(el);
+            });
+            viewData.templateType = 'legacy';
+            if (viewData.tagName) {
+                viewCallbacks.tagHandler(el, viewData.tagName, viewData);
+            }
+            can.each(viewData && viewData.attrs || [], function (attributeName) {
+                viewData.attributeName = attributeName;
+                var callback = viewCallbacks.attr(attributeName);
+                if (callback) {
+                    callback(el, viewData);
+                }
+            });
+        });
+    };
+    can.view.tag('content', function (el, tagData) {
+        return tagData.scope;
+    });
+    can.view.Scanner = Scanner;
+    return Scanner;
+});
+/*can/view/node_lists/node_lists*/
+define('can/view/node_lists/node_lists', [
+    'can/util/util',
+    'can/view/elements'
+], function (can) {
+    var canExpando = true;
+    try {
+        document.createTextNode('')._ = 0;
+    } catch (ex) {
+        canExpando = false;
+    }
+    var nodeMap = {}, textNodeMap = {}, expando = 'ejs_' + Math.random(), _id = 0, id = function (node, localMap) {
+            var _textNodeMap = localMap || textNodeMap;
+            var id = readId(node, _textNodeMap);
+            if (id) {
+                return id;
+            } else {
+                if (canExpando || node.nodeType !== 3) {
+                    ++_id;
+                    return node[expando] = (node.nodeName ? 'element_' : 'obj_') + _id;
+                } else {
+                    ++_id;
+                    _textNodeMap['text_' + _id] = node;
+                    return 'text_' + _id;
+                }
+            }
+        }, readId = function (node, textNodeMap) {
+            if (canExpando || node.nodeType !== 3) {
+                return node[expando];
+            } else {
+                for (var textNodeID in textNodeMap) {
+                    if (textNodeMap[textNodeID] === node) {
+                        return textNodeID;
+                    }
+                }
+            }
+        }, splice = [].splice, push = [].push, itemsInChildListTree = function (list) {
+            var count = 0;
+            for (var i = 0, len = list.length; i < len; i++) {
+                var item = list[i];
+                if (item.nodeType) {
+                    count++;
+                } else {
+                    count += itemsInChildListTree(item);
+                }
+            }
+            return count;
+        }, replacementMap = function (replacements, idMap) {
+            var map = {};
+            for (var i = 0, len = replacements.length; i < len; i++) {
+                var node = nodeLists.first(replacements[i]);
+                map[id(node, idMap)] = replacements[i];
+            }
+            return map;
+        };
+    var nodeLists = {
+            id: id,
+            update: function (nodeList, newNodes) {
+                var oldNodes = nodeLists.unregisterChildren(nodeList);
+                newNodes = can.makeArray(newNodes);
+                var oldListLength = nodeList.length;
+                splice.apply(nodeList, [
+                    0,
+                    oldListLength
+                ].concat(newNodes));
+                if (nodeList.replacements) {
+                    nodeLists.nestReplacements(nodeList);
+                } else {
+                    nodeLists.nestList(nodeList);
+                }
+                return oldNodes;
+            },
+            nestReplacements: function (list) {
+                var index = 0, idMap = {}, rMap = replacementMap(list.replacements, idMap), rCount = list.replacements.length;
+                while (index < list.length && rCount) {
+                    var node = list[index], replacement = rMap[readId(node, idMap)];
+                    if (replacement) {
+                        list.splice(index, itemsInChildListTree(replacement), replacement);
+                        rCount--;
+                    }
+                    index++;
+                }
+                list.replacements = [];
+            },
+            nestList: function (list) {
+                var index = 0;
+                while (index < list.length) {
+                    var node = list[index], childNodeList = nodeMap[id(node)];
+                    if (childNodeList) {
+                        if (childNodeList !== list) {
+                            list.splice(index, itemsInChildListTree(childNodeList), childNodeList);
+                        }
+                    } else {
+                        nodeMap[id(node)] = list;
+                    }
+                    index++;
+                }
+            },
+            last: function (nodeList) {
+                var last = nodeList[nodeList.length - 1];
+                if (last.nodeType) {
+                    return last;
+                } else {
+                    return nodeLists.last(last);
+                }
+            },
+            first: function (nodeList) {
+                var first = nodeList[0];
+                if (first.nodeType) {
+                    return first;
+                } else {
+                    return nodeLists.first(first);
+                }
+            },
+            flatten: function (nodeList) {
+                var items = [];
+                for (var i = 0; i < nodeList.length; i++) {
+                    var item = nodeList[i];
+                    if (item.nodeType) {
+                        items.push(item);
+                    } else {
+                        items.push.apply(items, nodeLists.flatten(item));
+                    }
+                }
+                return items;
+            },
+            register: function (nodeList, unregistered, parent) {
+                nodeList.unregistered = unregistered;
+                nodeList.parentList = parent;
+                if (parent === true) {
+                    nodeList.replacements = [];
+                } else if (parent) {
+                    parent.replacements.push(nodeList);
+                    nodeList.replacements = [];
+                } else {
+                    nodeLists.nestList(nodeList);
+                }
+                return nodeList;
+            },
+            unregisterChildren: function (nodeList) {
+                var nodes = [];
+                can.each(nodeList, function (node) {
+                    if (node.nodeType) {
+                        if (!nodeList.replacements) {
+                            delete nodeMap[id(node)];
+                        }
+                        nodes.push(node);
+                    } else {
+                        push.apply(nodes, nodeLists.unregister(node));
+                    }
+                });
+                return nodes;
+            },
+            unregister: function (nodeList) {
+                var nodes = nodeLists.unregisterChildren(nodeList);
+                if (nodeList.unregistered) {
+                    var unregisteredCallback = nodeList.unregistered;
+                    delete nodeList.unregistered;
+                    delete nodeList.replacements;
+                    unregisteredCallback();
+                }
+                return nodes;
+            },
+            nodeMap: nodeMap
+        };
+    can.view.nodeLists = nodeLists;
+    return nodeLists;
+});
+/*can/view/parser/parser*/
+define('can/view/parser/parser', ['can/view/view'], function (can) {
+    function makeMap(str) {
+        var obj = {}, items = str.split(',');
+        for (var i = 0; i < items.length; i++) {
+            obj[items[i]] = true;
+        }
+        return obj;
+    }
+    function handleIntermediate(intermediate, handler) {
+        for (var i = 0, len = intermediate.length; i < len; i++) {
+            var item = intermediate[i];
+            handler[item.tokenType].apply(handler, item.args);
+        }
+        return intermediate;
+    }
+    var alphaNumericHU = '-:A-Za-z0-9_', attributeNames = '[a-zA-Z_:][' + alphaNumericHU + ':.]*', spaceEQspace = '\\s*=\\s*', dblQuote2dblQuote = '"((?:\\\\.|[^"])*)"', quote2quote = '\'((?:\\\\.|[^\'])*)\'', attributeEqAndValue = '(?:' + spaceEQspace + '(?:' + '(?:"[^"]*")|(?:\'[^\']*\')|[^>\\s]+))?', matchStash = '\\{\\{[^\\}]*\\}\\}\\}?', stash = '\\{\\{([^\\}]*)\\}\\}\\}?', startTag = new RegExp('^<([' + alphaNumericHU + ']+)' + '(' + '(?:\\s*' + '(?:(?:' + '(?:' + attributeNames + ')?' + attributeEqAndValue + ')|' + '(?:' + matchStash + ')+)' + ')*' + ')\\s*(\\/?)>'), endTag = new RegExp('^<\\/([' + alphaNumericHU + ']+)[^>]*>'), attr = new RegExp('(?:' + '(?:(' + attributeNames + ')|' + stash + ')' + '(?:' + spaceEQspace + '(?:' + '(?:' + dblQuote2dblQuote + ')|(?:' + quote2quote + ')|([^>\\s]+)' + ')' + ')?)', 'g'), mustache = new RegExp(stash, 'g'), txtBreak = /<|\{\{/;
+    var empty = makeMap('area,base,basefont,br,col,frame,hr,img,input,isindex,link,meta,param,embed');
+    var block = makeMap('a,address,article,applet,aside,audio,blockquote,button,canvas,center,dd,del,dir,div,dl,dt,fieldset,figcaption,figure,footer,form,frameset,h1,h2,h3,h4,h5,h6,header,hgroup,hr,iframe,ins,isindex,li,map,menu,noframes,noscript,object,ol,output,p,pre,section,script,table,tbody,td,tfoot,th,thead,tr,ul,video');
+    var inline = makeMap('abbr,acronym,applet,b,basefont,bdo,big,br,button,cite,code,del,dfn,em,font,i,iframe,img,input,ins,kbd,label,map,object,q,s,samp,script,select,small,span,strike,strong,sub,sup,textarea,tt,u,var');
+    var closeSelf = makeMap('colgroup,dd,dt,li,options,p,td,tfoot,th,thead,tr');
+    var fillAttrs = makeMap('checked,compact,declare,defer,disabled,ismap,multiple,nohref,noresize,noshade,nowrap,readonly,selected');
+    var special = makeMap('script,style');
+    var tokenTypes = 'start,end,close,attrStart,attrEnd,attrValue,chars,comment,special,done'.split(',');
+    var fn = function () {
+    };
+    var HTMLParser = function (html, handler, returnIntermediate) {
+        if (typeof html === 'object') {
+            return handleIntermediate(html, handler);
+        }
+        var intermediate = [];
+        handler = handler || {};
+        if (returnIntermediate) {
+            can.each(tokenTypes, function (name) {
+                var callback = handler[name] || fn;
+                handler[name] = function () {
+                    if (callback.apply(this, arguments) !== false) {
+                        intermediate.push({
+                            tokenType: name,
+                            args: can.makeArray(arguments)
+                        });
+                    }
+                };
+            });
+        }
+        function parseStartTag(tag, tagName, rest, unary) {
+            tagName = tagName.toLowerCase();
+            if (block[tagName]) {
+                while (stack.last() && inline[stack.last()]) {
+                    parseEndTag('', stack.last());
+                }
+            }
+            if (closeSelf[tagName] && stack.last() === tagName) {
+                parseEndTag('', tagName);
+            }
+            unary = empty[tagName] || !!unary;
+            handler.start(tagName, unary);
+            if (!unary) {
+                stack.push(tagName);
+            }
+            HTMLParser.parseAttrs(rest, handler);
+            handler.end(tagName, unary);
+        }
+        function parseEndTag(tag, tagName) {
+            var pos;
+            if (!tagName) {
+                pos = 0;
+            } else {
+                for (pos = stack.length - 1; pos >= 0; pos--) {
+                    if (stack[pos] === tagName) {
+                        break;
+                    }
+                }
+            }
+            if (pos >= 0) {
+                for (var i = stack.length - 1; i >= pos; i--) {
+                    if (handler.close) {
+                        handler.close(stack[i]);
+                    }
+                }
+                stack.length = pos;
+            }
+        }
+        function parseMustache(mustache, inside) {
+            if (handler.special) {
+                handler.special(inside);
+            }
+        }
+        var index, chars, match, stack = [], last = html;
+        stack.last = function () {
+            return this[this.length - 1];
+        };
+        while (html) {
+            chars = true;
+            if (!stack.last() || !special[stack.last()]) {
+                if (html.indexOf('<!--') === 0) {
+                    index = html.indexOf('-->');
+                    if (index >= 0) {
+                        if (handler.comment) {
+                            handler.comment(html.substring(4, index));
+                        }
+                        html = html.substring(index + 3);
+                        chars = false;
+                    }
+                } else if (html.indexOf('</') === 0) {
+                    match = html.match(endTag);
+                    if (match) {
+                        html = html.substring(match[0].length);
+                        match[0].replace(endTag, parseEndTag);
+                        chars = false;
+                    }
+                } else if (html.indexOf('<') === 0) {
+                    match = html.match(startTag);
+                    if (match) {
+                        html = html.substring(match[0].length);
+                        match[0].replace(startTag, parseStartTag);
+                        chars = false;
+                    }
+                } else if (html.indexOf('{{') === 0) {
+                    match = html.match(mustache);
+                    if (match) {
+                        html = html.substring(match[0].length);
+                        match[0].replace(mustache, parseMustache);
+                    }
+                }
+                if (chars) {
+                    index = html.search(txtBreak);
+                    var text = index < 0 ? html : html.substring(0, index);
+                    html = index < 0 ? '' : html.substring(index);
+                    if (handler.chars && text) {
+                        handler.chars(text);
+                    }
+                }
+            } else {
+                html = html.replace(new RegExp('([\\s\\S]*?)</' + stack.last() + '[^>]*>'), function (all, text) {
+                    text = text.replace(/<!--([\s\S]*?)-->|<!\[CDATA\[([\s\S]*?)]]>/g, '$1$2');
+                    if (handler.chars) {
+                        handler.chars(text);
+                    }
+                    return '';
+                });
+                parseEndTag('', stack.last());
+            }
+            if (html === last) {
+                throw 'Parse Error: ' + html;
+            }
+            last = html;
+        }
+        parseEndTag();
+        handler.done();
+        return intermediate;
+    };
+    HTMLParser.parseAttrs = function (rest, handler) {
+        (rest != null ? rest : '').replace(attr, function (text, name, special, dblQuote, singleQuote, val) {
+            if (special) {
+                handler.special(special);
+            }
+            if (name || dblQuote || singleQuote || val) {
+                var value = arguments[3] ? arguments[3] : arguments[4] ? arguments[4] : arguments[5] ? arguments[5] : fillAttrs[name.toLowerCase()] ? name : '';
+                handler.attrStart(name || '');
+                var last = mustache.lastIndex = 0, res = mustache.exec(value), chars;
+                while (res) {
+                    chars = value.substring(last, mustache.lastIndex - res[0].length);
+                    if (chars.length) {
+                        handler.attrValue(chars);
+                    }
+                    handler.special(res[1]);
+                    last = mustache.lastIndex;
+                    res = mustache.exec(value);
+                }
+                chars = value.substr(last, value.length);
+                if (chars) {
+                    handler.attrValue(chars);
+                }
+                handler.attrEnd(name || '');
+            }
+        });
+    };
+    can.view.parser = HTMLParser;
+    return HTMLParser;
+});
+/*can/view/live/live*/
+define('can/view/live/live', [
+    'can/util/util',
+    'can/view/elements',
+    'can/view/view',
+    'can/view/node_lists/node_lists',
+    'can/view/parser/parser'
+], function (can, elements, view, nodeLists, parser) {
+    elements = elements || can.view.elements;
+    nodeLists = nodeLists || can.view.NodeLists;
+    parser = parser || can.view.parser;
+    var setup = function (el, bind, unbind) {
+            var tornDown = false, teardown = function () {
+                    if (!tornDown) {
+                        tornDown = true;
+                        unbind(data);
+                        can.unbind.call(el, 'removed', teardown);
+                    }
+                    return true;
+                }, data = {
+                    teardownCheck: function (parent) {
+                        return parent ? false : teardown();
+                    }
+                };
+            can.bind.call(el, 'removed', teardown);
+            bind(data);
+            return data;
+        }, listen = function (el, compute, change) {
+            return setup(el, function () {
+                compute.bind('change', change);
+            }, function (data) {
+                compute.unbind('change', change);
+                if (data.nodeList) {
+                    nodeLists.unregister(data.nodeList);
+                }
+            });
+        }, getAttributeParts = function (newVal) {
+            var attrs = {}, attr;
+            parser.parseAttrs(newVal, {
+                attrStart: function (name) {
+                    attrs[name] = '';
+                    attr = name;
+                },
+                attrValue: function (value) {
+                    attrs[attr] += value;
+                },
+                attrEnd: function () {
+                }
+            });
+            return attrs;
+        }, splice = [].splice, isNode = function (obj) {
+            return obj && obj.nodeType;
+        }, addTextNodeIfNoChildren = function (frag) {
+            if (!frag.childNodes.length) {
+                frag.appendChild(document.createTextNode(''));
+            }
+        };
+    var live = {
+            list: function (el, compute, render, context, parentNode, nodeList) {
+                var masterNodeList = nodeList || [el], indexMap = [], afterPreviousEvents = false, isTornDown = false, add = function (ev, items, index) {
+                        if (!afterPreviousEvents) {
+                            return;
+                        }
+                        var frag = document.createDocumentFragment(), newNodeLists = [], newIndicies = [];
+                        can.each(items, function (item, key) {
+                            var itemNodeList = [];
+                            if (nodeList) {
+                                nodeLists.register(itemNodeList, null, true);
+                            }
+                            var itemIndex = can.compute(key + index), itemHTML = render.call(context, item, itemIndex, itemNodeList), gotText = typeof itemHTML === 'string', itemFrag = can.frag(itemHTML);
+                            itemFrag = gotText ? can.view.hookup(itemFrag) : itemFrag;
+                            var childNodes = can.makeArray(itemFrag.childNodes);
+                            if (nodeList) {
+                                nodeLists.update(itemNodeList, childNodes);
+                                newNodeLists.push(itemNodeList);
+                            } else {
+                                newNodeLists.push(nodeLists.register(childNodes));
+                            }
+                            frag.appendChild(itemFrag);
+                            newIndicies.push(itemIndex);
+                        });
+                        var masterListIndex = index + 1;
+                        if (!masterNodeList[masterListIndex]) {
+                            elements.after(masterListIndex === 1 ? [text] : [nodeLists.last(masterNodeList[masterListIndex - 1])], frag);
+                        } else {
+                            var el = nodeLists.first(masterNodeList[masterListIndex]);
+                            can.insertBefore(el.parentNode, frag, el);
+                        }
+                        splice.apply(masterNodeList, [
+                            masterListIndex,
+                            0
+                        ].concat(newNodeLists));
+                        splice.apply(indexMap, [
+                            index,
+                            0
+                        ].concat(newIndicies));
+                        for (var i = index + newIndicies.length, len = indexMap.length; i < len; i++) {
+                            indexMap[i](i);
+                        }
+                    }, remove = function (ev, items, index, duringTeardown, fullTeardown) {
+                        if (!afterPreviousEvents) {
+                            return;
+                        }
+                        if (!duringTeardown && data.teardownCheck(text.parentNode)) {
+                            return;
+                        }
+                        if (index < 0) {
+                            index = indexMap.length + index;
+                        }
+                        var removedMappings = masterNodeList.splice(index + 1, items.length), itemsToRemove = [];
+                        can.each(removedMappings, function (nodeList) {
+                            var nodesToRemove = nodeLists.unregister(nodeList);
+                            [].push.apply(itemsToRemove, nodesToRemove);
+                        });
+                        indexMap.splice(index, items.length);
+                        for (var i = index, len = indexMap.length; i < len; i++) {
+                            indexMap[i](i);
+                        }
+                        if (!fullTeardown) {
+                            can.remove(can.$(itemsToRemove));
+                        } else {
+                            nodeLists.unregister(masterNodeList);
+                        }
+                    }, move = function (ev, item, newIndex, currentIndex) {
+                        if (!afterPreviousEvents) {
+                            return;
+                        }
+                        newIndex = newIndex + 1;
+                        currentIndex = currentIndex + 1;
+                        var referenceNodeList = masterNodeList[newIndex];
+                        var movedElements = can.frag(nodeLists.flatten(masterNodeList[currentIndex]));
+                        var referenceElement;
+                        if (currentIndex < newIndex) {
+                            referenceElement = nodeLists.last(referenceNodeList).nextSibling;
+                        } else {
+                            referenceElement = nodeLists.first(referenceNodeList);
+                        }
+                        var parentNode = masterNodeList[0].parentNode;
+                        parentNode.insertBefore(movedElements, referenceElement);
+                        var temp = masterNodeList[currentIndex];
+                        [].splice.apply(masterNodeList, [
+                            currentIndex,
+                            1
+                        ]);
+                        [].splice.apply(masterNodeList, [
+                            newIndex,
+                            0,
+                            temp
+                        ]);
+                    }, text = document.createTextNode(''), list, teardownList = function (fullTeardown) {
+                        if (list && list.unbind) {
+                            list.unbind('add', add).unbind('remove', remove).unbind('move', move);
+                        }
+                        remove({}, { length: masterNodeList.length - 1 }, 0, true, fullTeardown);
+                    }, updateList = function (ev, newList, oldList) {
+                        if (isTornDown) {
+                            return;
+                        }
+                        teardownList();
+                        list = newList || [];
+                        if (list.bind) {
+                            list.bind('add', add).bind('remove', remove).bind('move', move);
+                        }
+                        afterPreviousEvents = true;
+                        add({}, list, 0);
+                        afterPreviousEvents = false;
+                        can.batch.afterPreviousEvents(function () {
+                            afterPreviousEvents = true;
+                        });
+                    };
+                parentNode = elements.getParentNode(el, parentNode);
+                var data = setup(parentNode, function () {
+                        if (can.isFunction(compute)) {
+                            compute.bind('change', updateList);
+                        }
+                    }, function () {
+                        if (can.isFunction(compute)) {
+                            compute.unbind('change', updateList);
+                        }
+                        teardownList(true);
+                    });
+                if (!nodeList) {
+                    live.replace(masterNodeList, text, data.teardownCheck);
+                } else {
+                    elements.replace(masterNodeList, text);
+                    nodeLists.update(masterNodeList, [text]);
+                    nodeList.unregistered = function () {
+                        data.teardownCheck();
+                        isTornDown = true;
+                    };
+                }
+                updateList({}, can.isFunction(compute) ? compute() : compute);
+            },
+            html: function (el, compute, parentNode, nodeList) {
+                var data;
+                parentNode = elements.getParentNode(el, parentNode);
+                data = listen(parentNode, compute, function (ev, newVal, oldVal) {
+                    var attached = nodeLists.first(nodes).parentNode;
+                    if (attached) {
+                        makeAndPut(newVal);
+                    }
+                    data.teardownCheck(nodeLists.first(nodes).parentNode);
+                });
+                var nodes = nodeList || [el], makeAndPut = function (val) {
+                        var isFunction = typeof val === 'function', aNode = isNode(val), frag = can.frag(isFunction ? '' : val), oldNodes = can.makeArray(nodes);
+                        addTextNodeIfNoChildren(frag);
+                        if (!aNode && !isFunction) {
+                            frag = can.view.hookup(frag, parentNode);
+                        }
+                        oldNodes = nodeLists.update(nodes, frag.childNodes);
+                        if (isFunction) {
+                            val(frag.childNodes[0]);
+                        }
+                        elements.replace(oldNodes, frag);
+                    };
+                data.nodeList = nodes;
+                if (!nodeList) {
+                    nodeLists.register(nodes, data.teardownCheck);
+                } else {
+                    nodeList.unregistered = data.teardownCheck;
+                }
+                makeAndPut(compute());
+            },
+            replace: function (nodes, val, teardown) {
+                var oldNodes = nodes.slice(0), frag = can.frag(val);
+                nodeLists.register(nodes, teardown);
+                if (typeof val === 'string') {
+                    frag = can.view.hookup(frag, nodes[0].parentNode);
+                }
+                nodeLists.update(nodes, frag.childNodes);
+                elements.replace(oldNodes, frag);
+                return nodes;
+            },
+            text: function (el, compute, parentNode, nodeList) {
+                var parent = elements.getParentNode(el, parentNode);
+                var data = listen(parent, compute, function (ev, newVal, oldVal) {
+                        if (typeof node.nodeValue !== 'unknown') {
+                            node.nodeValue = can.view.toStr(newVal);
+                        }
+                        data.teardownCheck(node.parentNode);
+                    });
+                var node = document.createTextNode(can.view.toStr(compute()));
+                if (nodeList) {
+                    nodeList.unregistered = data.teardownCheck;
+                    data.nodeList = nodeList;
+                    nodeLists.update(nodeList, [node]);
+                    elements.replace([el], node);
+                } else {
+                    data.nodeList = live.replace([el], node, data.teardownCheck);
+                }
+            },
+            setAttributes: function (el, newVal) {
+                var attrs = getAttributeParts(newVal);
+                for (var name in attrs) {
+                    can.attr.set(el, name, attrs[name]);
+                }
+            },
+            attributes: function (el, compute, currentValue) {
+                var oldAttrs = {};
+                var setAttrs = function (newVal) {
+                    var newAttrs = getAttributeParts(newVal), name;
+                    for (name in newAttrs) {
+                        var newValue = newAttrs[name], oldValue = oldAttrs[name];
+                        if (newValue !== oldValue) {
+                            can.attr.set(el, name, newValue);
+                        }
+                        delete oldAttrs[name];
+                    }
+                    for (name in oldAttrs) {
+                        elements.removeAttr(el, name);
+                    }
+                    oldAttrs = newAttrs;
+                };
+                listen(el, compute, function (ev, newVal) {
+                    setAttrs(newVal);
+                });
+                if (arguments.length >= 3) {
+                    oldAttrs = getAttributeParts(currentValue);
+                } else {
+                    setAttrs(compute());
+                }
+            },
+            attributePlaceholder: '__!!__',
+            attributeReplace: /__!!__/g,
+            attribute: function (el, attributeName, compute) {
+                listen(el, compute, function (ev, newVal) {
+                    elements.setAttr(el, attributeName, hook.render());
+                });
+                var wrapped = can.$(el), hooks;
+                hooks = can.data(wrapped, 'hooks');
+                if (!hooks) {
+                    can.data(wrapped, 'hooks', hooks = {});
+                }
+                var attr = elements.getAttr(el, attributeName), parts = attr.split(live.attributePlaceholder), goodParts = [], hook;
+                goodParts.push(parts.shift(), parts.join(live.attributePlaceholder));
+                if (hooks[attributeName]) {
+                    hooks[attributeName].computes.push(compute);
+                } else {
+                    hooks[attributeName] = {
+                        render: function () {
+                            var i = 0, newAttr = attr ? attr.replace(live.attributeReplace, function () {
+                                    return elements.contentText(hook.computes[i++]());
+                                }) : elements.contentText(hook.computes[i++]());
+                            return newAttr;
+                        },
+                        computes: [compute],
+                        batchNum: undefined
+                    };
+                }
+                hook = hooks[attributeName];
+                goodParts.splice(1, 0, compute());
+                elements.setAttr(el, attributeName, goodParts.join(''));
+            },
+            specialAttribute: function (el, attributeName, compute) {
+                listen(el, compute, function (ev, newVal) {
+                    elements.setAttr(el, attributeName, getValue(newVal));
+                });
+                elements.setAttr(el, attributeName, getValue(compute()));
+            },
+            simpleAttribute: function (el, attributeName, compute) {
+                listen(el, compute, function (ev, newVal) {
+                    elements.setAttr(el, attributeName, newVal);
+                });
+                elements.setAttr(el, attributeName, compute());
+            }
+        };
+    live.attr = live.simpleAttribute;
+    live.attrs = live.attributes;
+    var newLine = /(\r|\n)+/g;
+    var getValue = function (val) {
+        var regexp = /^["'].*["']$/;
+        val = val.replace(elements.attrReg, '').replace(newLine, '');
+        return regexp.test(val) ? val.substr(1, val.length - 2) : val;
+    };
+    can.view.live = live;
+    return live;
+});
 /*can/view/render*/
-define("can/view/render",["can/view/view","can/view/elements","can/view/live/live","can/util/string/string"],function(n,t,e){var i,r=[],u=function(n){var e=t.tagMap[n]||"span";return"span"===e?"@@!!@@":"<"+e+">"+u(e)+"</"+e+">"},o=function(t,e){if("string"==typeof t)return t;if(!t&&0!==t)return"";var i=t.hookup&&function(n,e){t.hookup.call(t,n,e)}||"function"==typeof t&&t;return i?e?"<"+e+" "+n.view.hook(i)+"></"+e+">":(r.push(i),""):""+t},c=function(t,e){return"string"==typeof t||"number"==typeof t?n.esc(t):o(t,e)},s=!1,a=function(){};return n.extend(n.view,{live:e,setupLists:function(){var t,e=n.view.lists;return n.view.lists=function(n,e){return t={list:n,renderer:e},Math.random()},function(){return n.view.lists=e,t}},getHooks:function(){var n=r.slice(0);return i=n,r=[],n},onlytxt:function(n,t){return c(t.call(n))},txt:function(f,l,p,v,h){var g,w,d,b,y=t.tagMap[l]||"span",k=!1,m=a;if(s)g=h.call(v);else{("string"==typeof p||1===p)&&(s=!0);var x=n.view.setupLists();m=function(){d.unbind("change",a)},d=n.compute(h,v,!1),d.bind("change",a),w=x(),g=d(),s=!1,k=d.computeInstance.hasDependencies}if(w)return m(),"<"+y+n.view.hook(function(n,t){e.list(n,w.list,w.renderer,v,t)})+"></"+y+">";if(!k||"function"==typeof g)return m(),(s||2===f||!f?o:c)(g,0===p&&y);var M=t.tagToContentPropMap[l];if(0!==p||M)return 1===p?(r.push(function(n){e.attributes(n,d,d()),m()}),d()):2===f?(b=p,r.push(function(n){e.specialAttribute(n,b,d),m()}),d()):(b=0===p?M:p,(0===p?i:r).push(function(n){e.attribute(n,b,d),m()}),e.attributePlaceholder);var C=!!t.selfClosingTags[y];return"<"+y+n.view.hook(f&&"object"!=typeof g?function(n,t){e.text(n,d,t),m()}:function(n,t){e.html(n,d,t),m()})+(C?"/>":">"+u(y)+"</"+y+">")}}),n});
+define('can/view/render', [
+    'can/view/view',
+    'can/view/elements',
+    'can/view/live/live',
+    'can/util/string/string'
+], function (can, elements, live) {
+    var pendingHookups = [], tagChildren = function (tagName) {
+            var newTag = elements.tagMap[tagName] || 'span';
+            if (newTag === 'span') {
+                return '@@!!@@';
+            }
+            return '<' + newTag + '>' + tagChildren(newTag) + '</' + newTag + '>';
+        }, contentText = function (input, tag) {
+            if (typeof input === 'string') {
+                return input;
+            }
+            if (!input && input !== 0) {
+                return '';
+            }
+            var hook = input.hookup && function (el, id) {
+                    input.hookup.call(input, el, id);
+                } || typeof input === 'function' && input;
+            if (hook) {
+                if (tag) {
+                    return '<' + tag + ' ' + can.view.hook(hook) + '></' + tag + '>';
+                } else {
+                    pendingHookups.push(hook);
+                }
+                return '';
+            }
+            return '' + input;
+        }, contentEscape = function (txt, tag) {
+            return typeof txt === 'string' || typeof txt === 'number' ? can.esc(txt) : contentText(txt, tag);
+        }, withinTemplatedSectionWithinAnElement = false, emptyHandler = function () {
+        };
+    var lastHookups;
+    can.extend(can.view, {
+        live: live,
+        setupLists: function () {
+            var old = can.view.lists, data;
+            can.view.lists = function (list, renderer) {
+                data = {
+                    list: list,
+                    renderer: renderer
+                };
+                return Math.random();
+            };
+            return function () {
+                can.view.lists = old;
+                return data;
+            };
+        },
+        getHooks: function () {
+            var hooks = pendingHookups.slice(0);
+            lastHookups = hooks;
+            pendingHookups = [];
+            return hooks;
+        },
+        onlytxt: function (self, func) {
+            return contentEscape(func.call(self));
+        },
+        txt: function (escape, tagName, status, self, func) {
+            var tag = elements.tagMap[tagName] || 'span', setupLiveBinding = false, value, listData, compute, unbind = emptyHandler, attributeName;
+            if (withinTemplatedSectionWithinAnElement) {
+                value = func.call(self);
+            } else {
+                if (typeof status === 'string' || status === 1) {
+                    withinTemplatedSectionWithinAnElement = true;
+                }
+                var listTeardown = can.view.setupLists();
+                unbind = function () {
+                    compute.unbind('change', emptyHandler);
+                };
+                compute = can.compute(func, self, false);
+                compute.bind('change', emptyHandler);
+                listData = listTeardown();
+                value = compute();
+                withinTemplatedSectionWithinAnElement = false;
+                setupLiveBinding = compute.computeInstance.hasDependencies;
+            }
+            if (listData) {
+                unbind();
+                return '<' + tag + can.view.hook(function (el, parentNode) {
+                    live.list(el, listData.list, listData.renderer, self, parentNode);
+                }) + '></' + tag + '>';
+            }
+            if (!setupLiveBinding || typeof value === 'function') {
+                unbind();
+                return (withinTemplatedSectionWithinAnElement || escape === 2 || !escape ? contentText : contentEscape)(value, status === 0 && tag);
+            }
+            var contentProp = elements.tagToContentPropMap[tagName];
+            if (status === 0 && !contentProp) {
+                return '<' + tag + can.view.hook(escape && typeof value !== 'object' ? function (el, parentNode) {
+                    live.text(el, compute, parentNode);
+                    unbind();
+                } : function (el, parentNode) {
+                    live.html(el, compute, parentNode);
+                    unbind();
+                }) + '>' + tagChildren(tag) + '</' + tag + '>';
+            } else if (status === 1) {
+                pendingHookups.push(function (el) {
+                    live.attributes(el, compute, compute());
+                    unbind();
+                });
+                return compute();
+            } else if (escape === 2) {
+                attributeName = status;
+                pendingHookups.push(function (el) {
+                    live.specialAttribute(el, attributeName, compute);
+                    unbind();
+                });
+                return compute();
+            } else {
+                attributeName = status === 0 ? contentProp : status;
+                (status === 0 ? lastHookups : pendingHookups).push(function (el) {
+                    live.attribute(el, attributeName, compute);
+                    unbind();
+                });
+                return live.attributePlaceholder;
+            }
+        }
+    });
+    return can;
+});
+/*can/view/stache/utils*/
+define('can/view/stache/utils', ['can/util/util'], function () {
+    return {
+        isArrayLike: function (obj) {
+            return obj && obj.splice && typeof obj.length === 'number';
+        },
+        isObserveLike: function (obj) {
+            return obj instanceof can.Map || obj && !!obj._get;
+        },
+        emptyHandler: function () {
+        },
+        jsonParse: function (str) {
+            if (str[0] === '\'') {
+                return str.substr(1, str.length - 2);
+            } else if (str === 'undefined') {
+                return undefined;
+            } else if (can.global.JSON) {
+                return JSON.parse(str);
+            } else {
+                return eval('(' + str + ')');
+            }
+        },
+        mixins: {
+            last: function () {
+                return this.stack[this.stack.length - 1];
+            },
+            add: function (chars) {
+                this.last().add(chars);
+            },
+            subSectionDepth: function () {
+                return this.stack.length - 1;
+            }
+        }
+    };
+});
+/*can/view/stache/mustache_helpers*/
+define('can/view/stache/mustache_helpers', [
+    'can/util/util',
+    'can/view/stache/utils',
+    'can/view/live/live'
+], function (can, utils, live) {
+    live = live || can.view.live;
+    var resolve = function (value) {
+        if (utils.isObserveLike(value) && utils.isArrayLike(value) && value.attr('length')) {
+            return value;
+        } else if (can.isFunction(value)) {
+            return value();
+        } else {
+            return value;
+        }
+    };
+    var helpers = {
+            'each': function (items, options) {
+                var resolved = resolve(items), result = [], keys, key, i;
+                if (resolved instanceof can.List) {
+                    return function (el) {
+                        var nodeList = [el];
+                        nodeList.expression = 'live.list';
+                        can.view.nodeLists.register(nodeList, null, options.nodeList);
+                        can.view.nodeLists.update(options.nodeList, [el]);
+                        var cb = function (item, index, parentNodeList) {
+                            return options.fn(options.scope.add({ '@index': index }).add(item), options.options, parentNodeList);
+                        };
+                        live.list(el, items, cb, options.context, el.parentNode, nodeList);
+                    };
+                }
+                var expr = resolved;
+                if (!!expr && utils.isArrayLike(expr)) {
+                    for (i = 0; i < expr.length; i++) {
+                        result.push(options.fn(options.scope.add({ '@index': i }).add(expr[i])));
+                    }
+                } else if (utils.isObserveLike(expr)) {
+                    keys = can.Map.keys(expr);
+                    for (i = 0; i < keys.length; i++) {
+                        key = keys[i];
+                        result.push(options.fn(options.scope.add({ '@key': key }).add(expr[key])));
+                    }
+                } else if (expr instanceof Object) {
+                    for (key in expr) {
+                        result.push(options.fn(options.scope.add({ '@key': key }).add(expr[key])));
+                    }
+                }
+                return result;
+            },
+            '@index': function (offset, options) {
+                if (!options) {
+                    options = offset;
+                    offset = 0;
+                }
+                var index = options.scope.attr('@index');
+                return '' + ((can.isFunction(index) ? index() : index) + offset);
+            },
+            'if': function (expr, options) {
+                var value;
+                if (can.isFunction(expr)) {
+                    value = can.compute.truthy(expr)();
+                } else {
+                    value = !!resolve(expr);
+                }
+                if (value) {
+                    return options.fn(options.scope || this);
+                } else {
+                    return options.inverse(options.scope || this);
+                }
+            },
+            'is': function () {
+                var lastValue, curValue, options = arguments[arguments.length - 1];
+                if (arguments.length - 2 <= 0) {
+                    return options.inverse();
+                }
+                for (var i = 0; i < arguments.length - 1; i++) {
+                    curValue = resolve(arguments[i]);
+                    curValue = can.isFunction(curValue) ? curValue() : curValue;
+                    if (i > 0) {
+                        if (curValue !== lastValue) {
+                            return options.inverse();
+                        }
+                    }
+                    lastValue = curValue;
+                }
+                return options.fn();
+            },
+            'eq': function () {
+                return helpers.is.apply(this, arguments);
+            },
+            'unless': function (expr, options) {
+                return helpers['if'].apply(this, [
+                    can.isFunction(expr) ? can.compute(function () {
+                        return !expr();
+                    }) : !expr,
+                    options
+                ]);
+            },
+            'with': function (expr, options) {
+                var ctx = expr;
+                expr = resolve(expr);
+                if (!!expr) {
+                    return options.fn(ctx);
+                }
+            },
+            'log': function (expr, options) {
+                if (typeof console !== 'undefined' && console.log) {
+                    if (!options) {
+                        console.log(expr.context);
+                    } else {
+                        console.log(expr, options.context);
+                    }
+                }
+            },
+            'data': function (attr) {
+                var data = arguments.length === 2 ? this : arguments[1];
+                return function (el) {
+                    can.data(can.$(el), attr, data || this.context);
+                };
+            }
+        };
+    return {
+        registerHelper: function (name, callback) {
+            helpers[name] = callback;
+        },
+        getHelper: function (name, options) {
+            var helper = options.attr('helpers.' + name);
+            if (!helper) {
+                helper = helpers[name];
+            }
+            if (helper) {
+                return { fn: helper };
+            }
+        }
+    };
+});
+/*can/view/stache/mustache_core*/
+define('can/view/stache/mustache_core', [
+    'can/util/util',
+    'can/view/stache/utils',
+    'can/view/stache/mustache_helpers',
+    'can/view/live/live',
+    'can/view/elements',
+    'can/view/scope/scope',
+    'can/view/node_lists/node_lists'
+], function (can, utils, mustacheHelpers, live, elements, Scope, nodeLists) {
+    live = live || can.view.live;
+    elements = elements || can.view.elements;
+    Scope = Scope || can.view.Scope;
+    nodeLists = nodeLists || can.view.nodeLists;
+    var argumentsRegExp = /((([^'"\s]+?=)?('.*?'|".*?"))|.*?)\s/g, literalNumberStringBooleanRegExp = /^(?:(?:('.*?'|".*?")|([0-9]+\.?[0-9]*|true|false|null|undefined))|(?:(.+?)=(?:(?:('.*?'|".*?")|([0-9]+\.?[0-9]*|true|false|null|undefined))|(.+))))$/, mustacheLineBreakRegExp = /(?:(?:^|(\r?)\n)(\s*)(\{\{([^\}]*)\}\}\}?)([^\S\n\r]*)($|\r?\n))|(\{\{([^\}]*)\}\}\}?)/g, isLookup = function (obj) {
+            return obj && typeof obj.get === 'string';
+        }, getItemsFragContent = function (items, isObserveList, helperOptions, options) {
+            var frag = document.createDocumentFragment();
+            for (var i = 0, len = items.length; i < len; i++) {
+                append(frag, helperOptions.fn(isObserveList ? items.attr('' + i) : items[i], options));
+            }
+            return frag;
+        }, append = function (frag, content) {
+            if (content) {
+                frag.appendChild(typeof content === 'string' ? document.createTextNode(content) : content);
+            }
+        }, getItemsStringContent = function (items, isObserveList, helperOptions, options) {
+            var txt = '';
+            for (var i = 0, len = items.length; i < len; i++) {
+                txt += helperOptions.fn(isObserveList ? items.attr('' + i) : items[i], options);
+            }
+            return txt;
+        }, getKeyComputeData = function (key, scope, isArgument) {
+            var data = scope.computeData(key, {
+                    isArgument: isArgument,
+                    args: [
+                        scope.attr('.'),
+                        scope
+                    ]
+                });
+            can.compute.temporarilyBind(data.compute);
+            return data;
+        }, getKeyArgValue = function (key, scope) {
+            var data = getKeyComputeData(key, scope, true);
+            if (!data.compute.computeInstance.hasDependencies) {
+                return data.initialValue;
+            } else {
+                return data.compute;
+            }
+        }, convertToScopes = function (helperOptions, scope, options, nodeList, truthyRenderer, falseyRenderer) {
+            if (truthyRenderer) {
+                helperOptions.fn = makeRendererConvertScopes(truthyRenderer, scope, options, nodeList);
+            }
+            if (falseyRenderer) {
+                helperOptions.inverse = makeRendererConvertScopes(falseyRenderer, scope, options, nodeList);
+            }
+        }, makeRendererConvertScopes = function (renderer, parentScope, parentOptions, nodeList) {
+            var rendererWithScope = function (ctx, opts, parentNodeList) {
+                return renderer(ctx || parentScope, opts, parentNodeList);
+            };
+            return can.__notObserve(function (newScope, newOptions, parentNodeList) {
+                if (newScope !== undefined && !(newScope instanceof can.view.Scope)) {
+                    newScope = parentScope.add(newScope);
+                }
+                if (newOptions !== undefined && !(newOptions instanceof core.Options)) {
+                    newOptions = parentOptions.add(newOptions);
+                }
+                var result = rendererWithScope(newScope, newOptions || parentOptions, parentNodeList || nodeList);
+                return result;
+            });
+        };
+    var core = {
+            expressionData: function (expression) {
+                var args = [], hashes = {}, i = 0;
+                (can.trim(expression) + ' ').replace(argumentsRegExp, function (whole, arg) {
+                    var m;
+                    if (i && (m = arg.match(literalNumberStringBooleanRegExp))) {
+                        if (m[1] || m[2]) {
+                            args.push(utils.jsonParse(m[1] || m[2]));
+                        } else {
+                            hashes[m[3]] = m[6] ? { get: m[6] } : utils.jsonParse(m[4] || m[5]);
+                        }
+                    } else {
+                        args.push({ get: arg });
+                    }
+                    i++;
+                });
+                return {
+                    name: args.shift(),
+                    args: args,
+                    hash: hashes
+                };
+            },
+            makeEvaluator: function (scope, options, nodeList, mode, exprData, truthyRenderer, falseyRenderer, stringOnly) {
+                var args = [], hash = {}, helperOptions = {
+                        fn: function () {
+                        },
+                        inverse: function () {
+                        }
+                    }, context = scope.attr('.'), name = exprData.name, helper, looksLikeAHelper = exprData.args.length || !can.isEmptyObject(exprData.hash), initialValue, helperEvaluator;
+                for (var i = 0, len = exprData.args.length; i < len; i++) {
+                    var arg = exprData.args[i];
+                    if (arg && isLookup(arg)) {
+                        args.push(getKeyArgValue(arg.get, scope, true));
+                    } else {
+                        args.push(arg);
+                    }
+                }
+                for (var prop in exprData.hash) {
+                    if (isLookup(exprData.hash[prop])) {
+                        hash[prop] = getKeyArgValue(exprData.hash[prop].get, scope);
+                    } else {
+                        hash[prop] = exprData.hash[prop];
+                    }
+                }
+                if (isLookup(name)) {
+                    if (looksLikeAHelper) {
+                        helper = mustacheHelpers.getHelper(name.get, options);
+                        if (!helper && typeof context[name.get] === 'function') {
+                            helper = { fn: context[name.get] };
+                        }
+                    }
+                    if (!helper) {
+                        var get = name.get;
+                        var computeData = getKeyComputeData(name.get, scope, false), compute = computeData.compute;
+                        initialValue = computeData.initialValue;
+                        if (computeData.compute.computeInstance.hasDependencies) {
+                            name = compute;
+                        } else {
+                            name = initialValue;
+                        }
+                        if (!looksLikeAHelper && initialValue === undefined) {
+                            helper = mustacheHelpers.getHelper(get, options);
+                        } else if (typeof initialValue === 'function') {
+                            helper = { fn: initialValue };
+                        }
+                    }
+                }
+                if (mode === '^') {
+                    var temp = truthyRenderer;
+                    truthyRenderer = falseyRenderer;
+                    falseyRenderer = temp;
+                }
+                if (helper) {
+                    convertToScopes(helperOptions, scope, options, nodeList, truthyRenderer, falseyRenderer);
+                    can.simpleExtend(helperOptions, {
+                        context: context,
+                        scope: scope,
+                        contexts: scope,
+                        hash: hash,
+                        nodeList: nodeList,
+                        exprData: exprData
+                    });
+                    args.push(helperOptions);
+                    helperEvaluator = function () {
+                        return helper.fn.apply(context, args) || '';
+                    };
+                    helperEvaluator.bindOnce = false;
+                    return helperEvaluator;
+                }
+                if (!mode) {
+                    if (name && name.isComputed) {
+                        return name;
+                    } else {
+                        return function () {
+                            return '' + (name != null ? name : '');
+                        };
+                    }
+                } else if (mode === '#' || mode === '^') {
+                    convertToScopes(helperOptions, scope, options, nodeList, truthyRenderer, falseyRenderer);
+                    var evaluator = function () {
+                        var value;
+                        if (can.isFunction(name) && name.isComputed) {
+                            value = name();
+                        } else {
+                            value = name;
+                        }
+                        if (utils.isArrayLike(value)) {
+                            var isObserveList = utils.isObserveLike(value);
+                            if (isObserveList ? value.attr('length') : value.length) {
+                                return (stringOnly ? getItemsStringContent : getItemsFragContent)(value, isObserveList, helperOptions, options);
+                            } else {
+                                return helperOptions.inverse(scope, options);
+                            }
+                        } else {
+                            return value ? helperOptions.fn(value || scope, options) : helperOptions.inverse(scope, options);
+                        }
+                    };
+                    evaluator.bindOnce = false;
+                    return evaluator;
+                } else {
+                }
+            },
+            makeLiveBindingPartialRenderer: function (partialName, state) {
+                partialName = can.trim(partialName);
+                return function (scope, options, parentSectionNodeList) {
+                    var nodeList = [this];
+                    nodeList.expression = '>' + partialName;
+                    nodeLists.register(nodeList, null, state.directlyNested ? parentSectionNodeList || true : true);
+                    var partialFrag = can.compute(function () {
+                            var localPartialName = partialName;
+                            var partial = options.attr('partials.' + localPartialName), res;
+                            if (partial) {
+                                res = partial.render ? partial.render(scope, options) : partial(scope, options);
+                            } else {
+                                var scopePartialName = scope.read(localPartialName, {
+                                        isArgument: true,
+                                        returnObserveMethods: true,
+                                        proxyMethods: false
+                                    }).value;
+                                if (scopePartialName) {
+                                    localPartialName = scopePartialName;
+                                }
+                                res = can.view.render(localPartialName, scope, options);
+                            }
+                            return can.frag(res);
+                        });
+                    live.html(this, partialFrag, this.parentNode, nodeList);
+                };
+            },
+            makeStringBranchRenderer: function (mode, expression) {
+                var exprData = expressionData(expression), fullExpression = mode + expression;
+                return function branchRenderer(scope, options, truthyRenderer, falseyRenderer) {
+                    var evaluator = scope.__cache[fullExpression];
+                    if (mode || !evaluator) {
+                        evaluator = makeEvaluator(scope, options, null, mode, exprData, truthyRenderer, falseyRenderer, true);
+                        if (!mode) {
+                            scope.__cache[fullExpression] = evaluator;
+                        }
+                    }
+                    var res = evaluator();
+                    return res == null ? '' : '' + res;
+                };
+            },
+            makeLiveBindingBranchRenderer: function (mode, expression, state) {
+                var exprData = expressionData(expression);
+                return function branchRenderer(scope, options, parentSectionNodeList, truthyRenderer, falseyRenderer) {
+                    var nodeList = [this];
+                    nodeList.expression = expression;
+                    nodeLists.register(nodeList, null, state.directlyNested ? parentSectionNodeList || true : true);
+                    var evaluator = makeEvaluator(scope, options, nodeList, mode, exprData, truthyRenderer, falseyRenderer, state.tag);
+                    var compute = can.compute(evaluator, null, false, evaluator.bindOnce === false ? false : true);
+                    compute.bind('change', can.k);
+                    var value = compute();
+                    if (typeof value === 'function') {
+                        var old = can.__clearReading();
+                        value(this);
+                        can.__setReading(old);
+                    } else if (compute.computeInstance.hasDependencies) {
+                        if (state.attr) {
+                            live.simpleAttribute(this, state.attr, compute);
+                        } else if (state.tag) {
+                            live.attributes(this, compute);
+                        } else if (state.text && typeof value !== 'object') {
+                            live.text(this, compute, this.parentNode, nodeList);
+                        } else {
+                            live.html(this, compute, this.parentNode, nodeList);
+                        }
+                    } else {
+                        if (state.attr) {
+                            can.attr.set(this, state.attr, value);
+                        } else if (state.tag) {
+                            live.setAttributes(this, value);
+                        } else if (state.text && typeof value === 'string') {
+                            this.nodeValue = value;
+                        } else if (value) {
+                            elements.replace([this], can.frag(value));
+                        }
+                    }
+                    compute.unbind('change', can.k);
+                };
+            },
+            splitModeFromExpression: function (expression, state) {
+                expression = can.trim(expression);
+                var mode = expression.charAt(0);
+                if ('#/{&^>!'.indexOf(mode) >= 0) {
+                    expression = can.trim(expression.substr(1));
+                } else {
+                    mode = null;
+                }
+                if (mode === '{' && state.node) {
+                    mode = null;
+                }
+                return {
+                    mode: mode,
+                    expression: expression
+                };
+            },
+            cleanLineEndings: function (template) {
+                return template.replace(mustacheLineBreakRegExp, function (whole, returnBefore, spaceBefore, special, expression, spaceAfter, returnAfter, spaceLessSpecial, spaceLessExpression, matchIndex) {
+                    spaceAfter = spaceAfter || '';
+                    returnBefore = returnBefore || '';
+                    spaceBefore = spaceBefore || '';
+                    var modeAndExpression = splitModeFromExpression(expression || spaceLessExpression, {});
+                    if (spaceLessSpecial || '>{'.indexOf(modeAndExpression.mode) >= 0) {
+                        return whole;
+                    } else if ('^#!/'.indexOf(modeAndExpression.mode) >= 0) {
+                        return special + (matchIndex !== 0 && returnAfter.length ? returnBefore + '\n' : '');
+                    } else {
+                        return spaceBefore + special + spaceAfter + (spaceBefore.length || matchIndex !== 0 ? returnBefore + '\n' : '');
+                    }
+                });
+            },
+            Options: can.view.Scope.extend({
+                init: function (data, parent) {
+                    if (!data.helpers && !data.partials && !data.tags) {
+                        data = { helpers: data };
+                    }
+                    can.view.Scope.prototype.init.apply(this, arguments);
+                }
+            })
+        };
+    var makeEvaluator = core.makeEvaluator, expressionData = core.expressionData, splitModeFromExpression = core.splitModeFromExpression;
+    return core;
+});
+/*can/view/bindings/bindings*/
+define('can/view/bindings/bindings', [
+    'can/util/util',
+    'can/view/stache/mustache_core',
+    'can/view/callbacks/callbacks',
+    'can/control/control',
+    'can/view/scope/scope'
+], function (can, mustacheCore) {
+    var isContentEditable = function () {
+            var values = {
+                    '': true,
+                    'true': true,
+                    'false': false
+                };
+            var editable = function (el) {
+                if (!el || !el.getAttribute) {
+                    return;
+                }
+                var attr = el.getAttribute('contenteditable');
+                return values[attr];
+            };
+            return function (el) {
+                var val = editable(el);
+                if (typeof val === 'boolean') {
+                    return val;
+                } else {
+                    return !!editable(el.parentNode);
+                }
+            };
+        }(), removeCurly = function (value) {
+            if (value[0] === '{' && value[value.length - 1] === '}') {
+                return value.substr(1, value.length - 2);
+            }
+            return value;
+        };
+    can.view.attr('can-value', function (el, data) {
+        var attr = can.trim(removeCurly(el.getAttribute('can-value'))), value = data.scope.computeData(attr, { args: [] }).compute, trueValue, falseValue;
+        if (el.nodeName.toLowerCase() === 'input') {
+            if (el.type === 'checkbox') {
+                if (can.attr.has(el, 'can-true-value')) {
+                    trueValue = el.getAttribute('can-true-value');
+                } else {
+                    trueValue = true;
+                }
+                if (can.attr.has(el, 'can-false-value')) {
+                    falseValue = el.getAttribute('can-false-value');
+                } else {
+                    falseValue = false;
+                }
+            }
+            if (el.type === 'checkbox' || el.type === 'radio') {
+                new Checked(el, {
+                    value: value,
+                    trueValue: trueValue,
+                    falseValue: falseValue
+                });
+                return;
+            }
+        }
+        if (el.nodeName.toLowerCase() === 'select' && el.multiple) {
+            new Multiselect(el, { value: value });
+            return;
+        }
+        if (isContentEditable(el)) {
+            new Content(el, { value: value });
+            return;
+        }
+        new Value(el, { value: value });
+    });
+    var special = {
+            enter: function (data, el, original) {
+                return {
+                    event: 'keyup',
+                    handler: function (ev) {
+                        if (ev.keyCode === 13) {
+                            return original.call(this, ev);
+                        }
+                    }
+                };
+            }
+        };
+    can.view.attr(/can-[\w\.]+/, function (el, data) {
+        var attributeName = data.attributeName, event = attributeName.substr('can-'.length), handler = function (ev) {
+                var attrVal = el.getAttribute(attributeName);
+                if (!attrVal) {
+                    return;
+                }
+                var attrInfo = mustacheCore.expressionData(removeCurly(attrVal));
+                var scopeData = data.scope.read(attrInfo.name.get, {
+                        returnObserveMethods: true,
+                        isArgument: true,
+                        executeAnonymousFunctions: true
+                    });
+                var args = [];
+                var $el = can.$(this);
+                var viewModel = can.viewModel($el[0]);
+                var localScope = data.scope.add({
+                        '@element': $el,
+                        '@event': ev,
+                        '@viewModel': viewModel,
+                        '@scope': data.scope,
+                        '@context': data.scope._context
+                    });
+                if (!can.isEmptyObject(attrInfo.hash)) {
+                    var hash = {};
+                    can.each(attrInfo.hash, function (val, key) {
+                        if (val && val.hasOwnProperty('get')) {
+                            var s = !val.get.indexOf('@') ? localScope : data.scope;
+                            hash[key] = s.read(val.get, {}).value;
+                        } else {
+                            hash[key] = val;
+                        }
+                    });
+                    args.unshift(hash);
+                }
+                if (attrInfo.args.length) {
+                    var arg;
+                    for (var i = attrInfo.args.length - 1; i >= 0; i--) {
+                        arg = attrInfo.args[i];
+                        if (arg && arg.hasOwnProperty('get')) {
+                            var s = !arg.get.indexOf('@') ? localScope : data.scope;
+                            args.unshift(s.read(arg.get, {}).value);
+                        } else {
+                            args.unshift(arg);
+                        }
+                    }
+                }
+                if (!args.length) {
+                    args = [
+                        data.scope._context,
+                        $el
+                    ].concat(can.makeArray(arguments));
+                }
+                return scopeData.value.apply(scopeData.parent, args);
+            };
+        if (special[event]) {
+            var specialData = special[event](data, el, handler);
+            handler = specialData.handler;
+            event = specialData.event;
+        }
+        can.bind.call(el, event, handler);
+    });
+    var Value = can.Control.extend({
+            init: function () {
+                if (this.element[0].nodeName.toUpperCase() === 'SELECT') {
+                    setTimeout(can.proxy(this.set, this), 1);
+                } else {
+                    this.set();
+                }
+            },
+            '{value} change': 'set',
+            set: function () {
+                if (!this.element) {
+                    return;
+                }
+                var val = this.options.value();
+                this.element[0].value = val == null ? '' : val;
+            },
+            'change': function () {
+                if (!this.element) {
+                    return;
+                }
+                var el = this.element[0];
+                this.options.value(el.value);
+                var newVal = this.options.value();
+                if (el.value !== newVal) {
+                    el.value = newVal;
+                }
+            }
+        }), Checked = can.Control.extend({
+            init: function () {
+                this.isCheckbox = this.element[0].type.toLowerCase() === 'checkbox';
+                this.check();
+            },
+            '{value} change': 'check',
+            check: function () {
+                if (this.isCheckbox) {
+                    var value = this.options.value(), trueValue = this.options.trueValue || true;
+                    this.element[0].checked = value == trueValue;
+                } else {
+                    var setOrRemove = this.options.value() == this.element[0].value ? 'set' : 'remove';
+                    can.attr[setOrRemove](this.element[0], 'checked', true);
+                }
+            },
+            'change': function () {
+                if (this.isCheckbox) {
+                    this.options.value(this.element[0].checked ? this.options.trueValue : this.options.falseValue);
+                } else {
+                    if (this.element[0].checked) {
+                        this.options.value(this.element[0].value);
+                    }
+                }
+            }
+        }), Multiselect = Value.extend({
+            init: function () {
+                this.delimiter = ';';
+                setTimeout(can.proxy(this.set, this), 1);
+            },
+            set: function () {
+                var newVal = this.options.value();
+                if (typeof newVal === 'string') {
+                    newVal = newVal.split(this.delimiter);
+                    this.isString = true;
+                } else if (newVal) {
+                    newVal = can.makeArray(newVal);
+                }
+                var isSelected = {};
+                can.each(newVal, function (val) {
+                    isSelected[val] = true;
+                });
+                can.each(this.element[0].childNodes, function (option) {
+                    if (option.value) {
+                        option.selected = !!isSelected[option.value];
+                    }
+                });
+            },
+            get: function () {
+                var values = [], children = this.element[0].childNodes;
+                can.each(children, function (child) {
+                    if (child.selected && child.value) {
+                        values.push(child.value);
+                    }
+                });
+                return values;
+            },
+            'change': function () {
+                var value = this.get(), currentValue = this.options.value();
+                if (this.isString || typeof currentValue === 'string') {
+                    this.isString = true;
+                    this.options.value(value.join(this.delimiter));
+                } else if (currentValue instanceof can.List) {
+                    currentValue.attr(value, true);
+                } else {
+                    this.options.value(value);
+                }
+            }
+        }), Content = can.Control.extend({
+            init: function () {
+                this.set();
+                this.on('blur', 'setValue');
+            },
+            '{value} change': 'set',
+            set: function () {
+                var val = this.options.value();
+                this.element[0].innerHTML = typeof val === 'undefined' ? '' : val;
+            },
+            setValue: function () {
+                this.options.value(this.element[0].innerHTML);
+            }
+        });
+});
 /*can/view/mustache/mustache*/
-define("can/view/mustache/mustache",["can/util/util","can/view/scope/scope","can/view/view","can/view/scanner","can/compute/compute","can/view/render","can/view/bindings/bindings"],function(e){e.view.ext=".mustache";var n="scope",t="___h4sh",r="{scope:"+n+",options:options}",i="{scope:"+n+",options:options, special: true}",s=n+",options",o=/((([^'"\s]+?=)?('.*?'|".*?"))|.*?)\s/g,c=/^(('.*?'|".*?"|[0-9]+\.?[0-9]*|true|false|null|undefined)|((.+?)=(('.*?'|".*?"|[0-9]+\.?[0-9]*|true|false)|(.+))))$/,a=function(e){return'{get:"'+e.replace(/"/g,'\\"')+'"}'},u=function(e){return e&&"string"==typeof e.get},f=function(n){return n instanceof e.Map||n&&!!n._get},p=function(e){return e&&e.splice&&"number"==typeof e.length},l=function(n,t,r){var i=function(e,r){return n(e||t,r)};return function(n,s){return void 0===n||n instanceof e.view.Scope||(n=t.add(n)),void 0===s||s instanceof e.view.Options||(s=r.add(s)),i(n,s||r)}},h=function(n,t){if(this.constructor!==h){var r=new h(n);return function(e,n){return r.render(e,n)}}return"function"==typeof n?void(this.template={fn:n}):(e.extend(this,n),void(this.template=this.scanner.scan(this.text,this.name)))};e.Mustache=e.global.Mustache=h,h.prototype.render=function(n,t){return n instanceof e.view.Scope||(n=new e.view.Scope(n||{})),t instanceof e.view.Options||(t=new e.view.Options(t||{})),t=t||{},this.template.fn.call(n,n,t)},e.extend(h.prototype,{scanner:new e.view.Scanner({text:{start:"",scope:n,options:",options: options",argNames:s},tokens:[["returnLeft","{{{","{{[{&]"],["commentFull","{{!}}","^[\\s\\t]*{{!.+?}}\\n"],["commentLeft","{{!","(\\n[\\s\\t]*{{!|{{!)"],["escapeFull","{{}}","(^[\\s\\t]*{{[#/^][^}]+?}}\\n|\\n[\\s\\t]*{{[#/^][^}]+?}}\\n|\\n[\\s\\t]*{{[#/^][^}]+?}}$)",function(e){return{before:/^\n.+?\n$/.test(e)?"\n":"",content:e.match(/\{\{(.+?)\}\}/)[1]||""}}],["escapeLeft","{{"],["returnRight","}}}"],["right","}}"]],helpers:[{name:/^>[\s]*\w*/,fn:function(n,t){var r=e.trim(n.replace(/^>\s?/,"")).replace(/["|']/g,"");return"can.Mustache.renderPartial('"+r+"',"+s+")"}},{name:/^\s*data\s/,fn:function(e,t){var r=e.match(/["|'](.*)["|']/)[1];return"can.proxy(function(__){can.data(can.$(__),'"+r+"', this.attr('.')); }, "+n+")"}},{name:/\s*\(([\$\w]+)\)\s*->([^\n]*)/,fn:function(e){var t=/\s*\(([\$\w]+)\)\s*->([^\n]*)/,r=e.match(t);return"can.proxy(function(__){var "+r[1]+"=can.$(__);with("+n+".attr('.')){"+r[2]+"}}, this);"}},{name:/^.*$/,fn:function(n,u){var f=!1,p={content:"",startTxt:!1,startOnlyTxt:!1,end:!1};if(n=e.trim(n),n.length&&(f=n.match(/^([#^\/]|else$)/))){switch(f=f[0]){case"#":case"^":u.specialAttribute?p.startOnlyTxt=!0:(p.startTxt=!0,p.escaped=0);break;case"/":return p.end=!0,p.content+='return ___v1ew.join("");}}])',p}n=n.substring(1)}if("else"!==f){var l,h=[],v=[],g=0;p.content+="can.Mustache.txt(\n"+(u.specialAttribute?i:r)+",\n"+(f?'"'+f+'"':"null")+",",(e.trim(n)+" ").replace(o,function(e,n){g&&(l=n.match(c))?l[2]?h.push(l[0]):v.push(l[4]+":"+(l[6]?l[6]:a(l[5]))):h.push(a(n)),g++}),p.content+=h.join(","),v.length&&(p.content+=",{"+t+":{"+v.join(",")+"}}")}switch(f&&"else"!==f&&(p.content+=",[\n\n"),f){case"^":case"#":p.content+="{fn:function("+s+"){var ___v1ew = [];";break;case"else":p.content+='return ___v1ew.join("");}},\n{inverse:function('+s+"){\nvar ___v1ew = [];";break;default:p.content+=")"}return f||(p.startTxt=!0,p.end=!0),p}}]})});for(var v=e.view.Scanner.prototype.helpers,g=0;g<v.length;g++)h.prototype.scanner.helpers.unshift(v[g]);return h.txt=function(n,r,i){for(var s,o,c=n.scope,a=n.options,v=[],g={fn:function(){},inverse:function(){}},d=c.attr("."),m=!0,w=3;w<arguments.length;w++){var x=arguments[w];if(r&&e.isArray(x))g=e.extend.apply(e,[g].concat(x));else if(x&&x[t]){s=x[t];for(var _ in s)u(s[_])&&(s[_]=h.get(s[_].get,n,!1,!0))}else x&&u(x)?v.push(h.get(x.get,n,!1,!0,!0)):v.push(x)}if(u(i)){var y=i.get;i=h.get(i.get,n,v.length,!1),m=y===i}if(g.fn=l(g.fn,c,a),g.inverse=l(g.inverse,c,a),"^"===r){var b=g.fn;g.fn=g.inverse,g.inverse=b}return(o=m&&"string"==typeof i&&h.getHelper(i,a)||e.isFunction(i)&&!i.isComputed&&{fn:i})?(e.extend(g,{context:d,scope:c,contexts:c,hash:s}),v.push(g),function(){var e=o.fn.apply(d,v);return null==e?"":e}):function(){var n;n=e.isFunction(i)&&i.isComputed?i():i;var t,s,o,c=v.length?v:[n],a=!0,u=[];if(r)for(t=0;t<c.length;t++)o=c[t],s="undefined"!=typeof o&&f(o),p(o)?"#"===r?a=a&&!!(s?o.attr("length"):o.length):"^"===r&&(a=a&&!(s?o.attr("length"):o.length)):a="#"===r?a&&!!o:"^"===r?a&&!o:a;if(a){if("#"===r){if(p(n)){var l=f(n);for(t=0;t<n.length;t++)u.push(g.fn(l?n.attr(""+t):n[t]));return u.join("")}return g.fn(n||{})||""}return"^"===r?g.inverse(n||{})||"":""+(null!=n?n:"")}return""}},h.get=function(n,t,r,i,s){var o=t.scope.attr("."),c=t.options||{};if(r){if(h.getHelper(n,c))return n;if(t.scope&&e.isFunction(o[n]))return o[n]}var a=t.scope.computeData(n,{isArgument:i,args:[o,t.scope]}),u=a.compute;e.compute.temporarilyBind(u);var f=a.initialValue;h.getHelper(n,c);return s||void 0!==f&&a.scope===t.scope||!h.getHelper(n,c)?u.computeInstance.hasDependencies?u:f:n},h.resolve=function(n){return f(n)&&p(n)&&n.attr("length")?n:e.isFunction(n)?n():n},h._helpers={},h.registerHelper=function(e,n){this._helpers[e]={name:e,fn:n}},h.registerSimpleHelper=function(n,t){h.registerHelper(n,e.view.simpleHelper(t))},h.getHelper=function(e,n){var t;return n&&(t=n.get("helpers."+e,{proxyMethods:!1})),t?{fn:t}:this._helpers[e]},h.render=function(n,t,r){return e.view.cached[n]||e.__notObserve(function(){var e=t.attr(n);e&&(n=e)})(),e.view.render(n,t,r)},h.safeString=function(e){return{toString:function(){return e}}},h.renderPartial=function(n,t,r){var i=r.get("partials."+n,{proxyMethods:!1});return i?i.render?i.render(t,r):i(t,r):e.Mustache.render(n,t,r)},e.each({"if":function(n,t){var r;return r=e.isFunction(n)?e.compute.truthy(n)():!!h.resolve(n),r?t.fn(t.contexts||this):t.inverse(t.contexts||this)},is:function(){var n,t,r=arguments[arguments.length-1];if(arguments.length-2<=0)return r.inverse();for(var i=0;i<arguments.length-1;i++){if(t=h.resolve(arguments[i]),t=e.isFunction(t)?t():t,i>0&&t!==n)return r.inverse();n=t}return r.fn()},eq:function(){return h._helpers.is.fn.apply(this,arguments)},unless:function(n,t){return h._helpers["if"].fn.apply(this,[n,e.extend({},t,{fn:t.inverse,inverse:t.fn})])},each:function(n,t){var r,i,s,o=h.resolve(n),c=[];if(e.view.lists&&(o instanceof e.List||n&&n.isComputed&&void 0===o))return e.view.lists(n,function(e,n){return t.fn(t.scope.add({"@index":n}).add(e))});if(n=o,n&&p(n)){for(s=0;s<n.length;s++)c.push(t.fn(t.scope.add({"@index":s}).add(n[s])));return c.join("")}if(f(n)){for(r=e.Map.keys(n),s=0;s<r.length;s++)i=r[s],c.push(t.fn(t.scope.add({"@key":i}).add(n[i])));return c.join("")}if(n instanceof Object){for(i in n)c.push(t.fn(t.scope.add({"@key":i}).add(n[i])));return c.join("")}},"with":function(e,n){var t=e;return e=h.resolve(e),e?n.fn(t):void 0},log:function(e,n){"undefined"!=typeof console&&console.log&&(n?console.log(e,n.context):console.log(e.context))},"@index":function(n,t){t||(t=n,n=0);var r=t.scope.read("@index",{isArgument:!0}).value;return""+((e.isFunction(r)?r():r)+n)}},function(e,n){h.registerHelper(n,e)}),e.view.register({suffix:"mustache",contentType:"x-mustache-template",script:function(e,n){return"can.Mustache(function("+s+") { "+new h({text:n,name:e}).template.out+" })"},renderer:function(e,n){return h({text:n,name:e})}}),e.mustache.registerHelper=e.proxy(e.Mustache.registerHelper,e.Mustache),e.mustache.safeString=e.Mustache.safeString,e});
-/*can/util/view_model/view_model*/
-define("can/util/view_model/view_model",["can/util/util"],function(e){var n=e.$;n.fn&&(n.fn.scope=n.fn.viewModel=function(){return e.viewModel.apply(e,[this].concat(e.makeArray(arguments)))})});
+define('can/view/mustache/mustache', [
+    'can/util/util',
+    'can/view/scope/scope',
+    'can/view/view',
+    'can/view/scanner',
+    'can/compute/compute',
+    'can/view/render',
+    'can/view/bindings/bindings'
+], function (can) {
+    can.view.ext = '.mustache';
+    var SCOPE = 'scope', HASH = '___h4sh', CONTEXT_OBJ = '{scope:' + SCOPE + ',options:options}', SPECIAL_CONTEXT_OBJ = '{scope:' + SCOPE + ',options:options, special: true}', ARG_NAMES = SCOPE + ',options', argumentsRegExp = /((([^'"\s]+?=)?('.*?'|".*?"))|.*?)\s/g, literalNumberStringBooleanRegExp = /^(('.*?'|".*?"|[0-9]+\.?[0-9]*|true|false|null|undefined)|((.+?)=(('.*?'|".*?"|[0-9]+\.?[0-9]*|true|false)|(.+))))$/, makeLookupLiteral = function (type) {
+            return '{get:"' + type.replace(/"/g, '\\"') + '"}';
+        }, isLookup = function (obj) {
+            return obj && typeof obj.get === 'string';
+        }, isObserveLike = function (obj) {
+            return obj instanceof can.Map || obj && !!obj._get;
+        }, isArrayLike = function (obj) {
+            return obj && obj.splice && typeof obj.length === 'number';
+        }, makeConvertToScopes = function (original, scope, options) {
+            var originalWithScope = function (ctx, opts) {
+                return original(ctx || scope, opts);
+            };
+            return function (updatedScope, updatedOptions) {
+                if (updatedScope !== undefined && !(updatedScope instanceof can.view.Scope)) {
+                    updatedScope = scope.add(updatedScope);
+                }
+                if (updatedOptions !== undefined && !(updatedOptions instanceof can.view.Options)) {
+                    updatedOptions = options.add(updatedOptions);
+                }
+                return originalWithScope(updatedScope, updatedOptions || options);
+            };
+        };
+    var Mustache = function (options, helpers) {
+        if (this.constructor !== Mustache) {
+            var mustache = new Mustache(options);
+            return function (data, options) {
+                return mustache.render(data, options);
+            };
+        }
+        if (typeof options === 'function') {
+            this.template = { fn: options };
+            return;
+        }
+        can.extend(this, options);
+        this.template = this.scanner.scan(this.text, this.name);
+    };
+    can.Mustache = can.global.Mustache = Mustache;
+    Mustache.prototype.render = function (data, options) {
+        if (!(data instanceof can.view.Scope)) {
+            data = new can.view.Scope(data || {});
+        }
+        if (!(options instanceof can.view.Options)) {
+            options = new can.view.Options(options || {});
+        }
+        options = options || {};
+        return this.template.fn.call(data, data, options);
+    };
+    can.extend(Mustache.prototype, {
+        scanner: new can.view.Scanner({
+            text: {
+                start: '',
+                scope: SCOPE,
+                options: ',options: options',
+                argNames: ARG_NAMES
+            },
+            tokens: [
+                [
+                    'returnLeft',
+                    '{{{',
+                    '{{[{&]'
+                ],
+                [
+                    'commentFull',
+                    '{{!}}',
+                    '^[\\s\\t]*{{!.+?}}\\n'
+                ],
+                [
+                    'commentLeft',
+                    '{{!',
+                    '(\\n[\\s\\t]*{{!|{{!)'
+                ],
+                [
+                    'escapeFull',
+                    '{{}}',
+                    '(^[\\s\\t]*{{[#/^][^}]+?}}\\n|\\n[\\s\\t]*{{[#/^][^}]+?}}\\n|\\n[\\s\\t]*{{[#/^][^}]+?}}$)',
+                    function (content) {
+                        return {
+                            before: /^\n.+?\n$/.test(content) ? '\n' : '',
+                            content: content.match(/\{\{(.+?)\}\}/)[1] || ''
+                        };
+                    }
+                ],
+                [
+                    'escapeLeft',
+                    '{{'
+                ],
+                [
+                    'returnRight',
+                    '}}}'
+                ],
+                [
+                    'right',
+                    '}}'
+                ]
+            ],
+            helpers: [
+                {
+                    name: /^>[\s]*\w*/,
+                    fn: function (content, cmd) {
+                        var templateName = can.trim(content.replace(/^>\s?/, '')).replace(/["|']/g, '');
+                        return 'can.Mustache.renderPartial(\'' + templateName + '\',' + ARG_NAMES + ')';
+                    }
+                },
+                {
+                    name: /^\s*data\s/,
+                    fn: function (content, cmd) {
+                        var attr = content.match(/["|'](.*)["|']/)[1];
+                        return 'can.proxy(function(__){' + 'can.data(can.$(__),\'' + attr + '\', this.attr(\'.\')); }, ' + SCOPE + ')';
+                    }
+                },
+                {
+                    name: /\s*\(([\$\w]+)\)\s*->([^\n]*)/,
+                    fn: function (content) {
+                        var quickFunc = /\s*\(([\$\w]+)\)\s*->([^\n]*)/, parts = content.match(quickFunc);
+                        return 'can.proxy(function(__){var ' + parts[1] + '=can.$(__);with(' + SCOPE + '.attr(\'.\')){' + parts[2] + '}}, this);';
+                    }
+                },
+                {
+                    name: /^.*$/,
+                    fn: function (content, cmd) {
+                        var mode = false, result = {
+                                content: '',
+                                startTxt: false,
+                                startOnlyTxt: false,
+                                end: false
+                            };
+                        content = can.trim(content);
+                        if (content.length && (mode = content.match(/^([#^/]|else$)/))) {
+                            mode = mode[0];
+                            switch (mode) {
+                            case '#':
+                            case '^':
+                                if (cmd.specialAttribute) {
+                                    result.startOnlyTxt = true;
+                                } else {
+                                    result.startTxt = true;
+                                    result.escaped = 0;
+                                }
+                                break;
+                            case '/':
+                                result.end = true;
+                                result.content += 'return ___v1ew.join("");}}])';
+                                return result;
+                            }
+                            content = content.substring(1);
+                        }
+                        if (mode !== 'else') {
+                            var args = [], hashes = [], i = 0, m;
+                            result.content += 'can.Mustache.txt(\n' + (cmd.specialAttribute ? SPECIAL_CONTEXT_OBJ : CONTEXT_OBJ) + ',\n' + (mode ? '"' + mode + '"' : 'null') + ',';
+                            (can.trim(content) + ' ').replace(argumentsRegExp, function (whole, arg) {
+                                if (i && (m = arg.match(literalNumberStringBooleanRegExp))) {
+                                    if (m[2]) {
+                                        args.push(m[0]);
+                                    } else {
+                                        hashes.push(m[4] + ':' + (m[6] ? m[6] : makeLookupLiteral(m[5])));
+                                    }
+                                } else {
+                                    args.push(makeLookupLiteral(arg));
+                                }
+                                i++;
+                            });
+                            result.content += args.join(',');
+                            if (hashes.length) {
+                                result.content += ',{' + HASH + ':{' + hashes.join(',') + '}}';
+                            }
+                        }
+                        if (mode && mode !== 'else') {
+                            result.content += ',[\n\n';
+                        }
+                        switch (mode) {
+                        case '^':
+                        case '#':
+                            result.content += '{fn:function(' + ARG_NAMES + '){var ___v1ew = [];';
+                            break;
+                        case 'else':
+                            result.content += 'return ___v1ew.join("");}},\n{inverse:function(' + ARG_NAMES + '){\nvar ___v1ew = [];';
+                            break;
+                        default:
+                            result.content += ')';
+                            break;
+                        }
+                        if (!mode) {
+                            result.startTxt = true;
+                            result.end = true;
+                        }
+                        return result;
+                    }
+                }
+            ]
+        })
+    });
+    var helpers = can.view.Scanner.prototype.helpers;
+    for (var i = 0; i < helpers.length; i++) {
+        Mustache.prototype.scanner.helpers.unshift(helpers[i]);
+    }
+    Mustache.txt = function (scopeAndOptions, mode, name) {
+        var scope = scopeAndOptions.scope, options = scopeAndOptions.options, args = [], helperOptions = {
+                fn: function () {
+                },
+                inverse: function () {
+                }
+            }, hash, context = scope.attr('.'), getHelper = true, helper;
+        for (var i = 3; i < arguments.length; i++) {
+            var arg = arguments[i];
+            if (mode && can.isArray(arg)) {
+                helperOptions = can.extend.apply(can, [helperOptions].concat(arg));
+            } else if (arg && arg[HASH]) {
+                hash = arg[HASH];
+                for (var prop in hash) {
+                    if (isLookup(hash[prop])) {
+                        hash[prop] = Mustache.get(hash[prop].get, scopeAndOptions, false, true);
+                    }
+                }
+            } else if (arg && isLookup(arg)) {
+                args.push(Mustache.get(arg.get, scopeAndOptions, false, true, true));
+            } else {
+                args.push(arg);
+            }
+        }
+        if (isLookup(name)) {
+            var get = name.get;
+            name = Mustache.get(name.get, scopeAndOptions, args.length, false);
+            getHelper = get === name;
+        }
+        helperOptions.fn = makeConvertToScopes(helperOptions.fn, scope, options);
+        helperOptions.inverse = makeConvertToScopes(helperOptions.inverse, scope, options);
+        if (mode === '^') {
+            var tmp = helperOptions.fn;
+            helperOptions.fn = helperOptions.inverse;
+            helperOptions.inverse = tmp;
+        }
+        if (helper = getHelper && (typeof name === 'string' && Mustache.getHelper(name, options)) || can.isFunction(name) && !name.isComputed && { fn: name }) {
+            can.extend(helperOptions, {
+                context: context,
+                scope: scope,
+                contexts: scope,
+                hash: hash
+            });
+            args.push(helperOptions);
+            return function () {
+                return helper.fn.apply(context, args) || '';
+            };
+        }
+        return function () {
+            var value;
+            if (can.isFunction(name) && name.isComputed) {
+                value = name();
+            } else {
+                value = name;
+            }
+            var validArgs = args.length ? args : [value], valid = true, result = [], i, argIsObserve, arg;
+            if (mode) {
+                for (i = 0; i < validArgs.length; i++) {
+                    arg = validArgs[i];
+                    argIsObserve = typeof arg !== 'undefined' && isObserveLike(arg);
+                    if (isArrayLike(arg)) {
+                        if (mode === '#') {
+                            valid = valid && !!(argIsObserve ? arg.attr('length') : arg.length);
+                        } else if (mode === '^') {
+                            valid = valid && !(argIsObserve ? arg.attr('length') : arg.length);
+                        }
+                    } else {
+                        valid = mode === '#' ? valid && !!arg : mode === '^' ? valid && !arg : valid;
+                    }
+                }
+            }
+            if (valid) {
+                if (mode === '#') {
+                    if (isArrayLike(value)) {
+                        var isObserveList = isObserveLike(value);
+                        for (i = 0; i < value.length; i++) {
+                            result.push(helperOptions.fn(isObserveList ? value.attr('' + i) : value[i]));
+                        }
+                        return result.join('');
+                    } else {
+                        return helperOptions.fn(value || {}) || '';
+                    }
+                } else if (mode === '^') {
+                    return helperOptions.inverse(value || {}) || '';
+                } else {
+                    return '' + (value != null ? value : '');
+                }
+            }
+            return '';
+        };
+    };
+    Mustache.get = function (key, scopeAndOptions, isHelper, isArgument, isLookup) {
+        var context = scopeAndOptions.scope.attr('.'), options = scopeAndOptions.options || {};
+        if (isHelper) {
+            if (Mustache.getHelper(key, options)) {
+                return key;
+            }
+            if (scopeAndOptions.scope && can.isFunction(context[key])) {
+                return context[key];
+            }
+        }
+        var computeData = scopeAndOptions.scope.computeData(key, {
+                isArgument: isArgument,
+                args: [
+                    context,
+                    scopeAndOptions.scope
+                ]
+            }), compute = computeData.compute;
+        can.compute.temporarilyBind(compute);
+        var initialValue = computeData.initialValue, helperObj = Mustache.getHelper(key, options);
+        if (!isLookup && (initialValue === undefined || computeData.scope !== scopeAndOptions.scope) && Mustache.getHelper(key, options)) {
+            return key;
+        }
+        if (!compute.computeInstance.hasDependencies) {
+            return initialValue;
+        } else {
+            return compute;
+        }
+    };
+    Mustache.resolve = function (value) {
+        if (isObserveLike(value) && isArrayLike(value) && value.attr('length')) {
+            return value;
+        } else if (can.isFunction(value)) {
+            return value();
+        } else {
+            return value;
+        }
+    };
+    can.view.Options = can.view.Scope.extend({
+        init: function (data, parent) {
+            if (!data.helpers && !data.partials && !data.tags) {
+                data = { helpers: data };
+            }
+            can.view.Scope.prototype.init.apply(this, arguments);
+        }
+    });
+    Mustache._helpers = {};
+    Mustache.registerHelper = function (name, fn) {
+        this._helpers[name] = {
+            name: name,
+            fn: fn
+        };
+    };
+    Mustache.getHelper = function (name, options) {
+        var helper;
+        if (options) {
+            helper = options.attr('helpers.' + name);
+        }
+        return helper ? { fn: helper } : this._helpers[name];
+    };
+    Mustache.render = function (partial, scope, options) {
+        if (!can.view.cached[partial]) {
+            var reads = can.__clearReading();
+            var scopePartialName = scope.attr(partial);
+            if (scopePartialName) {
+                partial = scopePartialName;
+            }
+            can.__setReading(reads);
+        }
+        return can.view.render(partial, scope, options);
+    };
+    Mustache.safeString = function (str) {
+        return {
+            toString: function () {
+                return str;
+            }
+        };
+    };
+    Mustache.renderPartial = function (partialName, scope, options) {
+        var partial = options.attr('partials.' + partialName);
+        if (partial) {
+            return partial.render ? partial.render(scope, options) : partial(scope, options);
+        } else {
+            return can.Mustache.render(partialName, scope, options);
+        }
+    };
+    can.each({
+        'if': function (expr, options) {
+            var value;
+            if (can.isFunction(expr)) {
+                value = can.compute.truthy(expr)();
+            } else {
+                value = !!Mustache.resolve(expr);
+            }
+            if (value) {
+                return options.fn(options.contexts || this);
+            } else {
+                return options.inverse(options.contexts || this);
+            }
+        },
+        'is': function () {
+            var lastValue, curValue, options = arguments[arguments.length - 1];
+            if (arguments.length - 2 <= 0) {
+                return options.inverse();
+            }
+            for (var i = 0; i < arguments.length - 1; i++) {
+                curValue = Mustache.resolve(arguments[i]);
+                curValue = can.isFunction(curValue) ? curValue() : curValue;
+                if (i > 0) {
+                    if (curValue !== lastValue) {
+                        return options.inverse();
+                    }
+                }
+                lastValue = curValue;
+            }
+            return options.fn();
+        },
+        'eq': function () {
+            return Mustache._helpers.is.fn.apply(this, arguments);
+        },
+        'unless': function (expr, options) {
+            return Mustache._helpers['if'].fn.apply(this, [
+                can.isFunction(expr) ? can.compute(function () {
+                    return !expr();
+                }) : !expr,
+                options
+            ]);
+        },
+        'each': function (expr, options) {
+            var resolved = Mustache.resolve(expr), result = [], keys, key, i;
+            if (can.view.lists && (resolved instanceof can.List || expr && expr.isComputed && resolved === undefined)) {
+                return can.view.lists(expr, function (item, index) {
+                    return options.fn(options.scope.add({ '@index': index }).add(item));
+                });
+            }
+            expr = resolved;
+            if (!!expr && isArrayLike(expr)) {
+                for (i = 0; i < expr.length; i++) {
+                    result.push(options.fn(options.scope.add({ '@index': i }).add(expr[i])));
+                }
+                return result.join('');
+            } else if (isObserveLike(expr)) {
+                keys = can.Map.keys(expr);
+                for (i = 0; i < keys.length; i++) {
+                    key = keys[i];
+                    result.push(options.fn(options.scope.add({ '@key': key }).add(expr[key])));
+                }
+                return result.join('');
+            } else if (expr instanceof Object) {
+                for (key in expr) {
+                    result.push(options.fn(options.scope.add({ '@key': key }).add(expr[key])));
+                }
+                return result.join('');
+            }
+        },
+        'with': function (expr, options) {
+            var ctx = expr;
+            expr = Mustache.resolve(expr);
+            if (!!expr) {
+                return options.fn(ctx);
+            }
+        },
+        'log': function (expr, options) {
+            if (typeof console !== 'undefined' && console.log) {
+                if (!options) {
+                    console.log(expr.context);
+                } else {
+                    console.log(expr, options.context);
+                }
+            }
+        },
+        '@index': function (offset, options) {
+            if (!options) {
+                options = offset;
+                offset = 0;
+            }
+            var index = options.scope.attr('@index');
+            return '' + ((can.isFunction(index) ? index() : index) + offset);
+        }
+    }, function (fn, name) {
+        Mustache.registerHelper(name, fn);
+    });
+    can.view.register({
+        suffix: 'mustache',
+        contentType: 'x-mustache-template',
+        script: function (id, src) {
+            return 'can.Mustache(function(' + ARG_NAMES + ') { ' + new Mustache({
+                text: src,
+                name: id
+            }).template.out + ' })';
+        },
+        renderer: function (id, text) {
+            return Mustache({
+                text: text,
+                name: id
+            });
+        }
+    });
+    can.mustache.registerHelper = can.proxy(can.Mustache.registerHelper, can.Mustache);
+    can.mustache.safeString = can.Mustache.safeString;
+    return can;
+});
 /*can/component/component*/
-define("can/component/component",["can/util/util","can/view/callbacks/callbacks","can/view/elements","can/view/bindings/bindings","can/control/control","can/observe/observe","can/view/mustache/mustache","can/util/view_model/view_model"],function(e,t,o,n){var i=/\{([^\}]+)\}/g,s=e.Component=e.Construct.extend({setup:function(){if(e.Construct.setup.apply(this,arguments),e.Component){var t=this,o=this.prototype.scope||this.prototype.viewModel;if(this.Control=r.extend(this.prototype.events),o&&("object"!=typeof o||o instanceof e.Map)?o.prototype instanceof e.Map&&(this.Map=o):this.Map=e.Map.extend(o||{}),this.attributeScopeMappings={},e.each(this.Map?this.Map.defaults:{},function(e,o){"@"===e&&(t.attributeScopeMappings[o]=o)}),this.prototype.template)if("function"==typeof this.prototype.template){var n=this.prototype.template;this.renderer=function(){return e.view.frag(n.apply(null,arguments))}}else this.renderer=e.view.mustache(this.prototype.template);e.view.tag(this.prototype.tag,function(e,o){new t(e,o)})}}},{setup:function(t,i){var s,r,p={},a=this,c=("undefined"==typeof this.leakScope?!1:!this.leakScope)&&!!this.template,l=[],u=function(){for(var e=0,t=l.length;t>e;e++)l[e]()},d=e.$(t),h=!e.data(d,"preventDataBindings");e.each(this.constructor.attributeScopeMappings,function(o,n){p[n]=t.getAttribute(e.hyphenate(o))}),h&&l.push(n.behaviors.viewModel(t,i,function(o){o["%root"]=i.scope.attr("%root");var n=a.scope||a.viewModel;if(a.constructor.Map)s=new a.constructor.Map(o);else if(n instanceof e.Map)s=n;else if(e.isFunction(n)){var r=n.call(a,o,i.scope,t);s=r instanceof e.Map?r:r.prototype instanceof e.Map?new r(o):new(e.Map.extend(r))(o)}var p=s.serialize;return s.serialize=function(){var e=p.apply(this,arguments);return delete e["%root"],e},s},p)),this.scope=this.viewModel=s,e.data(d,"scope",this.viewModel),e.data(d,"viewModel",this.viewModel),e.data(d,"preventDataBindings",!0);var v;v=c?e.view.Scope.refsScope().add(this.viewModel,{viewModel:!0}):(this.constructor.renderer?i.scope.add(new e.view.Scope.Refs):i.scope).add(this.viewModel,{viewModel:!0});var f={helpers:{}},m=function(e,t){f.helpers[e]=function(){return t.apply(s,arguments)}};e.each(this.helpers||{},function(t,o){e.isFunction(t)&&m(o,t)}),e.each(this.simpleHelpers||{},function(t,o){m(o,e.view.simpleHelper(t))}),this._control=new this.constructor.Control(t,{scope:this.viewModel,viewModel:this.viewModel,destroy:u});var w=e.view.nodeLists.register([],void 0,i.parentNodeList||!0,!1);w.expression="<"+this.tag+">",l.push(function(){e.view.nodeLists.unregister(w)}),this.constructor.renderer?(f.tags||(f.tags={}),f.tags.content=function g(t,n){var s=i.subtemplate||n.subtemplate,r=s===i.subtemplate;if(s){delete f.tags.content;var p;if(p=r?c?i:{scope:n.scope.cloneFromRef(),options:n.options}:n,n.parentNodeList){var a=s(p.scope,p.options,n.parentNodeList);o.replace([t],a)}else e.view.live.replace([t],s(p.scope,p.options));f.tags.content=g}},r=this.constructor.renderer(v,i.options.add(f),w)):r="legacy"===i.templateType?e.view.frag(i.subtemplate?i.subtemplate(v,i.options.add(f)):""):i.subtemplate?i.subtemplate(v,i.options.add(f),w):document.createDocumentFragment(),e.appendChild(t,r,e.document),e.view.nodeLists.update(w,e.childNodes(t))}}),r=e.Control.extend({_lookup:function(e){return[e.scope,e,window]},_action:function(t,o,n){var s,r;if(i.lastIndex=0,s=i.test(t),n||!s){if(s){r=e.compute(function(){var n,s=t.replace(i,function(t,i){var s;return"scope"===i||"viewModel"===i?(n=o.viewModel,""):(i=i.replace(/^(scope|^viewModel)\./,""),s=e.compute.read(o.viewModel,e.compute.read.reads(i),{readCompute:!1}).value,void 0===s&&(s=e.getObject(i)),"string"==typeof s?s:(n=s,""))}),r=s.split(/\s+/g),p=r.pop();return{processor:this.processors[p]||this.processors.click,parts:[s,r.join(" "),p],delegate:n||void 0}},this);var p=function(e,o){n._bindings.control[t](n.element),n._bindings.control[t]=o.processor(o.delegate||n.element,o.parts[2],o.parts[1],t,n)};return r.bind("change",p),n._bindings.readyComputes[t]={compute:r,handler:p},r()}return e.Control._action.apply(this,arguments)}}},{setup:function(t,o){return this.scope=o.scope,this.viewModel=o.viewModel,e.Control.prototype.setup.call(this,t,o)},off:function(){this._bindings&&e.each(this._bindings.readyComputes||{},function(e){e.compute.unbind("change",e.handler)}),e.Control.prototype.off.apply(this,arguments),this._bindings.readyComputes={}},destroy:function(){e.Control.prototype.destroy.apply(this,arguments),"function"==typeof this.options.destroy&&this.options.destroy.apply(this,arguments)}}),p=e.$;return p.fn&&(p.fn.scope=p.fn.viewModel=function(){return e.viewModel.apply(e,[this].concat(e.makeArray(arguments)))}),s});
+define('can/component/component', [
+    'can/util/util',
+    'can/view/callbacks/callbacks',
+    'can/view/elements',
+    'can/control/control',
+    'can/observe/observe',
+    'can/view/mustache/mustache',
+    'can/view/bindings/bindings'
+], function (can, viewCallbacks, elements) {
+    var ignoreAttributesRegExp = /^(dataViewId|class|id)$/i, paramReplacer = /\{([^\}]+)\}/g;
+    var Component = can.Component = can.Construct.extend({
+            setup: function () {
+                can.Construct.setup.apply(this, arguments);
+                if (can.Component) {
+                    var self = this, scope = this.prototype.scope || this.prototype.viewModel;
+                    this.Control = ComponentControl.extend(this.prototype.events);
+                    if (!scope || typeof scope === 'object' && !(scope instanceof can.Map)) {
+                        this.Map = can.Map.extend(scope || {});
+                    } else if (scope.prototype instanceof can.Map) {
+                        this.Map = scope;
+                    }
+                    this.attributeScopeMappings = {};
+                    can.each(this.Map ? this.Map.defaults : {}, function (val, prop) {
+                        if (val === '@') {
+                            self.attributeScopeMappings[prop] = prop;
+                        }
+                    });
+                    if (this.prototype.template) {
+                        if (typeof this.prototype.template === 'function') {
+                            var temp = this.prototype.template;
+                            this.renderer = function () {
+                                return can.view.frag(temp.apply(null, arguments));
+                            };
+                        } else {
+                            this.renderer = can.view.mustache(this.prototype.template);
+                        }
+                    }
+                    can.view.tag(this.prototype.tag, function (el, options) {
+                        new self(el, options);
+                    });
+                }
+            }
+        }, {
+            setup: function (el, hookupOptions) {
+                var initialScopeData = {}, component = this, lexicalContent = (typeof this.leakScope === 'undefined' ? false : !this.leakScope) && this.template, twoWayBindings = {}, scope = this.scope || this.viewModel, viewModelPropertyUpdates = {}, componentScope, frag, teardownFunctions = [], callTeardownFunctions = function () {
+                        for (var i = 0, len = teardownFunctions.length; i < len; i++) {
+                            teardownFunctions[i]();
+                        }
+                    };
+                can.each(this.constructor.attributeScopeMappings, function (val, prop) {
+                    initialScopeData[prop] = el.getAttribute(can.hyphenate(val));
+                });
+                can.each(can.makeArray(el.attributes), function (node, index) {
+                    var name = can.camelize(node.nodeName.toLowerCase()), value = node.value;
+                    if (component.constructor.attributeScopeMappings[name] || ignoreAttributesRegExp.test(name) || viewCallbacks.attr(node.nodeName)) {
+                        return;
+                    }
+                    if (value[0] === '{' && value[value.length - 1] === '}') {
+                        value = value.substr(1, value.length - 2);
+                    } else {
+                        if (hookupOptions.templateType !== 'legacy') {
+                            initialScopeData[name] = value;
+                            return;
+                        }
+                    }
+                    var computeData = hookupOptions.scope.computeData(value, { args: [] }), compute = computeData.compute;
+                    var handler = function (ev, newVal) {
+                        viewModelPropertyUpdates[name] = (viewModelPropertyUpdates[name] || 0) + 1;
+                        componentScope.attr(name, newVal);
+                        can.batch.afterPreviousEvents(function () {
+                            --viewModelPropertyUpdates[name];
+                        });
+                    };
+                    compute.bind('change', handler);
+                    initialScopeData[name] = compute();
+                    if (!compute.computeInstance.hasDependencies) {
+                        compute.unbind('change', handler);
+                    } else {
+                        teardownFunctions.push(function () {
+                            compute.unbind('change', handler);
+                        });
+                        twoWayBindings[name] = computeData;
+                    }
+                });
+                if (this.constructor.Map) {
+                    componentScope = new this.constructor.Map(initialScopeData);
+                } else if (scope instanceof can.Map) {
+                    componentScope = scope;
+                } else if (can.isFunction(scope)) {
+                    var scopeResult = scope.call(this, initialScopeData, hookupOptions.scope, el);
+                    if (scopeResult instanceof can.Map) {
+                        componentScope = scopeResult;
+                    } else if (scopeResult.prototype instanceof can.Map) {
+                        componentScope = new scopeResult(initialScopeData);
+                    } else {
+                        componentScope = new (can.Map.extend(scopeResult))(initialScopeData);
+                    }
+                }
+                var handlers = {};
+                can.each(twoWayBindings, function (computeData, prop) {
+                    handlers[prop] = function (ev, newVal) {
+                        if (!viewModelPropertyUpdates[prop]) {
+                            computeData.compute(newVal);
+                        }
+                    };
+                    componentScope.bind(prop, handlers[prop]);
+                });
+                if (!can.isEmptyObject(this.constructor.attributeScopeMappings) || hookupOptions.templateType !== 'legacy') {
+                    can.bind.call(el, 'attributes', function (ev) {
+                        var camelized = can.camelize(ev.attributeName);
+                        if (!twoWayBindings[camelized] && !ignoreAttributesRegExp.test(camelized)) {
+                            componentScope.attr(camelized, el.getAttribute(ev.attributeName));
+                        }
+                    });
+                }
+                this.scope = this.viewModel = componentScope;
+                can.data(can.$(el), 'scope', this.scope);
+                can.data(can.$(el), 'viewModel', this.scope);
+                var renderedScope = lexicalContent ? this.scope : hookupOptions.scope.add(this.scope), options = { helpers: {} };
+                can.each(this.helpers || {}, function (val, prop) {
+                    if (can.isFunction(val)) {
+                        options.helpers[prop] = function () {
+                            return val.apply(componentScope, arguments);
+                        };
+                    }
+                });
+                teardownFunctions.push(function () {
+                    can.each(handlers, function (handler, prop) {
+                        componentScope.unbind(prop, handlers[prop]);
+                    });
+                });
+                this._control = new this.constructor.Control(el, {
+                    scope: this.scope,
+                    viewModel: this.scope
+                });
+                if (this._control && this._control.destroy) {
+                    var oldDestroy = this._control.destroy;
+                    this._control.destroy = function () {
+                        oldDestroy.apply(this, arguments);
+                        callTeardownFunctions();
+                    };
+                    this._control.on();
+                } else {
+                    can.bind.call(el, 'removed', function () {
+                        callTeardownFunctions();
+                    });
+                }
+                var nodeList = can.view.nodeLists.register([], undefined, true);
+                teardownFunctions.push(function () {
+                    can.view.nodeLists.unregister(nodeList);
+                });
+                if (this.constructor.renderer) {
+                    if (!options.tags) {
+                        options.tags = {};
+                    }
+                    options.tags.content = function contentHookup(el, rendererOptions) {
+                        var subtemplate = hookupOptions.subtemplate || rendererOptions.subtemplate;
+                        if (subtemplate) {
+                            delete options.tags.content;
+                            var opts = !lexicalContent || subtemplate !== hookupOptions.subtemplate ? rendererOptions : hookupOptions;
+                            if (rendererOptions.parentNodeList) {
+                                var frag = subtemplate(opts.scope, opts.options, rendererOptions.parentNodeList);
+                                elements.replace([el], frag);
+                            } else {
+                                can.view.live.replace([el], subtemplate(opts.scope, opts.options));
+                            }
+                            options.tags.content = contentHookup;
+                        }
+                    };
+                    frag = this.constructor.renderer(renderedScope, hookupOptions.options.add(options), nodeList);
+                } else {
+                    if (hookupOptions.templateType === 'legacy') {
+                        frag = can.view.frag(hookupOptions.subtemplate ? hookupOptions.subtemplate(renderedScope, hookupOptions.options.add(options)) : '');
+                    } else {
+                        frag = hookupOptions.subtemplate ? hookupOptions.subtemplate(renderedScope, hookupOptions.options.add(options), nodeList) : document.createDocumentFragment();
+                    }
+                }
+                can.appendChild(el, frag);
+                can.view.nodeLists.update(nodeList, el.childNodes);
+            }
+        });
+    var ComponentControl = can.Control.extend({
+            _lookup: function (options) {
+                return [
+                    options.scope,
+                    options,
+                    window
+                ];
+            },
+            _action: function (methodName, options, controlInstance) {
+                var hasObjectLookup, readyCompute;
+                paramReplacer.lastIndex = 0;
+                hasObjectLookup = paramReplacer.test(methodName);
+                if (!controlInstance && hasObjectLookup) {
+                    return;
+                } else if (!hasObjectLookup) {
+                    return can.Control._action.apply(this, arguments);
+                } else {
+                    readyCompute = can.compute(function () {
+                        var delegate;
+                        var name = methodName.replace(paramReplacer, function (matched, key) {
+                                var value;
+                                if (key === 'scope' || key === 'viewModel') {
+                                    delegate = options.scope;
+                                    return '';
+                                }
+                                key = key.replace(/^(scope|^viewModel)\./, '');
+                                value = can.compute.read(options.scope, key.split('.'), { isArgument: true }).value;
+                                if (value === undefined) {
+                                    value = can.getObject(key);
+                                }
+                                if (typeof value === 'string') {
+                                    return value;
+                                } else {
+                                    delegate = value;
+                                    return '';
+                                }
+                            });
+                        var parts = name.split(/\s+/g), event = parts.pop();
+                        return {
+                            processor: this.processors[event] || this.processors.click,
+                            parts: [
+                                name,
+                                parts.join(' '),
+                                event
+                            ],
+                            delegate: delegate || undefined
+                        };
+                    }, this);
+                    var handler = function (ev, ready) {
+                        controlInstance._bindings.control[methodName](controlInstance.element);
+                        controlInstance._bindings.control[methodName] = ready.processor(ready.delegate || controlInstance.element, ready.parts[2], ready.parts[1], methodName, controlInstance);
+                    };
+                    readyCompute.bind('change', handler);
+                    controlInstance._bindings.readyComputes[methodName] = {
+                        compute: readyCompute,
+                        handler: handler
+                    };
+                    return readyCompute();
+                }
+            }
+        }, {
+            setup: function (el, options) {
+                this.scope = options.scope;
+                this.viewModel = options.viewModel;
+                return can.Control.prototype.setup.call(this, el, options);
+            },
+            off: function () {
+                if (this._bindings) {
+                    can.each(this._bindings.readyComputes || {}, function (value) {
+                        value.compute.unbind('change', value.handler);
+                    });
+                }
+                can.Control.prototype.off.apply(this, arguments);
+                this._bindings.readyComputes = {};
+            }
+        });
+    var $ = can.$;
+    if ($.fn) {
+        $.fn.scope = $.fn.viewModel = function () {
+            return can.viewModel.apply(can, [this].concat(can.makeArray(arguments)));
+        };
+    }
+    return Component;
+});
 /*can/model/model*/
-define("can/model/model",["can/util/util","can/map/map","can/list/list"],function(t){var e=function(e,r,i){var n=new t.Deferred;return e.then(function(){var e=t.makeArray(arguments),s=!0;try{e[0]=i.apply(r,e)}catch(o){s=!1,n.rejectWith(n,[o].concat(e))}s&&n.resolveWith(n,e)},function(){n.rejectWith(this,arguments)}),"function"==typeof e.abort&&(n.abort=function(){return e.abort()}),n},r=0,i=function(e){return t.__observe(e,e.constructor.id),e.___get(e.constructor.id)},n=function(e,r,i,n,s,o){var a={};if("string"==typeof e){var u=e.split(/\s+/);a.url=u.pop(),u.length&&(a.type=u.pop())}else t.extend(a,e);return a.data="object"!=typeof r||t.isArray(r)?r:t.extend(a.data||{},r),a.url=t.sub(a.url,a.data,!0),t.ajax(t.extend({type:i||"post",dataType:n||"json",success:s,error:o},a))},s=function(r,n,s,o,a){var u;t.isArray(r)?(u=r[1],r=r[0]):u=r.serialize(),u=[u];var c,l,d=r.constructor;return("update"===n||"destroy"===n)&&u.unshift(i(r)),l=d[n].apply(d,u),c=e(l,r,function(t){return r[a||n+"d"](t,l),r}),l.abort&&(c.abort=function(){l.abort()}),c.then(s,o),c},o={models:function(e,r,i){if(t.Model._reqs++,e){if(e instanceof this.List)return e;var n=this,s=[],o=n.List||f,a=r instanceof t.List?r:new o,u=e instanceof f,c=u?e.serialize():e;if(c=n.parseModels(c,i),c.data&&(e=c,c=c.data),"undefined"==typeof c||!t.isArray(c))throw new Error("Could not get any raw data while converting using .models");return a.length&&a.splice(0),t.each(c,function(t){s.push(n.model(t,i))}),a.push.apply(a,s),t.isArray(e)||t.each(e,function(t,e){"data"!==e&&a.attr(e,t)}),setTimeout(t.proxy(this._clean,this),1),a}},model:function(e,r,i){if(e){e="function"==typeof e.serialize?e.serialize():this.parseModel(e,i);var n=e[this.id];(n||0===n)&&this.store[n]&&(r=this.store[n]);var s=r&&t.isFunction(r.attr)?r.attr(e,this.removeAttr||!1):new this(e);return s}}},a={parseModel:function(e){return function(r){return e?t.getObject(e,r):r}},parseModels:function(e){return function(r){if(t.isArray(r))return r;e=e||"data";var i=t.getObject(e,r);if(!t.isArray(i))throw new Error("Could not get any raw data while converting using .models");return i}}},u={create:{url:"_shortName",type:"post"},update:{data:function(e,r){r=r||{};var i=this.id;return r[i]&&r[i]!==e&&(r["new"+t.capitalize(e)]=r[i],delete r[i]),r[i]=e,r},type:"put"},destroy:{type:"delete",data:function(t,e){return e=e||{},e.id=e[this.id]=t,e}},findAll:{url:"_shortName"},findOne:{}},c=function(t,e){return function(r){return r=t.data?t.data.apply(this,arguments):r,n(e||this[t.url||"_url"],r,t.type||"get")}},l=function(t,e){if(t.resource){var r=t.resource.replace(/\/+$/,"");return"findAll"===e||"create"===e?r:r+"/{"+t.id+"}"}};t.Model=t.Map.extend({fullName:"can.Model",_reqs:0,setup:function(e,i,n,s){if("string"!=typeof i&&(s=n,n=i),s||(s=n),this.store={},t.Map.setup.apply(this,arguments),t.Model){n&&n.List?(this.List=n.List,this.List.Map=this):this.List=e.List.extend({Map:this},{});var d=this,p=t.proxy(this._clean,d);t.each(u,function(r,i){if(n&&n[i]&&("string"==typeof n[i]||"object"==typeof n[i])?d[i]=c(r,n[i]):n&&n.resource&&!t.isFunction(n[i])&&(d[i]=c(r,l(d,i))),d["make"+t.capitalize(i)]){var s=d["make"+t.capitalize(i)](d[i]);t.Construct._overwrite(d,e,i,function(){t.Model._reqs++;var e=s.apply(this,arguments),r=e.then(p,p);return r.abort=e.abort,r})}});var h={};t.each(o,function(r,i){var s="parse"+t.capitalize(i),o=n&&n[i]||d[i];"string"==typeof o?(d[s]=o,t.Construct._overwrite(d,e,i,r)):n&&n[i]&&(h[s]=!0)}),t.each(a,function(r,i){var s=n&&n[i]||d[i];if("string"==typeof s)t.Construct._overwrite(d,e,i,r(s));else if(!(n&&t.isFunction(n[i])||d[i])){var o=r();o.useModelConverter=h[i],t.Construct._overwrite(d,e,i,o)}}),"can.Model"!==d.fullName&&d.fullName||(d.fullName="Model"+ ++r),t.Model._reqs=0,this._url=this._shortName+"/{"+this.id+"}"}},_ajax:c,_makeRequest:s,_clean:function(){if(t.Model._reqs--,!t.Model._reqs)for(var e in this.store)this.store[e]._bindings||delete this.store[e];return arguments[0]},models:o.models,model:o.model},{setup:function(e){var r=e&&e[this.constructor.id];t.Model._reqs&&null!=r&&(this.constructor.store[r]=this),t.Map.prototype.setup.apply(this,arguments)},isNew:function(){var t=i(this);return!(t||0===t)},save:function(t,e){return s(this,this.isNew()?"create":"update",t,e)},destroy:function(e,r){if(this.isNew()){var i=this,n=t.Deferred();return n.then(e,r),n.done(function(t){i.destroyed(t)}).resolve(i)}return s(this,"destroy",e,r,"destroyed")},_bindsetup:function(){var e=this.___get(this.constructor.id);return null!=e&&(this.constructor.store[e]=this),t.Map.prototype._bindsetup.apply(this,arguments)},_bindteardown:function(){return delete this.constructor.store[i(this)],t.Map.prototype._bindteardown.apply(this,arguments)},___set:function(e,r){t.Map.prototype.___set.call(this,e,r),e===this.constructor.id&&this._bindings&&(this.constructor.store[i(this)]=this)}});var d=function(t){return function(e,r,i){return this[t](e,null,i)}},p=function(t){return this.parseModel.useModelConverter?this.model(t):this.parseModel(t)},h={makeFindAll:d("models"),makeFindOne:d("model"),makeCreate:p,makeUpdate:p,makeDestroy:p};t.each(h,function(r,i){t.Model[i]=function(i){return function(){var n=t.makeArray(arguments),s=t.isFunction(n[1])?n.splice(0,1):n.splice(0,2),o=e(i.apply(this,s),this,r);return o.then(n[0],n[1]),o}}}),t.each(["created","updated","destroyed"],function(e){t.Model.prototype[e]=function(r){var i=this,n=i.constructor;r&&"object"==typeof r&&this.attr(t.isFunction(r.attr)?r.attr():r),t.dispatch.call(this,{type:e,target:this},[]),t.dispatch.call(n,e,[this])}});var f=t.Model.List=t.List.extend({_bubbleRule:function(e,r){var i=t.List._bubbleRule(e,r);return i.push("destroyed"),i}},{setup:function(e){t.isPlainObject(e)&&!t.isArray(e)?(t.List.prototype.setup.apply(this),this.replace(t.isPromise(e)?e:this.constructor.Map.findAll(e))):t.List.prototype.setup.apply(this,arguments),this.bind("destroyed",t.proxy(this._destroyed,this))},_destroyed:function(t,e){if(/\w+/.test(e))for(var r;(r=this.indexOf(t.target))>-1;)this.splice(r,1)}});return t.Model});
+define('can/model/model', [
+    'can/util/util',
+    'can/map/map',
+    'can/list/list'
+], function (can) {
+    var pipe = function (def, thisArg, func) {
+            var d = new can.Deferred();
+            def.then(function () {
+                var args = can.makeArray(arguments), success = true;
+                try {
+                    args[0] = func.apply(thisArg, args);
+                } catch (e) {
+                    success = false;
+                    d.rejectWith(d, [e].concat(args));
+                }
+                if (success) {
+                    d.resolveWith(d, args);
+                }
+            }, function () {
+                d.rejectWith(this, arguments);
+            });
+            if (typeof def.abort === 'function') {
+                d.abort = function () {
+                    return def.abort();
+                };
+            }
+            return d;
+        }, modelNum = 0, getId = function (inst) {
+            can.__observe(inst, inst.constructor.id);
+            return inst.__get(inst.constructor.id);
+        }, ajax = function (ajaxOb, data, type, dataType, success, error) {
+            var params = {};
+            if (typeof ajaxOb === 'string') {
+                var parts = ajaxOb.split(/\s+/);
+                params.url = parts.pop();
+                if (parts.length) {
+                    params.type = parts.pop();
+                }
+            } else {
+                can.extend(params, ajaxOb);
+            }
+            params.data = typeof data === 'object' && !can.isArray(data) ? can.extend(params.data || {}, data) : data;
+            params.url = can.sub(params.url, params.data, true);
+            return can.ajax(can.extend({
+                type: type || 'post',
+                dataType: dataType || 'json',
+                success: success,
+                error: error
+            }, params));
+        }, makeRequest = function (modelObj, type, success, error, method) {
+            var args;
+            if (can.isArray(modelObj)) {
+                args = modelObj[1];
+                modelObj = modelObj[0];
+            } else {
+                args = modelObj.serialize();
+            }
+            args = [args];
+            var deferred, model = modelObj.constructor, jqXHR;
+            if (type === 'update' || type === 'destroy') {
+                args.unshift(getId(modelObj));
+            }
+            jqXHR = model[type].apply(model, args);
+            deferred = pipe(jqXHR, modelObj, function (data) {
+                modelObj[method || type + 'd'](data, jqXHR);
+                return modelObj;
+            });
+            if (jqXHR.abort) {
+                deferred.abort = function () {
+                    jqXHR.abort();
+                };
+            }
+            deferred.then(success, error);
+            return deferred;
+        }, converters = {
+            models: function (instancesRawData, oldList, xhr) {
+                can.Model._reqs++;
+                if (!instancesRawData) {
+                    return;
+                }
+                if (instancesRawData instanceof this.List) {
+                    return instancesRawData;
+                }
+                var self = this, tmp = [], ListClass = self.List || ML, modelList = oldList instanceof can.List ? oldList : new ListClass(), rawDataIsList = instancesRawData instanceof ML, raw = rawDataIsList ? instancesRawData.serialize() : instancesRawData;
+                raw = self.parseModels(raw, xhr);
+                if (raw.data) {
+                    instancesRawData = raw;
+                    raw = raw.data;
+                }
+                if (typeof raw === 'undefined' || !can.isArray(raw)) {
+                    throw new Error('Could not get any raw data while converting using .models');
+                }
+                if (modelList.length) {
+                    modelList.splice(0);
+                }
+                can.each(raw, function (rawPart) {
+                    tmp.push(self.model(rawPart, xhr));
+                });
+                modelList.push.apply(modelList, tmp);
+                if (!can.isArray(instancesRawData)) {
+                    can.each(instancesRawData, function (val, prop) {
+                        if (prop !== 'data') {
+                            modelList.attr(prop, val);
+                        }
+                    });
+                }
+                setTimeout(can.proxy(this._clean, this), 1);
+                return modelList;
+            },
+            model: function (attributes, oldModel, xhr) {
+                if (!attributes) {
+                    return;
+                }
+                if (typeof attributes.serialize === 'function') {
+                    attributes = attributes.serialize();
+                } else {
+                    attributes = this.parseModel(attributes, xhr);
+                }
+                var id = attributes[this.id];
+                if ((id || id === 0) && this.store[id]) {
+                    oldModel = this.store[id];
+                }
+                var model = oldModel && can.isFunction(oldModel.attr) ? oldModel.attr(attributes, this.removeAttr || false) : new this(attributes);
+                return model;
+            }
+        }, makeParser = {
+            parseModel: function (prop) {
+                return function (attributes) {
+                    return prop ? can.getObject(prop, attributes) : attributes;
+                };
+            },
+            parseModels: function (prop) {
+                return function (attributes) {
+                    if (can.isArray(attributes)) {
+                        return attributes;
+                    }
+                    prop = prop || 'data';
+                    var result = can.getObject(prop, attributes);
+                    if (!can.isArray(result)) {
+                        throw new Error('Could not get any raw data while converting using .models');
+                    }
+                    return result;
+                };
+            }
+        }, ajaxMethods = {
+            create: {
+                url: '_shortName',
+                type: 'post'
+            },
+            update: {
+                data: function (id, attrs) {
+                    attrs = attrs || {};
+                    var identity = this.id;
+                    if (attrs[identity] && attrs[identity] !== id) {
+                        attrs['new' + can.capitalize(id)] = attrs[identity];
+                        delete attrs[identity];
+                    }
+                    attrs[identity] = id;
+                    return attrs;
+                },
+                type: 'put'
+            },
+            destroy: {
+                type: 'delete',
+                data: function (id, attrs) {
+                    attrs = attrs || {};
+                    attrs.id = attrs[this.id] = id;
+                    return attrs;
+                }
+            },
+            findAll: { url: '_shortName' },
+            findOne: {}
+        }, ajaxMaker = function (ajaxMethod, str) {
+            return function (data) {
+                data = ajaxMethod.data ? ajaxMethod.data.apply(this, arguments) : data;
+                return ajax(str || this[ajaxMethod.url || '_url'], data, ajaxMethod.type || 'get');
+            };
+        }, createURLFromResource = function (model, name) {
+            if (!model.resource) {
+                return;
+            }
+            var resource = model.resource.replace(/\/+$/, '');
+            if (name === 'findAll' || name === 'create') {
+                return resource;
+            } else {
+                return resource + '/{' + model.id + '}';
+            }
+        };
+    can.Model = can.Map.extend({
+        fullName: 'can.Model',
+        _reqs: 0,
+        setup: function (base, fullName, staticProps, protoProps) {
+            if (typeof fullName !== 'string') {
+                protoProps = staticProps;
+                staticProps = fullName;
+            }
+            if (!protoProps) {
+                protoProps = staticProps;
+            }
+            this.store = {};
+            can.Map.setup.apply(this, arguments);
+            if (!can.Model) {
+                return;
+            }
+            if (staticProps && staticProps.List) {
+                this.List = staticProps.List;
+                this.List.Map = this;
+            } else {
+                this.List = base.List.extend({ Map: this }, {});
+            }
+            var self = this, clean = can.proxy(this._clean, self);
+            can.each(ajaxMethods, function (method, name) {
+                if (staticProps && staticProps[name] && (typeof staticProps[name] === 'string' || typeof staticProps[name] === 'object')) {
+                    self[name] = ajaxMaker(method, staticProps[name]);
+                } else if (staticProps && staticProps.resource && !can.isFunction(staticProps[name])) {
+                    self[name] = ajaxMaker(method, createURLFromResource(self, name));
+                }
+                if (self['make' + can.capitalize(name)]) {
+                    var newMethod = self['make' + can.capitalize(name)](self[name]);
+                    can.Construct._overwrite(self, base, name, function () {
+                        can.Model._reqs++;
+                        var def = newMethod.apply(this, arguments);
+                        var then = def.then(clean, clean);
+                        then.abort = def.abort;
+                        return then;
+                    });
+                }
+            });
+            var hasCustomConverter = {};
+            can.each(converters, function (converter, name) {
+                var parseName = 'parse' + can.capitalize(name), dataProperty = staticProps && staticProps[name] || self[name];
+                if (typeof dataProperty === 'string') {
+                    self[parseName] = dataProperty;
+                    can.Construct._overwrite(self, base, name, converter);
+                } else if (staticProps && staticProps[name]) {
+                    hasCustomConverter[parseName] = true;
+                }
+            });
+            can.each(makeParser, function (maker, parseName) {
+                var prop = staticProps && staticProps[parseName] || self[parseName];
+                if (typeof prop === 'string') {
+                    can.Construct._overwrite(self, base, parseName, maker(prop));
+                } else if ((!staticProps || !can.isFunction(staticProps[parseName])) && !self[parseName]) {
+                    var madeParser = maker();
+                    madeParser.useModelConverter = hasCustomConverter[parseName];
+                    can.Construct._overwrite(self, base, parseName, madeParser);
+                }
+            });
+            if (self.fullName === 'can.Model' || !self.fullName) {
+                self.fullName = 'Model' + ++modelNum;
+            }
+            can.Model._reqs = 0;
+            this._url = this._shortName + '/{' + this.id + '}';
+        },
+        _ajax: ajaxMaker,
+        _makeRequest: makeRequest,
+        _clean: function () {
+            can.Model._reqs--;
+            if (!can.Model._reqs) {
+                for (var id in this.store) {
+                    if (!this.store[id]._bindings) {
+                        delete this.store[id];
+                    }
+                }
+            }
+            return arguments[0];
+        },
+        models: converters.models,
+        model: converters.model
+    }, {
+        setup: function (attrs) {
+            var id = attrs && attrs[this.constructor.id];
+            if (can.Model._reqs && id != null) {
+                this.constructor.store[id] = this;
+            }
+            can.Map.prototype.setup.apply(this, arguments);
+        },
+        isNew: function () {
+            var id = getId(this);
+            return !(id || id === 0);
+        },
+        save: function (success, error) {
+            return makeRequest(this, this.isNew() ? 'create' : 'update', success, error);
+        },
+        destroy: function (success, error) {
+            if (this.isNew()) {
+                var self = this;
+                var def = can.Deferred();
+                def.then(success, error);
+                return def.done(function (data) {
+                    self.destroyed(data);
+                }).resolve(self);
+            }
+            return makeRequest(this, 'destroy', success, error, 'destroyed');
+        },
+        _bindsetup: function () {
+            var modelInstance = this.__get(this.constructor.id);
+            if (modelInstance != null) {
+                this.constructor.store[modelInstance] = this;
+            }
+            return can.Map.prototype._bindsetup.apply(this, arguments);
+        },
+        _bindteardown: function () {
+            delete this.constructor.store[getId(this)];
+            return can.Map.prototype._bindteardown.apply(this, arguments);
+        },
+        ___set: function (prop, val) {
+            can.Map.prototype.___set.call(this, prop, val);
+            if (prop === this.constructor.id && this._bindings) {
+                this.constructor.store[getId(this)] = this;
+            }
+        }
+    });
+    var makeGetterHandler = function (name) {
+            return function (data, readyState, xhr) {
+                return this[name](data, null, xhr);
+            };
+        }, createUpdateDestroyHandler = function (data) {
+            if (this.parseModel.useModelConverter) {
+                return this.model(data);
+            }
+            return this.parseModel(data);
+        };
+    var responseHandlers = {
+            makeFindAll: makeGetterHandler('models'),
+            makeFindOne: makeGetterHandler('model'),
+            makeCreate: createUpdateDestroyHandler,
+            makeUpdate: createUpdateDestroyHandler,
+            makeDestroy: createUpdateDestroyHandler
+        };
+    can.each(responseHandlers, function (method, name) {
+        can.Model[name] = function (oldMethod) {
+            return function () {
+                var args = can.makeArray(arguments), oldArgs = can.isFunction(args[1]) ? args.splice(0, 1) : args.splice(0, 2), def = pipe(oldMethod.apply(this, oldArgs), this, method);
+                def.then(args[0], args[1]);
+                return def;
+            };
+        };
+    });
+    can.each([
+        'created',
+        'updated',
+        'destroyed'
+    ], function (funcName) {
+        can.Model.prototype[funcName] = function (attrs) {
+            var self = this, constructor = self.constructor;
+            if (attrs && typeof attrs === 'object') {
+                this.attr(can.isFunction(attrs.attr) ? attrs.attr() : attrs);
+            }
+            can.dispatch.call(this, {
+                type: 'change',
+                target: this
+            }, [funcName]);
+            can.dispatch.call(constructor, funcName, [this]);
+        };
+    });
+    var ML = can.Model.List = can.List.extend({
+            _bubbleRule: function (eventName, list) {
+                var bubbleRules = can.List._bubbleRule(eventName, list);
+                bubbleRules.push('destroyed');
+                return bubbleRules;
+            }
+        }, {
+            setup: function (params) {
+                if (can.isPlainObject(params) && !can.isArray(params)) {
+                    can.List.prototype.setup.apply(this);
+                    this.replace(can.isDeferred(params) ? params : this.constructor.Map.findAll(params));
+                } else {
+                    can.List.prototype.setup.apply(this, arguments);
+                }
+                this._init = 1;
+                this.bind('destroyed', can.proxy(this._destroyed, this));
+                delete this._init;
+            },
+            _destroyed: function (ev, attr) {
+                if (/\w+/.test(attr)) {
+                    var index;
+                    while ((index = this.indexOf(ev.target)) > -1) {
+                        this.splice(index, 1);
+                    }
+                }
+            }
+        });
+    return can.Model;
+});
 /*can/util/string/deparam/deparam*/
-define("can/util/string/deparam/deparam",["can/util/util","can/util/string/string"],function(t){var n=/^\d+$/,e=/([^\[\]]+)|(\[\])/g,r=/([^?#]*)(#.*)?$/,i=function(t){return decodeURIComponent(t.replace(/\+/g," "))};return t.extend(t,{deparam:function(a){var u,c,o={};return a&&r.test(a)&&(u=a.split("&"),t.each(u,function(t){var r=t.split("="),a=i(r.shift()),u=i(r.join("=")),p=o;if(a){r=a.match(e);for(var s=0,d=r.length-1;d>s;s++)p[r[s]]||(p[r[s]]=n.test(r[s+1])||"[]"===r[s+1]?[]:{}),p=p[r[s]];c=r.pop(),"[]"===c?p.push(u):p[c]=u}})),o}}),t});
+define('can/util/string/deparam/deparam', [
+    'can/util/util',
+    'can/util/string/string'
+], function (can) {
+    var digitTest = /^\d+$/, keyBreaker = /([^\[\]]+)|(\[\])/g, paramTest = /([^?#]*)(#.*)?$/, prep = function (str) {
+            return decodeURIComponent(str.replace(/\+/g, ' '));
+        };
+    can.extend(can, {
+        deparam: function (params) {
+            var data = {}, pairs, lastPart;
+            if (params && paramTest.test(params)) {
+                pairs = params.split('&');
+                can.each(pairs, function (pair) {
+                    var parts = pair.split('='), key = prep(parts.shift()), value = prep(parts.join('=')), current = data;
+                    if (key) {
+                        parts = key.match(keyBreaker);
+                        for (var j = 0, l = parts.length - 1; j < l; j++) {
+                            if (!current[parts[j]]) {
+                                current[parts[j]] = digitTest.test(parts[j + 1]) || parts[j + 1] === '[]' ? [] : {};
+                            }
+                            current = current[parts[j]];
+                        }
+                        lastPart = parts.pop();
+                        if (lastPart === '[]') {
+                            current.push(value);
+                        } else {
+                            current[lastPart] = value;
+                        }
+                    }
+                });
+            }
+            return data;
+        }
+    });
+    return can;
+});
 /*can/route/route*/
-define("can/route/route",["can/util/util","can/map/map","can/list/list","can/util/string/deparam/deparam"],function(t){var e,r,n,a,u=/\:([\w\.]+)/g,o=/^(?:&[^=]+=[^&]*)+/,i=function(e){var r=[];return t.each(e,function(e,n){r.push(("className"===n?"class":n)+'="'+("href"===n?e:t.esc(e))+'"')}),r.join(" ")},c=function(t,e){var r=0,n=0,a={};for(var u in t.defaults)t.defaults[u]===e[u]&&(a[u]=1,r++);for(;n<t.names.length;n++){if(!e.hasOwnProperty(t.names[n]))return-1;a[t.names[n]]||r++}return r},l=window.location,s=function(t){return(t+"").replace(/([.?*+\^$\[\]\\(){}|\-])/g,"\\$1")},d=t.each,f=t.extend,h=function(t){return t.toString.toString()!==Object.prototype.toString.toString()},p=function(e){return e&&"object"==typeof e&&!h(e)?(e=e instanceof t.Map?e:t.isFunction(e.slice)?e.slice():t.extend({},e),t.each(e,function(t,r){e[r]=p(t)})):void 0!==e&&null!==e&&t.isFunction(e.toString)&&(e=e.toString()),e},g=function(t){return t.replace(/\\/g,"")},m=[],_=function(r,u,o,i){a=1,m.push(u),clearTimeout(e),e=setTimeout(function(){a=0;var e=t.route.data.serialize(),r=t.route.param(e,!0);t.route._call("setURL",r,m),t.batch.trigger(b,"__url",[r,n]),n=r,m=[]},10)},b=t.extend({},t.event),v=function(t){var e=t.attr;return t.attr=function(t,r){var n,a=void 0===this.define||void 0===this.define[t]||!!this.define[t].serialize;return n=a?p(Array.apply(null,arguments)):arguments,e.apply(this,n)},t};t.route=function(e,r){var n=t.route._call("root");n.lastIndexOf("/")===n.length-1&&0===e.indexOf("/")&&(e=e.substr(1)),r=r||{};for(var a,o,i=[],c="",l=u.lastIndex=0,d=t.route._call("querySeparator"),f=t.route._call("matchSlashes");a=u.exec(e);)i.push(a[1]),c+=g(e.substring(l,u.lastIndex-a[0].length)),o="\\"+(g(e.substr(u.lastIndex,1))||d+(f?"":"|/")),c+="([^"+o+"]"+(r[a[1]]?"*":"+")+")",l=u.lastIndex;return c+=e.substr(l).replace("\\",""),t.route.routes[e]={test:new RegExp("^"+c+"($|"+s(d)+")"),route:e,names:i,defaults:r,length:e.split("/").length},t.route},f(t.route,{param:function(e,r){var n,a,o=0,i=e.route,l=0;if(delete e.route,d(e,function(){l++}),d(t.route.routes,function(t,r){return a=c(t,e),a>o&&(n=t,o=a),a>=l?!1:void 0}),t.route.routes[i]&&c(t.route.routes[i],e)===o&&(n=t.route.routes[i]),n){var s,h=f({},e),p=n.route.replace(u,function(t,r){return delete h[r],e[r]===n.defaults[r]?"":encodeURIComponent(e[r])}).replace("\\","");return d(n.defaults,function(t,e){h[e]===t&&delete h[e]}),s=t.param(h),r&&t.route.attr("route",n.route),p+(s?t.route._call("querySeparator")+s:"")}return t.isEmptyObject(e)?"":t.route._call("querySeparator")+t.param(e)},deparam:function(e){var r=t.route._call("root");r.lastIndexOf("/")===r.length-1&&0===e.indexOf("/")&&(e=e.substr(1));var n={length:-1},a=t.route._call("querySeparator"),u=t.route._call("paramsMatcher");if(d(t.route.routes,function(t,r){t.test.test(e)&&t.length>n.length&&(n=t)}),n.length>-1){var o=e.match(n.test),i=o.shift(),c=e.substr(i.length-(o[o.length-1]===a?1:0)),l=c&&u.test(c)?t.deparam(c.slice(1)):{};return l=f(!0,{},n.defaults,l),d(o,function(t,e){t&&t!==a&&(l[n.names[e]]=decodeURIComponent(t))}),l.route=n.route,l}return e.charAt(0)!==a&&(e=a+e),u.test(e)?t.deparam(e.slice(1)):{}},data:v(new t.Map({})),map:function(e){var r;r=e.prototype instanceof t.Map?new e:e,t.route.data=v(r)},routes:{},ready:function(e){return e!==!0&&(t.route._setup(),(t.isBrowserWindow||t.isWebWorker)&&t.route.setState()),t.route},url:function(e,r){return r&&(t.__observe(b,"__url"),e=t.extend({},t.route.deparam(t.route._call("matchingPartOfURL")),e)),t.route._call("root")+t.route.param(e)},link:function(e,r,n,a){return"<a "+i(f({href:t.route.url(r,a)},n))+">"+e+"</a>"},current:function(e){return t.__observe(b,"__url"),this._call("matchingPartOfURL")===t.route.param(e)},bindings:{hashchange:{paramsMatcher:o,querySeparator:"&",matchSlashes:!1,bind:function(){t.bind.call(window,"hashchange",y)},unbind:function(){t.unbind.call(window,"hashchange",y)},matchingPartOfURL:function(){var e=t.route.location||l;return e.href.split(/#!?/)[1]||""},setURL:function(t){return l.hash!=="#"+t&&(l.hash="!"+t),t},root:"#!"}},defaultBinding:"hashchange",currentBinding:null,_setup:function(){t.route.currentBinding||(t.route._call("bind"),t.route.bind("change",_),t.route.currentBinding=t.route.defaultBinding)},_teardown:function(){t.route.currentBinding&&(t.route._call("unbind"),t.route.unbind("change",_),t.route.currentBinding=null),clearTimeout(e),a=0},_call:function(){var e=t.makeArray(arguments),r=e.shift(),n=t.route.bindings[t.route.currentBinding||t.route.defaultBinding],a=n[r];return a.apply?a.apply(n,e):a}}),d(["bind","unbind","on","off","delegate","undelegate","removeAttr","compute","_get","___get","each"],function(e){t.route[e]=function(){return t.route.data[e]?t.route.data[e].apply(t.route.data,arguments):void 0}}),t.route.attr=function(){return t.route.data.attr.apply(t.route.data,arguments)},t.route.batch=t.batch;var y=t.route.setState=function(){var e=t.route._call("matchingPartOfURL"),u=r;r=t.route.deparam(e),a&&e===n||(t.route.batch.start(),S(u,r,t.route.data),t.route.attr(r),t.route.batch.trigger(b,"__url",[e,n]),t.route.batch.stop())},S=function(t,e,r){for(var n in t)void 0===e[n]?r.removeAttr(n):"[object Object]"===Object.prototype.toString.call(t[n])&&S(t[n],e[n],r.attr(n))};return t.route});
+define('can/route/route', [
+    'can/util/util',
+    'can/map/map',
+    'can/list/list',
+    'can/util/string/deparam/deparam'
+], function (can) {
+    var matcher = /\:([\w\.]+)/g, paramsMatcher = /^(?:&[^=]+=[^&]*)+/, makeProps = function (props) {
+            var tags = [];
+            can.each(props, function (val, name) {
+                tags.push((name === 'className' ? 'class' : name) + '="' + (name === 'href' ? val : can.esc(val)) + '"');
+            });
+            return tags.join(' ');
+        }, matchesData = function (route, data) {
+            var count = 0, i = 0, defaults = {};
+            for (var name in route.defaults) {
+                if (route.defaults[name] === data[name]) {
+                    defaults[name] = 1;
+                    count++;
+                }
+            }
+            for (; i < route.names.length; i++) {
+                if (!data.hasOwnProperty(route.names[i])) {
+                    return -1;
+                }
+                if (!defaults[route.names[i]]) {
+                    count++;
+                }
+            }
+            return count;
+        }, location = window.location, wrapQuote = function (str) {
+            return (str + '').replace(/([.?*+\^$\[\]\\(){}|\-])/g, '\\$1');
+        }, each = can.each, extend = can.extend, stringify = function (obj) {
+            if (obj && typeof obj === 'object') {
+                if (obj instanceof can.Map) {
+                    obj = obj.attr();
+                } else {
+                    obj = can.isFunction(obj.slice) ? obj.slice() : can.extend({}, obj);
+                }
+                can.each(obj, function (val, prop) {
+                    obj[prop] = stringify(val);
+                });
+            } else if (obj !== undefined && obj !== null && can.isFunction(obj.toString)) {
+                obj = obj.toString();
+            }
+            return obj;
+        }, removeBackslash = function (str) {
+            return str.replace(/\\/g, '');
+        }, timer, curParams, lastHash, changingData, changedAttrs = [], onRouteDataChange = function (ev, attr, how, newval) {
+            changingData = 1;
+            changedAttrs.push(attr);
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                changingData = 0;
+                var serialized = can.route.data.serialize(), path = can.route.param(serialized, true);
+                can.route._call('setURL', path, changedAttrs);
+                can.batch.trigger(eventsObject, '__url', [
+                    path,
+                    lastHash
+                ]);
+                lastHash = path;
+                changedAttrs = [];
+            }, 10);
+        }, eventsObject = can.extend({}, can.event);
+    can.route = function (url, defaults) {
+        var root = can.route._call('root');
+        if (root.lastIndexOf('/') === root.length - 1 && url.indexOf('/') === 0) {
+            url = url.substr(1);
+        }
+        defaults = defaults || {};
+        var names = [], res, test = '', lastIndex = matcher.lastIndex = 0, next, querySeparator = can.route._call('querySeparator'), matchSlashes = can.route._call('matchSlashes');
+        while (res = matcher.exec(url)) {
+            names.push(res[1]);
+            test += removeBackslash(url.substring(lastIndex, matcher.lastIndex - res[0].length));
+            next = '\\' + (removeBackslash(url.substr(matcher.lastIndex, 1)) || querySeparator + (matchSlashes ? '' : '|/'));
+            test += '([^' + next + ']' + (defaults[res[1]] ? '*' : '+') + ')';
+            lastIndex = matcher.lastIndex;
+        }
+        test += url.substr(lastIndex).replace('\\', '');
+        can.route.routes[url] = {
+            test: new RegExp('^' + test + '($|' + wrapQuote(querySeparator) + ')'),
+            route: url,
+            names: names,
+            defaults: defaults,
+            length: url.split('/').length
+        };
+        return can.route;
+    };
+    extend(can.route, {
+        param: function (data, _setRoute) {
+            var route, matches = 0, matchCount, routeName = data.route, propCount = 0;
+            delete data.route;
+            each(data, function () {
+                propCount++;
+            });
+            each(can.route.routes, function (temp, name) {
+                matchCount = matchesData(temp, data);
+                if (matchCount > matches) {
+                    route = temp;
+                    matches = matchCount;
+                }
+                if (matchCount >= propCount) {
+                    return false;
+                }
+            });
+            if (can.route.routes[routeName] && matchesData(can.route.routes[routeName], data) === matches) {
+                route = can.route.routes[routeName];
+            }
+            if (route) {
+                var cpy = extend({}, data), res = route.route.replace(matcher, function (whole, name) {
+                        delete cpy[name];
+                        return data[name] === route.defaults[name] ? '' : encodeURIComponent(data[name]);
+                    }).replace('\\', ''), after;
+                each(route.defaults, function (val, name) {
+                    if (cpy[name] === val) {
+                        delete cpy[name];
+                    }
+                });
+                after = can.param(cpy);
+                if (_setRoute) {
+                    can.route.attr('route', route.route);
+                }
+                return res + (after ? can.route._call('querySeparator') + after : '');
+            }
+            return can.isEmptyObject(data) ? '' : can.route._call('querySeparator') + can.param(data);
+        },
+        deparam: function (url) {
+            var root = can.route._call('root');
+            if (root.lastIndexOf('/') === root.length - 1 && url.indexOf('/') === 0) {
+                url = url.substr(1);
+            }
+            var route = { length: -1 }, querySeparator = can.route._call('querySeparator'), paramsMatcher = can.route._call('paramsMatcher');
+            each(can.route.routes, function (temp, name) {
+                if (temp.test.test(url) && temp.length > route.length) {
+                    route = temp;
+                }
+            });
+            if (route.length > -1) {
+                var parts = url.match(route.test), start = parts.shift(), remainder = url.substr(start.length - (parts[parts.length - 1] === querySeparator ? 1 : 0)), obj = remainder && paramsMatcher.test(remainder) ? can.deparam(remainder.slice(1)) : {};
+                obj = extend(true, {}, route.defaults, obj);
+                each(parts, function (part, i) {
+                    if (part && part !== querySeparator) {
+                        obj[route.names[i]] = decodeURIComponent(part);
+                    }
+                });
+                obj.route = route.route;
+                return obj;
+            }
+            if (url.charAt(0) !== querySeparator) {
+                url = querySeparator + url;
+            }
+            return paramsMatcher.test(url) ? can.deparam(url.slice(1)) : {};
+        },
+        data: new can.Map({}),
+        map: function (data) {
+            var appState;
+            if (data.prototype instanceof can.Map) {
+                appState = new data();
+            } else {
+                appState = data;
+            }
+            can.route.data = appState;
+        },
+        routes: {},
+        ready: function (val) {
+            if (val !== true) {
+                can.route._setup();
+                can.route.setState();
+            }
+            return can.route;
+        },
+        url: function (options, merge) {
+            if (merge) {
+                options = can.extend({}, can.route.deparam(can.route._call('matchingPartOfURL')), options);
+            }
+            return can.route._call('root') + can.route.param(options);
+        },
+        link: function (name, options, props, merge) {
+            return '<a ' + makeProps(extend({ href: can.route.url(options, merge) }, props)) + '>' + name + '</a>';
+        },
+        current: function (options) {
+            can.__observe(eventsObject, '__url');
+            return this._call('matchingPartOfURL') === can.route.param(options);
+        },
+        bindings: {
+            hashchange: {
+                paramsMatcher: paramsMatcher,
+                querySeparator: '&',
+                matchSlashes: false,
+                bind: function () {
+                    can.bind.call(window, 'hashchange', setState);
+                },
+                unbind: function () {
+                    can.unbind.call(window, 'hashchange', setState);
+                },
+                matchingPartOfURL: function () {
+                    return location.href.split(/#!?/)[1] || '';
+                },
+                setURL: function (path) {
+                    if (location.hash !== '#' + path) {
+                        location.hash = '!' + path;
+                    }
+                    return path;
+                },
+                root: '#!'
+            }
+        },
+        defaultBinding: 'hashchange',
+        currentBinding: null,
+        _setup: function () {
+            if (!can.route.currentBinding) {
+                can.route._call('bind');
+                can.route.bind('change', onRouteDataChange);
+                can.route.currentBinding = can.route.defaultBinding;
+            }
+        },
+        _teardown: function () {
+            if (can.route.currentBinding) {
+                can.route._call('unbind');
+                can.route.unbind('change', onRouteDataChange);
+                can.route.currentBinding = null;
+            }
+            clearTimeout(timer);
+            changingData = 0;
+        },
+        _call: function () {
+            var args = can.makeArray(arguments), prop = args.shift(), binding = can.route.bindings[can.route.currentBinding || can.route.defaultBinding], method = binding[prop];
+            if (method.apply) {
+                return method.apply(binding, args);
+            } else {
+                return method;
+            }
+        }
+    });
+    each([
+        'bind',
+        'unbind',
+        'on',
+        'off',
+        'delegate',
+        'undelegate',
+        'removeAttr',
+        'compute',
+        '_get',
+        '__get',
+        'each'
+    ], function (name) {
+        can.route[name] = function () {
+            if (!can.route.data[name]) {
+                return;
+            }
+            return can.route.data[name].apply(can.route.data, arguments);
+        };
+    });
+    can.route.attr = function (attr, val) {
+        var type = typeof attr, newArguments;
+        if (val === undefined) {
+            newArguments = arguments;
+        } else if (type !== 'string' && type !== 'number') {
+            newArguments = [
+                stringify(attr),
+                val
+            ];
+        } else {
+            newArguments = [
+                attr,
+                stringify(val)
+            ];
+        }
+        return can.route.data.attr.apply(can.route.data, newArguments);
+    };
+    var setState = can.route.setState = function () {
+            var hash = can.route._call('matchingPartOfURL');
+            var oldParams = curParams;
+            curParams = can.route.deparam(hash);
+            if (!changingData || hash !== lastHash) {
+                can.batch.start();
+                recursiveClean(oldParams, curParams, can.route.data);
+                can.route.attr(curParams);
+                can.batch.trigger(eventsObject, '__url', [
+                    hash,
+                    lastHash
+                ]);
+                can.batch.stop();
+            }
+        };
+    var recursiveClean = function (old, cur, data) {
+        for (var attr in old) {
+            if (cur[attr] === undefined) {
+                data.removeAttr(attr);
+            } else if (Object.prototype.toString.call(old[attr]) === '[object Object]') {
+                recursiveClean(old[attr], cur[attr], data.attr(attr));
+            }
+        }
+    };
+    return can.route;
+});
 /*can/control/route/route*/
-define("can/control/route/route",["can/util/util","can/route/route","can/control/control"],function(t){return t.Control.processors.route=function(o,r,u,n,e){u=u||"",t.route.routes[u]||("/"===u[0]&&(u=u.substring(1)),t.route(u));var c,i=function(o,r,i){if(t.route.attr("route")===u&&(void 0===o.batchNum||o.batchNum!==c)){c=o.batchNum;var a=t.route.attr();delete a.route,t.isFunction(e[n])?e[n](a):e[e[n]](a)}};return t.route.bind("change",i),function(){t.route.unbind("change",i)}},t});
+define('can/control/route/route', [
+    'can/util/util',
+    'can/route/route',
+    'can/control/control'
+], function (can) {
+    can.Control.processors.route = function (el, event, selector, funcName, controller) {
+        selector = selector || '';
+        if (!can.route.routes[selector]) {
+            if (selector[0] === '/') {
+                selector = selector.substring(1);
+            }
+            can.route(selector);
+        }
+        var batchNum, check = function (ev, attr, how) {
+                if (can.route.attr('route') === selector && (ev.batchNum === undefined || ev.batchNum !== batchNum)) {
+                    batchNum = ev.batchNum;
+                    var d = can.route.attr();
+                    delete d.route;
+                    if (can.isFunction(controller[funcName])) {
+                        controller[funcName](d);
+                    } else {
+                        controller[controller[funcName]](d);
+                    }
+                }
+            };
+        can.route.bind('change', check);
+        return function () {
+            can.route.unbind('change', check);
+        };
+    };
+    return can;
+});
 /*can/view/ejs/ejs*/
-define("can/view/ejs/ejs",["can/util/util","can/view/view","can/util/string/string","can/compute/compute","can/view/scanner","can/view/render"],function(t){var e=t.extend,n=function(t){if(this.constructor!==n){var r=new n(t);return function(t,e){return r.render(t,e)}}return"function"==typeof t?void(this.template={fn:t}):(e(this,t),void(this.template=this.scanner.scan(this.text,this.name)))};return t.EJS=n,n.prototype.render=function(t,e){return t=t||{},this.template.fn.call(t,t,new n.Helpers(t,e||{}))},e(n.prototype,{scanner:new t.view.Scanner({text:{outStart:"with(_VIEW) { with (_CONTEXT) {",outEnd:"}}",argNames:"_CONTEXT,_VIEW",context:"this"},tokens:[["templateLeft","<%%"],["templateRight","%>"],["returnLeft","<%=="],["escapeLeft","<%="],["commentLeft","<%#"],["left","<%"],["right","%>"],["returnRight","%>"]],helpers:[{name:/\s*\(([\$\w]+)\)\s*->([^\n]*)/,fn:function(t){var e=/\s*\(([\$\w]+)\)\s*->([^\n]*)/,n=t.match(e);return"can.proxy(function(__){var "+n[1]+"=can.$(__);"+n[2]+"}, this);"}}],transform:function(t){return t.replace(/<%([\s\S]+?)%>/gm,function(t,e){var n,r,i=[];e.replace(/[{}]/gm,function(t,e){i.push([t,e])});do for(n=!1,r=i.length-2;r>=0;r--)if("{"===i[r][0]&&"}"===i[r+1][0]){i.splice(r,2),n=!0;break}while(n);if(i.length>=2){var s,a=["<%"],c=0;for(r=0;s=i[r];r++)a.push(e.substring(c,c=s[1])),"{"===s[0]&&r<i.length-1||"}"===s[0]&&r>0?a.push("{"===s[0]?"{ %><% ":" %><% }"):a.push(s[0]),++c;return a.push(e.substring(c),"%>"),a.join("")}return"<%"+e+"%>"})}})}),n.Helpers=function(t,n){this._data=t,this._extras=n,e(this,n)},n.Helpers.prototype={list:function(e,n){t.each(e,function(t,r){n(t,r,e)})},each:function(e,n){t.isArray(e)?this.list(e,n):t.view.lists(e,n)}},t.view.register({suffix:"ejs",script:function(t,e){return"can.EJS(function(_CONTEXT,_VIEW) { "+new n({text:e,name:t}).template.out+" })"},renderer:function(t,e){return n({text:e,name:t})}}),t.ejs.Helpers=n.Helpers,t});
+define('can/view/ejs/ejs', [
+    'can/util/util',
+    'can/view/view',
+    'can/util/string/string',
+    'can/compute/compute',
+    'can/view/scanner',
+    'can/view/render'
+], function (can) {
+    var extend = can.extend, EJS = function (options) {
+            if (this.constructor !== EJS) {
+                var ejs = new EJS(options);
+                return function (data, helpers) {
+                    return ejs.render(data, helpers);
+                };
+            }
+            if (typeof options === 'function') {
+                this.template = { fn: options };
+                return;
+            }
+            extend(this, options);
+            this.template = this.scanner.scan(this.text, this.name);
+        };
+    can.EJS = EJS;
+    EJS.prototype.render = function (object, extraHelpers) {
+        object = object || {};
+        return this.template.fn.call(object, object, new EJS.Helpers(object, extraHelpers || {}));
+    };
+    extend(EJS.prototype, {
+        scanner: new can.view.Scanner({
+            text: {
+                outStart: 'with(_VIEW) { with (_CONTEXT) {',
+                outEnd: '}}',
+                argNames: '_CONTEXT,_VIEW',
+                context: 'this'
+            },
+            tokens: [
+                [
+                    'templateLeft',
+                    '<%%'
+                ],
+                [
+                    'templateRight',
+                    '%>'
+                ],
+                [
+                    'returnLeft',
+                    '<%=='
+                ],
+                [
+                    'escapeLeft',
+                    '<%='
+                ],
+                [
+                    'commentLeft',
+                    '<%#'
+                ],
+                [
+                    'left',
+                    '<%'
+                ],
+                [
+                    'right',
+                    '%>'
+                ],
+                [
+                    'returnRight',
+                    '%>'
+                ]
+            ],
+            helpers: [{
+                    name: /\s*\(([\$\w]+)\)\s*->([^\n]*)/,
+                    fn: function (content) {
+                        var quickFunc = /\s*\(([\$\w]+)\)\s*->([^\n]*)/, parts = content.match(quickFunc);
+                        return 'can.proxy(function(__){var ' + parts[1] + '=can.$(__);' + parts[2] + '}, this);';
+                    }
+                }],
+            transform: function (source) {
+                return source.replace(/<%([\s\S]+?)%>/gm, function (whole, part) {
+                    var brackets = [], foundBracketPair, i;
+                    part.replace(/[{}]/gm, function (bracket, offset) {
+                        brackets.push([
+                            bracket,
+                            offset
+                        ]);
+                    });
+                    do {
+                        foundBracketPair = false;
+                        for (i = brackets.length - 2; i >= 0; i--) {
+                            if (brackets[i][0] === '{' && brackets[i + 1][0] === '}') {
+                                brackets.splice(i, 2);
+                                foundBracketPair = true;
+                                break;
+                            }
+                        }
+                    } while (foundBracketPair);
+                    if (brackets.length >= 2) {
+                        var result = ['<%'], bracket, last = 0;
+                        for (i = 0; bracket = brackets[i]; i++) {
+                            result.push(part.substring(last, last = bracket[1]));
+                            if (bracket[0] === '{' && i < brackets.length - 1 || bracket[0] === '}' && i > 0) {
+                                result.push(bracket[0] === '{' ? '{ %><% ' : ' %><% }');
+                            } else {
+                                result.push(bracket[0]);
+                            }
+                            ++last;
+                        }
+                        result.push(part.substring(last), '%>');
+                        return result.join('');
+                    } else {
+                        return '<%' + part + '%>';
+                    }
+                });
+            }
+        })
+    });
+    EJS.Helpers = function (data, extras) {
+        this._data = data;
+        this._extras = extras;
+        extend(this, extras);
+    };
+    EJS.Helpers.prototype = {
+        list: function (list, cb) {
+            can.each(list, function (item, i) {
+                cb(item, i, list);
+            });
+        },
+        each: function (list, cb) {
+            if (can.isArray(list)) {
+                this.list(list, cb);
+            } else {
+                can.view.lists(list, cb);
+            }
+        }
+    };
+    can.view.register({
+        suffix: 'ejs',
+        script: function (id, src) {
+            return 'can.EJS(function(_CONTEXT,_VIEW) { ' + new EJS({
+                text: src,
+                name: id
+            }).template.out + ' })';
+        },
+        renderer: function (id, text) {
+            return EJS({
+                text: text,
+                name: id
+            });
+        }
+    });
+    can.ejs.Helpers = EJS.Helpers;
+    return can;
+});
+/*can/view/ejs/system*/
+'format steal';
+define('can/view/ejs/system', ['can/view/ejs/ejs'], function (can) {
+    function translate(load) {
+        return 'define([\'can/view/ejs/ejs\'],function(can){' + 'return can.view.preloadStringRenderer(\'' + load.metadata.pluginArgument + '\',' + 'can.EJS(function(_CONTEXT,_VIEW) { ' + new can.EJS({
+            text: load.source,
+            name: load.name
+        }).template.out + ' })' + ')' + '})';
+    }
+    return { translate: translate };
+});
 /*[global-shim-end]*/
-!function(){window._define=window.define,window.define=window.define.orig}();
+(function (){
+	window._define = window.define;
+	window.define = window.define.orig;
+	window.System = window.System.orig;
+})();
