@@ -5,6 +5,7 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
+import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
@@ -97,6 +98,43 @@ public class UserProfile extends BaseResource {
 		dao.update(newUser);
 
 		return new JSONAnswer("User profile sucessfully updated.", true);
+
+	}
+
+	@Delete
+	public Representation delete(Representation entity) {
+
+		User user = getAuthUser();
+
+		if (user == null) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return error401("The request requires user authentication.");
+		}
+
+		Form form = new Form(entity);
+		String username = form.getFirstValue("username");
+		String password = form.getFirstValue("password");
+
+		// check if user is admin or it is his username
+		if (!user.getUsername().equals(username) && !user.isAdmin()) {
+			return error401("You are not allowed to delete this user profile.");
+		}
+
+		String md5Password = HashUtil.getMD5(password);
+		if (user.getPassword().equals(md5Password)) {
+
+			UserDao dao = new UserDao(getDatabase());
+			boolean deleted = dao.delete(user);
+			if (deleted) {
+				return new JSONAnswer("User profile sucessfully delete.", true);				
+			}else {
+				return error400("Error during deleting your user profile.");
+			}
+
+
+		} else {
+			return error401("Wrong password.");
+		}
 
 	}
 

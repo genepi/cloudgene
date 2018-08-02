@@ -102,6 +102,32 @@ public class JobDao extends JdbcDataAccessObject {
 		return true;
 	}
 
+	public boolean updateUser(User oldUser, User newUser) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("update job ");
+		sql.append("set user_id = ?, name = ? ");
+		sql.append("where  user_id = ?");
+		try {
+
+			Object[] params = new Object[3];
+			params[0] = newUser.getId();
+			params[1] = "";
+			params[2] = oldUser.getId();
+
+			update(sql.toString(), params);
+
+			log.error("move all jobs from '" + oldUser.getUsername() + "' to '" + newUser.getUsername()
+					+ "' successful.");
+
+		} catch (SQLException e) {
+			log.error("move all jobs from '" + oldUser.getUsername() + "' to '" + newUser.getUsername() + "' failed",
+					e);
+			return false;
+		}
+
+		return true;
+	}
+
 	public boolean delete(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("delete from job ");
