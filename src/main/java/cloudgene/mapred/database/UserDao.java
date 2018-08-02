@@ -13,9 +13,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.PublicUser;
 
-public class UserDao extends JdbcDataAccessObject {	
-	
+public class UserDao extends JdbcDataAccessObject {
+
 	private static final Log log = LogFactory.getLog(UserDao.class);
 
 	public UserDao(Database database) {
@@ -24,7 +25,8 @@ public class UserDao extends JdbcDataAccessObject {
 
 	public boolean insert(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token, last_login, locked_until, login_attempts) ");
+		sql.append(
+				"insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token, last_login, locked_until, login_attempts) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
@@ -39,7 +41,8 @@ public class UserDao extends JdbcDataAccessObject {
 			params[6] = false;
 			params[7] = null;
 			params[8] = user.getMail();
-			params[9] = String.join(User.ROLE_SEPARATOR, user.getRoles());;
+			params[9] = String.join(User.ROLE_SEPARATOR, user.getRoles());
+			;
 			params[10] = false;
 			params[11] = user.getActivationCode();
 			params[12] = user.isActive();
@@ -64,7 +67,8 @@ public class UserDao extends JdbcDataAccessObject {
 
 	public boolean update(User user) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ?, last_login = ?, locked_until = ?, login_attempts = ? ");
+		sql.append(
+				"update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ?, last_login = ?, locked_until = ?, login_attempts = ? ");
 		sql.append("where id = ?");
 
 		try {
@@ -116,8 +120,7 @@ public class UserDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = (User) queryForObject(sql.toString(), params,
-					new UserMapper());
+			result = (User) queryForObject(sql.toString(), params, new UserMapper());
 
 			log.debug("find user by username '" + user + "' successful.");
 
@@ -143,8 +146,7 @@ public class UserDao extends JdbcDataAccessObject {
 		User result = null;
 
 		try {
-			result = (User) queryForObject(sql.toString(), params,
-					new UserMapper());
+			result = (User) queryForObject(sql.toString(), params, new UserMapper());
 
 			log.debug("find user by mail '" + mail + "' successful.");
 
@@ -171,8 +173,7 @@ public class UserDao extends JdbcDataAccessObject {
 
 		try {
 
-			result = (User) queryForObject(sql.toString(), params,
-					new UserMapper());
+			result = (User) queryForObject(sql.toString(), params, new UserMapper());
 
 			log.debug("find user by id '" + id + "' successful.");
 
@@ -208,6 +209,17 @@ public class UserDao extends JdbcDataAccessObject {
 	}
 
 	public boolean delete(User user) {
+
+		// update all older jobs
+		User publicUser = PublicUser.getUser(database);
+
+		JobDao jobDao = new JobDao(database);
+		boolean result = jobDao.updateUser(user, publicUser);
+		if (!result) {
+			log.error("delete user failed");
+			return false;
+		}
+
 		StringBuilder sql = new StringBuilder();
 		sql.append("delete from user ");
 		sql.append("where id = ? ");
@@ -238,9 +250,9 @@ public class UserDao extends JdbcDataAccessObject {
 			user.setPassword(rs.getString("user.password"));
 			user.setFullName(rs.getString("user.full_name"));
 			user.setMail(rs.getString("user.mail"));
-			if (rs.getString("user.role") != null){
-				user.setRoles(rs.getString("user.role").split(User.ROLE_SEPARATOR));	
-			}else{
+			if (rs.getString("user.role") != null) {
+				user.setRoles(rs.getString("user.role").split(User.ROLE_SEPARATOR));
+			} else {
 				user.setRoles(new String[0]);
 			}
 			user.setActivationCode(rs.getString("user.activation_code"));
