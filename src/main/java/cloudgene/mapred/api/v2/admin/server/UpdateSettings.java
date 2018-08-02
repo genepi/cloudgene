@@ -11,6 +11,7 @@ import org.restlet.resource.Post;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.util.Settings;
 
 public class UpdateSettings extends BaseResource {
 
@@ -33,21 +34,34 @@ public class UpdateSettings extends BaseResource {
 
 		Form form = new Form(entity);
 		String name = form.getFirstValue("name");
+		String background = form.getFirstValue("background-color");
+		String foreground = form.getFirstValue("foreground-color");
+		String googleAnalytics = form.getFirstValue("google-analytics");
+
+		String usingMail = form.getFirstValue("mail");
 		String mailSmtp = form.getFirstValue("mail-smtp");
 		String mailPort = form.getFirstValue("mail-port");
 		String mailUser = form.getFirstValue("mail-user");
 		String mailPassword = form.getFirstValue("mail-password");
 		String mailName = form.getFirstValue("mail-name");
 
-		getSettings().setName(name);
+		Settings settings = getSettings();
+		settings.setName(name);
+		settings.getColors().put("background", background);
+		settings.getColors().put("foreground", foreground);
+		settings.setGoogleAnalytics(googleAnalytics);
 
-		Map<String, String> mail = new HashMap<String, String>();
-		mail.put("smtp", mailSmtp);
-		mail.put("port", mailPort);
-		mail.put("user", mailUser);
-		mail.put("password", mailPassword);
-		mail.put("name", mailName);
-		getSettings().setMail(mail);
+		if (usingMail != null && usingMail.equals("true")) {
+			Map<String, String> mail = new HashMap<String, String>();
+			mail.put("smtp", mailSmtp);
+			mail.put("port", mailPort);
+			mail.put("user", mailUser);
+			mail.put("password", mailPassword);
+			mail.put("name", mailName);
+			getSettings().setMail(mail);
+		} else {
+			getSettings().setMail(null);
+		}
 
 		getSettings().save();
 

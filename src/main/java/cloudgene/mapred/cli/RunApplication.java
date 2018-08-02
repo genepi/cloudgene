@@ -150,17 +150,12 @@ public class RunApplication extends BaseTool {
 		forceOption.setRequired(false);
 		options.addOption(forceOption);
 
-		// add general options: hadoop hostname
-		Option hostOption = new Option(null, "host", true, "Hadoop namenode hostname [default: localhost]");
-		hostOption.setRequired(false);
-		options.addOption(hostOption);
-
-		// add general options: hadoop hostname
+		// add general options: hadoop configuration
 		Option confOption = new Option(null, "conf", true, "Hadoop configuration folder");
 		confOption.setRequired(false);
 		options.addOption(confOption);
 
-		// add general options: hadoop hostname
+		// add general options: output folder
 		Option outputFolderOption = new Option(null, "output", true, "Output folder");
 		outputFolderOption.setRequired(false);
 		options.addOption(outputFolderOption);
@@ -203,19 +198,11 @@ public class RunApplication extends BaseTool {
 			String username = line.getOptionValue("user", null);
 			printText(0, spaces("[INFO]", 8) + "Use Haddop configuration folder " + conf
 					+ (username != null ? " with username " + username : ""));
-			HadoopCluster.setConfPath(conf, username);
-
-		} else if (line.hasOption("host")) {
-
-			String host = line.getOptionValue("host");
-			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
-			printText(0, spaces("[INFO]", 8) + "Use Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.setHostname(host, username);
+			HadoopCluster.setConfPath("Unknown", conf, username);
 
 		} else {
 			if (settings.getCluster() == null) {
-				printText(0, spaces("[INFO]", 8)
-						+ "No external Haddop cluster set. Be sure you execute Cloudgene on your namenode.");
+				printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
 			}
 		}
 
@@ -392,7 +379,8 @@ public class RunApplication extends BaseTool {
 		if (app.getWorkflow().getInputs().size() > 0) {
 			printText(2, "Input values: ");
 			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-				if (!input.getType().equals("agbcheckbox") && !input.isAdminOnly() && input.isVisible()) {
+				if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox")
+						&& !input.isAdminOnly() && input.isVisible()) {
 					printText(4, input.getId() + ": " + job.getContext().get(input.getId()));
 				}
 			}

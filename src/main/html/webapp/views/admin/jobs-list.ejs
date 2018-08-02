@@ -12,17 +12,12 @@
 <thead>
 	<tr>
 		<th style="width: 40px;"><small>Priority</small></th>
-		<th style="width: 80px;"></th>
 		<th>Job</th>
 		<th style="width: 100px;">Username</th>
 		<th style="width: 150px;">Time Running</th>
 		<th style="width: 180px;">Valid Until</th>
 		<th style="width: 80px;">Size</th>
-		<th style="width: 16px;"></th>
-		<th style="width: 16px;"></th>
-		<th style="width: 16px;"></th>
-		<th style="width: 16px;"></th>
-		<th style="width: 16px;"></th>
+		<th style="width: 100px;"></th>
 	</tr>
 </thead>
 <tbody>
@@ -33,49 +28,11 @@
 			<td style="width: 40px;text-align:center;">
 				<% if( job.attr('state') == '1' ){ %>
 					<small><%= job.attr('priority') %>
-							<span class="icon-arrow-up" style="cursor: pointer;"></span>
+							<span class="priority-btn icon-arrow-up" style="cursor: pointer;"></span>
 					</small>
 				<%  } %>
 			</td>
 
-			<td style="width: 80px;text-align:center;">
-
-				<% if( job.attr('state') == '-1' ){ %>
-					<span class="label label-inverse" style="width: 50px">Pending</span>
-				<% } %>
-
-				<% if( job.attr('state') == '1' ){ %>
-					<% if( job.attr('setupRunning')){ %>
-					<span class="label" style="width: 50px">Setup</span>
-					<% } else { %>
-					<span class="label" style="width: 70px">Waiting (<%= job.attr('positionInQueue') + 1 %>)</span>
-					<% } %>
-				<% } %>
-				<% if( job.attr('state') == '2' ){ %>
-					<span class="label label-info" style="width: 50px">Running</span>
-				<% } %>
-				<% if( job.attr('state') == '3' ){ %>
-					<span class="label label-info" style="width: 50px">Running</span>
-				<% } %>
-				<% if( job.attr('state') == '4' ){ %>
-					<span class="label label-success" style="width: 50px">Success</span>
-				<% } %>
-				<% if( job.attr('state') == '5' ){ %>
-					<span class="label label-important" style="width: 50px">Failed</span>
-				<% } %>
-				<% if( job.attr('state') == '6' ){ %>
-					<span class="label label-important" style="width: 50px">Canceled</span>
-				<% } %>
-				<% if( job.attr('state') == '7' ){ %>
-					<span class="label label-inverse" style="width: 50px">Retired</span>
-				<% } %>
-				<% if( job.attr('state') == '8' ){ %>
-					<span class="label label-success" style="width: 50px">Success</span>
-				<% } %>
-				<% if( job.attr('state') == '9' ){ %>
-					<span class="label label-important" style="width: 50px">Failed</span>
-				<% } %>
-			</td>
 
 			<td>
 				<a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('id') %></a><br>
@@ -105,40 +62,35 @@
 			</td>
 
 			<td>
-				<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-						<span class="icon-time" title="Reset download counter" style="cursor: pointer;"></span>
-				<% } %>
+
+				<div class="dropdown">
+					<%== can.view.render('views/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
+							<a class="reset-downloads-btn dropdown-item" style="cursor:pointer">Reset download counters</a>
+						<% } %>
+						<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
+							<a class="retire-btn dropdown-item" style="cursor:pointer">Send retire notification</a>
+						<% } %>
+						<% if( job.attr('state') == '8' || job.attr('state') == '9'){ %>
+							<a class="change-retire-date-btn dropdown-item" style="cursor:pointer">Increase retire date</a>
+						<% } %>
+						<a class="dropdown-item" href="/logs/<%= job.attr('id') %>" target="_blank">Logs</a>
+						<div class="dropdown-divider"></div>
+						<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
+								<a class="delete-btn dropdown-item" style="cursor:pointer">Cancel...</a>
+						<% } %>
+						<% if( job.attr('state') == '4' || job.attr('state') != '5' || job.attr('state') != '6'){ %>
+							<a class="archive-btn dropdown-item" style="cursor:pointer">Retire job now...</a>
+						<% }%>
+						<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
+							<a class="delete-btn dropdown-item" style="cursor:pointer">Delete...</a>
+						<% } %>
+					</div>
+				</div>
+
 			</td>
 
-			<td>
-				<% if( job.attr('state') != '8' && job.attr('state') != '9'){ %>
-					<span class="icon-fire" title="Send retire notification now" style="cursor: pointer;"></span>
-				<% } %>
-				<% if( job.attr('state') == '8' || job.attr('state') == '9'){ %>
-					<span class="icon-plus" title="Increase Valid Until date by one day" style="cursor: pointer;"></span>
-				<% } %>
-			</td>
-
-			<td>
-				<% if( job.attr('state') == '4' || job.attr('state') != '5' || job.attr('state') != '6'){ %>
-					<span class="icon-folder-close" title="Retire job now and delete workspace" style="cursor: pointer;"></span>
-				<% } %>
-			</td>
-
-			<td>
-				<a href="/logs/<%= job.attr('id') %>" target="_blank" title="Show log file">
-					<span class="icon-file" style="cursor: pointer;"></span>
-				</a>
-			</td>
-
-			<td>
-				<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
-					<span class="icon-remove" title="Cancel job" style="cursor: pointer;"></span>
-				<% } %>
-				<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
-					<span class="icon-trash" title="Delete job" style="cursor: pointer;"></span>
-				<% } %>
-			</td>
 
 		</tr>
 	<% }) %>

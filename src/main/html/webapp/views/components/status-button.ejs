@@ -1,0 +1,50 @@
+<% if( job.attr('state') == '-1' ){ %>
+  <button style="width: 100px;" class="btn btn-dark dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Pending
+  </button>
+<% } %>
+
+<% if( job.attr('state') == '1' ){ %>
+  <% if( job.attr('setupRunning')){ %>
+    <button style="width: 100px;" class="btn btn-secondary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+       <i class="fas fa-cog fa-spin"></i> Setup
+    </button>
+  <% } else { %>
+    <button style="width: 100px;" class="btn btn-secondary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+       Waiting
+       <% if(  job.attr('positionInQueue') != -1){ %>
+         (<%= job.attr('positionInQueue') + 1 %>)
+       <% } %>
+    </button>
+  <% } %>
+<% } %>
+<% if( job.attr('state') == '2' ){ %>
+  <button style="width: 100px;" class="btn btn-primary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+     <i class="fas fa-circle-notch fa-spin"></i> Running
+  </button>
+<% } %>
+<% if( job.attr('state') == '3' ){ %>
+  <button style="width: 100px;" class="btn btn-primary dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+     <i class="fas fa-circle-notch fa-spin"></i> Running
+  </button>
+<% } %>
+<% if( job.attr('state') == '4'  || job.attr('state') == '8'){ %>
+  <button style="width: 100px;" class="btn btn-success dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Success
+  </button>
+<% } %>
+<% if( job.attr('state') == '5' || job.attr('state') == '9' ){ %>
+  <button style="width: 100px;" class="btn btn-danger dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Failed
+  </button>
+<% } %>
+<% if( job.attr('state') == '6' ){ %>
+  <button style="width: 100px;" class="btn btn-danger dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Canceled
+  </button>
+<% } %>
+<% if( job.attr('state') == '7' ){ %>
+  <button style="width: 100px;" class="btn btn-dark dropdown-toggle" type="button" id="<%= buttonId %>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Retired
+  </button>
+<% } %>

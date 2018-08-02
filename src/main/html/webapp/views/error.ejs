@@ -1,4 +1,19 @@
-<div class="alert alert-error" id="success-message">
-    <b>Error <%= error.statusText %> </b> <%= error.responseText %>
+<br><br><br>
+<h2 class="text-danger text-center">
+  <%= error.statusText %>
+</h2>
+
+<h5 class="text-center">
     <br>
-</div>
+    <% if (error.statusText == 403 || error.statusText == 401){ %>
+      <i class="fas fa-lock"></i>
+    <% } %>
+    <% if (error.statusText == 404){ %>
+      <i class="fas fa-exclamation-triangle"></i>
+    <% } %>
+    <% if (error.statusText == 500){ %>
+      <i class="fas fa-exclamation-triangle"></i>
+    <% } %>&nbsp;
+    <%= error.responseText %>
+</h5>
+<br><br><br><br><br><br><br><br><br>

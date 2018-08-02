@@ -1,0 +1,36 @@
+<% if( job.attr('state') == '-1' ){ %>
+  <span class="badge badge-dark" style="width: 100px">Pending</span>
+<% } %>
+
+<% if( job.attr('state') == '1' ){ %>
+  <% if( job.attr('setupRunning')){ %>
+  < span class="badge badge-secondary" style="width: 100px">Setup</span>
+  <% } else { %>
+    <span class="badge badge-secondary" style="width: 100px">Waiting
+      <% if(  job.attr('positionInQueue') != -1){ %>
+        (<%= job.attr('positionInQueue') + 1 %>)
+      <% } %>
+    </span>
+  <% } %>
+<% } %>
+<% if( job.attr('state') == '2' ){ %>
+  <span class="badge badge-primary" style="width: 100px">Running</span>
+<% } %>
+<% if( job.attr('state') == '3' ){ %>
+  <span class="badge badge-primary" style="width: 100px">Running</span>
+<% } %>
+<% if( job.attr('state') == '4'  || job.attr('state') == '8'){ %>
+  <span class="badge badge-success" style="width: 100px">Success</span>
+<% } %>
+<% if( job.attr('state') == '5'  || job.attr('state') == '9'){ %>
+  <span class="badge badge-danger" style="width: 100px">Failed</span>
+<% } %>
+<% if( job.attr('state') == '6' ){ %>
+  <span class="badge badge-danger" style="width: 100px">Canceled</span>
+<% } %>
+<% if( job.attr('state') == '7' ){ %>
+  <span class="badge badge-dark" style="width: 100px">Retired</span>
+<% } %>
+<% if( job.attr('state') == '1' && job.attr('positionInQueue') != -1){ %>
+  <small> &nbsp; queue position <b><%= job.attr('positionInQueue') + 1 %></b> <%== job.attr('positionInQueue')+1 > 70 ? '<span class="icon-warning-sign"  style="color:#FFA500;" title="server under heavy load"></span>' : '' %></small>
+<% } %>

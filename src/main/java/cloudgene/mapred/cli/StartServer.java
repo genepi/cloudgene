@@ -18,10 +18,9 @@ public class StartServer extends BaseTool {
 
 	@Override
 	public void createParameters() {
-		addOptionalParameter("host", "Hadoop namenode hostname [default: localhost]", Tool.STRING);
 		addOptionalParameter("user", "Hadoop username [default: " + DEFAULT_HADOOP_USER + "]", Tool.STRING);
 		addOptionalParameter("port", "running webinterface on this port [default: 8082]", Tool.STRING);
-		addOptionalParameter("conf", "adoop configuration folder", Tool.STRING);
+		addOptionalParameter("conf", "Hadoop configuration folder", Tool.STRING);
 	}
 
 	@Override
@@ -37,22 +36,11 @@ public class StartServer extends BaseTool {
 			}
 			System.out.println(
 					"Use Haddop configuration folder " + conf + (username != null ? " with username " + username : ""));
-			HadoopCluster.setConfPath(conf, username);
-
-		} else if (getValue("host") != null) {
-
-			String host = getValue("host").toString();
-
-			String username = DEFAULT_HADOOP_USER;
-			if (getValue("user") != null) {
-				username = getValue("user").toString();
-			}
-			System.out.println("Use external Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.setHostname(host, username);
+			HadoopCluster.setConfPath("Unknown", conf, username);
 
 		} else {
 			if (settings.getCluster() == null) {
-				System.out.println("No external Haddop cluster set. Be sure cloudgene is running on your namenode");
+				System.out.println("No external Haddop cluster set.");
 			}
 		}
 

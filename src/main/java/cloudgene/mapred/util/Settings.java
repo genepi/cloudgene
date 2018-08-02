@@ -60,6 +60,8 @@ public class Settings {
 
 	private String name = "Cloudgene";
 
+	private Map<String, String> colors;
+
 	private String secretKey = "default-key-change-me";
 
 	private Map<String, String> mail;
@@ -116,6 +118,8 @@ public class Settings {
 
 	private Set<Technology> technologies = new HashSet<Technology>();
 
+	private String googleAnalytics = "";
+
 	protected Config config;
 
 	public Settings() {
@@ -141,15 +145,10 @@ public class Settings {
 		navigation.add(helpMenuItem);
 
 		database = new HashMap<String, String>();
-		database.put("driver", "h2");
-		database.put("database", "data/mapred");
-		database.put("user", "mapred");
-		database.put("password", "mapred");
+		initDefaultDatabase(database, "data/mapred");
 
-		// enable all technologies
-		for (Technology technology : Technology.values()) {
-			enable(technology);
-		}
+		colors = getDefaultColors();
+
 	}
 
 	public Settings(Config config) {
@@ -176,10 +175,7 @@ public class Settings {
 				}
 			} else {
 				database = new HashMap<String, String>();
-				database.put("driver", "h2");
-				database.put("database", config.getDatabase());
-				database.put("user", "mapred");
-				database.put("password", "mapred");
+				initDefaultDatabase(database, config.getDatabase());
 			}
 		}
 
@@ -200,10 +196,14 @@ public class Settings {
 		log.info("Write statistics: " + settings.writeStatistics);
 
 		if (settings.cluster != null) {
-			String host = settings.cluster.get("host");
-			String username = settings.cluster.get("username");
-			log.info("Use external Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.setHostname(host, username);
+			String conf = settings.cluster.get("conf");
+			String username = settings.cluster.get("user");
+			String name = settings.cluster.get("name");
+			if (conf != null) {
+				log.info("Use Haddop configuration folder '" + conf + "'"
+						+ (username != null ? " with username " + username : ""));
+				HadoopCluster.setConfPath(name, conf, username);
+			}
 		}
 
 		settings.config = config;
@@ -227,15 +227,26 @@ public class Settings {
 				}
 			} else {
 				database = new HashMap<String, String>();
-				database.put("driver", "h2");
-				database.put("database", config.getDatabase());
-				database.put("user", "mapred");
-				database.put("password", "mapred");
+				initDefaultDatabase(database, config.getDatabase());
 			}
 		}
 
 		return settings;
 
+	}
+
+	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
+		database.put("driver", "h2");
+		database.put("database", defaultSchema);
+		database.put("user", "mapred");
+		database.put("password", "mapred");
+	}
+
+	public static Map<String, String> getDefaultColors() {
+		Map<String, String> colors = new HashMap<String, String>();
+		colors.put("background", "#343a40");
+		colors.put("foreground", "navbar-dark");
+		return colors;
 	}
 
 	public void save() {
@@ -887,10 +898,12 @@ public class Settings {
 	}
 
 	public void enable(Technology technology) {
+		log.info("Enable technology " + technology);
 		technologies.add(technology);
 	}
 
 	public void disable(Technology technology) {
+		log.info("Disable technology " + technology);
 		technologies.remove(technology);
 	}
 
@@ -948,6 +961,22 @@ public class Settings {
 
 	public void setAutoRetireInterval(int autoRetireInterval) {
 		this.autoRetireInterval = autoRetireInterval;
+	}
+
+	public Map<String, String> getColors() {
+		return colors;
+	}
+
+	public void setColors(Map<String, String> colors) {
+		this.colors = colors;
+	}
+
+	public void setGoogleAnalytics(String googleAnalytics) {
+		this.googleAnalytics = googleAnalytics;
+	}
+
+	public String getGoogleAnalytics() {
+		return googleAnalytics;
 	}
 
 }

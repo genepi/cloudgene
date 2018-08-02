@@ -1,29 +1,25 @@
 <h2>Sign in</h2>
 <br>
 
-      <form class="form-horizontal" id="signin-form">
-        
-            <div class="control-group">
-    	<label for="loginUsername" class="control-label">Username:</label>
-    	<div class="controls">
-    	<input name="loginUsername" type="text" data-required="true">
-    	</div>
+<form class="form-horizontal" id="signin-form">
+
+  <div class="form-group">
+        <label for="loginUsername" class="control-label">Username:</label>
+            <input id="loginUsername" name="loginUsername" type="text" class="form-control col-sm-3" data-required="true">
     </div>
 
-            <div class="control-group">
-    	<label for="loginPassword" class="control-label">Password:</label>
-    	<div class="controls">        
-        <input name="loginPassword" type="password">
-            	<span class="help-block"></span>
-    	</div>
+    <div class="form-group">
+        <label for="loginPassword" class="control-label">Password:</label>
+            <input id="loginPassword" name="loginPassword" type="password" class="form-control col-sm-3">
+            <div class="invalid-feedback">
+      				This parameter is required.
+      			</div>
     </div>
-                <div class="control-group">
-                <div class="controls">        
-        <button class="btn  btn-primary" type="submit">Sign in</button>
-        
-        </div>
-        </div>
-      </form>
+
+    <div class="form-group">
+      <button class="btn  btn-primary" type="submit">Sign in</button>
+    </div>
+</form>
 
 <br>
 <p>New user? <a href="#!pages/register">Sign up for free</a></p>

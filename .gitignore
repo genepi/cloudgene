@@ -17,3 +17,4 @@
 /src/main/html/webapp/dist
 /src/main/html/webapp/node_modules
 /apps
+*.DS_Store

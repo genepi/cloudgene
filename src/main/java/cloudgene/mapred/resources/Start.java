@@ -7,9 +7,11 @@ import java.util.Map;
 
 import org.restlet.data.LocalReference;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.ext.freemarker.ContextTemplateLoader;
 import org.restlet.ext.freemarker.TemplateRepresentation;
+import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -29,8 +31,11 @@ public class Start extends BaseResource {
 		User user = getAuthUser(false);
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
+			//Redirect to index
+			  final Reference newRef = new Reference(
+	                    getRootRef().toString() + "/index.html");
+	            redirectSeeOther(newRef);
+	            return new EmptyRepresentation();
 		}
 
 		WebApp app = getWebApp();
@@ -46,12 +51,18 @@ public class Start extends BaseResource {
 
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put("appname", getSettings().getName());
+		data.put("background", getSettings().getColors().get("background"));
+		data.put("foreground", getSettings().getColors().get("foreground"));
 		data.put("admin", user.isAdmin());
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 		data.put("username", user.getUsername());
 		data.put("apps", apps);
 		data.put("navigation", getSettings().getNavigation());
-
+		String googleAnalytics = getSettings().getGoogleAnalytics();
+		if (googleAnalytics != null && !googleAnalytics.trim().isEmpty()) {
+			data.put("google_analytics", googleAnalytics);
+		}
+		
 		if (getSettings().isMaintenance()) {
 			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
 		}

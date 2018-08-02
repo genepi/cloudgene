@@ -84,7 +84,7 @@ See Cloudgene in action:
 
 ## Developing
 
-More about how to build Cloudgene from source can be found [here](https://github.com/genepi/cloudgene/blob/master/DEVLOPING.md).
+More about how to build Cloudgene from source can be found [here](https://github.com/genepi/cloudgene/blob/master/DEVELOPING.md).
 
 ## License
 
