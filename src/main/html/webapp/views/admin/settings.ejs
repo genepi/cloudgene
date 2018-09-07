@@ -4,14 +4,14 @@ This page enables to customize your Cloudgene installation and to connect it wit
 
 <hr>
 
-<form class="form-horizontal" id="settings-form">
+<form class="form-horizontal" id="settings-form" autocomplete="off">
 
 	<h4>General</h4>
 
 	<div class="control-group">
-		<label for="loginUsername" class="control-label">Service Name:</label>
+		<label for="name" class="control-label">Service Name:</label>
 		<div class="controls">
-			<input name="name" type="text" data-required="true" value="<%= settings.attr('name') %>">
+			<input id="name" name="name" type="text" data-required="true" value="<%= settings.attr('name') %>" autocomplete="off">
 		</div>
 	</div>
 
@@ -24,37 +24,37 @@ This page enables to customize your Cloudgene installation and to connect it wit
 	</p>
 
 	<div class="control-group">
-		<label for="loginUsername" class="control-label">Server:</label>
+		<label for="mail-smtp" class="control-label">Server:</label>
 		<div class="controls">
-			<input name="mail-smtp" type="text" data-required="true" value="<%= settings.attr('mail-smtp') %>">
+			<input id="mail-smtp" name="mail-smtp" type="text" data-required="true" value="<%= settings.attr('mail-smtp') %>" autocomplete="off">
 		</div>
 	</div>
 
 	<div class="control-group">
-		<label for="loginUsername" class="control-label">Port:</label>
+		<label for="mail-port" class="control-label">Port:</label>
 		<div class="controls">
-			<input name="mail-port" type="text" data-required="true" value="<%= settings.attr('mail-port') %>">
+			<input id="mail-port" name="mail-port" type="text" data-required="true" value="<%= settings.attr('mail-port') %>" autocomplete="off">
 		</div>
 	</div>
 
 	<div class="control-group">
-		<label for="loginUsername" class="control-label">User:</label>
+		<label for="mail-user" class="control-label">User:</label>
 		<div class="controls">
-			<input name="mail-user" type="text" data-required="true" value="<%= settings.attr('mail-user') %>">
+			<input id="mail-user" name="mail-user" type="text" data-required="true" value="<%= settings.attr('mail-user') %>" autocomplete="off">
 		</div>
 	</div>
 
 	<div class="control-group">
-		<label for="loginUsername" class="control-label">Password:</label>
+		<label for="mail-password" class="control-label">Password:</label>
 		<div class="controls">
-			<input name="mail-password" type="password" data-required="true" value="<%= settings.attr('mail-password') %>">
+			<input id="mail-password" name="mail-password" type="password" data-required="true" value="<%= settings.attr('mail-password') %>" autocomplete="off">
 		</div>
 	</div>
 
 	<div class="control-group">
-		<label for="loginUsername" class="control-label">Sender:</label>
+		<label for="mail-name" class="control-label">Sender:</label>
 		<div class="controls">
-			<input name="mail-name" type="text" data-required="true" value="<%= settings.attr('mail-name') %>">
+			<input id="mail-name" name="mail-name" type="text" data-required="true" value="<%= settings.attr('mail-name') %>" autocomplete="off">
 		</div>
 	</div>
 

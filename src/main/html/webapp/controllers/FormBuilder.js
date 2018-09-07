@@ -472,6 +472,7 @@ function buildText(element, param) {
 	input.attr("name", param.id);
 	input.attr("type", "text");
 	input.attr("value", param.value);
+	input.attr("autocomplete", "off");
 	if (param.readOnly) {
 		input.attr("disabled", "true");
 	}
@@ -497,6 +498,7 @@ function buildJobName(element) {
 	input.attr("type", "text");
 	input.attr("value", "");
   input.attr("placeholder","optional job name");
+	input.attr("autocomplete", "off");
 	$(divControls).append(input);
 
 	divGroup.append(divControls);
