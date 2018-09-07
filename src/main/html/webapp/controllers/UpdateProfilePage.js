@@ -134,7 +134,7 @@ UpdateProfilePage = can.Control({
       control.addClass('is-valid');
       control.closest('.form-group').find('.invalid-feedback').html('');
     }
-  }
+  },
 
 '#delete_account click': function() {
 
