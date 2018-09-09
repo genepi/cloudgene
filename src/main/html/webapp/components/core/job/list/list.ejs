@@ -1,0 +1,36 @@
+<h2>Jobs</h2>
+
+<p>
+	This page lists all submitted jobs.<br>
+	<br>
+</p>
+
+<div class="">
+		<% jobs.each(function( job ) { %>
+
+			<div class="card mb-12 <%== getClassByJob(job) %>" <%= (div) -> can.data(div, 'job', job) %>>
+
+	  	<div class="card-body">
+				<div class="d-flex justify-content-between align-items-center">
+					<div>
+			    <b><a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a></b><br>
+					<small class="text-muted"><i class="far fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="far fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %> &nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
+				</div>
+					<%== can.view.render('components/core/job/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+					<div class="dropdown-menu" aria-labelledby="<%=  job.attr('id') %>">
+						<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
+							<a class="cancel-btn dropdown-item" style="cursor:pointer">Cancel</a>
+						<% } %>
+					<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
+						<a class="delete-btn dropdown-item" style="cursor:pointer">Delete</a>
+					<% } %>
+				</div>
+			</div>
+			  </div>
+			</div>
+<br>
+		<% }) %>
+
+<%== can.view.render('helpers/pagination.ejs', { total: total, page: parseInt(page), perPage: perPage, link: "#!pages/jobs"}) %>
+
+</div>

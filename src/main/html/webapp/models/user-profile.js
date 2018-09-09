@@ -1,7 +1,7 @@
 import can from 'can';
 
 export default can.Model({
-  findOne: 'GET /api/v2/server/counters'
+  destroy: 'DELETE /api/v2/users/{user}/profile'
 }, {
 
 });

@@ -1,0 +1,222 @@
+<hr>
+<div class="job-header d-flex justify-content-start align-items-center">
+<div>
+	<%== can.view.render('components/core/job/components/status-image.ejs', {job: job, buttonId: job.attr('id')}) %>
+</div>
+	<div>
+		<h2><%= job.attr('id') != job.attr('name') ? job.attr('name') : job.attr('id') %></h2>
+		<small class="text-muted"><i class="fas fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="fas fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %>&nbsp;&nbsp;<i class="fas fa-user"></i> <%=  job.attr('username') %>&nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
+	</div>
+	<div class="ml-auto">
+		<%== can.view.render('components/core/job/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+		<div class="dropdown-menu" aria-labelledby="<%=  job.attr('id') %>">
+			<% if( admin){ %>
+					<% if( job.attr('state') == '-1'){ %>
+						<a id="restart-btn" class="dropdown-item" style="cursor:pointer">Restart</a>
+					<% } %>
+			<% } %>
+
+			<% if (job.attr('logs')) { %>
+				<a class="dropdown-item" href="<%= job.attr('logs') %>" target="_blank">Logs</a>
+				<div class="dropdown-divider"></div>
+			<% } %>
+
+			<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
+				<a id="cancel-btn" class="dropdown-item" style="cursor:pointer">Cancel</a>
+			<% } %>
+			<% if( job.attr('state') > '3'){ %>
+				<a id="delete-btn" class="dropdown-item" style="cursor:pointer">Delete</a>
+			<% } %>
+		</div>
+	</div>
+</div>
+
+<% if( job.attr('state') == 1 && job.attr('positionInQueue') != -1){ %>
+	<br>
+	<div class="alert alert-info">
+		Job is in queue on position <b><%= job.attr('positionInQueue') + 1 %></b>.
+	</div>
+<% } %>
+
+<% if( job.attr('public')){ %>
+	<br>
+	<div class="alert alert-info">
+		Please bookmark this page to monitor your job and to download your results!
+	</div>
+<% } %>
+
+<% if( job.attr('state') == '8' || job.attr('state') == '9' ){ %>
+	<br>
+	<div class="alert alert-info">
+		Your job retires on <b><%= prettyDate(job.attr('deletedOn')) %></b>! All results will be deleted at that time. Please ensure that you have downloaded all data.
+	</div>
+<% } %>
+
+<hr>
+<br>
+<br>
+<% if( job.attr('public')){ %>
+	<div class="alert alert-info">Please bookmark this page to monitor your job and to download your results!
+	</div>
+<% } %>
+
+<div class="tabbable">
+
+<ul class="nav nav-tabs">
+
+	<li class="nav-item">
+		<a class="nav-link <%= !results ? 'active': '' %>" href="#!jobs/<%= job.attr('id') %>">
+			Details
+		</a>
+	</li>
+
+	<% if( job.attr('state') != '7' ){ %>
+
+		<li class="nav-item">
+			<a class="nav-link <%= results ? 'active': '' %>" href="#!jobs/<%= job.attr('id') %>/results">
+				Results
+			</a>
+		</li>
+
+	<% } %>
+
+</ul>
+
+<script type="text/javascript">
+  function resizeIframe(iframe) {
+		height = iframe.contentWindow.document.body.scrollHeight + 10 + 10;
+		if (height < 480){
+			height = 480;
+		}
+    iframe.height =height+"px";
+  }
+</script>
+
+	<div class="tab-content">
+
+		<% if( job.attr('state') == '-1'){ %>
+			<p><br></p>
+			<p>
+				<i>This job is pending. We will start your job as soon as possible!</i>
+			</p>
+		<% } %>
+
+		<% if( !results ){  %>
+			<div class="tab-pane active" id="tab1">
+
+				<% if( job.attr('state') == '7' ){ %>
+				<p><br></p>
+						<i>This job is too old and retired. All results are deleted.</i>
+					</p>
+				<% } %>
+
+				<p><br></p>
+
+
+						<% job.attr('steps').each(function( step, index ) { %>
+							<div class="list-group">
+							  <div class="list-group-item bg-light  flex-column align-items-start">
+							    <div class="d-flex w-100 justify-content-between">
+							      <h5 class="mb-1"><%==step.attr('name') %></h5>
+							      <!-- <small><i class="fas fa-spinner fa-spin"></i></small> -->
+										<!-- <i class="far fa-check-circle text-success"></i> -->
+							    </div>
+							  </div>
+							<% step.attr('logMessages').each(function( log ) { %>
+
+										<% if( log.attr('type') == '0' ){ %>
+
+											<div class="list-group-item flex-column align-items-start step-success">
+												<p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
+
+										<% } %>
+										<% if( log.attr('type') == '1' ){ %>
+											<div class="list-group-item flex-column align-items-start step-danger">
+										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
+										<% } %>
+										<% if( log.attr('type') == '2' ){ %>
+											<div class="list-group-item flex-column align-items-start step-warning">
+										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
+										<% } %>
+										<% if( log.attr('type') == '3' && job.attr('state') != 6){ %>
+											<div class="list-group-item flex-column align-items-start step-primary">
+												<div class="d-flex w-100 justify-content-between">
+												<p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+												<small><i class="fas fa-circle-notch fa-spin"></i></small>
+												</div>
+										  </div>
+										<% } %>
+										<% if( log.attr('type') == '3' && job.attr('state') == 6){ %>
+											<div class="list-group-item flex-column align-items-start step-danger">
+										    <p class="mb-1"><%==log.attr('message').replace(/\n/g, "<br>") %></p>
+										  </div>
+										<% } %>
+
+										<% if( log.attr('type') == '27'){ %>
+											<div class="list-group-item flex-column align-items-start" style="padding: 0px;">
+												<div class="">
+												  <iframe class="" style="width: 100%;  border: 0px; overflow:hidden;" scrolling="no" onload="resizeIframe(this)"src="api/v2/jobs/<%= job.attr('id') %>/chunks/<%= log.attr('message') %>" allowfullscreen></iframe>
+												</div>
+											</div>
+										<% } %>
+									</div>
+							<% }) %>
+<br>
+						<% }) %>
+
+
+
+			</div>
+
+		<% } %>
+
+		<% if( job.attr('state') != '7' ){ %>
+
+			<% if( results ){  %>
+
+				<p><br></p>
+
+				<% job.attr('outputParams').each(function( param ) { %>
+					<% if (param.attr('files').length > 0){ %>
+						<table class="table table-bordered">
+							<tbody>
+								<tr <%= (tr) -> can.data(tr, 'files', param.attr('files')) %>>
+									<td colspan="2">
+										<b><%=param.attr('description') %></b>
+									</td>
+									<td><span class="share-folder-btn fas fa-share-square" style="cursor: pointer;" title="Share All Data..."></span></td>
+								</tr>
+
+								<% param.attr('files').each(function( output ) { %>
+
+									<tr <%= (tr) -> can.data(tr, 'output', output) %>>
+										<td>
+											<a href="results/<%=output.attr('path') %>" target="_blank"><%=output.attr('name') %></a>
+
+											<% if( output.attr('name').endsWith('png') ){ %>
+
+												<p>
+													<img src="results/<%=output.attr('path') %>"/>
+												</p>
+											<% } %>
+
+										</td>
+										<td style="width: 100px;text-align:right;"><%=output.attr('size') %></td>
+										<td style="width: 16px;text-align:center;">
+											<span class="share-file-btn fas fa-share" style="cursor: pointer;" title="Share Data..."></span>
+										</td>
+									</tr>
+
+								<% }) %>
+							</tbody>
+						</table>
+					<% } %>
+				<% }) %>
+
+			</div>
+		<% } %>
+	<% } %>
+</div>
