@@ -1,8 +1,20 @@
-// controller
-AdminJobsPage = can.Control({
+import can from 'can';
+import $ from 'jquery';
+import bootbox from 'bootbox';
+
+import ErrorPage from 'helpers/error-page';
+import Helper from 'helpers/helpers';
+import JobAdminDetails from 'models/job-admin-details';
+import JobOperation from 'models/job-operation';
+
+import template from './list.ejs';
+import templateTable from './table/table.ejs';
+
+
+export default can.Control({
 
   "init": function(element, options) {
-    element.html(can.view('views/admin/jobs.ejs'));
+    element.html(template());
     element.fadeIn();
 
     this.loadJobs("#job-list-running-stq", "running-stq");
@@ -31,7 +43,7 @@ AdminJobsPage = can.Control({
           job.attr('setupEndTime', job.attr('setupEndTime'));
         }
       });
-      $(element).html(can.view('views/admin/jobs-list.ejs', jobs));
+      $(element).html(templateTable(jobs));
     }, function(response) {
       new ErrorPage(that.element, response);
     });
@@ -40,7 +52,7 @@ AdminJobsPage = can.Control({
 
   '.delete-btn click': function(el, ev) {
 
-    job = el.closest('tr').data('job');
+    var job = el.closest('tr').data('job');
 
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -52,7 +64,9 @@ AdminJobsPage = can.Control({
 
   '.cancel-btn click': function(el, ev) {
 
-    job = el.closest('tr').data('job');
+    var job = el.closest('tr').data('job');
+
+    var element = this.element;
 
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -68,7 +82,7 @@ AdminJobsPage = can.Control({
           // go to jobs page
           bootbox.hideAll();
         }, function(response) {
-          new ErrorPage(that.element, response);
+          new ErrorPage(element, response);
         });
 
         return false;
@@ -78,9 +92,9 @@ AdminJobsPage = can.Control({
   },
 
   '.priority-btn click': function(el, ev) {
-    job = el.closest('tr').data('job');
-    that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority').then(
+    var job = el.closest('tr').data('job');
+    var that = this;
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority').then(
       function(data) {
         bootbox.alert(data);
         that.init(that.element, that.options);
@@ -91,12 +105,12 @@ AdminJobsPage = can.Control({
   },
 
   '.archive-btn click': function(el, ev) {
-    job = el.closest('tr').data('job');
-    that = this;
+    var job = el.closest('tr').data('job');
+    var that = this;
 
     bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
       if (result) {
-        request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive').then(
+        $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive').then(
           function(data) {
             bootbox.alert(data);
             that.init(that.element, that.options);
@@ -109,9 +123,8 @@ AdminJobsPage = can.Control({
   },
 
   '.reset-downloads-btn click': function(el, ev) {
-    job = el.closest('tr').data('job');
-    that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset').then(
+    var job = el.closest('tr').data('job');
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset').then(
       function(data) {
         bootbox.alert(data);
       },
@@ -121,9 +134,9 @@ AdminJobsPage = can.Control({
   },
 
   '.retire-btn click': function(el, ev) {
-    job = el.closest('tr').data('job');
-    that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire').then(
+    var job = el.closest('tr').data('job');
+    var that = this;
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire').then(
       function(data) {
         bootbox.alert(data);
         that.init(that.element, that.options);
@@ -134,9 +147,9 @@ AdminJobsPage = can.Control({
   },
 
   '.change-retire-date-btn click': function(el, ev) {
-    job = el.closest('tr').data('job');
-    that = this;
-    request = $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/1').then(
+    var job = el.closest('tr').data('job');
+    var that = this;
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/1').then(
       function(data) {
         bootbox.alert(data);
         that.init(that.element, that.options);

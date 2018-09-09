@@ -1,12 +1,22 @@
-// controller
-AdminServerPage = can.Control({
+import can from 'can';
+import $ from 'jquery';
+import bootbox from 'bootbox';
+
+import ErrorPage from 'helpers/error-page';
+import Cluster from 'models/cluster';
+import Template from 'models/template';
+
+import template from './server.ejs';
+
+
+export default can.Control({
 
   "init": function(element, options) {
-    that = this;
+    var that = this;
     element.hide();
     Cluster.findOne({}, function(cluster) {
       that.cluster = cluster;
-      element.html(can.view('views/admin/server.ejs', {
+      element.html(template({
         cluster: cluster
       }));
       element.fadeIn();
@@ -15,7 +25,7 @@ AdminServerPage = can.Control({
   },
 
   "#maintenance-enter-btn click": function() {
-    that = this;
+    var that = this;
 
     Template.findOne({
       key: 'MAINTENANCE_MESSAGE'
@@ -30,7 +40,7 @@ AdminServerPage = can.Control({
             template.attr('text', text);
             template.save();
 
-            request = $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
+            $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
               bootbox.alert(data);
               that.init(that.element, that.options);
             }, function(data) {
@@ -47,8 +57,8 @@ AdminServerPage = can.Control({
   },
 
   "#maintenance-exit-btn click": function() {
-    that = this;
-    request = $.get('api/v2/admin/server/maintenance/exit').then(function(data) {
+    var that = this;
+    $.get('api/v2/admin/server/maintenance/exit').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(data) {
@@ -56,13 +66,13 @@ AdminServerPage = can.Control({
     });
   },
 
-  "#hadoop-details-btn click": function(){
-      bootbox.alert('<pre>'+ this.cluster.attr('hadoop_details')+'</pre>');
+  "#hadoop-details-btn click": function() {
+    bootbox.alert('<pre>' + this.cluster.attr('hadoop_details') + '</pre>');
   },
 
   "#queue-block-btn click": function() {
-    that = this;
-    request = $.get('api/v2/admin/server/queue/block').then(function(data) {
+    var that = this;
+    $.get('api/v2/admin/server/queue/block').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(data) {
@@ -71,8 +81,8 @@ AdminServerPage = can.Control({
   },
 
   "#queue-open-btn click": function() {
-    that = this;
-    request = $.get('api/v2/admin/server/queue/open').then(function(data) {
+    var that = this;
+    $.get('api/v2/admin/server/queue/open').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(data) {
@@ -81,8 +91,8 @@ AdminServerPage = can.Control({
   },
 
   "#retire-btn click": function() {
-    that = this;
-    request = $.get('api/v2/admin/jobs/retire').then(function(data) {
+    var that = this;
+    $.get('api/v2/admin/jobs/retire').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(data) {

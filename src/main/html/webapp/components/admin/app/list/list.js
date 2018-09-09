@@ -1,12 +1,22 @@
-// controller
-AdminAppsPage = can.Control({
+import can from 'can';
+import $ from 'jquery';
+import bootbox from 'bootbox';
+
+import Application from 'models/application';
+
+import template from './list.ejs';
+import templateInstallGithub from './install-github/install-github.ejs';
+import templateInstallUrl from './install-url/install-url.ejs';
+
+
+export default can.Control({
 
   "init": function(element, options) {
     var that = this;
 
     Application.findAll({}, function(applications) {
       that.options.installedApplications = applications;
-      that.element.html(can.view('views/admin/apps.ejs', {
+      that.element.html(template({
         applications: applications
       }));
       $("#content").fadeIn();
@@ -18,12 +28,12 @@ AdminAppsPage = can.Control({
   '#install-app-url-btn click': function(el, ev) {
 
     bootbox.confirm(
-      can.view('views/admin/apps.install.url.ejs'),
+      can.view(templateInstallUrl()),
       function(result) {
         if (result) {
           var id = $('#id').val();
           var url = $('#url').val();
-          app = new Application();
+          var app = new Application();
           app.attr('url', url);
           app.attr('name', id);
 
@@ -56,12 +66,12 @@ AdminAppsPage = can.Control({
   '#install-app-github-btn click': function(el, ev) {
 
     bootbox.confirm(
-      can.view('views/admin/apps.install.github.ejs'),
+      can.view(templateInstallGithub()),
       function(result) {
         if (result) {
 
           var url = 'github://' + $('#url').val();
-          app = new Application();
+          var app = new Application();
           app.attr('url', url);
 
           var waitingDialog = bootbox.dialog({
@@ -109,9 +119,9 @@ AdminAppsPage = can.Control({
 
   '.enable-disable-btn click': function(el, ev) {
 
-    application = el.closest('.card').data('application');
+    var application = el.closest('.card').data('application');
 
-    enabled = !application.attr('enabled')
+    var enabled = !application.attr('enabled')
     bootbox.confirm("Are you sure you want to " + (enabled ? "enable" : "disable") + " application <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
         application.attr('enabled', enabled);
@@ -128,7 +138,7 @@ AdminAppsPage = can.Control({
 
           application.save(function(application) {
             waitingDialog.modal('hide');
-            bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully ' + (enabled ? 'enabled' : 'disabled') +'.</p>');
+            bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully ' + (enabled ? 'enabled' : 'disabled') + '.</p>');
 
           }, function(data) {
             waitingDialog.modal('hide');
@@ -143,7 +153,7 @@ AdminAppsPage = can.Control({
 
   '.delete-app-btn click': function(el, ev) {
 
-    application = el.closest('.card').data('application');
+    var application = el.closest('.card').data('application');
 
     bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -178,10 +188,10 @@ AdminAppsPage = can.Control({
 
   '.edit-permission-btn click': function(el, ev) {
 
-    application = el.closest('.card').data('application');
+    var application = el.closest('.card').data('application');
     var permission = application.attr('permission');
 
-    bootbox.confirm('<p>'+application.attr('id')+'</p><h4>Permissions'+
+    bootbox.confirm('<p>' + application.attr('id') + '</p><h4>Permissions' +
       '</h4><p></p><form><input class="form-control" id="message" name="message" value="' + permission + '"></input></form>',
       function(result) {
         if (result) {
@@ -196,8 +206,7 @@ AdminAppsPage = can.Control({
 
   '.reinstall-btn click': function(el, ev) {
 
-    application = el.closest('.card').data('application');
-    var permission = application.attr('permission');
+    var application = el.closest('.card').data('application');
 
     bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafile in HDFS are deleted and reimported on next job run.</p>',
       function(result) {
@@ -212,7 +221,7 @@ AdminAppsPage = can.Control({
 
   '.view-source-btn click': function(el, ev) {
 
-    application = el.closest('.card').data('application');
+    var application = el.closest('.card').data('application');
 
     var env = '';
     for (var property in application.attr('environment').attr()) {

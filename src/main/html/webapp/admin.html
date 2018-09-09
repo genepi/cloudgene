@@ -10,16 +10,6 @@
 
     <title>${appname}</title>
 
-    <!--(if target dev)><!-->
-    <!-- Bootstrap core CSS -->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom styles for this template -->
-    <link href="assets/css/cloudgene.css" rel="stylesheet">
-    <script defer src="assets/js/lib/fontawesome-5.0.8.js"></script>
-    <!--<!(endif)-->
-
-
-
     <!--(if target dist)>
     <link href="cloudgene.vendor.min.css" rel="stylesheet">
     <script defer src="assets/fontawesome-5.0.6.js"></script>
@@ -94,44 +84,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 		<!--(if target dev)><!-->
-		<script src="assets/js/lib/date.format.js"></script>
-		<script src="assets/js/lib/jquery-3.3.1.js"></script>
-		<script src="assets/js/lib/popper.js"></script>
-		<script src="assets/js/lib/jquery.form.js"></script>
-		<script src="assets/js/lib/bootstrap.js"></script>
-		<script src="assets/js/lib/bootbox.min.js"></script>
-		<script src="assets/js/lib/can.jquery.js"></script>
-		<script src="assets/js/lib/raphael.min.js"></script>
-		<script src="assets/js/lib/morris.min.js"></script>
-		<script src="assets/js/lib/md5.min.js"></script>
-
-		<script src="models/CloudgeneApplication.js"></script>
-	  <script src="models/Application.js"></script>
-		<script src="models/Cluster.js"></script>
-		<script src="models/Counter.js"></script>
-		<script src="models/Group.js"></script>
-		<script src="models/Job.js"></script>
-		<script src="models/JobAdminDetails.js"></script>
-		<script src="models/JobOperation.js"></script>
-		<script src="models/JobDetails.js"></script>
-		<script src="models/Settings.js"></script>
-		<script src="models/Template.js"></script>
-		<script src="models/User.js"></script>
-		<script src="models/UserToken.js"></script>
-
-		<script src="controllers/Helpers.js"></script>
-		<script src="controllers/JobDetailsPage.js"></script>
-		<script src="controllers/AdminHomePage.js"></script>
-		<script src="controllers/AdminJobsPage.js"></script>
-		<script src="controllers/AdminUsersPage.js"></script>
-		<script src="controllers/AdminSettingsGeneralPage.js"></script>
-    <script src="controllers/AdminSettingsTemplatesPage.js"></script>
-    <script src="controllers/AdminSettingsMailPage.js"></script>
-		<script src="controllers/AdminAppsPage.js"></script>
-    <script src="controllers/AdminAppsRepository.js"></script>
-		<script src="controllers/AdminServerPage.js"></script>
-		<script src="controllers/ErrorPage.js"></script>
-		<script src="controllers/TabsAdmin.js"></script>
+    <script src="./node_modules/steal/steal.js" main="admin.js"></script>
 		<!--<!(endif)-->
 
 		<!--(if target dist)>
@@ -139,31 +92,5 @@
 		<script src="cloudgene.min.js"></script>
 		<!(endif)-->
 
-
-
-		<script>
-				$(document).ready(function() {
-					// add token to every ajax request
-					$.ajaxPrefilter(function(options) {
-						if (!options.beforeSend) {
-							options.beforeSend = function(xhr) {
-								if (localStorage.getItem("cloudgene")) {
-									try {
-										// get data
-										var data = JSON.parse(localStorage.getItem("cloudgene"));
-										xhr.setRequestHeader("X-CSRF-Token", data.csrf);
-									} catch (e) {
-									}
-								}
-							}
-						}
-					});
-					tabs = new TabsAdmin("#tabfolder");
-					can.route.ready()
-					//default route!
-					//can.route("pages/:page", {page: "home"});
-					//can.route.attr({page: "home"});
-				});
-			</script>
   </body>
 </html>

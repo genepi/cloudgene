@@ -64,7 +64,7 @@
 			<td>
 
 				<div class="dropdown">
-					<%== can.view.render('views/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+					<%== can.view.render('components/core/job/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 						<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
 							<a class="reset-downloads-btn dropdown-item" style="cursor:pointer">Reset download counters</a>

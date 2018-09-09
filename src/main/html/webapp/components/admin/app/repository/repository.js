@@ -1,9 +1,18 @@
-// controller
-AdminAppsRepository = can.Control({
+import can from 'can';
+import $ from 'jquery';
+import bootbox from 'bootbox';
+
+import Application from 'models/application';
+import CloudgeneApplication from 'models/cloudgene-application';
+
+import template from './repository.ejs';
+
+
+export default can.Control({
 
   "init": function(element, options) {
 
-    that= this;
+    var that = this;
 
     Application.findAll({}, function(applications) {
       that.options.installedApplications = applications;
@@ -14,14 +23,11 @@ AdminAppsRepository = can.Control({
           installedId.push(value.attr('id'));
         });
 
-        that.element.html(can.view('views/admin/apps.repository.ejs', {
+        that.element.html(template({
           applications: applications,
           installedId: installedId
         }));
-      }, function(response) {
-        console.log(response);
-      })
-
+      });
       $("#content").fadeIn();
 
     });
@@ -29,7 +35,7 @@ AdminAppsRepository = can.Control({
 
   '.install-app-btn click': function(el, ev) {
 
-    app = new Application();
+    var app = new Application();
     app.attr('name', el.data('app-id'));
     app.attr('url', el.data('app-url'));
 
