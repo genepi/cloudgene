@@ -1,5 +1,5 @@
 import can from 'can';
-import $ from 'jquery';
+import $ from 'jquery/jquery';
 
 import ErrorPage from 'helpers/error-page';
 import StaticPage from 'helpers/static-page';
@@ -94,36 +94,15 @@ export default can.Control({
   },
 
   'jobs/:job route': function(data) {
-    this.activate({
-      id: 'error',
-      control: ErrorPage,
-      options: {
-        status: '401',
-        message: 'The request requires user authentication.'
-      }
-    });
+    this.activateError401();
   },
 
   'jobs/:job/results route': function(data) {
-    this.activate({
-      id: 'error',
-      control: ErrorPage,
-      options: {
-        status: '401',
-        message: 'The request requires user authentication.'
-      }
-    });
+    this.activateError401();
   },
 
   'run/:app route': function(data) {
-    this.activate({
-      id: 'error',
-      control: ErrorPage,
-      options: {
-        status: '401',
-        message: 'The request requires user authentication.'
-      }
-    });
+    this.activateError401();
   },
 
   'pages/:page route': function(data) {
@@ -139,12 +118,23 @@ export default can.Control({
   },
 
   '.* route': function(data) {
-    this.activate({
+    this.activateError401({
       id: 'error',
       control: ErrorPage,
       options: {
         status: '404',
         message: 'Oops, Sorry We Can\'t Find That Page!'
+      }
+    });
+  },
+
+  'activateError401': function() {
+    this.activate({
+      id: 'error',
+      control: ErrorPage,
+      options: {
+        status: '401',
+        message: 'The request requires user authentication.'
       }
     });
   },

@@ -1,5 +1,5 @@
 import can from 'can';
-import $ from 'jquery';
+import $ from 'jquery/jquery';
 import bootbox from 'bootbox';
 
 import Settings from 'models/settings';

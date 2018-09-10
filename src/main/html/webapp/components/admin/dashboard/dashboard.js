@@ -1,5 +1,5 @@
 import can from 'can';
-import $ from 'jquery';
+import $ from 'jquery/jquery';
 import Morris from 'morris.js/morris.js';
 
 import Counter from 'models/counter';

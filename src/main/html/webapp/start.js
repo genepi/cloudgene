@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from 'jquery/jquery';
 import can from 'can';
 import 'popper.js';
 import 'bootstrap';
@@ -8,10 +8,11 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 import RouterControl from 'components/core/';
 
-
+// open all external link in new tab
 $(document.links).filter(function() {
   return this.hostname != window.location.hostname;
 }).attr('target', '_blank');
+
 // add token to every ajax request
 $.ajaxPrefilter(function(options) {
   if (!options.beforeSend) {

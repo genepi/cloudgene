@@ -1,5 +1,5 @@
 import can from 'can';
-import $ from 'jquery';
+import $ from 'jquery/jquery';
 
 import ErrorPage from 'helpers/error-page';
 import StaticPage from 'helpers/static-page';

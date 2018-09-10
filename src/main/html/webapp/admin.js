@@ -1,4 +1,4 @@
-import $ from 'jquery';
+import $ from 'jquery/jquery';
 import can from 'can';
 import 'popper.js';
 import 'bootstrap';
