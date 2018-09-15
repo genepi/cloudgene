@@ -1,4 +1,5 @@
 import can from 'can/legacy';
+import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -27,8 +28,7 @@ export default can.Control({
 
   '#install-app-url-btn click': function(el, ev) {
 
-    bootbox.confirm(
-      can.view(templateInstallUrl()),
+    bootbox.confirm(templateInstallUrl(),
       function(result) {
         if (result) {
           var id = $('#id').val();
@@ -65,8 +65,7 @@ export default can.Control({
 
   '#install-app-github-btn click': function(el, ev) {
 
-    bootbox.confirm(
-      can.view(templateInstallGithub()),
+    bootbox.confirm(templateInstallGithub(),
       function(result) {
         if (result) {
 
@@ -118,8 +117,8 @@ export default can.Control({
   },
 
   '.enable-disable-btn click': function(el, ev) {
-
-    var application = el.closest('.card').data('application');
+    var card = $(el).closest('.card');
+    var application = domData.get.call(card[0], 'application');
 
     var enabled = !application.attr('enabled')
     bootbox.confirm("Are you sure you want to " + (enabled ? "enable" : "disable") + " application <b>" + application.attr('id') + "</b>?", function(result) {
@@ -153,7 +152,8 @@ export default can.Control({
 
   '.delete-app-btn click': function(el, ev) {
 
-    var application = el.closest('.card').data('application');
+    var card = $(el).closest('.card');
+    var application = domData.get.call(card[0], 'application');
 
     bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -188,7 +188,8 @@ export default can.Control({
 
   '.edit-permission-btn click': function(el, ev) {
 
-    var application = el.closest('.card').data('application');
+    var card = $(el).closest('.card');
+    var application = domData.get.call(card[0], 'application');
     var permission = application.attr('permission');
 
     bootbox.confirm('<p>' + application.attr('id') + '</p><h4>Permissions' +
@@ -206,8 +207,8 @@ export default can.Control({
 
   '.reinstall-btn click': function(el, ev) {
 
-    var application = el.closest('.card').data('application');
-
+    var card = $(el).closest('.card');
+    var application = domData.get.call(card[0], 'application');
     bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafile in HDFS are deleted and reimported on next job run.</p>',
       function(result) {
         if (result) {
@@ -221,8 +222,8 @@ export default can.Control({
 
   '.view-source-btn click': function(el, ev) {
 
-    var application = el.closest('.card').data('application');
-
+    var card = $(el).closest('.card');
+    var application = domData.get.call(card[0], 'application');
     var env = '';
     for (var property in application.attr('environment').attr()) {
       env += property + '=' + application.attr('environment').attr(property) + '\n';

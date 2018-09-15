@@ -10,6 +10,7 @@ import JobOperation from 'models/job-operation';
 
 import template from './list.ejs';
 import templateTable from './table/table.ejs';
+import templateStatusButton from 'components/core/job/components/status-button.ejs';
 
 
 export default can.Control({
@@ -44,7 +45,10 @@ export default can.Control({
           job.attr('setupEndTime', job.attr('setupEndTime'));
         }
       });
-      $(element).html(templateTable(jobs));
+      $(element).html(templateTable({
+        jobs: jobs,
+        statusButton: templateStatusButton
+      }));
     }, function(response) {
       new ErrorPage(that.element, response);
     });
@@ -52,8 +56,8 @@ export default can.Control({
   },
 
   '.delete-btn click': function(el, ev) {
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
 
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -67,8 +71,8 @@ export default can.Control({
 
     var element = this.element;
 
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
 
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -95,8 +99,8 @@ export default can.Control({
 
   '.priority-btn click': function(el, ev) {
 
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
     var that = this;
     $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority').then(
       function(data) {
@@ -109,8 +113,9 @@ export default can.Control({
   },
 
   '.archive-btn click': function(el, ev) {
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');    var that = this;
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
+    var that = this;
 
     bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
       if (result) {
@@ -127,8 +132,8 @@ export default can.Control({
   },
 
   '.reset-downloads-btn click': function(el, ev) {
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
     $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset').then(
       function(data) {
         bootbox.alert(data);
@@ -139,8 +144,9 @@ export default can.Control({
   },
 
   '.retire-btn click': function(el, ev) {
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');    var that = this;
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
+    var that = this;
     $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire').then(
       function(data) {
         bootbox.alert(data);
@@ -152,8 +158,9 @@ export default can.Control({
   },
 
   '.change-retire-date-btn click': function(el, ev) {
-    var card = $(el).closest('.card');
-    var job = domData.get.call(card[0], 'job');    var that = this;
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
+    var that = this;
     $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/1').then(
       function(data) {
         bootbox.alert(data);

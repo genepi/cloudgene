@@ -1,4 +1,5 @@
 import can from 'can/legacy';
+import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -25,8 +26,8 @@ export default can.Control({
 
   '.edit-btn click': function(el, ev) {
 
-    var template = el.parent().parent().data('template');
-
+    var tr = $(el).closest('tr');
+    var template = domData.get.call(tr[0], 'template');
     var oldText = template.attr('text');
     bootbox.confirm(
       '<h4>' + template.attr('key') + '</h4><form><textarea class="form-control span5" id="message" rows="10" name="message" width="30" height="20">' + oldText + '</textarea></form>',

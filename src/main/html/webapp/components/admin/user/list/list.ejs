@@ -18,7 +18,7 @@
 </tr>
 </thead>
 <tbody>
-<% this.each(function( user ) { %>
+<% users.each(function( user ) { %>
     <tr <%= (tr) -> can.data(tr, 'user', user) %>>
 			<td>
 				<% if (user.attr('lockedUntil')) { %>
@@ -30,7 +30,9 @@
 				<% } %>
 			</td>
 		<td>
-			<a href="http://www.gravatar.com/avatar/<%= md5(user.attr('mail')) %>"><img src="http://www.gravatar.com/avatar/<%= md5(user.attr('mail')) %>?s=20"></a>
+			<% if (user.attr('mail')) { %>
+			<img src="http://www.gravatar.com/avatar/<%= md5(user.attr('mail')) %>?s=30"/>
+			<% } %>
 		</td>
 		<td>
 			<%= user.attr('username') %>

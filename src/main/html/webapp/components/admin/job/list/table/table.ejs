@@ -1,11 +1,11 @@
 
 <p class="pull-right">
-<%if (this.attr('running') > 0) {%><b><%= this.attr('running') %></b> jobs are <b>running</b>.<% } %>
-<%if (this.attr('waiting') > 0) {%><b><%= this.attr('waiting') %></b> jobs are <b>waiting</b>.<% } %>
-<%if (this.attr('success') > 0) {%><b><%= this.attr('success') %></b> jobs are <b>succeeded</b>.<% } %>
-<%if (this.attr('failed') > 0) {%><b><%= this.attr('failed') %></b> jobs are <b>failed</b>.<% } %>
-<%if (this.attr('pending') > 0) {%><b><%= this.attr('pending') %></b> jobs are <b>pending</b>.<% } %>
-<%if (this.attr('canceld') > 0) {%><b><%= this.attr('canceld') %></b> jobs are <b>canceld</b>.<% } %>
+<%if (jobs.attr('running') > 0) {%><b><%= jobs.attr('running') %></b> jobs are <b>running</b>.<% } %>
+<%if (jobs.attr('waiting') > 0) {%><b><%= jobs.attr('waiting') %></b> jobs are <b>waiting</b>.<% } %>
+<%if (jobs.attr('success') > 0) {%><b><%= jobs.attr('success') %></b> jobs are <b>succeeded</b>.<% } %>
+<%if (jobs.attr('failed') > 0) {%><b><%= jobs.attr('failed') %></b> jobs are <b>failed</b>.<% } %>
+<%if (jobs.attr('pending') > 0) {%><b><%= jobs.attr('pending') %></b> jobs are <b>pending</b>.<% } %>
+<%if (jobs.attr('canceld') > 0) {%><b><%= jobs.attr('canceld') %></b> jobs are <b>canceld</b>.<% } %>
 </p>
 
 <table class="table table-striped table-bordered">
@@ -21,7 +21,7 @@
 	</tr>
 </thead>
 <tbody>
-	<% this.each(function( job ) { %>
+	<% jobs.each(function( job ) { %>
 
 		<tr <%= (tr) -> can.data(tr, 'job', job) %>>
 
@@ -64,7 +64,7 @@
 			<td>
 
 				<div class="dropdown">
-					<%== can.view.render('components/core/job/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+					<%== statusButton({job: job, buttonId: job.attr('id')}) %>
 					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
 						<% if( job.attr('state') > '3' || job.attr('state') == '-1'){ %>
 							<a class="reset-downloads-btn dropdown-item" style="cursor:pointer">Reset download counters</a>

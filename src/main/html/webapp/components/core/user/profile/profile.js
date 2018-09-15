@@ -63,16 +63,11 @@ export default can.Control({
         if (data.success == true) {
 
           // shows okey
-          $("#error-message").hide();
-          $("#account-form").hide();
-          $("#success-message").show();
-          $("#success-message").html(data.message);
+          bootbox.alert(data.message);
 
         } else {
           // shows error
-          $("#error-message").show();
-          $("#success-message").hide();
-          $("#error-message").html(data.message);
+          bootbox.alert(data.message);
 
         }
       },

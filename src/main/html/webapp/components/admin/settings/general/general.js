@@ -12,28 +12,25 @@ export default can.Control({
   "init": function(element, options) {
     var that = this;
 
-    Settings.findOne({}, function(settings) {
-
-      $(element).html(template({
-        settings: settings
-      }));
-      that.settings = settings;
-      $(element).fadeIn();
-
-    });
+    Settings.findOne({},
+      function(settings) {
+        $(element).html(template({
+          settings: settings
+        }));
+        that.settings = settings;
+        $(element).fadeIn();
+      });
 
   },
 
-  'submit': function(element, event) {
+  'submit': function(form, event) {
     event.preventDefault();
 
-    this.settings.attr('name', this.element.find("[name='name']").val());
-    this.settings.attr('background-color', this.element.find("[name='background-color']").val());
-    this.settings.attr('foreground-color', this.element.find("[name='foreground-color']").val());
-    this.settings.attr('google-analytics', this.element.find("[name='google-analytics']").val());
-
+    this.settings.attr('name', $(form).find("[name='name']").val());
+    this.settings.attr('background-color', $(form).find("[name='background-color']").val());
+    this.settings.attr('foreground-color', $(form).find("[name='foreground-color']").val());
+    this.settings.attr('google-analytics', $(form).find("[name='google-analytics']").val());
     this.settings.save();
-
 
     bootbox.alert("Settings updated.");
   }

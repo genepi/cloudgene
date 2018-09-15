@@ -1,5 +1,7 @@
 import can from 'can/legacy';
+import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
+import md5 from 'md5';
 import bootbox from 'bootbox';
 
 import ErrorPage from 'helpers/error-page';
@@ -15,7 +17,10 @@ export default can.Control({
     User.findAll({
       state: "failed"
     }, function(users) {
-      $(element).html(template(users));
+      $(element).html(template({
+        users: users,
+        md5: md5
+      }));
       $(element).fadeIn();
     }, function(response) {
       new ErrorPage(element, response);
@@ -24,8 +29,8 @@ export default can.Control({
   },
 
   '.delete-user-btn click': function(el, ev) {
-
-    var user = el.parent().parent().data('user');
+    var tr = $(el).closest('tr');
+    var user = domData.get.call(tr[0], 'user');
 
     bootbox.confirm("Are you sure you want to delete <b>" + user.attr('username') + "</b>?", function(result) {
       if (result) {
@@ -36,13 +41,14 @@ export default can.Control({
   },
 
   '.edit-role-btn click': function(el, ev) {
+    var tr = $(el).closest('tr');
+    var user = domData.get.call(tr[0], 'user');
 
     var element = this.element;
 
     Group.findAll({},
       function(groups) {
 
-        var user = el.parent().parent().data('user');
         var roles = user.attr('role').split(',');
 
         var options = '';

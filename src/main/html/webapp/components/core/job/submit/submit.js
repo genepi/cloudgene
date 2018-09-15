@@ -1,4 +1,5 @@
 import can from 'can/legacy';
+import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 import 'jquery-form';
@@ -191,7 +192,7 @@ export default can.Control({
 
     //update parameter source
     //TODO: change to domData
-    var param = $(parent).data('param');
+    var param = domData.get.call(parent, 'param');
     param.attr('source', source.val());
   },
 

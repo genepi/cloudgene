@@ -11,6 +11,7 @@
     "dateformat": "3.0.3",
     "jquery": "2.2.4",
     "jquery-form": "3.50.0",
+    "md5": "2.2.1",
     "morris.js": "0.5.0",
     "popper.js": "1.12.9",
     "raphael": "2.1.4",

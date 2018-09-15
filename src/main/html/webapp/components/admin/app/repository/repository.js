@@ -35,9 +35,12 @@ export default can.Control({
 
   '.install-app-btn click': function(el, ev) {
 
+    var id = $(el).data('app-id');
+    var url = $(el).data('app-url');
+
     var app = new Application();
-    app.attr('name', el.data('app-id'));
-    app.attr('url', el.data('app-url'));
+    app.attr('name', id);
+    app.attr('url', url);
 
     var waitingDialog = bootbox.dialog({
       message: '<h4>Install application</h4>' +
