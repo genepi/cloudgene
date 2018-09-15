@@ -14,10 +14,11 @@ import JobListControl from 'components/core/job/list/';
 import JobDetailControl from 'components/core/job/detail/';
 import SubmitJobControl from 'components/core/job/submit/';
 
-
+// open all external link in new tab
 $(document.links).filter(function() {
   return this.hostname != window.location.hostname;
 }).attr('target', '_blank');
+
 // add token to every ajax request
 $.ajaxPrefilter(function(options) {
   if (!options.beforeSend) {

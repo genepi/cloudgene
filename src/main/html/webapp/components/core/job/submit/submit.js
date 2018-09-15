@@ -1,8 +1,8 @@
 import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
-import form from 'jquery-form';
-import helpers from 'helpers/helpers';
+import 'jquery-form';
+import 'helpers/helpers';
 
 import ErrorPage from 'helpers/error-page';
 import Application from 'models/application';
