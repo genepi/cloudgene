@@ -16,7 +16,7 @@
 			    <b><a href="#!jobs/<%= job.attr('id') %>"><%= job.attr('name') %></a></b><br>
 					<small class="text-muted"><i class="far fa-clock"></i> <%= prettyDate(job.attr('submittedOn')) %>&nbsp;&nbsp;<i class="far fa-hourglass"></i> <%= prettyTime(job.attr('setupStartTime') + job.attr('startTime'), job.attr('setupEndTime') + job.attr('endTime'), job.attr('currentTime')); %> &nbsp;&nbsp;<i class="fas fa-tag"></i> <%= job.attr('application')%></small>
 				</div>
-					<%== can.view.render('components/core/job/components/status-button.ejs', {job: job, buttonId: job.attr('id')}) %>
+					<%== statusButton({job: job, buttonId: job.attr('id')}) %>
 					<div class="dropdown-menu" aria-labelledby="<%=  job.attr('id') %>">
 						<% if( job.attr('state') <= '3' && job.attr('state') != '-1'){ %>
 							<a class="cancel-btn dropdown-item" style="cursor:pointer">Cancel</a>
@@ -31,6 +31,6 @@
 <br>
 		<% }) %>
 
-<%== can.view.render('helpers/pagination.ejs', { total: total, page: parseInt(page), perPage: perPage, link: "#!pages/jobs"}) %>
+<%== pagination({ total: total, page: parseInt(page), perPage: perPage, link: "#!pages/jobs"}) %>
 
 </div>

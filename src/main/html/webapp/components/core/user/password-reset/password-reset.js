@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 
 import template from './password-reset.ejs';
@@ -7,19 +7,20 @@ import template from './password-reset.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    element.hide();
-    element.html(template());
-    element.fadeIn();
+    $(element).hide();
+    $(element).html(template());
+    $(element).fadeIn();
   },
 
-  'submit': function() {
+  'submit': function(element, event) {
+    event.preventDefault();
 
-    var username = this.element.find("[name='username']");
+    var username = $(element).find("[name='username']");
 
     $.ajax({
       url: "/api/v2/users/reset",
       type: "POST",
-      data: this.element.find("#reset-form").serialize(),
+      data: $(element).find("#reset-form").serialize(),
       dataType: 'json',
       success: function(data) {
         if (data.success == true) {
@@ -40,7 +41,6 @@ export default can.Control({
       }
     });
 
-    return false;
   }
 
 });

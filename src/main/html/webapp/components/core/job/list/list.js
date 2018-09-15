@@ -1,4 +1,5 @@
-import can from 'can';
+import can from 'can/legacy';
+import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -7,11 +8,13 @@ import Job from 'models/job';
 import JobOperation from 'models/job-operation';
 
 import template from './list.ejs';
-
+import templateStatusButton from '../components/status-button.ejs';
+import templatePagination from 'helpers/pagination.ejs';
 
 export default can.Control({
 
   "init": function(element, options) {
+
     this.options.refreshers = [];
 
     var that = this;
@@ -39,23 +42,26 @@ export default can.Control({
           that.options.refreshers.push(refresher);
         }
       });
-      that.element.html(template({
+      $(element).html(template({
         jobs: jobs,
         page: options.page2,
         total: jobs.attr('count'),
         perPage: 25,
+        statusButton: templateStatusButton,
+        pagination: templatePagination
       }));
 
-      that.element.fadeIn();
+      $(element).fadeIn();
     }, function(response) {
-      new ErrorPage(that.element, response);
+      new ErrorPage(element, response);
     });
 
   },
 
   '.delete-btn click': function(el, ev) {
 
-    var job = el.closest('.card').data('job');
+    var card = $(el).closest('.card');
+    var job = domData.get.call(card[0], 'job');
 
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -81,9 +87,10 @@ export default can.Control({
   },
 
   '.cancel-btn click': function(el, ev) {
-    var that = this;
+    var element = this.element;
 
-    var job = el.closest('.card').data('job');
+    var card = $(el).closest('.card');
+    var job = domData.get.call(card[0], 'job');
 
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
@@ -99,7 +106,7 @@ export default can.Control({
           // go to jobs page
           bootbox.hideAll();
         }, function(response) {
-          new ErrorPage(that.element, response);
+          new ErrorPage(element, response);
         });
 
         return false;

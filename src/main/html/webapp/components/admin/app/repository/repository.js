@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -23,7 +23,7 @@ export default can.Control({
           installedId.push(value.attr('id'));
         });
 
-        that.element.html(template({
+        $(element).html(template({
           applications: applications,
           installedId: installedId
         }));

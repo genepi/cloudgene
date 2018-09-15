@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import Morris from 'morris.js/morris.js';
 
@@ -9,14 +9,15 @@ import template from './dashboard.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    element.hide();
+
+    $(element).hide();
     var that = this;
 
     Counter.findOne({}, function(counter) {
-      element.html(template({
+      $(element).html(template({
         counter: counter
       }));
-      element.fadeIn();
+      $(element).fadeIn();
 
       $.getJSON("/api/v2/admin/server/statistics", {
         days: 1

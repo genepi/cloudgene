@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -14,39 +14,38 @@ import templateDeleteDialog from './dialogs/delete.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    element.hide();
+
+    $(element).hide();
     User.findOne({
       user: 'me'
     }, function(user) {
-      element.html(template({
+      $(element).html(template({
         user: user
       }));
       options.user = user;
-      element.fadeIn();
+      $(element).fadeIn();
     });
   },
 
-  'submit': function() {
-
-    var that = this;
-
+  'submit': function(element, event) {
+    event.preventDefault();
     var user = new User();
 
     // fullname
-    var fullname = this.element.find("[name='full-name']");
+    var fullname = $(element).find("[name='full-name']");
     var fullnameError = user.checkName(fullname.val());
     this.updateControl(fullname, fullnameError);
 
     // mail
-    var mail = this.element.find("[name='mail']");
+    var mail = $(element).find("[name='mail']");
     var mailError = user.checkMail(mail.val());
     this.updateControl(mail, mailError);
 
     // password if password is not empty. else no password update on server side
-    var newPassword = this.element.find("[name='new-password']");
+    var newPassword = $(element).find("[name='new-password']");
     var newPasswordError = undefined;
     if (newPassword.val() !== "") {
-      var confirmNewPassword = this.element.find("[name='confirm-new-password']");
+      var confirmNewPassword = $(element).find("[name='confirm-new-password']");
       newPasswordError = user.checkPassword(newPassword.val(), confirmNewPassword.val());
       this.updateControl(confirmNewPassword, newPasswordError);
     }
@@ -57,7 +56,7 @@ export default can.Control({
     $.ajax({
       url: "/api/v2/users/me/profile",
       type: "POST",
-      data: this.element.find("#account-form").serialize(),
+      data: $(element).find("#account-form").serialize(),
       dataType: 'json',
       success: function(data) {
 
@@ -78,11 +77,10 @@ export default can.Control({
         }
       },
       error: function(response) {
-        new ErrorPage(that.element, response);
+        new ErrorPage(element, response);
       }
     });
 
-    return false;
   },
 
   '#create_token click': function() {

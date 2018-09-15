@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 
 import ErrorPage from 'helpers/error-page';
@@ -8,21 +8,20 @@ import template from './login.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    element.hide();
-    element.html(template());
-    element.fadeIn();
+    $(element).hide();
+    $(element).html(template());
+    $(element).fadeIn();
   },
 
-  'submit': function() {
+  'submit': function(element, event) {
+    event.preventDefault();
 
-    var element = this.element;
-
-    var password = element.find("[name='loginPassword']");
+    var password = $(element).find("[name='loginPassword']");
 
     $.ajax({
-      url: "login",
+      url: "/login",
       type: "POST",
-      data: this.element.find("#signin-form").serialize(),
+      data: $(element).find("#signin-form").serialize(),
       dataType: 'json',
       success: function(response) {
         if (response.success == true) {
@@ -48,7 +47,6 @@ export default can.Control({
       }
     });
 
-    return false;
   }
 
 });

@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -16,10 +16,10 @@ export default can.Control({
 
     Application.findAll({}, function(applications) {
       that.options.installedApplications = applications;
-      that.element.html(template({
+      $(element).html(template({
         applications: applications
       }));
-      $("#content").fadeIn();
+      $(element).fadeIn();
 
     });
 
@@ -103,13 +103,13 @@ export default can.Control({
   },
 
   '#reload-apps-btn click': function(el, ev) {
-    var that = this;
+    var element = this.element;
 
     Application.findAll({
       reload: 'true'
     }, function(applications) {
 
-      that.element.html(can.view('views/admin/apps.ejs', {
+      $(element).html(template({
         applications: applications
       }));
       $("#content").fadeIn();

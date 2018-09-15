@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -14,17 +14,18 @@ export default can.Control({
 
     Settings.findOne({}, function(settings) {
 
-      that.element.html(template({
+      $(element).html(template({
         settings: settings
       }));
       that.settings = settings;
-      $("#content").fadeIn();
+      $(element).fadeIn();
 
     });
 
   },
 
-  'submit': function() {
+  'submit': function(element, event) {
+    event.preventDefault();
 
     this.settings.attr('name', this.element.find("[name='name']").val());
     this.settings.attr('background-color', this.element.find("[name='background-color']").val());
@@ -35,8 +36,6 @@ export default can.Control({
 
 
     bootbox.alert("Settings updated.");
-
-    return false;
   }
 
 });

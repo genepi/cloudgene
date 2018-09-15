@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 
 import User from 'models/user';
@@ -9,20 +9,21 @@ import template from './password-recovery.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    element.hide();
-    element.html(template({
+    $(element).hide();
+    $(element).html(template({
       data: options.data
     }));
-    element.fadeIn();
+    $(element).fadeIn();
   },
 
-  'submit': function() {
+  'submit': function(element, event) {
+    event.preventDefault();
 
     var user = new User();
 
     // password
-    var newPassword = this.element.find("[name='new-password']");
-    var confirmNewPassword = this.element.find("[name='confirm-new-password']");
+    var newPassword = $(element).find("[name='new-password']");
+    var confirmNewPassword = $(element).find("[name='confirm-new-password']");
     var error = user.checkPassword(newPassword.val(), confirmNewPassword.val());
     if (error) {
       confirmNewPassword.closest('.control-group').addClass('error');
@@ -36,7 +37,7 @@ export default can.Control({
     $.ajax({
       url: "/api/v2/users/update-password",
       type: "POST",
-      data: this.element.find("#update-password-form")
+      data: $(element).find("#update-password-form")
         .serialize(),
       dataType: 'json',
       success: function(response) {
@@ -66,8 +67,6 @@ export default can.Control({
 
       }
     });
-
-    return false;
 
   }
 

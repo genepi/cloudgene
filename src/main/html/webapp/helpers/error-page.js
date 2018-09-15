@@ -1,10 +1,13 @@
-import can from 'can';
+import $ from 'jquery';
+import can from 'can/legacy';
+
+import template from './error-page.ejs';
 
 export default can.Control({
 
-  "init": function(element, options) {
-    this.element.hide();
 
+
+  "init": function(element, options) {
     // check if response
     var error = {};
     if (options.responseJSON) {
@@ -19,10 +22,9 @@ export default can.Control({
       };
 
     }
-    this.element.html(can.view('helpers/error-page.ejs', {
+    $(element).html(template({
       error: error
     }));
-    this.element.fadeIn();
   }
 
 });

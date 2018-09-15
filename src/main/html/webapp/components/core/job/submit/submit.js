@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 import form from 'jquery-form';
@@ -16,27 +16,29 @@ import templateUploadingDialog from './dialogs/uploading.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    var that = this;
+
     Application.findOne({
-      tool: options.tool
+      tool: options.app
     }, function(application) {
-      element.hide();
-      element.html(template({
+      $(element).hide();
+      $(element).html(template({
         application: application
       }));
-      element.fadeIn();
+      $(element).fadeIn();
 
     }, function(response) {
-      new ErrorPage(that.element, response);
+      new ErrorPage(element, response);
     });
 
   },
 
-  '#parameters submit': function(form) {
+  '#parameters submit': function(form, event) {
+
+    event.preventDefault();
 
     // check required parameters.
-    if (form[0].checkValidity() === false) {
-      form[0].classList.add('was-validated');
+    if (form.checkValidity() === false) {
+      form.classList.add('was-validated');
       return false;
     }
 
@@ -65,7 +67,7 @@ export default can.Control({
       }
 
       //submit form and upload files
-      form.ajaxSubmit({
+      $(form).ajaxSubmit({
         dataType: 'json',
 
         headers: {
@@ -110,21 +112,21 @@ export default can.Control({
 
     //show upload dialog. fires uploading files.
     uploadDialog.modal('show');
-    return false;
+
   },
 
   // custom file upload controls for single files
 
   '#select-single-file-btn click': function(button) {
     // trigger click to open file dialog
-    var fileUpload = button.closest('.col-sm-3').find(":file");
+    var fileUpload = $(button).closest('.col-sm-3').find(":file");
     fileUpload.trigger("click");
   },
 
   '.file-upload-field-single change': function(fileUpload) {
-    var filenameControl = fileUpload.parent().find(".file-name-control");
-    if (fileUpload[0].files.length > 0) {
-      filenameControl.val(fileUpload[0].files[0].name);
+    var filenameControl = $(fileUpload).parent().find(".file-name-control");
+    if (fileUpload.files.length > 0) {
+      filenameControl.val(fileUpload.files[0].name);
     } else {
       filenameControl.val('');
     }
@@ -134,21 +136,21 @@ export default can.Control({
 
   '#select-files-btn click': function(button) {
     // trigger click to open file dialog
-    var fileUpload = button.parent().find(":file");
+    var fileUpload = $(button).parent().find(":file");
     fileUpload.trigger("click");
   },
 
   '.file-upload-field-multiple change': function(fileUpload) {
     //update list of files
-    var fileList = fileUpload.parent().find(".file-list");
+    var fileList = $(fileUpload).parent().find(".file-list");
     fileList.empty();
-    for (var i = 0; i < fileUpload[0].files.length; i++) {
-      fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + fileUpload[0].files[i].name + '</li>');
+    for (var i = 0; i < fileUpload.files.length; i++) {
+      fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + fileUpload.files[i].name + '</li>');
     }
 
     fileUpload.parent().find("#change-files");
 
-    if (fileUpload[0].files.length > 0) {
+    if (fileUpload.files.length > 0) {
       fileUpload.parent().find("#select-files").hide();
       fileUpload.parent().find("#change-files").show();
       fileUpload.parent().find("#remove-all-files").show();
@@ -161,16 +163,16 @@ export default can.Control({
 
   '#change-files-btn click': function(button) {
     // trigger click to open file dialog
-    var fileUpload = button.parent().find(":file");
+    var fileUpload = $(button).parent().find(":file");
     fileUpload.trigger("click");
   },
 
   '#remove-all-files-btn click': function(button) {
     //clear hidden file upload field
-    var fileUpload = button.parent().find(":file");
+    var fileUpload = $(button).parent().find(":file");
     fileUpload.val('');
     //clear list of files
-    var fileList = button.parent().find(".file-list");
+    var fileList = $(button).parent().find(".file-list");
     fileList.empty();
     fileUpload.parent().find("#select-files").show();
     fileUpload.parent().find("#change-files").hide();
@@ -182,24 +184,25 @@ export default can.Control({
   '.folder-source change': function(source) {
 
     //delete filelist
-    var parent = source.parent();
+    var parent = $(source).parent();
 
-    var fileList = parent.find(".file-list");
+    var fileList = $(parent).find(".file-list");
     fileList.empty();
 
     //update parameter source
-    var param = parent.data('param');
+    //TODO: change to domData
+    var param = $(parent).data('param');
     param.attr('source', source.val());
   },
 
   '#add-urls-btn click': function(button) {
 
-    var parent = button.parent();
+    var parent = $(button).parent();
 
-    var fileList = parent.find(".file-list");
+    var fileList = $(parent).find(".file-list");
     //fileList.empty();
 
-    var paramInputField = parent.find(".hidden-parameter");
+    var paramInputField = $(parent).find(".hidden-parameter");
 
 
     var urlDialog = bootbox.confirm(
@@ -245,12 +248,12 @@ export default can.Control({
 
   '#add-sftp-files-btn click': function(button) {
 
-    var parent = button.parent();
+    var parent = $(button).parent();
 
-    var fileList = parent.find(".file-list");
+    var fileList = $(parent).find(".file-list");
     //fileList.empty();
 
-    var paramInputField = parent.find(".hidden-parameter");
+    var paramInputField = $(parent).find(".hidden-parameter");
 
     var urlDialog = bootbox.confirm(
       templateSftpDialog(),

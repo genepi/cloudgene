@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 
 export default can.Model.extend({
   findOne: 'GET /api/v2/jobs/{id}',

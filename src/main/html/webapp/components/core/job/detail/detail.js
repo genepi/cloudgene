@@ -1,5 +1,6 @@
-import can from 'can';
 import $ from 'jquery';
+import can from 'can/legacy';
+import domData from 'can-util/dom/data/data';
 import bootbox from 'bootbox';
 
 import ErrorPage from 'helpers/error-page';
@@ -8,6 +9,8 @@ import JobDetails from 'models/job-details';
 import JobOperation from 'models/job-operation';
 
 import template from './detail.ejs';
+import templateStatusButton from '../components/status-button.ejs';
+import templateStatusImage from '../components/status-image.ejs';
 import templateShareFolder from './share-folder/share-folder.ejs';
 import templateShareFile from './share-file/share-file.ejs';
 
@@ -19,13 +22,15 @@ export default can.Control({
     this.active = true;
 
     JobDetails.findOne({
-        id: options.jobId
+        id: options.job
       }, function(job) {
 
-        that.element.html(template({
+        $(element).html(template({
           job: job,
           results: options.results,
-          admin: options.admin
+          admin: options.admin,
+          statusImage: templateStatusImage,
+          statusButton: templateStatusButton
         }));
         that.job = job;
         that.refresh();
@@ -120,9 +125,9 @@ export default can.Control({
     });
   },
 
-  '.share-file-btn click': function(e) {
-    var output = e.closest('tr').data('output');
-
+  '.share-file-btn click': function(el) {
+    var tr = $(el).closest('tr');
+    var output = domData.get.call(tr[0], 'output');
     bootbox.alert(templateShareFile({
       hostname: location.protocol + '//' + location.host,
       output: output
@@ -131,9 +136,9 @@ export default can.Control({
     });
   },
 
-  '.share-folder-btn click': function(e) {
-    var files = e.closest('tr').data('files');
-
+  '.share-folder-btn click': function(el) {
+    var tr = $(el).closest('tr');
+    var files = domData.get.call(tr[0], 'files');
     bootbox.alert(templateShareFolder({
       hostname: location.protocol + '//' + location.host,
       files: files
@@ -178,10 +183,14 @@ export default can.Control({
           id: that.job.id
         }, function(job) {
 
-          if (this.active) {
+          if (that.active) {
 
-            that.element.html(can.view('components/core/job/detail/detail.ejs', {
-              job: job
+            $(that.element).html(template({
+              job: job,
+              admin: that.options.admin,
+              results: that.options.results,
+              statusImage: templateStatusImage,
+              statusButton: templateStatusButton
             }));
           }
 

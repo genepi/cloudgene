@@ -1,0 +1,36 @@
+<div class="jumbotron jumbotron-fluid bg-primary text-white">
+  <div class="container">
+    <h1>Welcome to Cloudgene!</h1>
+    <p>Congratulations! The webserver was installed successfully!</p>
+    <% if(!loggedIn) {%>
+    <p>
+      <a class="btn btn-lg btn-success" href="/#!pages/login">Login</a>&nbsp;
+      <a class="btn btn-lg btn-primary" href="/#!pages/register">Sign up now</a>
+    </p>
+
+    <% } else { %>
+      <p><a class="btn btn-primary btn-lg" href="http://www.cloudgene.io" target="_blank" role="button">Learn more »</a></p>
+    <% } %>
+  </div>
+</div>
+
+<div class="container bd-content" style="margin-bottom: 0px;">
+
+  <h3>Congratulations</h3>
+
+  <p>The webserver was installed successfully!</p>
+
+
+  <h3>What's next?</h3>
+
+  <p>Since this is a fresh installation of Cloudgene, please perform the following steps to complete the installation:
+    <ol>
+      <li><b>Login</b> as admin with the default admin password</li>
+      <li>Change your password immediately (see <a href="/#!pages/profile">Profile</a>)</li>
+      <li>Open the <a href="admin.html">Admin-Panel</a> and install your first <a href="admin.html#!pages/admin-apps-repository">application</a></li>
+    </ol>
+
+  <p>Once you're up and running, we suggest you have a look at the <a href="http://docs.cloudgene.io" target="_blank"><i class="fas fa-book"></i> Documentation</a>.<br>
+    Discover new applications on <a href="http://apps.cloudgene.io" target="_blank"><i class="fas fa-database"></i> apps.cloudgene.io</a></p>
+
+</div>

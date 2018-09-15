@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -11,17 +11,16 @@ import template from './templates.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    var that = this;
-    Template.findAll({}, function(templates) {
-
-      that.element.html(template({
-        templates: templates,
-      }));
-      $("#content").fadeIn();
-
-    }, function(response) {
-      new ErrorPage(that.element, response);
-    });
+    Template.findAll({},
+      function(templates) {
+        $(element).html(template({
+          templates: templates,
+        }));
+        $("#content").fadeIn();
+      },
+      function(response) {
+        new ErrorPage(element, response);
+      });
   },
 
   '.edit-btn click': function(el, ev) {

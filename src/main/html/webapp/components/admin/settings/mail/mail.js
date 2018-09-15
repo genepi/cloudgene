@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -14,7 +14,7 @@ export default can.Control({
 
     Settings.findOne({}, function(settings) {
 
-      that.element.html(template({
+      $(element).html(template({
         settings: settings
       }));
       that.settings = settings;
@@ -32,20 +32,20 @@ export default can.Control({
     }
   },
 
-  'submit': function() {
+  'submit': function(el, event) {
+    event.preventDefault();
 
-    this.settings.attr('mail-smtp', this.element.find("[name='mail-smtp']").val());
-    this.settings.attr('mail-port', this.element.find("[name='mail-port']").val());
-    this.settings.attr('mail-user', this.element.find("[name='mail-user']").val());
-    this.settings.attr('mail-password', this.element.find("[name='mail-password']").val());
-    this.settings.attr('mail-name', this.element.find("[name='mail-name']").val());
-    this.settings.attr('piggene', this.element.find("[name='piggene']").val());
+    this.settings.attr('mail-smtp', $(this.element).find("[name='mail-smtp']").val());
+    this.settings.attr('mail-port', $(this.element).find("[name='mail-port']").val());
+    this.settings.attr('mail-user', $(this.element).find("[name='mail-user']").val());
+    this.settings.attr('mail-password', $(this.element).find("[name='mail-password']").val());
+    this.settings.attr('mail-name', $(this.element).find("[name='mail-name']").val());
+    this.settings.attr('piggene', $(this.element).find("[name='piggene']").val());
 
     this.settings.save();
 
     bootbox.alert("E-Mail configuration updated.");
 
-    return false;
   }
 
 });

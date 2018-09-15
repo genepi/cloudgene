@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -12,15 +12,13 @@ import template from './list.ejs';
 export default can.Control({
 
   "init": function(element, options) {
-    var that = this;
     User.findAll({
       state: "failed"
     }, function(users) {
-      that.element
-        .html(template(users));
-      $("#content").fadeIn();
+      $(element).html(template(users));
+      $(element).fadeIn();
     }, function(response) {
-      new ErrorPage(that.element, response);
+      new ErrorPage(element, response);
     });
 
   },

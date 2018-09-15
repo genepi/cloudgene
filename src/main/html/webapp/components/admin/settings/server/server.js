@@ -1,4 +1,4 @@
-import can from 'can';
+import can from 'can/legacy';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -13,19 +13,20 @@ export default can.Control({
 
   "init": function(element, options) {
     var that = this;
-    element.hide();
+    $(element).hide();
     Cluster.findOne({}, function(cluster) {
       that.cluster = cluster;
-      element.html(template({
+      $(element).html(template({
         cluster: cluster
       }));
-      element.fadeIn();
+      $(element).fadeIn();
     });
 
   },
 
   "#maintenance-enter-btn click": function() {
     var that = this;
+    var element = this.element;
 
     Template.findOne({
       key: 'MAINTENANCE_MESSAGE'
@@ -42,7 +43,7 @@ export default can.Control({
 
             $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
               bootbox.alert(data);
-              that.init(that.element, that.options);
+              that.init(element, that.options);
             }, function(data) {
               bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
             });
@@ -51,7 +52,7 @@ export default can.Control({
         });
 
     }, function(response) {
-      new ErrorPage(that.element, response);
+      new ErrorPage(element, response);
     });
 
   },
