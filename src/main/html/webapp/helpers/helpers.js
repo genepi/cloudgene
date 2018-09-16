@@ -1,14 +1,14 @@
-import can from 'can/legacy';
+import ejs from 'can-ejs';
 import dateFormat from 'dateformat';
 import domData from 'can-util/dom/data/data';
 
 
-can.EJS.Helpers.prototype.can = {};
-can.EJS.Helpers.prototype.can.data = function(el, key, value){
+ejs.Helpers.prototype.can = {};
+ejs.Helpers.prototype.can.data = function(el, key, value){
   domData.set.call(el, key, value);
 }
 
-can.EJS.Helpers.prototype.prettyState = function(state) {
+ejs.Helpers.prototype.prettyState = function(state) {
 
   if (this.state == 1) {
     return 'Waiting';
@@ -28,7 +28,7 @@ can.EJS.Helpers.prototype.prettyState = function(state) {
 
 };
 
-can.EJS.Helpers.prototype.prettyTime = function(start, end, current) {
+ejs.Helpers.prototype.prettyTime = function(start, end, current) {
 
   if (start === 0 && end === 0) {
     return '-';
@@ -57,7 +57,7 @@ can.EJS.Helpers.prototype.prettyTime = function(start, end, current) {
 
 };
 
-can.EJS.Helpers.prototype.prettyDate = function(unixTimestamp) {
+ejs.Helpers.prototype.prettyDate = function(unixTimestamp) {
 
   if (unixTimestamp > 0) {
     var dt = new Date(unixTimestamp);
@@ -68,7 +68,7 @@ can.EJS.Helpers.prototype.prettyDate = function(unixTimestamp) {
 
 };
 
-can.EJS.Helpers.prototype.getClassByJob = function(job) {
+ejs.Helpers.prototype.getClassByJob = function(job) {
   if (job.attr('state') == '-1') {
     return 'job-dark';
   }

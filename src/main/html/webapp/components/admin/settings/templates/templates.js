@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
@@ -9,7 +9,7 @@ import Template from 'models/template';
 import template from './templates.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     Template.findAll({},

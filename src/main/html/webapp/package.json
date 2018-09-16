@@ -5,16 +5,21 @@
     "@fortawesome/fontawesome-free": "5.3.1",
     "bootbox": "4.4.0",
     "bootstrap": "4.0.0",
-    "can": "^3.13.1",
+    "can-ajax": "1.1.4",
+    "can-map": "3.4.2",
+    "can-route": "3.3.4",
+    "can-deparam": "1.0.3",
+    "can-control": "3.2.4",
+    "can-connect": "1.5.18",
+    "can-ejs": "3.1.8",
     "can-util": "3.12.0",
-    "can-ejs": "",
     "dateformat": "3.0.3",
     "jquery": "2.2.4",
     "jquery-form": "3.50.0",
     "md5": "2.2.1",
     "morris.js": "0.5.0",
     "popper.js": "1.12.9",
-    "raphael": "2.1.4",
+    "raphael": "2.2.7",
     "steal": "^1.5.13"
   },
   "scripts": {
@@ -45,6 +50,14 @@
     "map": {
       "jquery": "jquery/dist/jquery",
       "jquery/jquery": "jquery/dist/jquery"
+    },
+    "meta": {
+      "raphael": {
+        "format": "global"
+      },
+      "jquery": {
+        "format": "global"
+      }
     }
   }
 }

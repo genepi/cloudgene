@@ -1,4 +1,5 @@
-import can from 'can/legacy';
+import Control from 'can-control';
+import route from 'can-route';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
@@ -14,7 +15,7 @@ import templateSftpDialog from './dialogs/sftp.ejs';
 import templateUploadingDialog from './dialogs/uploading.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
 
@@ -80,8 +81,8 @@ export default can.Control({
           uploadDialog.modal('hide');
 
           if (answer.success) {
-            can.route('jobs/:job');
-            can.route.attr({
+            route('jobs/:job');
+            route.attr({
               route: 'jobs/:job',
               job: answer.id,
               page: 'jobs'

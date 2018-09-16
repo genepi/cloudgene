@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import $ from 'jquery';
 import Morris from 'morris.js/morris.js';
 
@@ -6,7 +6,7 @@ import Counter from 'models/counter';
 import template from './dashboard.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
 

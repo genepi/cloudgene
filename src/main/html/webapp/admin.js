@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import 'can/legacy';
 import 'popper.js';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -23,22 +22,6 @@ import SettingsLogsControl from 'components/admin/settings/logs/';
 $(document.links).filter(function() {
   return this.hostname != window.location.hostname;
 }).attr('target', '_blank');
-// add token to every ajax request
-$.ajaxPrefilter(function(options) {
-  if (!options.beforeSend) {
-    options.beforeSend = function(xhr) {
-      if (localStorage.getItem("cloudgene")) {
-        try {
-          // get data
-          var data = JSON.parse(localStorage.getItem("cloudgene"));
-          xhr.setRequestHeader("X-CSRF-Token", data.csrf);
-        } catch (e) {
-          // do nothing
-        }
-      }
-    }
-  }
-});
 
 var routes = [{
   path: '',

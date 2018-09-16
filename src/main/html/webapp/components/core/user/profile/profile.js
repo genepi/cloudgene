@@ -1,4 +1,5 @@
-import can from 'can/legacy';
+import Control from 'can-control';
+import deparam from 'can-deparam';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -11,7 +12,7 @@ import template from './profile.ejs';
 import templateDeleteDialog from './dialogs/delete.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
 
@@ -158,7 +159,7 @@ export default can.Control({
 
           // get form parameters
           var form = deleteAcountDialog.find("form");
-          var values = can.deparam(form.serialize());
+          var values = deparam(form.serialize());
 
           // create delete request
           var userProfile = new UserProfile();

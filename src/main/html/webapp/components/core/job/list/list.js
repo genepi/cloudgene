@@ -1,8 +1,9 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
+import 'helpers/helpers';
 import ErrorPage from 'helpers/error-page';
 import Job from 'models/job';
 import JobOperation from 'models/job-operation';
@@ -11,7 +12,7 @@ import template from './list.ejs';
 import templateStatusButton from '../components/status-button.ejs';
 import templatePagination from 'helpers/pagination.ejs';
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
 
@@ -123,12 +124,12 @@ export default can.Control({
       refresher.stop();
     });
 
-    can.Control.prototype.destroy.call(this);
+    Control.prototype.destroy.call(this);
   }
 
 });
 
-var JobRefresher = can.Control({
+var JobRefresher = Control({
 
   setJob: function(job) {
     this.job = job;

@@ -1,12 +1,12 @@
 import $ from 'jquery';
-import can from 'can/legacy';
+import Control from 'can-control';
 
 import Counter from 'models/counter';
 
 import template from 'static/home.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
 

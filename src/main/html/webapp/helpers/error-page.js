@@ -1,11 +1,9 @@
 import $ from 'jquery';
-import can from 'can/legacy';
+import Control from 'can-control';
 
 import template from './error-page.ejs';
 
-export default can.Control({
-
-
+export default Control.extend({
 
   "init": function(element, options) {
     // check if response

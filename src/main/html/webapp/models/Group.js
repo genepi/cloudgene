@@ -1,5 +1,5 @@
-import can from 'can/legacy';
+import Model from 'can-connect/can/model/model';
 
-export default can.Model({
+export default Model.extend({
   findAll: 'GET /api/v2/admin/groups',
 }, {});

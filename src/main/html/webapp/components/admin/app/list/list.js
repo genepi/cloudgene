@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
@@ -10,7 +10,7 @@ import templateInstallGithub from './install-github/install-github.ejs';
 import templateInstallUrl from './install-url/install-url.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     var that = this;

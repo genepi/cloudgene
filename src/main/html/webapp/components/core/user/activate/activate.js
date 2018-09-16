@@ -1,10 +1,10 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import $ from 'jquery';
 
 import ErrorPage from 'helpers/error-page';
 import template from './activate.ejs';
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
 

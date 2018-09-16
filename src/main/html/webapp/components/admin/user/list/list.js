@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import md5 from 'md5';
@@ -11,7 +11,7 @@ import Group from 'models/group';
 import template from './list.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     User.findAll({

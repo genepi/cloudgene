@@ -1,4 +1,3 @@
-import 'can/legacy';
 import 'popper.js';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
@@ -78,8 +77,6 @@ var routes = [{
     message: 'Oops, Sorry We Can\'t Find That Page!'
   }
 }];
-
-
 
 new RouterControl("#content", {
   routes: routes,

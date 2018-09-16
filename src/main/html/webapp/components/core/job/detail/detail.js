@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import can from 'can/legacy';
+import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import bootbox from 'bootbox';
 
@@ -15,7 +15,7 @@ import templateShareFolder from './share-folder/share-folder.ejs';
 import templateShareFile from './share-file/share-file.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     var that = this;
@@ -207,7 +207,7 @@ export default can.Control({
 
   destroy: function() {
     this.active = false;
-    can.Control.prototype.destroy.call(this);
+    Control.prototype.destroy.call(this);
   }
 
 });

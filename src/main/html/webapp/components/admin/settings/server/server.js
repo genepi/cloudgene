@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
@@ -9,18 +9,19 @@ import Template from 'models/template';
 import template from './server.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     var that = this;
     $(element).hide();
-    Cluster.findOne({}, function(cluster) {
-      that.cluster = cluster;
-      $(element).html(template({
-        cluster: cluster
-      }));
-      $(element).fadeIn();
-    });
+    Cluster.findOne({},
+      function(cluster) {
+        that.cluster = cluster;
+        $(element).html(template({
+          cluster: cluster
+        }));
+        $(element).fadeIn();
+      });
 
   },
 

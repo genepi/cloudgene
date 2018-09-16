@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import $ from 'jquery';
 
 import User from 'models/user';
@@ -6,7 +6,7 @@ import User from 'models/user';
 import template from './password-recovery.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     $(element).hide();

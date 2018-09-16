@@ -1,4 +1,4 @@
-import can from 'can/legacy';
+import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
@@ -13,7 +13,7 @@ import templateTable from './table/table.ejs';
 import templateStatusButton from 'components/core/job/components/status-button.ejs';
 
 
-export default can.Control({
+export default Control.extend({
 
   "init": function(element, options) {
     $(element).html(template());
