@@ -8,7 +8,7 @@ import ErrorPage from 'helpers/error-page';
 import User from 'models/user';
 import Group from 'models/group';
 
-import template from './list.ejs';
+import template from './list.stache';
 
 
 export default Control.extend({
