@@ -16,6 +16,13 @@ import UserPasswordRecoveryControl from 'components/core/user/password-recovery/
 import UserPasswordResetControl from 'components/core/user/password-reset/';
 
 var routes = [{
+  path: '',
+  control: DashboardControl,
+  classes: 'fullsize-container',
+  options: {
+    login: true
+  }
+}, {
   path: 'pages/home',
   control: DashboardControl,
   classes: 'fullsize-container',

@@ -37,6 +37,13 @@ $.ajaxPrefilter(function(options) {
 });
 
 var routes = [{
+  path: '',
+  control: DashboardControl,
+  classes: 'fullsize-container',
+  options: {
+    login: false
+  }
+}, {
   path: 'pages/home',
   control: DashboardControl,
   classes: 'fullsize-container',

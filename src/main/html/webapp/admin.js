@@ -41,13 +41,17 @@ $.ajaxPrefilter(function(options) {
 });
 
 var routes = [{
-
+  path: '',
+  control: DashboardControl,
+  options: {
+    login: false
+  }
+}, {
   path: 'pages/admin-home',
   control: DashboardControl,
   options: {
     login: false
   }
-
 }, {
   path: 'pages/admin-jobs',
   control: JobListControl
