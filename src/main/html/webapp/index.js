@@ -18,6 +18,7 @@ import UserPasswordResetControl from 'components/core/user/password-reset/';
 var routes = [{
   path: 'pages/home',
   control: DashboardControl,
+  classes: 'fullsize-container',
   options: {
     login: true
   }
@@ -74,5 +75,6 @@ var routes = [{
 
 
 new RouterControl("#content", {
-  routes: routes
+  routes: routes,
+  classes: 'bd-content py-5 container'
 });

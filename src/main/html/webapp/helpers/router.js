@@ -23,13 +23,15 @@ export default can.Control({
 
   '{routingMap} change': function() {
     var index = can.route.data.attr('index');
+    var route = this.options.routes[index];
     var data = new can.Map();
     data.attr(can.route.data);
-    data.attr(this.options.routes[index].options);
+    data.attr(route.options);
     this.activate({
-      control: this.options.routes[index].control,
+      control: route.control,
       data: data,
-      id: ''
+      id: '',
+      classes: route.classes
     });
   },
 
@@ -55,6 +57,11 @@ export default can.Control({
 
     this.element.empty();
     var view = $('<div>');
+    if (options.classes) {
+      view.addClass(options.classes);
+    } else {
+      view.addClass(this.options.classes);
+    }
     view.html('Loading...');
     this.element.append(view);
     new Control(view[0], data);

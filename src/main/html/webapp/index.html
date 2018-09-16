@@ -1,99 +1,94 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="favicon.ico">
 
-    <title>${appname}</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="favicon.ico">
 
-    <!--(if target dist)>
+  <title>${appname}</title>
+
+  <!--(if target dist)>
     <link href="cloudgene.vendor.min.css" rel="stylesheet">
     <script defer src="assets/fontawesome-5.0.6.js"></script>
     <!(endif)-->
-  </head>
+</head>
 
-  <body class="bg-light">
+<body class="bg-light">
 
-    <nav class="navbar navbar-expand-md fixed-top ${foreground}" style="background: ${background};">
-      <div class="container d-flex justify-content-between">
+  <nav class="navbar navbar-expand-md fixed-top ${foreground}" style="background: ${background};">
+    <div class="container d-flex justify-content-between">
 
-       <a class="navbar-brand" href="#!pages/home">${appname}</a>
-       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+      <a class="navbar-brand" href="#!pages/home">${appname}</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
          <span class="navbar-toggler-icon"></span>
        </button>
 
-       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-         <ul class="navbar-nav mr-auto">
-           <li class="nav-item active">
-             <a class="nav-link" href="#!pages/home">Home <span class="sr-only">(current)</span></a>
-           </li>
+      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#!pages/home">Home <span class="sr-only">(current)</span></a>
+          </li>
 
-					 <#if apps?size gt 0>
-					 	<#if apps?size == 1>
-					 		<li class="nav-item">
-								<a class="nav-link" href="#!run/${apps[0].id}"> Run</a>
-							</li>
-						<#else>
-	           	<li class="nav-item dropdown">
-	             <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Run</a>
-	             <div class="dropdown-menu" aria-labelledby="dropdown01">
-								 <#list apps as app>
-	               <a class="dropdown-item" href="#!run/${app.id}">${app.name}</a>
-								 </#list>
-	             </div>
-	           	</li>
-					 	</#if>
-					 </#if>
+          <#if apps?size gt 0>
+            <#if apps?size==1>
+              <li class="nav-item">
+                <a class="nav-link" href="#!run/${apps[0].id}"> Run</a>
+              </li>
+              <#else>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Run</a>
+                  <div class="dropdown-menu" aria-labelledby="dropdown01">
+                    <#list apps as app>
+                      <a class="dropdown-item" href="#!run/${app.id}">${app.name}</a>
+                    </#list>
+                  </div>
+                </li>
+            </#if>
+          </#if>
 
-					 <#list navigation as item>
- 						<#if item.link??>
-						<li class="nav-item">
-							<a class="nav-link" href="${item.link}"> ${item.name}</a>
-						</li>
- 						<#else>
-						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" id="${item.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${item.name}</a>
-							<div class="dropdown-menu" aria-labelledby="${item.id}">
- 									<#list item.items as subitem>
-									<a class="dropdown-item" href="${subitem.link}"> ${subitem.name}</a>
- 									</#list>
- 								</ul>
- 							</li>
- 						</#if>
- 					</#list>
-					 <li class="nav-item">
-             <a class="nav-link" href="#!pages/contact">Contact</a>
-           </li>
-					 <li class="nav-item">
-             <a class="nav-link" href="#!pages/register">Sign up</a>
-           </li>
-					 <li class="nav-item">
-             <a class="nav-link" href="#!pages/login">Login</a>
-           </li>
-         </ul>
-       </div>
-     </div>
-     </nav>
+          <#list navigation as item>
+            <#if item.link??>
+              <li class="nav-item">
+                <a class="nav-link" href="${item.link}"> ${item.name}</a>
+              </li>
+              <#else>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="${item.id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">${item.name}</a>
+                  <div class="dropdown-menu" aria-labelledby="${item.id}">
+                    <#list item.items as subitem>
+                      <a class="dropdown-item" href="${subitem.link}"> ${subitem.name}</a>
+                    </#list>
+        </ul>
+        </li>
+        </#if>
+        </#list>
+        <li class="nav-item">
+          <a class="nav-link" href="#!pages/contact">Contact</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#!pages/register">Sign up</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#!pages/login">Login</a>
+        </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
-     <#if maintenaceMessage??>
-       <div class="alert alert-danger" style="margin-bottom: 0px;">
-         <div class="container">
-           <i class="fas fa-exclamation-triangle"></i> ${maintenaceMessage}
-         </div>
-       </div>
-     </#if>
+  <#if maintenaceMessage??>
+    <div class="alert alert-danger" style="margin-bottom: 0px;">
+      <div class="container">
+        <i class="fas fa-exclamation-triangle"></i> ${maintenaceMessage}
+      </div>
+    </div>
+  </#if>
 
-     <div class="bg-white">
-       <div id="fullsize-content" style="margin-top: 0px;" class="bg-white">
-       </div>
-      <div class="py-5 container">
-  			<div id="content" class="bd-content"></div>
-      </div><!-- /.container -->
-     </div>
+  <div id="content" class="bg-white"></div>
+
 
   <footer class="text-muted">
     <div class="container">
@@ -104,18 +99,19 @@
     </div>
   </footer>
 
-    <!-- Bootstrap core JavaScript
+  <!-- Bootstrap core JavaScript
     ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-		<!--(if target dev)><!-->
-    <script src="./node_modules/steal/steal.js" main="index.js"></script>
-		<!--<!(endif)-->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <!--(if target dev)><!-->
+  <script src="./node_modules/steal/steal.js" main="index.js"></script>
+  <!--<!(endif)-->
 
 
-		<!--(if target dist)>
+  <!--(if target dist)>
 		<script src="cloudgene.vendor.min.js"></script>
 		<script src="cloudgene.min.js"></script>
 		<!(endif)-->
 
-  </body>
+</body>
+
 </html>
