@@ -8,8 +8,8 @@ import User from 'models/user';
 import UserToken from 'models/user-token';
 import UserProfile from 'models/user-profile';
 
-import template from './profile.ejs';
-import templateDeleteDialog from './dialogs/delete.ejs';
+import template from './profile.stache';
+import templateDeleteDialog from './dialogs/delete.stache';
 
 
 export default Control.extend({

@@ -1,7 +1,7 @@
 import Control from 'can-control';
 import $ from 'jquery';
 
-import template from './password-reset.ejs';
+import template from './password-reset.stache';
 
 
 export default Control.extend({

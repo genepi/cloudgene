@@ -3,7 +3,7 @@ import $ from 'jquery';
 
 import User from 'models/user';
 
-import template from './signup.ejs';
+import template from './signup.stache';
 
 
 export default Control.extend({

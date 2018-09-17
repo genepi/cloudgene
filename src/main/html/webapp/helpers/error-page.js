@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import Control from 'can-control';
 
-import template from './error-page.ejs';
+import template from './error-page.stache';
 
 export default Control.extend({
 

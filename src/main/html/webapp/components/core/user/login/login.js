@@ -2,7 +2,7 @@ import Control from 'can-control';
 import $ from 'jquery';
 
 import ErrorPage from 'helpers/error-page';
-import template from './login.ejs';
+import template from './login.stache';
 
 
 export default Control.extend({

@@ -8,17 +8,17 @@ Please fill out the form below to change your account settings or your password.
 
 	<h4>Personal Information</h4>
 
-	<input name="username" type="hidden" value="<%= user.attr('username') %>">
+	<input name="username" type="hidden" value="{{user.username'}}">
 
 	<div class="form-group">
 		<label for="full-name" class="control-label">Full Name:</label>
-		<input id="full-name" name="full-name" type="text" value="<%= user.attr('fullName') %>" class="form-control col-sm-3">
+		<input id="full-name" name="full-name" type="text" value="{{user.fullName}}" class="form-control col-sm-3">
 		<div class="invalid-feedback"></div>
 	</div>
 
 	<div class="form-group">
 		<label for="mail" class="control-label">E-Mail:</label>
-		<input id="mail" name="mail" type="text" value="<%= user.attr('mail') %>" class="form-control col-sm-3">
+		<input id="mail" name="mail" type="text" value="{{user.mail}}" class="form-control col-sm-3">
 		<div class="invalid-feedback"></div>
 	</div>
 
@@ -49,18 +49,18 @@ Please fill out the form below to change your account settings or your password.
 <p>This service provides a rich RestAPI to submit, monitor and download jobs.</p>
 <p>You need a access token to use the API. <a href="">Learn more</a>.</p>
 
-<% if(user.attr('hasApiToken')){ %>
+{{#user.hasApiToken}}
 
-<div class="control-group">
-	<div class="controls">
-		<button class="btn btn-primary" id="show_token">Show API Token</button>
-		<button class="btn btn-danger" id="revoke_token">Revoke API Token</button>
+	<div class="control-group">
+		<div class="controls">
+			<button class="btn btn-primary" id="show_token">Show API Token</button>
+			<button class="btn btn-danger" id="revoke_token">Revoke API Token</button>
+		</div>
 	</div>
-</div>
-<% } else { %>
-<button class="btn btn-primary" id="create_token">Create API Token
+	{{else}}
+		<button class="btn btn-primary" id="create_token">Create API Token
 	</button>
-<% } %>
+{{/user.hasApiToken}}
 
 <hr>
 

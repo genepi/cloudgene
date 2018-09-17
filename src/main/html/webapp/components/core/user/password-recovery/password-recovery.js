@@ -3,7 +3,7 @@ import $ from 'jquery';
 
 import User from 'models/user';
 
-import template from './password-recovery.ejs';
+import template from './password-recovery.stache';
 
 
 export default Control.extend({
@@ -11,7 +11,8 @@ export default Control.extend({
   "init": function(element, options) {
     $(element).hide();
     $(element).html(template({
-      data: options.data
+      user: options.data.user,
+      key: options.data.key
     }));
     $(element).fadeIn();
   },

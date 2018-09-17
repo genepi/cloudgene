@@ -1,0 +1,25 @@
+<br><br><br>
+<h2 class="text-danger text-center">
+  {{error.statusText}}
+</h2>
+
+<h5 class="text-center">
+    <br>
+    {{#switch(error.statusText)}}
+      {{#case(403)}}
+        <i class="fas fa-lock"></i>
+      {{/case}}
+      {{#case(401)}}
+        <i class="fas fa-lock"></i>
+      {{/case}}
+      {{#case(404)}}
+        <i class="fas fa-exclamation-triangle"></i>
+      {{/case}}
+      {{#case(500)}}
+        <i class="fas fa-exclamation-triangle"></i>
+      {{/case}}
+    {{/switch}}
+    &nbsp;
+    {{error.responseText}}
+</h5>
+<br><br><br><br><br><br><br><br><br>

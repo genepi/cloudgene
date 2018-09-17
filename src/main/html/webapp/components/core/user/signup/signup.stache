@@ -1,0 +1,47 @@
+<h2>Sign up</h2>
+<br>
+
+<div class="alert alert-success" id="success-message" style="display: none;">
+  <b>Well done!</b> An email including the activation code has been sent to your address.
+  <br>
+</div>
+
+<form id="signon-form" class="form-horizontal">
+
+  <div class="form-group">
+    <label for="username" class="control-label">Username:</label>
+    <input id="username" name="username" type="text" class="form-control col-sm-3">
+    <div class="invalid-feedback"></div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="full-name" class="control-label">Full Name:</label>
+    <input id="full-name" name="full-name" type="text" class="form-control col-sm-3">
+    <div class="invalid-feedback"></div>
+  </div>
+
+
+  <div class="form-group">
+    <label for="mail" class="control-label">E-Mail:</label>
+    <input id="mail" name="mail" type="text" class="form-control col-sm-3">
+    <div class="invalid-feedback"></div>
+  </div>
+
+  <div class="form-group">
+    <label for="new-password" class="control-label">Password:</label>
+    <input id="new-password" name="new-password" type="password" class="form-control col-sm-3">
+    <div class="invalid-feedback"></div>
+  </div>
+
+  <div class="form-group">
+    <label for="confirm-new-password" class="control-label">Confirm password:</label>
+    <input id="confirm-new-password" name="confirm-new-password" type="password" class="form-control col-sm-3">
+    <div class="invalid-feedback"></div>
+  </div>
+
+  <div class="form-group">
+    <button id="save" class="btn btn-primary" data-loading-text="please wait...">Register</button>
+  </div>
+
+</form>
