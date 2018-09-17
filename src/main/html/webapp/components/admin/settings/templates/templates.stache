@@ -12,20 +12,23 @@
 		</tr>
 	</thead>
 	<tbody>
-		<% this.templates.each(function( template ) { %>
 
-			<tr <%= (tr) -> can.data(tr, 'template', template) %>>
+		{{#templates}}
+
+			<tr {{data 'template'}}>
 
 				<td>
-					<%= template.attr('key') %>
+					{{key}}
 				</td>
 				<td>
-					<%= template.attr('text') %>
+					{{text}}
 				</td>
 				<td>
 					<span class="edit-btn fa fa-edit" style="cursor: pointer;"></span>
 				</td>
 			</tr>
-		<% }) %>
+
+		{{#templates}}
+
 	</tbody>
 </table>

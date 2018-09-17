@@ -6,7 +6,7 @@ import bootbox from 'bootbox';
 import ErrorPage from 'helpers/error-page';
 import Template from 'models/template';
 
-import template from './templates.ejs';
+import template from './templates.stache';
 
 
 export default Control.extend({

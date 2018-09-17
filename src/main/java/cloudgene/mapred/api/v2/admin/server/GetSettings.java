@@ -38,14 +38,14 @@ public class GetSettings extends BaseResource {
 
 		Map<String, String> mail = getSettings().getMail();
 		if (getSettings().getMail() != null) {
-			object.put("mail", "true");
+			object.put("mail", true);
 			object.put("mail-smtp", mail.get("smtp"));
 			object.put("mail-port", mail.get("port"));
 			object.put("mail-user", mail.get("user"));
 			object.put("mail-password", mail.get("password"));
 			object.put("mail-name", mail.get("name"));
 		} else {
-			object.put("mail", "false");
+			object.put("mail", false);
 			object.put("mail-smtp", "");
 			object.put("mail-port", "");
 			object.put("mail-user", "");

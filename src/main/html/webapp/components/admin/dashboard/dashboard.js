@@ -3,7 +3,7 @@ import $ from 'jquery';
 import Morris from 'morris.js/morris.js';
 
 import Counter from 'models/counter';
-import template from './dashboard.ejs';
+import template from './dashboard.stache';
 
 
 export default Control.extend({

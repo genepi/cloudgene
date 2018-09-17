@@ -6,7 +6,7 @@ import ErrorPage from 'helpers/error-page';
 import Cluster from 'models/cluster';
 import Template from 'models/template';
 
-import template from './server.ejs';
+import template from './server.stache';
 
 
 export default Control.extend({

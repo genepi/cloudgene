@@ -5,8 +5,6 @@ import stache from 'can-stache';
 
 
 stache.registerHelper('truncate', function(str, len) {
-  console.log(str);
-  console.log(len);
   if (str.length > len) {
     var new_str = str.substr(0, len + 1);
 
@@ -26,6 +24,10 @@ stache.registerHelper('truncate', function(str, len) {
     return new_str + '...';
   }
   return str;
+});
+
+stache.registerHelper('percentage', function(value, total) {
+  return (value / total) * 100;  
 });
 
 ejs.Helpers.prototype.can = {};

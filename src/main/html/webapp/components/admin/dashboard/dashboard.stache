@@ -42,13 +42,13 @@
 
 <table class="table table-bordered" style="width: 700px;">
 
-<% this.counter.attr('complete').each(function( value, key ) { %>
+{{#counter.complete}}
 
 	<tr>
-		<td><b><%== key %></b></td>
-		<td style="width: 150px;"><%== value %></td>
+		<td><b>{{key}}</b></td>
+		<td style="width: 150px;">{{value}}</td>
 	</tr>
 
-<% }) %>
+{{/counter.complete}}
 
 </table>

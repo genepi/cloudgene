@@ -4,7 +4,7 @@ import bootbox from 'bootbox';
 
 import Settings from 'models/settings';
 
-import template from './general.ejs';
+import template from './general.stache';
 
 
 export default Control.extend({

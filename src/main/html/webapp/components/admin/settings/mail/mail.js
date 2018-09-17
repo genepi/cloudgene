@@ -4,7 +4,7 @@ import bootbox from 'bootbox';
 
 import Settings from 'models/settings';
 
-import template from './mail.ejs';
+import template from './mail.stache';
 
 
 export default Control.extend({
@@ -24,11 +24,7 @@ export default Control.extend({
   },
 
   '#mail change': function(e) {
-    if (e.checked) {
-      this.settings.attr('mail', "true");
-    } else {
-      this.settings.attr('mail', "false");
-    }
+    this.settings.attr('mail', e.checked);
   },
 
   'submit': function(form, event) {
