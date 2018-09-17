@@ -1,0 +1,6 @@
+<h4>Install App from GitHub repository</h4>
+<form onsubmit="return false;">
+  <p>Please enter the repository of the application.</p>
+  <input class="form-control" id="url" name="url" value="owner/repository"/>
+  <p><br><b>Examples:</b><br>lukfor/hello-cloudgene<br>lukfor/hello-cloudgene@latest<br>lukfor/hello-cloudgene@1.2.0-beta</p>
+</form>

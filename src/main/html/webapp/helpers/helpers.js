@@ -1,10 +1,35 @@
 import ejs from 'can-ejs';
 import dateFormat from 'dateformat';
 import domData from 'can-util/dom/data/data';
+import stache from 'can-stache';
 
+
+stache.registerHelper('truncate', function(str, len) {
+  console.log(str);
+  console.log(len);
+  if (str.length > len) {
+    var new_str = str.substr(0, len + 1);
+
+    while (new_str.length) {
+      var ch = new_str.substr(-1);
+      new_str = new_str.substr(0, -1);
+
+      if (ch == ' ') {
+        break;
+      }
+    }
+
+    if (new_str == '') {
+      new_str = str.substr(0, len);
+    }
+
+    return new_str + '...';
+  }
+  return str;
+});
 
 ejs.Helpers.prototype.can = {};
-ejs.Helpers.prototype.can.data = function(el, key, value){
+ejs.Helpers.prototype.can.data = function(el, key, value) {
   domData.set.call(el, key, value);
 }
 

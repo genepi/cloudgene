@@ -1,0 +1,68 @@
+<h2>Applications</h2>
+
+<p>This page helps you to install applications and to manage permissions.</p>
+<br>
+<p>
+	<div class="btn-group">
+		<button id="btnGroupDrop1" type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+			<i class="fas fa-download"></i> Install App
+		    </button>
+		<div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+			<a class="dropdown-item" href="#!pages/admin-apps-repository" id="install-app-cloudgene-io-btn"><i class="fas fa-database"></i> from apps.cloudgene.io...</a>
+			<a class="dropdown-item" id="install-app-github-btn"><i class="fab fa-github"></i> from GitHub...</a>
+			<a class="dropdown-item" id="install-app-url-btn"><i class="fas fa-globe"></i> from URL...</a>
+		</div>
+	</div>
+	&nbsp;<span class="btn btn-secondary" id="reload-apps-btn"><i class="fas fa-sync-alt"></i> Reload Apps from filesystem</span>
+</p>
+<br>
+
+<div class="container" id="application-repository">
+	<div class="row">
+		{{#applications}}
+			<div class="col-md-4">
+				<div class="card mb-4 box-shadow {{errorMessage}}') ? '.' : (app.attr('enabled') ? '.': '') %>" {{data 'application'}}>
+					<div class="card-body">
+						<small class="text-muted">{{id}}</small>
+						{{#errorMessage}}
+							<h5 class="card-title" >Syntax Error</h5>
+							{{else}}
+								<h5 class=" text-truncate"><a class="view-source-btn">{{wdlApp.name}}</a>&nbsp;<small>{{wdlApp.version}}</small></h5>
+						{{/errorMessage}}
+						<div style="height: 150px; display: block; ">
+							{{#changed}}
+								<small class="text-danger">Warning: File <b>{{filename}}</b> changed on disk. Reload Apps to solve this issue.</small>
+							{{/changed}}
+							{{#errorMessage}}
+								<small class="text-danger">{{errorMessage}}</small>
+								{{else}}
+									<p class="card-text">
+										{{{truncate(wdlApp.description, 200)}}}<br>
+										<small><a href="{{wdlApp.website}}" target="_blank">{{wdlApp.website}}</a></small>
+									</p>
+							{{/errorMessage}}
+						</div>
+						<div>
+						</div>
+						<div class="d-flex justify-content-between align-items-center">
+							<div>
+							</div>
+							<div class="btn-group">
+								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-user"></i>{{permission}}</button>
+								<button type="button" class="delete-app-btn btn btn-sm btn-outline-secondary"><i class="fas fa-trash-alt"></i> Uninstall</button>
+								{{#enabled}}
+									<button type="button" class="enable-disable-btn btn btn-sm btn-success"><i class="fas fa-pause"></i> Disable</button>
+									{{else}}
+										<button type="button" class="enable-disable-btn btn btn-sm btn-danger"><i class="fas fa-play"></i> Enable</button>
+								{{/enabled}}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		{{/applications}}
+	</div>
+</div>
+<br>
+<br>
+<br>

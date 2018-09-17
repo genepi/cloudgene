@@ -1,13 +1,14 @@
 import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
+import 'helpers/helpers';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
 import Application from 'models/application';
 
-import template from './list.ejs';
-import templateInstallGithub from './install-github/install-github.ejs';
-import templateInstallUrl from './install-url/install-url.ejs';
+import template from './list.stache';
+import templateInstallGithub from './install-github/install-github.stache';
+import templateInstallUrl from './install-url/install-url.stache';
 
 
 export default Control.extend({

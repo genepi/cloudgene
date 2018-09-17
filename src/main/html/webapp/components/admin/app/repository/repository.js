@@ -5,22 +5,25 @@ import bootbox from 'bootbox';
 import Application from 'models/application';
 import CloudgeneApplication from 'models/cloudgene-application';
 
-import template from './repository.ejs';
+import template from './repository.stache';
 
 
 export default Control.extend({
 
   "init": function(element, options) {
 
-    var that = this;
-
     Application.findAll({}, function(applications) {
-      that.options.installedApplications = applications;
+      var installedApplications = applications;
 
       CloudgeneApplication.findAll({}, function(applications) {
         var installedId = [];
-        $.each(that.options.installedApplications, function(value, index) {
-          installedId.push(value.attr('id'));
+        $.each(installedApplications, function(index, application) {
+          installedId.push(application.attr('id'));
+        });
+
+        $.each(applications, function(index, application) {
+          var installed = installedId.includes(application.attr('id'));
+          application.attr('installed', installed);
         });
 
         $(element).html(template({
@@ -28,7 +31,7 @@ export default Control.extend({
           installedId: installedId
         }));
       });
-      $("#content").fadeIn();
+      $(element).fadeIn();
 
     });
   },
