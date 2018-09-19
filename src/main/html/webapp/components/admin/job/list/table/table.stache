@@ -1,0 +1,129 @@
+
+<p class="pull-right">
+{{^is(jobs.running, 0)}}
+<b>{{jobs.running}}</b> jobs are <b>running</b>.
+{{/is}}
+{{^is(jobs.waiting, 0)}}
+<b>{{jobs.waiting}}</b> jobs are <b>waiting</b>.
+{{/is}}
+{{^is(jobs.success, 0)}}
+<b>{{jobs.success}}</b> jobs are <b>succeeded</b>.
+{{/is}}
+{{^is(jobs.failed, 0)}}
+<b>{{jobs.failed}}</b> jobs are <b>failed</b>.
+{{/is}}
+{{^is(jobs.pending, 0)}}
+<b>{{jobs.pending}}</b> jobs are <b>pending</b>.
+{{/is}}
+{{^is(jobs.canceld, 0)}}
+<b>{{jobs.canceld}}</b> jobs are <b>canceld</b>.
+{{/is}}
+</p>
+
+<table class="table table-striped table-bordered">
+<thead>
+	<tr>
+		<th style="width: 40px;"><small>Priority</small></th>
+		<th>Job</th>
+		<th style="width: 100px;">Username</th>
+		<th style="width: 150px;">Time Running</th>
+		<th style="width: 180px;">Valid Until</th>
+		<th style="width: 80px;">Size</th>
+		<th style="width: 100px;"></th>
+	</tr>
+</thead>
+<tbody>
+	{{#jobs}}
+
+		<tr {{data 'job'}} >
+
+			<td style="width: 40px;text-align:center;" class="job-warning">
+				{{#is(state, 1)}}
+					<small>{{priority}}	<span class="priority-btn icon-arrow-up" style="cursor: pointer;"></span>
+					</small>
+				{{/is}}
+			</td>
+
+
+			<td>
+				<a href="#!jobs/{{id}}">{{id}}</a><br>
+				<small class="text-muted"><i class="far fa-clock"></i> {{prettyDate(submittedOn)}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{application}}</small>
+			</td>
+
+			<td>
+				{{user.username}}
+			</td>
+
+			<td>
+
+				{{#is(state, 6)}}
+				-
+				{{else}}
+				{{prettyTime(executionTime)}}
+				{{/is}}
+
+			</td>
+
+			<td>
+				{{#deletedOn}}
+					{{prettyDate(deletedOn)}}
+				{{/deletedOn}}
+			</td>
+
+			<td>
+				{{#workspaceSize}}
+					{{../workspaceSize}}
+				{{else}}
+					-
+				{{/workspaceSize}}
+			</td>
+
+			<td>
+
+				<div class="dropdown">
+					<button style="width: 100px;" class="btn btn-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    {{stateAsText}}
+				  </button>
+
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+						{{#canResetCounters}}
+							<a class="reset-downloads-btn dropdown-item" style="cursor:pointer">Reset download counters</a>
+						{{/canResetCounters}}
+
+						{{#canSendRetireNotification}}
+							<a class="retire-btn dropdown-item" style="cursor:pointer">Send retire notification</a>
+						{{/canSendRetireNotification}}
+
+						{{#canIncreaseRetireDate}}
+							<a class="change-retire-date-btn dropdown-item" style="cursor:pointer">Increase retire date</a>
+						{{/canIncreaseRetireDate}}
+
+						{{#canShowLog}}
+						<a class="dropdown-item" href="/logs/{{id}}" target="_blank">Logs</a>
+						{{/canShowLog}}
+
+						<div class="dropdown-divider"></div>
+
+						{{#canCancel}}
+							<a class="delete-btn dropdown-item" style="cursor:pointer">Cancel...</a>
+						{{/canCancel}}
+
+						{{#canRetireJob}}
+							<a class="archive-btn dropdown-item" style="cursor:pointer">Retire job now...</a>
+						{{/canRetireJob}}
+
+						{{#canDelete}}
+							<a class="delete-btn dropdown-item" style="cursor:pointer">Delete...</a>
+						{{/canDelete}}
+
+					</div>
+				</div>
+
+			</td>
+
+
+		</tr>
+	{{/jobs}}
+</tbody>
+</table>

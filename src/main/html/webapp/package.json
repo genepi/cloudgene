@@ -7,6 +7,7 @@
     "bootstrap": "4.0.0",
     "can-ajax": "1.1.4",
     "can-map": "3.4.2",
+    "can-map-define": "3.1.2",
     "can-route": "3.3.4",
     "can-deparam": "1.0.3",
     "can-control": "3.2.4",

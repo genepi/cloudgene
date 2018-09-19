@@ -1,17 +1,17 @@
+import 'can-map-define';
 import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
+import 'helpers/helpers';
 
 import ErrorPage from 'helpers/error-page';
 import 'helpers/helpers';
 import JobAdminDetails from 'models/job-admin-details';
 import JobOperation from 'models/job-operation';
 
-import template from './list.ejs';
-import templateTable from './table/table.ejs';
-import templateStatusButton from 'components/core/job/components/status-button.ejs';
-
+import template from './list.stache';
+import templateTable from './table/table.stache';
 
 export default Control.extend({
 
@@ -46,8 +46,7 @@ export default Control.extend({
         }
       });
       $(element).html(templateTable({
-        jobs: jobs,
-        statusButton: templateStatusButton
+        jobs: jobs
       }));
     }, function(response) {
       new ErrorPage(that.element, response);

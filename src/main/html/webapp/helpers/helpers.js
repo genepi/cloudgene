@@ -27,8 +27,36 @@ stache.registerHelper('truncate', function(str, len) {
 });
 
 stache.registerHelper('percentage', function(value, total) {
-  return (value / total) * 100;  
+  return (value / total) * 100;
 });
+
+
+stache.registerHelper('prettyTime', function(executionTime) {
+  if (!executionTime || executionTime <= 0) {
+
+    return '-';
+
+  } else {
+
+    var h = (Math.floor((executionTime / 1000) / 60 / 60));
+    var m = ((Math.floor((executionTime / 1000) / 60)) % 60);
+
+    return (h > 0 ? h + ' h ' : '') + (m > 0 ? m + ' min ' : '') +
+      ((Math.floor(executionTime / 1000)) % 60) + ' sec';
+
+  }
+
+});
+
+stache.registerHelper('prettyDate', function(unixTimestamp) {
+  if (unixTimestamp > 0) {
+    var dt = new Date(unixTimestamp);
+    return dateFormat(dt, "default");
+  } else {
+    return '-';
+  }
+});
+
 
 ejs.Helpers.prototype.can = {};
 ejs.Helpers.prototype.can.data = function(el, key, value) {

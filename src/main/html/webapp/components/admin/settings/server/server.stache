@@ -101,11 +101,11 @@
 						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> {{cluster.hadoop_cluster}}</h5>
 						<p>Type: Hadoop<br>
 								Status:
-							{{#cluster.hadoop_safemode}
+							{{#cluster.hadoop_safemode}}
 						<span class="badge badge-important">SAFEMODE!</span>
 						{{else}}
 								<span class="badge badge-success">Running</span>
-							{{/cluster.hadoop_safemode}
+							{{/cluster.hadoop_safemode}}
 						<br>
 						JobTracker: {{cluster.hadoop_jobtracker}}<br>
 						Execute as: {{cluster.hadoop_username}}<br>

@@ -4,6 +4,7 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'assets/css/cloudgene.css';
 import '@fortawesome/fontawesome-free/css/all.css';
+import 'can-map-define';
 
 import RouterControl from 'helpers/router';
 import DashboardControl from 'components/admin/dashboard/';
@@ -63,7 +64,7 @@ var routes = [{
   path: 'pages/admin-logs',
   control: SettingsLogsControl
 }, {
-  path: 'jobs/:job ',
+  path: 'jobs/:job',
   control: JobDetailControl,
   options: {
     admin: true,
