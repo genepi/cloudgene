@@ -57,6 +57,40 @@ export default Model.extend({
       }
     },
 
+    'stateAsClass': {
+      get: function() {
+
+        if (this.attr('state') == '-1') {
+          return 'job-dark';
+        }
+        if (this.attr('state') == '1') {
+          if (this.attr('setupRunning')) {
+            return 'job-secondary';
+          } else {
+            return 'job-secondary';
+          }
+        }
+        if (this.attr('state') == '2') {
+          return 'job-primary';
+        }
+        if (this.attr('state') == '3') {
+          return 'job-primary';
+        }
+        if (this.attr('state') == '4' || this.attr('state') == '8') {
+          return 'job-success';
+        }
+        if (this.attr('state') == '5') {
+          return 'job-danger';
+        }
+        if (this.attr('state') == '6') {
+          return 'job-danger';
+        }
+        if (this.attr('state') == '7') {
+          return 'job-dark';
+        }
+      }
+    },
+
     'canResetCounters': {
       get: function() {
         return this.attr('state') > 3 || this.attr('state') == -1;

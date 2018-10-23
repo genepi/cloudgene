@@ -106,7 +106,7 @@
 						<div class="dropdown-divider"></div>
 
 						{{#canCancel}}
-							<a class="delete-btn dropdown-item" style="cursor:pointer">Cancel...</a>
+							<a class="cancel-btn dropdown-item" style="cursor:pointer">Cancel...</a>
 						{{/canCancel}}
 
 						{{#canRetireJob}}

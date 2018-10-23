@@ -8,9 +8,7 @@ import ErrorPage from 'helpers/error-page';
 import Job from 'models/job';
 import JobOperation from 'models/job-operation';
 
-import template from './list.ejs';
-import templateStatusButton from '../components/status-button.ejs';
-import templatePagination from 'helpers/pagination.ejs';
+import template from './list.stache';
 
 export default Control.extend({
 
@@ -47,9 +45,7 @@ export default Control.extend({
         jobs: jobs,
         page: options.page2,
         total: jobs.attr('count'),
-        perPage: 25,
-        statusButton: templateStatusButton,
-        pagination: templatePagination
+        perPage: 25
       }));
 
       $(element).fadeIn();
