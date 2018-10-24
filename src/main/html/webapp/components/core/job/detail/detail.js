@@ -11,8 +11,6 @@ import ResultsControl from './results/';
 import StepsControl from './steps/';
 
 import template from './detail.stache';
-import templateStatusButton from '../components/status-button.ejs';
-import templateStatusImage from '../components/status-image.ejs';
 
 
 export default Control.extend({
@@ -185,14 +183,7 @@ export default Control.extend({
         }, function(job) {
 
           if (that.active) {
-
-            $(that.element).html(template({
-              job: job,
-              admin: that.options.admin,
-              results: that.options.results,
-              statusImage: templateStatusImage,
-              statusButton: templateStatusButton
-            }));
+            window.location.reload();
           }
 
         }, function(response) {
