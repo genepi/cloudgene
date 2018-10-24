@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import Control from 'can-control';
-import domData from 'can-util/dom/data/data';
 import bootbox from 'bootbox';
 
 import ErrorPage from 'helpers/error-page';
@@ -8,11 +7,12 @@ import Job from 'models/job';
 import JobDetails from 'models/job-details';
 import JobOperation from 'models/job-operation';
 
-import template from './detail.ejs';
+import ResultsControl from './results/';
+import StepsControl from './steps/';
+
+import template from './detail.stache';
 import templateStatusButton from '../components/status-button.ejs';
 import templateStatusImage from '../components/status-image.ejs';
-import templateShareFolder from './share-folder/share-folder.ejs';
-import templateShareFile from './share-file/share-file.ejs';
 
 
 export default Control.extend({
@@ -21,17 +21,36 @@ export default Control.extend({
     var that = this;
     this.active = true;
 
+    if (!options.tab) {
+      options.tab = 'steps';
+    }
+
     JobDetails.findOne({
         id: options.job
       }, function(job) {
 
         $(element).html(template({
           job: job,
-          results: options.results,
-          admin: options.admin,
-          statusImage: templateStatusImage,
-          statusButton: templateStatusButton
+          tab: options.tab,
+          admin: options.admin
         }));
+
+        switch (options.tab) {
+          case 'results':
+            new ResultsControl("#tab-results", {
+              job: job
+            });
+            break;
+
+          case 'steps':
+            new StepsControl("#tab-steps", {
+              job: job
+            });
+            break;
+
+          default:
+        }
+
         that.job = job;
         that.refresh();
 
@@ -125,32 +144,14 @@ export default Control.extend({
     });
   },
 
-  '.share-file-btn click': function(el) {
-    var tr = $(el).closest('tr');
-    var output = domData.get.call(tr[0], 'output');
-    bootbox.alert(templateShareFile({
-      hostname: location.protocol + '//' + location.host,
-      output: output
-    }), function() {
-
-    });
-  },
-
-  '.share-folder-btn click': function(el) {
-    var tr = $(el).closest('tr');
-    var files = domData.get.call(tr[0], 'files');
-    bootbox.alert(templateShareFolder({
-      hostname: location.protocol + '//' + location.host,
-      files: files
-    }), function() {
-
-    });
-  },
 
   // refresh if job is running
 
   refresh: function() {
     var that = this;
+    if (!JobRefresher.needsUpdate(that.job)){
+      return;
+    }
     Job.findOne({
       id: that.job.id
     }, function(currentJob) {

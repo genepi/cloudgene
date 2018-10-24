@@ -61,14 +61,13 @@ var routes = [{
   path: 'jobs/:job',
   control: JobDetailControl,
   options: {
-    admin: false,
-    results: false
+    admin: false
   }
 }, {
-  path: 'jobs/:job/results',
+  path: 'jobs/:job/:tab',
   control: JobDetailControl,
   options: {
-    results: true
+    admin: false
   }
 }, {
   path: 'run/:app',

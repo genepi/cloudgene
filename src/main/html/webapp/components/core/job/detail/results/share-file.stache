@@ -12,9 +12,9 @@ The private link for this file is:<br><br>
 
 <div id="myTabContent" class="tab-content">
 	<div class="tab-pane active in" id="links">
-		<textarea class="form-control" id="message" rows="3"><%= hostname %>/share/results/<%= output.attr('hash') %>/<%= output.attr('name') %></textarea>
+		<textarea class="form-control" id="message" rows="3">{{hostname}}/share/results/{{output.hash}}/{{output.name}}</textarea>
 	</div>
 	<div class="tab-pane" id="wget">
-		<textarea class="form-control" id="message" rows="3">wget <%= hostname %>/share/results/<%= output.attr('hash') %>/<%= output.attr('name') %></textarea>
+		<textarea class="form-control" id="message" rows="3">wget {{hostname}}/share/results/{{output.hash}}/{{output.name}}</textarea>
 	</div>
 </div>

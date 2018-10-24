@@ -9,6 +9,13 @@ export default Model.extend({
   destroy: 'DELETE /api/v2/jobs/{id}',
 }, {
   define: {
+
+    'longName': {
+      get: function() {
+        return this.attr('id') != this.attr('name') ? this.attr('name') : this.attr('id');
+      }
+    },
+
     'executionTime': {
       get: function() {
         var start = this.attr('setupStartTime') + this.attr('startTime');
@@ -61,33 +68,57 @@ export default Model.extend({
       get: function() {
 
         if (this.attr('state') == '-1') {
-          return 'job-dark';
+          return 'dark';
         }
         if (this.attr('state') == '1') {
           if (this.attr('setupRunning')) {
-            return 'job-secondary';
+            return 'secondary';
           } else {
-            return 'job-secondary';
+            return 'secondary';
           }
         }
         if (this.attr('state') == '2') {
-          return 'job-primary';
+          return 'primary';
         }
         if (this.attr('state') == '3') {
-          return 'job-primary';
+          return 'primary';
         }
         if (this.attr('state') == '4' || this.attr('state') == '8') {
-          return 'job-success';
+          return 'success';
         }
         if (this.attr('state') == '5') {
-          return 'job-danger';
+          return 'danger';
         }
         if (this.attr('state') == '6') {
-          return 'job-danger';
+          return 'danger';
         }
         if (this.attr('state') == '7') {
-          return 'job-dark';
+          return 'dark';
         }
+      }
+    },
+
+    'isInQueue': {
+      get: function() {
+        return this.attr('state') == 1 && this.attr('positionInQueue') != -1;
+      }
+    },
+
+    'isPending': {
+      get: function() {
+        return this.attr('state') == '-1';
+      }
+    },
+
+    'isRetired': {
+      get: function() {
+        return this.attr('state') == '7';
+      }
+    },
+
+    'willBeRetired': {
+      get: function() {
+        return this.attr('state') == 8 || this.attr('state') == 9;
       }
     },
 

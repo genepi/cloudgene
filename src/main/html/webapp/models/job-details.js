@@ -1,6 +1,6 @@
-import Model from 'can-connect/can/model/model';
+import Job from 'models/job';
 
-export default Model.extend({
+export default Job.extend({
   findOne: 'GET /api/v2/jobs/{id}',
   destroy: 'DELETE /api/v2/jobs/{id}'
 }, {});

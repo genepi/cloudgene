@@ -9,7 +9,7 @@
 
   {{#jobs}}
 
-    <div class="card mb-12 {{stateAsClass}}" {{data 'job'}}>
+    <div class="card mb-12 job-{{stateAsClass}}" {{data 'job'}}>
 
       <div class="card-body">
 
@@ -21,7 +21,7 @@
           </div>
 
           <div class="dropdown">
-            <button style="width: 100px;" class="btn btn-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <button style="width: 100px;" class="btn btn-{{stateAsClass}} dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               {{stateAsText}}
             </button>
             <div class="dropdown-menu" aria-labelledby="{{id}}">

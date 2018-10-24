@@ -48,6 +48,10 @@ stache.registerHelper('prettyTime', function(executionTime) {
 
 });
 
+String.prototype.endsWith = function(s) {
+  return this.length >= s.length && this.substr(this.length - s.length) == s;
+};
+
 stache.registerHelper('prettyDate', function(unixTimestamp) {
   if (unixTimestamp > 0) {
     var dt = new Date(unixTimestamp);
@@ -57,6 +61,14 @@ stache.registerHelper('prettyDate', function(unixTimestamp) {
   }
 });
 
+stache.registerHelper('isImage', function(str, options) {
+  var image = str.endsWith('png') ||  str.endsWith('jpg') || str.endsWith('gif');
+  if (image){
+    return options.fn();
+  }else{
+    return options.inverse();
+  }
+});
 
 ejs.Helpers.prototype.can = {};
 ejs.Helpers.prototype.can.data = function(el, key, value) {
@@ -152,8 +164,4 @@ ejs.Helpers.prototype.getClassByJob = function(job) {
   if (job.attr('state') == '7') {
     return 'job-dark';
   }
-};
-
-String.prototype.endsWith = function(s) {
-  return this.length >= s.length && this.substr(this.length - s.length) == s;
 };
