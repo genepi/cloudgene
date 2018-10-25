@@ -24,26 +24,26 @@ var routes = [{
   control: DashboardControl,
   classes: 'fullsize-container',
   options: {
-    login: false
+    loggedIn: true
   }
 }, {
   path: 'pages/home',
   control: DashboardControl,
   classes: 'fullsize-container',
   options: {
-    login: false
+    loggedIn: true
   }
 }, {
   path: 'pages/contact',
   control: StaticPage,
   options: {
-    template: 'static/contact.ejs'
+    template: 'static/contact.stache'
   }
 }, {
   path: 'pages/help',
   control: StaticPage,
   options: {
-    template: 'static/help.ejs'
+    template: 'static/help.stache'
   }
 }, {
   path: 'pages/profile',

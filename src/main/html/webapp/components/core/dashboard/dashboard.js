@@ -3,7 +3,7 @@ import Control from 'can-control';
 
 import Counter from 'models/counter';
 
-import template from 'static/home.ejs';
+import template from 'static/home.stache';
 
 
 export default Control.extend({
@@ -13,12 +13,12 @@ export default Control.extend({
     Counter.findOne({}, function(counter) {
       $(element).html(template({
         counter: counter,
-        loggedIn: !options.login
+        loggedIn: options.loggedIn
       }));
     }, function(message) {
       $(element).html(template({
         counter: undefined,
-        loggedIn: !options.login
+        loggedIn: options.loggedIn
       }));
     });
   }

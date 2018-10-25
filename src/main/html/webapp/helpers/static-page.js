@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import Control from 'can-control';
-import ejs from 'can-ejs';
+import stache from 'can-stache';
 
 import ErrorPage from 'helpers/error-page';
 
@@ -12,7 +12,7 @@ export default Control.extend({
       fetch(options.template).then(function(response) {
         return response.text();
       }).then(function(data) {
-        var view = ejs(data);
+        var view = stache(data);
         if (view) {
           $(element).html(view());
         } else {

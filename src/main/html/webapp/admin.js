@@ -64,18 +64,16 @@ var routes = [{
   path: 'pages/admin-logs',
   control: SettingsLogsControl
 }, {
-  path: 'jobs/:job',
+  path: 'jobs/{job}',
   control: JobDetailControl,
   options: {
-    admin: true,
-    results: false
+    admin: true
   }
 }, {
-  path: 'jobs/:job/results',
+  path: 'jobs/{job}/{tab}',
   control: JobDetailControl,
   options: {
-    admin: true,
-    results: true
+    admin: true
   }
 }];
 

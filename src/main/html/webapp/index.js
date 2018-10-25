@@ -19,35 +19,35 @@ var routes = [{
   control: DashboardControl,
   classes: 'fullsize-container',
   options: {
-    login: true
+    loggedIn: false
   }
 }, {
   path: 'pages/home',
   control: DashboardControl,
   classes: 'fullsize-container',
   options: {
-    login: true
+    loggedIn: false
   }
 }, {
   path: 'pages/contact',
   control: StaticPage,
   options: {
-    template: 'static/contact.ejs'
+    template: 'static/contact.stache'
   }
 }, {
   path: 'pages/help',
   control: StaticPage,
   options: {
-    template: 'static/help.ejs'
+    template: 'static/help.stache'
   }
 }, {
   path: 'pages/login',
   control: UserLoginControl,
 }, {
-  path: 'activate/:user/:key',
+  path: 'activate/{user}/{key}',
   control: UserActivateControl,
 }, {
-  path: 'pages/recovery/:user/:key',
+  path: 'pages/recovery/{user}/{key}',
   control: UserPasswordRecoveryControl,
 }, {
   path: 'pages/register',
@@ -56,7 +56,7 @@ var routes = [{
   path: 'pages/reset-password',
   control: UserPasswordResetControl,
 }, {
-  path: 'jobs/:job',
+  path: 'jobs/{job}',
   control: ErrorPage,
   options: {
     status: '404',

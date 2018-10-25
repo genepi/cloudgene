@@ -2,15 +2,16 @@
   <div class="container">
     <h1>Welcome to Cloudgene!</h1>
     <p>Congratulations! The webserver was installed successfully!</p>
-    <% if(!loggedIn) {%>
-    <p>
-      <a class="btn btn-lg btn-success" href="/#!pages/login">Login</a>&nbsp;
-      <a class="btn btn-lg btn-primary" href="/#!pages/register">Sign up now</a>
-    </p>
-
-    <% } else { %>
-      <p><a class="btn btn-primary btn-lg" href="http://www.cloudgene.io" target="_blank" role="button">Learn more »</a></p>
-    <% } %>
+    {{#is(loggedIn, true)}}
+      <p>
+        <a class="btn btn-primary btn-lg" href="http://www.cloudgene.io" target="_blank" role="button">Learn more »</a>
+      </p>
+    {{else}}
+      <p>
+        <a class="btn btn-lg btn-success" href="/#!pages/login">Login</a>&nbsp;
+        <a class="btn btn-lg btn-primary" href="/#!pages/register">Sign up now</a>
+      </p>
+    {{/is}}
   </div>
 </div>
 
