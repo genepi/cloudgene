@@ -70,6 +70,45 @@ stache.registerHelper('isImage', function(str, options) {
   }
 });
 
+stache.registerHelper('isParamChecked', function(param, options) {
+  var value = param.attr('value');
+  var result = options.inverse();
+  param.attr('values').each(function(item){
+    if (item.attr('key') === 'true'){
+      if (item.attr('value') === value){
+        result = options.fn();
+        return;
+      }else{
+        result = options.inverse();
+        return;
+      }
+    }
+  });
+  return result;
+});
+
+stache.registerHelper('getParamTrueValue', function(param, options) {
+  var result = '??';
+  param.attr('values').each(function(item){
+    if (item.attr('key') === 'true'){
+        result = item.attr('value');
+        return;
+      }
+  });
+  return result;
+});
+
+stache.registerHelper('getParamFalseValue', function(param, options) {
+  var result = '??';
+  param.attr('values').each(function(item){
+    if (item.attr('key') === 'false'){
+        result = item.attr('value');
+        return;
+      }
+  });
+  return result;
+});
+
 ejs.Helpers.prototype.can = {};
 ejs.Helpers.prototype.can.data = function(el, key, value) {
   domData.set.call(el, key, value);

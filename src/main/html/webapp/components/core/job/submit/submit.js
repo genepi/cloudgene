@@ -1,5 +1,4 @@
 import Control from 'can-control';
-import route from 'can-route';
 import domData from 'can-util/dom/data/data';
 import $ from 'jquery';
 import bootbox from 'bootbox';
@@ -9,10 +8,19 @@ import 'helpers/helpers';
 import ErrorPage from 'helpers/error-page';
 import Application from 'models/application';
 
-import template from './submit.ejs';
-import templateHttpDialog from './dialogs/http.ejs';
-import templateSftpDialog from './dialogs/sftp.ejs';
-import templateUploadingDialog from './dialogs/uploading.ejs';
+import template from './submit.stache';
+import templateHttpDialog from './dialogs/http.stache';
+import templateSftpDialog from './dialogs/sftp.stache';
+import templateUploadingDialog from './dialogs/uploading.stache';
+import templateLabel from './controls/label.stache';
+import templateSelect from './controls/select.stache';
+import templateRadio from './controls/radio.stache';
+import templateCheckbox from './controls/checkbox.stache';
+import templateFile from './controls/file.stache';
+import templateFolder from './controls/folder.stache';
+import templateTermsCheckbox from './controls/terms-checkbox.stache';
+import templateText from './controls/text.stache';
+import templateTextarea from './controls/textarea.stache';
 
 
 export default Control.extend({
@@ -24,13 +32,25 @@ export default Control.extend({
     }, function(application) {
       $(element).hide();
       $(element).html(template({
-        application: application
+        application: application,
+        controls_label: templateLabel,
+        controls_select: templateSelect,
+        controls_radio: templateRadio,
+        controls_text: templateText,
+        controls_checkbox: templateCheckbox,
+        controls_file: templateFile,
+        controls_folder: templateFolder,
+        controls_terms_checkbox: templateTermsCheckbox,
+        controls_textarea: templateTextarea
       }));
       $(element).fadeIn();
+      $("select").change();
 
     }, function(response) {
       new ErrorPage(element, response);
     });
+
+
 
   },
 
@@ -81,12 +101,8 @@ export default Control.extend({
           uploadDialog.modal('hide');
 
           if (answer.success) {
-            route('jobs/:job');
-            route.attr({
-              route: 'jobs/:job',
-              job: answer.id,
-              page: 'jobs'
-            });
+
+            window.location.href = '#!jobs/' + answer.id;
 
           } else {
             new ErrorPage("#content", {
@@ -192,9 +208,8 @@ export default Control.extend({
     fileList.empty();
 
     //update parameter source
-    //TODO: change to domData
-    var param = domData.get.call(parent, 'param');
-    param.attr('source', source.val());
+    var param = domData.get.call($(parent)[0], 'param');
+    param.attr('source', $(source).val());
   },
 
   '#add-urls-btn click': function(button) {

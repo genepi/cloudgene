@@ -55,32 +55,32 @@ var routes = [{
     page2: 1
   }
 }, {
-  path: 'pages/jobs/:page2',
+  path: 'pages/jobs/{page2}',
   control: JobListControl
 }, {
-  path: 'jobs/:job',
+  path: 'jobs/{job}',
   control: JobDetailControl,
   options: {
     admin: false
   }
 }, {
-  path: 'jobs/:job/:tab',
+  path: 'jobs/{job}/{tab}',
   control: JobDetailControl,
   options: {
     admin: false
   }
 }, {
-  path: 'run/:app',
+  path: 'run/{app}',
   control: SubmitJobControl
 }, {
-  path: 'recovery/:user/:key',
+  path: 'recovery/{user}/{key}',
   control: ErrorPage,
   options: {
     status: "276",
     message: "Please log out for user activation."
   }
 }, {
-  path: 'activate/:user/:key ',
+  path: 'activate/{user}/{key}',
   control: ErrorPage,
   options: {
     status: "276",

@@ -1,0 +1,23 @@
+<div class="col-sm-2">
+		<label for="{{id}}" class="col-form-label">{{{description}}}</label>
+		{{#if(help)}}
+			&nbsp;<a href="{{help}}" target="_blank"><i class="far fa-question-circle"></i></a>
+	  {{/if}}
+</div>
+
+<div class="col-sm-3">
+  <select name="{{id}}" id="{{id}}" class="form-control" {{#is(required, true)}}required{{/is}} value:bind="value">
+    <option value="">-- select an option --</option>
+    {{#values}}
+      <option value="{{key}}">
+        {{value}}
+      </option>
+    {{/values}}
+  </select>
+	{{#if(details)}}
+    <small class="form-text text-muted">{{details}}</small>
+  {{/if}}
+  <div class="invalid-feedback">
+    This parameter is required.
+  </div>
+</div>

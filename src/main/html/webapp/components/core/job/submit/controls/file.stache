@@ -1,0 +1,26 @@
+<div class="col-sm-2">
+		<label for="{{id}}" class="col-form-label">{{{description}}}</label>
+		{{#if(help)}}
+			&nbsp;<a href="{{help}}" target="_blank"><i class="far fa-question-circle"></i></a>
+	  {{/if}}
+</div>
+
+<div class="col-sm-3">
+  <div class="input-group mb-3">
+    <input type ="text" class="form-control file-name-control" disabled>
+    <div class="input-group-append">
+      <button id="select-single-file-btn" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i></button>
+    </div>
+  </div>
+  <input type="file" class="form-control file-upload-field-single" name="{{id}}" id="{{id}}"
+     {{#is(required, true)}}required{{/is}}
+		 {{#if(accept)}}accept="{[accept}}"{{/if}}
+     style="display:none;"
+  >
+	{{#if(details)}}
+    <small class="form-text text-muted">{{details}}</small>
+  {{/if}}
+  <div class="invalid-feedback">
+    Please choose one file.
+  </div>
+</div>

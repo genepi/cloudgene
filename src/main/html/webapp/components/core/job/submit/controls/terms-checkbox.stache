@@ -1,0 +1,12 @@
+<div class="col-sm-10">
+  <div class="custom-control custom-checkbox">
+    <input name="{{id}}" id="{{id}}" type ="checkbox" class="agb custom-control-input" required value="accepted" >
+    <label class="custom-control-label" for="{{id}}">{{description}}</label>
+    {{#if(details)}}
+      <small class="form-text text-muted">{{details}}</small>
+    {{/if}}
+    <div class="invalid-feedback">
+      Please agree to the terms and conditions.
+    </div>
+  </div>
+</div>
