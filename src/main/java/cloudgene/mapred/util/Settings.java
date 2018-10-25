@@ -692,7 +692,7 @@ public class Settings {
 		try {
 			application.loadWdlApp();
 		} catch (IOException e) {
-			System.out.println("Ignore file " + filename + ". Not a valid cloudgene.yaml file.");
+			log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
 			return null;
 		}
 		System.out.println("Process file " + filename + "....");
