@@ -22,9 +22,12 @@
            </div>
           </li>
        {{/is}}
-       <li class="nav-item">
-         <a class="nav-link" href="#!pages/jobs">Jobs</a>
-       </li>
+       
+       {{#if(user)}}
+         <li class="nav-item">
+           <a class="nav-link" href="#!pages/jobs">Jobs</a>
+         </li>
+        {{/is}}
 
        {{#navigation}}
         {{#if(link)}}
