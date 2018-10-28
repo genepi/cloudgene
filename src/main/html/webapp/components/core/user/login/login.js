@@ -32,7 +32,7 @@ export default Control.extend({
           };
           localStorage.setItem('cloudgene', JSON.stringify(dataToken));
 
-          var redirect = 'start.html';
+          var redirect = '/';
           window.location = redirect;
 
         } else {

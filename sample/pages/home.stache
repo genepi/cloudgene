@@ -8,8 +8,8 @@
       </p>
     {{else}}
       <p>
-        <a class="btn btn-lg btn-success" href="/#!pages/login">Login</a>&nbsp;
-        <a class="btn btn-lg btn-primary" href="/#!pages/register">Sign up now</a>
+        <a class="btn btn-lg btn-success" href="#!pages/login">Login</a>&nbsp;
+        <a class="btn btn-lg btn-primary" href="#!pages/register">Sign up now</a>
       </p>
     {{/is}}
   </div>
@@ -27,7 +27,7 @@
   <p>Since this is a fresh installation of Cloudgene, please perform the following steps to complete the installation:
     <ol>
       <li><b>Login</b> as admin with the default admin password</li>
-      <li>Change your password immediately (see <a href="/#!pages/profile">Profile</a>)</li>
+      <li>Change your password immediately (see <a href="#!pages/profile">Profile</a>)</li>
       <li>Open the <a href="admin.html">Admin-Panel</a> and install your first <a href="admin.html#!pages/admin-apps-repository">application</a></li>
     </ol>
 

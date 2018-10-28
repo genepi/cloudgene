@@ -54,6 +54,7 @@ import cloudgene.mapred.api.v2.server.Apps;
 import cloudgene.mapred.api.v2.server.CloudgeneApps;
 import cloudgene.mapred.api.v2.server.GetCounter;
 import cloudgene.mapred.api.v2.server.GetVersion;
+import cloudgene.mapred.api.v2.server.Server;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
@@ -68,7 +69,6 @@ import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
-import cloudgene.mapred.util.LoginFilter;
 import cloudgene.mapred.util.Settings;
 
 public class WebApp extends Application {
@@ -123,6 +123,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 
+		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		// jobs
 		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
@@ -150,6 +151,9 @@ public class WebApp extends Application {
 		// create, delete, get api token
 		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
 
+		// returns all counters
+		router.attach(prefix + "/api/v2/server", Server.class);		
+		
 		// returns all counters
 		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
 
@@ -218,10 +222,7 @@ public class WebApp extends Application {
 		route = router.attach(prefix + "/", dir);
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
-		LoginFilter filter = new LoginFilter("/index.html", prefix, getSettings().getSecretKey());
-		filter.setNext(router);
-
-		return filter;
+		return router;
 	}
 
 	public String getRootFolder() {

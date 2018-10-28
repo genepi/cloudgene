@@ -20,6 +20,6 @@
       {{/case}}
     {{/switch}}
     &nbsp;
-    {{error.responseText}}
+    {{{error.responseText}}}
 </h5>
 <br><br><br><br><br><br><br><br><br>

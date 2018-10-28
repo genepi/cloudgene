@@ -13,7 +13,7 @@ export default Control.extend({
     Counter.findOne({}, function(counter) {
       $(element).html(template({
         counter: counter,
-        loggedIn: options.loggedIn
+        loggedIn: options.appState.loggedIn
       }));
     }, function(message) {
       $(element).html(template({
