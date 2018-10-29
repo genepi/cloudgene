@@ -1,7 +1,7 @@
 <h2>Jobs</h2>
 
 <p>
-  This page lists all submitted jobs.<br><br>
+  <b>{{jobs.count}}</b> jobs submitted.<br><br>
 
 </p>
 
@@ -43,3 +43,22 @@
   {{/jobs}}
 
 </div>
+
+<div class="mx-auto">
+	<ul class="mx-auto pagination">
+    <li class="page-item {{^if(jobs.prev)}}disabled{{/if}}">
+      <a class="page-link" href="#!pages/jobs/{{jobs.prev}}" aria-label="Previous">
+        <span aria-hidden="true">&larr; Previous</span>
+      </a>
+    </li>
+    {{#jobs.pages}}
+      <li class="{{#is(., jobs.page)}}page-item active{{/is}}" ><a class="page-link" href="#!pages/jobs/{{.}}">{{.}}</a></li>
+    {{/jobs.pages}}
+    <li class="page-item {{^if(jobs.next)}}disabled{{/if}}">
+      <a class="page-link" href="#!pages/jobs/{{jobs.next}}" aria-label="Next">
+        <span aria-hidden="true">Next &rarr;</span>
+      </a>
+    </li>
+  </ul>
+</div>
+<br><br>

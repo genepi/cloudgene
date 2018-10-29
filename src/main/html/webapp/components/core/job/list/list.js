@@ -42,10 +42,7 @@ export default Control.extend({
         }
       });
       $(element).html(template({
-        jobs: jobs,
-        page: options.page2,
-        total: jobs.attr('count'),
-        perPage: 25
+        jobs: jobs
       }));
 
       $(element).fadeIn();
