@@ -4,7 +4,7 @@ import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 
-import Server from 'models/Server';
+import Server from 'models/server';
 import ErrorPage from 'helpers/error-page';
 import LayoutControl from 'components/core/layout/';
 import RouterControl from 'helpers/router';
