@@ -28,7 +28,7 @@
 	</repositories>
 
 	<properties>
-		<restlet.version>2.3.9</restlet.version>
+		<restlet.version>2.3.12</restlet.version>
 	</properties>
 
 	<developers>
