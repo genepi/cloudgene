@@ -19,7 +19,7 @@ public class RegisterUser extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		String hostname = getRequest().getHostRef().getHostIdentifier();
+		String hostname = getRequest().getReferrerRef().getHostIdentifier();
 
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");

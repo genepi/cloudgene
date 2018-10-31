@@ -171,6 +171,9 @@ public class GetClusterDetails extends BaseResource {
 		if(getRequest().getRootRef() != null) {
 			hostnames.put("root_ref", getRequest().getRootRef().getHostIdentifier());
 		}
+		if (getRequest().getReferrerRef() != null) {
+			hostnames.put("referrer_ref", getRequest().getReferrerRef().getHostIdentifier());
+		}
 		
 		object.put("hostnames", hostnames);
 

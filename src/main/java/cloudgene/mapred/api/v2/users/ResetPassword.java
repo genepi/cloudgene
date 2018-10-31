@@ -17,7 +17,7 @@ public class ResetPassword extends BaseResource {
 	@Post
 	public Representation get(Representation entity) {
 
-		String hostname = getRequest().getHostRef().getHostIdentifier();
+		String hostname = getRequest().getReferrerRef().getHostIdentifier();
 
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");
