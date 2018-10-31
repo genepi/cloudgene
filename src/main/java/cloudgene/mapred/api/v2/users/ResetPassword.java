@@ -17,6 +17,8 @@ public class ResetPassword extends BaseResource {
 	@Post
 	public Representation get(Representation entity) {
 
+		String hostname = getRequest().getHostRef().getHostIdentifier();
+
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");
 
@@ -52,7 +54,7 @@ public class ResetPassword extends BaseResource {
 				dao.update(user);
 			}
 
-			String link = getRequest().getRootRef().toString() + "/#!recovery/" + user.getUsername() + "/" + key;
+			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
 
 			// send email with activation code
 

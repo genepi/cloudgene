@@ -19,6 +19,8 @@ public class RegisterUser extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
+		String hostname = getRequest().getHostRef().getHostIdentifier();
+
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");
 		String fullname = form.getFirstValue("full-name");
@@ -78,8 +80,7 @@ public class RegisterUser extends BaseResource {
 				// send email with activation code
 				String application = getSettings().getName();
 				String subject = "[" + application + "] Signup activation";
-				String activationLink = getRequest().getRootRef().toString() + "/#!activate/" + username + "/"
-						+ activationKey;
+				String activationLink = hostname + "/#!activate/" + username + "/" + activationKey;
 				String body = getWebApp().getTemplate(Template.REGISTER_MAIL, fullname, application, activationLink);
 
 				MailUtil.send(getSettings(), mail, subject, body);
