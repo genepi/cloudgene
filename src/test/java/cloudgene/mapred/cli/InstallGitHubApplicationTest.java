@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 public class InstallGitHubApplicationTest extends TestCase {
 
-	public void testInstallFromRepository() {
+	/*public void testInstallFromRepository() {
 		String[] args = { "genepi/cloudgene-examples" };
 		InstallGitHubApplication cmd = new InstallGitHubApplication(args) {
 			@Override
@@ -119,6 +119,6 @@ public class InstallGitHubApplicationTest extends TestCase {
 		int result = cmd.start();
 
 		assertEquals(0, result);
-	}
+	}*/
 
 }
