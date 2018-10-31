@@ -7,6 +7,10 @@ import junit.framework.TestCase;
 
 public class InstallGitHubApplicationTest extends TestCase {
 
+	public void testInstall() {
+		assertTrue(true);
+	}
+	
 	/*public void testInstallFromRepository() {
 		String[] args = { "genepi/cloudgene-examples" };
 		InstallGitHubApplication cmd = new InstallGitHubApplication(args) {
