@@ -1,6 +1,6 @@
 {
   "name": "Cloudgene",
-  "version": "1.30.5",
+  "version": "1.30.6",
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.3.1",
     "bootbox": "4.4.0",
