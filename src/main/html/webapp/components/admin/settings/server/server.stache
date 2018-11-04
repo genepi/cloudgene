@@ -130,10 +130,10 @@
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
 					{{#cluster.r_enabled}}
-						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i>R</h5>
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> R</h5>
 						{{cluster.r_details}}
 						{{else}}
-							<h5> class="card-title"<i class="fas fa-times-circle text-danger"></i>R</h5>
+							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> R</h5>
 							{{cluster.r_error}}
 					{{/cluster.r_enabled}}
 				</div>
@@ -144,10 +144,10 @@
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
 					{{#cluster.rmarkdown_enabled}}
-						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i>RMarkdown</h5>
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> RMarkdown</h5>
 						{{cluster.rmarkdown_details}}
 						{{else}}
-							<h5> class="card-title"<i class="fas fa-times-circle text-danger"></i>RMarkdown</h5>
+							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> RMarkdown</h5>
 							{{cluster.rmarkdown_error}}
 					{{/cluster.rmarkdown_enabled}}
 				</div>
@@ -159,10 +159,10 @@
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
 					{{#cluster.docker_enabled}}
-						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i>Docker</h5>
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> Docker</h5>
 						{{cluster.docker_details}}
 						{{else}}
-							<h5> class="card-title"<i class="fas fa-times-circle text-danger"></i>Docker</h5>
+							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Docker</h5>
 							{{cluster.docker_error}}
 					{{/cluster.docker_enabled}}
 				</div>
