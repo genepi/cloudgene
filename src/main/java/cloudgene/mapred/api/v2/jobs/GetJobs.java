@@ -23,7 +23,7 @@ public class GetJobs extends BaseResource {
 	 * Resource to get a list of all jobs for authenticated user.
 	 */
 
-	public static final int PAGE_SIZE = 15;
+	public static final int DEFAULT_PAGE_SIZE = 15;
 
 	@Get
 	public Representation getJobs() {
@@ -41,6 +41,7 @@ public class GetJobs extends BaseResource {
 		}
 
 		String page = getQueryValue("page");
+		int pageSize = DEFAULT_PAGE_SIZE;
 
 		int offset = 0;
 		if (page != null) {
@@ -49,7 +50,7 @@ public class GetJobs extends BaseResource {
 			if (offset < 1) {
 				offset = 1;
 			}
-			offset = (offset - 1) * PAGE_SIZE;
+			offset = (offset - 1) * pageSize;
 		}
 
 		// find all jobs by user
@@ -60,9 +61,12 @@ public class GetJobs extends BaseResource {
 
 		List<AbstractJob> jobs = null;
 		if (page != null) {
-			jobs = dao.findAllByUser(user, offset, PAGE_SIZE);
+			jobs = dao.findAllByUser(user, offset, pageSize);
 		} else {
 			jobs = dao.findAllByUser(user);
+			page = "1";
+			pageSize = count;
+			
 		}
 
 		// exclude unused parameters
@@ -72,7 +76,7 @@ public class GetJobs extends BaseResource {
 				"logs", "removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "steps", "workingDirectory",
 				"map", "reduce", "logOutFile", "deletedOn", "applicationId", "running" });
 
-		JSONObject object = PageUtil.createPageObject(Integer.parseInt(page), PAGE_SIZE, count);
+		JSONObject object = PageUtil.createPageObject(Integer.parseInt(page), pageSize, count);
 
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 		object.put("data", jsonArray);
