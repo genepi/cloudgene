@@ -127,20 +127,20 @@ footer p {
 }
 
 .step-success {
-  border-left-width: 3px;
-  border-left-color: #28a745;
+  border-left-width: 3px !important;
+  border-left-color: #28a745 !important;
 }
 
 .step-danger {
-  border-left-width: 3px;
-  border-left-color: #dc3545;
+  border-left-width: 3px !important;
+  border-left-color: #dc3545 !important;
 }
 
 .step-primary {
-  border-left-width: 3px;
-  border-left-color: #0062cc;
-  animation: colorchange 3s;
-  animation-iteration-count: infinite;
+  border-left-width: 3px !important;
+  border-left-color: #0062cc !important;
+  animation: colorchange 3s !important;
+  animation-iteration-count: infinite !important;
 }
 
 @keyframes colorchange {
@@ -156,8 +156,8 @@ footer p {
 }
 
 .step-warning {
-  border-left-width: 3px;
-  border-left-color: #ffc107;
+  border-left-width: 3px !important;
+  border-left-color: #ffc107 !important;
 }
 
 .file-list-control {

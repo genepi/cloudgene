@@ -24,6 +24,16 @@ stache.registerHelper('truncate', function(str, len) {
   return str;
 });
 
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
+
+stache.registerHelper('replaceNL', function(value, total) {
+  return value.replaceAll('\n','<br>');
+});
+
+
 stache.registerHelper('percentage', function(value, total) {
   return (value / total) * 100;
 });
