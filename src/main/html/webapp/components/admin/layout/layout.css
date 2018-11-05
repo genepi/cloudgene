@@ -162,7 +162,7 @@ footer p {
 
 .file-list-control {
   overflow: auto;
-  height: 200px;
+  height: 200px !important;
   margin-bottom: 5px;
   margin-top: 5px;
 }
