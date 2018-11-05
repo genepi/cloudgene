@@ -6,6 +6,7 @@ import 'components/core/layout/layout.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'can-map-define';
 
+import LayoutControl from 'components/admin/layout/';
 import RouterControl from 'helpers/router';
 import DashboardControl from 'components/admin/dashboard/';
 import UserListControl from 'components/admin/user/list/';
@@ -76,6 +77,11 @@ var routes = [{
     admin: true
   }
 }];
+
+
+new LayoutControl("#main", {
+});
+
 
 new RouterControl("#content", {
   routes: routes

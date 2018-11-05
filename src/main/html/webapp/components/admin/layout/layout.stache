@@ -1,0 +1,59 @@
+<nav class="navbar navbar-expand-md fixed-top navbar-dark" style="background: #4f5d73;">
+  <div class="container d-flex justify-content-between">
+
+   <a class="navbar-brand" href="#!pages/admin-home">Admin</a>
+   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+     <span class="navbar-toggler-icon"></span>
+   </button>
+
+   <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+     <ul class="navbar-nav mr-auto">
+       <li class="nav-item">
+         <a class="nav-link" href="#!pages/admin-home">Dashboard</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" href="#!pages/admin-server">Server</a>
+       </li>
+       <li class="nav-item">
+          <a class="nav-link" href="#!pages/admin-apps">Applications</a>
+        </li>
+       <li class="nav-item">
+         <a class="nav-link" href="#!pages/admin-jobs">Jobs</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" href="#!pages/admin-users">Users</a>
+       </li>
+       <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown02">
+          <a class="dropdown-item" href="#!pages/admin-settings-general">General</a>
+          <a class="dropdown-item" href="#!pages/admin-settings-templates">Templates</a>
+          <a class="dropdown-item" href="#!pages/admin-settings-mail">Mail</a>
+        </div>
+       </li>
+
+       <li class="nav-item">
+         <a class="nav-link" href="#!pages/admin-logs">Logs</a>
+       </li>
+       <li class="nav-item">
+         <a class="nav-link" href="index.html">Exit</a>
+       </li>
+     </ul>
+   </div>
+ </div>
+ </nav>
+
+<div class=" py-5 bg-white">
+   <div class="container">
+     <div id="content" class="bg-white"></div>
+   </div>
+</div>
+
+<footer class="text-muted">
+  <div class="container">
+    <p class="float-right">
+      <a href="#">Back to top</a>
+    </p>
+    <p>{{{footer}}}</p>
+  </div>
+</footer>
