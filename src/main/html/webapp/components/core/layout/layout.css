@@ -107,23 +107,28 @@ footer p {
 }
 
 .job-success {
-  border-left-width: 10px;
-  border-left-color: #28a745;
+  border-left-width: 10px !important;
+  border-left-color: #28a745 !important;
 }
 
 .job-danger {
-  border-left-width: 10px;
-  border-left-color: #dc3545;
+  border-left-width: 10px !important;
+  border-left-color: #dc3545 !important;
 }
 
 .job-primary {
-  border-left-width: 10px;
-  border-left-color: #0062cc;
+  border-left-width: 10px !important;
+  border-left-color: #0062cc !important;
 }
 
 .job-warning {
-  border-left-width: 10px;
-  border-left-color: #ffc107;
+  border-left-width: 10px !important;
+  border-left-color: #ffc107 !important;
+}
+
+.job-dark {
+  border-left-width: 10px !important;
+  border-left-color: #343a40 !important;
 }
 
 .step-success {

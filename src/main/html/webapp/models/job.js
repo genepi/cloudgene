@@ -58,6 +58,8 @@ export default Model.extend({
           return 'Error';
         } else if (this.attr('state') == 6) {
           return 'Canceled';
+        } else if (this.attr('state') == -1) {
+          return 'Pending';
         } else {
           return 'Error';
         }

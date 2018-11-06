@@ -20,19 +20,12 @@
             <small class="text-muted"><i class="far fa-clock"></i> {{prettyDate(submittedOn)}}&nbsp;&nbsp;<i class="far fa-hourglass"></i> {{prettyTime(executionTime)}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{application}}</small>
           </div>
 
-          <div class="dropdown">
-            <button style="width: 100px;" class="btn btn-{{stateAsClass}} dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{stateAsText}}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="{{id}}">
-              {{#canCancel}}
-                <a class="cancel-btn dropdown-item" style="cursor:pointer">Cancel...</a>
-              {{/canCancel}}
-              {{#canDelete}}
-                <a class="delete-btn dropdown-item" style="cursor:pointer">Delete...</a>
-              {{/canDelete}}
-            </div>
-          </div>
+          {{#canCancel}}
+            <a class="btn btn-light cancel-btn" role="button"><i class="fas fa-times"></i></a>
+          {{/canCancel}}
+          {{#canDelete}}
+            <a class="btn btn-light delete-btn" role="button"><i class="fas fa-trash"></i></a>
+          {{/canDelete}}
 
         </div>
 
