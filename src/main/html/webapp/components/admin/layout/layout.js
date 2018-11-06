@@ -1,7 +1,7 @@
 import Control from 'can-control';
 import $ from 'jquery';
 
-import './layout.css';
+import 'components/core/layout/layout.css';
 import template from './layout.stache';
 
 export default Control.extend({

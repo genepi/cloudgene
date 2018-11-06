@@ -142,7 +142,7 @@ export default Model.extend({
 
     'canShowLog': {
       get: function() {
-        return true;
+        return this.attr('logs') != undefined &&  this.attr('logs') != '';
       }
     },
 

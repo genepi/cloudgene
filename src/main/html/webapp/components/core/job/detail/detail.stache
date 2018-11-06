@@ -1,4 +1,5 @@
-<hr>
+<div class="page-header">
+<div class="bg-white bd-content py-1 container">
 <div class="job-header d-flex justify-content-start align-items-center">
 	<div>
 		<h2>{{job.longName}}</h2>
@@ -16,9 +17,6 @@
 						<a id="restart-btn" class="dropdown-item" style="cursor:pointer">Restart</a>
 					{{/is}}
 				{{/is}}
-				{{#job.canShowLog}}
-					<a class="dropdown-item" href="/logs/{{job.id}}" target="_blank">Logs</a>
-				{{/job.canShowLog}}
 				{{#job.canCancel}}
 					<a id="cancel-btn" class="dropdown-item" style="cursor:pointer">Cancel...</a>
 				{{/job.canCancel}}
@@ -28,6 +26,7 @@
 			</div>
 		</div>
 	</div>
+</div>
 </div>
 
 {{#is(job.isInQueue, true)}}
@@ -51,11 +50,10 @@
 	</div>
 {{/is}}
 
-<hr>
-<br>
-<br>
 
+</div>
 
+<div class="bd-content py-5 container">
 <div class="tabbable">
 
 	<ul class="nav nav-tabs">
@@ -73,8 +71,14 @@
 				</a>
 			</li>
 		{{/is}}
-
-	</ul>
+		{{#job.canShowLog}}
+		<li class="nav-item">
+			<a class="nav-link {{#is(tab, 'logs')}}active{{/is}}" href="#!jobs/{{job.id}}/logs">
+				Logs
+			</a>
+		</li>
+		{{/job.canShowLog}}
+		</ul>
 
 	<script type="text/javascript">
 		function resizeIframe(iframe) {
@@ -86,6 +90,7 @@
 		}
 	</script>
 
+<div class="page">
 	<div class="tab-content">
 
 		{{#is(job.isPending, true)}}
@@ -115,6 +120,11 @@
 			{{/is}}
 		{{/is}}
 
-	</div>
+		{{#is(tab, 'logs')}}
+			<div class="tab-pane active log-pane" id="tab-logs"></div>
+		{{/is}}
 
+	</div>
+</div>
+</div>
 </div>

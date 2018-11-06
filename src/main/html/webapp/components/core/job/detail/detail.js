@@ -9,6 +9,7 @@ import JobOperation from 'models/job-operation';
 
 import ResultsControl from './results/';
 import StepsControl from './steps/';
+import LogsControl from './logs/';
 
 import template from './detail.stache';
 
@@ -42,6 +43,12 @@ export default Control.extend({
 
           case 'steps':
             new StepsControl("#tab-steps", {
+              job: job
+            });
+            break;
+
+          case 'logs':
+            new LogsControl("#tab-logs", {
               job: job
             });
             break;
@@ -147,7 +154,7 @@ export default Control.extend({
 
   refresh: function() {
     var that = this;
-    if (!JobRefresher.needsUpdate(that.job)){
+    if (!JobRefresher.needsUpdate(that.job)) {
       return;
     }
     Job.findOne({
