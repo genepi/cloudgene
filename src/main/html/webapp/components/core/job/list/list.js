@@ -36,7 +36,7 @@ export default Control.extend({
           }
         });
         if (JobRefresher.needsUpdate(job)) {
-          var refresher = new JobRefresher();
+          var refresher = new JobRefresher(element);
           refresher.setJob(job);
           that.options.refreshers.push(refresher);
         }
