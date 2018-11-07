@@ -18,7 +18,7 @@
           <a class="nav-link" href="#!pages/admin-apps">Applications</a>
         </li>
        <li class="nav-item">
-         <a class="nav-link" href="#!pages/admin-jobs">Jobs</a>
+         <a class="nav-link" href="#!pages/jobs">Jobs</a>
        </li>
        <li class="nav-item">
          <a class="nav-link" href="#!pages/admin-users">Users</a>

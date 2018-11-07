@@ -1,6 +1,21 @@
 <div class="page-header">
 	<div class="bg-white bd-content py-1 container">
+		<!--
+		<div>
+			<a href="#!pages/jobs">jobs</a> <span class="text-muted">/ {{job.id}}</span></a>
+		</div>
+		-->
+		<!--
+		<nav aria-label="breadcrumb">
+  		<ol class="breadcrumb">
+    		<li class="breadcrumb-item"><a href="#!pages/jobs">Jobs</a></li>
+    		<li class="breadcrumb-item active" aria-current="page">{{job.id}}</li>
+  		</ol>
+		</nav>
+		-->
 		<div class="job-header d-flex justify-content-start align-items-center">
+			<span class="status badge badge-{{job.stateAsClass}}"><i class="{{job.stateAsImage}}"></i></span>
+
 			<div>
 				<h2>{{job.longName}}</h2>
 				<small class="text-muted"><i class="fas fa-clock"></i> {{prettyDate(job.submittedOn}}&nbsp;&nbsp;<i class="fas fa-hourglass"></i> {{prettyTime(job.executionTime)}}&nbsp;&nbsp;<i class="fas fa-user"></i> {{job.username}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{job.application}}</small>
@@ -8,14 +23,14 @@
 			<div class="ml-auto">
 						{{#is(admin, true)}}
 							{{#is(job.isPending, true)}}
-								<a id="restart-btn" class="btn btn-light"><i class="fas fa-undo"></i></a>
+								<a id="restart-btn" class="btn btn-light" data-toggle="tooltip" data-placement="bottom" title="Restart job"><i class="fas fa-undo"></i></a>
 							{{/is}}
 						{{/is}}
 						{{#job.canCancel}}
-							<a id="cancel-btn" class="btn btn-light" role="button"><i class="fas fa-times"></i></a>
+							<a id="cancel-btn" class="btn btn-light" role="button" data-toggle="tooltip" data-placement="bottom" title="Cancel job"><i class="fas fa-times"></i></a>
 						{{/job.canCancel}}
 						{{#job.canDelete}}
-							<a id="delete-btn" class="btn btn-light" role="button"><i class="fas fa-trash"></i></a>
+							<a id="delete-btn" class="btn btn-light" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete job"><i class="fas fa-trash"></i></a>
 						{{/job.canDelete}}
 			</div>
 		</div>
@@ -43,7 +58,7 @@
 
 	</div>
 </div>
-
+{{^is(tab,'')}}
 <div class="bd-content py-5 container">
 <div class="tabbable">
 
@@ -119,3 +134,4 @@
 </div>
 </div>
 </div>
+{{/is}}

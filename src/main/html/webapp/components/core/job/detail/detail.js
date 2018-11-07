@@ -31,7 +31,7 @@ export default Control.extend({
         $(element).html(template({
           job: job,
           tab: options.tab,
-          admin: options.admin
+          admin: options.appState.attr('user').attr('admin')
         }));
 
         switch (options.tab) {
@@ -55,6 +55,8 @@ export default Control.extend({
 
           default:
         }
+
+        $('[data-toggle="tooltip"]').tooltip()
 
         that.job = job;
         that.refresh();
@@ -134,11 +136,7 @@ export default Control.extend({
         operation.attr('action', 'restart');
         operation.save(function() {
           bootbox.hideAll();
-          if (that.options.admin) {
-            window.location.hash = "!pages/admin-jobs";
-          } else {
-            window.location.hash = "!pages/jobs";
-          }
+          window.location.hash = "#!pages/jobs";
         }, function(response) {
           new ErrorPage(that.element, response);
         });

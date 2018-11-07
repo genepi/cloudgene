@@ -78,17 +78,11 @@ var routes = [{
 }, {
   path: 'jobs/{job}',
   control: JobDetailControl,
-  options: {
-    admin: false
-  },
   classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
   path: 'jobs/{job}/{tab}',
   control: JobDetailControl,
-  options: {
-    admin: false
-  },
   classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
@@ -118,4 +112,5 @@ Server.findOne({}, function(server) {
       }
     }
   });
+
 });

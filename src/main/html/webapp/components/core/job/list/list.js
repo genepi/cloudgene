@@ -44,6 +44,7 @@ export default Control.extend({
       $(element).html(template({
         jobs: jobs
       }));
+      $('[data-toggle="tooltip"]').tooltip()
 
       $(element).fadeIn();
     }, function(response) {

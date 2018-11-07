@@ -50,6 +50,7 @@ footer p {
     overflow-x: auto;
     -ms-overflow-style: -ms-autohiding-scrollbar
   }
+
   .bd-content>table.table-bordered {
     border: 0
   }
@@ -88,23 +89,41 @@ footer p {
 }
 
 .job-header {
-  /*border: 1px solid rgba(0,0,0,.125);*/
-  padding-right: 20px;
+  margin-top: 15px;
+}
+
+.job-header a {
+  color: #000000;
 }
 
 .status {
-  height: 80px;
-  padding-top: 0px;
-  line-height: 80px;
-  width: 80px;
-  font-size: 220%;
+  height: 80px !important;
+  padding-top: 0px !important;
+  line-height: 80px !important;
+  width: 80px !important;
+  font-size: 40px !important;
   margin-right: 20px;
-  filter: alpha(opacity=60);
+  filter: alpha(opacity=60) !important;
   /* IE */
-  -moz-opacity: 0.6;
+  -moz-opacity: 0.6 !important;
   /* Mozilla */
-  opacity: 0.6;
+  opacity: 0.6 !important;
 }
+
+.status-xs {
+  height: 40px !important;
+  padding-top: 0px !important;
+  line-height: 40px !important;
+  width: 40px !important;
+  font-size: 20px !important;
+  margin-right: 10px;
+  filter: alpha(opacity=60) !important;
+  /* IE */
+  -moz-opacity: 0.6 !important;
+  /* Mozilla */
+  opacity: 0.6 !important;
+}
+
 
 .job-success {
   border-left-width: 10px !important;
@@ -128,7 +147,7 @@ footer p {
 
 .job-dark {
   border-left-width: 10px !important;
-  border-left-color: #343a40 !important;
+  border-left-color: rgba(52, 58, 64,0.6) !important;
 }
 
 .step-success {
@@ -152,9 +171,11 @@ footer p {
   0% {
     border-left: 3px solid rgba(8, 85, 178, 1);
   }
+
   50% {
     border-left: 3px solid #7AB7FF;
   }
+
   100% {
     border-left: 3px solid rgba(8, 85, 178, 1);
   }
