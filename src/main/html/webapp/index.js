@@ -78,16 +78,12 @@ var routes = [{
 }, {
   path: 'jobs/{job}',
   control: JobDetailControl,
-  options: {
-    admin: false
-  },
+  classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
   path: 'jobs/{job}/{tab}',
   control: JobDetailControl,
-  options: {
-    admin: false
-  },
+  classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
   path: 'run/{app}',
@@ -107,7 +103,7 @@ Server.findOne({}, function(server) {
   new RouterControl("#content", {
     routes: routes,
     appState: server,
-    classes: 'bd-content py-5 container',
+    classes: 'bg-white bd-content py-5 container bg-white',
     forbidden: {
       control: ErrorPage,
       options: {
@@ -116,4 +112,5 @@ Server.findOne({}, function(server) {
       }
     }
   });
+
 });

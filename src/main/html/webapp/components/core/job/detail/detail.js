@@ -9,6 +9,7 @@ import JobOperation from 'models/job-operation';
 
 import ResultsControl from './results/';
 import StepsControl from './steps/';
+import LogsControl from './logs/';
 
 import template from './detail.stache';
 
@@ -30,7 +31,7 @@ export default Control.extend({
         $(element).html(template({
           job: job,
           tab: options.tab,
-          admin: options.admin
+          admin: options.appState.attr('user').attr('admin')
         }));
 
         switch (options.tab) {
@@ -46,8 +47,16 @@ export default Control.extend({
             });
             break;
 
+          case 'logs':
+            new LogsControl("#tab-logs", {
+              job: job
+            });
+            break;
+
           default:
         }
+
+        $('[data-toggle="tooltip"]').tooltip()
 
         that.job = job;
         that.refresh();
@@ -127,11 +136,7 @@ export default Control.extend({
         operation.attr('action', 'restart');
         operation.save(function() {
           bootbox.hideAll();
-          if (that.options.admin) {
-            window.location.hash = "!pages/admin-jobs";
-          } else {
-            window.location.hash = "!pages/jobs";
-          }
+          window.location.hash = "#!pages/jobs";
         }, function(response) {
           new ErrorPage(that.element, response);
         });
@@ -147,7 +152,7 @@ export default Control.extend({
 
   refresh: function() {
     var that = this;
-    if (!JobRefresher.needsUpdate(that.job)){
+    if (!JobRefresher.needsUpdate(that.job)) {
       return;
     }
     Job.findOne({

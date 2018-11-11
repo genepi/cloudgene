@@ -22,7 +22,7 @@
            </div>
           </li>
        {{/is}}
-       
+
        {{#if(user)}}
          <li class="nav-item">
            <a class="nav-link" href="#!pages/jobs">Jobs</a>
@@ -86,7 +86,7 @@
 {{/is}}
 
 
-<div id="content" class="bg-white"></div>
+<div id="content" class=""></div>
 
 <footer class="text-muted">
   <div class="container">

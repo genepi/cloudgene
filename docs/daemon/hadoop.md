@@ -9,7 +9,7 @@ When you execute workflows with Hadoop steps, Cloudgene needs to know where the 
 
 When you plan to run Cloudgene on a different server than the Namenode, then you have to copy the confioguration files from the cluster to your Cloudgene instance.
 
-Copy the following configuration files from the `$HADOOP_HOME/conf` on your Namenode to a directory on your Cloudgene instance (e.g. `cloudgene/hadoop-conf/`):
+Copy the following configuration files from the `$HADOOP_HOME/conf` on your Namenode to a directory on your Cloudgene instance (e.g. `/path/to/cloudgene/hadoop-conf/`):
 
 - core-site.xml
 - hbase-site.xml
@@ -32,7 +32,7 @@ cluster:
   # the cluster type. Currently, the only cluster supported is hadoop.
   type: hadoop
   # configuration files from your cluster
-  conf: /etc/hadoop/conf
+  conf: /path/to/cloudgene/hadoop-conf
   # username which should be used for job execution
   user: hadoop
 ```

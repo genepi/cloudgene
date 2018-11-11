@@ -52,12 +52,16 @@ export default Model.extend({
           return 'Running';
         } else if (this.attr('state') == 3) {
           return 'Exporting Data';
-        } else if (this.attr('state') == 4) {
+        } else if (this.attr('state') == 4 || this.attr('state') == '8') {
           return 'Complete';
-        } else if (this.attr('state') == 5) {
+        } else if (this.attr('state') == 5 || this.attr('state') == '9') {
           return 'Error';
         } else if (this.attr('state') == 6) {
           return 'Canceled';
+        } else if (this.attr('state') == 7) {
+          return 'Retired';
+        } else if (this.attr('state') == -1) {
+          return 'Pending';
         } else {
           return 'Error';
         }
@@ -86,7 +90,7 @@ export default Model.extend({
         if (this.attr('state') == '4' || this.attr('state') == '8') {
           return 'success';
         }
-        if (this.attr('state') == '5') {
+        if (this.attr('state') == '5' || this.attr('state') == '9') {
           return 'danger';
         }
         if (this.attr('state') == '6') {
@@ -95,6 +99,42 @@ export default Model.extend({
         if (this.attr('state') == '7') {
           return 'dark';
         }
+      }
+    },
+
+    'stateAsImage': {
+      get: function() {
+
+        if( this.attr('state') == '-1' ){
+          return "fas fa-moon";
+        }
+        if (this.attr('state') == '1') {
+          if (this.attr('setupRunning')) {
+            return 'fas fa-cog fa-spin';
+          } else {
+            return 'far fa-pause-circle';
+          }
+        }
+        if (this.attr('state') == '2') {
+          return "fas fa-circle-notch fa-spin";
+        }
+        if (this.attr('state') == '3') {
+          return "fas fa-circle-notch fa-spin";
+        }
+        if (this.attr('state') == '4' || this.attr('state') == '8') {
+          return "fas fa-check";
+        }
+        if (this.attr('state') == '5' || this.attr('state') == '9') {
+          return "fas fa-times";
+        }
+        if (this.attr('state') == '6') {
+          return "fas fa-stop";
+        }
+        if (this.attr('state') == '7') {
+          return "fas fa-archive";
+        }
+
+        return
       }
     },
 
@@ -142,7 +182,7 @@ export default Model.extend({
 
     'canShowLog': {
       get: function() {
-        return true;
+        return this.attr('logs') != undefined && this.attr('logs') != '';
       }
     },
 

@@ -6,6 +6,9 @@ import 'components/core/layout/layout.css';
 import '@fortawesome/fontawesome-free/css/all.css';
 import 'can-map-define';
 
+import Server from 'models/server';
+import ErrorPage from 'helpers/error-page';
+import LayoutControl from 'components/admin/layout/';
 import RouterControl from 'helpers/router';
 import DashboardControl from 'components/admin/dashboard/';
 import UserListControl from 'components/admin/user/list/';
@@ -37,7 +40,7 @@ var routes = [{
     login: false
   }
 }, {
-  path: 'pages/admin-jobs',
+  path: 'pages/jobs',
   control: JobListControl
 }, {
   path: 'pages/admin-users',
@@ -66,17 +69,28 @@ var routes = [{
 }, {
   path: 'jobs/{job}',
   control: JobDetailControl,
-  options: {
-    admin: true
-  }
 }, {
   path: 'jobs/{job}/{tab}',
   control: JobDetailControl,
-  options: {
-    admin: true
-  }
 }];
 
-new RouterControl("#content", {
-  routes: routes
+
+Server.findOne({}, function(server) {
+
+new LayoutControl("#main", {
 });
+
+
+new RouterControl("#content", {
+  routes: routes,
+  appState: server,
+  forbidden: {
+    control: ErrorPage,
+    options: {
+      status: '401',
+      message: 'Oops, you need to <a href="#!pages/login">login</a> to view this content.'
+    }
+  }
+});
+
+  });

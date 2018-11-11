@@ -1,61 +1,65 @@
-<hr>
-<div class="job-header d-flex justify-content-start align-items-center">
-	<div>
-		<h2>{{job.longName}}</h2>
-		<small class="text-muted"><i class="fas fa-clock"></i> {{prettyDate(job.submittedOn}}&nbsp;&nbsp;<i class="fas fa-hourglass"></i> {{prettyTime(job.executionTime)}}&nbsp;&nbsp;<i class="fas fa-user"></i> {{job.username}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{job.application}}</small>
-	</div>
-	<div class="ml-auto">
-		<div class="dropdown">
-			<button style="width: 100px;" class="btn btn-{{job.stateAsClass}} dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				{{job.stateAsText}}
-			</button>
+<div class="page-header">
+	<div class="bg-white bd-content py-1 container">
+		<!--
+		<div>
+			<a href="#!pages/jobs">jobs</a> <span class="text-muted">/ {{job.id}}</span></a>
+		</div>
+		-->
+		<!--
+		<nav aria-label="breadcrumb">
+  		<ol class="breadcrumb">
+    		<li class="breadcrumb-item"><a href="#!pages/jobs">Jobs</a></li>
+    		<li class="breadcrumb-item active" aria-current="page">{{job.id}}</li>
+  		</ol>
+		</nav>
+		-->
+		<div class="job-header d-flex justify-content-start align-items-center">
+			<span class="status badge badge-{{job.stateAsClass}}"><i class="{{job.stateAsImage}}"></i></span>
 
-			<div class="dropdown-menu" aria-labelledby="{{job.id}}">
-				{{#is(admin, true)}}
-					{{#is(job.isPending, true)}}
-						<a id="restart-btn" class="dropdown-item" style="cursor:pointer">Restart</a>
-					{{/is}}
-				{{/is}}
-				{{#job.canShowLog}}
-					<a class="dropdown-item" href="/logs/{{job.id}}" target="_blank">Logs</a>
-				{{/job.canShowLog}}
-				{{#job.canCancel}}
-					<a id="cancel-btn" class="dropdown-item" style="cursor:pointer">Cancel...</a>
-				{{/job.canCancel}}
-				{{#job.canDelete}}
-					<a id="delete-btn" class="dropdown-item" style="cursor:pointer">Delete...</a>
-				{{/job.canDelete}}
+			<div>
+				<h2>{{job.longName}}</h2>
+				<small class="text-muted"><i class="fas fa-clock"></i> {{prettyDate(job.submittedOn}}&nbsp;&nbsp;<i class="fas fa-hourglass"></i> {{prettyTime(job.executionTime)}}&nbsp;&nbsp;<i class="fas fa-user"></i> {{job.username}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{job.application}}</small>
+			</div>
+			<div class="ml-auto">
+						{{#is(admin, true)}}
+							{{#is(job.isPending, true)}}
+								<a id="restart-btn" class="btn btn-light" data-toggle="tooltip" data-placement="bottom" title="Restart job"><i class="fas fa-undo"></i></a>
+							{{/is}}
+						{{/is}}
+						{{#job.canCancel}}
+							<a id="cancel-btn" class="btn btn-light" role="button" data-toggle="tooltip" data-placement="bottom" title="Cancel job"><i class="fas fa-times"></i></a>
+						{{/job.canCancel}}
+						{{#job.canDelete}}
+							<a id="delete-btn" class="btn btn-light" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete job"><i class="fas fa-trash"></i></a>
+						{{/job.canDelete}}
 			</div>
 		</div>
+
+		{{#is(job.isInQueue, true)}}
+			<br>
+			<div class="alert alert-info">
+				Job is in queue on position <b>{{job.positionInQueue}}</b>.
+			</div>
+		{{/is}}
+
+		{{#is(job.public, true)}}
+			<br>
+			<div class="alert alert-info">
+				Please bookmark this page to monitor your job and to download your results!
+			</div>
+		{{/is}}
+
+		{{#is(job.willBeRetired, true)}}
+			<br>
+			<div class="alert alert-info">
+				Your job retires on <b>{{prettyDate(job.deletedOn)}}</b>! All results will be deleted at that time. Please ensure that you have downloaded all data.
+			</div>
+		{{/is}}
+
 	</div>
 </div>
-
-{{#is(job.isInQueue, true)}}
-	<br>
-	<div class="alert alert-info">
-		Job is in queue on position <b>{{job.positionInQueue}}</b>.
-	</div>
-{{/is}}
-
-{{#is(job.public, true)}}
-	<br>
-	<div class="alert alert-info">
-		Please bookmark this page to monitor your job and to download your results!
-	</div>
-{{/is}}
-
-{{#is(job.willBeRetired, true)}}
-	<br>
-	<div class="alert alert-info">
-		Your job retires on <b>{{prettyDate(job.deletedOn)}}</b>! All results will be deleted at that time. Please ensure that you have downloaded all data.
-	</div>
-{{/is}}
-
-<hr>
-<br>
-<br>
-
-
+{{^is(tab,'')}}
+<div class="bd-content py-5 container">
 <div class="tabbable">
 
 	<ul class="nav nav-tabs">
@@ -73,8 +77,14 @@
 				</a>
 			</li>
 		{{/is}}
-
-	</ul>
+		{{#job.canShowLog}}
+		<li class="nav-item">
+			<a class="nav-link {{#is(tab, 'logs')}}active{{/is}}" href="#!jobs/{{job.id}}/logs">
+				Logs
+			</a>
+		</li>
+		{{/job.canShowLog}}
+		</ul>
 
 	<script type="text/javascript">
 		function resizeIframe(iframe) {
@@ -86,6 +96,7 @@
 		}
 	</script>
 
+<div class="page">
 	<div class="tab-content">
 
 		{{#is(job.isPending, true)}}
@@ -115,6 +126,12 @@
 			{{/is}}
 		{{/is}}
 
-	</div>
+		{{#is(tab, 'logs')}}
+			<div class="tab-pane active log-pane" id="tab-logs"></div>
+		{{/is}}
 
+	</div>
 </div>
+</div>
+</div>
+{{/is}}
