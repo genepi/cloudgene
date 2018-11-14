@@ -13,25 +13,25 @@
     {{#logMessages}}
 
     {{#is(type, 0)}}
-      <div class="list-group-item flex-column align-items-start step-success">
+      <div class="list-group-item flex-column align-items-start step step-success">
         <p class="mb-1">{{{replaceNL(message)}}}</p>
       </div>
     {{/is}}
 
     {{#is(type, 1)}}
-      <div class="list-group-item flex-column align-items-start step-danger">
+      <div class="list-group-item flex-column align-items-start step step-danger">
         <p class="mb-1">{{{replaceNL(message)}}}</p>
       </div>
     {{/is}}
 
     {{#is(type, 2)}}
-      <div class="list-group-item flex-column align-items-start step-warning">
+      <div class="list-group-item flex-column align-items-start step step-warning">
         <p class="mb-1">{{{replaceNL(message)}}}</p>
       </div>
     {{/is}}
 
     {{#is(type, 3)}}
-      <div class="list-group-item flex-column align-items-start step-primary">
+      <div class="list-group-item flex-column align-items-start step step-primary">
         <div class="d-flex w-100 justify-content-between">
           <p class="mb-1">{{{replaceNL(message)}}}</p>
           <small><i class="fas fa-circle-notch fa-spin"></i></small>

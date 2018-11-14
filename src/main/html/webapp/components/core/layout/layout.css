@@ -124,7 +124,6 @@ footer p {
   opacity: 0.6 !important;
 }
 
-
 .job-success {
   border-left-width: 10px !important;
   border-left-color: #28a745 !important;
@@ -147,7 +146,11 @@ footer p {
 
 .job-dark {
   border-left-width: 10px !important;
-  border-left-color: rgba(52, 58, 64,0.6) !important;
+  border-left-color: rgba(52, 58, 64, 0.6) !important;
+}
+
+.step{
+
 }
 
 .step-success {
@@ -216,4 +219,31 @@ footer p {
 
 .log-pane {
   font-size: 14px;
+}
+
+.step .badge {
+  background: #6c757d;
+  color: #fff;
+  font-size: 10px !important;
+  margin-right: 5px !important;
+}
+
+.step .badge-danger {
+  background: #b94a48 !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  margin-right: 5px !important;
+}
+
+.step .badge-info {
+  background: #17a2b8 !important;
+  color: #fff !important;
+  margin-right: 5px !important;
+}
+
+.step .badge-success {
+  background: #28a745 !important;
+  color: #fff !important;
+  font-size: 10px !important;
+  margin-right: 5px !important;
 }
