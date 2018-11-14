@@ -117,11 +117,7 @@ footer p {
   width: 40px !important;
   font-size: 20px !important;
   margin-right: 10px;
-  filter: alpha(opacity=60) !important;
-  /* IE */
-  -moz-opacity: 0.6 !important;
-  /* Mozilla */
-  opacity: 0.6 !important;
+
 }
 
 .job-success {
@@ -144,9 +140,14 @@ footer p {
   border-left-color: #ffc107 !important;
 }
 
-.job-dark {
+.job-secondary {
   border-left-width: 10px !important;
   border-left-color: rgba(52, 58, 64, 0.6) !important;
+}
+
+.job-dark {
+  border-left-width: 10px !important;
+  border-left-color: #343a40 !important;
 }
 
 .step{

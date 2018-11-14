@@ -97,7 +97,7 @@ export default Model.extend({
           return 'danger';
         }
         if (this.attr('state') == '7') {
-          return 'dark';
+          return 'secondary';
         }
       }
     },
@@ -125,10 +125,10 @@ export default Model.extend({
           return "fas fa-check";
         }
         if (this.attr('state') == '5' || this.attr('state') == '9') {
-          return "fas fa-times";
+          return "fas fa-exclamation";
         }
         if (this.attr('state') == '6') {
-          return "fas fa-stop";
+          return "fas fa-times";
         }
         if (this.attr('state') == '7') {
           return "fas fa-archive";
@@ -164,13 +164,13 @@ export default Model.extend({
 
     'canResetCounters': {
       get: function() {
-        return this.attr('state') > 3 || this.attr('state') == -1;
+        return this.attr('state') > 3;
       }
     },
 
     'canSendRetireNotification': {
       get: function() {
-        return this.attr('state') != '8' && this.attr('state') != '9';
+        return this.attr('state') > 3 && this.attr('state') != '8' && this.attr('state') != '9';
       }
     },
 
@@ -194,7 +194,7 @@ export default Model.extend({
 
     'canRetireJob': {
       get: function() {
-        return this.attr('state') == '4' || this.attr('state') != '5' || this.attr('state') != '6';
+        return this.attr('state') > '3' && (this.attr('state') == '4' || this.attr('state') != '5' || this.attr('state') != '6');
       }
     },
 

@@ -20,8 +20,9 @@
           <span class="status-xs badge badge-{{stateAsClass}}"><i class="{{stateAsImage}}"></i></span> {{stateAsText}}
           <div>
           -->
+<span class="status-xs badge badge-{{stateAsClass}}"><i class="{{stateAsImage}}"></i></span>
 
-          <div>
+          <div class="flex-grow-1">
             <b><a href="#!jobs/{{id}}">{{name}}</a></b><br>
             <small class="text-muted"><i class="far fa-clock"></i> {{prettyDate(submittedOn)}}&nbsp;&nbsp;<i class="far fa-hourglass"></i> {{prettyTime(executionTime)}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{application}}</small>
           </div>
@@ -32,6 +33,8 @@
           {{#canDelete}}
             <a class="btn btn-light delete-btn" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete job"><i class="fas fa-trash"></i></a>
           {{/canDelete}}
+
+
 
         </div>
 
