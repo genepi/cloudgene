@@ -7,7 +7,7 @@
 		<tr>
 			<th style="width: 150px;">Key</th>
 			<th>Text</th>
-			<th style="width: 16px;"></th>
+			<th style="width: 40px;"></th>
 
 		</tr>
 	</thead>
@@ -24,11 +24,11 @@
 					{{text}}
 				</td>
 				<td>
-					<span class="edit-btn fa fa-edit" style="cursor: pointer;"></span>
+					<span class="edit-btn btn btn-sm btn-outline-dark"><i class="fas fa-pencil-alt"></i> Edit</a>
 				</td>
 			</tr>
 
-		{{#templates}}
+		{{/templates}}
 
 	</tbody>
 </table>
