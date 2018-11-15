@@ -24,7 +24,7 @@
 					{{text}}
 				</td>
 				<td>
-					<span class="edit-btn btn btn-sm btn-outline-dark"><i class="fas fa-pencil-alt"></i> Edit</a>
+					<span class="edit-btn btn btn-sm btn-outline-dark"><i class="fas fa-pencil-alt"></i> Edit</span>
 				</td>
 			</tr>
 
