@@ -70,10 +70,12 @@ var routes = [{
   options: {
     page2: 1
   },
+  classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
   path: 'pages/jobs/{page2}',
   control: JobListControl,
+  classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
   path: 'jobs/{job}',
@@ -87,7 +89,8 @@ var routes = [{
   guard: loggedInGuard
 }, {
   path: 'run/{app}',
-  control: SubmitJobControl
+  control: SubmitJobControl,
+  classes: 'fullsize-container'
 }];
 
 function loggedInGuard(appState) {

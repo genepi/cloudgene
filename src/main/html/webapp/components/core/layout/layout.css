@@ -218,6 +218,12 @@ footer p {
   padding: 15px;
 }
 
+.card-shadow {
+  background: #fff;
+  box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.16), 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+  transition: box-shadow .25s;
+}
+
 .log-pane {
   font-size: 14px;
 }
