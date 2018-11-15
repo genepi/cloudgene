@@ -120,6 +120,8 @@
 							<a class="change-retire-date-btn dropdown-item" style="cursor:pointer">Increase retire date</a>
 						{{/canIncreaseRetireDate}}
 
+						<a class="dropdown-item" href="mailto:{{user.mail}}">Send E-Mail...</a>
+
 						{{#canShowLog}}
 						<a class="dropdown-item" href="/logs/{{id}}" target="_blank">Logs</a>
 						{{/canShowLog}}

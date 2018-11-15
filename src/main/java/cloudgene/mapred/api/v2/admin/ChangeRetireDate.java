@@ -34,7 +34,12 @@ public class ChangeRetireDate extends BaseResource {
 
 		String jobId = getAttribute("job");
 
-		int days = Integer.parseInt(getAttribute("days"));
+		int days = 0;
+		try {
+			Integer.parseInt(getAttribute("days"));
+		} catch (Exception e) {
+			return error400("The provided number value '" + getAttribute("days") + "' is not an integer.");
+		}
 
 		JobDao dao = new JobDao(getDatabase());
 
