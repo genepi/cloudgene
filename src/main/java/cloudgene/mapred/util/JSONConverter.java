@@ -26,7 +26,7 @@ public class JSONConverter {
 				"mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "workingDirectory", "parameter",
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-				"removeHeader", "value", "autoExport", "adminOnly", "download", "tip", "apiToken", "parameterId",
+				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId",
 				"count", "username" });
 		return JSONObject.fromObject(job, config);
 	}
