@@ -163,7 +163,7 @@ public class JSONConverter {
 		}
 		object.put("active", user.isActive());
 		object.put("loginAttempts", user.getLoginAttempts());
-		object.put("role", String.join(User.ROLE_SEPARATOR, user.getRoles()));
+		object.put("role", String.join(User.ROLE_SEPARATOR, user.getRoles()).toLowerCase());
 		object.put("mail", user.getMail());
 		object.put("admin", user.isAdmin());
 		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());

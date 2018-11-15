@@ -35,7 +35,7 @@ public class GetGroups extends BaseResource {
 
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
-		groups.add(new Group("User"));
+		groups.add(new Group("user"));
 		for (Application application : getSettings().getApps()) {
 			Group group = new Group(application.getPermission());
 			if (!groups.contains(group)) {

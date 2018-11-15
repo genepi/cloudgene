@@ -1,15 +1,17 @@
 import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
+import canMap from 'can-map';
 import 'helpers/helpers';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 
 import Application from 'models/application';
+import Group from 'models/group';
 
 import template from './list.stache';
 import templateInstallGithub from './install-github/install-github.stache';
 import templateInstallUrl from './install-url/install-url.stache';
-
+import templatePermission from './permission/permission.stache';
 
 export default Control.extend({
 
@@ -191,18 +193,37 @@ export default Control.extend({
 
     var card = $(el).closest('.card');
     var application = domData.get.call(card[0], 'application');
-    var permission = application.attr('permission');
 
-    bootbox.confirm('<p>' + application.attr('id') + '</p><h4>Permissions' +
-      '</h4><p></p><form><input class="form-control" id="message" name="message" value="' + permission + '"></input></form>',
-      function(result) {
-        if (result) {
-          var text = $('#message').val();
-          application.attr('permission', text);
-          application.save();
-        }
+    Group.findAll({},
+      function(groups) {
+        var selection = new canMap();
+        selection.attr('group', application.attr('permission'));
+        selection.attr('name', '');
+
+        bootbox.confirm(templatePermission({
+            selection: selection,
+            application: application,
+            groups: groups
+          }),
+          function(result) {
+            if (result) {
+              var group = selection.attr('group');
+              if (group !== '') {
+                application.attr('permission', group);
+                application.save();
+              } else {
+                var name = selection.attr('name');
+                if (name !== '') {
+                  application.attr('permission', name);
+                  application.save();
+                } else {
+                  bootbox.alert("Please enter a name for the new group.")
+                }
+              }
+
+            }
+          });
       });
-
 
   },
 

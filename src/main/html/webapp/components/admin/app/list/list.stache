@@ -48,7 +48,7 @@
 							<div>
 							</div>
 							<div class="btn-group">
-								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-user"></i> {{permission}}</button>
+								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-users"></i> {{permission}}</button>
 								<button type="button" class="delete-app-btn btn btn-sm btn-outline-secondary"><i class="fas fa-trash-alt"></i> Uninstall</button>
 								{{#enabled}}
 									<button type="button" class="enable-disable-btn btn btn-sm btn-success"><i class="fas fa-pause"></i> Disable</button>
