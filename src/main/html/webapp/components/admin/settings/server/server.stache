@@ -11,7 +11,7 @@
 <table class="table table-bordered">
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Version:</b>
 		</td>
 		<td>
@@ -20,7 +20,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Mode:</b>
 		</td>
 		<td>
@@ -33,7 +33,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Queue:</b>
 		</td>
 		<td>
@@ -46,7 +46,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Threads Setup Queue:</b>
 		</td>
 		<td>
@@ -55,7 +55,7 @@
 	</tr>
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Threads Processing Queue:</b>
 		</td>
 		<td>
@@ -64,20 +64,20 @@
 	</tr>
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Max Jobs per User:</b>
 		</td>
 		<td>{{cluster.max_jobs_user}}</td>
 	</tr>
 
 	<tr>
-		<td style="width: 400px;">
+		<td>
 			<b>Disk Usage:</b>
 		</td>
 		<td>
-			<div class="progress" style="width: 400px">
-				<div class="progress-bar bg-danger" role="progressbar" style="width: {{percentage cluster.used_disc_space cluster.total_disc_space}}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-				<div class="progress-bar bg-success" role="progressbar" style="width:{{percentage cluster.free_disc_space cluster.total_disc_space}}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+			<div class="progress">
+				<div class="progress-bar bg-danger" role="progressbar" style="width: {{percentage(cluster.used_disc_space,cluster.total_disc_space)}}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+				<div class="progress-bar bg-success" role="progressbar" style="width:{{percentage(cluster.free_disc_space,cluster.total_disc_space)}}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
 			</div>
 
 			{{cluster.used_disc_space}} GB used, <b>{{cluster.free_disc_space')}}	GB free</b>
@@ -92,78 +92,75 @@
 <div class="container" id="application-repository">
 	<div class="row">
 
-		<div class="col-md-12">
+		<div class="col-md-12 mt-2">
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
-
-
 					{{#cluster.hadoop_enabled}}
 						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> {{cluster.hadoop_cluster}}</h5>
-						<p>Type: Hadoop<br>
+						<p><span class="float-right btn btn-secondary" id ="hadoop-details-btn">Details</span></p>
+						Type: Hadoop<br>
 								Status:
 							{{#cluster.hadoop_safemode}}
-						<span class="badge badge-important">SAFEMODE!</span>
-						{{else}}
+								<span class="badge badge-important">SAFEMODE!</span>
+							{{else}}
 								<span class="badge badge-success">Running</span>
 							{{/cluster.hadoop_safemode}}
-						<br>
-						JobTracker: {{cluster.hadoop_jobtracker}}<br>
-						Execute as: {{cluster.hadoop_username}}<br>
-						Active Nodes: {{cluster.hadoop_active_nodes}}/{{cluster.hadoop_nodes}}<br>
-						Map Tasks: {{cluster.hadoop_map_tasks}}<br>
-						Reduce Tasks: {{cluster.hadoop_map_tasks}}<br></p>
-						<p><span class="float-right btn btn-secondary" id ="hadoop-details-btn">Details</span></p>
-						{{else}}
-							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Hadoop Cluster</h5>
-							{{cluster.hadoop_error}}
+							<br>
+							JobTracker: {{cluster.hadoop_jobtracker}}<br>
+							Execute as: {{cluster.hadoop_username}}<br>
+							Active Nodes: {{cluster.hadoop_active_nodes}}/{{cluster.hadoop_nodes}}<br>
+							Map Tasks: {{cluster.hadoop_map_tasks}}<br>
+							Reduce Tasks: {{cluster.hadoop_map_tasks}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Hadoop Cluster</h5>
+						{{cluster.hadoop_error}}
 					{{/cluster.hadoop_enabled}}
-
-
-
-
-
 				</div>
 			</div>
 		</div>
 
-		<div class="col-md-12">
+		<br>
+
+		<div class="col-md-12 mt-2">
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
 					{{#cluster.r_enabled}}
 						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> R</h5>
 						{{cluster.r_details}}
-						{{else}}
-							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> R</h5>
-							{{cluster.r_error}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> R</h5>
+						{{cluster.r_error}}
 					{{/cluster.r_enabled}}
 				</div>
 			</div>
 		</div>
 
-		<div class="col-md-12">
+		<br>
+
+		<div class="col-md-12 mt-2">
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
 					{{#cluster.rmarkdown_enabled}}
 						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> RMarkdown</h5>
 						{{cluster.rmarkdown_details}}
-						{{else}}
-							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> RMarkdown</h5>
-							{{cluster.rmarkdown_error}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> RMarkdown</h5>
+						{{cluster.rmarkdown_error}}
 					{{/cluster.rmarkdown_enabled}}
 				</div>
 			</div>
 		</div>
 
 
-		<div class="col-md-12">
+		<div class="col-md-12 mt-2">
 			<div class="card mb-12 box-shadow">
 				<div class="card-body">
 					{{#cluster.docker_enabled}}
 						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> Docker</h5>
 						{{cluster.docker_details}}
-						{{else}}
-							<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Docker</h5>
-							{{cluster.docker_error}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Docker</h5>
+						{{cluster.docker_error}}
 					{{/cluster.docker_enabled}}
 				</div>
 			</div>
@@ -171,49 +168,6 @@
 
 	</div>
 </div>
-
-<br>
-<h3>Database Connection Pool</h3>
-
-<table class="table table-bordered">
-
-	<tr>
-		<td style="width: 400px;">
-			<b>Active </b><br><i>Number of instances currently borrowed from this pool.</i>
-		</td>
-		<td>
-			{{cluster.db_active}}
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 400px;">
-			<b>Max active:</b>
-		</td>
-		<td>
-			{{cluster.db_max_active}}
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 400px;">
-			<b>Idle:</b><br><i>Number of instances currently idle in this pool.</i>
-		</td>
-		<td>
-			{{cluster.db_idle}}
-		</td>
-	</tr>
-
-	<tr>
-		<td style="width: 400px;">
-			<b>Max idle:</b>
-		</td>
-		<td>
-			{{cluster.db_max_idle}}
-		</td>
-	</tr>
-
-</table>
 
 <br>
 

@@ -9,11 +9,11 @@
 		    </button>
 		<div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
 			<a class="dropdown-item" href="#!pages/admin-apps-repository" id="install-app-cloudgene-io-btn"><i class="fas fa-database"></i> from apps.cloudgene.io...</a>
-			<a class="dropdown-item" id="install-app-github-btn"><i class="fab fa-github"></i> from GitHub...</a>
-			<a class="dropdown-item" id="install-app-url-btn"><i class="fas fa-globe"></i> from URL...</a>
+			<a class="dropdown-item" id="install-app-github-btn" style="cursor: pointer"><i class="fab fa-github"></i> from GitHub...</a>
+			<a class="dropdown-item" id="install-app-url-btn" style="cursor: pointer"><i class="fas fa-globe"></i> from URL...</a>
 		</div>
 	</div>
-	&nbsp;<span class="btn btn-secondary" id="reload-apps-btn"><i class="fas fa-sync-alt"></i> Reload Apps from filesystem</span>
+	&nbsp;<span class="btn btn-secondary" id="reload-apps-btn"><i class="fas fa-sync-alt"></i> Reload Apps</span>
 </p>
 <br>
 
@@ -48,7 +48,7 @@
 							<div>
 							</div>
 							<div class="btn-group">
-								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-user"></i>{{permission}}</button>
+								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-user"></i> {{permission}}</button>
 								<button type="button" class="delete-app-btn btn btn-sm btn-outline-secondary"><i class="fas fa-trash-alt"></i> Uninstall</button>
 								{{#enabled}}
 									<button type="button" class="enable-disable-btn btn btn-sm btn-success"><i class="fas fa-pause"></i> Disable</button>
