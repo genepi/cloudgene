@@ -40,7 +40,7 @@
 
 <p>The following counters where submitted by applications.</p>
 
-<table class="table table-bordered" style="width: 700px;">
+<table class="table table-bordered">
 
 {{#counter.complete}}
 
