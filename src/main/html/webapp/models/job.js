@@ -8,6 +8,22 @@ export default Model.extend({
   findOne: 'GET /api/v2/jobs/{id}/status',
   destroy: 'DELETE /api/v2/jobs/{id}',
 }, {
+
+  'syncTime': function() {
+    if (this.attr('startTime') > 0 && this.attr('endTime') === 0) {
+      this.attr('endTime', this.attr('currentTime'));
+    } else {
+      this.attr('endTime', this.attr('endTime'));
+    }
+    if (this.attr('setupStartTime') > 0 && this.attr('setupEndTime') === 0) {
+      this.attr('setupEndTime', this.attr('currentTime'));
+    } else {
+      this.attr('setupEndTime', this.attr('setupEndTime'));
+    }
+
+  },
+
+
   define: {
 
     'longName': {
@@ -105,7 +121,7 @@ export default Model.extend({
     'stateAsImage': {
       get: function() {
 
-        if( this.attr('state') == '-1' ){
+        if (this.attr('state') == '-1') {
           return "fas fa-moon";
         }
         if (this.attr('state') == '1') {

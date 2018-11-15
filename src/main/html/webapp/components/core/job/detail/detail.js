@@ -158,21 +158,12 @@ export default Control.extend({
     Job.findOne({
       id: that.job.id
     }, function(currentJob) {
+      currentJob.syncTime();
       that.job.attr('state', currentJob.attr('state'));
       that.job.attr('startTime', currentJob.attr('startTime'));
-      if (currentJob.attr('startTime') > 0 && currentJob.attr('endTime') === 0) {
-        //running
-        that.job.attr('endTime', currentJob.attr('currentTime'));
-      } else {
-        that.job.attr('endTime', currentJob.attr('endTime'));
-      }
+      that.job.attr('endTime', currentJob.attr('endTime'));
       that.job.attr('setupStartTime', currentJob.attr('setupStartTime'));
-      if (currentJob.attr('setupStartTime') > 0 && currentJob.attr('setupEndTime') === 0) {
-        //running
-        that.job.attr('setupEndTime', currentJob.attr('currentTime'));
-      } else {
-        that.job.attr('setupEndTime', currentJob.attr('setupEndTime'));
-      }
+      that.job.attr('setupEndTime', currentJob.attr('setupEndTime'));
       that.job.attr('steps', currentJob.attr('steps'));
       that.job.attr('positionInQueue', currentJob.attr('positionInQueue'));
 

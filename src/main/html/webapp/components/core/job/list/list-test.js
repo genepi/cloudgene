@@ -6,6 +6,7 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import 'components/core/layout/layout.css';
 import List from 'can-list';
 
+import 'helpers/helpers';
 
 import template from './list.stache';
 import JobDetails from 'models/job-details';
@@ -224,6 +225,7 @@ list.attr('pages', jobs.pages);
 list.attr('next', jobs.next);
 for (var i = 0; i < jobs.data.length; i++) {
   var job = new JobDetails(jobs.data[i]);
+  job.syncTime();
   list.push(job);
 }
 
