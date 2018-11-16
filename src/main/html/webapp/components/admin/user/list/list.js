@@ -60,7 +60,7 @@ export default Control.extend({
             //options = options + '<option>' + group.attr('name') + '</option>';
             options = options + '<label class="checkbox"><input type="checkbox" name="role-select" value="' + group.attr('name') + '" />';
           }
-          options = options + '<b>' + group.attr('name') + '</b><br>Access to: ' + group.attr('apps').join(', ') + '</label>';
+          options = options + ' <b>' + group.attr('name') + '</b><br><small class="text-muted">Access to: ' + group.attr('apps').join(', ') + '</small></label>';
         });
 
         bootbox.confirm(

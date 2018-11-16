@@ -43,7 +43,7 @@
 						{{mail}}
 					</td>
 					<td>
-						{{role}} <span class="edit-role-btn fa fa-edit" style="cursor: pointer;"></span>
+						<span class="btn btn-sm btn-outline-secondary edit-role-btn ">{{role}}</span>
 					</td>
 					<td>
 						{{lastLogin}}
