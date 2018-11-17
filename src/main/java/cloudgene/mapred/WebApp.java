@@ -180,7 +180,7 @@ public class WebApp extends Application {
 
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
-		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);
+		router.attach(prefix + "/api/v2/admin/users/{username}/delete", DeleteUser.class);
 		router.attach(prefix + "/api/v2/admin/users/changegroup", ChangeGroup.class);
 		router.attach(prefix + "/api/v2/admin/groups", GetGroups.class);
 

@@ -68,12 +68,12 @@ var routes = [{
   path: 'pages/jobs',
   control: JobListControl,
   options: {
-    page2: 1
+    page: 1
   },
   classes: 'fullsize-container',
   guard: loggedInGuard
 }, {
-  path: 'pages/jobs/{page2}',
+  path: 'pages/jobs/{page}',
   control: JobListControl,
   classes: 'fullsize-container',
   guard: loggedInGuard

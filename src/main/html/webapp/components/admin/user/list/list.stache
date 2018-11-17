@@ -1,6 +1,23 @@
 <h2>Users</h2>
 
+{{#query}}
+<p><br><br></p>
+{{else}}
 <p>This page lists all <b>{{users.count}}</b> registered users.<br><br></p>
+{{/query}}
+<p>
+	<form id="proband-search-form" class="form-inline">
+		Search:&nbsp;
+		<div class="input-group">
+			<input id="query" name="query" type="text" class="form-control" value="{{query}}" placeholder="username, mail or full name" autocomplete="off">
+				<span class="input-group-btn">
+						<button type="submit" class="btn btn-default">
+						<span class="glyphicon glyphicon-search"></span>
+						</button>
+				</span>
+		</div>
+	</form>
+</p>
 
 	<table class="table table-striped table-bordered" id="user-list">
 		<thead>
@@ -8,11 +25,10 @@
 				<th style="width: 16px;"></th>
 				<th style="width: 30px;"></th>
 				<th style="width: 150px;">Username</th>
-				<th style="width: 200px;">Fullname</th>
+				<th style="width: 200px;">Full Name</th>
 				<th>E-Mail</th>
-				<th style="width: 100px;">Group</th>
 				<th style="width: 200px;">Last Login</th>
-				<th style="width: 50px;">Attempts</th>
+				<th style="width: 100px;">Groups</th>
 				<th style="width: 16px;"></th>
 			</tr>
 		</thead>
@@ -40,19 +56,22 @@
 						{{fullName}}
 					</td>
 					<td>
-						{{mail}}
-					</td>
-					<td>
-						<span class="btn btn-sm btn-outline-secondary edit-role-btn "><i class="fas fa-users"></i> {{role}}</span>
+						<small>{{mail}}</small>
 					</td>
 					<td>
 						<small>{{lastLogin}}</small>
 					</td>
 					<td>
-						{{loginAttempts}}
+						{{#is(readOnly,false)}}
+							<span class="btn btn-sm btn-outline-secondary edit-role-btn "><i class="fas fa-users"></i> {{role}}</span>
+						{{else}}
+							{{role}}
+						{{/is}}
 					</td>
 					<td>
-						<span class="delete-user-btn fas fa-trash" style="cursor: pointer;"></span>
+						{{#is(readOnly,false)}}
+						<a class="btn btn-sm btn-light delete-user-btn" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete user"><i class="fas fa-trash"></i></a>
+						{{/is}}
 					</td>
 				</tr>
 			{{/each}}
@@ -62,15 +81,15 @@
 	  <div class="mx-auto">
 	    <ul class="mx-auto pagination">
 	      <li class="page-item {{^if(users.prev)}}disabled{{/if}}">
-	        <a class="page-link" href="#!pages/admin-users/{{users.prev}}" aria-label="Previous">
+	        <a class="page-link" href="#!pages/users/pages/{{users.prev}}" aria-label="Previous">
 	          <span aria-hidden="true">&larr; Previous</span>
 	        </a>
 	      </li>
 	      {{#users.pages}}
-	        <li class="{{#is(., users.page)}}page-item active{{/is}}"><a class="page-link" href="#!pages/admin-users/{{.}}">{{.}}</a></li>
+	        <li class="{{#is(., users.page)}}page-item active{{/is}}"><a class="page-link" href="#!pages/users/pages/{{.}}">{{.}}</a></li>
 	      {{/users.pages}}
 	      <li class="page-item {{^if(users.next)}}disabled{{/if}}">
-	        <a class="page-link" href="#!pages/admin-users/{{users.next}}" aria-label="Next">
+	        <a class="page-link" href="#!pages/users/pages/{{users.next}}" aria-label="Next">
 	          <span aria-hidden="true">Next &rarr;</span>
 	        </a>
 	      </li>

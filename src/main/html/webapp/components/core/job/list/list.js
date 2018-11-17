@@ -18,7 +18,7 @@ export default Control.extend({
 
     var that = this;
     Job.findAll({
-      page: options.page2
+      page: options.page
     }, function(jobs) {
       $.each(jobs, function(key, job) {
         $.each(jobs, function(key, job) {

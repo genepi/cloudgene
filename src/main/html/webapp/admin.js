@@ -43,13 +43,16 @@ var routes = [{
   path: 'pages/jobs',
   control: JobListControl
 }, {
-  path: 'pages/admin-users',
+  path: 'pages/users',
   control: UserListControl,
   options: {
-    page2: 1
+    page: 1
   }
 }, {
-  path: 'pages/admin-users/{page2}',
+  path: 'pages/users/pages/{page}',
+  control: UserListControl,
+},{
+  path: 'pages/users/search/{query}',
   control: UserListControl,
 }, {
   path: 'pages/admin-apps',

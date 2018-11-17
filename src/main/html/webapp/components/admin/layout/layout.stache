@@ -21,7 +21,7 @@
          <a class="nav-link" href="#!pages/jobs">Jobs</a>
        </li>
        <li class="nav-item">
-         <a class="nav-link" href="#!pages/admin-users">Users</a>
+         <a class="nav-link" href="#!pages/users">Users</a>
        </li>
        <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>

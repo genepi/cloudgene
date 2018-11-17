@@ -209,6 +209,36 @@ public class UserDao extends JdbcDataAccessObject {
 		}
 		return result;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<User> findByQuery(String query) {
+
+		StringBuffer sql = new StringBuffer();
+
+		sql.append("select * ");
+		sql.append("from user ");
+		sql.append("where mail like ? or username like ? or full_name like ? ");
+		sql.append("order by username");
+
+		Object[] params = new Object[3];
+		params[0] = "%" + query + "%";
+		params[1] = params[0];
+		params[2] = params[0];
+		
+		List<User> result = new Vector<User>();
+
+		try {
+			result = query(sql.toString(), params, new UserMapper());
+
+			log.debug("find all user successful. size = " + result.size());
+
+		} catch (SQLException e1) {
+
+			log.error("find all user failed.", e1);
+
+		}
+		return result;
+	}
 
 	@SuppressWarnings("unchecked")
 	public List<User> findAll(int offset, int limit) {

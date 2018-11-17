@@ -50,14 +50,25 @@ public class GetUsers extends BaseResource {
 		}
 
 		UserDao dao = new UserDao(getDatabase());
-		int count = dao.findAll().size();
+
 		List<User> users = null;
-		if (page != null) {
-			users = dao.findAll(offset, pageSize);
-		} else {
-			users = dao.findAll();
+		int count = 0;
+		String query = getQueryValue("query");
+		if (query != null && !query.isEmpty()) {
+			users = dao.findByQuery(query);
 			page = "1";
+			count = users.size();
 			pageSize = count;
+		} else {
+			if (page != null) {
+				users = dao.findAll(offset, pageSize);
+				count = dao.findAll().size();
+			} else {
+				users = dao.findAll();
+				page = "1";
+				count = users.size();
+				pageSize = count;
+			}
 		}
 
 		JSONArray jsonArray = JSONConverter.convertUsers(users);

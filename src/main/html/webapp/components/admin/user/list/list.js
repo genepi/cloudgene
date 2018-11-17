@@ -14,23 +14,38 @@ import template from './list.stache';
 export default Control.extend({
 
   "init": function(element, options) {
-    User.findAll({
-      page: options.page2
-    }, function(users) {
-      $(element).html(template({
-        users: users,
-        md5: md5
-      }));
-      $(element).fadeIn();
-    }, function(response) {
-      new ErrorPage(element, response);
-    });
+
+    var params = {};
+    if (options.query) {
+      params = {
+        query: options.query
+      }
+    } else {
+      params = {
+        page: options.page
+      }
+    }
+
+    User.findAll(
+      params,
+      function(users) {
+        $(element).html(template({
+          users: users,
+          md5: md5,
+          query: options.query
+        }));
+        $(element).fadeIn();
+      },
+      function(response) {
+        new ErrorPage(element, response);
+      });
 
   },
 
   '.delete-user-btn click': function(el, ev) {
     var tr = $(el).closest('tr');
     var user = domData.get.call(tr[0], 'user');
+    console.log(user.attr('id'));
 
     bootbox.confirm("Are you sure you want to delete <b>" + user.attr('username') + "</b>?", function(result) {
       if (result) {
@@ -43,7 +58,6 @@ export default Control.extend({
   '.edit-role-btn click': function(el, ev) {
     var tr = $(el).closest('tr');
     var user = domData.get.call(tr[0], 'user');
-
     var element = this.element;
 
     Group.findAll({},
@@ -89,6 +103,19 @@ export default Control.extend({
         new ErrorPage(element, response);
       });
 
-  }
+  },
+
+  'submit': function(el, ev) {
+
+    event.preventDefault();
+
+    var query = $(this.element).find('#query');
+    if (query.val() != '') {
+      window.location.href = "#!pages/users/search/" + query.val();
+    }else{
+      window.location.href = "#!pages/users";
+    }
+
+  },
 
 });
