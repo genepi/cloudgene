@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.PublicUser;
 
 public class UserDao extends JdbcDataAccessObject {
@@ -192,11 +193,41 @@ public class UserDao extends JdbcDataAccessObject {
 
 		sql.append("select * ");
 		sql.append("from user ");
+		sql.append("order by username");
 
 		List<User> result = new Vector<User>();
 
 		try {
 			result = query(sql.toString(), new UserMapper());
+
+			log.debug("find all user successful. size = " + result.size());
+
+		} catch (SQLException e1) {
+
+			log.error("find all user failed.", e1);
+
+		}
+		return result;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<User> findAll(int offset, int limit) {
+
+		StringBuffer sql = new StringBuffer();
+
+		sql.append("select * ");
+		sql.append("from user ");
+		sql.append("order by username ");
+		sql.append("limit ?,?");
+
+		Object[] params = new Object[2];
+		params[0] = offset;
+		params[1] = limit;
+
+		List<User> result = new Vector<User>();
+
+		try {
+			result = query(sql.toString(), params, new UserMapper());
 
 			log.debug("find all user successful. size = " + result.size());
 

@@ -15,7 +15,7 @@ export default Control.extend({
 
   "init": function(element, options) {
     User.findAll({
-      state: "failed"
+      page: options.page2
     }, function(users) {
       $(element).html(template({
         users: users,

@@ -1,6 +1,6 @@
 <h2>Users</h2>
 
-<p>This page lists all registered users.<br><br></p>
+<p>This page lists all <b>{{users.count}}</b> registered users.<br><br></p>
 
 	<table class="table table-striped table-bordered" id="user-list">
 		<thead>
@@ -43,10 +43,10 @@
 						{{mail}}
 					</td>
 					<td>
-						<span class="btn btn-sm btn-outline-secondary edit-role-btn ">{{role}}</span>
+						<span class="btn btn-sm btn-outline-secondary edit-role-btn "><i class="fas fa-users"></i> {{role}}</span>
 					</td>
 					<td>
-						{{lastLogin}}
+						<small>{{lastLogin}}</small>
 					</td>
 					<td>
 						{{loginAttempts}}
@@ -58,3 +58,22 @@
 			{{/each}}
 		</tbody>
 	</table>
+	<br>
+	  <div class="mx-auto">
+	    <ul class="mx-auto pagination">
+	      <li class="page-item {{^if(users.prev)}}disabled{{/if}}">
+	        <a class="page-link" href="#!pages/admin-users/{{users.prev}}" aria-label="Previous">
+	          <span aria-hidden="true">&larr; Previous</span>
+	        </a>
+	      </li>
+	      {{#users.pages}}
+	        <li class="{{#is(., users.page)}}page-item active{{/is}}"><a class="page-link" href="#!pages/admin-users/{{.}}">{{.}}</a></li>
+	      {{/users.pages}}
+	      <li class="page-item {{^if(users.next)}}disabled{{/if}}">
+	        <a class="page-link" href="#!pages/admin-users/{{users.next}}" aria-label="Next">
+	          <span aria-hidden="true">Next &rarr;</span>
+	        </a>
+	      </li>
+	    </ul>
+	  </div>
+	  <br><br>

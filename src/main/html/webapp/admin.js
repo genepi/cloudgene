@@ -44,7 +44,13 @@ var routes = [{
   control: JobListControl
 }, {
   path: 'pages/admin-users',
-  control: UserListControl
+  control: UserListControl,
+  options: {
+    page2: 1
+  }
+}, {
+  path: 'pages/admin-users/{page2}',
+  control: UserListControl,
 }, {
   path: 'pages/admin-apps',
   control: AppListControl
@@ -77,20 +83,19 @@ var routes = [{
 
 Server.findOne({}, function(server) {
 
-new LayoutControl("#main", {
-});
+  new LayoutControl("#main", {});
 
 
-new RouterControl("#content", {
-  routes: routes,
-  appState: server,
-  forbidden: {
-    control: ErrorPage,
-    options: {
-      status: '401',
-      message: 'Oops, you need to <a href="#!pages/login">login</a> to view this content.'
+  new RouterControl("#content", {
+    routes: routes,
+    appState: server,
+    forbidden: {
+      control: ErrorPage,
+      options: {
+        status: '401',
+        message: 'Oops, you need to <a href="#!pages/login">login</a> to view this content.'
+      }
     }
-  }
-});
-
   });
+
+});
