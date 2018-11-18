@@ -6,7 +6,7 @@
 </div>
 
 <div class="col-sm-3">
-  <input name="{{id}}" id="{{id}}" type ="text" class="form-control" {{#is(required, true)}}required{{/is}} value="{{value}}">
+  <input name="{{id}}" id="{{id}}" type ="text" class="form-control" {{#is(required, true)}}required{{/is}} value="{{value}}" autocomplete="off">
 	{{#if(details)}}
     <small class="form-text text-muted">{{details}}</small>
   {{/if}}

@@ -6,37 +6,37 @@
   <br>
 </div>
 
-<form id="signon-form" class="form-horizontal">
+<form id="signon-form" class="form-horizontal" autocomplete="off">
 
   <div class="form-group">
     <label for="username" class="control-label">Username:</label>
-    <input id="username" name="username" type="text" class="form-control col-sm-3">
+    <input id="username" name="username" type="text" class="form-control col-sm-3" autocomplete="off">
     <div class="invalid-feedback"></div>
   </div>
 
 
   <div class="form-group">
     <label for="full-name" class="control-label">Full Name:</label>
-    <input id="full-name" name="full-name" type="text" class="form-control col-sm-3">
+    <input id="full-name" name="full-name" type="text" class="form-control col-sm-3" autocomplete="off">
     <div class="invalid-feedback"></div>
   </div>
 
 
   <div class="form-group">
     <label for="mail" class="control-label">E-Mail:</label>
-    <input id="mail" name="mail" type="text" class="form-control col-sm-3">
+    <input id="mail" name="mail" type="text" class="form-control col-sm-3" autocomplete="off">
     <div class="invalid-feedback"></div>
   </div>
 
   <div class="form-group">
     <label for="new-password" class="control-label">Password:</label>
-    <input id="new-password" name="new-password" type="password" class="form-control col-sm-3">
+    <input id="new-password" name="new-password" type="password" class="form-control col-sm-3" autocomplete="off">
     <div class="invalid-feedback"></div>
   </div>
 
   <div class="form-group">
     <label for="confirm-new-password" class="control-label">Confirm password:</label>
-    <input id="confirm-new-password" name="confirm-new-password" type="password" class="form-control col-sm-3">
+    <input id="confirm-new-password" name="confirm-new-password" type="password" class="form-control col-sm-3" autocomplete="off">
     <div class="invalid-feedback"></div>
   </div>
 

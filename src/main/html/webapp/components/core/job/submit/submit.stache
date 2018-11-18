@@ -5,12 +5,12 @@
   </div>
 </div>
 <div class="container page pl-5 mt-4">
-<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate>
+<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
 
 <div class="form-group row">
 	<label for="job-name" class="col-sm-2 col-form-label">Name</label>
 	<div class="col-sm-3">
-		<input name="job-name" type="text" value="" class="form-control" placeholder="optional job name">
+		<input name="job-name" type="text" value="" class="form-control" placeholder="optional job name" autocomplete="off">
 	</div>
 </div>
 
