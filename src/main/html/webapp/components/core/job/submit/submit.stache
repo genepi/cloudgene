@@ -1,10 +1,10 @@
 <div class="page-header card-shadow">
   <div class="bg-white bd-content py-1 container">
 		<h2>{{application.name}}</h2>
-		<p>{{{application.description}}}</p>
+		{{{application.description}}}
   </div>
 </div>
-<div class="container page pl-5 mt-4">
+<div class="container page border-top pl-5 mt-5">
 <form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
 
 <div class="form-group row">

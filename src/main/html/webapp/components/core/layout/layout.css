@@ -117,7 +117,6 @@ footer p {
   width: 40px !important;
   font-size: 20px !important;
   margin-right: 10px;
-
 }
 
 .job-success {
@@ -150,9 +149,7 @@ footer p {
   border-left-color: #343a40 !important;
 }
 
-.step{
-
-}
+.step {}
 
 .step-success {
   border-left-width: 3px !important;
@@ -199,6 +196,14 @@ footer p {
 
 .file-list {
   margin-left: 1.5em;
+}
+
+.border-top {
+  border-top-color: rgba(0, 0, 0, 0.125);
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top-style: solid;
+  border-top-width: 1px;
 }
 
 .page {
