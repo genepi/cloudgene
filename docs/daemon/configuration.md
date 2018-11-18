@@ -1,7 +1,7 @@
 
 # Configuration
 
-This page helps you to configure Cloudgene and describes all parameters of the `settings.yaml`file.
+This page helps you to configure Cloudgene and describes all parameters of the `settings.yaml`file. When you change a parameter in the file, you have to **restart** your Cloudgene instance to see the change in action.
 
 
 ## Database connection
@@ -114,7 +114,7 @@ retireAfter: 6
 notificationAfter: 4
 # perform retire as a cronjob [default: false].
 autoRetire: true
-# perform retire cronjobevery x hours [default: 5].
+# perform retire cronjob every x hours [default: 5].
 autoRetireInterval: 5
 
 ```

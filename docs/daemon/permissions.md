@@ -1,6 +1,6 @@
 # Manage Permissions
 
-This page helps you to manage permissions on application an user level.
+This page helps you to manage permissions on application and user level.
 
 ## Applications
 

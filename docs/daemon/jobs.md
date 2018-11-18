@@ -1,6 +1,18 @@
 # Manage Jobs
 
-## Job Retirement
+## Queued Jobs
+
+TODO
+
+### Change Priorities
+
+TODO
+
+## Completed Jobs
+
+TODO
+
+### Reset Download Counters
 
 TODO
 
@@ -8,16 +20,11 @@ TODO
 
 TODO
 
-### Increase Retire
+## Retired Jobs
 
 TODO
 
-## Job Administration
 
-### Reset Download Counters
-
-TODO
-
-### Change Priorities
+### Increase Retire Date
 
 TODO
