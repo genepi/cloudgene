@@ -22,7 +22,7 @@ Depending on your Internet connection and computer resources it could take sever
 <img src="/images/screenshots/apps.png">
 </div>
 
-You can click on **Disable** to deactivate the application or on **Uninstall** to remove it from your Cloudgene instance.
+You can click on **Disable** to deactivate the application or on **Uninstall** to remove it from your Cloudgene instance. Moreover, you can change [permissions](permissions.md) to define which users have access to this application.
 
 ## Commandline
 
