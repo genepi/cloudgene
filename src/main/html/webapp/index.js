@@ -91,6 +91,9 @@ var routes = [{
   path: 'run/{app}',
   control: SubmitJobControl,
   classes: 'fullsize-container'
+},{
+  path: 'pages/{page}',
+  control: StaticPage
 }];
 
 function loggedInGuard(appState) {

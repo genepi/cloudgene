@@ -259,3 +259,15 @@ footer p {
   font-size: 10px !important;
   margin-right: 5px !important;
 }
+
+.app-header {
+  padding: 5px !important;
+  padding-left: 15px !important;
+  font-size: 12px !important;
+}
+
+.category-header {
+  padding: 5px !important;
+  padding-left: 15px !important;
+  font-size: 12px !important;
+}

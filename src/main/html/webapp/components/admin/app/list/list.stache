@@ -22,12 +22,27 @@
 		{{#applications}}
 			<div class="col-md-4">
 				<div class="card mb-4 box-shadow {{errorMessage}}') ? '.' : (app.attr('enabled') ? '.': '') %>" {{data 'application'}}>
+					{{#if(wdlApp)}}
+						{{#if(wdlApp.workflow)}}
+							<div class="card-header app-header">
+								Application <i class="text-muted float-sm-right far fa-question-circle view-source-btn" style="cursor: pointer;"></i>
+							</div>
+						{{else}}
+							<div class="card-header category-header">
+								{{wdlApp.category}} <i class="text-muted float-sm-right far fa-question-circle view-source-btn" style="cursor: pointer;"></i>
+							</div>
+						{{/if}}
+					{{else}}
+					<div class="card-header app-header">
+						Application
+					</div>
+					{{/if}}
 					<div class="card-body">
 						<small class="text-muted">{{id}}</small>
 						{{#errorMessage}}
 							<h5 class="card-title" >Syntax Error</h5>
-							{{else}}
-								<h5 class=" text-truncate"><a class="view-source-btn">{{wdlApp.name}}</a>&nbsp;<small>{{wdlApp.version}}</small></h5>
+						{{else}}
+							<h5 class=" text-truncate">{{wdlApp.name}}&nbsp;<small>{{wdlApp.version}}</small></h5>
 						{{/errorMessage}}
 						<div style="height: 150px; display: block; ">
 							{{#changed}}
@@ -39,6 +54,19 @@
 									<p class="card-text">
 										{{{truncate(wdlApp.description, 200)}}}<br>
 										<small><a href="{{wdlApp.website}}" target="_blank">{{wdlApp.website}}</a></small>
+										{{#is(state, 'completed')}}
+											<br>
+											<small>
+												Installation: <span class="badge badge-success">{{state}}</span>
+												<i class="fas fa-undo reinstall-btn" style="cursor: pointer;"></i>
+											</small>
+										{{/is}}
+										{{#is(state, 'on demand')}}
+											<br>
+											<small>
+												Installation:  <span class="badge badge-info">{{state}}</span>
+											</small>
+										{{/is}}
 									</p>
 							{{/errorMessage}}
 						</div>
@@ -52,8 +80,8 @@
 								<button type="button" class="delete-app-btn btn btn-sm btn-outline-secondary"><i class="fas fa-trash-alt"></i> Uninstall</button>
 								{{#enabled}}
 									<button type="button" class="enable-disable-btn btn btn-sm btn-success"><i class="fas fa-pause"></i> Disable</button>
-									{{else}}
-										<button type="button" class="enable-disable-btn btn btn-sm btn-danger"><i class="fas fa-play"></i> Enable</button>
+								{{else}}
+									<button type="button" class="enable-disable-btn btn btn-sm btn-danger"><i class="fas fa-play"></i> Enable</button>
 								{{/enabled}}
 							</div>
 						</div>

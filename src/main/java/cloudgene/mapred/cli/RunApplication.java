@@ -43,9 +43,9 @@ public class RunApplication extends BaseTool {
 
 	private WdlApp app = null;
 
-	private boolean output = true;
+	private boolean output = false;
 
-	private boolean logging = true;
+	private boolean logging = false;
 
 	private boolean force = false;
 
@@ -135,12 +135,12 @@ public class RunApplication extends BaseTool {
 		Options options = CommandLineUtil.createOptionsFromApp(app);
 
 		// add general options: run on docker
-		Option loggingOption = new Option(null, "no-logging", false, "Don’t stream logging messages to stdout");
+		Option loggingOption = new Option(null, "show-log", false, "Stream logging messages to stdout");
 		loggingOption.setRequired(false);
 		options.addOption(loggingOption);
 
 		// add general options: run on docker
-		Option noOutputOption = new Option(null, "no-output", false, "Don’t stream output to stdout");
+		Option noOutputOption = new Option(null, "show-output", false, "Stream output to stdout");
 		noOutputOption.setRequired(false);
 		options.addOption(noOutputOption);
 
@@ -180,12 +180,12 @@ public class RunApplication extends BaseTool {
 			return 1;
 		}
 
-		if (line.hasOption("no-logging")) {
-			logging = false;
+		if (line.hasOption("show-log")) {
+			logging = true;
 		}
 
-		if (line.hasOption("no-output")) {
-			output = false;
+		if (line.hasOption("show-output")) {
+			output = true;
 		}
 
 		if (line.hasOption("force")) {

@@ -21,7 +21,7 @@
     <button id="remove-all-files-btn" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-trash"></i> Remove All</button>
     <input class="form-control file-upload-field-multiple" type="file" name="{{id}}" id="{{id}}"
       {{#is(required, true)}}required{{/is}}
-			{{#if(accept)}}accept="{[accept}}"{{/if}}
+			{{#if(accept)}}accept="{{accept}}"{{/if}}
       style="display:none;" multiple
     >
     <small class="form-text text-muted">Multiple files can be selected by using the  <span class="badge badge-secondary">ctrl</span> /  <span class="badge badge-secondary">cmd</span> or  <span class="badge badge-secondary">shift</span> keys.</small>

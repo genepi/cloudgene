@@ -14,7 +14,7 @@
   </div>
   <input type="file" class="form-control file-upload-field-single" name="{{id}}" id="{{id}}"
      {{#is(required, true)}}required{{/is}}
-		 {{#if(accept)}}accept="{[accept}}"{{/if}}
+		 {{#if(accept)}}accept="{{accept}}"{{/if}}
      style="display:none;"
   >
 	{{#if(details)}}

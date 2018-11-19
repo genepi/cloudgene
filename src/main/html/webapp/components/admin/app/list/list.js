@@ -251,6 +251,6 @@ export default Control.extend({
       env += property + '=' + application.attr('environment').attr(property) + '\n';
     }
 
-    bootbox.alert('<h5>File</h5><p>' + application.attr('filename') + '</p>' + '<h5>Environment Variables</h5><p><pre><code>' + env + '</pre></code></p>' + '<h5>Source</h5><p><pre><code>' + application.attr('source') + '</code></pre></p>');
+    bootbox.alert('<h5>File</h5><p>' + application.attr('filename') + '</p><h5>Stauts</h5><p>'+application.attr('state')+'</p>' + '<h5>Environment Variables</h5><p><pre><code>' + env + '</pre></code></p>' + '<h5>Source</h5><p><pre><code>' + application.attr('source') + '</code></pre></p>');
   }
 });

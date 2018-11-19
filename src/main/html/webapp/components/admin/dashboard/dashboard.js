@@ -1,5 +1,6 @@
 import Control from 'can-control';
 import $ from 'jquery';
+import Raphael from 'raphael/raphael';
 import Morris from 'morris.js/morris.js';
 
 import Counter from 'models/counter';
@@ -12,6 +13,8 @@ export default Control.extend({
 
     $(element).hide();
     var that = this;
+
+    window.Raphael = Raphael;
 
     Counter.findOne({}, function(counter) {
       $(element).html(template({

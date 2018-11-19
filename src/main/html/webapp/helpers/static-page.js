@@ -9,6 +9,10 @@ export default Control.extend({
   "init": function(element, options) {
     try {
 
+      if (options.page){
+        options.template = "static/" + options.page + ".stache";
+      }
+
       fetch(options.template).then(function(response) {
         return response.text();
       }).then(function(data) {

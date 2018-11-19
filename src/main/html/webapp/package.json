@@ -44,7 +44,8 @@
     },
     "meta": {
       "raphael": {
-        "format": "global"
+        "format": "global",
+        "exports": "Raphael"
       },
       "jquery": {
         "format": "global"
