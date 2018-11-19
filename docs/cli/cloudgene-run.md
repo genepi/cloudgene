@@ -17,8 +17,8 @@ cloudgene run <app_or_filename> <params> [--conf <hadoop_conf_dir>] [--user <had
 | `--conf <hadoop_conf_dir>` | no | Path to Hadoop configuration folder (e.g. `/etc/hadoop/conf`)) |
 | `--user <hadoop_username>` | no | Execute Hadoop steps on behalf of this username (default: **cloudgene**) |
 | `--output` | no | Define a custom output folder (default: **./job_id**). |
-| `--no-logging` | no | Don’t stream logging messages to terminal. |
-| `--no-output` | no | Don’t stream output to terminal. |
+| `--show-log` | no | Stream logging messages to terminal. |
+| `--show-output` | no | Stream output to terminal. |
 | `--force` | no | Force Cloudgene to reinstall application in HDFS even if it already installed. |
 
 ## Examples
