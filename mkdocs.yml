@@ -9,13 +9,16 @@ google_analytics: ['UA-873221-12', 'docs.cloudgene.io']
 pages:
 - Cloudgene:
     - Installation: index.md
-    - Getting started: daemon/getting-started.md
+    - Getting Started: daemon/getting-started.md
+    - Configuration:
+        - Settings File: daemon/configuration.md
+        - Enable Hadoop Support: daemon/hadoop.md
+        - Customization: daemon/customization.md
     - Install Applications: daemon/install-apps.md
-    - Configuration: daemon/configuration.md
-    - Enable Hadoop Support: daemon/hadoop.md
     - Manage Permissions: daemon/permissions.md
     - Manage Jobs: daemon/jobs.md
-    - Administration Tasks: daemon/administration.md
+    - Administration: daemon/administration.md
+
 - Cloudgene CLI:
     - Introduction: cli/introduction.md
     - cloudgene install: cli/cloudgene-install.md

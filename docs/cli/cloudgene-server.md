@@ -45,4 +45,4 @@ cloudgene server --conf  $CLOUDGENE_HOME/hadoop-conf
 
 Cloudgene executes your MapReduce steps on the remote cluster. You can use the `--user` flag to set the username which should be used to execute your Hadoop jobs (e.g. it uses the HDFS directory of this user for all files).
 
-More about Hadoop configuration can be found [here](/daemon/hadoop).
+**For production we recommend to add your cluster to the configuration file to avoid to set the parameters on each startup. More about adding the cluster to the configuration file can be found [here](/daemon/hadoop).**
