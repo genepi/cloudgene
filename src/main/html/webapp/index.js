@@ -114,7 +114,7 @@ Server.findOne({}, function(server) {
       control: ErrorPage,
       options: {
         status: '401',
-        message: 'Oops, you need to <a href="#!pages/login">login</a> to view this content.'
+        responseText: 'Oops, you need to <a href="#!pages/login">login</a> to view this content.'
       }
     }
   });

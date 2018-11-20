@@ -16,7 +16,7 @@ export default Control.extend({
     } else {
       error = {
         statusText: options.status,
-        responseText: options.message
+        responseText: options.responseText
       };
 
     }
