@@ -48,6 +48,8 @@ Change the name of your service. If you plan to run Cloudgene on a sub-directory
 ```yaml
 # the name of your service [default: Cloudgene]
 name: My Service
+# port [default: 8082]
+port: 8082
 # max file size that can be uploaded in Bytes. -1 is unlimited [deafult: -1]
 uploadLimit: 50000
 # root url of the web-application [default: empty]

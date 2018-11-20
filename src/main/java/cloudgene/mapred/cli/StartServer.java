@@ -56,7 +56,7 @@ public class StartServer extends BaseTool {
 			if (getValue("port") != null) {
 				port = getValue("port").toString();
 			} else {
-				port = config.getPort();
+				port = settings.getPort();
 			}
 
 			// print summary and warnigns
@@ -85,4 +85,5 @@ public class StartServer extends BaseTool {
 			return 1;
 		}
 	}
+	
 }

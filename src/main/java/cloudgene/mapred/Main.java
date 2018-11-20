@@ -190,7 +190,7 @@ public class Main implements Daemon {
 					settings.getThreadsSetupQueue());
 			new Thread(engine).start();
 
-			int port = Integer.parseInt(line.getOptionValue("port", config.getPort()));
+			int port = Integer.parseInt(line.getOptionValue("port", settings.getPort()));
 
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
@@ -202,7 +202,7 @@ public class Main implements Daemon {
 			if (new File("webapp").exists()) {
 				webAppFolder = "webapp";
 			} else {
-				webAppFolder = FileUtil.path("src","main", "html", "webapp");
+				webAppFolder = FileUtil.path("src", "main", "html", "webapp");
 				System.out.println(webAppFolder);
 			}
 

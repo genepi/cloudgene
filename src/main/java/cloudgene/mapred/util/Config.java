@@ -14,7 +14,7 @@ public class Config {
 
 	private String pages = "pages";
 
-	private String port = "8082";
+	private String port = null;
 	
 	private String version = "version.txt";
 

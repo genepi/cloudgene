@@ -16,6 +16,8 @@ The webservice is available on [http://localhost:8082](http://localhost:8082). P
 cloudgene server --port 8085
 ```
 
+The default port can also be changed in the [configuration file](configuration.md#web-application).
+
 ## Install your first application
 
 Stop the webservice by pressing `CTRL-C`. The **hello-cloudgene** application can be installed by using the following command:

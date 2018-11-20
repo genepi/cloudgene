@@ -119,8 +119,10 @@ public class Settings {
 	private String googleAnalytics = "";
 
 	private int maxDownloads = 10;
-	
+
 	protected Config config;
+
+	private String port = "8082";
 
 	public Settings() {
 
@@ -159,6 +161,10 @@ public class Settings {
 		// workspace in config has higher priority
 		if (config.getWorkspace() != null) {
 			setLocalWorkspace(config.getWorkspace());
+		}
+
+		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
+			setPort(config.getPort());
 		}
 
 		// database in config has higher priority
@@ -211,6 +217,10 @@ public class Settings {
 		// workspace in config has higher priority
 		if (config.getWorkspace() != null) {
 			settings.setLocalWorkspace(config.getWorkspace());
+		}
+		
+		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
+			settings.setPort(config.getPort());
 		}
 
 		// database in config has higher priority
@@ -977,13 +987,21 @@ public class Settings {
 	public String getGoogleAnalytics() {
 		return googleAnalytics;
 	}
-	
+
 	public void setMaxDownloads(int maxDownloads) {
 		this.maxDownloads = maxDownloads;
 	}
-	
+
 	public int getMaxDownloads() {
 		return maxDownloads;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public String getPort() {
+		return port;
 	}
 
 }
