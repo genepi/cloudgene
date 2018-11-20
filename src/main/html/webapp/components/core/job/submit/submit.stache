@@ -24,7 +24,7 @@
 		{{/case}}
 		{{#case("info")}}
 			<!-- Full size label -->
-			<p>{{description}}</p>
+			<p>{{{description}}}</p>
 		{{/case}}
 		{{#default()}}
 
