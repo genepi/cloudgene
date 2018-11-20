@@ -23,7 +23,12 @@ The following actions are available for jobs with status **success**.
 
   - **Reset download counters**
 
-    For security reasons, files can only be downloaded 10 times. In case of download errors or other reasons the number of possible downloads can be reset for all files.
+    For security reasons, files can be downloaded 10 times (the value can be changed in the [configuration](configuration.md#downloads). In case of download errors or other reasons the number of possible downloads can be reset for all files.
+
+  - **Deactivate download counters**
+
+    Deactivates the download counter for all results of the selected job. Only files of this job can be downloaded unlimited times. All other jobs are unaffected. To change it globally see [configuration](configuration.md#downloads).
+
 
   - **Send retire notification**
 

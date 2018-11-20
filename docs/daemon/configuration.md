@@ -90,6 +90,19 @@ removeHdfsWorkspace: true
 hdfsAppWorkspace: cloudgene/apps
 ```
 
+## Downloads
+
+For security reasons, files can be downloaded 10 times. Users will get an error message, when this number is succeeded. The maximal number of downloads can be increased or set to `-1` in order to allow unlimited downloads:
+
+
+```yaml
+# max number of downloads [default: 10]
+# use -1 for unlimited downloads
+maxDownloads: 10
+```
+
+Download counters can also be deactivated for specific jobs in the [Admin Panel](jobs.md#completed-jobs).
+
 ## Queue
 
 Cloudgene manages two different queues to execute setup steps and workflow steps for a job. The number of jobs which are executed in parallel can be set for each queue independently:
