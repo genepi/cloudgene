@@ -18,7 +18,6 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -32,7 +31,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
-import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -913,15 +911,14 @@ public class Settings {
 
 	public void checkTechnologies() {
 		// check cluster status
-		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
-		if (details != null) {
-			int nodes = details.getActiveTrackerNames().size();
-			if (nodes == 0) {
-				disable(Technology.HADOOP_CLUSTER);
-			} else {
+
+		try {
+			if (HadoopCluster.verifyCluster()) {
 				enable(Technology.HADOOP_CLUSTER);
+			} else {
+				disable(Technology.HADOOP_CLUSTER);
 			}
-		} else {
+		} catch (Exception e) {
 			disable(Technology.HADOOP_CLUSTER);
 		}
 

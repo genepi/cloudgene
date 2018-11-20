@@ -27,9 +27,6 @@ import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.command.Command;
-import genepi.hadoop.rscript.RScript;
-import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
 
 public class GetClusterDetails extends BaseResource {
@@ -124,21 +121,10 @@ public class GetClusterDetails extends BaseResource {
 			}
 		} else {
 			object.put("hadoop_enabled", false);
-			if (HadoopCluster.getConf() != null) {
-				if (new File(HadoopCluster.getConf()).exists()) {
-					String configName = "mapred-site.xml";
-					String configFile = FileUtil.path(HadoopCluster.getConf(), configName);
-					if (new File(configFile).exists()) {
-						object.put("hadoop_error", "Hadoop support is disabled. Please check your configuration.");
-					} else {
-						object.put("hadoop_error", "No '" + configName + "' file found in configuration folder '"
-								+ HadoopCluster.getConf() + "'.");
-					}
-				} else {
-					object.put("hadoop_error", "Configuration folder '" + HadoopCluster.getConf() + "' not found.");
-				}
-			} else {
-				object.put("hadoop_error", "Please define a cluster in file settings.yaml.");
+			try {
+				HadoopCluster.verifyCluster();
+			} catch (Exception e) {
+				object.put("hadoop_error", e.getMessage());
 			}
 		}
 
@@ -186,9 +172,8 @@ public class GetClusterDetails extends BaseResource {
 		object.put("db_idle", getDatabase().getDataSource().getNumIdle());
 		object.put("db_max_open_prep_statements", getDatabase().getDataSource().getMaxOpenPreparedStatements());
 
-
 		JSONObject hostnames = new JSONObject();
-		if (getRequest().getHostRef() != null){
+		if (getRequest().getHostRef() != null) {
 			hostnames.put("host_ref", getRequest().getHostRef().getHostIdentifier());
 		}
 		if (getRequest().getOriginalRef() != null) {
@@ -197,16 +182,15 @@ public class GetClusterDetails extends BaseResource {
 		if (getRequest().getResourceRef() != null) {
 			hostnames.put("resource_ref", getRequest().getResourceRef().getHostIdentifier());
 		}
-		if(getRequest().getRootRef() != null) {
+		if (getRequest().getRootRef() != null) {
 			hostnames.put("root_ref", getRequest().getRootRef().getHostIdentifier());
 		}
 		if (getRequest().getReferrerRef() != null) {
 			hostnames.put("referrer_ref", getRequest().getReferrerRef().getHostIdentifier());
 		}
-		
+
 		object.put("hostnames", hostnames);
 
-		
 		return new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 
 	}
