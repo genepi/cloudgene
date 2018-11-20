@@ -12,7 +12,7 @@ Open the **Admin Panel** and click on **Settings -> General**. Change the name o
 Click on **Exit** to see your changes in action:
 
 <div class="screenshot">
-<img src="/images/screenshots/custom-colors.png">
+<img src="../../images/screenshots/custom-colors.png">
 </div>
 
 
@@ -54,7 +54,7 @@ Create a file `home.stache` in folder `${CLOUDGENE_HOME}/pages` and use HTML to 
 If you restart Cloudgene, the updated welcome page appears.
 
 <div class="screenshot">
-<img src="/images/screenshots/custom-welcome.png">
+<img src="../../images/screenshots/custom-welcome.png">
 </div>
 
 Moreover, you can use the following mustache syntax inside of your template to deliver different content for public and registered users:
@@ -106,7 +106,7 @@ navigation:
 If you restart Cloudgene, the new page appears in the navigation bar and with a click on the item the new page appears:
 
 <div class="screenshot">
-<img src="/images/screenshots/custom-page.png">
+<img src="../../images/screenshots/custom-page.png">
 </div>
 
 ## Custom Navigation
@@ -144,7 +144,7 @@ navigation:
 If you restart Cloudgene, the submenu appears in the navigation bar:
 
 <div class="screenshot">
-<img src="/images/screenshots/navigation.png">
+<img src="../../images/screenshots/navigation.png">
 </div>
 
 ## Mail Notifications

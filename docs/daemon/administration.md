@@ -8,12 +8,12 @@ During system updates, you can activate the **Maintenance Mode** for preventing 
 
 Open the **Admin Panel** and click on the **Server** tab. Scroll down to the section **Maintenance Mode**. By clicking on **Enter Maintenance Mode** a new dialog appears where you can enter a message. By clicking on **OK** the Maintenance Mode is activated.
 
-<img src="/images/screenshots/maintenance-message.png">
+<img src="../../images/screenshots/maintenance-message.png">
 
 Users will see this message when they attempt to submit a job.
 
 <div class="screenshot">
-<img src="/images/screenshots/maintenance-mode.png">
+<img src="../../images/screenshots/maintenance-mode.png">
 </div>
 
 Once your update is finished, click on **Exit Maintenance Mode** and your Cloudgene instance is accessible for all users.

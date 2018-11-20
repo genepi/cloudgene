@@ -51,5 +51,5 @@ You should see a message like `Hadoop cluster is ready to use.`
 Next, restart the Cloudgene webserver, open the **Admin Panel** and click on the **Server** tab. In the section **Resources** you will see if Cloudgene was able to establish a connection to your Hadoop cluster as well as all nodes were found:
 
 <div class="screenshot">
-<img src="/images/screenshots/hadoop-cluster.png">
+<img src="../../images/screenshots/hadoop-cluster.png">
 </div>

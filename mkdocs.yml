@@ -1,12 +1,14 @@
-site_name: Cloudgene 2.0.0
+site_name: Cloudgene 2.0.0 RC1
 theme:
   name: material
   feature:
     tabs: true
 extra_css:
   - extra.css
+repo_url: https://github.com/genepi/cloudgene/
 google_analytics: ['UA-873221-12', 'docs.cloudgene.io']
 pages:
+  
 - Cloudgene:
     - Installation: index.md
     - Getting Started: daemon/getting-started.md
@@ -31,6 +33,7 @@ pages:
     - cloudgene run: cli/cloudgene-run.md
     - cloudgene server: cli/cloudgene-server.md
     - cloudgene version: cli/cloudgene-version.md
+
 - Development:
     - Introduction: developers/introduction.md
     - Steps:
@@ -55,14 +58,14 @@ pages:
       - App List: developers/inputs/app-list.md
       - Terms Checkbox: developers/inputs/terms_checkbox.md
       - Layout: developers/inputs/layout.md
-
-
     - Outputs: developers/outputs.md
     - Environment Variables: developers/environment_variables.md
     - Control patterns: developers/control-patterns.md
+
 - Tutorials:
     - Using AppLinks to link to other applications: tutorials/application-links.md
     - Using InstallActions to import HDFS files: tutorials/installation-actions.md
+
 - API Reference:
     - Introduction: api/introduction.md
     - Authentication: api/authentication.md

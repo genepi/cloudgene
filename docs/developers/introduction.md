@@ -171,13 +171,13 @@ The webservice is available on [http://localhost:8082](http://localhost:8082). P
 Click on **Run** and slect your application (**hello-cloudgene**). Cloudgene creates automatically a web-interface for your input parameters:
 
 <div class="screenshot">
-<img src="/images/screenshots/hello-cloudgene-yaml.png">
+<img src="../../images/screenshots/hello-cloudgene-yaml.png">
 </div>
 
 Enter a message and click on **Submit Job** to run your workflow. You should see the following job output:
 
 <div class="screenshot">
-<img src="/images/screenshots/hello-cloudgene-yaml-output.png">
+<img src="../../images/screenshots/hello-cloudgene-yaml-output.png">
 </div>
 
 You can install different workflows in the same instance and define in the [Admin Dashboard](/daemon/permissions) who has access to each of them.

@@ -35,14 +35,14 @@ Next, restart Cloudgene with the following command:
 Open Cloudgene in your browser and login. A new menu item **Run** appears in the menubar. Click on it to start a new job:
 
 <div class="screenshot">
-<img src="/images/screenshots/menubar.png">
-<img src="/images/screenshots/hello-cloudgene.png">
+<img src="../../images/screenshots/menubar.png">
+<img src="../../images/screenshots/hello-cloudgene.png">
 </div>
 
 The **hello-cloudgene** application displays several inspiring quotes:
 
 <div class="screenshot">
-<img src="/images/screenshots/hello-cloudgene-results.png">
+<img src="../../images/screenshots/hello-cloudgene-results.png">
 </div>
 
 ## What's next?

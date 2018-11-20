@@ -3,7 +3,7 @@
 Open the **Admin Panel** and click on the **Jobs** tab to see a list of all **running** and **completed** jobs.
 
 <div class="screenshot">
-<img src="/images/screenshots/jobs.png">
+<img src="../../images/screenshots/jobs.png">
 </div>
 
 Click on the job name to see details about the job or click on **Actions** to open a menu with all available actions.
