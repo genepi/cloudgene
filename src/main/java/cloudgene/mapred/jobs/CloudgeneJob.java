@@ -40,8 +40,6 @@ public class CloudgeneJob extends AbstractJob {
 
 	private Executor executor;
 
-	public static final int MAX_DOWNLOAD = 10;
-
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
 
 	public CloudgeneJob() {
@@ -512,7 +510,8 @@ public class CloudgeneJob extends AbstractJob {
 				download.setSize(item.getSize());
 				download.setHash(hash);
 				download.setParameter(out);
-				download.setCount(MAX_DOWNLOAD);
+				int maxDownloads = getSettings().getMaxDownloads();
+				download.setCount(maxDownloads);
 				files.add(download);
 			}
 			Collections.sort(files);

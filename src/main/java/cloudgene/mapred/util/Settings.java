@@ -118,6 +118,8 @@ public class Settings {
 
 	private String googleAnalytics = "";
 
+	private int maxDownloads = 10;
+	
 	protected Config config;
 
 	public Settings() {
@@ -974,6 +976,14 @@ public class Settings {
 
 	public String getGoogleAnalytics() {
 		return googleAnalytics;
+	}
+	
+	public void setMaxDownloads(int maxDownloads) {
+		this.maxDownloads = maxDownloads;
+	}
+	
+	public int getMaxDownloads() {
+		return maxDownloads;
 	}
 
 }

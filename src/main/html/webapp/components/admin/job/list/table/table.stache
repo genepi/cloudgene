@@ -110,6 +110,7 @@
 
 						{{#canResetCounters}}
 							<a class="reset-downloads-btn dropdown-item" style="cursor:pointer">Reset download counters</a>
+							<a class="unlimited-downloads-btn dropdown-item" style="cursor:pointer">Deactivate download counters</a>
 						{{/canResetCounters}}
 
 						{{#canSendRetireNotification}}

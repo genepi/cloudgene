@@ -117,6 +117,19 @@ export default Control.extend({
       });
   },
 
+  '.unlimited-downloads-btn click': function(el, ev) {
+    var tr = $(el).closest('tr');
+    var job = domData.get.call(tr[0], 'job');
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset?max=-1').then(
+      function(data) {
+        bootbox.alert(data);
+      },
+      function(data) {
+        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      });
+  },
+
+
   '.retire-btn click': function(el, ev) {
     var tr = $(el).closest('tr');
     var job = domData.get.call(tr[0], 'job');

@@ -11,7 +11,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
@@ -26,15 +25,13 @@ public class ResetDownloads extends BaseResource {
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 
 		}
 
 		if (!user.isAdmin()) {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			return new StringRepresentation("The request requires administration rights.");
 		}
 
 		String jobId = getAttribute("job");
@@ -52,6 +49,14 @@ public class ResetDownloads extends BaseResource {
 
 			if (job != null) {
 
+				int maxDownloads = 0;
+
+				if (getQueryValue("max") != null) {
+					maxDownloads = Integer.parseInt(getQueryValue("max"));
+				} else {
+					maxDownloads = getSettings().getMaxDownloads();
+				}
+
 				DownloadDao downloadDao = new DownloadDao(getDatabase());
 				int count = 0;
 				for (CloudgeneParameterOutput param : job.getOutputParams()) {
@@ -59,18 +64,16 @@ public class ResetDownloads extends BaseResource {
 						List<Download> downloads = param.getFiles();
 
 						for (Download download : downloads) {
-							if (download.getCount() < CloudgeneJob.MAX_DOWNLOAD) {
-								download.setCount(CloudgeneJob.MAX_DOWNLOAD);
-								downloadDao.update(download);
-								count++;
-							}
+							download.setCount(maxDownloads);
+							downloadDao.update(download);
+							count++;
 						}
 
 					}
 				}
 
-				return new StringRepresentation(jobId + ": counter of " + count
-						+ " downloads reset to " + CloudgeneJob.MAX_DOWNLOAD);
+				return new StringRepresentation(
+						jobId + ": counter of " + count + " downloads reset to " + maxDownloads);
 
 			}
 		}
