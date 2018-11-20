@@ -27,6 +27,7 @@ pages:
     - cloudgene remove: cli/cloudgene-remove.md
     - cloudgene ls: cli/cloudgene-ls.md
     - cloudgene validate: cli/cloudgene-validate.md
+    - cloudgene verify-cluster: cli/cloudgene-verify-cluster.md
     - cloudgene run: cli/cloudgene-run.md
     - cloudgene server: cli/cloudgene-server.md
     - cloudgene version: cli/cloudgene-version.md

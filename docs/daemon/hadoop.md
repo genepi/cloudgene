@@ -40,11 +40,15 @@ cluster:
 
 ## Validate Cluster Connection
 
+You can use the [`verify-cluster`](/cli/cloudgene-verify-cluster.md) command to check if Cloudgene is able to establish a connection to your cluster:
+
 ```
 cloudgene verify-cluster
 ```
 
-Open the **Admin Panel** and click on the **Server** tab. In the section **Resources** you will see if Cloudgene was able to establish a connection to your Hadoop cluster as well as all nodes were found:
+You should see a message like `Hadoop cluster is ready to use.`
+
+Next, restart the Cloudgene webserver, open the **Admin Panel** and click on the **Server** tab. In the section **Resources** you will see if Cloudgene was able to establish a connection to your Hadoop cluster as well as all nodes were found:
 
 <div class="screenshot">
 <img src="/images/screenshots/hadoop-cluster.png">

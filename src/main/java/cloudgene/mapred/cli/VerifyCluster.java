@@ -40,6 +40,7 @@ public class VerifyCluster extends BaseTool {
 			if (settings.getCluster() == null) {
 				System.out.println();
 				printlnInRed("No external Haddop cluster set in cofiguration file");
+				return 1;
 			}
 		}
 
@@ -66,19 +67,21 @@ public class VerifyCluster extends BaseTool {
 				System.out.println(state.toString());
 				System.out.println();
 				printlnInGreen("Hadoop cluster is ready to use.");
-				
-				//TODO: Test hdfs and user credentials
-				
+
+				// TODO: Test hdfs and user credentials
+
+				return 0;
+
 			} catch (Exception e) {
 				System.out.println();
 				printlnInRed("Hadoop cluster is unreachable.");
+				return 1;
 			}
 
 		} else {
 			printlnInRed("Hadoop cluster is unreachable. ");
+			return 1;
 		}
-
-		return 0;
 
 	}
 }

@@ -1,4 +1,4 @@
-# Administration Tasks
+# Administration
 
 This page helps you to set your Cloudgene instance in the so called **Maintenance Mode** to prevent users submitting jobs during system updates.
 
@@ -28,7 +28,7 @@ Open the **Admin Panel** and click on the **Server** tab. Scroll down to the sec
 
 ## Job Retirement
 
-You can activate [Auto Retire](configuration.md#auto-retire) in the configuration file. Once *Auto Retire* is activated, a cron jobs checks all completed jobs and depending on the configuration intervals it sends notification to users or deletes the results of old jobs.
+You can activate [Auto Retire](configuration.md#auto-retire) in the configuration file. Once *Auto Retire* is activated, a cron job checks all completed jobs and depending on the configuration intervals it sends notification to users or deletes the results of old jobs.
 
 However, if *Auto Retire* is deactivated, it is also possible to trigger job retirement manually by clicking on the **Start Retire** button which is located at the bottom of the **Server** tab.
 
