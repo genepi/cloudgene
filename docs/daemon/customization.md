@@ -33,14 +33,29 @@ Every Cloudgene instance has two default pages that are required, but they can b
 
 ### Welcome page
 
-Create a file `home.stache` in folder `${CLOUDGENE_HOME}/pages` and use HTML to adapt it to your needs. For example:
+Create a file `home.stache` in folder `${CLOUDGENE_HOME}/pages` and use HTML to adapt it to your needs. Since Cloudgene is based on [Bootstrap4](https://getbootstrap.com/docs/4.1), all available CSS classes can be used. For example:
 
 ```html
-<h2>Welcome to Service XYZ</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+<div class="jumbotron jumbotron-fluid text-white" style="background: #FF0000;">
+  <div class="container">
+    <h1>Welcome to Service XY!</h1>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+      irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+  </div>
+</div>
+
+<div class="container bd-content" style="margin-bottom: 0px;">
+  <h3>More details</h3>
+  <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
+    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+</div>
 ```
 
 If you restart Cloudgene, the updated welcome page appears.
+
+<div class="screenshot">
+<img src="/images/screenshots/custom-welcome.png">
+</div>
 
 Moreover, you can use the following mustache syntax inside of your template to deliver different content for public and registered users:
 
@@ -72,7 +87,7 @@ If you restart Cloudgene, the updated contact page appears.
 
 Cloudgene supports custom pages to create service specific content (e.g. help pages).
 
-TCreate a new `*.stache` file in folder `${CLOUDGENE_HOME}/pages` and give it a name (e.g. `mypage.stache`). Use HTML to adapt it to your needs:
+Create a new `*.stache` file in folder `${CLOUDGENE_HOME}/pages` and give it a name (e.g. `mypage.stache`). Use HTML to adapt it to your needs:
 
 ```html
 <h2>My Page</h2>
@@ -100,7 +115,7 @@ The navigation bar is full customizable and can be changed by adapt the `navigat
 
 ### Link to external websites
 
-It is also possible to create navigation items that open a website on a different server. For this, you have to set the *link* property to url starting with **http://**. For example:
+It is also possible to create navigation items that open a website on a different server. For this, you have to set the *link* property to  a URL starting with **http://**. For example:
 
 ```yaml
 navigation:
@@ -111,7 +126,7 @@ navigation:
 
 ### Submenus
 
-You can group different links together by creating submenus. A custom submenu can be created by adding a new item to the `navigation` block and by setting the `items` key instead of `link`. For example:
+You can group different links together by creating submenus. Such a submenu can be created by adding a new item to the `navigation` block and by setting the `items` key instead of `link`. For example:
 
 ```yaml
 navigation:
