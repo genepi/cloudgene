@@ -1,0 +1,216 @@
+<h2>Server</h2>
+
+<p>
+	This page shows server states and provides administrative tasks.<br>
+	<br>
+
+</p>
+
+<h3>Status</h3>
+
+<table class="table table-bordered">
+
+	<tr>
+		<td>
+			<b>Version:</b>
+		</td>
+		<td>
+			{{cluster.version}} (built by {{cluster.built_by}} on {{cluster.built_time}})
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<b>Mode:</b>
+		</td>
+		<td>
+			{{#cluster.maintenance}}
+				<span class="badge badge-danger"><i class="fas fa-cogs"></i> Maintenance Mode</span>
+				{{else}}
+					<span class="badge badge-success"><i class="fas fa-flag-checkered"></i> Production Mode</span>
+			{{/cluster.maintenance}}
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<b>Queue:</b>
+		</td>
+		<td>
+			{{#cluster.blocked}}
+				<span class="badge badge-danger"><i class="fas fa-pause"></i> Blocked</span>
+				{{else}}
+					<span class="badge badge-success"><i class="fas fa-play"></i> Running</span>
+			{{/cluster.blocked}}
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<b>Threads Setup Queue:</b>
+		</td>
+		<td>
+			{{cluster.threads_setup}}
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<b>Threads Processing Queue:</b>
+		</td>
+		<td>
+			{{cluster.threads}}
+		</td>
+	</tr>
+
+	<tr>
+		<td>
+			<b>Max Jobs per User:</b>
+		</td>
+		<td>{{cluster.max_jobs_user}}</td>
+	</tr>
+
+	<tr>
+		<td>
+			<b>Disk Usage:</b>
+		</td>
+		<td>
+			<div class="progress">
+				<div class="progress-bar bg-danger" role="progressbar" style="width: {{percentage(cluster.used_disc_space,cluster.total_disc_space)}}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+				<div class="progress-bar bg-success" role="progressbar" style="width:{{percentage(cluster.free_disc_space,cluster.total_disc_space)}}%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+			</div>
+
+			{{cluster.used_disc_space}} GB used, <b>{{cluster.free_disc_space')}}	GB free</b>
+		</td>
+
+	</tr>
+
+</table>
+<br>
+<h3>Resources</h3>
+
+<div class="container" id="application-repository">
+	<div class="row">
+
+		<div class="col-md-12 mt-2">
+			<div class="card mb-12 box-shadow">
+				<div class="card-body">
+					{{#cluster.hadoop_enabled}}
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> {{cluster.hadoop_cluster}}</h5>
+						<p><span class="float-right btn btn-secondary" id ="hadoop-details-btn">Details</span></p>
+						Type: Hadoop<br>
+								Status:
+							{{#cluster.hadoop_safemode}}
+								<span class="badge badge-important">SAFEMODE!</span>
+							{{else}}
+								<span class="badge badge-success">Running</span>
+							{{/cluster.hadoop_safemode}}
+							<br>
+							JobTracker: {{cluster.hadoop_jobtracker}}<br>
+							Execute as: {{cluster.hadoop_username}}<br>
+							Active Nodes: {{cluster.hadoop_active_nodes}}/{{cluster.hadoop_nodes}}<br>
+							Map Tasks: {{cluster.hadoop_map_tasks}}<br>
+							Reduce Tasks: {{cluster.hadoop_map_tasks}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Hadoop Cluster</h5>
+						{{cluster.hadoop_error}}
+					{{/cluster.hadoop_enabled}}
+				</div>
+			</div>
+		</div>
+
+		<br>
+
+		<div class="col-md-12 mt-2">
+			<div class="card mb-12 box-shadow">
+				<div class="card-body">
+					{{#cluster.r_enabled}}
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> R</h5>
+						{{cluster.r_details}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> R</h5>
+						{{cluster.r_error}}
+					{{/cluster.r_enabled}}
+				</div>
+			</div>
+		</div>
+
+		<br>
+
+		<div class="col-md-12 mt-2">
+			<div class="card mb-12 box-shadow">
+				<div class="card-body">
+					{{#cluster.rmarkdown_enabled}}
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> RMarkdown</h5>
+						{{cluster.rmarkdown_details}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> RMarkdown</h5>
+						{{cluster.rmarkdown_error}}
+					{{/cluster.rmarkdown_enabled}}
+				</div>
+			</div>
+		</div>
+
+
+		<div class="col-md-12 mt-2">
+			<div class="card mb-12 box-shadow">
+				<div class="card-body">
+					{{#cluster.docker_enabled}}
+						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> Docker</h5>
+						{{cluster.docker_details}}
+					{{else}}
+						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Docker</h5>
+						{{cluster.docker_error}}
+					{{/cluster.docker_enabled}}
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<br>
+
+<br>
+
+<h3>Maintenance Mode</h3>
+<p>Maintenance mode is for preventing any users other than administrators from submitting jobs. The front page will appear as normal when your site is in maintenance mode. Users will only see the maintenance mode message when they attempt to submit
+	a job.</p>
+<p>
+	<i>Note: You can create a customized maintenance mode message by change the MAINTENANCE_MESSAGE variable (see Settings).</i>
+</p>
+<br>
+<p>
+	{{#cluster.maintenance}}
+		<span class="btn btn-success" id="maintenance-exit-btn"><i class="fas fa-flag-checkered"></i> Exit Maintenance Mode</span>
+		{{else}}
+			<span class="btn btn-danger" id="maintenance-enter-btn"><i class="fas fa-cogs"></i> Enter Maintenance Mode</span>
+	{{/cluster.maintenance}}
+
+</p>
+
+<br>
+
+<br>
+
+<h3>Queue</h3>
+<p>Blocks the queue. All running jobs are executed and all other jobs are waiting until the queue is manually opened.</p>
+<br>
+<p>
+	{{#cluster.blocked}}
+		<span class="btn btn-success" id ="queue-open-btn"><i class="fas fa-play"></i> Open Queue</span>
+		{{else}}
+			<span class="btn btn-danger" id ="queue-block-btn"><i class="fas fa-pause"></i> Block Queue</span>
+	{{/cluster.blocked}}
+</p>
+
+<br>
+
+<br>
+
+<h3>Auto Retire</h3>
+<p>Retires old jobs and send notifications.</p>
+<br>
+<p>
+	<span class="btn btn-primary" id="retire-btn"><i class="fas fa-trash"></i> Start Retire</span>
+</p>

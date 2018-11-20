@@ -30,6 +30,7 @@ public class ExitMaintenance extends BaseResource {
 		}
 
 		getSettings().setMaintenance(false);
+		getSettings().save();
 
 		return new StringRepresentation("Exit Maintenance mode.");
 

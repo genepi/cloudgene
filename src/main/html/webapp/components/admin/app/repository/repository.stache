@@ -1,0 +1,32 @@
+<h2><a href="#!pages/admin-apps">Applications</a> / apps.cloudgene.io</h2>
+
+<p><b>{{applications.length}}</b> applications published in <a href="http://apps.cloudgene.io" target="_blank">apps.cloudgene.io</a></p>
+<br><br>
+<div class="container"  id="application-repository">
+	<div class="row">
+		{{#applications}}
+		<div class="col-md-4">
+	    <div class="card mb-4 box-shadow">
+	      <div class="card-body">
+	        <h5 class="card-title"><a href="{{details}}" target="_blank">{{title}}</a>&nbsp;<small>{{version}}</small></h5>
+	        <div style="height: 150px;">
+	        <p class="card-text">{{description_short}}</p>
+	        </div>
+	        <div class="d-flex justify-content-between align-items-center">
+	          <div>
+							{{#authors}}
+							<img src="{{avatar}}" title="{{name}}"/>
+							{{/authors}}
+	          </div>
+						{{#installed}}
+							<a class="btn btn-default disabled">Installed</a>
+						{{else}}
+							<button type="button" class="install-app-btn btn btn-success" data-app-url="{{package_url}}" data-app-id="{{id}}"><i class="fas fa-download"></i> Install</button>
+						{{/installed}}
+	        </div>
+	      </div>
+	    </div>
+  	</div>
+		{{/applications}}
+	</div>
+</div>

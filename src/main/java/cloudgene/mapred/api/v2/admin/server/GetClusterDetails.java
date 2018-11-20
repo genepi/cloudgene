@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -26,9 +27,6 @@ import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.command.Command;
-import genepi.hadoop.rscript.RScript;
-import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
 
 public class GetClusterDetails extends BaseResource {
@@ -71,7 +69,8 @@ public class GetClusterDetails extends BaseResource {
 			object.put("built_time", buildTime);
 
 		} catch (IOException E) {
-			// handle
+			object.put("built_by", "Development");
+			object.put("built_time", new Date().toGMTString());
 		}
 
 		// workspace and hdd
@@ -79,7 +78,8 @@ public class GetClusterDetails extends BaseResource {
 		object.put("workspace_path", workspace.getAbsolutePath());
 		object.put("free_disc_space", workspace.getUsableSpace() / 1024 / 1024 / 1024);
 		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
-
+		object.put("used_disc_space",
+				(workspace.getTotalSpace() / 1024 / 1024 / 1024) - (workspace.getUsableSpace() / 1024 / 1024 / 1024));
 		// hadoop
 		if (getSettings().isEnable(Technology.HADOOP_CLUSTER)) {
 			try {
@@ -107,15 +107,30 @@ public class GetClusterDetails extends BaseResource {
 				}
 				object.put("hadoop_details", state.toString());
 				object.put("hadoop_enabled", true);
-
+				object.put("hadoop_jobtracker", HadoopCluster.getJobTracker());
+				object.put("hadoop_hdfs", HadoopCluster.getDefaultFS());
+				object.put("hadoop_map_tasks", cluster.getMaxMapTasks());
+				object.put("hadoop_reduce_tasks", cluster.getMaxReduceTasks());
+				object.put("hadoop_active_nodes", cluster.getActiveTrackerNames().size());
+				object.put("hadoop_inactive_nodes", cluster.getBlacklistedTrackerNames().size());
+				object.put("hadoop_nodes",
+						cluster.getActiveTrackerNames().size() + cluster.getBlacklistedTrackerNames().size());
 			} catch (Exception e) {
 				object.put("hadoop_enabled", false);
 				object.put("hadoop_error", "Hadoop cluster is unreachable");
 			}
 		} else {
 			object.put("hadoop_enabled", false);
-			object.put("hadoop_error", "Hadoop support is disabled. Please check your configuration.");
+			try {
+				HadoopCluster.verifyCluster();
+			} catch (Exception e) {
+				object.put("hadoop_error", e.getMessage());
+			}
 		}
+
+		object.put("hadoop_conf", HadoopCluster.getConf());
+		object.put("hadoop_username", HadoopCluster.getUsername());
+		object.put("hadoop_cluster", HadoopCluster.getName());
 
 		// r
 		if (getSettings().isEnable(Technology.R)) {
@@ -157,9 +172,8 @@ public class GetClusterDetails extends BaseResource {
 		object.put("db_idle", getDatabase().getDataSource().getNumIdle());
 		object.put("db_max_open_prep_statements", getDatabase().getDataSource().getMaxOpenPreparedStatements());
 
-
 		JSONObject hostnames = new JSONObject();
-		if (getRequest().getHostRef() != null){
+		if (getRequest().getHostRef() != null) {
 			hostnames.put("host_ref", getRequest().getHostRef().getHostIdentifier());
 		}
 		if (getRequest().getOriginalRef() != null) {
@@ -168,16 +182,15 @@ public class GetClusterDetails extends BaseResource {
 		if (getRequest().getResourceRef() != null) {
 			hostnames.put("resource_ref", getRequest().getResourceRef().getHostIdentifier());
 		}
-		if(getRequest().getRootRef() != null) {
+		if (getRequest().getRootRef() != null) {
 			hostnames.put("root_ref", getRequest().getRootRef().getHostIdentifier());
 		}
 		if (getRequest().getReferrerRef() != null) {
 			hostnames.put("referrer_ref", getRequest().getReferrerRef().getHostIdentifier());
 		}
-		
+
 		object.put("hostnames", hostnames);
 
-		
 		return new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 
 	}

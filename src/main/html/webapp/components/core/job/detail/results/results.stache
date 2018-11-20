@@ -1,0 +1,39 @@
+{{#job.outputParams}}
+
+  {{^is(files.length, 0)}}
+
+    <table class="table  table-sm">
+      <tbody>
+
+        <tr {{data 'param'}} >
+          <td colspan="2">
+            <b><i class="far fa-folder-open"></i> {{description}}</b> {{#is(adminOnly, true)}} <small class="text-muted"><i class="fas fa-lock"></i> Admin</small>{{/is}}
+          </td>
+          <td>
+            <span class="share-folder-btn fas fa-share-square" style="cursor: pointer;" title="Share All Data..."></span>
+          </td>
+        </tr>
+
+        {{#files}}
+          <tr {{data 'output'}}>
+            <td style="padding-left: 25px">
+              <a href="results/{{path}}" target="_blank"><i class="far fa-file"></i> {{name}}</a>
+              {{#isImage(name)}}
+                <p>
+                  <img src="results/{{path}}"/>
+                </p>
+              {{/isImage}}
+            </td>
+            <td style="width: 100px;text-align:right;">{{size}}</td>
+            <td style="width: 26px;text-align:center;">
+              <span class="share-file-btn fas fa-share" style="cursor: pointer;" title="Share Data..."></span>
+            </td>
+          </tr>
+      {{/files}}
+
+      </tbody>
+    </table>
+
+  {{/is}}
+
+{{/job.outputParams}}

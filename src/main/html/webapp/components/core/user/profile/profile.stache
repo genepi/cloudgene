@@ -1,0 +1,75 @@
+<h2>Account Settings</h2>
+
+Please fill out the form below to change your account settings or your password.
+
+<br>
+<br>
+<form id="account-form" class="form-horizontal">
+
+	<h4>Personal Information</h4>
+
+	<input name="username" type="hidden" value="{{user.username'}}">
+
+	<div class="form-group">
+		<label for="full-name" class="control-label">Full Name:</label>
+		<input id="full-name" name="full-name" type="text" value="{{user.fullName}}" class="form-control col-sm-3">
+		<div class="invalid-feedback"></div>
+	</div>
+
+	<div class="form-group">
+		<label for="mail" class="control-label">E-Mail:</label>
+		<input id="mail" name="mail" type="text" value="{{user.mail}}" class="form-control col-sm-3">
+		<div class="invalid-feedback"></div>
+	</div>
+
+	<h4>Change password</h4>
+
+	<div class="form-group">
+		<label for="new-password" class="control-label">New Password:</label>
+		<input id="new-password" name="new-password" type="password" class="form-control col-sm-3">
+		<div class="invalid-feedback"></div>
+	</div>
+
+	<div class="form-group">
+		<label for="confirm-new-password" class="control-label">New Password (again):</label>
+		<input id="confirm-new-password" name="confirm-new-password" type="password" class="form-control col-sm-3">
+		<div class="invalid-feedback"></div>
+	</div>
+
+	<div class="form-group">
+		<button class="btn btn-primary" type="submit">Update Account</button>
+
+	</div>
+</form>
+
+<hr>
+
+<h3>API Access</h3>
+
+<p>This service provides a rich RestAPI to submit, monitor and download jobs.</p>
+<p>You need a access token to use the API. <a href="">Learn more</a>.</p>
+
+{{#user.hasApiToken}}
+
+	<div class="control-group">
+		<div class="controls">
+			<button class="btn btn-primary" id="show_token">Show API Token</button>
+			<button class="btn btn-danger" id="revoke_token">Revoke API Token</button>
+		</div>
+	</div>
+	{{else}}
+		<button class="btn btn-primary" id="create_token">Create API Token
+	</button>
+{{/user.hasApiToken}}
+
+<hr>
+
+<h3>Delete Account</h3>
+
+<p>Once you delete your user account, there is no going back. Please be certain.</p>
+
+<div class="control-group">
+	<div class="controls">
+		<button class="btn btn-danger" id="delete_account">Delete Account</button>
+	</div>
+</div>

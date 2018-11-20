@@ -41,6 +41,7 @@ import cloudgene.mapred.api.v2.admin.server.UpdateTemplate;
 import cloudgene.mapred.api.v2.data.ImporterFileList;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
+import cloudgene.mapred.api.v2.jobs.GetChunk;
 import cloudgene.mapred.api.v2.jobs.GetJobDetails;
 import cloudgene.mapred.api.v2.jobs.GetJobStatus;
 import cloudgene.mapred.api.v2.jobs.GetJobs;
@@ -50,8 +51,10 @@ import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
 import cloudgene.mapred.api.v2.server.App;
 import cloudgene.mapred.api.v2.server.Apps;
+import cloudgene.mapred.api.v2.server.CloudgeneApps;
 import cloudgene.mapred.api.v2.server.GetCounter;
 import cloudgene.mapred.api.v2.server.GetVersion;
+import cloudgene.mapred.api.v2.server.Server;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
@@ -66,7 +69,6 @@ import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
-import cloudgene.mapred.util.LoginFilter;
 import cloudgene.mapred.util.Settings;
 
 public class WebApp extends Application {
@@ -121,6 +123,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 
+		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		// jobs
 		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
@@ -128,6 +131,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
+		router.attach(prefix + "/api/v2/jobs/{job}/chunks/{filename}", GetChunk.class);
 
 		// user registration
 		router.attach(prefix + "/api/v2/users/register", RegisterUser.class);
@@ -148,6 +152,9 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
 
 		// returns all counters
+		router.attach(prefix + "/api/v2/server", Server.class);		
+		
+		// returns all counters
 		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
 
 		// returns meta data about an app
@@ -155,6 +162,9 @@ public class WebApp extends Application {
 
 		// returns a list of all installed apps
 		router.attach(prefix + "/api/v2/server/apps", Apps.class);
+
+		// returns a list of all apps registed on cloudgene.io
+		router.attach(prefix + "/api/v2/server/cloudgene-apps", CloudgeneApps.class);
 
 		// returns current version as svg image
 		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
@@ -168,10 +178,9 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/change-retire/{days}", ChangeRetireDate.class);
 		router.attach(prefix + "/api/v2/admin/jobs/{job}/archive", ArchiveJob.class);
 
-		
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
-		router.attach(prefix + "/api/v2/admin/users/delete", DeleteUser.class);
+		router.attach(prefix + "/api/v2/admin/users/{username}/delete", DeleteUser.class);
 		router.attach(prefix + "/api/v2/admin/users/changegroup", ChangeGroup.class);
 		router.attach(prefix + "/api/v2/admin/groups", GetGroups.class);
 
@@ -182,7 +191,8 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
-		router.attach(prefix + "/api/v2/admin/server/templates/update", UpdateTemplate.class);
+		router.attach(prefix + "/api/v2/admin/server/templates/{id}", UpdateTemplate.class);
+
 		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
@@ -212,10 +222,7 @@ public class WebApp extends Application {
 		route = router.attach(prefix + "/", dir);
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
-		LoginFilter filter = new LoginFilter("/index.html", prefix, getSettings().getSecretKey());
-		filter.setNext(router);
-
-		return filter;
+		return router;
 	}
 
 	public String getRootFolder() {

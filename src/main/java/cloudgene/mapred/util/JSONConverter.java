@@ -3,6 +3,7 @@ package cloudgene.mapred.util;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class JSONConverter {
 				"mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "workingDirectory", "parameter",
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-				"removeHeader", "value", "autoExport", "adminOnly", "download", "tip", "apiToken", "parameterId",
+				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId",
 				"count", "username" });
 		return JSONObject.fromObject(job, config);
 	}
@@ -68,34 +69,56 @@ public class JSONConverter {
 		object.put("required", input.isRequired());
 		object.put("adminOnly", input.isAdminOnly());
 		object.put("help", input.getHelp());
-		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
-				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
-			JSONObject valuesObject = new JSONObject();
 
+		if (input.getAccept() != null) {
+			object.put("accept", input.getAccept());
+		}
+
+		if (input.getDetails() != null) {
+			object.put("details", input.getDetails());
+		}
+		
+		if (input.isFolder()) {
+			object.put("source", "upload");
+		}
+
+		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
+				|| input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX
+				|| input.getTypeAsEnum() == WdlParameterInputType.RADIO) {
+			JSONArray array = new JSONArray();
 			Map<String, String> values = input.getValues();
 			List<String> keys = new ArrayList<String>(values.keySet());
 			Collections.sort(keys);
 			for (String key : keys) {
+				JSONObject valuesObject = new JSONObject();
 				String value = values.get(key);
-				valuesObject.put(key, value);
+				valuesObject.put("key", key);
+				valuesObject.put("value", value);
+				array.add(valuesObject);
 			}
-			object.put("values", valuesObject);
+			object.put("values", array);
 		}
 
 		if (input.getTypeAsEnum() == WdlParameterInputType.APP_LIST) {
-			JSONObject valuesObject = new JSONObject();
+			JSONArray array = new JSONArray();
 			for (WdlApp app : apps) {
 				String category = input.getCategory();
 				if (category != null && !category.isEmpty()) {
 					// filter by category
 					if (app.getCategory() != null && app.getCategory().equals(category)) {
-						valuesObject.put("apps@" + app.getId(), app.getName());
+						JSONObject valuesObject = new JSONObject();
+						valuesObject.put("key", "apps@" + app.getId());
+						valuesObject.put("value", app.getName());
+						array.add(valuesObject);
 					}
 				} else {
-					valuesObject.put("apps@" + app.getId(), app.getName());
+					JSONObject valuesObject = new JSONObject();
+					valuesObject.put("key", "apps@" + app.getId());
+					valuesObject.put("value", app.getName());
+					array.add(valuesObject);
 				}
 			}
-			object.put("values", valuesObject);
+			object.put("values", array);
 		}
 
 		return object;
@@ -130,13 +153,17 @@ public class JSONConverter {
 			object.put("lastLogin", "");
 		}
 		if (user.getLockedUntil() != null) {
-			object.put("lockedUntil", user.getLockedUntil().toString());
+			if (user.getLockedUntil().after(new Date())){
+				object.put("lockedUntil", user.getLockedUntil().toString());
+			}else{
+				object.put("lockedUntil", "");
+			}
 		} else {
 			object.put("lockedUntil", "");
 		}
 		object.put("active", user.isActive());
 		object.put("loginAttempts", user.getLoginAttempts());
-		object.put("role", String.join(User.ROLE_SEPARATOR, user.getRoles()));
+		object.put("role", String.join(User.ROLE_SEPARATOR, user.getRoles()).toLowerCase());
 		object.put("mail", user.getMail());
 		object.put("admin", user.isAdmin());
 		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());

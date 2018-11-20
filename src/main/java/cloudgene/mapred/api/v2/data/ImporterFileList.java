@@ -48,8 +48,7 @@ public class ImporterFileList extends ServerResource {
 								results.addAll(items);
 
 							} else {
-
-								setStatus(Status.SERVER_ERROR_INTERNAL);
+								setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 								return new StringRepresentation(
 										importer.getErrorMessage());
 
@@ -57,14 +56,14 @@ public class ImporterFileList extends ServerResource {
 
 						} else {
 
-							setStatus(Status.SERVER_ERROR_INTERNAL);
+							setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 							return new StringRepresentation(
 									"Protocol not supported");
 
 						}
 
 					} catch (Exception e) {
-						setStatus(Status.SERVER_ERROR_INTERNAL);
+						setStatus(Status.CLIENT_ERROR_NOT_FOUND);
 						return new StringRepresentation(e.toString());
 
 					}

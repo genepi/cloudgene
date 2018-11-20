@@ -1,0 +1,108 @@
+name: Showcase
+description:  <p>This job tests your configuration in order to ensure that Cloudgene is able to communicate with your Hadoop Cluster.<br>If the job fails, please follow the error message and adapt your configuration until the job runs successfully.<br>Useful informations about the configuration can be found on our website <a href="http://cloudgene.uibk.ac.at">http://cloudgene.uibk.ac.at</a>.
+version: 1.0.1
+website: http://cloudgene.uibk.ac.at
+category: cloudgene
+
+mapred:
+
+  steps:
+    - name: CheckInputs
+      classname: cloudgene.mapred.jobs.steps.CheckInputs
+
+  inputs:
+
+    - id: file
+      description: Input-file Local
+      type: local-file
+      details: Details can be used for help text or examples
+
+    - id: folder
+      description: Input-folder Local
+      type: local-folder
+
+    - id: folderimages
+      description: Input-folder Local only Images
+      type: local-folder
+      accept: .jpg, .gif
+
+    - id: label
+      description: This is a simple label
+      type: label
+
+    - id: info
+      description: This can be used for much more informations an descritions.
+      type: info
+
+    - id: text
+      description: Input-Text
+      type: text
+
+    - id: number
+      description: Input-number
+      type: number
+      help: http://google.at
+
+    - id: separator
+      type: separator
+
+    - id: checkbox
+      description: Input Checkbox False
+      type: checkbox
+      value: valueFalse
+      values:
+        true: valueTrue
+        false: valueFalse
+
+    - id: checkbox2
+      description: Input Checkbox True
+      type: checkbox
+      value: valueTrue
+      values:
+        true: valueTrue
+        false: valueFalse
+
+    - id: list
+      description: Input List Empty
+      type: list
+      values:
+        keya: valuea
+        keyb: valueb
+
+    - id: list2
+      description: Input List valueb
+      type: list
+      value: keyb
+      values:
+        keya: valuea
+        keyb: valueb
+
+    - id: radio
+      description: Input Radio Empty
+      type: radio
+      values:
+        keya: valuea
+        keyb: valueb
+
+    - id: radio2
+      description: Input Radio valueb
+      type: radio
+      value: keyb
+      values:
+        keya: valuea
+        keyb: valueb
+
+    - id: check2
+      description: I accept fdsafsd fsd fsd fsdh fjksdh jkfsdhjkfsdjkfgsdhag fhjsaf sdghjfgghj gfsdag sdfkag fksdag fhksdgjk sdg jkflgklsdf
+      type: terms_checkbox
+
+  outputs:
+
+    - id: output
+      description: OutputFile
+      type: local-file
+      download: true
+      temp: false
+      zip: false
+      removeHeader: true
+      mergeOutput: true

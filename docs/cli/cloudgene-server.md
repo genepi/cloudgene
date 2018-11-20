@@ -5,38 +5,44 @@ Starts the Cloudgene web-application which provides an user-interface to submit 
 ## Command
 
 ```bash
-cloudgene server [--host <hadoop_cluster_ip>] [--user <hadoop_username>] [--docker] [--image <docker_image>] [--port]
+cloudgene server [--conf <hadoop_conf_dir>] [--user <hadoop_username>] [--port <port>]
 ```
 ## Parameters
 
 | Parameter                 | Required | Description |
 | --- | --- | --- |
-| `--host <hadoop_cluster_ip>` | no | Execute all Hadoop steps on this Hadoop JobTracker (default: **use localhost as JobTracker**). |
+| `--conf <hadoop_conf_dir>` | no | Path to Hadoop configuration folder (e.g. `/etc/hadoop/conf`)) |
 | `--user <hadoop_username>` | no | Execute Hadoop steps on behalf of this username (default: **cloudgene**) |
-| `--conf <HADOOP_CONF>` | no | Path to Hadoop configuration folder (e.g. /etc/hadoop/conf)) |
-| `--port` | no | Start the web-application on this port (default: **8082**)
+| `--port <port>` | no | Start the web-application on this port (default: **8082**)
 
 ## Examples
 
-### Start server without Hadoop support
+### Start server
 
 ```bash
 cloudgene server
 ```
 
-
-### Start server on the Namenode of a Hadoop Cluster
-
- Cloudgene uses the default configuration of your Hadoop Cluster. If it is installed on the Hadoop Namenode you can run it without additional flags:
+The webservice is available on http://localhost:8082. Please use username `admin` and password `admin1978` to login. You can use the `--port` flag to change the port from `8082` to `8085`:
 
 ```bash
-cloudgene server
+cloudgene server --port 8085
 ```
 
-### Start server and connect it with a remote Hadoop Cluster
+### Start server and connect it with a Hadoop Cluster
+
+If Cloudgene is installed on the Hadoop Namenode, then you can start the server with the conf files located in `$HADOOP/conf`:
 
 ```bash
-cloudgene server --host <remote-ip>
+cloudgene server --conf /etc/hadoop/conf
+```
+
+However, if Cloudgene is not installed on the Hadoop Namenode, then you have to copy the config files from the Hadoop Namenode to your Cloudgene instance and start the server with this configurations:
+
+```bash
+cloudgene server --conf  $CLOUDGENE_HOME/hadoop-conf
 ```
 
 Cloudgene executes your MapReduce steps on the remote cluster. You can use the `--user` flag to set the username which should be used to execute your Hadoop jobs (e.g. it uses the HDFS directory of this user for all files).
+
+**For production we recommend to add your cluster to the configuration file to avoid to set the parameters on each startup. More about adding the cluster to the configuration file can be found [here](/daemon/hadoop).**

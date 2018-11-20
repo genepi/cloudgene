@@ -29,6 +29,7 @@ import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
@@ -89,9 +90,6 @@ public class SubmitJob extends BaseResource {
 
 		try {
 			inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
-			for (String k : inputParams.keySet()) {
-				System.out.println(" Parsed: " + k);
-			}
 		} catch (FileUploadIOException e) {
 			return error400("Upload limit reached.");
 		}
@@ -255,16 +253,18 @@ public class SubmitJob extends BaseResource {
 
 		}
 		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-			if (props.containsKey(input.getId())) {
-				if (input.getType().equals("checkbox")) {
-					params.put(input.getId(), input.getValues().get("true"));
+			if (!params.containsKey(input.getId())) {
+				if (props.containsKey(input.getId())) {
+					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
+						params.put(input.getId(), input.getValues().get("true"));
+					} else {
+						params.put(input.getId(), props.get(input.getId()));
+					}
 				} else {
-					params.put(input.getId(), props.get(input.getId()));
-				}
-			} else {
-				// ignore invisible input parameters
-				if (input.getType().equals("checkbox") && input.isVisible()) {
-					params.put(input.getId(), input.getValues().get("false"));
+					// ignore invisible input parameters
+					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX && input.isVisible()) {
+						params.put(input.getId(), input.getValues().get("false"));
+					}
 				}
 			}
 		}

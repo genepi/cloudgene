@@ -24,36 +24,30 @@ public class DeleteUser extends BaseResource {
 		if (user == null) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
+			return new StringRepresentation("The request requires user authentication.");
 
 		}
 
 		if (!user.isAdmin()) {
 
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			return new StringRepresentation("The request requires administration rights.");
 
 		}
 
-		String id = form.getFirstValue("id");
+		String username = getAttribute("username");
 
-		if (id != null) {
-
-			// delete user from database
-			UserDao dao = new UserDao(getDatabase());
-			User user1 = dao.findById(Integer.parseInt(id));
+		// delete user from database
+		UserDao dao = new UserDao(getDatabase());
+		User user1 = dao.findByUsername(username);
+		if (user1 != null) {
 			dao.delete(user1);
 
 			JSONObject object = JSONObject.fromObject(user1);
 			return new StringRepresentation(object.toString());
-
 		} else {
-
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("User " + id + " not found.");
-
+			return new StringRepresentation("User " + username + " not found.");
 		}
 
 	}

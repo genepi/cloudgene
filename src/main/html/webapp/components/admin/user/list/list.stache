@@ -1,0 +1,99 @@
+<h2>Users</h2>
+
+{{#query}}
+<p><br><br></p>
+{{else}}
+<p>This page lists all <b>{{users.count}}</b> registered users.<br><br></p>
+{{/query}}
+<p>
+	<form id="proband-search-form" class="form-inline">
+		Search:&nbsp;
+		<div class="input-group">
+			<input id="query" name="query" type="text" class="form-control" value="{{query}}" placeholder="username, mail or full name" autocomplete="off">
+			&nbsp;
+				<span class="input-group-btn">
+						<button type="submit" class="btn btn-secondary">
+							<i class="fas fa-search"></i>
+						</button>
+				</span>
+		</div>
+	</form>
+</p>
+
+	<table class="table table-striped table-bordered" id="user-list">
+		<thead>
+			<tr>
+				<th style="width: 16px;"></th>
+				<th style="width: 30px;"></th>
+				<th style="width: 150px;">Username</th>
+				<th style="width: 200px;">Full Name</th>
+				<th>E-Mail</th>
+				<th style="width: 200px;">Last Login</th>
+				<th style="width: 100px;">Groups</th>
+				<th style="width: 16px;"></th>
+			</tr>
+		</thead>
+		<tbody>
+			{{#each users }}
+				<tr {{data 'user' }}>
+					<td>
+						{{#if lockerUntil }}
+							<i class="fas fa-lock"></i>
+						{{else}}
+							{{#if active }}
+								<i class="fas fa-check-circle"></i>
+							{{/if}}
+						{{/if}}
+					</td>
+					<td>
+						{{#if mail }}
+							<img src="http://www.gravatar.com/avatar/{{mail}}?s=30" height="30" >
+						{{/if}}
+					</td>
+					<td>
+						{{username}}
+					</td>
+					<td>
+						{{fullName}}
+					</td>
+					<td>
+						<small>{{mail}}</small>
+					</td>
+					<td>
+						<small>{{lastLogin}}</small>
+					</td>
+					<td>
+						{{#is(readOnly,false)}}
+							<span class="btn btn-sm btn-outline-secondary edit-role-btn "><i class="fas fa-users"></i> {{role}}</span>
+						{{else}}
+							{{role}}
+						{{/is}}
+					</td>
+					<td>
+						{{#is(readOnly,false)}}
+						<a class="btn btn-sm btn-light delete-user-btn" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete user"><i class="fas fa-trash"></i></a>
+						{{/is}}
+					</td>
+				</tr>
+			{{/each}}
+		</tbody>
+	</table>
+	<br>
+	  <div class="mx-auto">
+	    <ul class="mx-auto pagination">
+	      <li class="page-item {{^if(users.prev)}}disabled{{/if}}">
+	        <a class="page-link" href="#!pages/users/pages/{{users.prev}}" aria-label="Previous">
+	          <span aria-hidden="true">&larr; Previous</span>
+	        </a>
+	      </li>
+	      {{#users.pages}}
+	        <li class="{{#is(., users.page)}}page-item active{{/is}}"><a class="page-link" href="#!pages/users/pages/{{.}}">{{.}}</a></li>
+	      {{/users.pages}}
+	      <li class="page-item {{^if(users.next)}}disabled{{/if}}">
+	        <a class="page-link" href="#!pages/users/pages/{{users.next}}" aria-label="Next">
+	          <span aria-hidden="true">Next &rarr;</span>
+	        </a>
+	      </li>
+	    </ul>
+	  </div>
+	  <br><br>

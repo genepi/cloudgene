@@ -29,6 +29,9 @@
 
 	<properties>
 		<restlet.version>2.3.12</restlet.version>
+		<node.version>v8.11.4</node.version>
+		<npm.version>6.4.1</npm.version>
+		<webapp>${basedir}/src/main/html/webapp</webapp>
 	</properties>
 
 	<developers>
@@ -72,6 +75,52 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
+
+			<!-- Create webapp for production -->
+
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<configuration>
+							<nodeVersion>${node.version}</nodeVersion>
+							<npmVersion>${npm.version}</npmVersion>
+							<workingDirectory>${webapp}</workingDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+							<workingDirectory>${webapp}</workingDirectory>
+
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm build prod</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>run build</arguments>
+							<npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+							<workingDirectory>${webapp}</workingDirectory>
+
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -160,13 +209,13 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-db</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.6</version>
 		</dependency>
 
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-hadoop</artifactId>
-			<version>mr1-1.2.0</version>
+			<version>mr1-1.2.2</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>

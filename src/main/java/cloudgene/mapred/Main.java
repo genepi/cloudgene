@@ -202,9 +202,7 @@ public class Main implements Daemon {
 			if (new File("webapp").exists()) {
 				webAppFolder = "webapp";
 			} else {
-				webAppFolder = FileUtil.path(
-						new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent(),
-						"html", "webapp");
+				webAppFolder = FileUtil.path("src","main", "html", "webapp");
 				System.out.println(webAppFolder);
 			}
 

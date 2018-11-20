@@ -1,0 +1,54 @@
+<h2>Dashboard</h2>
+
+<div class="row">
+  <div class="alert alert-success col-md-2 mx-2" style="text-align: center; padding:5px;">
+    <span style="font-size: 40px; fonty-style: bold; width: 100%; text-align: center" id="new_users">0</span>
+    <br><span style="font-size: 20px; fonty-style: bold; width: 100%; text-align: center">New Users</span>
+  </div>
+
+  <div class="alert alert-info col-md-2 mx-2" style="text-align: center; padding:5px;">
+    <span style="font-size: 40px; fonty-style: bold; width: 100%; text-align: center" id="total_users">0</span>
+    <br><span style="font-size: 20px; fonty-style: bold; width: 100%; text-align: center">Total Users</span>
+  </div>
+
+
+  <div class="alert alert-success col-md-2 mx-2" style="text-align: center; padding:5px;">
+    <span style="font-size: 40px; fonty-style: bold; width: 100%; text-align: center" id="new_jobs">0</span>
+    <br><span style="font-size: 20px; fonty-style: bold; width: 100%; text-align: center">New Jobs</span>
+  </div>
+
+  <div class="alert alert-info col-md-2 mx-2" style="text-align: center; padding:5px;">
+    <span style="font-size: 40px; fonty-style: bold; width: 100%; text-align: center" id="total_jobs">0</span>
+    <br><span style="font-size: 20px; fonty-style: bold; width: 100%; text-align: center">Jobs</span>
+  </div>
+</div>
+
+<select id="day_combo" class="form-control col-md-3">
+  <option value="1">Last 24h</option>
+  <option value="3">Last 3 days</option>
+  <option value="7">Last week</option>
+  <option value="14">Last 2 weeks</option>
+  <option value="30">Last month</option>
+<!--  <option value="90">Last 3 month</option>
+  <option value="180">Last half year</option> -->
+</select>
+
+<div  id="morris-area-chart"></div>
+
+
+<h3>Counters</h3>
+
+<p>The following counters where submitted by applications.</p>
+
+<table class="table table-bordered">
+
+{{#counter.complete}}
+
+	<tr>
+		<td><b>{{key}}</b></td>
+		<td style="width: 150px;">{{value}}</td>
+	</tr>
+
+{{/counter.complete}}
+
+</table>

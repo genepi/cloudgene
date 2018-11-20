@@ -27,17 +27,29 @@
 			<source>${project.build.directory}/${project.artifactId}-${project.version}.jar</source>
 			<destName>${project.artifactId}.jar</destName>
 		</file>
+		
 	</files>
 
 	<fileSets>
+	
 		<fileSet>
 			<outputDirectory>/</outputDirectory>
 			<directory>files</directory>
 		</fileSet>
 
 		<fileSet>
-			<outputDirectory>/webapp</outputDirectory>
+			<outputDirectory>/webapp/dist</outputDirectory>
 			<directory>src/main/html/webapp/dist</directory>
+		</fileSet>
+
+		<fileSet>
+			<outputDirectory>/webapp/assets</outputDirectory>
+			<directory>src/main/html/webapp/assets</directory>
+		</fileSet>
+
+		<fileSet>
+			<outputDirectory>/webapp</outputDirectory>
+			<directory>src/main/html/webapp/public</directory>
 		</fileSet>
 
 		<fileSet>

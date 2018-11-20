@@ -1,0 +1,114 @@
+<div class="page-header card-shadow">
+  <div class="bg-white bd-content py-1 container">
+		<h2>{{application.name}}</h2>
+		{{{application.description}}}
+  </div>
+</div>
+<div class="container page border-top pl-5 mt-5">
+<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
+
+<div class="form-group row">
+	<label for="job-name" class="col-sm-2 col-form-label">Name</label>
+	<div class="col-sm-3">
+		<input name="job-name" type="text" value="" class="form-control" placeholder="optional job name" autocomplete="off">
+	</div>
+</div>
+
+<hr/>
+
+{{#each application.params}}
+
+	{{#switch(type)}}
+		{{#case("separator")}}
+			<hr/>
+		{{/case}}
+		{{#case("info")}}
+			<!-- Full size label -->
+			<p>{{{description}}}</p>
+		{{/case}}
+		{{#default()}}
+
+			<div class="form-group form-row" style="{{#is(visible, false)}}display:none{{/is}}">
+				<!-- Label -->
+
+				{{#switch(type)}}
+
+					{{#case("label")}}
+						{{../controls_label(.)}}
+					{{/case}}
+
+					{{#case("list")}}
+						{{../controls_select(.)}}
+					{{/case}}
+
+					{{#case("app_list")}}
+						{{../controls_select(.)}}
+					{{/case}}
+
+					{{#case("radio")}}
+						{{../controls_radio(.)}}
+					{{/case}}
+
+					{{#case("text")}}
+						{{../controls_text(.)}}
+					{{/case}}
+
+					{{#case("number")}}
+						{{../controls_text(.)}}
+					{{/case}}
+
+					{{#case("string")}}
+						{{../controls_text(.)}}
+					{{/case}}
+
+					{{#case("textarea")}}
+						{{../controls_textarea(.)}}
+					{{/case}}
+
+					{{#case("checkbox")}}
+						{{../controls_checkbox(.)}}
+					{{/case}}
+
+					{{#case("local_file")}}
+						{{../controls_file(.)}}
+					{{/case}}
+
+					{{#case("hdfs_file")}}
+						{{../controls_file(.)}}
+					{{/case}}
+
+					{{#case("local_folder")}}
+						{{../controls_folder(.)}}
+					{{/case}}
+
+					{{#case("hdfs_folder")}}
+						{{../controls_folder(.)}}
+					{{/case}}
+
+					{{#case("agb_checkbox")}}
+						{{../controls_terms_checkbox(.)}}
+					{{/case}}
+
+					{{#case("terms_checkbox")}}
+						{{../controls_terms_checkbox(.)}}
+					{{/case}}
+
+				{{/switch}}
+
+			</div>
+
+		{{/default}}
+	{{/switch}}
+{{/each}}
+
+<hr/>
+
+<!-- Submit Button -->
+<div class="form-group form-row">
+	<div class="col-sm-2 col-form-label">
+	</div>
+	<button class="btn btn-primary" type="submit" data-loading-text="Uploading"><i class="far fa-play-circle"></i> {{application.submitButton}}</button>
+</div>
+
+</form>
+</div>

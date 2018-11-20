@@ -43,9 +43,9 @@ public class RunApplication extends BaseTool {
 
 	private WdlApp app = null;
 
-	private boolean output = true;
+	private boolean output = false;
 
-	private boolean logging = true;
+	private boolean logging = false;
 
 	private boolean force = false;
 
@@ -135,12 +135,12 @@ public class RunApplication extends BaseTool {
 		Options options = CommandLineUtil.createOptionsFromApp(app);
 
 		// add general options: run on docker
-		Option loggingOption = new Option(null, "no-logging", false, "Don’t stream logging messages to stdout");
+		Option loggingOption = new Option(null, "show-log", false, "Stream logging messages to stdout");
 		loggingOption.setRequired(false);
 		options.addOption(loggingOption);
 
 		// add general options: run on docker
-		Option noOutputOption = new Option(null, "no-output", false, "Don’t stream output to stdout");
+		Option noOutputOption = new Option(null, "show-output", false, "Stream output to stdout");
 		noOutputOption.setRequired(false);
 		options.addOption(noOutputOption);
 
@@ -150,17 +150,12 @@ public class RunApplication extends BaseTool {
 		forceOption.setRequired(false);
 		options.addOption(forceOption);
 
-		// add general options: hadoop hostname
-		Option hostOption = new Option(null, "host", true, "Hadoop namenode hostname [default: localhost]");
-		hostOption.setRequired(false);
-		options.addOption(hostOption);
-
-		// add general options: hadoop hostname
+		// add general options: hadoop configuration
 		Option confOption = new Option(null, "conf", true, "Hadoop configuration folder");
 		confOption.setRequired(false);
 		options.addOption(confOption);
 
-		// add general options: hadoop hostname
+		// add general options: output folder
 		Option outputFolderOption = new Option(null, "output", true, "Output folder");
 		outputFolderOption.setRequired(false);
 		options.addOption(outputFolderOption);
@@ -185,12 +180,12 @@ public class RunApplication extends BaseTool {
 			return 1;
 		}
 
-		if (line.hasOption("no-logging")) {
-			logging = false;
+		if (line.hasOption("show-log")) {
+			logging = true;
 		}
 
-		if (line.hasOption("no-output")) {
-			output = false;
+		if (line.hasOption("show-output")) {
+			output = true;
 		}
 
 		if (line.hasOption("force")) {
@@ -203,19 +198,11 @@ public class RunApplication extends BaseTool {
 			String username = line.getOptionValue("user", null);
 			printText(0, spaces("[INFO]", 8) + "Use Haddop configuration folder " + conf
 					+ (username != null ? " with username " + username : ""));
-			HadoopCluster.setConfPath(conf, username);
-
-		} else if (line.hasOption("host")) {
-
-			String host = line.getOptionValue("host");
-			String username = line.getOptionValue("user", DEFAULT_HADOOP_USER);
-			printText(0, spaces("[INFO]", 8) + "Use Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.setHostname(host, username);
+			HadoopCluster.setConfPath("Unknown", conf, username);
 
 		} else {
 			if (settings.getCluster() == null) {
-				printText(0, spaces("[INFO]", 8)
-						+ "No external Haddop cluster set. Be sure you execute Cloudgene on your namenode.");
+				printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
 			}
 		}
 
@@ -392,7 +379,8 @@ public class RunApplication extends BaseTool {
 		if (app.getWorkflow().getInputs().size() > 0) {
 			printText(2, "Input values: ");
 			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-				if (!input.getType().equals("agbcheckbox") && !input.isAdminOnly() && input.isVisible()) {
+				if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox")
+						&& !input.isAdminOnly() && input.isVisible()) {
 					printText(4, input.getId() + ": " + job.getContext().get(input.getId()));
 				}
 			}

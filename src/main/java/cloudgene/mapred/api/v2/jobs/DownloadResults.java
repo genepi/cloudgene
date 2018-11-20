@@ -95,9 +95,11 @@ public class DownloadResults extends BaseResource {
 
 			log.debug("Downloading file " + resultFile);
 
-			// update download counter
-			download.decCount();
-			dao.update(download);
+			// update download counter if it not set to unlimited
+			if (download.getCount() != -1) {
+				download.decCount();
+				dao.update(download);
+			}
 			return new FileRepresentation(resultFile, mediaType);
 
 		} catch (Exception e) {

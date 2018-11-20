@@ -51,13 +51,13 @@ name: hello-cloudgene
 version: 1.0
 workflow:
   steps:
-    - name: Name Step1
-      exec: /bin/echo
-      params: "hey cloudgene developer! I am step 1."
+    - name: Step1
+      cmd: /bin/echo hey cloudgene developer! I am step 1.
+      stdout: true
 
-    - name: Name Step2
-      exec: /bin/echo
-      params: "hey cloudgene developer! I am step 2."
+    - name: Step2
+      cmd: /bin/echo hey cloudgene developer! I am step 2.
+      stdout: true
 ```
 
 In this example we used the command line tool `echo` to print out some text. However, Cloudgene supports a variety of different step types which can be combined into one workflow to take advantage of different technologies.
@@ -69,31 +69,24 @@ cloudgene run hello-cloudgene.yaml
 ```
 
 ```ansi
-Cloudgene 1.24.0 - CLI
-(c) 2009-2017 Lukas Forer and Sebastian Schoenherr
-Built by seb on null
+Cloudgene 1.30.6
+http://www.cloudgene.io
+(c) 2009-2018 Lukas Forer and Sebastian Schoenherr
+Built by lukas on 2018-11-19T10:14:17Z
 
-Loading file hello-cloudgene.yaml...
-Submit job job-20170812-145643...
 
-================================================================================
-hello-cloudgene (Job job-20170812-145643)
---------------------------------------------------------------------------------
-  Input values:
-  Results:
-================================================================================
-[1] Name Step1
-================================================================================
-    [OUT]    hey cloudgene developer! I am step 1.
-    [OK]     Execution successful.
-================================================================================
-[2] Name Step2
-================================================================================
-    [OUT]   hey cloudgene developer! I am step 2.
-    [OK]    Execution successful.
-================================================================================
+hello-cloudgene 1.0
+
+[INFO]  No external Haddop cluster set.
+[WARN]  Cluster seems unreachable. Hadoop support disabled.
+[INFO]  Submit job job-20181119-112052...
+[OUT]   hey cloudgene developer! I am step 1.
+[OK]    Execution successful.
+[OUT]   hey cloudgene developer! I am step 2.
+[OK]    Execution successful.
 
 Done! Executed without errors.
+Results can be found in file:///home/lukas/new-cloudgene/job-20181119-112052
 ```
 
 We see that Cloudgene executes our workflow and prints the text to the terminal.
@@ -109,9 +102,9 @@ name: hello-cloudgene
 version: 1.0
 workflow:
   steps:
-    - name: Name Step1
-      exec: /bin/echo
-      params: "hey cloudgene developer! $message"
+    - name: Step1
+      cmd: /bin/echo hey cloudgene developer! $message
+      stdout: true
   inputs:
     - id: message
       description: Message
@@ -125,27 +118,24 @@ cloudgene run hello-cloudgene.yaml --message "Using an input parameter is easy!"
 ```
 
 ```ansi
-Cloudgene 1.24.0 - CLI
-(c) 2009-2017 Lukas Forer and Sebastian Schoenherr
-Built by seb on null
+Cloudgene 1.30.6
+http://www.cloudgene.io
+(c) 2009-2018 Lukas Forer and Sebastian Schoenherr
+Built by lukas on 2018-11-19T10:14:17Z
 
-Loading file hello-cloudgene.yaml...
-Submit job job-20170812-145643...
 
-================================================================================
-hello-cloudgene (Job job-20170812-145643)
---------------------------------------------------------------------------------
+hello-cloudgene 1.0
+
+[INFO]  No external Haddop cluster set.
+[WARN]  Cluster seems unreachable. Hadoop support disabled.
+[INFO]  Submit job job-20181119-112527...
   Input values:
-    message: Using an input parameter is eas
-  Results:
-================================================================================
-[1] Name Step1
-================================================================================
-    [OUT]    hey cloudgene developer! Using an input parameter is easy!
-    [OK]     Execution successful.
-================================================================================
+    message: Using an input parameter is easy!
+[OUT]   hey cloudgene developer! Using an input parameter is easy!
+[OK]    Execution successful.
 
 Done! Executed without errors.
+Results can be found in file:///home/lukas/new-cloudgene/job-20181119-112527
 ```
 
 ## Serve the webservice
@@ -156,6 +146,20 @@ Before you can start a webservice for your workflow, you have to install it:
 cloudgene install hello-cloudgene hello-cloudgene.yaml
 ```
 
+```ansi
+Cloudgene 1.30.6
+http://www.cloudgene.io
+(c) 2009-2018 Lukas Forer and Sebastian Schoenherr
+Built by lukas on 2018-11-19T10:14:17Z
+
+Installing application hello-cloudgene...
+Process file hello-cloudgene.yaml....
+[OK] 1 Applications installed:
+
+APPLICATION                        VERSION             STATUS              FILENAME
+hello-cloudgene                    1.0                 OK                  hello-cloudgene.yaml
+```
+
 Next, we can start the webserver:
 
 ```bash
@@ -164,7 +168,16 @@ cloudgene server
 
 The webservice is available on [http://localhost:8082](http://localhost:8082). Please use username `admin` and password `admin1978` to login.
 
-You can install different workflows in the same instance and can define in the [Admin Dashboard](/daemon/permissions) who has access to each of them.
+Click on **Run** and slect your application (**hello-cloudgene**). Cloudgene creates automatically a web-interface for your input parameters:
 
-!!! tip
-    For production you should use the `cloudgene-daemon.sh` script. [Learn more]()
+<div class="screenshot">
+<img src="/images/screenshots/hello-cloudgene-yaml.png">
+</div>
+
+Enter a message and click on **Submit Job** to run your workflow. You should see the following job output:
+
+<div class="screenshot">
+<img src="/images/screenshots/hello-cloudgene-yaml-output.png">
+</div>
+
+You can install different workflows in the same instance and define in the [Admin Dashboard](/daemon/permissions) who has access to each of them.

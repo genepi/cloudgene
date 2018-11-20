@@ -1,0 +1,38 @@
+import Control from 'can-control';
+import $ from 'jquery';
+import bootbox from 'bootbox';
+
+import Settings from 'models/settings';
+
+import template from './general.stache';
+
+
+export default Control.extend({
+
+  "init": function(element, options) {
+    var that = this;
+
+    Settings.findOne({},
+      function(settings) {
+        $(element).html(template({
+          settings: settings
+        }));
+        that.settings = settings;
+        $(element).fadeIn();
+      });
+
+  },
+
+  'submit': function(form, event) {
+    event.preventDefault();
+
+    this.settings.attr('name', $(form).find("[name='name']").val());
+    this.settings.attr('background-color', $(form).find("[name='background-color']").val());
+    this.settings.attr('foreground-color', $(form).find("[name='foreground-color']").val());
+    this.settings.attr('google-analytics', $(form).find("[name='google-analytics']").val());
+    this.settings.save();
+
+    bootbox.alert("Settings updated.");
+  }
+
+});

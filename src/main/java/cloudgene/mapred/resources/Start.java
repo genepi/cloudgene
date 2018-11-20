@@ -2,23 +2,17 @@ package cloudgene.mapred.resources;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.restlet.data.LocalReference;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.ext.freemarker.ContextTemplateLoader;
 import org.restlet.ext.freemarker.TemplateRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.WebApp;
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.Template;
-import cloudgene.mapred.wdl.WdlApp;
 import freemarker.template.Configuration;
 
 public class Start extends BaseResource {
@@ -26,14 +20,7 @@ public class Start extends BaseResource {
 	@Get
 	public Representation get() {
 
-		User user = getAuthUser(false);
-
-		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-		}
-
-		WebApp app = getWebApp();
+		WebApp app = (WebApp) getApplication();
 
 		Configuration cfg = new Configuration();
 
@@ -42,21 +29,14 @@ public class Start extends BaseResource {
 
 		cfg.setTemplateLoader(loader);
 
-		List<WdlApp> apps = getSettings().getAppsByUser(user);
-
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("appname", getSettings().getName());
-		data.put("admin", user.isAdmin());
-		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
-		data.put("username", user.getUsername());
-		data.put("apps", apps);
-		data.put("navigation", getSettings().getNavigation());
-
-		if (getSettings().isMaintenance()) {
-			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
+		String googleAnalytics = getSettings().getGoogleAnalytics();
+		if (googleAnalytics != null && !googleAnalytics.trim().isEmpty()) {
+			data.put("google_analytics", googleAnalytics);
 		}
+		data.put("name", app.getSettings().getName());
 
-		return new TemplateRepresentation("start.html", cfg, data, MediaType.TEXT_HTML);
+		return new TemplateRepresentation("index.html", cfg, data, MediaType.TEXT_HTML);
 
 	}
 

@@ -159,8 +159,8 @@ public class DockerStep extends CloudgeneStep {
 			}
 
 		} catch (Exception e) {
-			context.log("Execeution failed.", e);
-			context.endTask("Execeution failed.", Message.ERROR);
+			context.log("Execution failed.", e);
+			context.endTask("Execution failed.", Message.ERROR);
 			return false;
 		}
 	}

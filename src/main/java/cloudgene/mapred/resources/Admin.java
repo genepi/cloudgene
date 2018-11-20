@@ -50,7 +50,9 @@ public class Admin extends BaseResource {
 		cfg.setTemplateLoader(loader);
 
 		Map<String, Object> data = new HashMap<String, Object>();
-		data.put("appname", getSettings().getName());
+		data.put("name", getSettings().getName());
+		data.put("background", getSettings().getColors().get("background"));
+		data.put("foreground", getSettings().getColors().get("foreground"));
 		data.put("version", Main.VERSION);
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 

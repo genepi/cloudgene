@@ -89,6 +89,8 @@ public class GetJobDetails extends BaseResource {
 			object.put("public", publicMode);
 		}
 
+		object.put("username", job.getUser().getUsername());
+		
 		return new StringRepresentation(object.toString(),
 				MediaType.APPLICATION_JSON);
 	}

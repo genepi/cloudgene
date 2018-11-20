@@ -8,7 +8,6 @@ import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestCluster;
@@ -174,7 +173,8 @@ public class ShareResultsTest extends JobsApiTestCase {
 		assertEquals(id + "/output/file1.txt", path1);
 
 		// download file max_download
-		for (int i = 0; i < CloudgeneJob.MAX_DOWNLOAD; i++) {
+		int maxDownloads = TestServer.getInstance().getSettings().getMaxDownloads();		
+		for (int i = 0; i < maxDownloads; i++) {
 			String content1 = downloadSharedResults(username1, hash1, filename1);
 			assertEquals("lukas_text", content1);
 		}

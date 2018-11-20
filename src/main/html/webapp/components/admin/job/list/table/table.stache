@@ -1,0 +1,153 @@
+
+<p class="pull-right">
+{{^is(jobs.running, 0)}}
+<b>{{jobs.running}}</b> jobs are <b>running</b>.
+{{/is}}
+{{^is(jobs.waiting, 0)}}
+<b>{{jobs.waiting}}</b> jobs are <b>waiting</b>.
+{{/is}}
+{{^is(jobs.success, 0)}}
+<b>{{jobs.success}}</b> jobs are <b>succeeded</b>.
+{{/is}}
+{{^is(jobs.failed, 0)}}
+<b>{{jobs.failed}}</b> jobs are <b>failed</b>.
+{{/is}}
+{{^is(jobs.pending, 0)}}
+<b>{{jobs.pending}}</b> jobs are <b>pending</b>.
+{{/is}}
+{{^is(jobs.canceld, 0)}}
+<b>{{jobs.canceld}}</b> jobs are <b>canceld</b>.
+{{/is}}
+</p>
+
+<table class="table table-striped table-bordered ">
+<thead>
+	<tr>
+		<th style="width: 20px;"><i class="fas fa-list-ul"></i></th>
+		<th style="width: 40px">State</th>
+		<th>Job</th>
+		<th style="width: 150px;">User</th>
+		<th style="width: 150px;">Time Running</th>
+		<th style="width: 180px;">Valid Until</th>
+		<th style="width: 80px;">Size</th>
+		<th style="width: 32px;"></th>
+	</tr>
+</thead>
+<tbody>
+	{{#jobs}}
+
+		<tr {{data 'job'}} >
+
+			<td style="width: 40px;text-align:center;">
+				{{#is(state, 1)}}
+					<small>{{priority}}</small>
+				{{/is}}
+			</td>
+
+			<td>
+				<span class="status-xs badge badge-{{stateAsClass}}"><i class="{{stateAsImage}}"></i></span>
+			</td>
+
+			<td>
+				<p style="line-height: 1.15 !important; margin-bottom: 0px !important;">
+					<a href="#!jobs/{{id}}">{{id}}</a>
+				</p>
+				<p style="line-height: 1.15 !important; margin-top: 0px !important;  margin-bottom: 0px !important; padding-top:0px !important;">
+					<small class="text-muted" >{{application}}</small>
+				</p>
+			</td>
+
+			<td>
+				<p style="line-height: 1.15 !important; margin-bottom: 0px !important;">
+					{{user.username}}<br>
+				</p>
+				<p style="line-height: 1.15 !important; margin-top: 0px !important;  margin-bottom: 0px !important; padding-top:0px !important;">
+					<small class="text-muted" >
+						{{#user.roles}}
+							{{.}}&nbsp;
+						{{/user.roles}}
+					</small>
+				</p>
+			</td>
+
+			<td>
+
+				{{#is(state, 6)}}
+				-
+				{{else}}
+				<small>{{prettyTime(executionTime)}}</small>
+				{{/is}}
+
+			</td>
+
+			<td>
+				{{#deletedOn}}
+					<small>{{prettyDate(.)}}</small>
+				{{/deletedOn}}
+			</td>
+
+			<td>
+				{{#workspaceSize}}
+					<small>{{../workspaceSize}}</small>
+				{{else}}
+					-
+				{{/workspaceSize}}
+			</td>
+
+			<td>
+
+				<div class="dropdown">
+					<button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    <i class="fas fa-wrench"></i> Actions
+				  </button>
+
+					<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+						{{#is(state, 1)}}
+							<a class="priority-btn dropdown-item" style="cursor:pointer">Add to top of queue</a>
+							<div class="dropdown-divider"></div>
+						{{/is}}
+
+						{{#canResetCounters}}
+							<a class="reset-downloads-btn dropdown-item" style="cursor:pointer">Reset download counters</a>
+							<a class="unlimited-downloads-btn dropdown-item" style="cursor:pointer">Deactivate download counters</a>
+						{{/canResetCounters}}
+
+						{{#canSendRetireNotification}}
+							<a class="retire-btn dropdown-item" style="cursor:pointer">Send retire notification</a>
+						{{/canSendRetireNotification}}
+
+						{{#canIncreaseRetireDate}}
+							<a class="change-retire-date-btn dropdown-item" style="cursor:pointer">Increase retire date</a>
+						{{/canIncreaseRetireDate}}
+
+						<a class="dropdown-item" href="mailto:{{user.mail}}">Send E-Mail...</a>
+
+						{{#canShowLog}}
+						<a class="dropdown-item" href="/logs/{{id}}" target="_blank">Logs</a>
+						{{/canShowLog}}
+
+						<div class="dropdown-divider"></div>
+
+						{{#canCancel}}
+							<a class="cancel-btn dropdown-item" style="cursor:pointer">Cancel...</a>
+						{{/canCancel}}
+
+						{{#canRetireJob}}
+							<a class="archive-btn dropdown-item" style="cursor:pointer">Retire job now...</a>
+						{{/canRetireJob}}
+
+						{{#canDelete}}
+							<a class="delete-btn dropdown-item" style="cursor:pointer">Delete...</a>
+						{{/canDelete}}
+
+					</div>
+				</div>
+
+			</td>
+
+
+		</tr>
+	{{/jobs}}
+</tbody>
+</table>

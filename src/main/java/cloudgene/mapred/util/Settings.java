@@ -18,7 +18,6 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -32,7 +31,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
-import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -59,6 +57,8 @@ public class Settings {
 	private String version;
 
 	private String name = "Cloudgene";
+
+	private Map<String, String> colors;
 
 	private String secretKey = "default-key-change-me";
 
@@ -116,6 +116,10 @@ public class Settings {
 
 	private Set<Technology> technologies = new HashSet<Technology>();
 
+	private String googleAnalytics = "";
+
+	private int maxDownloads = 10;
+	
 	protected Config config;
 
 	public Settings() {
@@ -141,15 +145,10 @@ public class Settings {
 		navigation.add(helpMenuItem);
 
 		database = new HashMap<String, String>();
-		database.put("driver", "h2");
-		database.put("database", "data/mapred");
-		database.put("user", "mapred");
-		database.put("password", "mapred");
+		initDefaultDatabase(database, "data/mapred");
 
-		// enable all technologies
-		for (Technology technology : Technology.values()) {
-			enable(technology);
-		}
+		colors = getDefaultColors();
+
 	}
 
 	public Settings(Config config) {
@@ -176,10 +175,7 @@ public class Settings {
 				}
 			} else {
 				database = new HashMap<String, String>();
-				database.put("driver", "h2");
-				database.put("database", config.getDatabase());
-				database.put("user", "mapred");
-				database.put("password", "mapred");
+				initDefaultDatabase(database, config.getDatabase());
 			}
 		}
 
@@ -200,10 +196,14 @@ public class Settings {
 		log.info("Write statistics: " + settings.writeStatistics);
 
 		if (settings.cluster != null) {
-			String host = settings.cluster.get("host");
-			String username = settings.cluster.get("username");
-			log.info("Use external Haddop cluster running on " + host + " with username " + username);
-			HadoopCluster.setHostname(host, username);
+			String conf = settings.cluster.get("conf");
+			String username = settings.cluster.get("user");
+			String name = settings.cluster.get("name");
+			if (conf != null) {
+				log.info("Use Haddop configuration folder '" + conf + "'"
+						+ (username != null ? " with username " + username : ""));
+				HadoopCluster.setConfPath(name, conf, username);
+			}
 		}
 
 		settings.config = config;
@@ -227,15 +227,26 @@ public class Settings {
 				}
 			} else {
 				database = new HashMap<String, String>();
-				database.put("driver", "h2");
-				database.put("database", config.getDatabase());
-				database.put("user", "mapred");
-				database.put("password", "mapred");
+				initDefaultDatabase(database, config.getDatabase());
 			}
 		}
 
 		return settings;
 
+	}
+
+	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
+		database.put("driver", "h2");
+		database.put("database", defaultSchema);
+		database.put("user", "mapred");
+		database.put("password", "mapred");
+	}
+
+	public static Map<String, String> getDefaultColors() {
+		Map<String, String> colors = new HashMap<String, String>();
+		colors.put("background", "#343a40");
+		colors.put("foreground", "navbar-dark");
+		return colors;
 	}
 
 	public void save() {
@@ -681,7 +692,7 @@ public class Settings {
 		try {
 			application.loadWdlApp();
 		} catch (IOException e) {
-			System.out.println("Ignore file " + filename + ". Not a valid cloudgene.yaml file.");
+			log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
 			return null;
 		}
 		System.out.println("Process file " + filename + "....");
@@ -887,10 +898,12 @@ public class Settings {
 	}
 
 	public void enable(Technology technology) {
+		log.info("Enable technology " + technology);
 		technologies.add(technology);
 	}
 
 	public void disable(Technology technology) {
+		log.info("Disable technology " + technology);
 		technologies.remove(technology);
 	}
 
@@ -900,15 +913,14 @@ public class Settings {
 
 	public void checkTechnologies() {
 		// check cluster status
-		ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
-		if (details != null) {
-			int nodes = details.getActiveTrackerNames().size();
-			if (nodes == 0) {
-				disable(Technology.HADOOP_CLUSTER);
-			} else {
+
+		try {
+			if (HadoopCluster.verifyCluster()) {
 				enable(Technology.HADOOP_CLUSTER);
+			} else {
+				disable(Technology.HADOOP_CLUSTER);
 			}
-		} else {
+		} catch (Exception e) {
 			disable(Technology.HADOOP_CLUSTER);
 		}
 
@@ -948,6 +960,30 @@ public class Settings {
 
 	public void setAutoRetireInterval(int autoRetireInterval) {
 		this.autoRetireInterval = autoRetireInterval;
+	}
+
+	public Map<String, String> getColors() {
+		return colors;
+	}
+
+	public void setColors(Map<String, String> colors) {
+		this.colors = colors;
+	}
+
+	public void setGoogleAnalytics(String googleAnalytics) {
+		this.googleAnalytics = googleAnalytics;
+	}
+
+	public String getGoogleAnalytics() {
+		return googleAnalytics;
+	}
+	
+	public void setMaxDownloads(int maxDownloads) {
+		this.maxDownloads = maxDownloads;
+	}
+	
+	public int getMaxDownloads() {
+		return maxDownloads;
 	}
 
 }

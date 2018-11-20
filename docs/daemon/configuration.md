@@ -1,7 +1,7 @@
 
 # Configuration
 
-This page helps you to configure Cloudgene and describes all parameters of the `settings.yaml`file.
+This page helps you to configure Cloudgene and describes all parameters of the `settings.yaml`file. When you change a parameter in the file, you have to **restart** your Cloudgene instance to see the change in action.
 
 
 ## Database connection
@@ -90,6 +90,19 @@ removeHdfsWorkspace: true
 hdfsAppWorkspace: cloudgene/apps
 ```
 
+## Downloads
+
+For security reasons, files can be downloaded 10 times. Users will get an error message, when this number is succeeded. The maximal number of downloads can be increased or set to `-1` in order to allow unlimited downloads:
+
+
+```yaml
+# max number of downloads [default: 10]
+# use -1 for unlimited downloads
+maxDownloads: 10
+```
+
+Download counters can also be deactivated for specific jobs in the [Admin Panel](jobs.md#completed-jobs).
+
 ## Queue
 
 Cloudgene manages two different queues to execute setup steps and workflow steps for a job. The number of jobs which are executed in parallel can be set for each queue independently:
@@ -114,7 +127,7 @@ retireAfter: 6
 notificationAfter: 4
 # perform retire as a cronjob [default: false].
 autoRetire: true
-# perform retire cronjobevery x hours [default: 5].
+# perform retire cronjob every x hours [default: 5].
 autoRetireInterval: 5
 
 ```

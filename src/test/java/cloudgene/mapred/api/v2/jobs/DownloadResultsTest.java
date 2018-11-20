@@ -8,7 +8,6 @@ import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.junit.JobsApiTestCase;
 import cloudgene.mapred.util.junit.TestCluster;
 import cloudgene.mapred.util.junit.TestServer;
@@ -225,9 +224,10 @@ public class DownloadResultsTest extends JobsApiTestCase {
 		String path1 = ouput.getJSONArray("files").getJSONObject(0)
 				.getString("path");
 		assertEquals(id + "/output/file1.txt", path1);
-
+		
+		int maxDownloads = TestServer.getInstance().getSettings().getMaxDownloads();		
 		// download file max_download
-		for (int i = 0; i < CloudgeneJob.MAX_DOWNLOAD; i++) {
+		for (int i = 0; i < maxDownloads; i++) {
 			String content1 = downloadResults(path1);
 			assertEquals("lukas_text", content1);
 		}

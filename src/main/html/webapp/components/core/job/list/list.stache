@@ -1,0 +1,67 @@
+<div class="page-header card-shadow">
+  <div class="bg-white bd-content py-1 container">
+    <h2>Jobs</h2>
+    <b>{{jobs.count}}</b> jobs submitted.
+  </div>
+</div>
+<br>
+<div class="container">
+  <div class="">
+
+    {{#jobs}}
+
+      <div class="card card-shadow mb-12 mt-4 job-{{stateAsClass}}" {{data 'job'}}>
+
+        <div class="card-body">
+
+          <div class="d-flex justify-content-between align-items-center">
+
+            <!--
+            <div>
+            <span class="status-xs badge badge-{{stateAsClass}}"><i class="{{stateAsImage}}"></i></span> {{stateAsText}}
+            <div>
+            -->
+            <span class="status-xs badge badge-{{stateAsClass}}"><i class="{{stateAsImage}}"></i></span>
+
+            <div class="flex-grow-1">
+              <b><a href="#!jobs/{{id}}">{{name}}</a></b><br>
+              <small class="text-muted"><i class="far fa-clock"></i> {{prettyDate(submittedOn)}}&nbsp;&nbsp;<i class="far fa-hourglass"></i> {{prettyTime(executionTime)}}&nbsp;&nbsp;<i class="fas fa-tag"></i> {{application}}</small>
+            </div>
+
+            {{#canCancel}}
+              <a class="btn btn-light cancel-btn" role="button" data-toggle="tooltip" data-placement="bottom" title="Cancel job"><i class="fas fa-times"></i></a>
+            {{/canCancel}}
+            {{#canDelete}}
+              <a class="btn btn-light delete-btn" role="button" data-toggle="tooltip" data-placement="bottom" title="Delete job"><i class="fas fa-trash"></i></a>
+            {{/canDelete}}
+
+
+
+          </div>
+
+        </div>
+
+      </div>
+    {{/jobs}}
+
+  </div>
+<br>
+  <div class="mx-auto">
+    <ul class="mx-auto pagination">
+      <li class="page-item {{^if(jobs.prev)}}disabled{{/if}}">
+        <a class="page-link" href="#!pages/jobs/{{jobs.prev}}" aria-label="Previous">
+          <span aria-hidden="true">&larr; Previous</span>
+        </a>
+      </li>
+      {{#jobs.pages}}
+        <li class="{{#is(., jobs.page)}}page-item active{{/is}}"><a class="page-link" href="#!pages/jobs/{{.}}">{{.}}</a></li>
+      {{/jobs.pages}}
+      <li class="page-item {{^if(jobs.next)}}disabled{{/if}}">
+        <a class="page-link" href="#!pages/jobs/{{jobs.next}}" aria-label="Next">
+          <span aria-hidden="true">Next &rarr;</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <br><br>
+</div>

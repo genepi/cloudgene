@@ -1,0 +1,23 @@
+<h4>Permissions</h4>
+<p>Users have to be part of this group to get access to application <b>{{application.wdlApp.name}}</b>.</p>
+<form>
+
+  <select name="group" id="group" class="form-control" value:bind="selection.group">
+    {{#groups}}
+      <option value="{{name}}">
+        {{name}}
+      </option>
+    {{/groups}}
+    <option disabled="disabled">--------------------</option>
+    <option value="" style="font-style: italic;">
+      New Group...
+    </option>
+  </select>
+
+{{#is(selection.group, '')}}
+<p><br><b>New Group</b><br>
+  <input class="form-control" id="name" name="name" value:bind="selection.name" value="">
+</p>
+{{/is}}
+
+</form>

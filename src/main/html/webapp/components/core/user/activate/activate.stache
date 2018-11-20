@@ -1,0 +1,13 @@
+<h2>Sign up</h2>
+<br>
+{{#data.success}}
+    <div class="alert alert-success" id="success-message">
+    <b>Well done!</b> Your account is now active. <a href="/">Login now</a>.
+    <br>
+    </div>
+{{else}}
+    <div class="alert alert-error" id="success-message">
+    <b>Oh snap!</b> {{data.message}}
+    <br>
+    </div>
+{{/data.success}}

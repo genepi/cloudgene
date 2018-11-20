@@ -128,6 +128,11 @@ public class Apps extends BaseResource {
 
 		}
 
+		if (!user.isAdmin()) {
+			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+			return new StringRepresentation("The request requires administration rights.");
+		}
+		
 		String reload = getQueryValue("reload");
 		if (reload != null && reload.equals("true")) {
 			getSettings().reloadApplications();
