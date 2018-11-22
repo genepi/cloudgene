@@ -7,13 +7,13 @@ This guide helps you to start Cloudgene and to install your first application. Y
 The webserver can be started with the following command:
 
 ```sh
-cloudgene server
+./cloudgene server
 ```
 
 The webservice is available on [http://localhost:8082](http://localhost:8082). Please use username `admin` and password `admin1978` to login. You can use the `--port` flag to change the port from `8082` to `8085`:
 
 ```sh
-cloudgene server --port 8085
+./cloudgene server --port 8085
 ```
 
 The default port can also be changed in the [configuration file](configuration.md#web-application).
