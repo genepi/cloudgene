@@ -40,12 +40,6 @@ var routes = [{
     template: 'static/contact.stache'
   }
 }, {
-  path: 'pages/help',
-  control: StaticPage,
-  options: {
-    template: 'static/help.stache'
-  }
-}, {
   path: 'pages/login',
   control: UserLoginControl,
 }, {
@@ -109,7 +103,7 @@ Server.findOne({}, function(server) {
   new RouterControl("#content", {
     routes: routes,
     appState: server,
-    classes: 'bg-white bd-content py-5 container bg-white',
+    classes: 'container page my-5 p-5',
     forbidden: {
       control: ErrorPage,
       options: {

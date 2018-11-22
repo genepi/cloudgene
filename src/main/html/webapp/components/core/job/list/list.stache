@@ -1,5 +1,5 @@
-<div class="page-header card-shadow">
-  <div class="bg-white bd-content py-1 container">
+<div class="page-header">
+  <div class="py-1 container">
     <h2>Jobs</h2>
     <b>{{jobs.count}}</b> jobs submitted.
   </div>

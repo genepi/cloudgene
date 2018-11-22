@@ -1,5 +1,5 @@
-<div class="page-header card-shadow">
-	<div class="bg-white bd-content py-1 container">
+<div class="page-header">
+	<div class="py-1 container">
 		<!--
 		<div>
 			<a href="#!pages/jobs">jobs</a> <span class="text-muted">/ {{job.id}}</span></a>
@@ -59,7 +59,7 @@
 	</div>
 </div>
 {{^is(tab,'')}}
-<div class="bd-content py-5 container">
+<div class="py-5 container">
 <div class="tabbable">
 
 	<ul class="nav nav-tabs">
