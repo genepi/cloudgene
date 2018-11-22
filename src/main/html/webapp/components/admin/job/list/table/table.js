@@ -6,6 +6,7 @@ import bootbox from 'bootbox';
 import 'helpers/helpers';
 
 import ErrorPage from 'helpers/error-page';
+import showErrorDialog from 'helpers/error-dialog';
 import 'helpers/helpers';
 import JobAdminDetails from 'models/job-admin-details';
 import JobOperation from 'models/job-operation';
@@ -35,7 +36,24 @@ export default Control.extend({
 
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
-        job.destroy();
+
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
+
+        job.destroy(function() {
+          // go to jobs page
+          bootbox.hideAll();
+          window.location.hash = "!pages/jobs";
+        }, function(response) {
+          bootbox.hideAll();
+          showErrorDialog("Job could not be deleted", response);
+        });
+
+        return false;
+
       }
     });
 
@@ -43,26 +61,26 @@ export default Control.extend({
 
   '.cancel-btn click': function(el, ev) {
 
-    var element = this.element;
-
     var tr = $(el).closest('tr');
     var job = domData.get.call(tr[0], 'job');
 
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
-        // cancel
 
-        $("a[data-handler='1']").button('loading');
-        $("a[data-handler='0']").hide('hide');
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
 
         var operation = new JobOperation();
         operation.attr('id', job.attr('id'));
         operation.attr('action', 'cancel');
         operation.save(function() {
-          // go to jobs page
           bootbox.hideAll();
         }, function(response) {
-          new ErrorPage(element, response);
+          bootbox.hideAll();
+          showErrorDialog("Job could not be canceld", response);
         });
 
         return false;
@@ -81,8 +99,8 @@ export default Control.extend({
         bootbox.alert(data);
         that.init(that.element, that.options);
       },
-      function(data) {
-        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      function(response) {
+        showErrorDialog("Operation failed", response);
       });
   },
 
@@ -98,8 +116,8 @@ export default Control.extend({
             bootbox.alert(data);
             that.init(that.element, that.options);
           },
-          function(data) {
-            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+          function(response) {
+            showErrorDialog("Operation failed", response);
           });
       }
     });
@@ -112,8 +130,8 @@ export default Control.extend({
       function(data) {
         bootbox.alert(data);
       },
-      function(data) {
-        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      function(response) {
+        showErrorDialog("Operation failed", response);
       });
   },
 
@@ -124,8 +142,8 @@ export default Control.extend({
       function(data) {
         bootbox.alert(data);
       },
-      function(data) {
-        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      function(response) {
+        showErrorDialog("Operation failed", response);
       });
   },
 
@@ -139,8 +157,8 @@ export default Control.extend({
         bootbox.alert(data);
         that.init(that.element, that.options);
       },
-      function(data) {
-        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+      function(response) {
+        showErrorDialog("Operation failed", response);
       });
   },
 
@@ -159,8 +177,8 @@ export default Control.extend({
               bootbox.alert(data);
               that.init(that.element, that.options);
             },
-            function(data) {
-              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+            function(response) {
+              showErrorDialog("Operation failed", response);
             });
         }
       }

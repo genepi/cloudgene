@@ -3,6 +3,8 @@ import Control from 'can-control';
 import bootbox from 'bootbox';
 
 import ErrorPage from 'helpers/error-page';
+import showErrorDialog from 'helpers/error-dialog';
+
 import Job from 'models/job';
 import JobDetails from 'models/job-details';
 import JobOperation from 'models/job-operation';
@@ -76,15 +78,19 @@ export default Control.extend({
     bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
-        $("a[data-handler='1']").button('loading');
-        $("a[data-handler='0']").hide('hide');
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
 
         that.job.destroy(function() {
           // go to jobs page
           bootbox.hideAll();
           window.location.hash = "!pages/jobs";
         }, function(response) {
-          new ErrorPage(that.element, response);
+          bootbox.hideAll();
+          showErrorDialog("Job could not be deleted", response);
         });
 
         return false;
@@ -102,8 +108,11 @@ export default Control.extend({
     bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
-        $("a[data-handler='1']").button('loading');
-        $("a[data-handler='0']").hide('hide');
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
 
         var operation = new JobOperation();
         operation.attr('id', that.job.attr('id'));
@@ -112,7 +121,8 @@ export default Control.extend({
           bootbox.hideAll();
           that.refresh();
         }, function(response) {
-          new ErrorPage(that.element, response);
+          bootbox.hideAll();
+          showErrorDialog("Job could not be canceld", response);
         });
 
         return false;
@@ -128,8 +138,11 @@ export default Control.extend({
     bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
       if (result) {
 
-        $("a[data-handler='1']").button('loading');
-        $("a[data-handler='0']").hide('hide');
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
 
         var operation = new JobOperation();
         operation.attr('id', that.job.attr('id'));
@@ -138,7 +151,8 @@ export default Control.extend({
           bootbox.hideAll();
           window.location.hash = "#!pages/jobs";
         }, function(response) {
-          new ErrorPage(that.element, response);
+          bootbox.hideAll();
+          showErrorDialog("Job could not be restarted", response);
         });
 
         return false;

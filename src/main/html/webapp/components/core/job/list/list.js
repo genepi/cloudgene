@@ -5,6 +5,7 @@ import bootbox from 'bootbox';
 
 import 'helpers/helpers';
 import ErrorPage from 'helpers/error-page';
+import showErrorDialog from 'helpers/error-dialog';
 import Job from 'models/job';
 import JobOperation from 'models/job-operation';
 
@@ -50,16 +51,18 @@ export default Control.extend({
     bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
 
-        $("a[data-handler='1']").button('loading');
-        $("a[data-handler='0']").hide('hide');
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
 
-        var that = this;
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
 
         job.destroy(function() {
-          // go to jobs page
           bootbox.hideAll();
         }, function(response) {
-          new ErrorPage(that.element, response);
+          bootbox.hideAll();
+          showErrorDialog("Job could not be deleted", response);
         });
 
         return false;
@@ -71,26 +74,27 @@ export default Control.extend({
   },
 
   '.cancel-btn click': function(el, ev) {
-    var element = this.element;
 
     var card = $(el).closest('.card');
     var job = domData.get.call(card[0], 'job');
 
     bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
       if (result) {
-        // cancel
 
-        $("a[data-handler='1']").button('loading');
-        $("a[data-handler='0']").hide('hide');
+        var okButton = $("button[data-bb-handler='confirm']");
+        okButton.prop('disabled', true);
+        okButton.html('Please wait...');
+        var cancelButton = $("button[data-bb-handler='cancel']");
+        cancelButton.hide('hide');
 
         var operation = new JobOperation();
         operation.attr('id', job.attr('id'));
         operation.attr('action', 'cancel');
         operation.save(function() {
-          // go to jobs page
           bootbox.hideAll();
         }, function(response) {
-          new ErrorPage(element, response);
+          bootbox.hideAll();
+          showErrorDialog("Job could not be canceld", response);
         });
 
         return false;
