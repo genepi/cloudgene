@@ -25,12 +25,12 @@ stache.registerHelper('truncate', function(str, len) {
 });
 
 String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
+  var target = this;
+  return target.replace(new RegExp(search, 'g'), replacement);
 };
 
 stache.registerHelper('replaceNL', function(value, total) {
-  return value.replaceAll('\n','<br>');
+  return value.replaceAll('\n', '<br>');
 });
 
 
@@ -70,10 +70,10 @@ stache.registerHelper('prettyDate', function(unixTimestamp) {
 });
 
 stache.registerHelper('isImage', function(str, options) {
-  var image = str.endsWith('png') ||  str.endsWith('jpg') || str.endsWith('gif');
-  if (image){
+  var image = str.endsWith('png') || str.endsWith('jpg') || str.endsWith('gif');
+  if (image) {
     return options.fn();
-  }else{
+  } else {
     return options.inverse();
   }
 });
@@ -81,12 +81,12 @@ stache.registerHelper('isImage', function(str, options) {
 stache.registerHelper('isParamChecked', function(param, options) {
   var value = param.attr('value');
   var result = options.inverse();
-  param.attr('values').each(function(item){
-    if (item.attr('key') === 'true'){
-      if (item.attr('value') === value){
+  param.attr('values').each(function(item) {
+    if (item.attr('key') === 'true') {
+      if (item.attr('value') === value) {
         result = options.fn();
         return;
-      }else{
+      } else {
         result = options.inverse();
         return;
       }
@@ -97,22 +97,31 @@ stache.registerHelper('isParamChecked', function(param, options) {
 
 stache.registerHelper('getParamTrueValue', function(param, options) {
   var result = '??';
-  param.attr('values').each(function(item){
-    if (item.attr('key') === 'true'){
-        result = item.attr('value');
-        return;
-      }
+  param.attr('values').each(function(item) {
+    if (item.attr('key') === 'true') {
+      result = item.attr('value');
+      return;
+    }
   });
   return result;
 });
 
 stache.registerHelper('getParamFalseValue', function(param, options) {
   var result = '??';
-  param.attr('values').each(function(item){
-    if (item.attr('key') === 'false'){
-        result = item.attr('value');
-        return;
-      }
+  param.attr('values').each(function(item) {
+    if (item.attr('key') === 'false') {
+      result = item.attr('value');
+      return;
+    }
   });
   return result;
+});
+
+
+stache.registerHelper('div', function(a, b, options) {
+  if (a) {
+    return Math.round(a / b * 10) / 10;
+  } else {
+    return 0;
+  }
 });
