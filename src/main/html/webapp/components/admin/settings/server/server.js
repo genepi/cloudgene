@@ -7,6 +7,7 @@ import Cluster from 'models/cluster';
 import Template from 'models/template';
 
 import template from './server.stache';
+import showErrorDialog from 'helpers/error-dialog';
 
 
 export default Control.extend({
@@ -45,8 +46,8 @@ export default Control.extend({
             $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
               bootbox.alert(data);
               that.init(element, that.options);
-            }, function(data) {
-              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+            }, function(response) {
+              showErrorDialog("Operation failed", response);
             });
 
           }
@@ -63,8 +64,8 @@ export default Control.extend({
     $.get('api/v2/admin/server/maintenance/exit').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
-    }, function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+    }, function(response) {
+      showErrorDialog("Operation failed", response);
     });
   },
 
@@ -77,8 +78,8 @@ export default Control.extend({
     $.get('api/v2/admin/server/queue/block').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
-    }, function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+    }, function(response) {
+      showErrorDialog("Operation failed", response);
     });
   },
 
@@ -87,9 +88,10 @@ export default Control.extend({
     $.get('api/v2/admin/server/queue/open').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
-    }, function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+    }, function(response) {
+      showErrorDialog("Operation failed", response);
     });
+
   },
 
   "#retire-btn click": function() {
@@ -97,10 +99,9 @@ export default Control.extend({
     $.get('api/v2/admin/jobs/retire').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
-    }, function(data) {
-      bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+    }, function(response) {
+      showErrorDialog("Operation failed", response);
     });
   }
-
 
 });

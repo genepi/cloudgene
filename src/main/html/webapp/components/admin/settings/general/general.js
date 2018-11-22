@@ -5,7 +5,7 @@ import bootbox from 'bootbox';
 import Settings from 'models/settings';
 
 import template from './general.stache';
-
+import showErrorDialog from 'helpers/error-dialog';
 
 export default Control.extend({
 
@@ -30,9 +30,13 @@ export default Control.extend({
     this.settings.attr('background-color', $(form).find("[name='background-color']").val());
     this.settings.attr('foreground-color', $(form).find("[name='foreground-color']").val());
     this.settings.attr('google-analytics', $(form).find("[name='google-analytics']").val());
-    this.settings.save();
+    this.settings.save(function(data) {
+      bootbox.alert("Settings updated.");
+    }, function(response) {
+      showErrorDialog("Settings not updated", response);
+    });
 
-    bootbox.alert("Settings updated.");
+
   }
 
 });

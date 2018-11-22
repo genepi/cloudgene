@@ -7,6 +7,7 @@ import ErrorPage from 'helpers/error-page';
 import Template from 'models/template';
 
 import template from './templates.stache';
+import showErrorDialog from 'helpers/error-dialog';
 
 
 export default Control.extend({
@@ -35,7 +36,9 @@ export default Control.extend({
         if (result) {
           var text = $('#message').val();
           template.attr('text', text);
-          template.save();
+          template.save(function(data) {}, function(response) {
+            showErrorDialog("Operation failed", response);
+          });
         }
       });
 

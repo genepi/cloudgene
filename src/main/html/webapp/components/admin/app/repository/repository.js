@@ -1,6 +1,7 @@
 import Control from 'can-control';
 import $ from 'jquery';
 import bootbox from 'bootbox';
+import showErrorDialog from 'helpers/error-dialog';
 
 import Application from 'models/application';
 import CloudgeneApplication from 'models/cloudgene-application';
@@ -24,6 +25,7 @@ export default Control.extend({
         $.each(applications, function(index, application) {
           var installed = installedId.includes(application.attr('id'));
           application.attr('installed', installed);
+
         });
 
         $(element).html(template({
@@ -62,9 +64,9 @@ export default Control.extend({
           location.reload();
         });
 
-      }, function(data) {
+      }, function(response) {
         waitingDialog.modal('hide');
-        bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+        showErrorDialog("Operation failed", response);
       });
     });
     waitingDialog.modal('show');

@@ -9,6 +9,7 @@ import User from 'models/user';
 import Group from 'models/group';
 
 import template from './list.stache';
+import showErrorDialog from 'helpers/error-dialog';
 
 
 export default Control.extend({
@@ -45,11 +46,12 @@ export default Control.extend({
   '.delete-user-btn click': function(el, ev) {
     var tr = $(el).closest('tr');
     var user = domData.get.call(tr[0], 'user');
-    console.log(user.attr('id'));
 
     bootbox.confirm("Are you sure you want to delete <b>" + user.attr('username') + "</b>?", function(result) {
       if (result) {
-        user.destroy();
+        user.destroy(function(data) {}, function(response) {
+          showErrorDialog("User not deleted", response);
+        });
       }
     });
 
@@ -93,7 +95,12 @@ export default Control.extend({
               var text = checked.join(',');
               user.attr('role',
                 text);
-              user.save();
+              user.save(function(data) {
+
+                },
+                function(response) {
+                  showErrorDialog("User not deleted", response);
+                });
             }
           }
         );
@@ -112,7 +119,7 @@ export default Control.extend({
     var query = $(this.element).find('#query');
     if (query.val() != '') {
       window.location.href = "#!pages/users/search/" + query.val();
-    }else{
+    } else {
       window.location.href = "#!pages/users";
     }
 

@@ -5,6 +5,7 @@ import bootbox from 'bootbox';
 import Settings from 'models/settings';
 
 import template from './mail.stache';
+import showErrorDialog from 'helpers/error-dialog';
 
 
 export default Control.extend({
@@ -36,9 +37,12 @@ export default Control.extend({
     this.settings.attr('mail-password', $(form).find("[name='mail-password']").val());
     this.settings.attr('mail-name', $(form).find("[name='mail-name']").val());
     this.settings.attr('piggene', $(form).find("[name='piggene']").val());
-    this.settings.save();
+    this.settings.save(function(data) {
+      bootbox.alert("E-Mail configuration updated.");
+    }, function(response) {
+      showErrorDialog("E-Mail configuration not updated", response);
+    });
 
-    bootbox.alert("E-Mail configuration updated.");
 
   }
 

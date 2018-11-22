@@ -4,6 +4,7 @@ import canMap from 'can-map';
 import 'helpers/helpers';
 import $ from 'jquery';
 import bootbox from 'bootbox';
+import showErrorDialog from 'helpers/error-dialog';
 
 import Application from 'models/application';
 import Group from 'models/group';
@@ -55,9 +56,9 @@ export default Control.extend({
                 location.reload();
               });
 
-            }, function(data) {
+            }, function(response) {
               waitingDialog.modal('hide');
-              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+              showErrorDialog("Operation failed", response);
             });
           });
 
@@ -93,9 +94,9 @@ export default Control.extend({
                 location.reload();
               });
 
-            }, function(data) {
+            }, function(response) {
               waitingDialog.modal('hide');
-              bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+              showErrorDialog("Operation failed", response);
             });
           });
 
@@ -142,9 +143,9 @@ export default Control.extend({
             waitingDialog.modal('hide');
             bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully ' + (enabled ? 'enabled' : 'disabled') + '.</p>');
 
-          }, function(data) {
+          }, function(response) {
             waitingDialog.modal('hide');
-            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+            showErrorDialog("Operation failed", response);
           });
         });
         waitingDialog.modal('show');
@@ -176,9 +177,9 @@ export default Control.extend({
             waitingDialog.modal('hide');
             bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
 
-          }, function(data) {
+          }, function(response) {
             waitingDialog.modal('hide');
-            bootbox.alert('<p class="text-danger">Operation failed.</p>' + data.responseText);
+            showErrorDialog("Operation failed", response);
           });
 
         });
@@ -210,14 +211,21 @@ export default Control.extend({
               var group = selection.attr('group');
               if (group !== '') {
                 application.attr('permission', group);
-                application.save();
+                application.save(function(data) {},
+                  function(response) {
+                    showErrorDialog("Operation failed", response);
+                  });
               } else {
                 var name = selection.attr('name');
                 if (name !== '') {
                   application.attr('permission', name);
-                  application.save();
+                  application.save(function(data) {},
+                    function(response) {
+                      showErrorDialog("Operation failed", response);
+                    });
+
                 } else {
-                  bootbox.alert("Please enter a name for the new group.")
+                  bootbox.alert("Error: Please enter a name for the new group.")
                 }
               }
 
@@ -231,11 +239,14 @@ export default Control.extend({
 
     var card = $(el).closest('.card');
     var application = domData.get.call(card[0], 'application');
-    bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafile in HDFS are deleted and reimported on next job run.</p>',
+    bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafiles in HDFS are deleted and reimported on next job run.</p>',
       function(result) {
         if (result) {
           application.attr('reinstall', 'true');
-          application.save();
+          application.save(function(data) {},
+            function(response) {
+              showErrorDialog("Operation failed", response);
+            });
         }
       });
 
@@ -251,6 +262,6 @@ export default Control.extend({
       env += property + '=' + application.attr('environment').attr(property) + '\n';
     }
 
-    bootbox.alert('<h5>File</h5><p>' + application.attr('filename') + '</p><h5>Stauts</h5><p>'+application.attr('state')+'</p>' + '<h5>Environment Variables</h5><p><pre><code>' + env + '</pre></code></p>' + '<h5>Source</h5><p><pre><code>' + application.attr('source') + '</code></pre></p>');
+    bootbox.alert('<h5>File</h5><p>' + application.attr('filename') + '</p><h5>Status</h5><p>' + application.attr('state') + '</p>' + '<h5>Environment Variables</h5><p><pre><code>' + env + '</pre></code></p>' + '<h5>Source</h5><p><pre><code>' + application.attr('source') + '</code></pre></p>');
   }
 });
