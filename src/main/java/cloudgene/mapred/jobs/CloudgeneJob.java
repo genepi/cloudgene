@@ -40,6 +40,8 @@ public class CloudgeneJob extends AbstractJob {
 
 	private Executor executor;
 
+	public static final int MAX_DOWNLOAD = 10;
+
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
 
 	public CloudgeneJob() {
@@ -370,14 +372,17 @@ public class CloudgeneJob extends AbstractJob {
 
 				// delete hdfs workspace
 				if (isRemoveHdfsWorkspace()) {
+					if (context.getHdfsOutput() != null){
 					writeLog("Cleaning up hdfs files...");
 					HdfsUtil.delete(context.getHdfsOutput());
 					HdfsUtil.delete(context.getHdfsInput());
+					}
 				}
 			} catch (Exception e) {
 				log.warn("Warning: problems during hdfs cleanup.");
+			} catch (Error e) {
+				log.warn("Warning: problems during hdfs cleanup.");
 			}
-
 		}
 
 		return true;
@@ -510,8 +515,7 @@ public class CloudgeneJob extends AbstractJob {
 				download.setSize(item.getSize());
 				download.setHash(hash);
 				download.setParameter(out);
-				int maxDownloads = getSettings().getMaxDownloads();
-				download.setCount(maxDownloads);
+				download.setCount(MAX_DOWNLOAD);
 				files.add(download);
 			}
 			Collections.sort(files);

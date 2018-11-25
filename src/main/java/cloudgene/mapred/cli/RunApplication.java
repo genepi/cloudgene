@@ -27,7 +27,6 @@ import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
 import genepi.hadoop.HadoopCluster;
-import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
@@ -233,7 +232,12 @@ public class RunApplication extends BaseTool {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String id = "job-" + sdf.format(new Date());
-		String hdfs = HdfsUtil.path("cloudgene-cli", id);
+		String hdfs = "";
+		try {
+			hdfs = HdfsUtil.path("cloudgene-cli", id);
+		} catch (NoClassDefFoundError e) {
+
+		}
 		String local = FileUtil.path(id);
 
 		if (line.hasOption("output")) {

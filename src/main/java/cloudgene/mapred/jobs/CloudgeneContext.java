@@ -1,9 +1,5 @@
 package cloudgene.mapred.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -16,8 +12,9 @@ import java.util.Vector;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.wdl.WdlParameter;
-import cloudgene.mapred.wdl.WdlParameterOutputType;
+import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.common.WorkflowContext;
+import genepi.io.FileUtil;
 
 public class CloudgeneContext extends WorkflowContext {
 
@@ -57,8 +54,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private Map<String, String> config;
 
-	private int chunks = 0;
-
 	public CloudgeneContext(CloudgeneJob job) {
 
 		this.workingDirectory = job.getWorkingDirectory();
@@ -71,11 +66,13 @@ public class CloudgeneContext extends WorkflowContext {
 
 		workspace = job.getHdfsWorkspace();
 
-		hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "temp"));
-
-		hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
-
-		hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
+		try {
+			hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "temp"));
+			hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
+			hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
+		} catch (Error e) {
+			log("No hdfs folders created.");
+		}
 
 		localOutput = new File(job.getLocalWorkspace()).getAbsolutePath();
 
@@ -112,6 +109,8 @@ public class CloudgeneContext extends WorkflowContext {
 			try {
 				HdfsUtil.delete(getHdfsTemp());
 			} catch (Exception e) {
+				System.out.println("Warning: problems during hdfs init.");
+			} catch (Error e) {
 				System.out.println("Warning: problems during hdfs init.");
 			}
 		}
@@ -455,16 +454,6 @@ public class CloudgeneContext extends WorkflowContext {
 		} else {
 			return null;
 		}
-	}
-
-	public void addFile(String filename) {
-		chunks++;
-		String chunkFolder = FileUtil.path(getLocalOutput(), "chunks");
-		String chunkFilename = "chunk_" + chunks + ".html";
-		FileUtil.createDirectory(chunkFolder);
-
-		FileUtil.copy(filename, FileUtil.path(chunkFolder, chunkFilename));
-		message(chunkFilename, 27);
 	}
 
 }
