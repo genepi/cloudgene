@@ -12,13 +12,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.hadoop.mapred.ClusterStatus;
 
 import com.esotericsoftware.yamlbeans.YamlException;
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -26,13 +21,12 @@ import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.HadoopCluster;
-import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
+import genepi.hadoop.HadoopCluster;
 import genepi.hadoop.HadoopUtil;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
@@ -211,10 +205,9 @@ public class RunApplication extends BaseTool {
 
 		// print summary and warnigns
 		if (settings.isEnable(Technology.HADOOP_CLUSTER)) {
-			ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
-			int nodes = details.getActiveTrackerNames().size();
-			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMaxMapTasks()
-					+ " map tasks and " + details.getMaxReduceTasks() + " reduce tasks");
+			int nodes = HadoopCluster.getActiveTrackerNames().size();
+			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + HadoopCluster.getMaxMapTasks()
+					+ " map tasks and " + HadoopCluster.getMaxReduceTasks() + " reduce tasks");
 		} else {
 			printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
 		}

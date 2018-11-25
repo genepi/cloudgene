@@ -16,9 +16,9 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.junit.JobsApiTestCase;
-import cloudgene.mapred.util.junit.LoginToken;
-import cloudgene.mapred.util.junit.TestServer;
+import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.util.LoginToken;
+import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
 import genepi.io.FileUtil;
 

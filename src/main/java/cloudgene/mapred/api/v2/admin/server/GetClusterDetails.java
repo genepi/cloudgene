@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.apache.hadoop.mapred.ClusterStatus;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -23,9 +22,9 @@ import com.spotify.docker.client.exceptions.DockerException;
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.RBinary;
 import cloudgene.mapred.util.Technology;
+import genepi.hadoop.HadoopCluster;
 import genepi.hadoop.HadoopUtil;
 import net.sf.json.JSONObject;
 
@@ -90,31 +89,30 @@ public class GetClusterDetails extends BaseResource {
 					object.put("hadoop_safemode", false);
 				}
 
-				ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
 				StringBuffer state = new StringBuffer();
 				state.append("JobTracker: " + HadoopCluster.getJobTracker() + "\n");
 				state.append("Default FS: " + HadoopCluster.getDefaultFS() + "\n");
-				state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
-				state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
-				state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
+				state.append("State: " + HadoopCluster.getJobTrackerStatus().toString() + "\n");
+				state.append("MapTask: " + HadoopCluster.getMaxMapTasks() + "\n");
+				state.append("ReduceTask: " + HadoopCluster.getMaxReduceTasks() + "\n");
 				state.append("Nodes\n");
-				for (String tracker : cluster.getActiveTrackerNames()) {
+				for (String tracker : HadoopCluster.getActiveTrackerNames()) {
 					state.append("  " + tracker + "\n");
 				}
 				state.append("Blacklist:\n");
-				for (String tracker : cluster.getBlacklistedTrackerNames()) {
+				for (String tracker : HadoopCluster.getBlacklistedTrackerNames()) {
 					state.append("  " + tracker + "\n");
 				}
 				object.put("hadoop_details", state.toString());
 				object.put("hadoop_enabled", true);
 				object.put("hadoop_jobtracker", HadoopCluster.getJobTracker());
 				object.put("hadoop_hdfs", HadoopCluster.getDefaultFS());
-				object.put("hadoop_map_tasks", cluster.getMaxMapTasks());
-				object.put("hadoop_reduce_tasks", cluster.getMaxReduceTasks());
-				object.put("hadoop_active_nodes", cluster.getActiveTrackerNames().size());
-				object.put("hadoop_inactive_nodes", cluster.getBlacklistedTrackerNames().size());
+				object.put("hadoop_map_tasks", HadoopCluster.getMaxMapTasks());
+				object.put("hadoop_reduce_tasks", HadoopCluster.getMaxReduceTasks());
+				object.put("hadoop_active_nodes", HadoopCluster.getActiveTrackerNames().size());
+				object.put("hadoop_inactive_nodes", HadoopCluster.getBlacklistedTrackerNames().size());
 				object.put("hadoop_nodes",
-						cluster.getActiveTrackerNames().size() + cluster.getBlacklistedTrackerNames().size());
+						HadoopCluster.getActiveTrackerNames().size() + HadoopCluster.getBlacklistedTrackerNames().size());
 			} catch (Exception e) {
 				object.put("hadoop_enabled", false);
 				object.put("hadoop_error", "Hadoop cluster is unreachable");

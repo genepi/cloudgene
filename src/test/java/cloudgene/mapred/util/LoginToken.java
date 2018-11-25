@@ -1,4 +1,4 @@
-package cloudgene.mapred.util.junit;
+package cloudgene.mapred.util;
 
 import org.restlet.data.CookieSetting;
 

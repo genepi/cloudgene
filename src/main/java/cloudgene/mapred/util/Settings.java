@@ -31,6 +31,7 @@ import com.spotify.docker.client.exceptions.DockerException;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.hadoop.HadoopCluster;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -38,7 +39,7 @@ import net.lingala.zip4j.model.FileHeader;
 
 public class Settings {
 
-	private String hadoopPath = "/usr/bin/hadoop";
+	private String hadoopPath = "/usr/";
 
 	private String pigPath = "/usr/";
 

@@ -7,9 +7,9 @@ import org.json.JSONObject;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
-import cloudgene.mapred.util.junit.JobsApiTestCase;
-import cloudgene.mapred.util.junit.TestMailServer;
-import cloudgene.mapred.util.junit.TestServer;
+import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.util.TestMailServer;
+import cloudgene.mapred.util.TestServer;
 
 public class RegisterUserTest extends JobsApiTestCase {
 

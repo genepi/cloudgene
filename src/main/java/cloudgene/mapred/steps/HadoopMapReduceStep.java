@@ -10,19 +10,14 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.RunningJob;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
-import genepi.io.text.LineWriter;
 
 public class HadoopMapReduceStep extends CloudgeneStep {
 
@@ -84,36 +79,7 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 		List<String> command = new Vector<String>();
 
 		command.add(hadoop);
-		// TODO: write config and set to hadoop config
-		try {
-			FileUtil.createDirectory("temp-conf");
-			LineWriter writer = new LineWriter("temp-conf/mapred-site.xml");
-			Configuration configuration = HdfsUtil.getConfiguration();
-			writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-			writer.write("<configuration>");
-			writer.write("<property><name>mapred.job.tracker</name><value>" + configuration.get("mapred.job.tracker")
-					+ "</value></property>");
-			writer.write("</configuration>");
-			writer.close();
-
-			writer = new LineWriter("temp-conf/core-site.xml");
-			writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
-			writer.write("<configuration>");
-			writer.write("<property><name>fs.default.name</name><value>" + configuration.get("fs.defaultFS")
-					+ "</value></property>");
-			writer.write("</configuration>");
-			writer.close();
-
-			// HdfsUtil.getConfiguration().writeXml(new
-			// FileOutputStream("temp-conf/mapred-default.xml"));
-
-			command.add("--config");
-			command.add(new File("temp-conf").getAbsolutePath());
-
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		
 		// -fs and -jt and -config are supported by generic tool runner.
 
 		command.add("jar");
@@ -262,7 +228,7 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 	@Override
 	public void updateProgress() {
 
-		RunningJob job = HadoopUtil.getInstance().getJob(jobId);
+		/*RunningJob job = HadoopUtil.getInstance().getJob(jobId);
 		if (job != null) {
 
 			try {
@@ -283,7 +249,7 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 		} else {
 			map = 0;
 			reduce = 0;
-		}
+		}*/
 
 	}
 

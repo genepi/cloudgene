@@ -16,7 +16,7 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.junit.TestServer;
+import cloudgene.mapred.util.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 
