@@ -54,6 +54,8 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private Map<String, String> config;
 
+	private int chunks = 0;
+	
 	public CloudgeneContext(CloudgeneJob job) {
 
 		this.workingDirectory = job.getWorkingDirectory();
@@ -455,5 +457,16 @@ public class CloudgeneContext extends WorkflowContext {
 			return null;
 		}
 	}
+	
+	public void addFile(String filename) {
+		chunks++;
+		String chunkFolder = FileUtil.path(getLocalOutput(), "chunks");
+		String chunkFilename = "chunk_" + chunks + ".html";
+		FileUtil.createDirectory(chunkFolder);
+
+		FileUtil.copy(filename, FileUtil.path(chunkFolder, chunkFilename));
+		message(chunkFilename, 27);
+	}
+
 
 }
