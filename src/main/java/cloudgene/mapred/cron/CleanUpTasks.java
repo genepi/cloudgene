@@ -33,13 +33,17 @@ public class CleanUpTasks {
 				// delete local directory and hdfs directory
 				String localOutput = FileUtil.path(
 						settings.getLocalWorkspace(), job.getId());
-
-				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(
-						settings.getHdfsWorkspace(), job.getId()));
-
 				FileUtil.deleteDirectory(localOutput);
+				
+				try {
+				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(
+						settings.getHdfsWorkspace(), job.getId()));				
 				HdfsUtil.delete(hdfsOutput);
-
+				}catch (NoClassDefFoundError e) {
+					// TODO: handle exception
+				}
+				
+				
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 

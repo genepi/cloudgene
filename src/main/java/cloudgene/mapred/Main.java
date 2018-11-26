@@ -73,15 +73,15 @@ public class Main implements Daemon {
 		// configure logger
 		if (new File("config/log4j.properties").exists()) {
 
-			PropertyConfigurator.configure("config/log4j.properties");
+			PropertyConfigurator.configure("log4j.properties");
 
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 
 		} else {
 
-			if (new File("log4j.properties").exists()) {
-				PropertyConfigurator.configure("log4j.properties");
+			if (new File("config/log4j.properties").exists()) {
+				PropertyConfigurator.configure("config/log4j.properties");
 
 				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 				Engine.getInstance().setLoggerFacade(loggerFacade);

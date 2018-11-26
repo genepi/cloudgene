@@ -126,11 +126,15 @@ public class GetJobDetails extends BaseResource {
 		String localOutput = FileUtil.path(getSettings().getLocalWorkspace(),
 				job.getId());
 
+		FileUtil.deleteDirectory(localOutput);
+
+		try {
 		String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(getSettings()
 				.getHdfsWorkspace(), job.getId()));
-
-		FileUtil.deleteDirectory(localOutput);
 		HdfsUtil.delete(hdfsOutput);
+		}catch (NoClassDefFoundError e) {
+			// TODO: handle exception
+		}
 
 		// delete job from database
 		job.setState(AbstractJob.STATE_DELETED);

@@ -20,6 +20,7 @@ public class AlertJob implements Job {
 
 		// check namenode state
 
+		try {
 		boolean safemode = HadoopUtil.getInstance().isInSafeMode();
 
 		if (safemode) {
@@ -45,6 +46,9 @@ public class AlertJob implements Job {
 
 			}
 
+		}
+		}catch (NoClassDefFoundError e) {
+			// TODO: handle exception
 		}
 
 		// if (cluster.getJobTrackerStatus() == )

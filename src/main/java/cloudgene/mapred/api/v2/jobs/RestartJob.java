@@ -47,7 +47,13 @@ public class RestartJob extends BaseResource {
 
 		if (job.getState() == AbstractJob.STATE_DEAD) {
 
-			String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+			String hdfsWorkspace = "";			
+			try {
+			HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+			}catch (NoClassDefFoundError e) {
+			// TODO: handle exception
+			
+			}
 			String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 
 			job.setLocalWorkspace(localWorkspace);

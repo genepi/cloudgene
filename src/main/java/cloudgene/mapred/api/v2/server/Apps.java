@@ -159,11 +159,15 @@ public class Apps extends BaseResource {
 		WdlApp wdlApp = app.getWdlApp();
 		if (wdlApp != null) {
 			if (wdlApp.needsInstallation()) {
+				try {
 				boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
 				if (installed) {
 					jsonObject.put("state", "completed");
 				} else {
 					jsonObject.put("state", "on demand");
+				}
+				}catch (NoClassDefFoundError e) {
+					// TODO: handle exception
 				}
 			} else {
 				jsonObject.put("state", "n/a");

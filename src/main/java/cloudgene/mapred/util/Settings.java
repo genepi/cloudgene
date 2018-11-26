@@ -209,7 +209,10 @@ public class Settings {
 			if (conf != null) {
 				log.info("Use Haddop configuration folder '" + conf + "'"
 						+ (username != null ? " with username " + username : ""));
-				HadoopCluster.setConfPath(name, conf, username);
+				try {
+					HadoopCluster.setConfPath(name, conf, username);
+				}catch (NoClassDefFoundError e) {
+				}
 			}
 		}
 
