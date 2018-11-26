@@ -90,7 +90,7 @@ export default Control.extend({
     } else {
       view.addClass(this.options.classes);
     }
-    view.html('Loading...');
+    view.html('');
     this.element.append(view);
     new Control(view[0], data);
 
