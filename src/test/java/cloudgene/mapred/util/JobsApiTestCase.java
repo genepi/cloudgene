@@ -1,8 +1,7 @@
-package cloudgene.mapred.util.junit;
+package cloudgene.mapred.util;
 
 import java.io.IOException;
 
-import org.apache.avro.data.Json;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,7 +15,7 @@ import org.restlet.util.Series;
 
 import junit.framework.TestCase;
 
-public class JobsApiTestCase extends TestCase {
+public abstract class JobsApiTestCase extends TestCase {
 
 	public ClientResource createClientResource(String path) {
 

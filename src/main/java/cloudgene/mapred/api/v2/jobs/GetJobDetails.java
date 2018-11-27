@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.restlet.data.MediaType;
+import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -27,9 +28,13 @@ public class GetJobDetails extends BaseResource {
 
 	@Get
 	public Representation get(Representation entity, Variant variant) {
-
+				
 		User user = getAuthUser();
 
+		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
+			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "This functionality is currently under maintenance.");
+		}
+		
 		String id = getAttribute("job");
 
 		if (id == null) {
@@ -126,11 +131,15 @@ public class GetJobDetails extends BaseResource {
 		String localOutput = FileUtil.path(getSettings().getLocalWorkspace(),
 				job.getId());
 
+		FileUtil.deleteDirectory(localOutput);
+
+		try {
 		String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(getSettings()
 				.getHdfsWorkspace(), job.getId()));
-
-		FileUtil.deleteDirectory(localOutput);
 		HdfsUtil.delete(hdfsOutput);
+		}catch (NoClassDefFoundError e) {
+			// TODO: handle exception
+		}
 
 		// delete job from database
 		job.setState(AbstractJob.STATE_DELETED);

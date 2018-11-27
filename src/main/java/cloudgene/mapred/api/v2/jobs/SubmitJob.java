@@ -82,7 +82,14 @@ public class SubmitJob extends BaseResource {
 
 		}
 
-		String hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+		String hdfsWorkspace = "";
+		
+		try {
+			hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+		}catch (NoClassDefFoundError e) {
+			// TODO: handle exception
+		}
+		
 		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
@@ -252,6 +259,7 @@ public class SubmitJob extends BaseResource {
 			return null;
 
 		}
+		try {
 		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 			if (!params.containsKey(input.getId())) {
 				if (props.containsKey(input.getId())) {
@@ -269,6 +277,11 @@ public class SubmitJob extends BaseResource {
 			}
 		}
 
+	} catch (Exception e) {
+		e.printStackTrace();
+		throw e;
+
+	}
 		return params;
 	}
 

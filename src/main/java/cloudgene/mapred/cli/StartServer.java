@@ -1,11 +1,9 @@
 package cloudgene.mapred.cli;
 
-import org.apache.hadoop.mapred.ClusterStatus;
-
 import cloudgene.mapred.Main;
-import cloudgene.mapred.util.HadoopCluster;
 import cloudgene.mapred.util.Technology;
 import genepi.base.Tool;
+import genepi.hadoop.HadoopCluster;
 import genepi.hadoop.HadoopUtil;
 
 public class StartServer extends BaseTool {
@@ -61,10 +59,9 @@ public class StartServer extends BaseTool {
 
 			// print summary and warnigns
 			if (settings.isEnable(Technology.HADOOP_CLUSTER)) {
-				ClusterStatus details = HadoopUtil.getInstance().getClusterDetails();
-				int nodes = details.getActiveTrackerNames().size();
-				printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + details.getMaxMapTasks()
-						+ " map tasks and " + details.getMaxReduceTasks() + " reduce tasks");
+				int nodes = HadoopCluster.getActiveTrackerNames().size();
+				printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + HadoopCluster.getMaxMapTasks()
+						+ " map tasks and " + HadoopCluster.getMaxReduceTasks() + " reduce tasks");
 			} else {
 				printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
 			}

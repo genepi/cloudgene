@@ -1,8 +1,6 @@
 package cloudgene.mapred.cli;
 
-import org.apache.hadoop.mapred.ClusterStatus;
-
-import cloudgene.mapred.util.HadoopCluster;
+import genepi.hadoop.HadoopCluster;
 import genepi.hadoop.HadoopUtil;
 
 public class VerifyCluster extends BaseTool {
@@ -21,20 +19,19 @@ public class VerifyCluster extends BaseTool {
 		try {
 			HadoopCluster.verifyCluster();
 
-			ClusterStatus cluster = HadoopUtil.getInstance().getClusterDetails();
 			StringBuffer state = new StringBuffer();
 			state.append("Mode: " + (HadoopUtil.getInstance().isInSafeMode() ? "Safe Mode" : "Running"));
 			state.append("JobTracker: " + HadoopCluster.getJobTracker() + "\n");
 			state.append("Default FS: " + HadoopCluster.getDefaultFS() + "\n");
-			state.append("State: " + cluster.getJobTrackerStatus().toString() + "\n");
-			state.append("MapTask: " + cluster.getMaxMapTasks() + "\n");
-			state.append("ReduceTask: " + cluster.getMaxReduceTasks() + "\n");
+			state.append("State: " + HadoopCluster.getJobTrackerStatus().toString() + "\n");
+			state.append("MapTask: " + HadoopCluster.getMaxMapTasks() + "\n");
+			state.append("ReduceTask: " + HadoopCluster.getMaxReduceTasks() + "\n");
 			state.append("Nodes\n");
-			for (String tracker : cluster.getActiveTrackerNames()) {
+			for (String tracker : HadoopCluster.getActiveTrackerNames()) {
 				state.append("  " + tracker + "\n");
 			}
 			state.append("Blacklist:\n");
-			for (String tracker : cluster.getBlacklistedTrackerNames()) {
+			for (String tracker : HadoopCluster.getBlacklistedTrackerNames()) {
 				state.append("  " + tracker + "\n");
 			}
 			System.out.println(state.toString());

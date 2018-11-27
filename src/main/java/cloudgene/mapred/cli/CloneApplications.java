@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
-import org.restlet.data.Status;
-import org.restlet.representation.StringRepresentation;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 

@@ -11,9 +11,9 @@ import com.dumbster.smtp.SmtpMessage;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.util.junit.JobsApiTestCase;
-import cloudgene.mapred.util.junit.TestMailServer;
-import cloudgene.mapred.util.junit.TestServer;
+import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.util.TestMailServer;
+import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
 
 public class ActivateUserTest extends JobsApiTestCase {

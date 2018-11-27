@@ -37,7 +37,7 @@ import cloudgene.mapred.util.Settings;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "2.0.0-rc1";
+	public static final String VERSION = "2.0.0-rc2";
 
 	private Database database;
 
@@ -71,17 +71,17 @@ public class Main implements Daemon {
 		settings.checkTechnologies();
 
 		// configure logger
-		if (new File("config/log4j.properties").exists()) {
+		if (new File("log4j.properties").exists()) {
 
-			PropertyConfigurator.configure("config/log4j.properties");
+			PropertyConfigurator.configure("log4j.properties");
 
 			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 			Engine.getInstance().setLoggerFacade(loggerFacade);
 
 		} else {
 
-			if (new File("log4j.properties").exists()) {
-				PropertyConfigurator.configure("log4j.properties");
+			if (new File("config/log4j.properties").exists()) {
+				PropertyConfigurator.configure("config/log4j.properties");
 
 				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 				Engine.getInstance().setLoggerFacade(loggerFacade);
