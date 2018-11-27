@@ -71,7 +71,7 @@ public class Main implements Daemon {
 		settings.checkTechnologies();
 
 		// configure logger
-		if (new File("config/log4j.properties").exists()) {
+		if (new File("log4j.properties").exists()) {
 
 			PropertyConfigurator.configure("log4j.properties");
 
