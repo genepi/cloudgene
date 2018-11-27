@@ -46,7 +46,7 @@ var routes = [{
   path: 'activate/{user}/{key}',
   control: UserActivateControl
 }, {
-  path: 'pages/recovery/{user}/{key}',
+  path: 'recovery/{user}/{key}',
   control: UserPasswordRecoveryControl
 }, {
   path: 'pages/register',

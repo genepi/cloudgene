@@ -11,8 +11,8 @@ export default Control.extend({
   "init": function(element, options) {
     $(element).hide();
     $(element).html(template({
-      user: options.data.user,
-      key: options.data.key
+      user: options.user,
+      key: options.key
     }));
     $(element).fadeIn();
   },
@@ -26,14 +26,18 @@ export default Control.extend({
     var newPassword = $(element).find("[name='new-password']");
     var confirmNewPassword = $(element).find("[name='confirm-new-password']");
     var error = user.checkPassword(newPassword.val(), confirmNewPassword.val());
+
     if (error) {
-      confirmNewPassword.closest('.control-group').addClass('error');
-      confirmNewPassword.closest('.control-group').find('.help-block').html(error);
+      confirmNewPassword.removeClass('is-valid');
+      confirmNewPassword.addClass('is-invalid');
+      confirmNewPassword.closest('.form-group').find('.invalid-feedback').html(error);
       return false;
     } else {
-      confirmNewPassword.closest('.control-group').find('.help-block').html('');
-      confirmNewPassword.closest('.control-group').removeClass('error');
+      confirmNewPassword.removeClass('is-invalid');
+      confirmNewPassword.addClass('is-valid');
+      confirmNewPassword.closest('.form-group').find('.invalid-feedback').html('');
     }
+
 
     $.ajax({
       url: "/api/v2/users/update-password",

@@ -6,7 +6,7 @@
     <br>
     </div>
 {{else}}
-    <div class="alert alert-error" id="success-message">
+    <div class="alert alert-danger" id="success-message">
     <b>Oh snap!</b> {{data.message}}
     <br>
     </div>
