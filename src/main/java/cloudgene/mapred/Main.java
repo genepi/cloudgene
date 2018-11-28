@@ -37,7 +37,7 @@ import cloudgene.mapred.util.Settings;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "2.0.0-rc3";
+	public static final String VERSION = "2.0.0-rc4";
 
 	private Database database;
 
