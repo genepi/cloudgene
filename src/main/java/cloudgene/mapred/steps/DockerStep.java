@@ -3,22 +3,16 @@ package cloudgene.mapred.steps;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.LogStream;
-import com.spotify.docker.client.messages.ContainerConfig;
-import com.spotify.docker.client.messages.ContainerCreation;
-import com.spotify.docker.client.messages.ExecCreation;
-import com.spotify.docker.client.messages.ExecState;
-import com.spotify.docker.client.messages.HostConfig;
+import java.util.List;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
+import cloudgene.mapred.util.DockerCommandBuilder;
 import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
 public class DockerStep extends CloudgeneStep {
@@ -27,7 +21,6 @@ public class DockerStep extends CloudgeneStep {
 
 	public static final String DOCKER_WORKING = "/mnt/working";
 
-	
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
@@ -65,7 +58,6 @@ public class DockerStep extends CloudgeneStep {
 	}
 
 	protected boolean runInDockerContainer(CloudgeneContext context, String image, String[] cmd, boolean streamStdout) {
-		context.beginTask("Starting docker container...");
 
 		String localWorkspace = new File(context.getJob().getLocalWorkspace()).getAbsolutePath();
 
@@ -94,68 +86,45 @@ public class DockerStep extends CloudgeneStep {
 				}
 			}
 
-			// open docker connection
-			DockerClient docker = DefaultDockerClient.fromEnv().build();
-
 			if (!image.contains(":")) {
 				image = image + ":latest";
 			}
 
-			// pull image
-			docker.pull(image);
-
 			// mount workspace from host to container
 			String[] volumes = { localWorkspace + ":" + DOCKER_WORKSPACE,
 					context.getWorkingDirectory() + ":" + DOCKER_WORKING };
-			final HostConfig hostConfig = HostConfig.builder().privileged(false).binds(volumes).build();
-
-			// create container
-			final ContainerConfig containerConfig = ContainerConfig.builder().hostConfig(hostConfig)
-					.cmd("sh", "-c", "while :; do sleep 1; done").image(image).build();
-
-			ContainerCreation creation = docker.createContainer(containerConfig);
-
-			String dockerId = creation.id();
-
-			// start container
-			docker.startContainer(dockerId);
-
-			// execute command inside container
 			context.log("Command: " + Arrays.toString(newParams));
 
-			ExecCreation execCreation = docker.execCreate(dockerId, newParams,
-					DockerClient.ExecCreateParam.attachStdout(), DockerClient.ExecCreateParam.attachStderr());
-			LogStream output = docker.execStart(execCreation.id());
-			String execOutput = output.readFully();
+			DockerCommandBuilder builder = new DockerCommandBuilder();
+			List<String> command = builder.image(image).binds(volumes).command(newParams).build();
 
-			// get exit code
-			ExecState result = docker.execInspect(execCreation.id());
+			StringBuilder output = null;
+			if (streamStdout) {
+				output = new StringBuilder();
+			}
 
-			// kill container and close docker client
-			docker.killContainer(dockerId);
-			docker.removeContainer(dockerId);
-			docker.close();
-
-			context.println(execOutput);
-
-			if (result.exitCode() == 0) {
-
-				if (streamStdout) {
-					context.endTask(execOutput, Message.OK);
+			try {
+				context.beginTask("Running Command...");
+				boolean successful = executeCommand(command, context, output);
+				if (successful) {
+					if (streamStdout) {
+						context.endTask(output.toString(), Message.OK);
+					} else {
+						context.endTask("Execution successful.", Message.OK);
+					}
+					return true;
 				} else {
-					context.endTask("Execution successful.", Message.OK);
+					if (streamStdout) {
+						context.endTask(output.toString(), Message.ERROR);
+					} else {
+						context.endTask("Execution failed. Please have a look at the logfile for details.",
+								Message.ERROR);
+					}
+					return false;
 				}
-				return true;
-
-			} else {
-
-				if (streamStdout) {
-					context.endTask(execOutput, Message.ERROR);
-				} else {
-					context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
-				}
+			} catch (Exception e) {
+				e.printStackTrace();
 				return false;
-
 			}
 
 		} catch (Exception e) {

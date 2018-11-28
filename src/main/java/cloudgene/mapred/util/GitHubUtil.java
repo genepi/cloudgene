@@ -1,12 +1,11 @@
 package cloudgene.mapred.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -99,14 +98,25 @@ public class GitHubUtil {
 	}
 
 	public static String getLatestReleaseFromRepository(Repository repo) {
-		String url = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
+		
+		String urlString = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
 		try {
-	        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-	        HttpGet request = new HttpGet(url);
-	        request.addHeader("content-type", "application/json");
-	        HttpResponse result = httpClient.execute(request);
-	        String json = EntityUtils.toString(result.getEntity(), "UTF-8");
+	        //CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+	       // HttpGet request = new HttpGet(url);
+	        //request.addHeader("content-type", "application/json");
+	        //HttpResponse result = httpClient.execute(request);
+	        //String json = EntityUtils.toString(result.getEntity(), "UTF-8");
+	        
 	        //"tag_name"
+	        
+	        // Connect to the URL using java's native library
+	        URL url = new URL(urlString);
+	        URLConnection request = url.openConnection();
+	        request.setRequestProperty("content-type", "application/json");
+	        request.connect( );
+
+	        String json = readFullyAsString((InputStream) request.getContent(), "UTF-8");
+	        
 	        
 	        JsonElement jelement = new JsonParser().parse(json);
 	        JsonObject  jobject = jelement.getAsJsonObject();
@@ -117,4 +127,19 @@ public class GitHubUtil {
 	    }
 		
 	}
+	
+	
+	public static String readFullyAsString(InputStream inputStream, String encoding) throws IOException {
+        return readFully(inputStream).toString(encoding);
+    }
+
+    private static ByteArrayOutputStream readFully(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length = 0;
+        while ((length = inputStream.read(buffer)) != -1) {
+            baos.write(buffer, 0, length);
+        }
+        return baos;
+    }
 }

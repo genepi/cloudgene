@@ -157,7 +157,7 @@
 				<div class="card-body">
 					{{#cluster.docker_enabled}}
 						<h5 class="card-title"><i class="fas fa-check-circle text-success"></i> Docker</h5>
-						{{cluster.docker_details}}
+						<pre>{{cluster.docker_details}}</pre>
 					{{else}}
 						<h5 class="card-title"><i class="fas fa-times-circle text-danger"></i> Docker</h5>
 						{{cluster.docker_error}}
