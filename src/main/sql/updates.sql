@@ -85,3 +85,12 @@ alter table job add column submitted_on bigint not null default 0;
 alter table job add column finished_on bigint not null default 0;
 alter table job add column setup_start_time bigint not null default 0;
 alter table job add column setup_end_time bigint not null default 0;
+
+-- 2.0.0-rc3
+
+alter table downloads modify parameter_id INTEGER;
+create index idx_downloads_parameter_id on downloads(parameter_id);
+create index idx_parameter_job_id on parameter(job_id,input);
+create index idx_steps_job_id on steps(job_id);
+create index idx_log_messages_step_id on log_messages(step_id);
+create index idx_job_user_id on job(user_id,state);
