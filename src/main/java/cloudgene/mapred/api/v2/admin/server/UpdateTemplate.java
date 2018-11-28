@@ -37,12 +37,16 @@ public class UpdateTemplate extends BaseResource {
 		Form form = new Form(entity);
 		String text = form.getFirstValue("text");
 
-		TemplateDao dao = new TemplateDao(getDatabase());
-		dao.update(new Template(key, text));
+		Template template = new Template(key, text);
+		
+		TemplateDao dao = new TemplateDao(getDatabase());		
+		dao.update(template);
 
 		getWebApp().reloadTemplates();
 
-		return new StringRepresentation("OK.");
+		JSONObject jsonObject = JSONObject.fromObject(template);
+		return new StringRepresentation(jsonObject.toString());
+		
 	}
 	
 	@Get
