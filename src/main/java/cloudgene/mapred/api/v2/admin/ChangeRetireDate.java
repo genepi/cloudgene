@@ -9,9 +9,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.MailUtil;
-import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Template;
 
 public class ChangeRetireDate extends BaseResource {
 
@@ -36,7 +33,7 @@ public class ChangeRetireDate extends BaseResource {
 
 		int days = 0;
 		try {
-			Integer.parseInt(getAttribute("days"));
+			days = Integer.parseInt(getAttribute("days"));
 		} catch (Exception e) {
 			return error400("The provided number value '" + getAttribute("days") + "' is not an integer.");
 		}
