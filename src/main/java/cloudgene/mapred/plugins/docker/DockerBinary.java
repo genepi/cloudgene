@@ -1,11 +1,11 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.plugins.docker;
 
 import java.io.File;
 
 import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
-public class Docker {
+public class DockerBinary {
 
 	public static final String BINARY_PATH = "/usr/bin/docker";
 

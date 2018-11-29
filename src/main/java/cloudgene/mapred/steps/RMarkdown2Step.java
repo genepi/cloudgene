@@ -1,20 +1,20 @@
 package cloudgene.mapred.steps;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.command.Command;
-import genepi.hadoop.common.WorkflowContext;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.MyRScript;
-import cloudgene.mapred.util.RBinary;
-import cloudgene.mapred.util.Technology;
+import cloudgene.mapred.plugins.rscript.RScriptFile;
+import cloudgene.mapred.plugins.rscript.RScriptBinary;
+import cloudgene.mapred.plugins.rscript.RMarkdownPlugin;
+import cloudgene.mapred.plugins.rscript.RScriptPlugin;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.command.Command;
+import genepi.hadoop.common.WorkflowContext;
+import genepi.io.FileUtil;
 
 public class RMarkdown2Step extends CloudgeneStep {
 
@@ -79,14 +79,14 @@ public class RMarkdown2Step extends CloudgeneStep {
 
 		String scriptFilename = "convert_" + System.currentTimeMillis() + ".R";
 
-		MyRScript script = new MyRScript(scriptFilename);
+		RScriptFile script = new RScriptFile(scriptFilename);
 		script.append("library(knitr)");
 		script.append("library(markdown)");
 		script.append("rmarkdown::render(\"" + rmdScript + "\", output_file=\"" + outputHtml + "\")");
 
 		script.save();
 
-		Command rScript = new Command(RBinary.RSCRIPT_PATH);
+		Command rScript = new Command(RScriptBinary.RSCRIPT_PATH);
 		rScript.setSilent(true);
 
 		String[] argsForScript = new String[args.length + 1];
@@ -154,8 +154,9 @@ public class RMarkdown2Step extends CloudgeneStep {
 	}
 
 	@Override
-	public Technology[] getRequirements() {
-		return new Technology[] { Technology.R, Technology.R_MARKDOWN };
+	public String[] getRequirements() {
+		return new String[] { RScriptPlugin.ID, RMarkdownPlugin.ID };
 	}
+
 
 }

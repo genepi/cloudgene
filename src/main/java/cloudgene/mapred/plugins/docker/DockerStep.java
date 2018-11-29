@@ -1,4 +1,4 @@
-package cloudgene.mapred.steps;
+package cloudgene.mapred.plugins.docker;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,11 +8,8 @@ import java.util.List;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.DockerCommandBuilder;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
 public class DockerStep extends CloudgeneStep {
@@ -135,8 +132,9 @@ public class DockerStep extends CloudgeneStep {
 	}
 
 	@Override
-	public Technology[] getRequirements() {
-		return new Technology[] { Technology.DOCKER };
+	public String[] getRequirements() {
+		return new String[] { DockerPlugin.ID };
 	}
+
 
 }

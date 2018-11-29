@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import cloudgene.mapred.plugins.IPlugin;
+import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 
@@ -24,9 +25,10 @@ public class Environment {
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
 		// Technologies
-		environment.put("docker_installed", settings.isEnable(Technology.DOCKER) ? "true" : "false");
-		environment.put("hadoop_installed", settings.isEnable(Technology.HADOOP_CLUSTER) ? "true" : "false");
-		environment.put("r_markdown_installed", settings.isEnable(Technology.R_MARKDOWN) ? "true" : "false");
+		PluginManager manager = PluginManager.getInstance();
+		for (IPlugin plugin : manager.getPlugins()) {
+			environment.put(plugin.getId() + "_installed", manager.isEnabled(plugin) ? "true" : "false");
+		}
 
 		return environment;
 	}

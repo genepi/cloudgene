@@ -31,6 +31,7 @@ import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
@@ -68,7 +69,8 @@ public class Main implements Daemon {
 			}
 		}
 
-		settings.checkTechnologies();
+		PluginManager pluginManager = PluginManager.getInstance();
+		pluginManager.initPlugins(settings);
 
 		// configure logger
 		if (new File("log4j.properties").exists()) {

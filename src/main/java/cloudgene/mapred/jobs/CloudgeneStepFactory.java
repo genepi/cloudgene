@@ -1,7 +1,10 @@
 package cloudgene.mapred.jobs;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import cloudgene.mapred.plugins.docker.DockerStep;
 import cloudgene.mapred.steps.BashCommandStep;
-import cloudgene.mapred.steps.DockerStep;
 import cloudgene.mapred.steps.GroovyStep;
 import cloudgene.mapred.steps.HadoopMapReduceStep;
 import cloudgene.mapred.steps.HadoopPigStep;
@@ -15,16 +18,39 @@ import cloudgene.mapred.wdl.WdlStep;
 
 public class CloudgeneStepFactory {
 
-	public static String getClassname(WdlStep step) {
+	private static CloudgeneStepFactory instance = null;
+	
+	private Map<String, String> registeredClasses;
+
+	public static CloudgeneStepFactory getInstance() {
+		if (instance == null) {
+			instance = new CloudgeneStepFactory();
+		}
+		return instance;
+	}
+	
+	private CloudgeneStepFactory() {
+		registeredClasses = new HashMap<String, String>();
+	}
+	
+	public void register(String type, Class clazz) {
+		registeredClasses.put(type, clazz.getName());
+	}
+	
+	public String getClassname(WdlStep step) {
 
 		String type = step.get("type");
 
 		if (type != null) {
+			
+			String clazz = registeredClasses.get(type);
+			if (clazz != null) {
+				return clazz;
+			}
+			
 			switch (type.toLowerCase()) {
 			case "java":
 				return JavaExternalStep.class.getName();
-			case "docker":
-				return DockerStep.class.getName();
 			case "rmd_docker":
 				return RMarkdown2DockerStep.class.getName();
 			case "groovy":

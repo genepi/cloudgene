@@ -1,15 +1,15 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.plugins.rscript;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
-public class MyRScript {
+public class RScriptFile {
 
 	private String filename;
 
 	private StringBuffer content;
 
-	public MyRScript(String filename) {
+	public RScriptFile(String filename) {
 		this.filename = filename;
 		this.content = new StringBuffer();
 	}

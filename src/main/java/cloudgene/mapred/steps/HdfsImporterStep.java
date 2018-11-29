@@ -1,13 +1,13 @@
 package cloudgene.mapred.steps;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.importer.IImporter;
-import genepi.hadoop.importer.ImporterFactory;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.Technology;
+import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.importer.IImporter;
+import genepi.hadoop.importer.ImporterFactory;
 
 public class HdfsImporterStep extends CloudgeneStep {
 
@@ -91,8 +91,7 @@ public class HdfsImporterStep extends CloudgeneStep {
 	}
 
 	@Override
-	public Technology[] getRequirements() {
-		return new Technology[] { Technology.HADOOP_CLUSTER };
+	public String[] getRequirements() {
+		return new String[] { HadoopPlugin.ID };
 	}
-
 }

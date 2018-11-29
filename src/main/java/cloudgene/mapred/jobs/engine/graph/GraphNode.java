@@ -18,6 +18,8 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.CloudgeneStepFactory;
+import cloudgene.mapred.plugins.IPlugin;
+import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
@@ -27,7 +29,6 @@ import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.RMarkdownStep;
 import cloudgene.mapred.steps.RMarkdown2Step;
 import cloudgene.mapred.steps.HadoopSparkStep;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.common.WorkflowStep;
 import genepi.io.FileUtil;
@@ -80,7 +81,8 @@ public class GraphNode implements Runnable {
 
 		// find step implementation
 
-		String classname = CloudgeneStepFactory.getClassname(step);
+		CloudgeneStepFactory factory = CloudgeneStepFactory.getInstance();
+		String classname = factory.getClassname(step);
 		step.setClassname(classname);
 
 		// create instance
@@ -113,10 +115,11 @@ public class GraphNode implements Runnable {
 				}
 
 				// check requirements
-				for (Technology technology : instance.getRequirements()) {
-					if (!context.getSettings().isEnable(technology)) {
+				PluginManager pluginManager = PluginManager.getInstance();
+				for (String plugin : instance.getRequirements()) {					
+					if (!pluginManager.isEnabled(plugin)) {
 						instance = new ErrorStep(
-								"Requirements not fullfilled. This steps needs " + technology.toString());
+								"Requirements not fullfilled. This steps needs plugin '" + plugin + "'");
 					}
 				}
 

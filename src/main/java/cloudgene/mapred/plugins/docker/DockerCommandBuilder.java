@@ -1,4 +1,4 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.plugins.docker;
 
 import java.util.List;
 import java.util.Vector;
@@ -28,7 +28,7 @@ public class DockerCommandBuilder {
 
 	public List<String> build() {
 		List<String> commands = new Vector<>();
-		commands.add(Docker.BINARY_PATH);
+		commands.add(DockerBinary.BINARY_PATH);
 		commands.add("run");
 
 		if (volumes != null) {

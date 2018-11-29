@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import cloudgene.mapred.util.Technology;
+import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.common.WorkflowContext;
 
@@ -81,8 +81,8 @@ public abstract class CloudgeneStep {
 		this.logMessages = logMessages;
 	}
 
-	public Technology[] getRequirements() {
-		return new Technology[] {};
+	public String[] getRequirements() {
+		return new String[] {};
 	}
 
 	// dummy for beam serialization (setup --> property up!)

@@ -1,11 +1,11 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.plugins.rscript;
 
 import java.io.File;
 
 import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
-public class RBinary {
+public class RScriptBinary {
 
 	public static final String RSCRIPT_PATH = "/usr/bin/Rscript";
 
@@ -37,7 +37,7 @@ public class RBinary {
 	}
 
 	public static String getMarkdownDetails() {
-		MyRScript script = new MyRScript("verify.R");
+		RScriptFile script = new RScriptFile("verify.R");
 		script.append("is.installed <- function(mypkg) is.element(mypkg, installed.packages()[,1])");
 		script.append("is.installed('knitr') ");
 		script.append("is.installed('markdown') ");

@@ -12,7 +12,6 @@ import org.apache.velocity.app.Velocity;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 import genepi.io.text.LineWriter;
@@ -128,11 +127,6 @@ public class HtmlWidgetStep extends CloudgeneStep {
 			return false;
 		}
 
-	}
-
-	@Override
-	public Technology[] getRequirements() {
-		return new Technology[] {};
 	}
 
 	private static String encode(String sourceFile) throws Exception {
