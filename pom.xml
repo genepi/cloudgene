@@ -1,45 +1,23 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
 	<version>2.0.0-rc4</version>
-	<repositories>
-		<repository>
-			<id>maven-restlet</id>
-			<name>Restlet Framework repository</name>
-			<url>http://maven.restlet.org</url>
-		</repository>
 
-		<repository>
-			<id>genepi</id>
-			<url>https://raw.github.com/genepi/maven-repository/mvn-repo/</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>always</updatePolicy>
-			</snapshots>
-		</repository>
-
-		<repository>
-			<id>cloudera</id>
-			<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-		</repository>
-
-	</repositories>
-
-	<properties>
-		<restlet.version>2.3.12</restlet.version>
-		<node.version>v8.11.4</node.version>
-		<npm.version>6.4.1</npm.version>
-		<webapp>${basedir}/src/main/html/webapp</webapp>
-	</properties>
+	<name>Cloudgene</name>
+	<url>http://www.cloudgene.io</url>
+	<organization>
+		<name>Lukas Forer and Sebastian Schoenherr</name>
+	</organization>
 
 	<developers>
 		<developer>
 			<id>lukfor</id>
 			<name>Lukas Forer</name>
 			<email>lukas.forer@i-med.ac.at</email>
-			<url>https://forer.it</url>
+			<url>http://www.forer.it</url>
 			<organization>Medical University of Innsbruck</organization>
 		</developer>
 		<developer>
@@ -51,152 +29,40 @@
 		</developer>
 	</developers>
 
+	<properties>
+		<restlet.version>2.3.12</restlet.version>
+		<hadoop.version>2.6.0-cdh5.10.0</hadoop.version>
+		<node.version>v8.11.4</node.version>
+		<npm.version>6.4.1</npm.version>
+		<webapp>${basedir}/src/main/html/webapp</webapp>
+	</properties>
 
-	<build>
-		<resources>
-			<resource>
-				<directory>resources</directory>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
+	<repositories>
+		<repository>
+			<id>maven-restlet</id>
+			<name>Restlet Framework repository</name>
+			<url>http://maven.restlet.org</url>
+		</repository>
 
-			<resource>
-				<directory>src/main/sql</directory>
-			</resource>
-		</resources>
+		<repository>
+			<id>genepi</id>
+			<name>Genepi Innsbruck repository</name>
+			<url>https://raw.github.com/genepi/maven-repository/mvn-repo/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
 
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
+		<repository>
+			<id>cloudera</id>
+			<name>Cloudera repository</name>
+			<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+		</repository>
 
-			<!-- Create webapp for production -->
+	</repositories>
 
-			<plugin>
-				<groupId>com.github.eirslett</groupId>
-				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.6</version>
-				<executions>
-					<execution>
-						<id>install node and npm</id>
-						<goals>
-							<goal>install-node-and-npm</goal>
-						</goals>
-						<configuration>
-							<nodeVersion>${node.version}</nodeVersion>
-							<npmVersion>${npm.version}</npmVersion>
-							<workingDirectory>${webapp}</workingDirectory>
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm install</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<configuration>
-							<arguments>install</arguments>
-							<workingDirectory>${webapp}</workingDirectory>
-
-						</configuration>
-					</execution>
-					<execution>
-						<id>npm build prod</id>
-						<goals>
-							<goal>npm</goal>
-						</goals>
-						<phase>generate-resources</phase>
-						<configuration>
-							<arguments>run build</arguments>
-							<npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
-							<workingDirectory>${webapp}</workingDirectory>
-
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>cloudgene.mapred.Main</mainClass>
-						</manifest>
-						<manifestEntries>
-							<Version>${project.version}</Version>
-							<Build-Time>${maven.build.timestamp}</Build-Time>
-						</manifestEntries>
-					</archive>
-				</configuration>
-
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<id>create-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>src/main/assembly/assembly.xml</descriptor>
-							</descriptors>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>com.github.hazendaz.maven</groupId>
-				<artifactId>makeself-maven-plugin</artifactId>
-				<version>1.0.0.beta3</version>
-				<configuration>
-					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
-					<fileName>cloudgene-installer.sh</fileName>
-					<label>Install Cloudgene ${project.version}</label>
-					<notemp>true</notemp>
-					<current>true</current>
-					<nox11>true</nox11>
-					<nowait>true</nowait>
-				</configuration>
-				<executions>
-					<execution>
-						<id>makeself</id>
-						<goals>
-							<goal>makeself</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>cobertura-maven-plugin</artifactId>
-				<version>2.7</version>
-				<configuration>
-					<formats>
-						<format>html</format>
-						<format>xml</format>
-					</formats>
-					<check />
-				</configuration>
-			</plugin>
-
-		</plugins>
-	</build>
+	<!-- **** Dependencies **** -->
 
 	<dependencies>
 
@@ -217,14 +83,6 @@
 			<artifactId>genepi-hadoop</artifactId>
 			<version>mr1-1.2.4</version>
 			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-server</artifactId>
-				</exclusion>
 				<exclusion>
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>hadoop-client</artifactId>
@@ -299,123 +157,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-hdfs</artifactId>
-			<version>2.6.0-cdh5.10.0</version>
-			<scope>test</scope>
-			<type>test-jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-server</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-hdfs</artifactId>
-			<version>2.6.0-cdh5.10.0</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpcore</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-json</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
-			<version>2.6.0-cdh5.10.0</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpcore</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-json</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
-			<version>2.6.0-cdh5.10.0</version>
-			<scope>test</scope>
-			<type>test-jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpcore</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-core</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-server</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.sun.jersey</groupId>
-					<artifactId>jersey-json</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>2.6.0-mr1-cdh5.10.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>commons-daemon</groupId>
 			<artifactId>commons-daemon</artifactId>
 			<version>1.0.15</version>
@@ -433,12 +174,6 @@
 			<version>1.1.3</version>
 		</dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
-			<scope>test</scope>
-		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -446,6 +181,7 @@
 			<version>1.7.0</version>
 			<scope>runtime</scope>
 		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -458,12 +194,6 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.6.1</version>
 			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
 		</dependency>
 
 		<dependency>
@@ -524,16 +254,67 @@
 		<dependency>
 			<groupId>net.lingala.zip4j</groupId>
 			<artifactId>zip4j</artifactId>
-			<version>LATEST</version>
+			<version>1.3.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.gpedro.integrations.slack</groupId>
+			<artifactId>slack-webhook</artifactId>
+			<version>1.3.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>20.0</version>
+		</dependency>
+
+		<!-- Test Dependencies -->
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>test</scope>
+			<type>test-jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-hdfs</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-common</artifactId>
+			<version>${hadoop.version}</version>
+			<scope>test</scope>
+			<type>test-jar</type>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-test</artifactId>
+			<version>2.6.0-mr1-cdh5.10.0</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>LATEST</version>
+			<version>4.8.1</version>
+			<scope>test</scope>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/dumbster/dumbster -->
 		<dependency>
 			<groupId>dumbster</groupId>
 			<artifactId>dumbster</artifactId>
@@ -548,19 +329,162 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>net.gpedro.integrations.slack</groupId>
-			<artifactId>slack-webhook</artifactId>
-			<version>1.3.0</version>
-		</dependency>
-
-
-
 	</dependencies>
 
-	<name>Cloudgene</name>
-	<url>http://cloudgene.uibk.ac.at</url>
-	<organization>
-		<name>Lukas Forer and Sebastian Schoenherr</name>
-	</organization>
+	<!-- **** Build **** -->
+
+	<build>
+		<resources>
+			<resource>
+				<directory>resources</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+
+			<resource>
+				<directory>src/main/sql</directory>
+			</resource>
+		</resources>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+			<!-- Create webapp for production -->
+
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<configuration>
+							<nodeVersion>${node.version}</nodeVersion>
+							<npmVersion>${npm.version}</npmVersion>
+							<workingDirectory>${webapp}</workingDirectory>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>install</arguments>
+							<workingDirectory>${webapp}</workingDirectory>
+
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm build prod</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<phase>generate-resources</phase>
+						<configuration>
+							<arguments>run build</arguments>
+							<npmInheritsProxyConfigFromMaven>false</npmInheritsProxyConfigFromMaven>
+							<workingDirectory>${webapp}</workingDirectory>
+
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Build jar -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>cloudgene.mapred.Main</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Version>${project.version}</Version>
+							<Build-Time>${maven.build.timestamp}</Build-Time>
+						</manifestEntries>
+					</archive>
+				</configuration>
+
+			</plugin>
+
+			<!-- Build final directory structure and zip files -->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>create-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Build cloudgene installer -->
+
+			<plugin>
+				<groupId>com.github.hazendaz.maven</groupId>
+				<artifactId>makeself-maven-plugin</artifactId>
+				<version>1.0.0.beta3</version>
+				<configuration>
+					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
+					<fileName>cloudgene-installer.sh</fileName>
+					<label>Install Cloudgene ${project.version}</label>
+					<notemp>true</notemp>
+					<current>true</current>
+					<nox11>true</nox11>
+					<nowait>true</nowait>
+				</configuration>
+				<executions>
+					<execution>
+						<id>makeself</id>
+						<goals>
+							<goal>makeself</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>cobertura-maven-plugin</artifactId>
+				<version>2.7</version>
+				<configuration>
+					<formats>
+						<format>html</format>
+						<format>xml</format>
+					</formats>
+					<check />
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+
 </project>
