@@ -23,10 +23,6 @@ import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
-import com.spotify.docker.client.DefaultDockerClient;
-import com.spotify.docker.client.DockerClient;
-import com.spotify.docker.client.exceptions.DockerCertificateException;
-import com.spotify.docker.client.exceptions.DockerException;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubUtil.Repository;
@@ -950,12 +946,9 @@ public class Settings {
 			}
 		}
 
-		try {
-			DockerClient docker = DefaultDockerClient.fromEnv().build();
-			docker.info();
-			docker.close();
+		if (Docker.isInstalled()) {
 			enable(Technology.DOCKER);
-		} catch (DockerException | DockerCertificateException | InterruptedException e1) {
+		}else {
 			disable(Technology.DOCKER);
 		}
 	}

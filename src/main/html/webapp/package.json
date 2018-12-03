@@ -1,6 +1,17 @@
 {
-  "name": "Cloudgene",
+  "name": "cloudgene",
   "version": "2.0.0-rc4",
+  "description": "Cloudgene web client",
+  "homepage": "http://www.cloudgene.io",
+  "author": "Lukas Forer <lukas.forer@i-med.ac.at (http://www.forer.it)",
+  "contributors": [
+    "Sebastian Schoenherr <sebastian.schoenherr@i-med.ac.at (https://seppinho.github.io)"
+  ],
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/genepi/cloudgene.git"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "5.3.1",
     "bootbox": "4.4.0",

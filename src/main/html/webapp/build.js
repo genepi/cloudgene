@@ -1,7 +1,7 @@
 var stealTools = require("steal-tools");
 
 stealTools.build({
-  main: ["Cloudgene/index", "Cloudgene/admin"],
+  main: ["cloudgene/index", "cloudgene/admin"],
 }, {
   bundleAssets: true,
   bundleSteal: true

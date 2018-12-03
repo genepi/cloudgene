@@ -1,16 +1,14 @@
 package cloudgene.mapred.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.util.EntityUtils;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.JSONObject;
 
 public class GitHubUtil {
 	
@@ -99,22 +97,38 @@ public class GitHubUtil {
 	}
 
 	public static String getLatestReleaseFromRepository(Repository repo) {
-		String url = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
+		
+		String urlString = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
 		try {
-	        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-	        HttpGet request = new HttpGet(url);
-	        request.addHeader("content-type", "application/json");
-	        HttpResponse result = httpClient.execute(request);
-	        String json = EntityUtils.toString(result.getEntity(), "UTF-8");
-	        //"tag_name"
 	        
-	        JsonElement jelement = new JsonParser().parse(json);
-	        JsonObject  jobject = jelement.getAsJsonObject();
-	        return jobject.get("tag_name").getAsString();
-	    } catch (IOException ex) {
-	    	
+	        URL url = new URL(urlString);
+	        URLConnection request = url.openConnection();
+	        request.setRequestProperty("content-type", "application/json");
+	        request.connect( );
+
+	        String json = readFullyAsString((InputStream) request.getContent(), "UTF-8");        
+	        JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+	        JSONObject object = (JSONObject) parser.parse(json);
+	        return object.get("tag_name").toString();
+	    } catch (Exception ex) {
+	    	ex.printStackTrace();
 	    	return null;
 	    }
 		
 	}
+	
+	
+	public static String readFullyAsString(InputStream inputStream, String encoding) throws IOException {
+        return readFully(inputStream).toString(encoding);
+    }
+
+    private static ByteArrayOutputStream readFully(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length = 0;
+        while ((length = inputStream.read(buffer)) != -1) {
+            baos.write(buffer, 0, length);
+        }
+        return baos;
+    }
 }
