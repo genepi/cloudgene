@@ -28,6 +28,12 @@ public class RMarkdown2DockerStep extends DockerStep {
 			return false;
 		}
 
+		String image = step.get("image");
+		if (image == null || image.isEmpty()) {
+			image = DOCKER_R_BASE_IMAGE;
+		}
+
+		
 		String paramsString = step.get("params");
 		String[] params = new String[] {};
 		if (paramsString != null) {
@@ -43,11 +49,11 @@ public class RMarkdown2DockerStep extends DockerStep {
 			context.log("  " + param);
 		}
 
-		return convert(script, output, params, context);
+		return convert(script, image, output, params, context);
 
 	}
 
-	public boolean convert(String rmdScript, String outputHtml, String[] args, CloudgeneContext context) {
+	public boolean convert(String rmdScript, String image, String outputHtml, String[] args, CloudgeneContext context) {
 		
 		String localWorkspace = new File(context.getJob().getLocalWorkspace()).getAbsolutePath();
 
@@ -80,8 +86,6 @@ public class RMarkdown2DockerStep extends DockerStep {
 		for (int i = 0; i < args.length; i++) {
 			argsForScript[i + 2] = args[i];
 		}
-
-		String image = DOCKER_R_BASE_IMAGE;
 
 		boolean result = runInDockerContainer(context, image, argsForScript);
 		
