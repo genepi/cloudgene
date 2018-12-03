@@ -6,7 +6,7 @@ import java.util.Vector;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.util.Technology;
+import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 
@@ -56,8 +56,8 @@ public class HadoopPigStep extends CloudgeneStep {
 	}
 	
 	@Override
-	public Technology[] getRequirements() {
-		return new Technology[]{Technology.HADOOP_CLUSTER};
+	public String[] getRequirements() {
+		return new String[] { HadoopPlugin.ID };
 	}
 
 }

@@ -111,8 +111,6 @@ public class Settings {
 
 	private int uploadLimit = -1;
 
-	private Set<Technology> technologies = new HashSet<Technology>();
-
 	private String googleAnalytics = "";
 
 	private int maxDownloads = 10;
@@ -191,7 +189,6 @@ public class Settings {
 		YamlReader reader = new YamlReader(new FileReader(config.getSettings()), yamlConfig);
 
 		Settings settings = reader.read(Settings.class);
-		settings.enable(Technology.HADOOP_CLUSTER);
 
 		log.info("Auto retire: " + settings.isAutoRetire());
 		log.info("Retire jobs after " + settings.retireAfter + " days.");
@@ -905,52 +902,6 @@ public class Settings {
 		}
 
 		return names;
-	}
-
-	public void enable(Technology technology) {
-		log.info("Enable technology " + technology);
-		technologies.add(technology);
-	}
-
-	public void disable(Technology technology) {
-		log.info("Disable technology " + technology);
-		technologies.remove(technology);
-	}
-
-	public boolean isEnable(Technology technology) {
-		return technologies.contains(technology);
-	}
-
-	public void checkTechnologies() {
-		// check cluster status
-
-		try {
-			if (HadoopCluster.verifyCluster()) {
-				enable(Technology.HADOOP_CLUSTER);
-			} else {
-				disable(Technology.HADOOP_CLUSTER);
-			}
-		} catch (Exception e) {
-			disable(Technology.HADOOP_CLUSTER);
-		}
-
-		if (!RBinary.isInstalled()) {
-			disable(Technology.R);
-			disable(Technology.R_MARKDOWN);
-		} else {
-			enable(Technology.R);
-			if (!RBinary.isMarkdownInstalled()) {
-				disable(Technology.R_MARKDOWN);
-			} else {
-				enable(Technology.R_MARKDOWN);
-			}
-		}
-
-		if (Docker.isInstalled()) {
-			enable(Technology.DOCKER);
-		}else {
-			disable(Technology.DOCKER);
-		}
 	}
 
 	public void setThreadsSetupQueue(int threadsSetupQueue) {

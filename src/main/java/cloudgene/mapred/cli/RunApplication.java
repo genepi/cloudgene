@@ -20,8 +20,9 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.plugins.IPlugin;
+import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
@@ -199,27 +200,18 @@ public class RunApplication extends BaseTool {
 			}
 		}
 
-		// enable/disable technologies
-		settings.checkTechnologies();
+		// show supported plugins
+		PluginManager manager = PluginManager.getInstance();
+		manager.initPlugins(settings);
 
-		// print summary and warnigns
-		if (settings.isEnable(Technology.HADOOP_CLUSTER)) {
-			int nodes = HadoopCluster.getActiveTrackerNames().size();
-			printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + HadoopCluster.getMaxMapTasks()
-					+ " map tasks and " + HadoopCluster.getMaxReduceTasks() + " reduce tasks");
-		} else {
-			printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
+		for (IPlugin plugin: manager.getPlugins()) {
+			if (manager.isEnabled(plugin)) {
+				printText(0, spaces("[INFO]", 8) + plugin.getStatus());
+			}else {
+				printText(0, spaces("[WARN]", 8) + plugin.getStatus());
+			}
 		}
-
-		if (!settings.isEnable(Technology.HADOOP_CLUSTER)
-				&& (app.getWorkflow().hasHdfsOutputs() || app.getWorkflow().hasHdfsInputs())) {
-			printError("This application needs a working Hadoop cluster.");
-			return 1;
-		}
-
-		if (!settings.isEnable(Technology.DOCKER)) {
-			printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
-		}
+		
 
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());

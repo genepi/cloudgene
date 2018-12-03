@@ -1,7 +1,8 @@
 package cloudgene.mapred.cli;
 
 import cloudgene.mapred.Main;
-import cloudgene.mapred.util.Technology;
+import cloudgene.mapred.plugins.IPlugin;
+import cloudgene.mapred.plugins.PluginManager;
 import genepi.base.Tool;
 import genepi.hadoop.HadoopCluster;
 import genepi.hadoop.HadoopUtil;
@@ -57,17 +58,15 @@ public class StartServer extends BaseTool {
 				port = settings.getPort();
 			}
 
-			// print summary and warnigns
-			if (settings.isEnable(Technology.HADOOP_CLUSTER)) {
-				int nodes = HadoopCluster.getActiveTrackerNames().size();
-				printText(0, spaces("[INFO]", 8) + "Cluster has " + nodes + " nodes, " + HadoopCluster.getMaxMapTasks()
-						+ " map tasks and " + HadoopCluster.getMaxReduceTasks() + " reduce tasks");
-			} else {
-				printText(0, spaces("[WARN]", 8) + "Cluster seems unreachable. Hadoop support disabled.");
-			}
-
-			if (!settings.isEnable(Technology.DOCKER)) {
-				printText(0, spaces("[WARN]", 8) + "Docker not found. Docker support disabled.");
+			// show supported plugins
+			PluginManager manager = PluginManager.getInstance();
+			manager.initPlugins(settings);
+			for (IPlugin plugin: manager.getPlugins()) {
+				if (manager.isEnabled(plugin)) {
+					printText(0, spaces("[INFO]", 8) + plugin.getStatus());
+				}else {
+					printText(0, spaces("[WARN]", 8) + plugin.getStatus());
+				}
 			}
 
 			System.out.println();

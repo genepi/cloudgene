@@ -16,12 +16,10 @@ import org.restlet.resource.Get;
 
 import cloudgene.mapred.Main;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.plugins.IPlugin;
+import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.Docker;
-import cloudgene.mapred.util.RBinary;
-import cloudgene.mapred.util.Technology;
-import genepi.hadoop.HadoopCluster;
-import genepi.hadoop.HadoopUtil;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class GetClusterDetails extends BaseResource {
@@ -75,81 +73,22 @@ public class GetClusterDetails extends BaseResource {
 		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
 		object.put("used_disc_space",
 				(workspace.getTotalSpace() / 1024 / 1024 / 1024) - (workspace.getUsableSpace() / 1024 / 1024 / 1024));
-		// hadoop
-		if (getSettings().isEnable(Technology.HADOOP_CLUSTER)) {
-			try {
-
-				try {
-					object.put("hadoop_safemode", HadoopUtil.getInstance().isInSafeMode());
-				} catch (Exception e) {
-					object.put("hadoop_safemode", false);
-				}
-
-				StringBuffer state = new StringBuffer();
-				state.append("JobTracker: " + HadoopCluster.getJobTracker() + "\n");
-				state.append("Default FS: " + HadoopCluster.getDefaultFS() + "\n");
-				state.append("State: " + HadoopCluster.getJobTrackerStatus().toString() + "\n");
-				state.append("MapTask: " + HadoopCluster.getMaxMapTasks() + "\n");
-				state.append("ReduceTask: " + HadoopCluster.getMaxReduceTasks() + "\n");
-				state.append("Nodes\n");
-				for (String tracker : HadoopCluster.getActiveTrackerNames()) {
-					state.append("  " + tracker + "\n");
-				}
-				state.append("Blacklist:\n");
-				for (String tracker : HadoopCluster.getBlacklistedTrackerNames()) {
-					state.append("  " + tracker + "\n");
-				}
-				object.put("hadoop_details", state.toString());
-				object.put("hadoop_enabled", true);
-				object.put("hadoop_jobtracker", HadoopCluster.getJobTracker());
-				object.put("hadoop_hdfs", HadoopCluster.getDefaultFS());
-				object.put("hadoop_map_tasks", HadoopCluster.getMaxMapTasks());
-				object.put("hadoop_reduce_tasks", HadoopCluster.getMaxReduceTasks());
-				object.put("hadoop_active_nodes", HadoopCluster.getActiveTrackerNames().size());
-				object.put("hadoop_inactive_nodes", HadoopCluster.getBlacklistedTrackerNames().size());
-				object.put("hadoop_nodes",
-						HadoopCluster.getActiveTrackerNames().size() + HadoopCluster.getBlacklistedTrackerNames().size());
-			} catch (Exception e) {
-				object.put("hadoop_enabled", false);
-				object.put("hadoop_error", "Hadoop cluster is unreachable");
+		// plugins
+		PluginManager manager = PluginManager.getInstance();
+		JSONArray pluginsArray = new JSONArray();
+		for (IPlugin plugin : manager.getPlugins()) {
+			JSONObject pluginObject = new JSONObject();
+			pluginObject.put("name", plugin.getName());
+			if (plugin.isInstalled()) {
+				pluginObject.put("enabled", true);
+				pluginObject.put("details", plugin.getDetails());
+			} else {
+				pluginObject.put("enabled", false);
+				pluginObject.put("error", plugin.getStatus());
 			}
-		} else {
-			object.put("hadoop_enabled", false);
-			try {
-				HadoopCluster.verifyCluster();
-			} catch (Exception e) {
-				object.put("hadoop_error", e.getMessage());
-			}
+			pluginsArray.add(pluginObject);
 		}
-
-		object.put("hadoop_conf", HadoopCluster.getConf());
-		object.put("hadoop_username", HadoopCluster.getUsername());
-		object.put("hadoop_cluster", HadoopCluster.getName());
-
-		// r
-		if (getSettings().isEnable(Technology.R)) {
-			object.put("r_enabled", true);
-			object.put("r_details", RBinary.getVersion());
-		} else {
-			object.put("r_enabled", false);
-			object.put("r_error", "R support is disabled. Please check your configuration.");
-		}
-
-		if (getSettings().isEnable(Technology.R_MARKDOWN)) {
-			object.put("rmarkdown_enabled", true);
-			object.put("rmarkdown_details", "'knitr' and 'markdown' are installed.");
-		} else {
-			object.put("rmarkdown_enabled", false);
-			object.put("rmarkdown_error", "R Markdown support is disabled. Please check your configuration.");
-		}
-
-		if (getSettings().isEnable(Technology.DOCKER)) {
-			object.put("docker_enabled", true);
-			object.put("docker_details", Docker.getVersion());
-		} else {
-			object.put("docker_enabled", false);
-			object.put("docker_error", "Docker support is disabled. Please install or start Docker.");
-		}
+		object.put("plugins", pluginsArray);
 
 		// database
 		object.put("db_max_active", getDatabase().getDataSource().getMaxActive());

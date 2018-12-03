@@ -3,8 +3,9 @@ package cloudgene.mapred.steps;
 import java.io.File;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
-import cloudgene.mapred.util.MyRScript;
-import cloudgene.mapred.util.Technology;
+import cloudgene.mapred.plugins.docker.DockerPlugin;
+import cloudgene.mapred.plugins.docker.DockerStep;
+import cloudgene.mapred.plugins.rscript.RScriptFile;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 
@@ -68,7 +69,7 @@ public class RMarkdown2DockerStep extends DockerStep {
 
 		String scriptFilename = FileUtil.path(localWorkspace, "convert_" + System.currentTimeMillis() + ".R");
 
-		MyRScript script = new MyRScript(scriptFilename);
+		RScriptFile script = new RScriptFile(scriptFilename);
 		script.append("library(knitr)");
 		script.append("library(markdown)");
 		// set working directory
@@ -113,8 +114,8 @@ public class RMarkdown2DockerStep extends DockerStep {
 	}
 
 	@Override
-	public Technology[] getRequirements() {
-		return new Technology[] { Technology.DOCKER };
+	public String[] getRequirements() {
+		return new String[] { DockerPlugin.ID };
 	}
 
 }

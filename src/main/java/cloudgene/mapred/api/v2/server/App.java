@@ -14,12 +14,13 @@ import org.restlet.resource.Put;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
+import cloudgene.mapred.plugins.PluginManager;
+import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Technology;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import net.sf.json.JSONArray;
@@ -57,12 +58,14 @@ public class App extends BaseResource {
 
 		}
 
-		if (wdlApp.getWorkflow().hasHdfsInputs() && !settings.isEnable(Technology.HADOOP_CLUSTER)) {
+		if (wdlApp.getWorkflow().hasHdfsInputs()) {
 
-			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-			return new StringRepresentation(
-					"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
-
+			PluginManager manager = PluginManager.getInstance();
+			if (!manager.isEnabled(HadoopPlugin.ID)) {
+				setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
+				return new StringRepresentation(
+						"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
+			}
 		}
 
 		List<WdlApp> apps = settings.getAppsByUser(user, false);
