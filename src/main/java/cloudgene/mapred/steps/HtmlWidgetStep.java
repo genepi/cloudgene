@@ -89,7 +89,7 @@ public class HtmlWidgetStep extends CloudgeneStep {
 				for (String css : step.get("stylesheet").split(",")) {
 					css = css.trim();
 					String data = "";
-					if (!css.startsWith("http://")) {
+					if (!css.startsWith("http://") && !css.startsWith("https://")) {
 						String content = encode(FileUtil.path(workingDirectory, css));
 						data = "data:text/css;base64," + content;
 					} else {
@@ -102,7 +102,7 @@ public class HtmlWidgetStep extends CloudgeneStep {
 				for (String script : step.get("scripts").split(",")) {
 					script = script.trim();
 					String data = "";
-					if (!script.startsWith("http://")) {
+					if (!script.startsWith("http://") && !script.startsWith("https://")) {
 						String content = encode(FileUtil.path(workingDirectory, script));
 						data = "data:application/x-javascript/css;base64," + content;
 					} else {
@@ -119,7 +119,16 @@ public class HtmlWidgetStep extends CloudgeneStep {
 			writer.write("</html>");
 			writer.close();
 
-			context.addFile(htmlFile);
+			String output = step.get("output");
+			
+			if (output == null || output.isEmpty()) {
+				context.addFile(htmlFile);	
+			}else {
+				new File(htmlFile).renameTo(new File(output));
+				context.ok("Html report created.");
+			}
+			
+			
 			return true;
 
 		} catch (Exception e) {
