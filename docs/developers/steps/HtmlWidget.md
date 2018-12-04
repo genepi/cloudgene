@@ -35,25 +35,25 @@ datatables_widget.html:
 
 ```html
 <table id="dataset1" class="table table-striped table-bordered" style="width:100%">
-        <thead>
-            <tr>
-                <th>column 1</th>
-                <th>column 2</th>
-            </tr>
-        </thead>
-    </table>
+  <thead>
+    <tr>
+      <th>column 1</th>
+      <th>column 2</th>
+    </tr>
+  </thead>
+</table>
 
 <script>
 
-$(document).ready(function() {
-    $('#dataset1').DataTable( {
-        data: ${dataset1},
-        "columns": [
-            { "data": "column 1" },
-            { "data": "column 2" }
-        ]
-    } );
-} );
+  $(document).ready(function() {
+      $('#dataset1').DataTable( {
+          data: ${dataset1},
+          "columns": [
+              { "data": "column 1" },
+              { "data": "column 2" }
+          ]
+      } );
+  } );
 
 </script>
 ```

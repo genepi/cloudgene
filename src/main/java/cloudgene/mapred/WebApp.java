@@ -15,6 +15,7 @@ import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
+import org.restlet.routing.Variable;
 
 import cloudgene.mapred.api.v2.admin.ArchiveJob;
 import cloudgene.mapred.api.v2.admin.ChangeGroup;
@@ -198,9 +199,13 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
 		router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 
-		// sownload resources
+		// download resources
 		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
-		router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
+		
+		TemplateRoute route2 = router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
+        Map routeVariables = route2.getTemplate().getVariables();
+        routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
+		
 		router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
 		router.attach(prefix + "/logs/{id}", GetLogs.class);
 

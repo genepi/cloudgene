@@ -124,10 +124,22 @@ public class HtmlWidgetStep extends CloudgeneStep {
 			if (output == null || output.isEmpty()) {
 				context.addFile(htmlFile);	
 			}else {
-				new File(htmlFile).renameTo(new File(output));
+				File file = new File(output);
+				new File(htmlFile).renameTo(file);
+
+				//copy assets folder if set
+				String assets = step.get("assets");
+				if (assets != null && !assets.isEmpty()) {
+					File parent = file.getParentFile();
+					String assetsSource = FileUtil.path(workingDirectory, assets);
+					String assetsTarget = FileUtil.path(parent.getAbsolutePath(), assets);
+					FileUtil.createDirectory(assetsTarget);
+					context.ok("Copy Assets from " + assetsSource + " " + assetsTarget);
+					FileUtil.copyDirectory(assetsSource, assetsTarget);
+				}
+				
 				context.ok("Html report created.");
 			}
-			
 			
 			return true;
 

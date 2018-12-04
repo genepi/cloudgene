@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import java.io.File;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -84,6 +86,12 @@ public class DownloadResults extends BaseResource {
 			}
 
 			if (download == null) {
+				String localFile = FileUtil.path(getSettings().getLocalWorkspace(), jobId,
+						FileUtil.path(paramId, filename));
+				System.out.println(localFile);
+				if (new File(localFile).exists()) {
+					return new FileRepresentation(localFile, mediaType);
+				}
 				return error404("download not found.");
 			}
 
