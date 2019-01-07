@@ -17,6 +17,7 @@ public class DockerBinary {
 		if (isInstalled()) {
 			Command command = new Command(BINARY_PATH, "version");
 			command.saveStdOut(FileUtil.path("docker-version.txt"));
+			command.setSilent(true);
 			command.execute();
 			String version = FileUtil.readFileAsString("docker-version.txt");
 			FileUtil.deleteFile("docker-version.txt");

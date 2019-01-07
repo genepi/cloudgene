@@ -38,10 +38,16 @@ public class RMarkdownPlugin implements IPlugin {
 
 	@Override
 	public String getStatus() {
-		if (isInstalled()) {
-			return "RMardkown support enabled.";
+		if (RScriptBinary.isInstalled()) {
+			if (isInstalled()) {
+				return "RMarkdown support enabled.";
+			} else {
+				return "RMarkdown support disabled. Please install the following packages: "
+						+ String.join(" ", RScriptBinary.PACKAGES) + "<br><br><pre>"
+						+ RScriptBinary.getMarkdownErrorDetails() + "</pre>";
+			}
 		} else {
-			return "RMardkown not found. RMardkown support disabled.";
+			return "RMarkdown support disabled. Please install R.";
 		}
 	}
 }

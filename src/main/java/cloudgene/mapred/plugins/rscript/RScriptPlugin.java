@@ -3,7 +3,7 @@ package cloudgene.mapred.plugins.rscript;
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.util.Settings;
 
-public class RScriptPlugin implements IPlugin{
+public class RScriptPlugin implements IPlugin {
 
 	public static final String ID = "rscript";
 
@@ -37,7 +37,8 @@ public class RScriptPlugin implements IPlugin{
 		if (isInstalled()) {
 			return "RScript support enabled.";
 		} else {
-			return "RScript Binary not found.";
+			return "RScript Binary not found. Please check if R is installed and file " + RScriptBinary.RSCRIPT_PATH
+					+ " exists.";
 		}
 	}
 }
