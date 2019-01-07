@@ -29,7 +29,7 @@ public class CommandLineInterface extends Toolbox {
 		System.out.println();
 		System.out.println("Cloudgene " + Main.VERSION);
 		System.out.println("http://www.cloudgene.io");
-		System.out.println("(c) 2009-2018 Lukas Forer and Sebastian Schoenherr");
+		System.out.println("(c) 2009-2019 Lukas Forer and Sebastian Schoenherr");
 
 		URLClassLoader cl = (URLClassLoader) InstallApplication.class.getClassLoader();
 		try {
