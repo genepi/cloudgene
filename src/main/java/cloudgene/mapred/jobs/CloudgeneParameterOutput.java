@@ -3,7 +3,6 @@ package cloudgene.mapred.jobs;
 import java.util.List;
 import java.util.Vector;
 
-import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 

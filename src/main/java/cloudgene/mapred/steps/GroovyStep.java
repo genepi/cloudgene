@@ -5,7 +5,7 @@ import com.google.common.base.Throwables;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.common.WorkflowContext;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import groovy.util.GroovyScriptEngine;
 

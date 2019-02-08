@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.admin;
 
-import net.sf.json.JSONObject;
-
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -11,6 +9,7 @@ import org.restlet.resource.Post;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.BaseResource;
+import net.sf.json.JSONObject;
 
 public class DeleteUser extends BaseResource {
 

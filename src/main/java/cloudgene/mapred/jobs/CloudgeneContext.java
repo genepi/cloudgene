@@ -12,8 +12,8 @@ import java.util.Vector;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 public class CloudgeneContext extends WorkflowContext {

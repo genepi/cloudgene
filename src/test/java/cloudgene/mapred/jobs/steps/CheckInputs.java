@@ -2,8 +2,8 @@ package cloudgene.mapred.jobs.steps;
 
 import java.io.File;
 
-import genepi.hadoop.common.WorkflowContext;
-import genepi.hadoop.common.WorkflowStep;
+import cloudgene.sdk.internal.WorkflowContext;
+import cloudgene.sdk.internal.WorkflowStep;
 import genepi.io.FileUtil;
 
 public class CheckInputs extends WorkflowStep {

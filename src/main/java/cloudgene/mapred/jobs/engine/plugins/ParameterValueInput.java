@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import genepi.io.WildCardFileFilter;
-import cloudgene.mapred.wdl.WdlParameter;
-import cloudgene.mapred.wdl.WdlParameterInput;
-import cloudgene.mapred.wdl.WdlParameterInputType;
 
 public class ParameterValueInput {
 

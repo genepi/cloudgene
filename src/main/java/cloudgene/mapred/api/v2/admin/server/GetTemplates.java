@@ -2,8 +2,6 @@ package cloudgene.mapred.api.v2.admin.server;
 
 import java.util.List;
 
-import net.sf.json.JSONArray;
-
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -13,6 +11,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
+import net.sf.json.JSONArray;
 
 public class GetTemplates extends BaseResource {
 

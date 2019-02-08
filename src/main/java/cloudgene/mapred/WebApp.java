@@ -1,7 +1,5 @@
 package cloudgene.mapred;
 
-import genepi.db.Database;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -58,12 +56,12 @@ import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.server.Server;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
-import cloudgene.mapred.api.v2.users.UpdatePassword;
-import cloudgene.mapred.api.v2.users.UserProfile;
 import cloudgene.mapred.api.v2.users.LoginUser;
 import cloudgene.mapred.api.v2.users.LogoutUser;
 import cloudgene.mapred.api.v2.users.RegisterUser;
 import cloudgene.mapred.api.v2.users.ResetPassword;
+import cloudgene.mapred.api.v2.users.UpdatePassword;
+import cloudgene.mapred.api.v2.users.UserProfile;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
@@ -71,6 +69,7 @@ import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
 import cloudgene.mapred.util.Settings;
+import genepi.db.Database;
 
 public class WebApp extends Application {
 

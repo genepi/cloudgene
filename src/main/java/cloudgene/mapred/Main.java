@@ -1,10 +1,5 @@
 package cloudgene.mapred;
 
-import genepi.db.Database;
-import genepi.db.DatabaseConnector;
-import genepi.db.DatabaseUpdater;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
@@ -35,6 +30,10 @@ import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
+import genepi.db.Database;
+import genepi.db.DatabaseConnector;
+import genepi.db.DatabaseUpdater;
+import genepi.io.FileUtil;
 
 public class Main implements Daemon {
 

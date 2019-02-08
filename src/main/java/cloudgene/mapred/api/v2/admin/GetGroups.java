@@ -3,8 +3,6 @@ package cloudgene.mapred.api.v2.admin;
 import java.util.List;
 import java.util.Vector;
 
-import net.sf.json.JSONArray;
-
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -13,6 +11,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
+import net.sf.json.JSONArray;
 
 public class GetGroups extends BaseResource {
 

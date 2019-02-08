@@ -18,19 +18,11 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.CloudgeneStepFactory;
-import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
-import cloudgene.mapred.steps.JavaExternalStep;
-import cloudgene.mapred.steps.HadoopMapReduceStep;
-import cloudgene.mapred.steps.HadoopPigStep;
-import cloudgene.mapred.steps.RMarkdownStep;
-import cloudgene.mapred.steps.RMarkdown2Step;
-import cloudgene.mapred.steps.HadoopSparkStep;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.common.WorkflowStep;
+import cloudgene.sdk.internal.WorkflowStep;
 import genepi.io.FileUtil;
 
 public class GraphNode implements Runnable {

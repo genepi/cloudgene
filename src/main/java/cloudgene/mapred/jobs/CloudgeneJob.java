@@ -1,14 +1,8 @@
 package cloudgene.mapred.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.importer.FileItem;
-import genepi.hadoop.io.HdfsLineWriter;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -31,6 +25,9 @@ import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 import cloudgene.mapred.wdl.WdlStep;
+import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.importer.FileItem;
+import genepi.io.FileUtil;
 
 public class CloudgeneJob extends AbstractJob {
 

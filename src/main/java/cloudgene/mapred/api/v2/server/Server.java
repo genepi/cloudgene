@@ -4,10 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.restlet.data.LocalReference;
-import org.restlet.data.Reference;
 import org.restlet.ext.freemarker.ContextTemplateLoader;
-import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;

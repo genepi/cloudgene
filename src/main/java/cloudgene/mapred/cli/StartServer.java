@@ -5,7 +5,6 @@ import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
 import genepi.base.Tool;
 import genepi.hadoop.HadoopCluster;
-import genepi.hadoop.HadoopUtil;
 
 public class StartServer extends BaseTool {
 

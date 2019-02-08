@@ -1,8 +1,5 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
-import genepi.db.JdbcDataAccessObject;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +13,9 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import genepi.db.Database;
+import genepi.db.JdbcDataAccessObject;
 
 public class CounterHistoryDao extends JdbcDataAccessObject {
 

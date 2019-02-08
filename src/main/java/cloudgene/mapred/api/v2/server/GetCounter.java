@@ -2,17 +2,14 @@ package cloudgene.mapred.api.v2.server;
 
 import java.util.Map;
 
-import net.sf.json.JSONObject;
-
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
-import cloudgene.mapred.database.CounterDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.BaseResource;
+import net.sf.json.JSONObject;
 
 public class GetCounter extends BaseResource {
 

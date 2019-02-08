@@ -8,12 +8,11 @@ import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.JWTUtil;
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.Settings;
 
 public class ApiTokens extends BaseResource {
 

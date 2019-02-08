@@ -1,6 +1,5 @@
 package cloudgene.mapred.core;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.regex.Pattern;
 

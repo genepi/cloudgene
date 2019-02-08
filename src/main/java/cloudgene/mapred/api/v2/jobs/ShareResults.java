@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.io.FileUtil;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -12,6 +10,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
+import genepi.io.FileUtil;
 
 public class ShareResults extends BaseResource {
 

@@ -1,13 +1,12 @@
 package cloudgene.mapred.core;
 
-import net.minidev.json.JSONObject;
-
 import org.restlet.Request;
 import org.restlet.data.Parameter;
 import org.restlet.util.Series;
 
 import cloudgene.mapred.database.UserDao;
 import genepi.db.Database;
+import net.minidev.json.JSONObject;
 
 public class JWTUtil {
 

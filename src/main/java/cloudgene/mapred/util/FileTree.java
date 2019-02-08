@@ -1,11 +1,11 @@
 package cloudgene.mapred.util;
 
-import genepi.hadoop.importer.FileItem;
-import genepi.io.FileUtil;
-
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
+
+import genepi.hadoop.importer.FileItem;
+import genepi.io.FileUtil;
 
 public class FileTree {
 

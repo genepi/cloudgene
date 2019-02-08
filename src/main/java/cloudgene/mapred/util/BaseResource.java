@@ -1,7 +1,5 @@
 package cloudgene.mapred.util;
 
-import genepi.db.Database;
-
 import java.util.Map;
 
 import org.json.JSONException;
@@ -14,10 +12,10 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.JWTUtil;
-import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import genepi.db.Database;
 
 public class BaseResource extends ServerResource {
 

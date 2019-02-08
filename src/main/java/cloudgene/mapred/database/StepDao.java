@@ -1,9 +1,5 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
-import genepi.db.IRowMapper;
-import genepi.db.JdbcDataAccessObject;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -16,6 +12,9 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.steps.EmptyStep;
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
 
 public class StepDao extends JdbcDataAccessObject {
 

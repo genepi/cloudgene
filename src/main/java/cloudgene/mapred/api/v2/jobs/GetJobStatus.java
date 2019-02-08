@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import net.sf.json.JSONObject;
-
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -13,6 +11,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
+import net.sf.json.JSONObject;
 
 public class GetJobStatus extends BaseResource {
 	
