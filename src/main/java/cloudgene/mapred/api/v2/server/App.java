@@ -12,12 +12,13 @@ import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationInstaller;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
-import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
@@ -28,6 +29,8 @@ import net.sf.json.JSONObject;
 
 public class App extends BaseResource {
 
+	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	
 	@Get
 	public Representation getApp() {
 
@@ -37,7 +40,7 @@ public class App extends BaseResource {
 
 		Settings settings = getSettings();
 
-		Application application = settings.getAppByIdAndUser(appId, user);
+		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
@@ -68,7 +71,7 @@ public class App extends BaseResource {
 			}
 		}
 
-		List<WdlApp> apps = settings.getAppsByUser(user, false);
+		List<WdlApp> apps = repository.getAllByUser(user, false);
 
 		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
 
@@ -99,10 +102,10 @@ public class App extends BaseResource {
 		}
 
 		String appId = getAttribute("tool");
-		Application application = getSettings().getApp(appId);
+		Application application = repository.getById(appId);
 		if (application != null) {
 			try {
-				getSettings().deleteApplication(application);
+				repository.remove(application);
 				getSettings().save();
 
 				JSONObject jsonObject = JSONConverter.convert(application);
@@ -142,7 +145,7 @@ public class App extends BaseResource {
 		String reinstall = form.getFirstValue("reinstall");
 
 		String tool = getAttribute("tool");
-		Application application = getSettings().getApp(tool);
+		Application application = repository.getById(tool);
 		if (application != null) {
 
 			try {
@@ -150,11 +153,11 @@ public class App extends BaseResource {
 				if (enabled != null) {
 					if (application.isEnabled() && enabled.equals("false")) {
 						application.setEnabled(false);
-						getSettings().reloadApplications();
+						repository.reload();
 						getSettings().save();
 					} else if (!application.isEnabled() && enabled.equals("true")) {
 						application.setEnabled(true);
-						getSettings().reloadApplications();
+						repository.reload();
 						getSettings().save();
 					}
 				}
@@ -163,7 +166,7 @@ public class App extends BaseResource {
 				if (permission != null) {
 					if (!application.getPermission().equals(permission)) {
 						application.setPermission(permission);
-						getSettings().reloadApplications();
+						repository.reload();
 						getSettings().save();
 					}
 				}

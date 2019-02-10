@@ -13,10 +13,11 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationInstaller;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
-import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
@@ -27,6 +28,8 @@ import net.sf.json.JSONObject;
 
 public class Apps extends BaseResource {
 
+	private ApplicationRespository repository= ApplicationRespository.getInstance();
+	
 	@Post
 	public Representation install(Representation entity) {
 
@@ -54,7 +57,7 @@ public class Apps extends BaseResource {
 		}
 
 		// check for unique id
-		if (getSettings().getApp(id) != null) {
+		if (repository.getById(id) != null) {
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("An application with the id '" + id + "' is already installed.");
 		}
@@ -68,7 +71,7 @@ public class Apps extends BaseResource {
 					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 					return new StringRepresentation("No id set.");
 				}
-				applications = getSettings().installApplicationFromUrl(id, url);
+				applications = this.repository.installFromUrl(id, url);
 			} else if (url.startsWith("github://")) {
 				String shorthand = url.replaceAll("github://", "");
 				Repository repository = GitHubUtil.parseShorthand(shorthand);
@@ -81,21 +84,21 @@ public class Apps extends BaseResource {
 				if (repository.getDirectory() != null){
 					newId += "-" + repository.getDirectory();
 				}				
-				applications = getSettings().installApplicationFromGitHub(newId, repository, false);
+				applications = this.repository.installFromGitHub(newId, repository, false);
 			} else {
 				if (id == null) {
 					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 					return new StringRepresentation("No id set.");
 				}
 				if (url.endsWith(".zip")) {
-					applications = getSettings().installApplicationFromZipFile(id, url);
+					applications = this.repository.installFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
-					Application application = getSettings().installApplicationFromYaml(id, url);
+					Application application = this.repository.installFromYaml(id, url);
 					if (application != null) {
 						applications.add(application);
 					}
 				} else {
-					applications = getSettings().installApplicationFromDirectory(id, url);
+					applications = this.repository.installFromDirectory(id, url);
 				}
 			}
 
@@ -135,12 +138,12 @@ public class Apps extends BaseResource {
 		
 		String reload = getQueryValue("reload");
 		if (reload != null && reload.equals("true")) {
-			getSettings().reloadApplications();
+			repository.reload();
 		}
 
 		JSONArray jsonArray = new JSONArray();
 
-		List<Application> apps = new Vector<Application>(getSettings().getApps());
+		List<Application> apps = new Vector<Application>(repository.getAll());
 		Collections.sort(apps);
 
 		for (Application app : apps) {

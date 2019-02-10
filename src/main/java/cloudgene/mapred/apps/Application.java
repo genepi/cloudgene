@@ -1,4 +1,4 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.apps;
 
 import java.io.IOException;
 

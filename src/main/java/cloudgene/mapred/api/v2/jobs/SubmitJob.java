@@ -19,10 +19,11 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.PublicUser;
@@ -35,13 +36,15 @@ import genepi.io.FileUtil;
 
 public class SubmitJob extends BaseResource {
 
+	private ApplicationRespository applications = ApplicationRespository.getInstance();
+	
 	@Post
 	public Representation post(Representation entity) {
 
 		User user = getAuthUser();
 		String appId = getAttribute("tool");
 
-		Application application = getSettings().getAppByIdAndUser(appId, user);
+		Application application = applications.getByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {
 			app = application.getWdlApp();

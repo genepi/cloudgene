@@ -6,11 +6,12 @@ import java.util.Map;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.wdl.WdlApp;
@@ -19,6 +20,8 @@ import genepi.io.FileUtil;
 
 public class RestartJob extends BaseResource {
 
+	private ApplicationRespository applications = ApplicationRespository.getInstance();
+	
 	@Get
 	public Representation get(Representation entity) {
 
@@ -62,7 +65,7 @@ public class RestartJob extends BaseResource {
 			job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 
 			String appId = job.getApplicationId();
-			Application application = getSettings().getAppByIdAndUser(appId, job.getUser());
+			Application application = applications.getByIdAndUser(appId, job.getUser());
 			WdlApp app = null;
 			try {
 				app = application.getWdlApp();

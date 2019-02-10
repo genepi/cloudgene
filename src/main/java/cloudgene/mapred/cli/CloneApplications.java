@@ -11,13 +11,13 @@ import org.apache.commons.io.FileUtils;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import genepi.io.FileUtil;
 
 public class CloneApplications extends BaseTool {
-
+	
 	private String cmd = "cloudgene";
 
 	public CloneApplications(String[] args) {
@@ -64,16 +64,16 @@ public class CloneApplications extends BaseTool {
 				String id = entry.get("id").toString();
 				String url = entry.get("url").toString();
 
-				if (settings.getApp(id) == null) {
+				if (repository.getById(id) == null) {
 
-					List<Application> applications = new Vector<Application>();
+					List<Application> installed = new Vector<Application>();
 
 					System.out.println("Installing application " + id + "...");
 
 					try {
 
 						if (url.startsWith("http://") || url.startsWith("https://")) {
-							applications = getSettings().installApplicationFromUrl(id, url);
+							installed = repository.installFromUrl(id, url);
 						} else if (url.startsWith("github://")) {
 							String shorthand = url.replaceAll("github://", "");
 							Repository repository = GitHubUtil.parseShorthand(shorthand);
@@ -86,7 +86,7 @@ public class CloneApplications extends BaseTool {
 							if (repository.getDirectory() != null) {
 								newId += "-" + repository.getDirectory();
 							}
-							applications = getSettings().installApplicationFromGitHub(newId, repository, false);
+							installed = this.repository.installFromGitHub(newId, repository, false);
 						} else {
 
 							if (!url.startsWith("/")) {
@@ -94,20 +94,20 @@ public class CloneApplications extends BaseTool {
 							}
 
 							if (url.endsWith(".zip")) {
-								applications = getSettings().installApplicationFromZipFile(id, url);
+								installed = repository.installFromZipFile(id, url);
 							} else if (url.endsWith(".yaml")) {
-								Application application = getSettings().installApplicationFromYaml(id, url);
+								Application application = repository.installFromYaml(id, url);
 								if (application != null) {
-									applications.add(application);
+									installed.add(application);
 								}
 							} else {
-								applications = getSettings().installApplicationFromDirectory(id, url);
+								installed = repository.installFromDirectory(id, url);
 							}
 						}
 
-						if (applications.size() > 0) {
+						if (installed.size() > 0) {
 							settings.save();
-							printlnInGreen("[OK] " + applications.size() + " Applications installed: \n");
+							printlnInGreen("[OK] " + installed.size() + " Applications installed: \n");
 						} else {
 							printlnInRed("[ERROR] No valid Application found in repo '" + url + "'\n");
 							return 1;

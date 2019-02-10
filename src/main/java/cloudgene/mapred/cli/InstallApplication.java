@@ -3,10 +3,10 @@ package cloudgene.mapred.cli;
 import java.util.List;
 import java.util.Vector;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
 
 public class InstallApplication extends BaseTool {
-
+	
 	private String cmd = "cloudgene";
 
 	public InstallApplication(String[] args) {
@@ -32,9 +32,9 @@ public class InstallApplication extends BaseTool {
 
 		try {
 
-			List<Application> applications = new Vector<Application>();
+			List<Application> installed = new Vector<Application>();
 
-			if (settings.getApp(id) != null) {
+			if (repository.getById(id) != null) {
 				printlnInRed("[ERROR] An application with id '" + id + "' is already installed.\n");
 				return 1;
 			}
@@ -42,24 +42,24 @@ public class InstallApplication extends BaseTool {
 			System.out.println("Installing application " + id + "...");
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				applications = getSettings().installApplicationFromUrl(id, url);
+				installed = repository.installFromUrl(id, url);
 			} else {
 				if (url.endsWith(".zip")) {
-					applications = getSettings().installApplicationFromZipFile(id, url);
+					installed = repository.installFromZipFile(id, url);
 				} else if (url.endsWith(".yaml")) {
-					Application application = getSettings().installApplicationFromYaml(id, url);
+					Application application = repository.installFromYaml(id, url);
 					if (application != null) {
-						applications.add(application);
+						installed.add(application);
 					}
 				} else {
-					applications = getSettings().installApplicationFromDirectory(id, url);
+					installed = repository.installFromDirectory(id, url);
 				}
 			}
 
-			if (applications.size() > 0) {
+			if (installed.size() > 0) {
 				settings.save();
-				printlnInGreen("[OK] " + applications.size() + " Applications installed: \n");
-				ListApplications.printApplicationList(applications);
+				printlnInGreen("[OK] " + installed.size() + " Applications installed: \n");
+				ListApplications.printApplicationList(installed);
 				return 0;
 			} else {
 				printlnInRed("[ERROR] No valid Application found.\n");

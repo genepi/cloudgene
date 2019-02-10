@@ -13,12 +13,12 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
@@ -203,6 +203,8 @@ public class TestServer {
 			app22.setFilename("test-data/print-hidden-inputs.yaml");
 			app22.setPermission("public");
 			applications.add(app22);
+			
+			
 			
 			settings.setApps(applications);
 

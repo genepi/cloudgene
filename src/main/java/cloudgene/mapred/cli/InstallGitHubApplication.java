@@ -9,7 +9,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 
@@ -80,7 +81,7 @@ public class InstallGitHubApplication extends BaseTool {
 			// create id from github shorthand
 
 			String id = repository.getUser() + "-" + repository.getRepo();
-			if (repository.getDirectory() != null){
+			if (repository.getDirectory() != null) {
 				id += "-" + repository.getDirectory();
 			}
 			if (line.hasOption("name")) {
@@ -88,12 +89,12 @@ public class InstallGitHubApplication extends BaseTool {
 			}
 
 			boolean update = line.hasOption("update");
-			List<Application> applications = getSettings().installApplicationFromGitHub(id, repository, update);
+			List<Application> installed = this.repository.installFromGitHub(id, repository, update);
 
-			if (applications.size() > 0) {
+			if (installed.size() > 0) {
 				settings.save();
-				printlnInGreen("[OK] " + applications.size() + " Application(s) installed: \n");
-				ListApplications.printApplicationList(applications);
+				printlnInGreen("[OK] " + installed.size() + " Application(s) installed: \n");
+				ListApplications.printApplicationList(installed);
 				return 0;
 			} else {
 				printlnInRed("[ERROR] No valid Application found.\n");

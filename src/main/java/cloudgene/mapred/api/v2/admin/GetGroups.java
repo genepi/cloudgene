@@ -8,13 +8,16 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 import net.sf.json.JSONArray;
 
 public class GetGroups extends BaseResource {
 
+	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	
 	@Get
 	public Representation get() {
 
@@ -35,7 +38,7 @@ public class GetGroups extends BaseResource {
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
 		groups.add(new Group("user"));
-		for (Application application : getSettings().getApps()) {
+		for (Application application : repository.getAll()) {
 			Group group = new Group(application.getPermission());
 			if (!groups.contains(group)) {
 				group.addApp(application.getId());

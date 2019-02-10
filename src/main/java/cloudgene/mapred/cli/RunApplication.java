@@ -15,6 +15,7 @@ import org.apache.commons.cli.PosixParser;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -22,7 +23,6 @@ import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
@@ -89,7 +89,7 @@ public class RunApplication extends BaseTool {
 			}
 		} else {
 			// check if application name is installed
-			Application application = settings.getApp(filename);
+			Application application = repository.getById(filename);
 			if (application == null) {
 				printError("Application or file " + filename + " not found.");
 				return 1;

@@ -1,6 +1,6 @@
 package cloudgene.mapred.cli;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
 
 public class RemoveApplication extends BaseTool {
 
@@ -26,13 +26,13 @@ public class RemoveApplication extends BaseTool {
 		String id = args[0];
 		try {
 
-			Application application = settings.getApp(id);
+			Application application = repository.getById(id);
 			if (application == null) {
 				printlnInRed("[ERROR] Application " + id + " is not in your local repository.\n");
 				return 1;
 			}
 
-			settings.deleteApplication(application);
+			repository.remove(application);
 
 			printlnInGreen("[OK] Application removed.");
 			settings.save();

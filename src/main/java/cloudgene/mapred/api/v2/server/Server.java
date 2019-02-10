@@ -10,6 +10,7 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.WebApp;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
@@ -18,6 +19,8 @@ import freemarker.template.Configuration;
 import net.sf.json.JSONObject;
 
 public class Server extends BaseResource {
+
+	private ApplicationRespository repository = ApplicationRespository.getInstance();
 
 	@Get
 	public Representation getServer() {
@@ -44,22 +47,22 @@ public class Server extends BaseResource {
 			userJson.put("admin", user.isAdmin());
 			userJson.put("name", user.getFullName());
 			data.put("user", userJson);
-			List<WdlApp> apps = getSettings().getAppsByUser(user);
+			List<WdlApp> apps = repository.getAllByUser(user);
 			data.put("apps", apps);
 			data.put("loggedIn", true);
 
-		}else{
-			//get Public apps
-			List<WdlApp> apps = getSettings().getAppsByUser(null);
+		} else {
+			// get Public apps
+			List<WdlApp> apps = repository.getAllByUser(null);
 			data.put("apps", apps);
 			data.put("loggedIn", false);
 		}
-		
+
 		data.put("navigation", getSettings().getNavigation());
 		if (getSettings().isMaintenance()) {
 			data.put("maintenace", true);
 			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
-		}else{
+		} else {
 			data.put("maintenace", false);
 		}
 

@@ -10,13 +10,14 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationInstaller;
+import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
-import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -39,8 +40,10 @@ public class CloudgeneJob extends AbstractJob {
 
 	public static final int MAX_DOWNLOAD = 10;
 
+	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
-
+	
 	public CloudgeneJob() {
 		super();
 	}
@@ -218,7 +221,7 @@ public class CloudgeneJob extends AbstractJob {
 					String value = input.getValue();
 					if (value.startsWith("apps@")) {
 						String linkedAppId = value.replaceAll("apps@", "");
-						Application linkedApp = settings.getAppByIdAndUser(linkedAppId, getUser());
+						Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
 						if (linkedApp != null) {
 							applications.add(linkedApp.getWdlApp());
 							// update evenirnoment variables
