@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,9 +42,9 @@ public class CloudgeneJob extends AbstractJob {
 	public static final int MAX_DOWNLOAD = 10;
 
 	private ApplicationRespository repository = ApplicationRespository.getInstance();
-	
+
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
-	
+
 	public CloudgeneJob() {
 		super();
 	}
@@ -372,10 +373,10 @@ public class CloudgeneJob extends AbstractJob {
 
 				// delete hdfs workspace
 				if (isRemoveHdfsWorkspace()) {
-					if (context.getHdfsOutput() != null){
-					writeLog("Cleaning up hdfs files...");
-					HdfsUtil.delete(context.getHdfsOutput());
-					HdfsUtil.delete(context.getHdfsInput());
+					if (context.getHdfsOutput() != null) {
+						writeLog("Cleaning up hdfs files...");
+						HdfsUtil.delete(context.getHdfsOutput());
+						HdfsUtil.delete(context.getHdfsInput());
 					}
 				}
 			} catch (Exception e) {
@@ -496,30 +497,37 @@ public class CloudgeneJob extends AbstractJob {
 
 		out.setJobId(getId());
 
-		String n = FileUtil.path(localOutput, out.getName());
+		String name = out.getName();
+		String n = FileUtil.path(localOutput, name);
 
 		File f = new File(n);
 
 		if (f.exists() && f.isDirectory()) {
 
-			FileItem[] items = cloudgene.mapred.util.FileTree.getFileTree(localOutput, out.getName());
+			File[] files = f.listFiles();
 
-			List<Download> files = new Vector<Download>();
+			List<Download> downloads = new Vector<Download>();
 
-			for (FileItem item : items) {
-				String hash = HashUtil
-						.getMD5(item.getText() + item.getId() + item.getSize() + getId() + (Math.random() * 100000));
-				Download download = new Download();
-				download.setName(item.getText());
-				download.setPath(FileUtil.path(getId(), item.getId()));
-				download.setSize(item.getSize());
-				download.setHash(hash);
-				download.setParameter(out);
-				download.setCount(MAX_DOWNLOAD);
-				files.add(download);
+			for (int i = 0; i < files.length; i++) {
+				if (!files[i].isDirectory()) {
+
+					String filename = files[i].getName();
+					String id = name + "/" + files[i].getName();
+					String size = FileUtils.byteCountToDisplaySize(files[i].length());
+					String hash = HashUtil.getMD5(filename + id + size + getId() + (Math.random() * 100000));
+					Download download = new Download();
+					download.setName(filename);
+					download.setPath(FileUtil.path(getId(), id));
+					download.setSize(size);
+					download.setHash(hash);
+					download.setParameter(out);
+					download.setCount(MAX_DOWNLOAD);
+					downloads.add(download);
+				}
 			}
-			Collections.sort(files);
-			out.setFiles(files);
+
+			Collections.sort(downloads);
+			out.setFiles(downloads);
 		}
 
 		return true;
