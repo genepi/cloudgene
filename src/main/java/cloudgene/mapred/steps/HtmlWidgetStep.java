@@ -134,7 +134,6 @@ public class HtmlWidgetStep extends CloudgeneStep {
 					String assetsSource = FileUtil.path(workingDirectory, assets);
 					String assetsTarget = FileUtil.path(parent.getAbsolutePath(), assets);
 					FileUtil.createDirectory(assetsTarget);
-					context.ok("Copy Assets from " + assetsSource + " " + assetsTarget);
 					FileUtil.copyDirectory(assetsSource, assetsTarget);
 				}
 				
