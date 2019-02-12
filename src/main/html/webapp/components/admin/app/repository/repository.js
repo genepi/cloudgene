@@ -20,12 +20,28 @@ export default Control.extend({
       CloudgeneApplication.findAll({}, function(applications) {
         var installedId = [];
         $.each(installedApplications, function(index, application) {
-          installedId.push(application.attr('id'));
+          var tiles = application.attr('id').split(":");
+          var installedApplication = {
+            id: tiles[0],
+            version: tiles[1]
+          };
+          installedId.push(installedApplication);
         });
 
         $.each(applications, function(index, application) {
-          var installed = installedId.includes(application.attr('id'));
+
+          var installedApplication = installedId.filter(function(e) {
+            return e.id === application.attr('id');
+          });
+
+          var installed = installedApplication.length > 0;
           application.attr('installed', installed);
+
+          if (installed){
+            var localVersion = installedApplication[0].version;
+            application.attr('localVersion', localVersion);
+          }
+
 
         });
 
@@ -41,11 +57,9 @@ export default Control.extend({
 
   '.install-app-btn click': function(el, ev) {
 
-    var id = $(el).data('app-id');
     var url = $(el).data('app-url');
 
     var app = new Application();
-    app.attr('name', id);
     app.attr('url', url);
 
     var waitingDialog = bootbox.dialog({

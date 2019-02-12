@@ -56,7 +56,7 @@ public class WdlReader {
 		String path = new File(new File(filename).getAbsolutePath()).getParentFile().getAbsolutePath();
 		app.setPath(path);
 		app.setManifestFile(filename);
-		app.setId(FileUtil.getFilename(app.getManifestFile()).replaceAll(".yaml", ""));
+		//app.setId(FileUtil.getFilename(app.getManifestFile()).replaceAll(".yaml", ""));
 		// check mandatory fields errors
 		/*
 		 * if (app.getId() == null || app.getId().isEmpty()) { throw new

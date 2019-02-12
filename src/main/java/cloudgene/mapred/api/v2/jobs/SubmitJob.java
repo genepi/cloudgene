@@ -2,6 +2,8 @@ package cloudgene.mapred.api.v2.jobs;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,7 +45,13 @@ public class SubmitJob extends BaseResource {
 
 		User user = getAuthUser();
 		String appId = getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
 
+		
 		Application application = applications.getByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {

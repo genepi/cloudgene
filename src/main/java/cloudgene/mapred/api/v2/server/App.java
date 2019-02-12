@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.server;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +38,12 @@ public class App extends BaseResource {
 
 		User user = getAuthUser();
 
-		String appId = getAttribute("tool");
+		String appId =  getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
 
 		Settings settings = getSettings();
 
@@ -102,6 +109,13 @@ public class App extends BaseResource {
 		}
 
 		String appId = getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
+		
+		
 		Application application = repository.getById(appId);
 		if (application != null) {
 			try {
@@ -138,14 +152,20 @@ public class App extends BaseResource {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation("The request requires administration rights.");
 		}
+		String appId = getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
 
 		Form form = new Form(entity);
 		String enabled = form.getFirstValue("enabled");
 		String permission = form.getFirstValue("permission");
 		String reinstall = form.getFirstValue("reinstall");
 
-		String tool = getAttribute("tool");
-		Application application = repository.getById(tool);
+		
+		Application application = repository.getById(appId);
 		if (application != null) {
 
 			try {
@@ -198,7 +218,7 @@ public class App extends BaseResource {
 
 		} else {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Application '" + tool + "' not found.");
+			return new StringRepresentation("Application '" + appId + "' not found.");
 		}
 	}
 

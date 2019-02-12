@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -193,42 +195,54 @@ public class ApplicationRespository {
 		}
 	}
 
-	public List<Application> installFromUrl(String id, String url) throws IOException {
+	public Application installFromUrl(String url) throws IOException {
 		// download file from url
 		if (url.endsWith(".zip")) {
 			File zipFile = File.createTempFile("download", ".zip");
 			FileUtils.copyURLToFile(new URL(url), zipFile);
-			return installFromZipFile(id, zipFile.getAbsolutePath());
+			return installFromZipFile(zipFile.getAbsolutePath());
+		} /*
+			 * else { try { String appPath = FileUtil.path(appsFolder, "new-app");
+			 * FileUtil.createDirectory(appPath);
+			 * 
+			 * String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
+			 * 
+			 * FileUtils.copyURLToFile(new URL(url), new File(yamlFilename)); Application
+			 * application = installFromYaml(yamlFilename);
+			 * 
+			 * return application;
+			 * 
+			 * } catch (IOException e) { e.printStackTrace(); throw e; } }
+			 */
+		return null;
+
+	}
+
+	public Application installFromGitHub(Repository repository)
+			throws MalformedURLException, IOException {
+
+		String url = GitHubUtil.buildUrlFromRepository(repository);
+		File zipFile = File.createTempFile("github", ".zip");
+		FileUtils.copyURLToFile(new URL(url), zipFile);
+
+		String zipFilename = zipFile.getAbsolutePath();
+		if (repository.getDirectory() != null) {
+			// extract only sub dir
+			Application application = installFromZipFile(zipFilename, "^.*/" + repository.getDirectory() + ".*");
+			return application;
+
 		} else {
-			try {
-				String appPath = FileUtil.path(appsFolder, id);
-				FileUtil.createDirectory(appPath);
-
-				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
-
-				FileUtils.copyURLToFile(new URL(url), new File(yamlFilename));
-				Application application = installFromYaml(id, yamlFilename);
-
-				List<Application> installed = new Vector<Application>();
-				if (application != null) {
-					installed.add(application);
-				}
-
-				return installed;
-
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw e;
-			}
+			Application application = installFromZipFile(zipFilename);
+			return application;
 		}
 
 	}
 
-	public List<Application> installFromZipFile(String id, String zipFilename) throws IOException {
+	public Application installFromZipFile(String zipFilename) throws IOException {
 
 		// extract in apps folder
 
-		String appPath = FileUtil.path(appsFolder, id);
+		String appPath = FileUtil.path(appsFolder, "archive");
 		FileUtil.deleteDirectory(appPath);
 		FileUtil.createDirectory(appPath);
 		try {
@@ -238,46 +252,18 @@ public class ApplicationRespository {
 			throw new IOException(e);
 		}
 
-		return installFromDirectory(id, appPath);
+		try {
+			Application application = installFromDirectory(appPath, true);
+			return application;
+		} finally {
+			FileUtil.deleteDirectory(appPath);
+		}
 
 	}
 
-	public List<Application> installFromGitHub(String id, Repository repository, boolean update)
-			throws MalformedURLException, IOException {
+	public Application installFromZipFile(String zipFilename, String subFolder) throws IOException {
 
-		List<Application> applications = new Vector<Application>();
-
-		if (getById(id) != null) {
-			if (update) {
-				System.out.println("Updating application " + id + "...");
-				removeById(id);
-			} else {
-				return applications;
-			}
-		} else {
-			System.out.println("Installing application " + id + "...");
-		}
-
-		String url = GitHubUtil.buildUrlFromRepository(repository);
-		File zipFile = File.createTempFile("github", ".zip");
-		FileUtils.copyURLToFile(new URL(url), zipFile);
-
-		String zipFilename = zipFile.getAbsolutePath();
-		if (repository.getDirectory() != null) {
-			// extract only sub dir
-			applications = installFromZipFile(id, zipFilename, "^.*/" + repository.getDirectory() + ".*");
-		} else {
-			applications = installFromZipFile(id, zipFilename);
-		}
-
-		return applications;
-
-	}
-
-	public List<Application> installFromZipFile(String id, String zipFilename, String subFolder)
-			throws IOException {
-
-		String appPath = FileUtil.path(appsFolder, id);
+		String appPath = FileUtil.path(appsFolder, "archive");
 		FileUtil.deleteDirectory(appPath);
 		FileUtil.createDirectory(appPath);
 		try {
@@ -293,53 +279,49 @@ public class ApplicationRespository {
 			throw new IOException(e);
 		}
 
-		return installFromDirectory(id, appPath);
+		try {
+			Application application = installFromDirectory(appPath, true);
+			return application;
+		} finally {
+			FileUtil.deleteDirectory(appPath);
+		}
 
 	}
 
-	public List<Application> installFromDirectory(String id, String path) throws IOException {
-		return installFromDirectory(id, path, false);
-	}
+	public Application installFromDirectory(String path, boolean moveToApps) throws IOException {
 
-	public List<Application> installFromDirectory(String id, String path, boolean multiple)
-			throws IOException {
+		String cloudgeneFilename = FileUtil.path(path, "cloudgene.yaml");
+		if (new File(cloudgeneFilename).exists()) {
+			Application application = installFromYaml(cloudgeneFilename, moveToApps);
+			if (application != null) {
+				return application;
+			}
+		}
+
 		// find all cloudgene workflows (use filename as id)
 		String[] files = FileUtil.getFiles(path, "*.yaml");
 
-		List<Application> installed = new Vector<Application>();
-
 		for (String filename : files) {
-			String newId = id;
-			if (multiple) {
-				newId = id + "-" + FileUtil.getFilename(filename).replaceAll(".yaml", "");
-			}
-			Application application = installFromYaml(newId, filename);
+			Application application = installFromYaml(filename, moveToApps);
 			if (application != null) {
-				installed.add(application);
-				multiple = true;
+				return application;
 			}
 		}
 
 		// search in subfolders
 		for (String directory : getDirectories(path)) {
-			List<Application> installedSubFolder = installFromDirectory(id, directory, multiple);
-			if (installedSubFolder.size() > 0) {
-				multiple = true;
-				installed.addAll(installedSubFolder);
+			Application application = installFromDirectory(directory, moveToApps);
+			if (application != null) {
+				return application;
 			}
 		}
-		return installed;
+		return null;
 
 	}
 
-	public Application installFromYaml(String id, String filename) throws IOException {
-
-		if (indexApps.get(id) != null) {
-			throw new IOException("Application " + id + " is already installed");
-		}
+	public Application installFromYaml(String filename, boolean moveToApps) throws IOException {
 
 		Application application = new Application();
-		application.setId(id);
 		application.setFilename(filename);
 		application.setPermission("user");
 		try {
@@ -348,12 +330,48 @@ public class ApplicationRespository {
 			log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
 			return null;
 		}
-		System.out.println("Process file " + filename + "....");
+
+		String id = application.getWdlApp().getId() + ":" + application.getWdlApp().getVersion();
+
+		//application with same version is already installed.
+		if (indexApps.get(id) != null) {
+			throw new IOException("Application " + id + " is already installed");
+		}
+		
+		//TODO: check if its an update an remove old version. atm both versions are installed
+		
+
+		if (moveToApps) {
+
+			File file = new File(filename);
+			File folder = file.getParentFile();
+
+			String targetPath = FileUtil.path(appsFolder, application.getWdlApp().getId(),
+					application.getWdlApp().getVersion());
+			FileUtil.createDirectory(targetPath);
+			File target = new File(targetPath);
+
+			Files.move(folder.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+			application.setFilename(FileUtil.path(targetPath, file.getName()));
+			try {
+				application.loadWdlApp();
+			} catch (IOException e) {
+				log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
+				return null;
+			}
+
+		}
+
+		application.setId(id);
 		apps.add(application);
+
 		WdlApp wdlApp = application.getWdlApp();
+		// TODO: check if it is needed!
 		if (wdlApp != null) {
 			wdlApp.setId(id);
 		}
+
 		indexApps.put(application.getId(), application);
 
 		return application;

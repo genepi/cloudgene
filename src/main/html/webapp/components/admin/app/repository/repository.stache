@@ -19,7 +19,11 @@
 							{{/authors}}
 	          </div>
 						{{#installed}}
+							{{#is(localVersion, version)}}
 							<a class="btn btn-default disabled">Installed</a>
+							{{else}}
+							<button type="button" class="install-app-btn btn btn-primary" data-app-url="{{package_url}}" data-app-id="{{id}}"> Update to {{version}}</button>
+							{{/is}}
 						{{else}}
 							<button type="button" class="install-app-btn btn btn-success" data-app-url="{{package_url}}" data-app-id="{{id}}"><i class="fas fa-download"></i> Install</button>
 						{{/installed}}

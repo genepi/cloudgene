@@ -1,4 +1,4 @@
-import genepi.hadoop.common.WorkflowContext
+import cloudgene.sdk.internal.WorkflowContext
 import genepi.hadoop.HdfsUtil
 
 def run(WorkflowContext context) {

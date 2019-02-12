@@ -1,16 +1,6 @@
 package cloudgene.mapred.cli;
 
-import java.util.List;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
-
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRespository;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 
@@ -39,7 +29,7 @@ public class InstallGitHubApplication extends BaseTool {
 		init();
 
 		if (args.length < 1) {
-			System.out.println("Usage: " + cmd + " gh <GitHub repo> [--name <name>] [--update]");
+			System.out.println("Usage: " + cmd + " gh <GitHub repo>");
 			System.out.println();
 			System.exit(1);
 		}
@@ -47,28 +37,6 @@ public class InstallGitHubApplication extends BaseTool {
 		String repo = args[0];
 
 		// create the command line parser
-		CommandLineParser parser = new PosixParser();
-		Options options = new Options();
-		Option idOption = new Option(null, "name", true, "Custom application name");
-		idOption.setRequired(false);
-		options.addOption(idOption);
-		Option forceOption = new Option(null, "update", false, "Force application update");
-		forceOption.setRequired(false);
-		options.addOption(forceOption);
-
-		// parse the command line arguments
-		CommandLine line = null;
-		try {
-
-			line = parser.parse(options, args);
-
-		} catch (Exception e) {
-			printError(e.getMessage());
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("Arguments:", options);
-			System.out.println();
-			return 1;
-		}
 
 		try {
 
@@ -78,23 +46,12 @@ public class InstallGitHubApplication extends BaseTool {
 				return 1;
 			}
 
-			// create id from github shorthand
+			Application application = this.repository.installFromGitHub(repository);
 
-			String id = repository.getUser() + "-" + repository.getRepo();
-			if (repository.getDirectory() != null) {
-				id += "-" + repository.getDirectory();
-			}
-			if (line.hasOption("name")) {
-				id = line.getOptionValue("name");
-			}
-
-			boolean update = line.hasOption("update");
-			List<Application> installed = this.repository.installFromGitHub(id, repository, update);
-
-			if (installed.size() > 0) {
+			if (application != null) {
 				settings.save();
-				printlnInGreen("[OK] " + installed.size() + " Application(s) installed: \n");
-				ListApplications.printApplicationList(installed);
+				printlnInGreen("[OK] Application installed: \n");
+				//ListApplications.printApplicationList(applications);(installed);
 				return 0;
 			} else {
 				printlnInRed("[ERROR] No valid Application found.\n");

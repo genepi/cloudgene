@@ -3,7 +3,7 @@ package cloudgene.mapred.wdl;
 import java.util.List;
 import java.util.Map;
 
-public class WdlApp implements Comparable<WdlApp>{
+public class WdlApp implements Comparable<WdlApp> {
 
 	private String source = "";
 
@@ -98,7 +98,10 @@ public class WdlApp implements Comparable<WdlApp>{
 	}
 
 	public String getId() {
-		return id;
+		if (id != null && !id.isEmpty()) {
+			return id;
+		}
+		return name.replaceAll(" ", "-").toLowerCase();
 	}
 
 	@Deprecated
@@ -180,10 +183,10 @@ public class WdlApp implements Comparable<WdlApp>{
 	public boolean needsInstallation() {
 		return getInstallation() != null && getInstallation().size() > 0;
 	}
-	
+
 	@Override
 	public int compareTo(WdlApp o) {
-			return getName().compareTo(o.getName());
+		return getName().compareTo(o.getName());
 	}
 
 }

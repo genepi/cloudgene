@@ -21,6 +21,7 @@ import cloudgene.mapred.jobs.CloudgeneStepFactory;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
+import cloudgene.mapred.steps.JavaInternalStepDeprecrated;
 import cloudgene.mapred.wdl.WdlStep;
 import cloudgene.sdk.internal.WorkflowStep;
 import genepi.io.FileUtil;
@@ -99,6 +100,11 @@ public class GraphNode implements Runnable {
 					instance = (CloudgeneStep) object;
 				} else if (object instanceof WorkflowStep) {
 					instance = new JavaInternalStep((WorkflowStep) object);
+					//old genepi-hadoop support! this is deprecreated!
+				if (object instanceof genepi.hadoop.common.WorkflowStep) {
+					instance = new JavaInternalStepDeprecrated((genepi.hadoop.common.WorkflowStep) object);
+				}
+					
 				} else {
 					instance = new ErrorStep("Error during initialization: class " + step.getClassname() + " ( "
 							+ object.getClass().getSuperclass().getCanonicalName() + ") "

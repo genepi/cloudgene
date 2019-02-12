@@ -37,11 +37,9 @@ export default Control.extend({
     bootbox.confirm(templateInstallUrl(),
       function(result) {
         if (result) {
-          var id = $('#id').val();
           var url = $('#url').val();
           var app = new Application();
           app.attr('url', url);
-          app.attr('name', id);
 
           var waitingDialog = bootbox.dialog({
             message: '<h4>Install application</h4>' +

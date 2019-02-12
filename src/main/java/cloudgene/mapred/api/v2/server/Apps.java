@@ -28,8 +28,8 @@ import net.sf.json.JSONObject;
 
 public class Apps extends BaseResource {
 
-	private ApplicationRespository repository= ApplicationRespository.getInstance();
-	
+	private ApplicationRespository repository = ApplicationRespository.getInstance();
+
 	@Post
 	public Representation install(Representation entity) {
 
@@ -48,7 +48,6 @@ public class Apps extends BaseResource {
 		}
 
 		Form form = new Form(entity);
-		String id = form.getFirstValue("name");
 		String url = form.getFirstValue("url");
 
 		if (url == null) {
@@ -56,22 +55,12 @@ public class Apps extends BaseResource {
 			return new StringRepresentation("No url or file location set.");
 		}
 
-		// check for unique id
-		if (repository.getById(id) != null) {
-			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return new StringRepresentation("An application with the id '" + id + "' is already installed.");
-		}
-
 		try {
 
-			List<Application> applications = new Vector<Application>();
+			Application application = null;
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				if (id == null) {
-					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return new StringRepresentation("No id set.");
-				}
-				applications = this.repository.installFromUrl(id, url);
+				application = this.repository.installFromUrl(url);
 			} else if (url.startsWith("github://")) {
 				String shorthand = url.replaceAll("github://", "");
 				Repository repository = GitHubUtil.parseShorthand(shorthand);
@@ -80,32 +69,21 @@ public class Apps extends BaseResource {
 					return new StringRepresentation(shorthand + " is not a valid GitHub repo.");
 
 				}
-				String newId = repository.getUser() + "-" + repository.getRepo();
-				if (repository.getDirectory() != null){
-					newId += "-" + repository.getDirectory();
-				}				
-				applications = this.repository.installFromGitHub(newId, repository, false);
+				application = this.repository.installFromGitHub(repository);
 			} else {
-				if (id == null) {
-					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return new StringRepresentation("No id set.");
-				}
 				if (url.endsWith(".zip")) {
-					applications = this.repository.installFromZipFile(id, url);
+					application = this.repository.installFromZipFile(url);
 				} else if (url.endsWith(".yaml")) {
-					Application application = this.repository.installFromYaml(id, url);
-					if (application != null) {
-						applications.add(application);
-					}
+					application = this.repository.installFromYaml(url, false);
 				} else {
-					applications = this.repository.installFromDirectory(id, url);
+					application = this.repository.installFromDirectory(url, false);
 				}
 			}
 
 			getSettings().save();
-			if (applications != null && applications.size() > 0) {
-				JSONObject jsonObject = JSONConverter.convert(applications.get(0));
-				updateState(applications.get(0), jsonObject);
+			if (application != null) {
+				JSONObject jsonObject = JSONConverter.convert(application);
+				updateState(application, jsonObject);
 				return new JsonRepresentation(jsonObject.toString());
 			} else {
 				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
@@ -135,7 +113,7 @@ public class Apps extends BaseResource {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation("The request requires administration rights.");
 		}
-		
+
 		String reload = getQueryValue("reload");
 		if (reload != null && reload.equals("true")) {
 			repository.reload();
@@ -163,13 +141,13 @@ public class Apps extends BaseResource {
 		if (wdlApp != null) {
 			if (wdlApp.needsInstallation()) {
 				try {
-				boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
-				if (installed) {
-					jsonObject.put("state", "completed");
-				} else {
-					jsonObject.put("state", "on demand");
-				}
-				}catch (NoClassDefFoundError e) {
+					boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
+					if (installed) {
+						jsonObject.put("state", "completed");
+					} else {
+						jsonObject.put("state", "on demand");
+					}
+				} catch (NoClassDefFoundError e) {
 					// TODO: handle exception
 				}
 			} else {
