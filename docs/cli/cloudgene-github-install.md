@@ -5,7 +5,7 @@ Installs an application from a GitHub repo to your local repository.
 ## Command
 
 ```bash
-cloudgene github-install <owner>/<repository>[/<subdir>] [--name <id>] [--update]
+cloudgene github-install <owner>/<repository>[/<subdir>]
 ```
 ## Parameters
 

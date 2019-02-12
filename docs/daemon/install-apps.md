@@ -31,12 +31,12 @@ You can click on **Disable** to deactivate the application or on **Uninstall** t
 You can install applications by using the [`install`](/cli/cloudgene-install) or the [`github-install`](/cli/cloudgene-github-install) command. Cloudgene installs all applications in the folder `apps`.
 
 ```sh
-cloudgene install <id> <location>
+cloudgene install <location>
 ```
-The `id` parameter is a shorthand name of the application and is used to refer the application. Location could be a zip file or a yaml file accessible via http or which is located on the local filesystem.
+`Location` could be a zip file or a yaml file accessible via http or which is located on the local filesystem.
 
 ```sh
-cloudgene install hello-cloudgene https://github.com/lukfor/hello-cloudgene/archive/master.zip
+cloudgene install https://github.com/lukfor/hello-cloudgene/archive/master.zip
 ```
 
 You can also install applications directly from GitHub:
@@ -70,7 +70,7 @@ An installed application can be removed with the `remove` command:
 
 
 ```sh
-cloudgene remove <name>
+cloudgene remove <id>
 ```
 
 ## What's next?
