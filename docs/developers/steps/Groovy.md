@@ -24,7 +24,8 @@ The following example demonstrates how to execute a Groovy script and write feed
 #### cloudgene.yaml
 
 ```yaml
-name: Groovy test
+id: groovy-example
+name: Groovy Example
 version: 1.0
 workflow:
   steps:
@@ -67,7 +68,7 @@ Cloudgene supports `@Grab` annotations to download missing dependencies automati
 @Grab('com.xlson.groovycsv:groovycsv:1.1')
 
 import static com.xlson.groovycsv.CsvParser.parseCsv
-import genepi.hadoop.common.WorkflowContext
+import cloudgene.sdk.internal.WorkflowContext
 
 def run(WorkflowContext context) {
 

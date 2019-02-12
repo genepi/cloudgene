@@ -11,7 +11,8 @@ Some analytic workflows have a dynamic behaviour - for example, skipping a step 
 You can use every input parameter (in this example `$choice`) to build logical conditions. More about conditions and syntax examples can be found in the [Velocity manual](http://velocity.apache.org/engine/1.7/user-guide.html#if-elseif-else).
 
 ```yaml
-name: if example
+id: if-example
+name: IF Condition Example
 version: 1.0
 workflow:
   steps:
@@ -40,7 +41,8 @@ workflow:
 You can use loops to add steps to your workflow dynamically:
 
 ```yaml
-name: loop example
+id: loop-example
+name: Loop Example
 version: 1.0
 workflow:
   steps:

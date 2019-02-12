@@ -41,7 +41,8 @@ Cloudgene supports several environment variables that can be used in your `cloud
 ## Example
 
 ```yaml
-name: print username
+id: print-username
+name: Print Username Example
 version: 1.0.0
 workflow:
   steps:

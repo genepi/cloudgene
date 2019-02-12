@@ -14,7 +14,8 @@ Apache PIG scripts can be integrated as tasks in order to transform datasets cre
 The following example shows how to integrate a pig script:
 
 ```yaml
-name: Hadoop PIG
+id: hadoop-pig-example
+name: Hadoop PIG Example
 version: 1.0
 workflow:
   steps:

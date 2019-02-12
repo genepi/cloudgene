@@ -18,7 +18,8 @@ To give the user feedback on the results of an executed workflow, it is importan
 Create html report:
 
 ```yaml
-name: r markdown example
+id: rmarkdown-example
+name: RMarkdown Example
 version: 1.0
 workflow:
   steps:
@@ -41,7 +42,8 @@ workflow:
 Use RMarkdown to generate html-widget and use it as step's output:
 
 ```yaml
-name: r markdown example
+id: rmarkdown-example
+name: RMarkdown Example
 version: 1.0
 workflow:
   steps:
@@ -71,5 +73,5 @@ m <- leaflet() %>%
   addTiles() %>%  # Add default OpenStreetMap map tiles
   addMarkers(lng=174.768, lat=-36.852, popup="The birthplace of R")
 m  # Print the map
- ``` 
+ ```
 ```

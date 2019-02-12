@@ -18,7 +18,8 @@ Renders visualizations into steps.
 The following example shows how to create a html widget using Datatables:
 
 ```yaml
-name: html-widgets
+id: html-widgets-example
+name: HTML Widgets Example
 version: 1.0.0
 workflow:
   steps:
