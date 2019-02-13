@@ -37,7 +37,7 @@ category: tool-category
 version: 1.0
 website: http://www.my-website.com
 ```
-The two most important fields are `name` and `version`, without them your application won’t be able to install. The `name` and `version` fields are used together to create a unique id.
+The two most important fields are `id`, `name` and `version`, without them your application won’t be able to install. The `id` and `version` fields are used together to create a unique id. `description` and `website` should be used to describe your application.
 
 The next step is to add the `workflow` section to your configuration file to define steps as well as input- and output-parameters.
 

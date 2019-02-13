@@ -12,8 +12,6 @@ cloudgene github-install <owner>/<repository>[/<subdir>]
 | Parameter | Required | Description |
 | --- | --- | --- |
 | `<repository>` | yes | The GitHub repository of the application |
-| `--name <id>` | no | Use a specific id for this application |
-| `--update` | no | Reinstall application if it is already installed.  |
 
 ## Examples
 
