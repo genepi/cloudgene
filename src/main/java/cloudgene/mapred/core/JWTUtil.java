@@ -1,17 +1,20 @@
 package cloudgene.mapred.core;
 
-import net.minidev.json.JSONObject;
-
 import org.restlet.Request;
 import org.restlet.data.Parameter;
 import org.restlet.util.Series;
 
 import cloudgene.mapred.database.UserDao;
 import genepi.db.Database;
+import net.minidev.json.JSONObject;
 
 public class JWTUtil {
 
 	public static final String COOKIE_NAME = "cloudgene-token";
+
+	public static long TOKEN_LIFETIME_MS = 24 * 60 * 60 * 1000;
+
+	public static long TOKEN_LIFETIME_API_MS = 30 * 24 * 60 * 60 * 1000;
 
 	public JWTUtil() {
 	}
@@ -25,7 +28,7 @@ public class JWTUtil {
 		playload.put("api", false);
 		playload.put("csrf", csrfToken);
 
-		String token = JWT.generate(playload, secretKey);
+		String token = JWT.generate(playload, secretKey, TOKEN_LIFETIME_MS);
 
 		return token;
 	}
@@ -38,7 +41,7 @@ public class JWTUtil {
 		playload.put("mail", user.getMail());
 		playload.put("api", true);
 
-		String token = JWT.generate(playload, secretKey);
+		String token = JWT.generate(playload, secretKey, TOKEN_LIFETIME_API_MS);
 
 		return token;
 	}
