@@ -20,14 +20,12 @@ import net.minidev.json.JSONObject;
 
 public class JWT {
 
-	// 1 day
-	public static long TOKEN_LIFETIME_MS = 24 * 60 * 60 * 1000;
-
-	public static String generate(JSONObject jsonObject, String key) {
+	
+	public static String generate(JSONObject jsonObject, String key, long lifetime) {
 
 		// add valid-until to payload
 		jsonObject
-				.put("expire", System.currentTimeMillis() + TOKEN_LIFETIME_MS);
+				.put("expire", System.currentTimeMillis() + lifetime);
 
 		// Create JWS header with HS256 algorithm
 		JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);

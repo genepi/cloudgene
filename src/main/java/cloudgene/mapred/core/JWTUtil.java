@@ -12,6 +12,10 @@ public class JWTUtil {
 
 	public static final String COOKIE_NAME = "cloudgene-token";
 
+	public static long TOKEN_LIFETIME_MS = 24 * 60 * 60 * 1000;
+
+	public static long TOKEN_LIFETIME_API_MS = 30L * 24L * 60L * 60L * 1000L;
+
 	public JWTUtil() {
 	}
 
@@ -24,7 +28,7 @@ public class JWTUtil {
 		playload.put("api", false);
 		playload.put("csrf", csrfToken);
 
-		String token = JWT.generate(playload, secretKey);
+		String token = JWT.generate(playload, secretKey, TOKEN_LIFETIME_MS);
 
 		return token;
 	}
@@ -36,8 +40,7 @@ public class JWTUtil {
 		playload.put("name", user.getFullName());
 		playload.put("mail", user.getMail());
 		playload.put("api", true);
-
-		String token = JWT.generate(playload, secretKey);
+		String token = JWT.generate(playload, secretKey, TOKEN_LIFETIME_API_MS);
 
 		return token;
 	}

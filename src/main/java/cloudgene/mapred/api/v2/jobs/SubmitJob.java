@@ -17,6 +17,8 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
@@ -39,6 +41,9 @@ import genepi.io.FileUtil;
 public class SubmitJob extends BaseResource {
 
 	private ApplicationRespository applications = ApplicationRespository.getInstance();
+
+	private static final Log log = LogFactory.getLog(SubmitJob.class);
+
 	
 	@Post
 	public Representation post(Representation entity) {
@@ -98,7 +103,7 @@ public class SubmitJob extends BaseResource {
 		try {
 			hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
 		}catch (NoClassDefFoundError e) {
-			// TODO: handle exception
+			log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
 		}
 		
 		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);

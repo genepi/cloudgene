@@ -11,6 +11,7 @@ import org.apache.commons.cli.Options;
 
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
@@ -22,14 +23,19 @@ public class CommandLineUtil {
 			return options;
 		}
 		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-			if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox") && !input.isAdminOnly() && input.isVisible()) {
+			if (input.getTypeAsEnum() != WdlParameterInputType.SEPARATOR
+					&& input.getTypeAsEnum() != WdlParameterInputType.INFO
+					&& input.getTypeAsEnum() != WdlParameterInputType.LABEL
+					&& input.getTypeAsEnum() != WdlParameterInputType.AGBCHECKBOX
+					&& input.getTypeAsEnum() != WdlParameterInputType.TERMS_CHECKBOX && !input.isAdminOnly()
+					&& input.isVisible()) {
 				Option option = new Option(null, input.getId(), true, input.getDescription());
 
 				boolean hasDefault = input.getValue() != null && !input.getValue().trim().isEmpty();
 				option.setRequired(input.isRequired() && !hasDefault);
 
-				if (!input.getType().equals("list")) {
-					option.setArgName(input.getType().toString());
+				if (input.getTypeAsEnum() != WdlParameterInputType.LIST) {
+					option.setArgName(input.getTypeAsEnum().toString());
 				} else {
 					String value = input.getDescription();
 					for (String key : input.getValues().keySet()) {
@@ -142,15 +148,18 @@ public class CommandLineUtil {
 
 		Map<String, String> params = new HashMap<String, String>();
 		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-			if (!input.getType().equals("agbcheckbox") &&! input.getType().equals("terms_checkbox")) {
+			if (input.getTypeAsEnum() != WdlParameterInputType.SEPARATOR
+					&& input.getTypeAsEnum() != WdlParameterInputType.INFO
+					&& input.getTypeAsEnum() != WdlParameterInputType.LABEL
+					&& input.getTypeAsEnum() != WdlParameterInputType.AGBCHECKBOX) {
 				if (props.containsKey(input.getId())) {
-					if (input.getType().equals("checkbox")) {
+					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
 						params.put(input.getId(), input.getValues().get("true"));
 					} else {
 						params.put(input.getId(), props.get(input.getId()));
 					}
 				} else {
-					if (input.getType().equals("checkbox")) {
+					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
 						params.put(input.getId(), input.getValues().get("false"));
 					}
 				}

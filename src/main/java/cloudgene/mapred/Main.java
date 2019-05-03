@@ -37,7 +37,7 @@ import genepi.io.FileUtil;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "2.0.0-rc6";
+	public static final String VERSION = "2.0.0-rc8";
 
 	private Database database;
 

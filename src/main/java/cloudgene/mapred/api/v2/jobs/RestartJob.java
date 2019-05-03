@@ -3,6 +3,8 @@ package cloudgene.mapred.api.v2.jobs;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
@@ -19,6 +21,8 @@ import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 public class RestartJob extends BaseResource {
+	
+	private static final Log log = LogFactory.getLog(RestartJob.class);
 
 	private ApplicationRespository applications = ApplicationRespository.getInstance();
 	
@@ -52,10 +56,9 @@ public class RestartJob extends BaseResource {
 
 			String hdfsWorkspace = "";			
 			try {
-			HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+				hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
 			}catch (NoClassDefFoundError e) {
-			// TODO: handle exception
-			
+				log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
 			}
 			String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 
