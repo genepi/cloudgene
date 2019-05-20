@@ -1,6 +1,6 @@
 <div class="page-header ">
   <div class="py-1 container">
-		<h2>{{application.name}}</h2>
+		<h2>{{application.name}} <small class="text-muted">{{application.version}}</small></h2>
 		{{{application.description}}}
   </div>
 </div>
