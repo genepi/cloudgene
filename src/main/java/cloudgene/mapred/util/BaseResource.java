@@ -2,6 +2,7 @@ package cloudgene.mapred.util;
 
 import genepi.db.Database;
 
+import java.net.URLDecoder;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -63,6 +64,28 @@ public class BaseResource extends ServerResource {
 
 	public WorkflowEngine getWorkflowEngine() {
 		return application.getWorkflowEngine();
+	}
+	
+	@Override
+	public String getAttribute(String name) {
+		//encode automatically
+		String value = super.getAttribute(name);
+		if (value != null) {
+			return URLDecoder.decode(value);
+		}else{
+			return null;
+		}
+	}
+	
+	
+	@Override
+	public String getQueryValue(String name) { 
+		String value = super.getQueryValue(name);
+		if (value != null){
+			return URLDecoder.decode(value);
+		}else{
+			return null;
+		}
 	}
 
 	public Representation error(Status status, String message) {
