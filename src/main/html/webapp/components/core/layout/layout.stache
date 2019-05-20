@@ -17,11 +17,28 @@
            <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Run</a>
            <div class="dropdown-menu" aria-labelledby="dropdown01">
              {{#apps}}
-             <a class="dropdown-item" href="#!run/{{id}}">{{name}}</a>
+              <a class="dropdown-item" href="#!run/{{id}}">{{name}}</a>
              {{/apps}}
+             {{^is(experimentalApps.length, 0)}}
+                <div class="dropdown-divider"></div>
+                <h6 class="dropdown-header">Experimental</h6>
+                {{#experimentalApps}}
+                  <a class="dropdown-item " href="#!run/{{id}}">{{name}}</a>
+                {{/experimentalApps}}
+             {{/is}}
+             {{^is(deprecatedApps.length, 0)}}
+                <div class="dropdown-divider"></div>
+                <h6 class="dropdown-header">Deprecated</h6>
+                {{#deprecatedApps}}
+                  <a class="dropdown-item " href="#!run/{{id}}">{{name}}</a>
+                {{/deprecatedApps}}
+             {{/is}}
            </div>
+
           </li>
        {{/is}}
+
+
 
        {{#if(user)}}
          <li class="nav-item">

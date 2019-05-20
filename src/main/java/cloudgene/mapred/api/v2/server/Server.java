@@ -1,39 +1,24 @@
 package cloudgene.mapred.api.v2.server;
 
-import java.io.File;
 import java.util.List;
+import java.util.Vector;
 
-import org.restlet.data.LocalReference;
-import org.restlet.data.Reference;
-import org.restlet.ext.freemarker.ContextTemplateLoader;
-import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.EmptyRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
-import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
-import freemarker.template.Configuration;
 import net.sf.json.JSONObject;
 
 public class Server extends BaseResource {
 
 	@Get
 	public Representation getServer() {
+
 		User user = getAuthUser(false);
-
-		WebApp app = getWebApp();
-
-		Configuration cfg = new Configuration();
-
-		ContextTemplateLoader loader = new ContextTemplateLoader(getContext(),
-				LocalReference.createFileReference(new File(app.getRootFolder())));
-
-		cfg.setTemplateLoader(loader);
 
 		JSONObject data = new JSONObject();
 		data.put("name", getSettings().getName());
@@ -48,21 +33,44 @@ public class Server extends BaseResource {
 			userJson.put("name", user.getFullName());
 			data.put("user", userJson);
 			List<WdlApp> apps = getSettings().getAppsByUser(user);
-			data.put("apps", apps);
+
+			List<JSONObject> appsJson = new Vector<JSONObject>();
+			List<JSONObject> deprecatedAppsJson = new Vector<JSONObject>();
+			List<JSONObject> experimentalAppsJson = new Vector<JSONObject>();
+
+
+			for (WdlApp app : apps) {
+				JSONObject appJson = new JSONObject();
+				appJson.put("id", app.getId());
+				appJson.put("name", app.getName());
+				if (app.getRelease() == null) {
+					appsJson.add(appJson);
+				} else if (app.getRelease().equals("deprecated")){
+					deprecatedAppsJson.add(appJson);
+				} else if (app.getRelease().equals("experimental")){
+					experimentalAppsJson.add(appJson);
+				}else {
+					appsJson.add(appJson);
+				}
+			}
+
+			data.put("apps", appsJson);
+			data.put("deprecatedApps", deprecatedAppsJson);
+			data.put("experimentalApps", experimentalAppsJson);
 			data.put("loggedIn", true);
 
-		}else{
-			//get Public apps
+		} else {
+			// get Public apps
 			List<WdlApp> apps = getSettings().getAppsByUser(null);
 			data.put("apps", apps);
 			data.put("loggedIn", false);
 		}
-		
+
 		data.put("navigation", getSettings().getNavigation());
 		if (getSettings().isMaintenance()) {
 			data.put("maintenace", true);
 			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
-		}else{
+		} else {
 			data.put("maintenace", false);
 		}
 

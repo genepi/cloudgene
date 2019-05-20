@@ -3,7 +3,7 @@ package cloudgene.mapred.wdl;
 import java.util.List;
 import java.util.Map;
 
-public class WdlApp implements Comparable<WdlApp>{
+public class WdlApp implements Comparable<WdlApp> {
 
 	private String source = "";
 
@@ -21,11 +21,11 @@ public class WdlApp implements Comparable<WdlApp>{
 
 	private String id;
 
+	private String release;
+
 	private String submitButton = "Submit Job";
 
 	private WdlWorkflow workflow;
-
-	private Map<String, String> cluster;
 
 	private List<Map<String, Object>> installation;
 
@@ -119,12 +119,14 @@ public class WdlApp implements Comparable<WdlApp>{
 		this.workflow = workflow;
 	}
 
+	@Deprecated
 	public Map<String, String> getCluster() {
-		return cluster;
+		return null;
 	}
 
+	@Deprecated
 	public void setCluster(Map<String, String> cluster) {
-		this.cluster = cluster;
+		
 	}
 
 	public void setInstallation(List<Map<String, Object>> installation) {
@@ -159,6 +161,14 @@ public class WdlApp implements Comparable<WdlApp>{
 		return submitButton;
 	}
 
+	public void setRelease(String release) {
+		this.release = release;
+	}
+
+	public String getRelease() {
+		return release;
+	}
+
 	/* intern variables */
 
 	public String getPath() {
@@ -180,10 +190,11 @@ public class WdlApp implements Comparable<WdlApp>{
 	public boolean needsInstallation() {
 		return getInstallation() != null && getInstallation().size() > 0;
 	}
-	
+
 	@Override
 	public int compareTo(WdlApp o) {
-			return getName().compareTo(o.getName());
+		// sort by type
+		return getName().compareToIgnoreCase(o.getName());
 	}
 
 }
