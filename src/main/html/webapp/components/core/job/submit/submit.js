@@ -14,6 +14,7 @@ import templateSftpDialog from './dialogs/sftp.stache';
 import templateUploadingDialog from './dialogs/uploading.stache';
 import templateLabel from './controls/label.stache';
 import templateSelect from './controls/select.stache';
+import templateSelectBinded from './controls/select-binded.stache';
 import templateRadio from './controls/radio.stache';
 import templateCheckbox from './controls/checkbox.stache';
 import templateFile from './controls/file.stache';
@@ -27,9 +28,12 @@ export default Control.extend({
 
   "init": function(element, options) {
 
+    var that = this;
+
     Application.findOne({
       tool: options.app
     }, function(application) {
+      that.application = application;
       $(element).hide();
       $(element).html(template({
         application: application,
@@ -41,7 +45,8 @@ export default Control.extend({
         controls_file: templateFile,
         controls_folder: templateFolder,
         controls_terms_checkbox: templateTermsCheckbox,
-        controls_textarea: templateTextarea
+        controls_textarea: templateTextarea,
+        controls_select_binded: templateSelectBinded
       }));
       $(element).fadeIn();
       $("select").change();
@@ -134,6 +139,10 @@ export default Control.extend({
   },
 
   // custom file upload controls for single files
+
+'.select-control change': function(){
+  this.application.updateBinding();
+},
 
   '#select-single-file-btn click': function(button) {
     // trigger click to open file dialog

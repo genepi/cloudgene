@@ -26,8 +26,8 @@ public class JSONConverter {
 				"mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "workingDirectory", "parameter",
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId",
-				"count", "username" });
+				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId", "count",
+				"username" });
 		return JSONObject.fromObject(job, config);
 	}
 
@@ -77,9 +77,49 @@ public class JSONConverter {
 		if (input.getDetails() != null) {
 			object.put("details", input.getDetails());
 		}
-		
+
 		if (input.isFolder()) {
 			object.put("source", "upload");
+		}
+
+		if (input.getTypeAsEnum() == WdlParameterInputType.LIST && input.hasDataBindung()) {
+			JSONArray array = new JSONArray();
+			String category = input.getValues().get("category");
+			String property = input.getValues().get("property");
+			String bind = input.getValues().get("bind");
+			System.out.println(property);
+			for (WdlApp app : apps) {
+				if (category != null && !category.isEmpty()) {
+					// filter by category
+					if (app.getCategory() != null && app.getCategory().equals(category)) {
+
+						JSONObject valuesObject = new JSONObject();
+						valuesObject.put("key", "apps@" + app.getId());
+						valuesObject.put("label", app.getName());
+						// TODO: check null and instance of map
+						Map values = (Map) app.getProperties().get(property);
+						JSONArray array2 = new JSONArray();
+						for (Object key : values.keySet()) {
+							JSONObject valuesObject2 = new JSONObject();
+							String value = values.get(key).toString();
+							valuesObject2.put("key", key.toString());
+							valuesObject2.put("value", value);
+							valuesObject2.put("enabled", false);
+							array2.add(valuesObject2);
+						}
+
+						valuesObject.put("values", array2);
+						array.add(valuesObject);
+
+					}
+				} else {
+					// TODO:!!
+				}
+			}
+			object.put("values", array);
+			object.put("bind", bind);
+			object.put("type", "binded_list");
+			return object;
 		}
 
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST
@@ -97,6 +137,7 @@ public class JSONConverter {
 				array.add(valuesObject);
 			}
 			object.put("values", array);
+			return object;
 		}
 
 		if (input.getTypeAsEnum() == WdlParameterInputType.APP_LIST) {
@@ -153,9 +194,9 @@ public class JSONConverter {
 			object.put("lastLogin", "");
 		}
 		if (user.getLockedUntil() != null) {
-			if (user.getLockedUntil().after(new Date())){
+			if (user.getLockedUntil().after(new Date())) {
 				object.put("lockedUntil", user.getLockedUntil().toString());
-			}else{
+			} else {
 				object.put("lockedUntil", "");
 			}
 		} else {

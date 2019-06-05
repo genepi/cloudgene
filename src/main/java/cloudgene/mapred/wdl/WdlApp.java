@@ -31,7 +31,7 @@ public class WdlApp implements Comparable<WdlApp> {
 
 	private List<Map<String, Object>> deinstallation;
 
-	private Map<String, String> properties;
+	private Map<String, Object> properties;
 
 	private String path;
 
@@ -145,11 +145,11 @@ public class WdlApp implements Comparable<WdlApp> {
 		return deinstallation;
 	}
 
-	public void setProperties(Map<String, String> properties) {
+	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
 	}
 
-	public Map<String, String> getProperties() {
+	public Map<String, Object> getProperties() {
 		return properties;
 	}
 

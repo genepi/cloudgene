@@ -68,6 +68,8 @@ public class App extends BaseResource {
 			}
 		}
 
+		try {
+		
 		List<WdlApp> apps = settings.getAppsByUser(user, false);
 
 		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
@@ -78,6 +80,11 @@ public class App extends BaseResource {
 		jsonObject.put("params", jsonArray);
 
 		return new StringRepresentation(jsonObject.toString());
+		
+		}catch (Exception e) {
+			e.printStackTrace();
+			return new StringRepresentation("");
+		}
 
 	}
 

@@ -228,9 +228,9 @@ public class CloudgeneJob extends AbstractJob {
 							Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(),
 									settings);
 							Map<String, String> envJob = Environment.getJobVariables(context);
-							Map<String, String> properties = linkedApp.getWdlApp().getProperties();
+							Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
 							for (String property : properties.keySet()) {
-								String propertyValue = properties.get(property);
+								String propertyValue = properties.get(property).toString();
 								propertyValue = Environment.env(propertyValue, envApp);
 								propertyValue = Environment.env(propertyValue, envJob);
 								properties.put(property, propertyValue);

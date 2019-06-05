@@ -25,7 +25,7 @@ public class WdlParameterInput implements WdlParameter {
 	private String category = null;
 
 	private String accept = null;
-	
+
 	private String details = null;
 
 	public String getId() {
@@ -133,13 +133,21 @@ public class WdlParameterInput implements WdlParameter {
 	public String getAccept() {
 		return accept;
 	}
-	
+
 	public void setDetails(String details) {
 		this.details = details;
 	}
-	
+
 	public String getDetails() {
 		return details;
+	}
+
+	public boolean hasDataBindung() {
+		if (value != null) {
+			return values.containsKey("bind");
+		} else {
+			return false;
+		}
 	}
 
 }

@@ -45,6 +45,10 @@
 						{{../controls_select(.)}}
 					{{/case}}
 
+          {{#case("binded_list")}}
+						{{../controls_select_binded(.)}}
+					{{/case}}
+
 					{{#case("radio")}}
 						{{../controls_radio(.)}}
 					{{/case}}
