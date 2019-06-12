@@ -3,6 +3,10 @@ category: app-installation-datasets
 version: 1.0.0
 properties:
   metafile: ${hdfs_app_folder}/metafile2.txt
+  populations:
+    eur: EUR
+    afr: AFR
+    asn: ASN
 installation:
   - import:
       source: ${local_app_folder}/metafile2.txt

@@ -646,6 +646,31 @@ public class WorkflowEngineTest extends TestCase {
 		assertEquals(Message.OK, message.getType());
 		assertTrue(message.getMessage().equals("content of metafile2.txt"));
 	}
+	
+	
+	public void testApplicationLinksAndPropertyList() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-installation3.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("dataset", "apps@app-installation-child");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+	}
+	
 
 	// TODO: merge and zip export.
 
