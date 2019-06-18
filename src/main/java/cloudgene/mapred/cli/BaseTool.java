@@ -129,7 +129,11 @@ public abstract class BaseTool extends Tool {
 	}
 
 	public void printText(int paddingLeft, String text) {
-		System.out.println(spaces(paddingLeft) + text);
+		
+		//remove html tags
+		String cleanText = text.replaceAll("\\<[^>]*>","");	
+		System.out.println(spaces(paddingLeft) + cleanText);
+		
 	}
 
 	public void printError(String error) {
