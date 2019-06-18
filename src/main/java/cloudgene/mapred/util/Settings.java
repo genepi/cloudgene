@@ -18,7 +18,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRespository;
+import cloudgene.mapred.apps.ApplicationRepository;
 import genepi.hadoop.HadoopCluster;
 import genepi.io.FileUtil;
 
@@ -107,7 +107,7 @@ public class Settings {
 	// fake!
 	private List<Application> apps = new Vector<Application>();;
 
-	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	private ApplicationRepository repository = ApplicationRepository.getInstance();
 
 	public Settings() {
 

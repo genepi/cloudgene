@@ -6,12 +6,20 @@
 </div>
 
 <div class="col-sm-3">
-  <select name="{{id}}" id="{{id}}" class="form-control select-control" {{#is(required, true)}}required{{/is}} value:bind="value">
+
+{{application.params}}
+
+  <select name="{{id}}" id="{{id}}" class="form-control" {{#is(required, true)}}required{{/is}} value:bind="value">
     <option value="">-- select an option --</option>
     {{#values}}
+			{{#is(enabled,true)}}
+			<optgroup label="{{label}}">
+			{{#values}}
       <option value="{{key}}">
         {{value}}
       </option>
+			{{/is}}
+			{{/values}}
     {{/values}}
   </select>
 	{{#if(details)}}

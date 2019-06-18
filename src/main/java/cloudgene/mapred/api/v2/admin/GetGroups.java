@@ -9,14 +9,14 @@ import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRespository;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import net.sf.json.JSONArray;
 
 public class GetGroups extends BaseResource {
 
-	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	private ApplicationRepository repository = ApplicationRepository.getInstance();
 	
 	@Get
 	public Representation get() {

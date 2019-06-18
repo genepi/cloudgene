@@ -21,17 +21,17 @@ public class WdlApp implements Comparable<WdlApp> {
 
 	private String id;
 
+	private String release;
+
 	private String submitButton = "Submit Job";
 
 	private WdlWorkflow workflow;
-
-	private Map<String, String> cluster;
 
 	private List<Map<String, Object>> installation;
 
 	private List<Map<String, Object>> deinstallation;
 
-	private Map<String, String> properties;
+	private Map<String, Object> properties;
 
 	private String path;
 
@@ -122,12 +122,14 @@ public class WdlApp implements Comparable<WdlApp> {
 		this.workflow = workflow;
 	}
 
+	@Deprecated
 	public Map<String, String> getCluster() {
-		return cluster;
+		return null;
 	}
 
+	@Deprecated
 	public void setCluster(Map<String, String> cluster) {
-		this.cluster = cluster;
+		
 	}
 
 	public void setInstallation(List<Map<String, Object>> installation) {
@@ -146,11 +148,11 @@ public class WdlApp implements Comparable<WdlApp> {
 		return deinstallation;
 	}
 
-	public void setProperties(Map<String, String> properties) {
+	public void setProperties(Map<String, Object> properties) {
 		this.properties = properties;
 	}
 
-	public Map<String, String> getProperties() {
+	public Map<String, Object> getProperties() {
 		return properties;
 	}
 
@@ -160,6 +162,14 @@ public class WdlApp implements Comparable<WdlApp> {
 
 	public String getSubmitButton() {
 		return submitButton;
+	}
+
+	public void setRelease(String release) {
+		this.release = release;
+	}
+
+	public String getRelease() {
+		return release;
 	}
 
 	/* intern variables */
@@ -186,7 +196,8 @@ public class WdlApp implements Comparable<WdlApp> {
 
 	@Override
 	public int compareTo(WdlApp o) {
-		return getName().compareTo(o.getName());
+		// sort by type
+		return getName().compareToIgnoreCase(o.getName());
 	}
 
 }

@@ -17,7 +17,7 @@ public class Environment {
 		String hdfsAppFolder = settings.getHdfsAppWorkspace();
 
 		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(hdfsAppFolder, application.getId(), application.getVersion());
+		String hdfsFolder = FileUtil.path(hdfsAppFolder, application.getId().split(":")[0], application.getVersion());
 		String localFolder = application.getPath();
 		environment.put("app_hdfs_folder", hdfsFolder);
 		environment.put("app_local_folder", localFolder);

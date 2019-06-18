@@ -9,7 +9,7 @@ import org.restlet.representation.Representation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRespository;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -24,7 +24,7 @@ public class RestartJob extends BaseResource {
 	
 	private static final Log log = LogFactory.getLog(RestartJob.class);
 
-	private ApplicationRespository applications = ApplicationRespository.getInstance();
+	private ApplicationRepository applications = ApplicationRepository.getInstance();
 	
 	@Get
 	public Representation get(Representation entity) {

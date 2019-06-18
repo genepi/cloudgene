@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
-import cloudgene.mapred.apps.ApplicationRespository;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
 import genepi.base.Tool;
@@ -26,7 +26,7 @@ public abstract class BaseTool extends Tool {
 	
 	protected String[] args;
 
-	protected ApplicationRespository repository;
+	protected ApplicationRepository repository;
 
 	public BaseTool(String[] args) {
 		super(args);
@@ -65,7 +65,8 @@ public abstract class BaseTool extends Tool {
 		} else {
 			settings = new Settings(config);
 		}
-		repository = ApplicationRespository.getInstance();
+		repository = ApplicationRepository.getInstance();
+		repository.setAppsFolder(config.getApps());
 	}
 
 	public Settings getSettings() {
@@ -133,7 +134,11 @@ public abstract class BaseTool extends Tool {
 	}
 
 	public void printText(int paddingLeft, String text) {
-		System.out.println(spaces(paddingLeft) + text);
+		
+		//remove html tags
+		String cleanText = text.replaceAll("\\<[^>]*>","");	
+		System.out.println(spaces(paddingLeft) + cleanText);
+		
 	}
 
 	public void printError(String error) {

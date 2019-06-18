@@ -22,6 +22,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
@@ -67,6 +68,9 @@ public class Main implements Daemon {
 				System.exit(1);
 			}
 		}
+		
+		ApplicationRepository repository = ApplicationRepository.getInstance();
+		repository.setAppsFolder(config.getApps());
 
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);

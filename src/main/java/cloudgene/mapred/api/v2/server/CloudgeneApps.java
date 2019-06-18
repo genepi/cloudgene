@@ -29,7 +29,7 @@ public class CloudgeneApps extends BaseResource {
 		}
 
 		//http://127.0.0.1:4000
-		ClientResource clientResource = new ClientResource("http://127.0.0.1:4000/api/apps.json");
+		ClientResource clientResource = new ClientResource("http://apps.cloudgene.io/api/apps.json");
 		return clientResource.get();
 
 	}

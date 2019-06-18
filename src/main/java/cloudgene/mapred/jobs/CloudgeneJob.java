@@ -13,7 +13,7 @@ import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
-import cloudgene.mapred.apps.ApplicationRespository;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
@@ -41,7 +41,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	public static final int MAX_DOWNLOAD = 10;
 
-	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	private ApplicationRepository repository = ApplicationRepository.getInstance();
 
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
 
@@ -229,11 +229,13 @@ public class CloudgeneJob extends AbstractJob {
 							Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(),
 									settings);
 							Map<String, String> envJob = Environment.getJobVariables(context);
-							Map<String, String> properties = linkedApp.getWdlApp().getProperties();
+							Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
 							for (String property : properties.keySet()) {
-								String propertyValue = properties.get(property);
-								propertyValue = Environment.env(propertyValue, envApp);
-								propertyValue = Environment.env(propertyValue, envJob);
+								Object propertyValue = properties.get(property);
+								if (propertyValue instanceof String) {
+									propertyValue = Environment.env(propertyValue.toString(), envApp);
+									propertyValue = Environment.env(propertyValue.toString(), envJob);
+								}
 								properties.put(property, propertyValue);
 							}
 

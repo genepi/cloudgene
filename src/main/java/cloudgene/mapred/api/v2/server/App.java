@@ -16,7 +16,7 @@ import org.restlet.resource.Put;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
-import cloudgene.mapred.apps.ApplicationRespository;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
@@ -31,7 +31,7 @@ import net.sf.json.JSONObject;
 
 public class App extends BaseResource {
 
-	private ApplicationRespository repository = ApplicationRespository.getInstance();
+	private ApplicationRepository repository = ApplicationRepository.getInstance();
 	
 	@Get
 	public Representation getApp() {

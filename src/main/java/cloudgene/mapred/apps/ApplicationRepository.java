@@ -25,7 +25,7 @@ import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
-public class ApplicationRespository {
+public class ApplicationRepository {
 
 	private List<Application> apps;
 
@@ -33,21 +33,30 @@ public class ApplicationRespository {
 
 	private String appsFolder = "apps";
 
-	private static ApplicationRespository instance;
+	private static ApplicationRepository instance;
 
-	private static final Log log = LogFactory.getLog(ApplicationRespository.class);
+	private static final Log log = LogFactory.getLog(ApplicationRepository.class);
 
-	public static ApplicationRespository getInstance() {
-		if (instance == null) {
-			instance = new ApplicationRespository("apps");
+	public static ApplicationRepository getInstance() {
+		if (instance == null) {		
+			instance = new ApplicationRepository("apps");
 		}
 		return instance;
 	}
 
-	private ApplicationRespository(String appsFolder) {
+	private ApplicationRepository(String appsFolder) {
 		this.appsFolder = appsFolder;
 		apps = new Vector<Application>();
 		reload();
+	}
+	
+	
+	public void setAppsFolder(String appsFolder) {
+		this.appsFolder = appsFolder;
+	}
+	
+	public String getAppsFolder() {
+		return appsFolder;
 	}
 
 	public List<Application> getAll() {
