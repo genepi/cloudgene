@@ -38,7 +38,7 @@ public class ApplicationRepository {
 	private static final Log log = LogFactory.getLog(ApplicationRepository.class);
 
 	public static ApplicationRepository getInstance() {
-		if (instance == null) {		
+		if (instance == null) {
 			instance = new ApplicationRepository("apps");
 		}
 		return instance;
@@ -49,12 +49,11 @@ public class ApplicationRepository {
 		apps = new Vector<Application>();
 		reload();
 	}
-	
-	
+
 	public void setAppsFolder(String appsFolder) {
 		this.appsFolder = appsFolder;
 	}
-	
+
 	public String getAppsFolder() {
 		return appsFolder;
 	}
@@ -184,12 +183,10 @@ public class ApplicationRepository {
 	}
 
 	public void remove(Application application) throws IOException {
-
+		log.info("Remove application " + application.getId());
 		// delete application in app folder
-		String id = application.getId();
-		// String appPath = FileUtil.path(config.getApps(), id);
-		// FileUtil.deleteDirectory(appPath);
-
+		// TODO: add some check to avoid deleting whole hdd. e.g. delete only if its in app folders...
+		//FileUtil.deleteDirectory(application.getWdlApp().getPath());
 		// remove from app list
 		apps.remove(application);
 		reload();
@@ -227,8 +224,7 @@ public class ApplicationRepository {
 
 	}
 
-	public Application installFromGitHub(Repository repository)
-			throws MalformedURLException, IOException {
+	public Application installFromGitHub(Repository repository) throws MalformedURLException, IOException {
 
 		String url = GitHubUtil.buildUrlFromRepository(repository);
 		File zipFile = File.createTempFile("github", ".zip");
@@ -342,13 +338,24 @@ public class ApplicationRepository {
 
 		String id = application.getWdlApp().getId() + ":" + application.getWdlApp().getVersion();
 
-		//application with same version is already installed.
+		// application with same version is already installed.
 		if (indexApps.get(id) != null) {
 			throw new IOException("Application " + id + " is already installed");
 		}
-		
-		//TODO: check if its an update an remove old version. atm both versions are installed
-		
+
+		// check if its an update an remove old version
+		Application installedApplication = null;
+		for (String installedId : indexApps.keySet()) {
+			String name = installedId.split(":")[0];
+			if (name.equals(application.getWdlApp().getId())) {
+				installedApplication = indexApps.remove(installedId);
+			}
+		}
+
+		if (installedApplication != null) {
+			log.info("Update application from " + installedApplication.getId() + " to " + id);
+			remove(installedApplication);
+		}
 
 		if (moveToApps) {
 
