@@ -63,6 +63,9 @@ public class HtmlWidgetStep extends CloudgeneStep {
 
 				if (new File(jsonFilename).exists()) {
 					value = FileUtil.readFileAsString(jsonFilename);
+				}else {
+					context.log("Warning! Json File '" + jsonFilename + "' not found. Replaced " + variable + " with empty string.");
+					value = "";
 				}
 			}
 			context2.put(variable, value);
