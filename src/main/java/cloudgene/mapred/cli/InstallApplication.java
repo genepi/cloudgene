@@ -1,6 +1,8 @@
 package cloudgene.mapred.cli;
 
 import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.util.GitHubUtil;
+import cloudgene.mapred.util.GitHubUtil.Repository;
 
 public class InstallApplication extends BaseTool {
 
@@ -19,7 +21,7 @@ public class InstallApplication extends BaseTool {
 	public int run() {
 
 		if (args.length != 1) {
-			System.out.println("Usage: " + cmd + "install <filename|url> ");
+			System.out.println("Usage: " + cmd + "install <filename|url|github> ");
 			System.out.println();
 			System.exit(1);
 		}
@@ -34,6 +36,18 @@ public class InstallApplication extends BaseTool {
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
 				application = repository.installFromUrl(url);
+			} else if (url.startsWith("github://")){
+
+				String repo = url.replace("github://", "");
+				
+				Repository repository = GitHubUtil.parseShorthand(repo);
+				if (repository == null) {
+					printlnInRed("[ERROR] " + repo + " is not a valid GitHub repo.\n");
+					return 1;
+				}
+
+				application = this.repository.installFromGitHub(repository);
+				
 			} else {
 				if (url.endsWith(".zip")) {
 					application = repository.installFromZipFile(url);
@@ -55,7 +69,7 @@ public class InstallApplication extends BaseTool {
 			}
 
 		} catch (Exception e) {
-
+			e.printStackTrace();
 			printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
 			return 1;
 

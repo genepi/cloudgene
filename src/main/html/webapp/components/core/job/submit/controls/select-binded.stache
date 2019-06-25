@@ -18,8 +18,9 @@
       <option value="{{key}}">
         {{value}}
       </option>
-			{{/is}}
 			{{/values}}
+			</optgroup>
+			{{/is}}
     {{/values}}
   </select>
 	{{#if(details)}}

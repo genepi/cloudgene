@@ -41,10 +41,10 @@ public class CloudgeneJob extends AbstractJob {
 
 	public static final int MAX_DOWNLOAD = 10;
 
-	private ApplicationRepository repository = ApplicationRepository.getInstance();
-
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
 
+	private ApplicationRepository repository;
+	
 	public CloudgeneJob() {
 		super();
 	}
@@ -74,9 +74,10 @@ public class CloudgeneJob extends AbstractJob {
 
 	}
 
-	public CloudgeneJob(User user, String id, WdlApp app, Map<String, String> params) {
+	public CloudgeneJob(User user, String id, WdlApp app, Map<String, String> params, ApplicationRepository repository) {
 		setComplete(false);
 		this.app = app;
+		this.repository = repository;
 		setId(id);
 		setUser(user);
 		workingDirectory = app.getPath();

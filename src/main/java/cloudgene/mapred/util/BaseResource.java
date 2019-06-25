@@ -14,6 +14,7 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -24,14 +25,17 @@ public class BaseResource extends ServerResource {
 	private WebApp application;
 
 	private Database database;
-
+	
+	private ApplicationRepository applicationRepository;
+	
 	@Override
 	protected void doInit() throws ResourceException {
 		super.doInit();
 
 		application = (WebApp) getApplication();
 		database = application.getDatabase();
-
+		applicationRepository = application.getApplicationRepository();
+				
 	}
 
 	public Database getDatabase() {
@@ -44,6 +48,10 @@ public class BaseResource extends ServerResource {
 
 	public User getAuthUser() {
 		return getAuthUser(true);
+	}
+	
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 	
 	public User getAuthUser(boolean checkCsrf) {

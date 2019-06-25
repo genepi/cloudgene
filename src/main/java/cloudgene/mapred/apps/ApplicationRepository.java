@@ -17,8 +17,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -33,40 +35,24 @@ public class ApplicationRepository {
 
 	private String appsFolder = "apps";
 
-	private static ApplicationRepository instance;
-
 	private static final Log log = LogFactory.getLog(ApplicationRepository.class);
 
-	public static ApplicationRepository getInstance() {
-		if (instance == null) {
-			instance = new ApplicationRepository("apps");
-		}
-		return instance;
-	}
-
-	private ApplicationRepository(String appsFolder) {
-		this.appsFolder = appsFolder;
-		apps = new Vector<Application>();
+	public ApplicationRepository(Config config, Settings settings) {
+		this.appsFolder = config.getApps();
+		apps = settings.getApps();
 		reload();
+		settings.setRepository(this);
 	}
-
-	public void setAppsFolder(String appsFolder) {
-		this.appsFolder = appsFolder;
-	}
-
-	public String getAppsFolder() {
-		return appsFolder;
-	}
-
+	
 	public List<Application> getAll() {
 		return apps;
 	}
 
-	public void init(List<Application> apps) {
+	public void setApps(List<Application> apps) {
 		this.apps = apps;
 		reload();
 	}
-
+	
 	public void reload() {
 		indexApps = new HashMap<String, Application>();
 		for (Application app : apps) {

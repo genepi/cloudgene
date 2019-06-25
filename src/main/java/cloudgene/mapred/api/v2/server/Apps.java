@@ -27,9 +27,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class Apps extends BaseResource {
-
-	private ApplicationRepository repository = ApplicationRepository.getInstance();
-
+	
 	@Post
 	public Representation install(Representation entity) {
 
@@ -55,28 +53,30 @@ public class Apps extends BaseResource {
 			return new StringRepresentation("No url or file location set.");
 		}
 
+		ApplicationRepository repository = getApplicationRepository();
+		
 		try {
 
 			Application application = null;
 
 			if (url.startsWith("http://") || url.startsWith("https://")) {
-				application = this.repository.installFromUrl(url);
+				application = repository.installFromUrl(url);
 			} else if (url.startsWith("github://")) {
 				String shorthand = url.replaceAll("github://", "");
-				Repository repository = GitHubUtil.parseShorthand(shorthand);
-				if (repository == null) {
+				Repository gitRepository = GitHubUtil.parseShorthand(shorthand);
+				if (gitRepository == null) {
 					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 					return new StringRepresentation(shorthand + " is not a valid GitHub repo.");
 
 				}
-				application = this.repository.installFromGitHub(repository);
+				application = repository.installFromGitHub(gitRepository);
 			} else {
 				if (url.endsWith(".zip")) {
-					application = this.repository.installFromZipFile(url);
+					application = repository.installFromZipFile(url);
 				} else if (url.endsWith(".yaml")) {
-					application = this.repository.installFromYaml(url, false);
+					application = repository.installFromYaml(url, false);
 				} else {
-					application = this.repository.installFromDirectory(url, false);
+					application = repository.installFromDirectory(url, false);
 				}
 			}
 
@@ -114,6 +114,8 @@ public class Apps extends BaseResource {
 			return new StringRepresentation("The request requires administration rights.");
 		}
 
+		ApplicationRepository repository = getApplicationRepository();
+		
 		String reload = getQueryValue("reload");
 		if (reload != null && reload.equals("true")) {
 			repository.reload();

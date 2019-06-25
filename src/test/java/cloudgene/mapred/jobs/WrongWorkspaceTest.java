@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.util.Settings;
@@ -51,6 +52,7 @@ public class WrongWorkspaceTest extends TestCase {
 
 		User user = TestServer.getInstance().getUser();
 		Settings settings = TestServer.getInstance().getSettings();
+		ApplicationRepository repository = TestServer.getInstance().getApplicationRepository();
 
 		String id = "test_" + System.currentTimeMillis();
 
@@ -58,7 +60,7 @@ public class WrongWorkspaceTest extends TestCase {
 		String localWorkspace = FileUtil.path("/gsfgdfgdf/vdadsadwa", id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs, repository);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

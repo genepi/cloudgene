@@ -69,8 +69,7 @@ public class Main implements Daemon {
 			}
 		}
 		
-		ApplicationRepository repository = ApplicationRepository.getInstance();
-		repository.setAppsFolder(config.getApps());
+		ApplicationRepository repository = new ApplicationRepository(config, settings);
 
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);
@@ -230,6 +229,7 @@ public class Main implements Daemon {
 			server.setDatabase(database);
 			server.setSettings(settings);
 			server.setWorkflowEngine(engine);
+			server.setApplicationRepository(repository);
 
 			server.start();
 

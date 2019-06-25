@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.TestServer;
@@ -694,6 +695,7 @@ public class WorkflowEngineTest extends TestCase {
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs, User user) throws Exception {
 
 		Settings settings = TestServer.getInstance().getSettings();
+		ApplicationRepository repository = TestServer.getInstance().getApplicationRepository();
 
 		String id = "test_" + System.currentTimeMillis();
 
@@ -701,7 +703,7 @@ public class WorkflowEngineTest extends TestCase {
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs, repository);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

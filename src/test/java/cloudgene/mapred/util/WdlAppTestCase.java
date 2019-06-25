@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -46,6 +47,7 @@ public class WdlAppTestCase {
 
 		User user = TestServer.getInstance().getAdminUser();
 		Settings settings = TestServer.getInstance().getSettings();
+		ApplicationRepository repository = TestServer.getInstance().getApplicationRepository();
 
 		String id = "test_" + System.currentTimeMillis();
 
@@ -53,7 +55,7 @@ public class WdlAppTestCase {
 		String localWorkspace = FileUtil.path(LOCAL_WORKSPACE, id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs, repository);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

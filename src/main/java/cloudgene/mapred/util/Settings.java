@@ -105,9 +105,9 @@ public class Settings {
 	private String port = "8082";
 
 	// fake!
-	private List<Application> apps = new Vector<Application>();;
+	private List<Application> apps = new Vector<Application>();
 
-	private ApplicationRepository repository = ApplicationRepository.getInstance();
+	private ApplicationRepository repository;
 
 	public Settings() {
 
@@ -171,62 +171,66 @@ public class Settings {
 
 	public static Settings load(Config config) throws FileNotFoundException, YamlException {
 
-		YamlConfig yamlConfig = new YamlConfig();
-		yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
-		yamlConfig.setClassTag("cloudgene.mapred.util.Application", Application.class);
-		YamlReader reader = new YamlReader(new FileReader(config.getSettings()), yamlConfig);
-		Settings settings = reader.read(Settings.class);
+		if (config.getSettings() != null) {
 
-		log.info("Auto retire: " + settings.isAutoRetire());
-		log.info("Retire jobs after " + settings.retireAfter + " days.");
-		log.info("Notify user after " + settings.notificationAfter + " days.");
-		log.info("Write statistics: " + settings.writeStatistics);
+			YamlConfig yamlConfig = new YamlConfig();
+			yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
+			yamlConfig.setClassTag("cloudgene.mapred.util.Application", Application.class);
+			YamlReader reader = new YamlReader(new FileReader(config.getSettings()), yamlConfig);
+			Settings settings = reader.read(Settings.class);
 
-		if (settings.cluster != null) {
-			String conf = settings.cluster.get("conf");
-			String username = settings.cluster.get("user");
-			String name = settings.cluster.get("name");
-			if (conf != null) {
-				log.info("Use Haddop configuration folder '" + conf + "'"
-						+ (username != null ? " with username " + username : ""));
-				try {
-					HadoopCluster.setConfPath(name, conf, username);
-				} catch (NoClassDefFoundError e) {
-				}
-			}
-		}
+			log.info("Auto retire: " + settings.isAutoRetire());
+			log.info("Retire jobs after " + settings.retireAfter + " days.");
+			log.info("Notify user after " + settings.notificationAfter + " days.");
+			log.info("Write statistics: " + settings.writeStatistics);
 
-		settings.config = config;
-
-		// workspace in config has higher priority
-		if (config.getWorkspace() != null) {
-			settings.setLocalWorkspace(config.getWorkspace());
-		}
-
-		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
-			settings.setPort(config.getPort());
-		}
-
-		// database in config has higher priority
-		if (config.getDatabase() != null) {
-			Map<String, String> database = settings.getDatabase();
-			if (database != null) {
-				if (database.get("driver") != null && database.get("driver").equals("h2")) {
-					database.put("database", config.getDatabase());
-					// check file and create parent folders
-					File databaseFile = new File(config.getDatabase());
-					if (!databaseFile.exists()) {
-						databaseFile.getParentFile().mkdirs();
+			if (settings.cluster != null) {
+				String conf = settings.cluster.get("conf");
+				String username = settings.cluster.get("user");
+				String name = settings.cluster.get("name");
+				if (conf != null) {
+					log.info("Use Haddop configuration folder '" + conf + "'"
+							+ (username != null ? " with username " + username : ""));
+					try {
+						HadoopCluster.setConfPath(name, conf, username);
+					} catch (NoClassDefFoundError e) {
 					}
 				}
-			} else {
-				database = new HashMap<String, String>();
-				initDefaultDatabase(database, config.getDatabase());
 			}
+
+			settings.config = config;
+
+			// workspace in config has higher priority
+			if (config.getWorkspace() != null) {
+				settings.setLocalWorkspace(config.getWorkspace());
+			}
+
+			if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
+				settings.setPort(config.getPort());
+			}
+
+			// database in config has higher priority
+			if (config.getDatabase() != null) {
+				Map<String, String> database = settings.getDatabase();
+				if (database != null) {
+					if (database.get("driver") != null && database.get("driver").equals("h2")) {
+						database.put("database", config.getDatabase());
+						// check file and create parent folders
+						File databaseFile = new File(config.getDatabase());
+						if (!databaseFile.exists()) {
+							databaseFile.getParentFile().mkdirs();
+						}
+					}
+				} else {
+					database = new HashMap<String, String>();
+					initDefaultDatabase(database, config.getDatabase());
+				}
+			}
+
+			return settings;
+		} else {
+			return new Settings();
 		}
-
-		return settings;
-
 	}
 
 	public List<Application> getApps() {
@@ -234,7 +238,9 @@ public class Settings {
 	}
 
 	public void setApps(List<Application> apps) {
-		repository.init(apps);
+		if (repository != null) {
+			repository.setApps(apps);
+		}
 	}
 
 	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
@@ -259,22 +265,26 @@ public class Settings {
 	public void save(String filename) {
 		try {
 
-			File file = new File(filename);
-			if (!file.exists()) {
-				file.getParentFile().mkdirs();
+			if (filename != null) {
+
+				File file = new File(filename);
+				if (!file.exists()) {
+					file.getParentFile().mkdirs();
+				}
+
+				log.info("Storing settings to file " + filename + " (" + getApps().size() + " apps installed)");
+				apps = repository.getAll();
+
+				YamlConfig yamlConfig = new YamlConfig();
+				yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
+				yamlConfig.setClassTag("cloudgene.mapred.util.Application", Application.class);
+
+				YamlWriter writer = new YamlWriter(new FileWriter(filename), yamlConfig);
+				writer.write(this);
+				writer.close();
+			} else {
+				log.warn("No settings filename setting.");
 			}
-
-			log.info("Storing settings to file " + filename + " (" + getApps().size() + " apps installed)");
-			apps = repository.getAll();
-
-			YamlConfig yamlConfig = new YamlConfig();
-			yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
-			yamlConfig.setClassTag("cloudgene.mapred.util.Application", Application.class);
-			
-			YamlWriter writer = new YamlWriter(new FileWriter(filename), yamlConfig);
-			writer.write(this);
-			writer.close();
-
 		} catch (Exception e) {
 			log.error("Storing settings failed.", e);
 		}
@@ -622,6 +632,10 @@ public class Settings {
 
 	public String getPort() {
 		return port;
+	}
+
+	public void setRepository(ApplicationRepository repository) {
+		this.repository = repository;
 	}
 
 }

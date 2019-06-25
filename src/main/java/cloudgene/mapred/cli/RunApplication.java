@@ -247,7 +247,7 @@ public class RunApplication extends BaseTool {
 			user.setUsername("local");
 			user.setPassword("local");
 			user.makeAdmin();
-			CloudgeneJob job = new CloudgeneJob(user, id, app, params) {
+			CloudgeneJob job = new CloudgeneJob(user, id, app, params, repository) {
 				@Override
 				public boolean afterSubmission() {
 					boolean result = super.afterSubmission();

@@ -15,8 +15,6 @@ import cloudgene.mapred.util.BaseResource;
 import net.sf.json.JSONArray;
 
 public class GetGroups extends BaseResource {
-
-	private ApplicationRepository repository = ApplicationRepository.getInstance();
 	
 	@Get
 	public Representation get() {
@@ -38,6 +36,9 @@ public class GetGroups extends BaseResource {
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
 		groups.add(new Group("user"));
+		
+		ApplicationRepository repository = getApplicationRepository();
+
 		for (Application application : repository.getAll()) {
 			Group group = new Group(application.getPermission());
 			if (!groups.contains(group)) {

@@ -62,6 +62,7 @@ import cloudgene.mapred.api.v2.users.RegisterUser;
 import cloudgene.mapred.api.v2.users.ResetPassword;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
 import cloudgene.mapred.api.v2.users.UserProfile;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
@@ -83,6 +84,8 @@ public class WebApp extends Application {
 
 	private Settings settings;
 
+	private ApplicationRepository applicationRepository;
+	
 	private WorkflowEngine workflowEngine;
 
 	private Map<String, String> cacheTemplates;
@@ -255,6 +258,14 @@ public class WebApp extends Application {
 
 	public void setWorkflowEngine(WorkflowEngine workflowEngine) {
 		this.workflowEngine = workflowEngine;
+	}
+	
+	public void setApplicationRepository(ApplicationRepository applicationRepository) {
+		this.applicationRepository = applicationRepository;
+	}
+	
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 
 	public void reloadTemplates() {

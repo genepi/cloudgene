@@ -24,8 +24,6 @@ public class RestartJob extends BaseResource {
 	
 	private static final Log log = LogFactory.getLog(RestartJob.class);
 
-	private ApplicationRepository applications = ApplicationRepository.getInstance();
-	
 	@Get
 	public Representation get(Representation entity) {
 
@@ -68,7 +66,9 @@ public class RestartJob extends BaseResource {
 			job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 
 			String appId = job.getApplicationId();
-			Application application = applications.getByIdAndUser(appId, job.getUser());
+
+			ApplicationRepository repository = getApplicationRepository();
+			Application application = repository.getByIdAndUser(appId, job.getUser());
 			WdlApp app = null;
 			try {
 				app = application.getWdlApp();

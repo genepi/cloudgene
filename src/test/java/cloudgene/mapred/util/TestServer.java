@@ -14,6 +14,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
 import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
@@ -52,6 +53,8 @@ public class TestServer {
 	private Thread engineThread;
 
 	private static TestServer instance;
+	
+	private ApplicationRepository applicationRepository;
 
 	private TestServer() {
 		HashMap<String, String> mail = new HashMap<String, String>();
@@ -305,6 +308,8 @@ public class TestServer {
 	public WorkflowEngine startWorkflowEngineWithoutServer() throws SQLException {
 		if (engine == null) {
 
+			applicationRepository = new ApplicationRepository(new Config(), settings);
+			
 			registerApplications();
 
 			database = createDatabase(true);
@@ -324,6 +329,8 @@ public class TestServer {
 
 		if (server == null) {
 
+			applicationRepository = new ApplicationRepository(new Config(), settings);
+			
 			registerApplications();
 
 			database = createDatabase(newDatabase);
@@ -373,7 +380,7 @@ public class TestServer {
 				server.setPort(PORT);
 				server.setRootDirectory(webAppFolder);
 				server.setPagesDirectory(pagesFolder);
-
+				server.setApplicationRepository(applicationRepository);
 				server.setDatabase(database);
 				server.setSettings(settings);
 				server.setWorkflowEngine(engine);
@@ -417,6 +424,10 @@ public class TestServer {
 
 	public Database getDatabase() {
 		return database;
+	}
+	
+	public ApplicationRepository getApplicationRepository() {
+		return applicationRepository;
 	}
 
 }

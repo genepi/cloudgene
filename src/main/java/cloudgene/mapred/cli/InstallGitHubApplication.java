@@ -35,6 +35,7 @@ public class InstallGitHubApplication extends BaseTool {
 		}
 
 		String repo = args[0];
+		repo = repo.replaceAll("github://", "");
 
 		// create the command line parser
 

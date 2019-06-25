@@ -15,9 +15,7 @@ import cloudgene.mapred.wdl.WdlApp;
 import net.sf.json.JSONObject;
 
 public class Server extends BaseResource {
-
-	private ApplicationRepository repository = ApplicationRepository.getInstance();
-
+	
 	@Get
 	public Representation getServer() {
 
@@ -36,6 +34,7 @@ public class Server extends BaseResource {
 			userJson.put("name", user.getFullName());
 			data.put("user", userJson);
 
+			ApplicationRepository repository = getApplicationRepository();
 			List<WdlApp> apps = repository.getAllByUser(user);
 			data.put("apps", apps);
 
@@ -66,6 +65,7 @@ public class Server extends BaseResource {
 
 		} else {
 			// get Public apps
+			ApplicationRepository repository = getApplicationRepository();
 			List<WdlApp> apps = repository.getAllByUser(null);
 			data.put("apps", apps);
 			data.put("loggedIn", false);

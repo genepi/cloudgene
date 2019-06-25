@@ -30,8 +30,6 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class App extends BaseResource {
-
-	private ApplicationRepository repository = ApplicationRepository.getInstance();
 	
 	@Get
 	public Representation getApp() {
@@ -47,6 +45,7 @@ public class App extends BaseResource {
 
 		Settings settings = getSettings();
 
+		ApplicationRepository repository = getApplicationRepository();
 		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
@@ -115,7 +114,7 @@ public class App extends BaseResource {
 			return error404("Application '" + appId + "' is not in valid format.");
 		}
 		
-		
+		ApplicationRepository repository = getApplicationRepository();		
 		Application application = repository.getById(appId);
 		if (application != null) {
 			try {
@@ -164,7 +163,7 @@ public class App extends BaseResource {
 		String permission = form.getFirstValue("permission");
 		String reinstall = form.getFirstValue("reinstall");
 
-		
+		ApplicationRepository repository = getApplicationRepository();	
 		Application application = repository.getById(appId);
 		if (application != null) {
 

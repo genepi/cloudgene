@@ -40,7 +40,6 @@ import genepi.io.FileUtil;
 
 public class SubmitJob extends BaseResource {
 
-	private ApplicationRepository applications = ApplicationRepository.getInstance();
 
 	private static final Log log = LogFactory.getLog(SubmitJob.class);
 
@@ -56,8 +55,9 @@ public class SubmitJob extends BaseResource {
 			return error404("Application '" + appId + "' is not in valid format.");
 		}
 
-		
-		Application application = applications.getByIdAndUser(appId, user);
+
+		ApplicationRepository repository = getApplicationRepository();
+		Application application = repository.getByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {
 			app = application.getWdlApp();
@@ -128,7 +128,7 @@ public class SubmitJob extends BaseResource {
 			}
 		}
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputParams);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputParams, repository);
 		job.setId(id);
 		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);
