@@ -108,11 +108,11 @@ public class RunApplication extends BaseTool {
 		// print application details
 		System.out.println();
 		System.out.println(app.getName() + " " + app.getVersion());
-		if (app.getAuthor() != null && !app.getAuthor().isEmpty()) {
-			System.out.println(app.getVersion());
-		}
 		if (app.getWebsite() != null && !app.getWebsite().isEmpty()) {
 			System.out.println(app.getWebsite());
+		}
+		if (app.getAuthor() != null && !app.getAuthor().isEmpty()) {
+			System.out.println(app.getAuthor());
 		}
 		System.out.println();
 
@@ -196,7 +196,7 @@ public class RunApplication extends BaseTool {
 
 		} else {
 			if (settings.getCluster() == null) {
-				printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
+				//printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
 			}
 		}
 
@@ -204,14 +204,13 @@ public class RunApplication extends BaseTool {
 		PluginManager manager = PluginManager.getInstance();
 		manager.initPlugins(settings);
 
-		for (IPlugin plugin: manager.getPlugins()) {
+		/*for (IPlugin plugin : manager.getPlugins()) {
 			if (manager.isEnabled(plugin)) {
 				printText(0, spaces("[INFO]", 8) + plugin.getStatus());
-			}else {
+			} else {
 				printText(0, spaces("[WARN]", 8) + plugin.getStatus());
 			}
-		}
-		
+		}*/
 
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
@@ -247,7 +246,11 @@ public class RunApplication extends BaseTool {
 			user.setUsername("local");
 			user.setPassword("local");
 			user.makeAdmin();
+
 			CloudgeneJob job = new CloudgeneJob(user, id, app, params) {
+
+				private int count = 0;
+				
 				@Override
 				public boolean afterSubmission() {
 					boolean result = super.afterSubmission();
@@ -255,6 +258,13 @@ public class RunApplication extends BaseTool {
 						printParameters(this, app);
 					}
 					return result;
+				}
+				
+				@Override
+				public void onStepStarted(CloudgeneStep step) {
+					super.onStepStarted(step);
+					System.out.println();
+					printText(0, spaces("[INFO]", 8) + step.getName() + "...");					
 				}
 
 				@Override
@@ -366,20 +376,20 @@ public class RunApplication extends BaseTool {
 
 	public void printParameters(CloudgeneJob job, WdlApp app) {
 		if (app.getWorkflow().getInputs().size() > 0) {
-			printText(2, "Input values: ");
+			printText(2 + 6, "Input values: ");
 			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 				if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox")
 						&& !input.isAdminOnly() && input.isVisible()) {
-					printText(4, input.getId() + ": " + job.getContext().get(input.getId()));
+					printText(4 + 6, input.getId() + ": " + job.getContext().get(input.getId()));
 				}
 			}
 		}
 
 		if (app.getWorkflow().getOutputs().size() > 0) {
-			printText(2, "Results:");
+			printText(2 + 6, "Results:");
 			for (WdlParameterOutput output : app.getWorkflow().getOutputs()) {
 				if (output.isDownload() && !output.isAdminOnly()) {
-					printText(4, output.getDescription() + ": " + job.getContext().get(output.getId()));
+					printText(4 + 6, output.getDescription() + ": " + job.getContext().get(output.getId()));
 				}
 			}
 		}

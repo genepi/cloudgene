@@ -34,7 +34,7 @@ public class RemoveApplication extends BaseTool {
 
 			repository.remove(application);
 
-			printlnInGreen("[OK] Application removed.");
+			printlnInGreen("[OK] Application removed.\n");
 			settings.save();
 			return 0;
 

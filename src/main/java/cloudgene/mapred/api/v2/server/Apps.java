@@ -91,6 +91,7 @@ public class Apps extends BaseResource {
 			}
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("Application not installed: " + e.getMessage());
 		}

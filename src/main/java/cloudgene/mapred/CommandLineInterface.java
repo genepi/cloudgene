@@ -32,12 +32,10 @@ public class CommandLineInterface extends Toolbox {
 		System.out.println("http://www.cloudgene.io");
 		System.out.println("(c) 2009-2019 Lukas Forer and Sebastian Schoenherr");
 
-		URLClassLoader cl = (URLClassLoader) InstallApplication.class.getClassLoader();
 		try {
-			URL url = cl.findResource("META-INF/MANIFEST.MF");
+			URL url = this.getClass().getClassLoader().getResource("META-INF/MANIFEST.MF");
 			Manifest manifest = new Manifest(url.openStream());
 			Attributes attr = manifest.getMainAttributes();
-			String buildVesion = attr.getValue("Version");
 			String buildTime = attr.getValue("Build-Time");
 			String builtBy = attr.getValue("Built-By");
 			System.out.println("Built by " + builtBy + " on " + buildTime);

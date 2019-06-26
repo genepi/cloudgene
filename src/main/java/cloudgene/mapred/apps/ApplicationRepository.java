@@ -326,7 +326,7 @@ public class ApplicationRepository {
 			return null;
 		}
 
-		String id = application.getWdlApp().getId() + ":" + application.getWdlApp().getVersion();
+		String id = application.getWdlApp().getId() + "@" + application.getWdlApp().getVersion();
 
 		// application with same version is already installed.
 		if (indexApps.get(id) != null) {

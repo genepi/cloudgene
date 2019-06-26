@@ -60,16 +60,18 @@ public class InstallApplication extends BaseTool {
 
 			if (application != null) {
 				settings.save();
-				printlnInGreen("[OK] Application installed: \n");
-				// ListApplications.printApplicationList(applications);(installed);
+				printlnInGreen("[OK] Application '"+application.getWdlApp().getName()+"' installed.");
+				System.out.println("");
+				System.out.println("The application can be started with:\n");				
+				System.out.println("cloudgene run " + application.getId() + "");
+				System.out.println();
 				return 0;
 			} else {
-				printlnInRed("[ERROR] No valid Application found.\n");
+				printlnInRed("[ERROR] No valid application found.\n");
 				return 1;
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
 			return 1;
 
