@@ -46,34 +46,6 @@ public class Main implements Daemon {
 
 	public void runCloudgene(Settings settings, String[] args) throws Exception {
 
-		// load cloudgene.conf file. contains path to settings, db, apps, ..
-		Config config = new Config();
-		if (new File(Config.CONFIG_FILENAME).exists()) {
-			YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
-			config = reader.read(Config.class);
-		}
-
-		String settingsFilename = config.getSettings();
-
-		// load default settings when not yet loaded
-		if (settings == null) {
-			if (new File(settingsFilename).exists()) {
-				System.out.println("Loading settings from " + settingsFilename + "...");
-				settings = Settings.load(config);
-			} else {
-				settings = new Settings(config);
-			}
-
-			if (!settings.testPaths()) {
-				System.exit(1);
-			}
-		}
-		
-		ApplicationRepository repository = new ApplicationRepository(config, settings);
-
-		PluginManager pluginManager = PluginManager.getInstance();
-		pluginManager.initPlugins(settings);
-
 		// configure logger
 		if (new File("log4j.properties").exists()) {
 
@@ -93,11 +65,36 @@ public class Main implements Daemon {
 			}
 
 		}
-
 		Log log = LogFactory.getLog(Main.class);
 
 		log.info("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
+		
+		// load cloudgene.conf file. contains path to settings, db, apps, ..
+		Config config = new Config();
+		if (new File(Config.CONFIG_FILENAME).exists()) {
+			YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
+			config = reader.read(Config.class);
+		}
+
+		String settingsFilename = config.getSettings();
+
+		// load default settings when not yet loaded
+		if (settings == null) {
+			if (new File(settingsFilename).exists()) {
+				log.info("Loading settings from " + settingsFilename + "...");
+				settings = Settings.load(config);
+			} else {
+				settings = new Settings(config);
+			}
+
+			if (!settings.testPaths()) {
+				System.exit(1);
+			}
+		}
+		
+		PluginManager pluginManager = PluginManager.getInstance();
+		pluginManager.initPlugins(settings);
 
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -207,7 +204,6 @@ public class Main implements Daemon {
 				webAppFolder = "webapp";
 			} else {
 				webAppFolder = FileUtil.path("src", "main", "html", "webapp");
-				System.out.println(webAppFolder);
 			}
 
 			String pagesFolder = "";
@@ -229,7 +225,6 @@ public class Main implements Daemon {
 			server.setDatabase(database);
 			server.setSettings(settings);
 			server.setWorkflowEngine(engine);
-			server.setApplicationRepository(repository);
 
 			server.start();
 

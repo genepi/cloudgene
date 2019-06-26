@@ -25,17 +25,14 @@ public class BaseResource extends ServerResource {
 	private WebApp application;
 
 	private Database database;
-	
-	private ApplicationRepository applicationRepository;
-	
+		
 	@Override
 	protected void doInit() throws ResourceException {
 		super.doInit();
 
 		application = (WebApp) getApplication();
 		database = application.getDatabase();
-		applicationRepository = application.getApplicationRepository();
-				
+			
 	}
 
 	public Database getDatabase() {
@@ -49,11 +46,7 @@ public class BaseResource extends ServerResource {
 	public User getAuthUser() {
 		return getAuthUser(true);
 	}
-	
-	public ApplicationRepository getApplicationRepository() {
-		return applicationRepository;
-	}
-	
+		
 	public User getAuthUser(boolean checkCsrf) {
 
 		User user = JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
@@ -69,6 +62,10 @@ public class BaseResource extends ServerResource {
 		return application.getSettings();
 	}
 
+	public ApplicationRepository getApplicationRepository() {
+		return application.getSettings().getApplicationRepository();
+	}
+	
 	public WorkflowEngine getWorkflowEngine() {
 		return application.getWorkflowEngine();
 	}
@@ -112,6 +109,7 @@ public class BaseResource extends ServerResource {
 			return new EmptyRepresentation();
 
 		}
+		
 		return new JsonRepresentation(jsonObject);
 
 	}

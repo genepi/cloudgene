@@ -47,7 +47,6 @@ public class WdlAppTestCase {
 
 		User user = TestServer.getInstance().getAdminUser();
 		Settings settings = TestServer.getInstance().getSettings();
-		ApplicationRepository repository = TestServer.getInstance().getApplicationRepository();
 
 		String id = "test_" + System.currentTimeMillis();
 
@@ -55,7 +54,7 @@ public class WdlAppTestCase {
 		String localWorkspace = FileUtil.path(LOCAL_WORKSPACE, id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs, repository);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

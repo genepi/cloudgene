@@ -12,6 +12,7 @@ import cloudgene.mapred.cli.InstallGitHubApplication;
 import cloudgene.mapred.cli.ListApplications;
 import cloudgene.mapred.cli.RemoveApplication;
 import cloudgene.mapred.cli.RunApplication;
+import cloudgene.mapred.cli.ShowPlugins;
 import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import cloudgene.mapred.cli.ValidateApplication;
@@ -60,6 +61,7 @@ public class CommandLineInterface extends Toolbox {
 		toolbox.addTool("server", StartServer.class);
 		toolbox.addTool("validate", ValidateApplication.class);
 		toolbox.addTool("verify-cluster", VerifyCluster.class);
+		toolbox.addTool("plugins", ShowPlugins.class);
 		toolbox.addTool("version", ShowVersion.class);
 		toolbox.start();
 

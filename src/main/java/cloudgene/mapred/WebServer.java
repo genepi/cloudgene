@@ -9,7 +9,6 @@ import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.cron.CronJobScheduler;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
@@ -21,8 +20,6 @@ public class WebServer extends Component {
 
 	private Settings settings;
 
-	private ApplicationRepository applicationRepository;
-	
 	private int port;
 
 	private String keystore;
@@ -93,13 +90,6 @@ public class WebServer extends Component {
 		webapp.setSettings(settings);
 		webapp.setDatabase(database);
 		webapp.setWorkflowEngine(workflowEngine);
-		if (applicationRepository == null) {
-			System.out.println("SERVER");
-			System.exit(1);
-		}else {
-			System.out.println("Applications in repository: " + applicationRepository.getAll().size());
-		}
-		webapp.setApplicationRepository(applicationRepository);
 		webapp.reloadTemplates();
 		host.attach(webapp);
 		getHosts().add(host);
@@ -160,12 +150,5 @@ public class WebServer extends Component {
 		this.workflowEngine = workflowEngine;
 	}
 
-	public void setApplicationRepository(ApplicationRepository applicationRepository) {
-		this.applicationRepository = applicationRepository;
-	}
-	
-	public ApplicationRepository getApplicationRepository() {
-		return applicationRepository;
-	}
-	
+
 }

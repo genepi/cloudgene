@@ -54,8 +54,6 @@ public class TestServer {
 
 	private static TestServer instance;
 	
-	private ApplicationRepository applicationRepository;
-
 	private TestServer() {
 		HashMap<String, String> mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
@@ -307,11 +305,8 @@ public class TestServer {
 
 	public WorkflowEngine startWorkflowEngineWithoutServer() throws SQLException {
 		if (engine == null) {
-
-			applicationRepository = new ApplicationRepository(new Config(), settings);
-			
+		
 			registerApplications();
-
 			database = createDatabase(true);
 			// start workflow engine
 			engine = new PersistentWorkflowEngine(database, 1, 1);
@@ -329,8 +324,7 @@ public class TestServer {
 
 		if (server == null) {
 
-			applicationRepository = new ApplicationRepository(new Config(), settings);
-			
+		
 			registerApplications();
 
 			database = createDatabase(newDatabase);
@@ -380,7 +374,6 @@ public class TestServer {
 				server.setPort(PORT);
 				server.setRootDirectory(webAppFolder);
 				server.setPagesDirectory(pagesFolder);
-				server.setApplicationRepository(applicationRepository);
 				server.setDatabase(database);
 				server.setSettings(settings);
 				server.setWorkflowEngine(engine);
@@ -427,7 +420,7 @@ public class TestServer {
 	}
 	
 	public ApplicationRepository getApplicationRepository() {
-		return applicationRepository;
+		return settings.getApplicationRepository();
 	}
 
 }

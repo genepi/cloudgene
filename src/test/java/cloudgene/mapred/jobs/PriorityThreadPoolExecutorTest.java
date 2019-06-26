@@ -38,7 +38,9 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 		AbstractJob job1 = createJobFromWdl(app, "job_running", inputs);
 		engine.submit(job1);
-		Thread.sleep(5000);
+		while(job1.getState() == AbstractJob.STATE_WAITING) {
+			Thread.sleep(1000);
+		}
 
 		assertEquals(AbstractJob.STATE_RUNNING, job1.getState());
 
@@ -46,10 +48,12 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		assertEquals(jobsBeforeSubmit.size() + 1, jobsAfterSubmit.size());
 
 		engine.cancel(job1);
-		Thread.sleep(5000);
-
+		while(job1.getState() == AbstractJob.STATE_RUNNING) {
+			Thread.sleep(1000);
+		}
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
-
+		Thread.sleep(5000);
+		
 		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
 		assertEquals(jobsBeforeSubmit.size(), jobsAfterCancel.size());
 
@@ -73,8 +77,10 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 		AbstractJob job1 = createJobFromWdl(app, "job_running_a", inputs);
 		engine.submit(job1);
-		Thread.sleep(5000);
-
+		while(job1.getState() == AbstractJob.STATE_WAITING) {
+			Thread.sleep(1000);
+		}
+		
 		AbstractJob job2 = createJobFromWdl(app, "job_waiting_b", inputs);
 		engine.submit(job2);
 
@@ -87,7 +93,9 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		assertEquals(jobsBeforeSubmit.size() + 2, jobsAfterSubmit.size());
 
 		engine.cancel(job2);
-		Thread.sleep(5000);
+		while(job2.getState() == AbstractJob.STATE_RUNNING) {
+			Thread.sleep(1000);
+		}
 
 		assertEquals(AbstractJob.STATE_CANCELED, job2.getState());
 
@@ -96,7 +104,6 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 		// clear queue
 		engine.cancel(job1);
-		Thread.sleep(5000);
 
 		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
 			Thread.sleep(6000);
@@ -437,12 +444,12 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 		User user = TestServer.getInstance().getUser();
 		Settings settings = TestServer.getInstance().getSettings();
-		ApplicationRepository repository = TestServer.getInstance().getApplicationRepository();
+
 		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id,app, inputs, repository);
+		CloudgeneJob job = new CloudgeneJob(user, id,app, inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

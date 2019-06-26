@@ -695,7 +695,6 @@ public class WorkflowEngineTest extends TestCase {
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs, User user) throws Exception {
 
 		Settings settings = TestServer.getInstance().getSettings();
-		ApplicationRepository repository = TestServer.getInstance().getApplicationRepository();
 
 		String id = "test_" + System.currentTimeMillis();
 
@@ -703,7 +702,7 @@ public class WorkflowEngineTest extends TestCase {
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs, repository);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);

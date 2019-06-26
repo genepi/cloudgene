@@ -37,11 +37,13 @@ public class ApplicationRepository {
 
 	private static final Log log = LogFactory.getLog(ApplicationRepository.class);
 
-	public ApplicationRepository(Config config, Settings settings) {
-		this.appsFolder = config.getApps();
-		apps = settings.getApps();
+	public ApplicationRepository() {
+		apps = new Vector<Application>();
 		reload();
-		settings.setRepository(this);
+	}
+	
+	public void setAppsFolder(String appsFolder) {
+		this.appsFolder = appsFolder;
 	}
 	
 	public List<Application> getAll() {
@@ -55,6 +57,7 @@ public class ApplicationRepository {
 	
 	public void reload() {
 		indexApps = new HashMap<String, Application>();
+		log.info("Reload applications...");
 		for (Application app : apps) {
 			log.info("Register application " + app.getId());
 			// load application
@@ -72,6 +75,7 @@ public class ApplicationRepository {
 			indexApps.put(app.getId(), app);
 
 		}
+		log.info("Loaded " + apps.size() + " applications.");
 	}
 
 	public Application getByIdAndUser(String id, User user) {

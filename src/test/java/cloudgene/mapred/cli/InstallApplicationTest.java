@@ -24,12 +24,13 @@ public class InstallApplicationTest extends TestCase {
 				config.setApps("test-github");
 				FileUtil.deleteDirectory("test-github");
 				settings = new Settings(config);
-				repository = new ApplicationRepository(config, settings);
+				repository = settings.getApplicationRepository();
 			}
 		};
 		int result = cmd.start();
 		assertEquals(0, result);
-		assertEquals(1, cmd.repository.getAll().size());
+		ApplicationRepository repository = cmd.settings.getApplicationRepository();
+		assertEquals(1, repository.getAll().size());
 	}
 
 	public void testInstallFromRepositoryDirectory() {
@@ -42,13 +43,14 @@ public class InstallApplicationTest extends TestCase {
 				config.setApps("test-github");
 				FileUtil.deleteDirectory("test-github");
 				settings = new Settings(config);
-				repository = new ApplicationRepository(config, settings);
+				repository = settings.getApplicationRepository();
 			}
 		};
 		int result = cmd.start();
 
 		assertEquals(0, result);
-		assertEquals(1, cmd.repository.getAll().size());
+		ApplicationRepository repository = cmd.settings.getApplicationRepository();
+		assertEquals(1, repository.getAll().size());
 
 		args = new String[] { "github://genepi/cloudgene-examples/vcf-tools" };
 		InstallApplication cmd2 = new InstallApplication(args) {
@@ -56,14 +58,13 @@ public class InstallApplicationTest extends TestCase {
 			public void init() {
 				// reuse setttings
 				settings = cmd.settings;
-				repository = cmd.repository;
-
+				repository = settings.getApplicationRepository();
 			}
 		};
 		result = cmd2.start();
 
 		assertEquals(0, result);
-		assertEquals(2, cmd.repository.getAll().size());
+		assertEquals(2, repository.getAll().size());
 	}
 
 	public void testInstallHello() {
@@ -77,13 +78,14 @@ public class InstallApplicationTest extends TestCase {
 				config.setApps("test-github");
 				FileUtil.deleteDirectory("test-github");
 				settings = new Settings(config);
-				repository = new ApplicationRepository(config, settings);
+				repository = settings.getApplicationRepository();
 			}
 		};
 		int result = cmd.start();
 
 		assertEquals(0, result);
-		assertEquals(1, cmd.repository.getAll().size());
+		ApplicationRepository repository = cmd.settings.getApplicationRepository();
+		assertEquals(1, repository.getAll().size());
 	}
 
 }

@@ -128,7 +128,7 @@ public class SubmitJob extends BaseResource {
 			}
 		}
 
-		CloudgeneJob job = new CloudgeneJob(user, id, app, inputParams, repository);
+		CloudgeneJob job = new CloudgeneJob(user, id, app, inputParams);
 		job.setId(id);
 		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);

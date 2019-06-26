@@ -111,6 +111,8 @@ public class Settings {
 
 	public Settings() {
 
+		repository = new ApplicationRepository();
+		
 		// read default settings from env variables when set
 		String name = System.getenv().get("CLOUDGENE_SERVICE_NAME");
 		if (name != null) {
@@ -147,6 +149,10 @@ public class Settings {
 
 		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
 			setPort(config.getPort());
+		}
+		
+		if (config.getApps() != null) {
+			repository.setAppsFolder(config.getApps());
 		}
 
 		// database in config has higher priority
@@ -234,13 +240,12 @@ public class Settings {
 	}
 
 	public List<Application> getApps() {
-		return apps;
+		return repository.getAll();
 	}
 
 	public void setApps(List<Application> apps) {
-		if (repository != null) {
-			repository.setApps(apps);
-		}
+		this.apps = apps;
+		repository.setApps(apps);
 	}
 
 	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
@@ -634,8 +639,7 @@ public class Settings {
 		return port;
 	}
 
-	public void setRepository(ApplicationRepository repository) {
-		this.repository = repository;
+	public ApplicationRepository getApplicationRepository() {
+		return repository;
 	}
-
 }

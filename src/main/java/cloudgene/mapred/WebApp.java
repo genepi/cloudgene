@@ -84,8 +84,6 @@ public class WebApp extends Application {
 
 	private Settings settings;
 
-	private ApplicationRepository applicationRepository;
-	
 	private WorkflowEngine workflowEngine;
 
 	private Map<String, String> cacheTemplates;
@@ -260,14 +258,6 @@ public class WebApp extends Application {
 		this.workflowEngine = workflowEngine;
 	}
 	
-	public void setApplicationRepository(ApplicationRepository applicationRepository) {
-		this.applicationRepository = applicationRepository;
-	}
-	
-	public ApplicationRepository getApplicationRepository() {
-		return applicationRepository;
-	}
-
 	public void reloadTemplates() {
 		TemplateDao dao = new TemplateDao(database);
 		List<cloudgene.mapred.util.Template> templates = dao.findAll();

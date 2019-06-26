@@ -5,12 +5,18 @@ import java.io.FileReader;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.restlet.engine.Engine;
+import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.Main;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
@@ -35,8 +41,10 @@ public abstract class BaseTool extends Tool {
 
 	@Override
 	public void init() {
+				
 		try {
-			turnOffLogging();
+			turnLoggingOff();
+			// turnLoggingOn();
 
 			// load cloudgene.conf file. contains path to settings, db, apps, ..
 			config = new Config();
@@ -65,8 +73,9 @@ public abstract class BaseTool extends Tool {
 			} else {
 				settings = new Settings(config);
 			}
-			repository = new ApplicationRepository(config, settings);
-			
+
+			repository = settings.getApplicationRepository();
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -150,11 +159,34 @@ public abstract class BaseTool extends Tool {
 		System.out.println();
 	}
 
-	public void turnOffLogging() {
+	public void turnLoggingOff() {
 		List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
 		loggers.add(LogManager.getRootLogger());
 		for (Logger logger : loggers) {
 			logger.setLevel(Level.OFF);
 		}
+	}
+
+	public void turnLoggingOn() {
+		// configure logger
+		if (new File("log4j.properties").exists()) {
+
+			PropertyConfigurator.configure("log4j.properties");
+
+			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
+			Engine.getInstance().setLoggerFacade(loggerFacade);
+
+		} else {
+
+			if (new File("config/log4j.properties").exists()) {
+				PropertyConfigurator.configure("config/log4j.properties");
+
+				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
+				Engine.getInstance().setLoggerFacade(loggerFacade);
+
+			}
+
+		}
+
 	}
 }
