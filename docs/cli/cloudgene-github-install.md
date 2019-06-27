@@ -2,7 +2,7 @@
 
 Installs an application from a GitHub repo to your local repository.
 
-**This command is deprecated. Please use `cloudgene install github://user/repo`**
+**This command is deprecated. Please use `cloudgene install user/repo`**
 
 ## Command
 
