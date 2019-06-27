@@ -20,7 +20,7 @@ export default Control.extend({
       CloudgeneApplication.findAll({}, function(applications) {
         var installedId = [];
         $.each(installedApplications, function(index, application) {
-          var tiles = application.attr('id').split(":");
+          var tiles = application.attr('id').split("@");
           var installedApplication = {
             id: tiles[0],
             version: tiles[1]

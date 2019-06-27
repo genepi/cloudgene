@@ -362,7 +362,12 @@ public class RunApplication extends BaseTool {
 
 				return 1;
 			}
-
+		}catch (FileNotFoundException e) {
+			printlnInRed("Error: " + e.getMessage());			
+			System.out.println();
+			System.out.println();
+			return 1;
+			
 		} catch (Exception e) {
 			printlnInRed("Error: Execution failed.");
 			System.out.println("Details:");

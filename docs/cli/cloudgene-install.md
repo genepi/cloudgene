@@ -11,7 +11,7 @@ cloudgene install <location>
 
 | Parameter | Required | Description |
 | --- | --- | --- |
-| `<location>` | yes | The location of the application. This could be a URL to zip or yaml file, a github repository or the filename of a local zip or yaml file.|
+| `<location>` | yes | The location of the application. This could be a URL to zip or yaml file or the filename of a local zip or yaml file. Moreover,  it can be the name of a github repository in the following format `<owner>/<repository>[/<subdir>]`|
 
 ## Examples
 
@@ -23,23 +23,38 @@ Install application from a URL:
 cloudgene install http://myserver.com/myapplication.zip
 ```
 
+### Local File
+
+Install application from a zip file:
+
+```bash
+cloudgene install /path/to/myapplication.zip
+```
+
+Install application from a cloudgene.yaml file:
+
+```bash
+cloudgene install /path/to/myapplication/cloudgene.yaml
+```
+
+
 
 ### GitHub
 
 Install application from GitHub repository `lukfor/hello-cloudgene`:
 
 ```bash
-cloudgene install github://lukfor/hello-cloudgene
+cloudgene install lukfor/hello-cloudgene
 ```
 
 Install application from a subdirectory in GitHub repository `genepi/cloudgene-examples`:
 
 ```bash
-cloudgene install github://genepi/cloudgene-examples/fastqc
+cloudgene install genepi/cloudgene-examples/fastqc
 ```
 
 Install a certain version (tag or release):
 
 ```bash
-cloudgene install github://lukfor/hello-cloudgene@v1.2.0
+cloudgene install lukfor/hello-cloudgene@v1.2.0
 ```
