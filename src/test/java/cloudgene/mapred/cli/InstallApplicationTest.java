@@ -15,7 +15,7 @@ public class InstallApplicationTest extends TestCase {
 		assertTrue(true);
 	}
 
-	public void testInstallFromRepository() {
+/*	public void testInstallFromRepository() {
 		String[] args = { "genepi/cloudgene-examples" };
 		InstallApplication cmd = new InstallApplication(args) {
 			@Override
@@ -136,6 +136,6 @@ public class InstallApplicationTest extends TestCase {
 		assertNotNull(application);
 		assertEquals("1.2.0", application.getWdlApp().getVersion());
 	}
-
+*/
 
 }
