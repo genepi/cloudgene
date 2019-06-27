@@ -1,6 +1,6 @@
 language: java
 jdk:
-- oraclejdk11
+- openjdk11
 node_js: '0.10'
 before_install:
 - cat /etc/hosts
