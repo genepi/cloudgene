@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.junit.BeforeClass;
 
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;

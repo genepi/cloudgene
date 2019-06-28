@@ -6,8 +6,9 @@ Cloudgene supports POSIX compatible filesystems (e.g. Linux or OS X) and the *Ha
 
 Input parameters are defined in the `inputs` section where each parameter is defined by an unique `id`, a textual `description` and a `type`.
 
-```yaml hl_lines="5 6 7"
-name: input-example
+```yaml hl_lines="6 7 8"
+id: input-example
+name: Input Example
 version: 1.0
 workflow:
   inputs:
@@ -21,8 +22,9 @@ workflow:
 
 The value of the parameter can be referenced by `$id` in the workflow.
 
-```yaml hl_lines="6"
-name: input-example
+```yaml hl_lines="7"
+id: input-example
+name: Input Example
 version: 1.0
 workflow:
   steps:

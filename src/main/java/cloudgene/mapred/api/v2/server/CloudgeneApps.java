@@ -28,7 +28,7 @@ public class CloudgeneApps extends BaseResource {
 			return new StringRepresentation("The request requires administration rights.");
 		}
 
-		
+		//http://127.0.0.1:4000
 		ClientResource clientResource = new ClientResource("http://apps.cloudgene.io/api/apps.json");
 		return clientResource.get();
 

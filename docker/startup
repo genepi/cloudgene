@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [[ -z "${CLOUDGENE_REPOSITORY}" ]]; then
+	echo "no repository set"
+else
+	cloudgene clone ${CLOUDGENE_REPOSITORY}
+fi
+
+if [ ${START_HADOOP} == "true" ]
+then
+	HAOOP_CONF_PARAM="--conf /etc/hadoop/conf"
+	start-hadoop
+fi
+
+if [ ${START_CLOUDGENE} == "true" ]
+then
+	cloudgene server --port 80 ${HAOOP_CONF_PARAM}
+fi

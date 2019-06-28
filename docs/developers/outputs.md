@@ -4,8 +4,9 @@ Output parameters can be used as placeholders for folders or files which are cre
 
 Output parameters are defined in the `outputs` section where each parameter is defined by an unique `id`, a textual `description` and a `type`.
 
-```yaml hl_lines="5 6 7 8 9 10"
-name: output-example
+```yaml hl_lines="6 7 8 9 10 11"
+id: output-example
+name: Output Example
 version: 1.0
 workflow:
   outputs:
@@ -19,8 +20,9 @@ workflow:
 
 The value of the parameter can be referenced by `$id` in the workflow. In this example, we use the `touch` command to create a file in an output folder:
 
-```yaml hl_lines="6"
-name: output-example
+```yaml hl_lines="7"
+id: output-example
+name: Output Example
 version: 1.0
 workflow:
   steps:

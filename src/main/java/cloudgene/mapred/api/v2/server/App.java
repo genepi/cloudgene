@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.server;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -12,12 +14,13 @@ import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Put;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationInstaller;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
-import cloudgene.mapred.util.Application;
-import cloudgene.mapred.util.ApplicationInstaller;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
@@ -27,17 +30,23 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class App extends BaseResource {
-
+	
 	@Get
 	public Representation getApp() {
 
 		User user = getAuthUser();
 
-		String appId = getAttribute("tool");
+		String appId =  getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
 
 		Settings settings = getSettings();
 
-		Application application = settings.getAppByIdAndUser(appId, user);
+		ApplicationRepository repository = getApplicationRepository();
+		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
@@ -68,9 +77,7 @@ public class App extends BaseResource {
 			}
 		}
 
-		try {
-		
-		List<WdlApp> apps = settings.getAppsByUser(user, false);
+		List<WdlApp> apps = repository.getAllByUser(user, false);
 
 		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
 
@@ -80,11 +87,6 @@ public class App extends BaseResource {
 		jsonObject.put("params", jsonArray);
 
 		return new StringRepresentation(jsonObject.toString());
-		
-		}catch (Exception e) {
-			e.printStackTrace();
-			return new StringRepresentation("");
-		}
 
 	}
 
@@ -106,10 +108,17 @@ public class App extends BaseResource {
 		}
 
 		String appId = getAttribute("tool");
-		Application application = getSettings().getApp(appId);
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
+		
+		ApplicationRepository repository = getApplicationRepository();		
+		Application application = repository.getById(appId);
 		if (application != null) {
 			try {
-				getSettings().deleteApplication(application);
+				repository.remove(application);
 				getSettings().save();
 
 				JSONObject jsonObject = JSONConverter.convert(application);
@@ -142,14 +151,20 @@ public class App extends BaseResource {
 			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 			return new StringRepresentation("The request requires administration rights.");
 		}
+		String appId = getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
 
 		Form form = new Form(entity);
 		String enabled = form.getFirstValue("enabled");
 		String permission = form.getFirstValue("permission");
 		String reinstall = form.getFirstValue("reinstall");
 
-		String tool = getAttribute("tool");
-		Application application = getSettings().getApp(tool);
+		ApplicationRepository repository = getApplicationRepository();	
+		Application application = repository.getById(appId);
 		if (application != null) {
 
 			try {
@@ -157,11 +172,11 @@ public class App extends BaseResource {
 				if (enabled != null) {
 					if (application.isEnabled() && enabled.equals("false")) {
 						application.setEnabled(false);
-						getSettings().reloadApplications();
+						repository.reload();
 						getSettings().save();
 					} else if (!application.isEnabled() && enabled.equals("true")) {
 						application.setEnabled(true);
-						getSettings().reloadApplications();
+						repository.reload();
 						getSettings().save();
 					}
 				}
@@ -170,7 +185,7 @@ public class App extends BaseResource {
 				if (permission != null) {
 					if (!application.getPermission().equals(permission)) {
 						application.setPermission(permission);
-						getSettings().reloadApplications();
+						repository.reload();
 						getSettings().save();
 					}
 				}
@@ -202,7 +217,7 @@ public class App extends BaseResource {
 
 		} else {
 			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Application '" + tool + "' not found.");
+			return new StringRepresentation("Application '" + appId + "' not found.");
 		}
 	}
 

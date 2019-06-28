@@ -1,13 +1,7 @@
 package cloudgene.mapred.api.v2.data;
 
-import genepi.hadoop.importer.FileItem;
-import genepi.hadoop.importer.IImporter;
-import genepi.hadoop.importer.ImporterFactory;
-
 import java.util.List;
 import java.util.Vector;
-
-import net.sf.json.JSONArray;
 
 import org.restlet.data.Form;
 import org.restlet.data.Status;
@@ -15,6 +9,11 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 import org.restlet.resource.ServerResource;
+
+import genepi.hadoop.importer.FileItem;
+import genepi.hadoop.importer.IImporter;
+import genepi.hadoop.importer.ImporterFactory;
+import net.sf.json.JSONArray;
 
 public class ImporterFileList extends ServerResource {
 

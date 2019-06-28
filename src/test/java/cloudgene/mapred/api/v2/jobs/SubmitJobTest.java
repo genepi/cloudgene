@@ -17,7 +17,7 @@ import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.TestCluster;
 import cloudgene.mapred.util.TestSFTPServer;
 import cloudgene.mapred.util.TestServer;
-import genepi.hadoop.common.WorkflowContext;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 
 public class SubmitJobTest extends JobsApiTestCase {

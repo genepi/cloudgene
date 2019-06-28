@@ -5,12 +5,19 @@ import java.io.FileReader;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.restlet.engine.Engine;
+import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.Main;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
 import genepi.base.Tool;
@@ -22,8 +29,10 @@ public abstract class BaseTool extends Tool {
 	protected Settings settings;
 
 	protected Config config;
-	
+
 	protected String[] args;
+
+	protected ApplicationRepository repository;
 
 	public BaseTool(String[] args) {
 		super(args);
@@ -32,35 +41,43 @@ public abstract class BaseTool extends Tool {
 
 	@Override
 	public void init() {
+				
+		try {
+			turnLoggingOff();
+			// turnLoggingOn();
 
-		turnOffLogging();
-
-		// load cloudgene.conf file. contains path to settings, db, apps, ..
-		config = new Config();
-		if (new File(Config.CONFIG_FILENAME).exists()) {
-			try {
-				YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
-				config = reader.read(Config.class);
-			} catch (Exception e) {
-				printError("Error loading cloudgene.conf file:");
-				printError(e.getMessage());
-				return;
+			// load cloudgene.conf file. contains path to settings, db, apps, ..
+			config = new Config();
+			if (new File(Config.CONFIG_FILENAME).exists()) {
+				try {
+					YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
+					config = reader.read(Config.class);
+				} catch (Exception e) {
+					printError("Error loading cloudgene.conf file:");
+					printError(e.getMessage());
+					return;
+				}
 			}
-		}
 
-		// load default settings when not yet loaded
-		String settingsFilename = config.getSettings();
-		settings = null;
-		if (new File(settingsFilename).exists()) {
-			try {
-				settings = Settings.load(config);
-			} catch (Exception e) {
-				printError("Error loading settings file '" + settingsFilename + "' :");
-				printError(e.getMessage());
-				return;
+			// load default settings when not yet loaded
+			String settingsFilename = config.getSettings();
+			settings = null;
+			if (settingsFilename != null && new File(settingsFilename).exists()) {
+				try {
+					settings = Settings.load(config);
+				} catch (Exception e) {
+					printError("Error loading settings file '" + settingsFilename + "' :");
+					printError(e.getMessage());
+					return;
+				}
+			} else {
+				settings = new Settings(config);
 			}
-		} else {
-			settings = new Settings(config);
+
+			repository = settings.getApplicationRepository();
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -129,11 +146,11 @@ public abstract class BaseTool extends Tool {
 	}
 
 	public void printText(int paddingLeft, String text) {
-		
-		//remove html tags
-		String cleanText = text.replaceAll("\\<[^>]*>","");	
+
+		// remove html tags
+		String cleanText = text.replaceAll("\\<[^>]*>", "");
 		System.out.println(spaces(paddingLeft) + cleanText);
-		
+
 	}
 
 	public void printError(String error) {
@@ -142,11 +159,34 @@ public abstract class BaseTool extends Tool {
 		System.out.println();
 	}
 
-	public void turnOffLogging() {
+	public void turnLoggingOff() {
 		List<Logger> loggers = Collections.<Logger>list(LogManager.getCurrentLoggers());
 		loggers.add(LogManager.getRootLogger());
 		for (Logger logger : loggers) {
 			logger.setLevel(Level.OFF);
 		}
+	}
+
+	public void turnLoggingOn() {
+		// configure logger
+		if (new File("log4j.properties").exists()) {
+
+			PropertyConfigurator.configure("log4j.properties");
+
+			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
+			Engine.getInstance().setLoggerFacade(loggerFacade);
+
+		} else {
+
+			if (new File("config/log4j.properties").exists()) {
+				PropertyConfigurator.configure("config/log4j.properties");
+
+				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
+				Engine.getInstance().setLoggerFacade(loggerFacade);
+
+			}
+
+		}
+
 	}
 }

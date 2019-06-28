@@ -1,9 +1,7 @@
 package cloudgene.mapred.cli;
 
-import java.util.List;
-import java.util.Vector;
-
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.util.GitHubException;
 
 public class InstallApplication extends BaseTool {
 
@@ -21,53 +19,36 @@ public class InstallApplication extends BaseTool {
 	@Override
 	public int run() {
 
-		if (args.length != 2) {
-			System.out.println("Usage: " + cmd + "install <name> <filename|url> ");
+		if (args.length != 1) {
+			System.out.println("Usage: " + cmd + "install <filename|url|github> ");
 			System.out.println();
 			System.exit(1);
 		}
 
-		String id = args[0];
-		String url = args[1];
+		String url = args[0];
 
 		try {
 
-			List<Application> applications = new Vector<Application>();
+			System.out.println("Installing application " + url + "...");
 
-			if (settings.getApp(id) != null) {
-				printlnInRed("[ERROR] An application with id '" + id + "' is already installed.\n");
-				return 1;
-			}
+			Application application = repository.install(url);
 
-			System.out.println("Installing application " + id + "...");
-
-			if (url.startsWith("http://") || url.startsWith("https://")) {
-				applications = getSettings().installApplicationFromUrl(id, url);
-			} else {
-				if (url.endsWith(".zip")) {
-					applications = getSettings().installApplicationFromZipFile(id, url);
-				} else if (url.endsWith(".yaml")) {
-					Application application = getSettings().installApplicationFromYaml(id, url);
-					if (application != null) {
-						applications.add(application);
-					}
-				} else {
-					applications = getSettings().installApplicationFromDirectory(id, url);
-				}
-			}
-
-			if (applications.size() > 0) {
+			if (application != null) {
 				settings.save();
-				printlnInGreen("[OK] " + applications.size() + " Applications installed: \n");
-				ListApplications.printApplicationList(applications);
+				printlnInGreen("[OK] Application '" + application.getWdlApp().getName() + "' installed.");
+				System.out.println("");
+				System.out.println("The application can be started with:\n");
+				System.out.println("cloudgene run " + application.getId() + "");
+				System.out.println();
 				return 0;
 			} else {
-				printlnInRed("[ERROR] No valid Application found.\n");
+				printlnInRed("[ERROR] No valid application found.\n");
 				return 1;
 			}
-
+		} catch (GitHubException e) {
+			printlnInRed("[ERROR] " + e.getMessage() + ".\n");
+			return 1;
 		} catch (Exception e) {
-
 			printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
 			return 1;
 

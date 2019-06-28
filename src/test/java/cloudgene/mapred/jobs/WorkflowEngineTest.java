@@ -1,19 +1,19 @@
 package cloudgene.mapred.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
-import genepi.io.FileUtil;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
+import cloudgene.sdk.internal.WorkflowContext;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
+import junit.framework.TestCase;
 
 public class WorkflowEngineTest extends TestCase {
 

@@ -16,7 +16,8 @@ Cloudgene supports both the execution of Hadoop jar files (written in Java) and 
 The following example shows how to execute a Hadoop jar file:
 
 ```yaml
-name: Hadoop MapReduce
+id: hadoop-mapreduce-example
+name: Hadoop MapReduce Example
 version: 1.0
 workflow:
   steps:
@@ -37,7 +38,8 @@ workflow:
 The following example shows how to integrate a streaming job:
 
 ```yaml
-name: Hadoop MapReduce
+id: hadoop-mapreduce-example
+name: Hadoop MapReduce Example
 version: 1.0
 workflow:
   steps:

@@ -21,7 +21,8 @@ This example shows how to forward stdout directly to the output of a step in ord
 
 
 ```yaml
-name: cmd example
+id: cmd-example
+name: Command Example
 version: 1.0
 workflow:
   steps:
@@ -40,7 +41,8 @@ workflow:
 This example shows how to use Bash specific features by setting the `bash` property to `true`:
 
 ```yaml
-name: bash example
+id: bash-example
+name: Bash Example
 version: 1.0
 workflow:
   steps:
@@ -62,7 +64,8 @@ workflow:
 All HDFS inputs are automatically exported to the local filesystem and can be used without manual exportation. In this example we use the `cat` command to show the content of an `hdfs-file` input parameter:
 
 ```yaml
-name: hdfs example
+id: hdfs-example
+name: HDFS Example
 version: 1.0
 workflow:
   steps:

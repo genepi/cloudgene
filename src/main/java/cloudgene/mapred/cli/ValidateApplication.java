@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 
@@ -59,7 +59,7 @@ public class ValidateApplication extends BaseTool {
 			}
 		} else {
 			// check if application name is installed
-			Application application = settings.getApp(filename);
+			Application application = repository.getById(filename);
 			if (application == null) {
 				printError("Application or file " + filename + " not found.");
 				return 1;

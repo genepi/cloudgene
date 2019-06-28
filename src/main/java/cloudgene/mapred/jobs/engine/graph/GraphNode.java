@@ -18,19 +18,12 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.CloudgeneStepFactory;
-import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
-import cloudgene.mapred.steps.JavaExternalStep;
-import cloudgene.mapred.steps.HadoopMapReduceStep;
-import cloudgene.mapred.steps.HadoopPigStep;
-import cloudgene.mapred.steps.RMarkdownStep;
-import cloudgene.mapred.steps.RMarkdown2Step;
-import cloudgene.mapred.steps.HadoopSparkStep;
+import cloudgene.mapred.steps.JavaInternalStepDeprecrated;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.common.WorkflowStep;
+import cloudgene.sdk.internal.WorkflowStep;
 import genepi.io.FileUtil;
 
 public class GraphNode implements Runnable {
@@ -107,6 +100,9 @@ public class GraphNode implements Runnable {
 					instance = (CloudgeneStep) object;
 				} else if (object instanceof WorkflowStep) {
 					instance = new JavaInternalStep((WorkflowStep) object);
+					//old genepi-hadoop support! this is deprecreated!
+				} else if (object instanceof genepi.hadoop.common.WorkflowStep) {
+					instance = new JavaInternalStepDeprecrated((genepi.hadoop.common.WorkflowStep) object);					
 				} else {
 					instance = new ErrorStep("Error during initialization: class " + step.getClassname() + " ( "
 							+ object.getClass().getSuperclass().getCanonicalName() + ") "

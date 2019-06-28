@@ -1,11 +1,13 @@
 package cloudgene.mapred.steps;
 
+import java.lang.reflect.Method;
+
 import com.google.common.base.Throwables;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.common.WorkflowContext;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import groovy.util.GroovyScriptEngine;
 
@@ -24,12 +26,28 @@ public class GroovyStep extends CloudgeneStep {
 
 			Class scriptClass = new GroovyScriptEngine(".", getClass().getClassLoader()).loadScriptByName(filename);
 			Object scriptInstance = scriptClass.newInstance();
-			Object result = scriptClass.getDeclaredMethod("run", new Class[] { WorkflowContext.class })
-					.invoke(scriptInstance, new Object[] { context });
-			if (result instanceof Boolean) {
-				return (Boolean) result;
-			} else {
-				return true;
+
+			try {
+				Method method = scriptClass.getDeclaredMethod("run", new Class[] { WorkflowContext.class });
+				Object result = method.invoke(scriptInstance, new Object[] { context });
+				if (result instanceof Boolean) {
+					return (Boolean) result;
+				} else {
+					return true;
+				}
+			} catch (NoSuchMethodException e) {
+
+				// old dependency to genepi.hadoop
+				Method method = scriptClass.getDeclaredMethod("run",
+						new Class[] { genepi.hadoop.common.WorkflowContext.class });
+				Object result = method.invoke(scriptInstance,
+						new Object[] { JavaInternalStepDeprecrated.adapter(context) });
+				if (result instanceof Boolean) {
+					return (Boolean) result;
+				} else {
+					return true;
+				}
+
 			}
 
 		} catch (Exception e) {

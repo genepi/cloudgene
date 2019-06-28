@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import Control from 'can-control';
 import bootbox from 'bootbox';
+import canRoute from 'can-route';
 
 import ErrorPage from 'helpers/error-page';
 import showErrorDialog from 'helpers/error-dialog';
@@ -193,7 +194,8 @@ export default Control.extend({
         }, function(job) {
 
           if (that.active) {
-            window.location.reload();
+            var router = canRoute.router;
+            router.reload();
           }
 
         }, function(response) {

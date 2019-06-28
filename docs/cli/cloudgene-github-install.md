@@ -2,18 +2,18 @@
 
 Installs an application from a GitHub repo to your local repository.
 
+**This command is deprecated. Please use `cloudgene install user/repo`**
+
 ## Command
 
 ```bash
-cloudgene github-install <owner>/<repository>[/<subdir>] [--name <id>] [--update]
+cloudgene github-install <owner>/<repository>[/<subdir>]
 ```
 ## Parameters
 
 | Parameter | Required | Description |
 | --- | --- | --- |
 | `<repository>` | yes | The GitHub repository of the application |
-| `--name <id>` | no | Use a specific id for this application |
-| `--update` | no | Reinstall application if it is already installed.  |
 
 ## Examples
 

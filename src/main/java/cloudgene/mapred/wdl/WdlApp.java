@@ -98,7 +98,10 @@ public class WdlApp implements Comparable<WdlApp> {
 	}
 
 	public String getId() {
-		return id;
+		if (id != null && !id.isEmpty()) {
+			return id;
+		}
+		return name.replaceAll(" ", "-").toLowerCase();
 	}
 
 	@Deprecated

@@ -15,8 +15,8 @@ import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.wdl.WdlStep;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HadoopUtil;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 public class HadoopMapReduceStep extends CloudgeneStep {

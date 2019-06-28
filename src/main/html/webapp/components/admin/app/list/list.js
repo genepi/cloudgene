@@ -1,6 +1,8 @@
 import Control from 'can-control';
 import domData from 'can-util/dom/data/data';
 import canMap from 'can-map';
+import canRoute from 'can-route';
+
 import 'helpers/helpers';
 import $ from 'jquery';
 import bootbox from 'bootbox';
@@ -35,11 +37,9 @@ export default Control.extend({
     bootbox.confirm(templateInstallUrl(),
       function(result) {
         if (result) {
-          var id = $('#id').val();
           var url = $('#url').val();
           var app = new Application();
           app.attr('url', url);
-          app.attr('name', id);
 
           var waitingDialog = bootbox.dialog({
             message: '<h4>Install application</h4>' +
@@ -53,7 +53,8 @@ export default Control.extend({
             app.save(function(application) {
               waitingDialog.modal('hide');
               bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
-                location.reload();
+                var router = canRoute.router;
+                router.reload();
               });
 
             }, function(response) {
@@ -91,7 +92,8 @@ export default Control.extend({
             app.save(function(application) {
               waitingDialog.modal('hide');
               bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
-                location.reload();
+                var router = canRoute.router;
+                router.reload();
               });
 
             }, function(response) {

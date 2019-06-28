@@ -1,10 +1,5 @@
 package cloudgene.mapred;
 
-import genepi.db.Database;
-import genepi.db.DatabaseConnector;
-import genepi.db.DatabaseUpdater;
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
@@ -27,6 +22,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
@@ -35,6 +31,10 @@ import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
+import genepi.db.Database;
+import genepi.db.DatabaseConnector;
+import genepi.db.DatabaseUpdater;
+import genepi.io.FileUtil;
 
 public class Main implements Daemon {
 
@@ -45,32 +45,6 @@ public class Main implements Daemon {
 	private WebServer server;
 
 	public void runCloudgene(Settings settings, String[] args) throws Exception {
-
-		// load cloudgene.conf file. contains path to settings, db, apps, ..
-		Config config = new Config();
-		if (new File(Config.CONFIG_FILENAME).exists()) {
-			YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
-			config = reader.read(Config.class);
-		}
-
-		String settingsFilename = config.getSettings();
-
-		// load default settings when not yet loaded
-		if (settings == null) {
-			if (new File(settingsFilename).exists()) {
-				System.out.println("Loading settings from " + settingsFilename + "...");
-				settings = Settings.load(config);
-			} else {
-				settings = new Settings(config);
-			}
-
-			if (!settings.testPaths()) {
-				System.exit(1);
-			}
-		}
-
-		PluginManager pluginManager = PluginManager.getInstance();
-		pluginManager.initPlugins(settings);
 
 		// configure logger
 		if (new File("log4j.properties").exists()) {
@@ -91,11 +65,36 @@ public class Main implements Daemon {
 			}
 
 		}
-
 		Log log = LogFactory.getLog(Main.class);
 
 		log.info("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
+		
+		// load cloudgene.conf file. contains path to settings, db, apps, ..
+		Config config = new Config();
+		if (new File(Config.CONFIG_FILENAME).exists()) {
+			YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
+			config = reader.read(Config.class);
+		}
+
+		String settingsFilename = config.getSettings();
+
+		// load default settings when not yet loaded
+		if (settings == null) {
+			if (new File(settingsFilename).exists()) {
+				log.info("Loading settings from " + settingsFilename + "...");
+				settings = Settings.load(config);
+			} else {
+				settings = new Settings(config);
+			}
+
+			if (!settings.testPaths()) {
+				System.exit(1);
+			}
+		}
+		
+		PluginManager pluginManager = PluginManager.getInstance();
+		pluginManager.initPlugins(settings);
 
 		// create the command line parser
 		CommandLineParser parser = new PosixParser();
@@ -205,7 +204,6 @@ public class Main implements Daemon {
 				webAppFolder = "webapp";
 			} else {
 				webAppFolder = FileUtil.path("src", "main", "html", "webapp");
-				System.out.println(webAppFolder);
 			}
 
 			String pagesFolder = "";

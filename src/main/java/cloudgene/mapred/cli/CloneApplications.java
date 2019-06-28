@@ -3,15 +3,13 @@ package cloudgene.mapred.cli;
 import java.io.File;
 import java.io.FileReader;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import genepi.io.FileUtil;
@@ -61,68 +59,54 @@ public class CloneApplications extends BaseTool {
 				if (entry == null) {
 					break;
 				}
-				String id = entry.get("id").toString();
 				String url = entry.get("url").toString();
 
-				if (settings.getApp(id) == null) {
+				Application application = null;
 
-					List<Application> applications = new Vector<Application>();
+				System.out.println("Installing application " + url + "...");
 
-					System.out.println("Installing application " + id + "...");
+				try {
 
-					try {
-
-						if (url.startsWith("http://") || url.startsWith("https://")) {
-							applications = getSettings().installApplicationFromUrl(id, url);
-						} else if (url.startsWith("github://")) {
-							String shorthand = url.replaceAll("github://", "");
-							Repository repository = GitHubUtil.parseShorthand(shorthand);
-							if (repository == null) {
-								printlnInRed("[ERROR] " + shorthand + " is not a valid GitHub repo.");
-								return 1;
-
-							}
-							String newId = repository.getUser() + "-" + repository.getRepo();
-							if (repository.getDirectory() != null) {
-								newId += "-" + repository.getDirectory();
-							}
-							applications = getSettings().installApplicationFromGitHub(newId, repository, false);
-						} else {
-
-							if (!url.startsWith("/")) {
-								url = FileUtil.path(folderRepo, url);
-							}
-
-							if (url.endsWith(".zip")) {
-								applications = getSettings().installApplicationFromZipFile(id, url);
-							} else if (url.endsWith(".yaml")) {
-								Application application = getSettings().installApplicationFromYaml(id, url);
-								if (application != null) {
-									applications.add(application);
-								}
-							} else {
-								applications = getSettings().installApplicationFromDirectory(id, url);
-							}
-						}
-
-						if (applications.size() > 0) {
-							settings.save();
-							printlnInGreen("[OK] " + applications.size() + " Applications installed: \n");
-						} else {
-							printlnInRed("[ERROR] No valid Application found in repo '" + url + "'\n");
+					if (url.startsWith("http://") || url.startsWith("https://")) {
+						application = repository.installFromUrl(url);
+					} else if (url.startsWith("github://")) {
+						String shorthand = url.replaceAll("github://", "");
+						Repository repository = GitHubUtil.parseShorthand(shorthand);
+						if (repository == null) {
+							printlnInRed("[ERROR] " + shorthand + " is not a valid GitHub repo.");
 							return 1;
+
+						}
+						application = this.repository.installFromGitHub(repository);
+					} else {
+
+						if (!url.startsWith("/")) {
+							url = FileUtil.path(folderRepo, url);
 						}
 
-					} catch (Exception e) {
-
-						printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
-
+						if (url.endsWith(".zip")) {
+							application = repository.installFromZipFile(url);
+						} else if (url.endsWith(".yaml")) {
+							application = repository.installFromYaml(url, false);
+							} else {
+								application = repository.installFromDirectory(url, false);
+						}
 					}
 
-				} else {
-					printlnInGreen("[OK] Application " + id + " is already installed.");
+					if (application != null) {
+						settings.save();
+						printlnInGreen("[OK] Application installed: \n");
+					} else {
+						printlnInRed("[ERROR] No valid Application found in repo '" + url + "'\n");
+						return 1;
+					}
+
+				} catch (Exception e) {
+
+					printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
 
 				}
+
 			}
 			reader.close();
 		} catch (Exception e) {

@@ -22,6 +22,7 @@ Cloudgene supports the execution of commands inside a docker container.
 The following example starts an image from biocontainers and executes `vcftools` to calculate allele frequencies:
 
 ```yaml
+id: allele-frequencies
 name: Allele Frequencies from VCF
 version: 1.0
 workflow:

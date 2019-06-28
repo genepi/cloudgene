@@ -2,6 +2,8 @@ package cloudgene.mapred.api.v2.jobs;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,10 +23,11 @@ import org.restlet.ext.fileupload.RestletFileUpload;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.PublicUser;
@@ -37,15 +40,24 @@ import genepi.io.FileUtil;
 
 public class SubmitJob extends BaseResource {
 
+
 	private static final Log log = LogFactory.getLog(SubmitJob.class);
+
 	
 	@Post
 	public Representation post(Representation entity) {
 
 		User user = getAuthUser();
 		String appId = getAttribute("tool");
+		try {
+			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
+		} catch (UnsupportedEncodingException e2) {
+			return error404("Application '" + appId + "' is not in valid format.");
+		}
 
-		Application application = getSettings().getAppByIdAndUser(appId, user);
+
+		ApplicationRepository repository = getApplicationRepository();
+		Application application = repository.getByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {
 			app = application.getWdlApp();

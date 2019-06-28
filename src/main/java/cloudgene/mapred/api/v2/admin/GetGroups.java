@@ -3,19 +3,19 @@ package cloudgene.mapred.api.v2.admin;
 import java.util.List;
 import java.util.Vector;
 
-import net.sf.json.JSONArray;
-
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.BaseResource;
+import net.sf.json.JSONArray;
 
 public class GetGroups extends BaseResource {
-
+	
 	@Get
 	public Representation get() {
 
@@ -36,7 +36,10 @@ public class GetGroups extends BaseResource {
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
 		groups.add(new Group("user"));
-		for (Application application : getSettings().getApps()) {
+		
+		ApplicationRepository repository = getApplicationRepository();
+
+		for (Application application : repository.getAll()) {
 			Group group = new Group(application.getPermission());
 			if (!groups.contains(group)) {
 				group.addApp(application.getId());

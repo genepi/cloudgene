@@ -5,7 +5,7 @@ Installs all application defined the repository file.
 ## Command
 
 ```bash
-cloudgene install <repository-file>
+cloudgene clone <repository-file>
 ```
 ## Parameters
 

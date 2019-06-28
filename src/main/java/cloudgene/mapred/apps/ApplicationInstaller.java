@@ -1,4 +1,4 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.apps;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 
 import cloudgene.mapred.jobs.Environment;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.io.HdfsLineWriter;

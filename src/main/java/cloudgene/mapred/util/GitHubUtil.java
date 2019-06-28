@@ -6,9 +6,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-
-import net.minidev.json.parser.JSONParser;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
 
 public class GitHubUtil {
 	

@@ -2,7 +2,7 @@ package cloudgene.mapred.cli;
 
 import java.util.List;
 
-import cloudgene.mapred.util.Application;
+import cloudgene.mapred.apps.Application;
 
 public class ListApplications extends BaseTool {
 
@@ -18,7 +18,7 @@ public class ListApplications extends BaseTool {
 	@Override
 	public int run() {
 
-		ListApplications.printApplicationList(settings.getApps());
+		ListApplications.printApplicationList(repository.getAll());
 
 		return 0;
 	}

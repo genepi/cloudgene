@@ -30,13 +30,14 @@ The file content starts with a simple header containing general information abou
 A simple example looks like this:
 
 ```yaml
-name: tool-name
+id: tool-name
+name: Tool Name
 description: tool-description
 category: tool-category
 version: 1.0
 website: http://www.my-website.com
 ```
-The two most important fields are `name` and `version`, without them your application won’t be able to install. The `name` and `version` fields are used together to create a unique id.
+The two most important fields are `id`, `name` and `version`, without them your application won’t be able to install. The `id` and `version` fields are used together to create a unique id. `description` and `website` should be used to describe your application.
 
 The next step is to add the `workflow` section to your configuration file to define steps as well as input- and output-parameters.
 
@@ -47,7 +48,8 @@ The simplest way to model a workflow is to create a list of steps where each ste
 A simple example with two steps looks like this:
 
 ```yaml
-name: hello-cloudgene
+id: hello-cloudgene
+name: Hello Cloudgene
 version: 1.0
 workflow:
   steps:
@@ -98,7 +100,8 @@ Input parameters are defined in the `inputs` section where each parameter is def
 We extend the example above by an input parameter to set the message:
 
 ```yaml
-name: hello-cloudgene
+id: hello-cloudgene
+name: Hello Cloudgene
 version: 1.0
 workflow:
   steps:
@@ -143,7 +146,7 @@ Results can be found in file:///home/lukas/new-cloudgene/job-20181119-112527
 Before you can start a webservice for your workflow, you have to install it:
 
 ```bash
-cloudgene install hello-cloudgene hello-cloudgene.yaml
+cloudgene install hello-cloudgene.yaml
 ```
 
 ```ansi

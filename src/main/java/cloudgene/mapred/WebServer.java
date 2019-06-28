@@ -1,7 +1,5 @@
 package cloudgene.mapred;
 
-import genepi.db.Database;
-
 import java.io.File;
 
 import org.apache.commons.logging.Log;
@@ -10,9 +8,11 @@ import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
 
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.cron.CronJobScheduler;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
+import genepi.db.Database;
 
 public class WebServer extends Component {
 
@@ -149,5 +149,6 @@ public class WebServer extends Component {
 	public void setWorkflowEngine(WorkflowEngine workflowEngine) {
 		this.workflowEngine = workflowEngine;
 	}
+
 
 }

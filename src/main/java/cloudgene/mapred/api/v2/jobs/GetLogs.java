@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.io.FileUtil;
-
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -12,6 +10,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
+import genepi.io.FileUtil;
 
 public class GetLogs extends BaseResource {
 

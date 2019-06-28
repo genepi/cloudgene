@@ -2,6 +2,7 @@ import Control from 'can-control';
 import $ from 'jquery';
 import bootbox from 'bootbox';
 import showErrorDialog from 'helpers/error-dialog';
+import canRoute from 'can-route';
 
 import Application from 'models/application';
 import CloudgeneApplication from 'models/cloudgene-application';
@@ -19,12 +20,28 @@ export default Control.extend({
       CloudgeneApplication.findAll({}, function(applications) {
         var installedId = [];
         $.each(installedApplications, function(index, application) {
-          installedId.push(application.attr('id'));
+          var tiles = application.attr('id').split("@");
+          var installedApplication = {
+            id: tiles[0],
+            version: tiles[1]
+          };
+          installedId.push(installedApplication);
         });
 
         $.each(applications, function(index, application) {
-          var installed = installedId.includes(application.attr('id'));
+
+          var installedApplication = installedId.filter(function(e) {
+            return e.id === application.attr('id');
+          });
+
+          var installed = installedApplication.length > 0;
           application.attr('installed', installed);
+
+          if (installed){
+            var localVersion = installedApplication[0].version;
+            application.attr('localVersion', localVersion);
+          }
+
 
         });
 
@@ -40,11 +57,9 @@ export default Control.extend({
 
   '.install-app-btn click': function(el, ev) {
 
-    var id = $(el).data('app-id');
     var url = $(el).data('app-url');
 
     var app = new Application();
-    app.attr('name', id);
     app.attr('url', url);
 
     var waitingDialog = bootbox.dialog({
@@ -61,7 +76,8 @@ export default Control.extend({
       app.save(function(application) {
         waitingDialog.modal('hide');
         bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
-          location.reload();
+          var router = canRoute.router;
+          router.reload();
         });
 
       }, function(response) {

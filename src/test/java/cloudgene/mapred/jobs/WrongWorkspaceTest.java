@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.util.Settings;

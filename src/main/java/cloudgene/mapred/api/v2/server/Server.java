@@ -7,6 +7,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
@@ -14,7 +15,7 @@ import cloudgene.mapred.wdl.WdlApp;
 import net.sf.json.JSONObject;
 
 public class Server extends BaseResource {
-
+	
 	@Get
 	public Representation getServer() {
 
@@ -32,7 +33,10 @@ public class Server extends BaseResource {
 			userJson.put("admin", user.isAdmin());
 			userJson.put("name", user.getFullName());
 			data.put("user", userJson);
-			List<WdlApp> apps = getSettings().getAppsByUser(user);
+
+			ApplicationRepository repository = getApplicationRepository();
+			List<WdlApp> apps = repository.getAllByUser(user);
+			data.put("apps", apps);
 
 			List<JSONObject> appsJson = new Vector<JSONObject>();
 			List<JSONObject> deprecatedAppsJson = new Vector<JSONObject>();
@@ -61,7 +65,8 @@ public class Server extends BaseResource {
 
 		} else {
 			// get Public apps
-			List<WdlApp> apps = getSettings().getAppsByUser(null);
+			ApplicationRepository repository = getApplicationRepository();
+			List<WdlApp> apps = repository.getAllByUser(null);
 			data.put("apps", apps);
 			data.put("loggedIn", false);
 		}

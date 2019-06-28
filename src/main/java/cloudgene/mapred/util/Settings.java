@@ -4,18 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -24,14 +17,10 @@ import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 
-import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.GitHubUtil.Repository;
-import cloudgene.mapred.wdl.WdlApp;
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import genepi.hadoop.HadoopCluster;
 import genepi.io.FileUtil;
-import net.lingala.zip4j.core.ZipFile;
-import net.lingala.zip4j.exception.ZipException;
-import net.lingala.zip4j.model.FileHeader;
 
 public class Settings {
 
@@ -64,8 +53,6 @@ public class Settings {
 	private Map<String, String> database;
 
 	private Map<String, String> cluster;
-
-	private List<Application> apps;
 
 	private int autoRetireInterval = 5;
 
@@ -101,8 +88,6 @@ public class Settings {
 
 	private String slack = null;
 
-	private Map<String, Application> indexApps;
-
 	private String urlPrefix = "";
 
 	private List<MenuItem> navigation = new Vector<MenuItem>();
@@ -119,11 +104,15 @@ public class Settings {
 
 	private String port = "8082";
 
+	// fake!
+	private List<Application> apps = new Vector<Application>();
+
+	private ApplicationRepository repository;
+
 	public Settings() {
 
-		apps = new Vector<Application>();
-		reloadApplications();
-
+		repository = new ApplicationRepository();
+		
 		// read default settings from env variables when set
 		String name = System.getenv().get("CLOUDGENE_SERVICE_NAME");
 		if (name != null) {
@@ -161,6 +150,10 @@ public class Settings {
 		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
 			setPort(config.getPort());
 		}
+		
+		if (config.getApps() != null) {
+			repository.setAppsFolder(config.getApps());
+		}
 
 		// database in config has higher priority
 		if (config.getDatabase() != null) {
@@ -184,62 +177,75 @@ public class Settings {
 
 	public static Settings load(Config config) throws FileNotFoundException, YamlException {
 
-		YamlConfig yamlConfig = new YamlConfig();
-		yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
-		YamlReader reader = new YamlReader(new FileReader(config.getSettings()), yamlConfig);
+		if (config.getSettings() != null) {
 
-		Settings settings = reader.read(Settings.class);
+			YamlConfig yamlConfig = new YamlConfig();
+			yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
+			yamlConfig.setClassTag("cloudgene.mapred.util.Application", Application.class);
+			YamlReader reader = new YamlReader(new FileReader(config.getSettings()), yamlConfig);
+			Settings settings = reader.read(Settings.class);
 
-		log.info("Auto retire: " + settings.isAutoRetire());
-		log.info("Retire jobs after " + settings.retireAfter + " days.");
-		log.info("Notify user after " + settings.notificationAfter + " days.");
-		log.info("Write statistics: " + settings.writeStatistics);
+			log.info("Auto retire: " + settings.isAutoRetire());
+			log.info("Retire jobs after " + settings.retireAfter + " days.");
+			log.info("Notify user after " + settings.notificationAfter + " days.");
+			log.info("Write statistics: " + settings.writeStatistics);
 
-		if (settings.cluster != null) {
-			String conf = settings.cluster.get("conf");
-			String username = settings.cluster.get("user");
-			String name = settings.cluster.get("name");
-			if (conf != null) {
-				log.info("Use Haddop configuration folder '" + conf + "'"
-						+ (username != null ? " with username " + username : ""));
-				try {
-					HadoopCluster.setConfPath(name, conf, username);
-				}catch (NoClassDefFoundError e) {
-				}
-			}
-		}
-
-		settings.config = config;
-
-		// workspace in config has higher priority
-		if (config.getWorkspace() != null) {
-			settings.setLocalWorkspace(config.getWorkspace());
-		}
-		
-		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
-			settings.setPort(config.getPort());
-		}
-
-		// database in config has higher priority
-		if (config.getDatabase() != null) {
-			Map<String, String> database = settings.getDatabase();
-			if (database != null) {
-				if (database.get("driver") != null && database.get("driver").equals("h2")) {
-					database.put("database", config.getDatabase());
-					// check file and create parent folders
-					File databaseFile = new File(config.getDatabase());
-					if (!databaseFile.exists()) {
-						databaseFile.getParentFile().mkdirs();
+			if (settings.cluster != null) {
+				String conf = settings.cluster.get("conf");
+				String username = settings.cluster.get("user");
+				String name = settings.cluster.get("name");
+				if (conf != null) {
+					log.info("Use Haddop configuration folder '" + conf + "'"
+							+ (username != null ? " with username " + username : ""));
+					try {
+						HadoopCluster.setConfPath(name, conf, username);
+					} catch (NoClassDefFoundError e) {
 					}
 				}
-			} else {
-				database = new HashMap<String, String>();
-				initDefaultDatabase(database, config.getDatabase());
 			}
+
+			settings.config = config;
+
+			// workspace in config has higher priority
+			if (config.getWorkspace() != null) {
+				settings.setLocalWorkspace(config.getWorkspace());
+			}
+
+			if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
+				settings.setPort(config.getPort());
+			}
+
+			// database in config has higher priority
+			if (config.getDatabase() != null) {
+				Map<String, String> database = settings.getDatabase();
+				if (database != null) {
+					if (database.get("driver") != null && database.get("driver").equals("h2")) {
+						database.put("database", config.getDatabase());
+						// check file and create parent folders
+						File databaseFile = new File(config.getDatabase());
+						if (!databaseFile.exists()) {
+							databaseFile.getParentFile().mkdirs();
+						}
+					}
+				} else {
+					database = new HashMap<String, String>();
+					initDefaultDatabase(database, config.getDatabase());
+				}
+			}
+
+			return settings;
+		} else {
+			return new Settings();
 		}
+	}
 
-		return settings;
+	public List<Application> getApps() {
+		return repository.getAll();
+	}
 
+	public void setApps(List<Application> apps) {
+		this.apps = apps;
+		repository.setApps(apps);
 	}
 
 	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
@@ -257,19 +263,35 @@ public class Settings {
 	}
 
 	public void save() {
+		String filename = config.getSettings();
+		save(filename);
+	}
+
+	public void save(String filename) {
 		try {
 
-			File file = new File(config.getSettings());
-			if (!file.exists()) {
-				file.getParentFile().mkdirs();
+			if (filename != null) {
+
+				File file = new File(filename);
+				if (!file.exists()) {
+					file.getParentFile().mkdirs();
+				}
+
+				log.info("Storing settings to file " + filename + " (" + getApps().size() + " apps installed)");
+				apps = repository.getAll();
+
+				YamlConfig yamlConfig = new YamlConfig();
+				yamlConfig.setPropertyElementType(Settings.class, "apps", Application.class);
+				yamlConfig.setClassTag("cloudgene.mapred.util.Application", Application.class);
+
+				YamlWriter writer = new YamlWriter(new FileWriter(filename), yamlConfig);
+				writer.write(this);
+				writer.close();
+			} else {
+				log.warn("No settings filename setting.");
 			}
-
-			YamlWriter writer = new YamlWriter(new FileWriter(config.getSettings()));
-			writer.write(this);
-			writer.close();
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Storing settings failed.", e);
 		}
 
 	}
@@ -401,317 +423,6 @@ public class Settings {
 
 	public void setSlack(String slack) {
 		this.slack = slack;
-	}
-
-	public List<Application> getApps() {
-		return apps;
-	}
-
-	public void setApps(List<Application> apps) {
-		this.apps = apps;
-		reloadApplications();
-	}
-
-	public void reloadApplications() {
-		indexApps = new HashMap<String, Application>();
-		for (Application app : apps) {
-			log.info("Register application " + app.getId());
-			// load application
-			try {
-				log.info("Load workflow file " + app.getFilename());
-				app.loadWdlApp();
-				WdlApp wdlApp = app.getWdlApp();
-				// update wdl id with id from application
-				if (wdlApp != null) {
-					wdlApp.setId(app.getId());
-				}
-			} catch (IOException e) {
-				log.error("Application " + app.getId() + " has syntax errors.", e);
-			}
-			indexApps.put(app.getId(), app);
-
-		}
-	}
-
-	public Application getAppByIdAndUser(String id, User user) {
-
-		Application app = getApp(id);
-
-		if (app != null && app.isEnabled() && app.isLoaded() && !app.hasSyntaxError()) {
-
-			if (user == null) {
-				if (app.getPermission().toLowerCase().equals("public")) {
-					if (app.getWdlApp().getWorkflow() != null) {
-						return app;
-					} else {
-						return app;
-					}
-				} else {
-					return null;
-				}
-			}
-
-			if (user.isAdmin() || user.hasRole(app.getPermission())
-					|| app.getPermission().toLowerCase().equals("public")) {
-				if (app.getWdlApp().getWorkflow() != null) {
-					return app;
-				} else {
-					return app;
-				}
-
-			} else {
-				return null;
-			}
-
-		}
-
-		return null;
-
-	}
-
-	public Application getApp(String id) {
-
-		Application app = indexApps.get(id);
-		return app;
-
-	}
-
-	public List<WdlApp> getAppsByUser(User user) {
-		return getAppsByUser(user, true);
-	}
-
-	public List<WdlApp> getAppsByUser(User user, boolean appsOnly) {
-
-		List<WdlApp> listApps = new Vector<WdlApp>();
-
-		for (Application application : getApps()) {
-
-			boolean using = true;
-
-			if (user == null) {
-				if (application.getPermission().toLowerCase().equals("public")) {
-					using = true;
-				} else {
-					using = false;
-				}
-			} else {
-
-				if (!user.isAdmin() && !application.getPermission().toLowerCase().equals("public")) {
-
-					if (!user.hasRole(application.getPermission())) {
-						using = false;
-					}
-				}
-			}
-
-			if (using) {
-
-				if (application.isEnabled() && application.isLoaded() && !application.hasSyntaxError()) {
-					if (appsOnly) {
-						if (application.getWdlApp().getWorkflow() != null) {
-							WdlApp app = application.getWdlApp();
-							listApps.add(app);
-						}
-					} else {
-						WdlApp app = application.getWdlApp();
-						listApps.add(app);
-					}
-				}
-
-			}
-
-		}
-
-		Collections.sort(listApps);
-		return listApps;
-
-	}
-
-	public void deleteApplication(Application application) throws IOException {
-
-		// delete application in app folder
-		String id = application.getId();
-		// String appPath = FileUtil.path(config.getApps(), id);
-		// FileUtil.deleteDirectory(appPath);
-
-		// remove from app list
-		apps.remove(application);
-		reloadApplications();
-
-	}
-
-	public void deleteApplicationById(String id) throws IOException {
-		for (Application app : new Vector<Application>(getApps())) {
-			if (app.getId().startsWith(id)) {
-				deleteApplication(app);
-			}
-		}
-	}
-
-	public List<Application> installApplicationFromUrl(String id, String url) throws IOException {
-		// download file from url
-		if (url.endsWith(".zip")) {
-			String zipFilename = FileUtil.path(getTempPath(), "download.zip");
-			FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
-			return installApplicationFromZipFile(id, zipFilename);
-		} else {
-			try {
-				String appPath = FileUtil.path(config.getApps(), id);
-				FileUtil.createDirectory(appPath);
-
-				String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
-
-				FileUtils.copyURLToFile(new URL(url), new File(yamlFilename));
-				Application application = installApplicationFromYaml(id, yamlFilename);
-
-				List<Application> installed = new Vector<Application>();
-				if (application != null) {
-					installed.add(application);
-				}
-
-				return installed;
-
-			} catch (IOException e) {
-				e.printStackTrace();
-				throw e;
-			}
-		}
-
-	}
-
-	public List<Application> installApplicationFromZipFile(String id, String zipFilename) throws IOException {
-
-		// extract in apps folder
-
-		String appPath = FileUtil.path(config.getApps(), id);
-		FileUtil.deleteDirectory(appPath);
-		FileUtil.createDirectory(appPath);
-		try {
-			ZipFile file = new ZipFile(zipFilename);
-			file.extractAll(appPath);
-		} catch (ZipException e) {
-			throw new IOException(e);
-		}
-
-		return installApplicationFromDirectory(id, appPath);
-
-	}
-
-	public List<Application> installApplicationFromGitHub(String id, Repository repository, boolean update)
-			throws MalformedURLException, IOException {
-
-		List<Application> applications = new Vector<Application>();
-
-		if (getApp(id) != null) {
-			if (update) {
-				System.out.println("Updating application " + id + "...");
-				deleteApplicationById(id);
-			} else {
-				return applications;
-			}
-		} else {
-			System.out.println("Installing application " + id + "...");
-		}
-
-		String url = GitHubUtil.buildUrlFromRepository(repository);
-		String zipFilename = FileUtil.path(getTempPath(), "github.zip");
-		FileUtils.copyURLToFile(new URL(url), new File(zipFilename));
-
-		if (repository.getDirectory() != null) {
-			// extract only sub dir
-			applications = installApplicationFromZipFile(id, zipFilename, "^.*/" + repository.getDirectory() + ".*");
-		} else {
-			applications = installApplicationFromZipFile(id, zipFilename);
-		}
-
-		return applications;
-
-	}
-
-	public List<Application> installApplicationFromZipFile(String id, String zipFilename, String subFolder)
-			throws IOException {
-
-		String appPath = FileUtil.path(config.getApps(), id);
-		FileUtil.deleteDirectory(appPath);
-		FileUtil.createDirectory(appPath);
-		try {
-			ZipFile file = new ZipFile(zipFilename);
-			for (Object header : file.getFileHeaders()) {
-				FileHeader fileHeader = (FileHeader) header;
-				String name = fileHeader.getFileName();
-				if (name.matches(subFolder)) {
-					file.extractFile(fileHeader, appPath);
-				}
-			}
-		} catch (ZipException e) {
-			throw new IOException(e);
-		}
-
-		return installApplicationFromDirectory(id, appPath);
-
-	}
-
-	public List<Application> installApplicationFromDirectory(String id, String path) throws IOException {
-		return installApplicationFromDirectory(id, path, false);
-	}
-
-	public List<Application> installApplicationFromDirectory(String id, String path, boolean multiple)
-			throws IOException {
-		// find all cloudgene workflows (use filename as id)
-		String[] files = FileUtil.getFiles(path, "*.yaml");
-
-		List<Application> installed = new Vector<Application>();
-
-		for (String filename : files) {
-			String newId = id;
-			if (multiple) {
-				newId = id + "-" + FileUtil.getFilename(filename).replaceAll(".yaml", "");
-			}
-			Application application = installApplicationFromYaml(newId, filename);
-			if (application != null) {
-				installed.add(application);
-				multiple = true;
-			}
-		}
-
-		// search in subfolders
-		for (String directory : getDirectories(path)) {
-			List<Application> installedSubFolder = installApplicationFromDirectory(id, directory, multiple);
-			if (installedSubFolder.size() > 0) {
-				multiple = true;
-				installed.addAll(installedSubFolder);
-			}
-		}
-		return installed;
-
-	}
-
-	public Application installApplicationFromYaml(String id, String filename) throws IOException {
-
-		if (indexApps.get(id) != null) {
-			throw new IOException("Application " + id + " is already installed");
-		}
-
-		Application application = new Application();
-		application.setId(id);
-		application.setFilename(filename);
-		application.setPermission("user");
-		try {
-			application.loadWdlApp();
-		} catch (IOException e) {
-			log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
-			return null;
-		}
-		System.out.println("Process file " + filename + "....");
-		apps.add(application);
-		WdlApp wdlApp = application.getWdlApp();
-		if (wdlApp != null) {
-			wdlApp.setId(id);
-		}
-		indexApps.put(application.getId(), application);
-
-		return application;
-
 	}
 
 	public void setName(String name) {
@@ -880,30 +591,6 @@ public class Settings {
 		this.uploadLimit = uploadLimit;
 	}
 
-	private String[] getDirectories(String path) {
-		File dir = new File(path);
-		File[] files = dir.listFiles();
-
-		int count = 0;
-		for (File file : files) {
-			if (file.isDirectory()) {
-				count++;
-			}
-		}
-
-		String[] names = new String[count];
-
-		count = 0;
-		for (File file : files) {
-			if (file.isDirectory()) {
-				names[count] = file.getAbsolutePath();
-				count++;
-			}
-		}
-
-		return names;
-	}
-
 	public void setThreadsSetupQueue(int threadsSetupQueue) {
 		this.threadsSetupQueue = threadsSetupQueue;
 	}
@@ -952,4 +639,7 @@ public class Settings {
 		return port;
 	}
 
+	public ApplicationRepository getApplicationRepository() {
+		return repository;
+	}
 }

@@ -16,7 +16,8 @@
 ### Example 1
 
 ```yaml
-name: r markdown example
+id: rmarkdown-example
+name: RMarkdown Example
 version: 1.0
 workflow:
   steps:
@@ -40,7 +41,8 @@ workflow:
 Run a report script only when Docker is installed:
 
 ```yaml
-name: rmd-docker
+id: rmarkdown-example
+name: RMarkdown Example
 version: 1.0
 workflow:
   steps:

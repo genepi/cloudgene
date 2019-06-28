@@ -6,7 +6,10 @@
 FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Hadoop path with all jars
-HADOOP_CLASS_PATH=`hadoop classpath`
+HADOOP_CLASS_PATH=``
+if command -v hadoop > /dev/null 2>&1; then
+  HADOOP_CLASS_PATH=`hadoop classpath`
+fi
 
 # Our classpath including our jar file
 CLASS_PATH="$FILE_PATH/cloudgene.jar:$HADOOP_CLASS_PATH"

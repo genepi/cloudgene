@@ -63,6 +63,9 @@ public class HtmlWidgetStep extends CloudgeneStep {
 
 				if (new File(jsonFilename).exists()) {
 					value = FileUtil.readFileAsString(jsonFilename);
+				}else {
+					context.log("Warning! Json File '" + jsonFilename + "' not found. Replaced " + variable + " with empty string.");
+					value = "";
 				}
 			}
 			context2.put(variable, value);
@@ -134,7 +137,6 @@ public class HtmlWidgetStep extends CloudgeneStep {
 					String assetsSource = FileUtil.path(workingDirectory, assets);
 					String assetsTarget = FileUtil.path(parent.getAbsolutePath(), assets);
 					FileUtil.createDirectory(assetsTarget);
-					context.ok("Copy Assets from " + assetsSource + " " + assetsTarget);
 					FileUtil.copyDirectory(assetsSource, assetsTarget);
 				}
 				

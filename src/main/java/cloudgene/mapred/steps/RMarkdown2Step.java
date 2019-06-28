@@ -6,14 +6,14 @@ import java.io.IOException;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.plugins.rscript.RScriptFile;
-import cloudgene.mapred.plugins.rscript.RScriptBinary;
 import cloudgene.mapred.plugins.rscript.RMarkdownPlugin;
+import cloudgene.mapred.plugins.rscript.RScriptBinary;
+import cloudgene.mapred.plugins.rscript.RScriptFile;
 import cloudgene.mapred.plugins.rscript.RScriptPlugin;
 import cloudgene.mapred.wdl.WdlStep;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.command.Command;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 public class RMarkdown2Step extends CloudgeneStep {

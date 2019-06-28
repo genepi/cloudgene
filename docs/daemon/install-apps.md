@@ -28,27 +28,27 @@ You can click on **Disable** to deactivate the application or on **Uninstall** t
 
 ### Install an application
 
-You can install applications by using the [`install`](/cli/cloudgene-install) or the [`github-install`](/cli/cloudgene-github-install) command. Cloudgene installs all applications in the folder `apps`.
+You can install applications by using the [`install`](/cli/cloudgene-install) command. Cloudgene installs all applications in the folder `apps` with a shorthand in the form of `app-id@version` (e.g. `hello-cloudgene@1.2.0`).
 
 ```sh
-cloudgene install <id> <location>
+cloudgene install <location>
 ```
-The `id` parameter is a shorthand name of the application and is used to refer the application. Location could be a zip file or a yaml file accessible via http or which is located on the local filesystem.
+`Location` could be a zip file or a yaml file accessible via http or which is located on the local filesystem.
 
 ```sh
-cloudgene install hello-cloudgene https://github.com/lukfor/hello-cloudgene/archive/master.zip
+cloudgene install https://github.com/lukfor/hello-cloudgene/archive/master.zip
 ```
 
 You can also install applications directly from GitHub:
 
 ```sh
-cloudgene github-install <owner>/<repository>
+cloudgene install <owner>/<repository>
 ```
 
 For example, the **hello-cloudgene** application can be installed by using the following command:
 
 ```sh
-cloudgene github-install lukfor/hello-cloudgene
+cloudgene install lukfor/hello-cloudgene
 ```
 
 The ids are created are automatically for all applications from GitHub.
@@ -70,7 +70,13 @@ An installed application can be removed with the `remove` command:
 
 
 ```sh
-cloudgene remove <name>
+cloudgene remove <id>
+```
+
+For example to remove **hello-cloudgne 1.2.0** ,
+
+```sh
+cloudgene remove hello-cloudgene@1.2.0
 ```
 
 ## What's next?

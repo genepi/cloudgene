@@ -3,7 +3,6 @@ package cloudgene.mapred.jobs;
 import java.util.HashMap;
 import java.util.Map;
 
-import cloudgene.mapred.plugins.docker.DockerStep;
 import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.GroovyStep;
 import cloudgene.mapred.steps.HadoopMapReduceStep;

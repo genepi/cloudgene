@@ -1,8 +1,8 @@
 package cloudgene.mapred.jobs.steps;
 
+import cloudgene.sdk.internal.WorkflowContext;
+import cloudgene.sdk.internal.WorkflowStep;
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
-import genepi.hadoop.common.WorkflowStep;
 import genepi.io.FileUtil;
 
 public class WriteTextToHdfsFileStep extends WorkflowStep {

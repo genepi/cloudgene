@@ -74,7 +74,7 @@ public class CommandLineUtil {
 
 					File tmpFile = new File(value);
 					if (!tmpFile.exists()) {
-						throw new FileNotFoundException("File " + value + " not found.");
+						throw new FileNotFoundException(input.getDescription() + ": file '" + value + "' not found.");
 					}
 					String entryName = tmpFile.getName();
 

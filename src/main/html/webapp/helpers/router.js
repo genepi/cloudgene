@@ -1,4 +1,3 @@
-
 import Control from 'can-control';
 import canRoute from 'can-route';
 import canMap from 'can-map';
@@ -55,12 +54,13 @@ export default Control.extend({
           data.attr(router.options.forbidden.options);
         }
       }
-      router.activate({
+      router.activeControl = {
         control: control,
         data: data,
         id: '',
         classes: route.classes
-      });
+      };
+      router.activate(router.activeControl);
     }
   },
 
@@ -94,6 +94,13 @@ export default Control.extend({
     this.element.append(view);
     new Control(view[0], data);
 
+  },
+
+  'reload': function() {
+    var router = canRoute.router;
+    if (router.activeControl) {
+      router.activate(router.activeControl);
+    }
   },
 
   'setupAuthentication': function() {

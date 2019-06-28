@@ -12,8 +12,8 @@ import java.util.Vector;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
+import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 public class CloudgeneContext extends WorkflowContext {
@@ -55,7 +55,7 @@ public class CloudgeneContext extends WorkflowContext {
 	private Map<String, String> config;
 
 	private int chunks = 0;
-	
+
 	public CloudgeneContext(CloudgeneJob job) {
 
 		this.workingDirectory = job.getWorkingDirectory();
@@ -283,9 +283,13 @@ public class CloudgeneContext extends WorkflowContext {
 	public boolean sendMail(String subject, String body) throws Exception {
 		Settings settings = getSettings();
 
-		MailUtil.send(settings.getMail().get("smtp"), settings.getMail().get("port"), settings.getMail().get("user"),
-				settings.getMail().get("password"), settings.getMail().get("name"), user.getMail(),
-				"[" + settings.getName() + "] " + subject, body);
+		if (settings.getMail() != null) {
+
+			MailUtil.send(settings.getMail().get("smtp"), settings.getMail().get("port"),
+					settings.getMail().get("user"), settings.getMail().get("password"), settings.getMail().get("name"),
+					user.getMail(), "[" + settings.getName() + "] " + subject, body);
+
+		}
 
 		return true;
 
@@ -294,10 +298,13 @@ public class CloudgeneContext extends WorkflowContext {
 	public boolean sendMail(String to, String subject, String body) throws Exception {
 		Settings settings = getSettings();
 
+		if (settings.getMail() != null) {
+		
 		MailUtil.send(settings.getMail().get("smtp"), settings.getMail().get("port"), settings.getMail().get("user"),
 				settings.getMail().get("password"), settings.getMail().get("name"), to,
 				"[" + settings.getName() + "] " + subject, body);
 
+		}
 		return true;
 
 	}
@@ -457,7 +464,7 @@ public class CloudgeneContext extends WorkflowContext {
 			return null;
 		}
 	}
-	
+
 	public void addFile(String filename) {
 		chunks++;
 		String chunkFolder = FileUtil.path(getLocalOutput(), "chunks");
@@ -467,6 +474,5 @@ public class CloudgeneContext extends WorkflowContext {
 		FileUtil.copy(filename, FileUtil.path(chunkFolder, chunkFilename));
 		message(chunkFilename, 27);
 	}
-
 
 }

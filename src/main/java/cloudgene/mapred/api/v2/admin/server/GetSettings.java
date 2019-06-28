@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.admin.server;
 
-import net.sf.json.JSONObject;
-
 import java.util.Map;
 
 import org.restlet.data.Status;
@@ -11,6 +9,7 @@ import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
+import net.sf.json.JSONObject;
 
 public class GetSettings extends BaseResource {
 

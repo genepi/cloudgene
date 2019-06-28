@@ -1,8 +1,8 @@
 package cloudgene.mapred.util;
 
-import genepi.db.Database;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import genepi.db.Database;
 
 public class PublicUser {
 

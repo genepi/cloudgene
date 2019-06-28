@@ -13,12 +13,13 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Application;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
@@ -52,7 +53,7 @@ public class TestServer {
 	private Thread engineThread;
 
 	private static TestServer instance;
-
+	
 	private TestServer() {
 		HashMap<String, String> mail = new HashMap<String, String>();
 		mail.put("smtp", "localhost");
@@ -204,6 +205,8 @@ public class TestServer {
 			app22.setPermission("public");
 			applications.add(app22);
 			
+			
+			
 			settings.setApps(applications);
 
 		}
@@ -302,9 +305,8 @@ public class TestServer {
 
 	public WorkflowEngine startWorkflowEngineWithoutServer() throws SQLException {
 		if (engine == null) {
-
+		
 			registerApplications();
-
 			database = createDatabase(true);
 			// start workflow engine
 			engine = new PersistentWorkflowEngine(database, 1, 1);
@@ -322,6 +324,7 @@ public class TestServer {
 
 		if (server == null) {
 
+		
 			registerApplications();
 
 			database = createDatabase(newDatabase);
@@ -371,7 +374,6 @@ public class TestServer {
 				server.setPort(PORT);
 				server.setRootDirectory(webAppFolder);
 				server.setPagesDirectory(pagesFolder);
-
 				server.setDatabase(database);
 				server.setSettings(settings);
 				server.setWorkflowEngine(engine);
@@ -415,6 +417,10 @@ public class TestServer {
 
 	public Database getDatabase() {
 		return database;
+	}
+	
+	public ApplicationRepository getApplicationRepository() {
+		return settings.getApplicationRepository();
 	}
 
 }

@@ -13,7 +13,7 @@ public class BuildUtil {
 	public static String getBuildInfos(){
 		
 		//load build infos from manifest file
-		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
+		/*URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
 		try {
 			URL url = cl.findResource("META-INF/MANIFEST.MF");
 			Manifest manifest = new Manifest(url.openStream());
@@ -25,7 +25,9 @@ public class BuildUtil {
 
 		} catch (IOException E) {
 			return "unkown";
-		}
+		}*/
+		
+		return "unknown";
 	}
 	
 }

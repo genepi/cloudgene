@@ -1,6 +1,5 @@
 package cloudgene.mapred.util;
 
-import genepi.db.Database;
 
 import java.net.URLDecoder;
 import java.util.Map;
@@ -15,24 +14,25 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
-import cloudgene.mapred.core.User;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.JWTUtil;
-import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import genepi.db.Database;
 
 public class BaseResource extends ServerResource {
 
 	private WebApp application;
 
 	private Database database;
-
+		
 	@Override
 	protected void doInit() throws ResourceException {
 		super.doInit();
 
 		application = (WebApp) getApplication();
 		database = application.getDatabase();
-
+			
 	}
 
 	public Database getDatabase() {
@@ -46,7 +46,7 @@ public class BaseResource extends ServerResource {
 	public User getAuthUser() {
 		return getAuthUser(true);
 	}
-	
+		
 	public User getAuthUser(boolean checkCsrf) {
 
 		User user = JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
@@ -62,6 +62,10 @@ public class BaseResource extends ServerResource {
 		return application.getSettings();
 	}
 
+	public ApplicationRepository getApplicationRepository() {
+		return application.getSettings().getApplicationRepository();
+	}
+	
 	public WorkflowEngine getWorkflowEngine() {
 		return application.getWorkflowEngine();
 	}
@@ -105,6 +109,7 @@ public class BaseResource extends ServerResource {
 			return new EmptyRepresentation();
 
 		}
+		
 		return new JsonRepresentation(jsonObject);
 
 	}

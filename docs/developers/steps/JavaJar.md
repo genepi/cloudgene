@@ -19,7 +19,8 @@ Cloudgene supports the execution of jar files (written in Java).
  The following example illustrates how to execute the default main-class of jar archive:
 
 ```yaml
-name: java example
+id: java-example
+name: Java Example
 version: 1.0
 workflow:
   steps:

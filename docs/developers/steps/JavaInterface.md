@@ -64,7 +64,8 @@ public class YourValidation extends WorkflowStep {
 After creating a jar archive for your project (for example by using maven), you can include your WorkflowStep into Cloudgene:
 
 ```yaml
-name: java interface example
+id: java-interface-example
+name: Java Interface Example
 version: 1.0
 workflow:
   steps:

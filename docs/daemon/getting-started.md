@@ -23,7 +23,7 @@ The default port can also be changed in the [configuration file](configuration.m
 Stop the webservice by pressing `CTRL-C`. The **hello-cloudgene** application can be installed by using the following command:
 
 ```sh
-./cloudgene github-install lukfor/hello-cloudgene
+./cloudgene install lukfor/hello-cloudgene
 ```
 
 Next, restart Cloudgene with the following command:

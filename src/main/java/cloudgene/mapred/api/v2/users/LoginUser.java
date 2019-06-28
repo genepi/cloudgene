@@ -8,11 +8,10 @@ import org.restlet.data.CookieSetting;
 import org.restlet.data.Form;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.core.JWTUtil;
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;

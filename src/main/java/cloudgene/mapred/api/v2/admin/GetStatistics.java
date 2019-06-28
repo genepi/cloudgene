@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import net.sf.json.JSONArray;
-
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -14,6 +12,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.util.BaseResource;
+import net.sf.json.JSONArray;
 
 public class GetStatistics extends BaseResource {
 
