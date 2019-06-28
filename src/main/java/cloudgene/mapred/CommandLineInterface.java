@@ -2,7 +2,6 @@ package cloudgene.mapred;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
@@ -17,6 +16,7 @@ import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import cloudgene.mapred.cli.ValidateApplication;
 import cloudgene.mapred.cli.VerifyCluster;
+import cloudgene.mapred.util.BuildUtil;
 import genepi.base.Toolbox;
 
 public class CommandLineInterface extends Toolbox {
@@ -31,6 +31,7 @@ public class CommandLineInterface extends Toolbox {
 		System.out.println("Cloudgene " + Main.VERSION);
 		System.out.println("http://www.cloudgene.io");
 		System.out.println("(c) 2009-2019 Lukas Forer and Sebastian Schoenherr");
+		System.out.println(BuildUtil.getBuildInfos());
 
 		try {
 			URL url = this.getClass().getClassLoader().getResource("META-INF/MANIFEST.MF");

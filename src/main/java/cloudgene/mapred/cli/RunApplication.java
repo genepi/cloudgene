@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 
@@ -21,10 +21,10 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
 import genepi.hadoop.HadoopCluster;
@@ -123,7 +123,7 @@ public class RunApplication extends BaseTool {
 		}
 
 		// create the command line parser
-		CommandLineParser parser = new PosixParser();
+		CommandLineParser parser = new DefaultParser();
 
 		// create options for each input param in yaml file
 		Options options = CommandLineUtil.createOptionsFromApp(app);
@@ -196,7 +196,7 @@ public class RunApplication extends BaseTool {
 
 		} else {
 			if (settings.getCluster() == null) {
-				//printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
+				// printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
 			}
 		}
 
@@ -204,13 +204,11 @@ public class RunApplication extends BaseTool {
 		PluginManager manager = PluginManager.getInstance();
 		manager.initPlugins(settings);
 
-		/*for (IPlugin plugin : manager.getPlugins()) {
-			if (manager.isEnabled(plugin)) {
-				printText(0, spaces("[INFO]", 8) + plugin.getStatus());
-			} else {
-				printText(0, spaces("[WARN]", 8) + plugin.getStatus());
-			}
-		}*/
+		/*
+		 * for (IPlugin plugin : manager.getPlugins()) { if (manager.isEnabled(plugin))
+		 * { printText(0, spaces("[INFO]", 8) + plugin.getStatus()); } else {
+		 * printText(0, spaces("[WARN]", 8) + plugin.getStatus()); } }
+		 */
 
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
@@ -250,7 +248,7 @@ public class RunApplication extends BaseTool {
 			CloudgeneJob job = new CloudgeneJob(user, id, app, params) {
 
 				private int count = 0;
-				
+
 				@Override
 				public boolean afterSubmission() {
 					boolean result = super.afterSubmission();
@@ -259,12 +257,12 @@ public class RunApplication extends BaseTool {
 					}
 					return result;
 				}
-				
+
 				@Override
 				public void onStepStarted(CloudgeneStep step) {
 					super.onStepStarted(step);
 					System.out.println();
-					printText(0, spaces("[INFO]", 8) + step.getName() + "...");					
+					printText(0, spaces("[INFO]", 8) + step.getName() + "...");
 				}
 
 				@Override
@@ -362,12 +360,12 @@ public class RunApplication extends BaseTool {
 
 				return 1;
 			}
-		}catch (FileNotFoundException e) {
-			printlnInRed("Error: " + e.getMessage());			
+		} catch (FileNotFoundException e) {
+			printlnInRed("Error: " + e.getMessage());
 			System.out.println();
 			System.out.println();
 			return 1;
-			
+
 		} catch (Exception e) {
 			printlnInRed("Error: Execution failed.");
 			System.out.println("Details:");
@@ -383,8 +381,9 @@ public class RunApplication extends BaseTool {
 		if (app.getWorkflow().getInputs().size() > 0) {
 			printText(2 + 6, "Input values: ");
 			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-				if (!input.getType().equals("agbcheckbox") && !input.getType().equals("terms_checkbox")
-						&& !input.isAdminOnly() && input.isVisible()) {
+				if (input.getTypeAsEnum() != WdlParameterInputType.AGBCHECKBOX
+						&& input.getTypeAsEnum() != WdlParameterInputType.TERMS_CHECKBOX && !input.isAdminOnly()
+						&& input.isVisible()) {
 					printText(4 + 6, input.getId() + ": " + job.getContext().get(input.getId()));
 				}
 			}
