@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +15,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.Config;
+import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -181,6 +178,52 @@ public class ApplicationRepository {
 		apps.remove(application);
 		reload();
 
+	}
+	
+	public Application install(String url) throws IOException, GitHubException {
+		
+		Application application = null;
+		
+		if (url.startsWith("http://") || url.startsWith("https://")) {
+			application = installFromUrl(url);
+		} else if (url.startsWith("github://")) {
+
+			String repo = url.replace("github://", "");
+
+			Repository repository = GitHubUtil.parseShorthand(repo);
+			if (repository == null) {
+				throw new GitHubException(repo + " is not a valid GitHub repo.");
+			}
+
+			application = installFromGitHub(repository);
+
+		} else {
+
+			if (new File(url).exists()) {
+
+				if (url.endsWith(".zip")) {
+					application = installFromZipFile(url);
+				} else if (url.endsWith(".yaml")) {
+					application = installFromYaml(url, false);
+				} else {
+					application = installFromDirectory(url, false);
+				}
+				
+			} else {
+				String repo = url.replace("github://", "");
+
+				Repository repository = GitHubUtil.parseShorthand(repo);
+				if (repository == null) {
+					throw new GitHubException(repo + " is not a valid GitHub repo.");
+				}
+
+				application = installFromGitHub(repository);
+
+			}
+		}
+
+		return application;
+		
 	}
 
 	public void removeById(String id) throws IOException {
@@ -354,12 +397,17 @@ public class ApplicationRepository {
 
 			String targetPath = FileUtil.path(appsFolder, application.getWdlApp().getId(),
 					application.getWdlApp().getVersion());
+
 			FileUtil.createDirectory(targetPath);
 			File target = new File(targetPath);
 
-			Files.move(folder.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
-
+			//copy to apps and update filename
+			FileUtils.copyDirectory(folder, target);
 			application.setFilename(FileUtil.path(targetPath, file.getName()));
+			
+			// delete older directory
+			FileUtil.deleteDirectory(folder);
+			
 			try {
 				application.loadWdlApp();
 			} catch (IOException e) {

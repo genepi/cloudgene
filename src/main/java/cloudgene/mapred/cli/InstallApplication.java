@@ -1,10 +1,7 @@
 package cloudgene.mapred.cli;
 
-import java.io.File;
-
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.util.GitHubUtil;
-import cloudgene.mapred.util.GitHubUtil.Repository;
+import cloudgene.mapred.util.GitHubException;
 
 public class InstallApplication extends BaseTool {
 
@@ -32,49 +29,9 @@ public class InstallApplication extends BaseTool {
 
 		try {
 
-			Application application = null;
-
 			System.out.println("Installing application " + url + "...");
 
-			if (url.startsWith("http://") || url.startsWith("https://")) {
-				application = repository.installFromUrl(url);
-			} else if (url.startsWith("github://")) {
-
-				String repo = url.replace("github://", "");
-
-				Repository repository = GitHubUtil.parseShorthand(repo);
-				if (repository == null) {
-					printlnInRed("[ERROR] " + repo + " is not a valid GitHub repo.\n");
-					return 1;
-				}
-
-				application = this.repository.installFromGitHub(repository);
-
-			} else {
-
-				if (new File(url).exists()) {
-
-					if (url.endsWith(".zip")) {
-						application = repository.installFromZipFile(url);
-					} else if (url.endsWith(".yaml")) {
-						application = repository.installFromYaml(url, false);
-					} else {
-						application = repository.installFromDirectory(url, false);
-					}
-					
-				} else {
-					String repo = url.replace("github://", "");
-
-					Repository repository = GitHubUtil.parseShorthand(repo);
-					if (repository == null) {
-						printlnInRed("[ERROR] " + repo + " is not a valid GitHub repo.\n");
-						return 1;
-					}
-
-					application = this.repository.installFromGitHub(repository);
-
-				}
-			}
+			Application application = repository.install(url);
 
 			if (application != null) {
 				settings.save();
@@ -88,7 +45,9 @@ public class InstallApplication extends BaseTool {
 				printlnInRed("[ERROR] No valid application found.\n");
 				return 1;
 			}
-
+		} catch (GitHubException e) {
+			printlnInRed("[ERROR] " + e.getMessage() + ".\n");
+			return 1;
 		} catch (Exception e) {
 			printlnInRed("[ERROR] Application not installed:" + e.toString() + "\n");
 			return 1;

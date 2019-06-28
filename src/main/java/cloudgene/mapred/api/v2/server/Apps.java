@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
@@ -19,14 +21,14 @@ import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.BaseResource;
-import cloudgene.mapred.util.GitHubUtil;
-import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class Apps extends BaseResource {
+	
+	private static final Log log = LogFactory.getLog(Apps.class);
 	
 	@Post
 	public Representation install(Representation entity) {
@@ -57,30 +59,10 @@ public class Apps extends BaseResource {
 		
 		try {
 
-			Application application = null;
-
-			if (url.startsWith("http://") || url.startsWith("https://")) {
-				application = repository.installFromUrl(url);
-			} else if (url.startsWith("github://")) {
-				String shorthand = url.replaceAll("github://", "");
-				Repository gitRepository = GitHubUtil.parseShorthand(shorthand);
-				if (gitRepository == null) {
-					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return new StringRepresentation(shorthand + " is not a valid GitHub repo.");
-
-				}
-				application = repository.installFromGitHub(gitRepository);
-			} else {
-				if (url.endsWith(".zip")) {
-					application = repository.installFromZipFile(url);
-				} else if (url.endsWith(".yaml")) {
-					application = repository.installFromYaml(url, false);
-				} else {
-					application = repository.installFromDirectory(url, false);
-				}
-			}
+			Application application = repository.install(url);
 
 			getSettings().save();
+			
 			if (application != null) {
 				JSONObject jsonObject = JSONConverter.convert(application);
 				updateState(application, jsonObject);
@@ -89,9 +71,8 @@ public class Apps extends BaseResource {
 				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 				return new StringRepresentation("Application not installed: No workflow file found.");
 			}
-
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Application not installed. ", e);
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("Application not installed: " + e.getMessage());
 		}
