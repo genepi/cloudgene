@@ -8,7 +8,7 @@ extra_css:
 repo_url: https://github.com/genepi/cloudgene/
 google_analytics: ['UA-873221-12', 'docs.cloudgene.io']
 pages:
-  
+
 - Cloudgene:
     - Installation: index.md
     - Getting Started: daemon/getting-started.md
@@ -83,5 +83,6 @@ extra:
 markdown_extensions:
   - codehilite
   - admonition
-  - toc(permalink=true)
+  - toc:
+      permalink: true
   - footnotes

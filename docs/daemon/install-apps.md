@@ -28,30 +28,31 @@ You can click on **Disable** to deactivate the application or on **Uninstall** t
 
 ### Install an application
 
-You can install applications by using the [`install`](/cli/cloudgene-install) command. Cloudgene installs all applications in the folder `apps` with a shorthand in the form of `app-id@version` (e.g. `hello-cloudgene@1.2.0`).
+You can install also applications by using the [`install`](/cli/cloudgene-install) command. Cloudgene installs all applications in the folder `apps`.
 
 ```sh
 cloudgene install <location>
 ```
-`Location` could be a zip file or a yaml file accessible via http or which is located on the local filesystem.
+`Location` could be a zip file or a yaml file accessible via http or which is located on the local filesystem. For example, the following command installs an application that is hosted on a web server:
 
 ```sh
 cloudgene install https://github.com/lukfor/hello-cloudgene/archive/master.zip
 ```
 
-You can also install applications directly from GitHub:
-
-```sh
-cloudgene install <owner>/<repository>
-```
-
-For example, the **hello-cloudgene** application can be installed by using the following command:
+You can also install applications directly from GitHub. For example, the latest version of the **hello-cloudgene** application can be installed by using the following command:
 
 ```sh
 cloudgene install lukfor/hello-cloudgene
 ```
 
-The ids are created are automatically for all applications from GitHub.
+To install a specific version of a application you can specify a git tag:
+
+```sh
+cloudgene install lukfor/hello-cloudgene@1.2.0
+```
+
+The ids are created automatically for all applications (e.g. `hello-cloudgene@1.2.0`).
+
 
 ### List installed applications
 
