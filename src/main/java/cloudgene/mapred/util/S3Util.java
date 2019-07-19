@@ -17,7 +17,7 @@ public class S3Util {
 
 		String name = temp.split("/", 2)[0];
 		String key = temp.split("/", 2)[1];
-		try {
+
 		final AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
 
 		S3Object o = s3.getObject(name, key);
@@ -30,10 +30,6 @@ public class S3Util {
 		}
 		s3is.close();
 		fos.close();
-}catch (Exception e) {
-
-	e.printStackTrace();
-}
 	}
 
 }
