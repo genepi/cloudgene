@@ -10,9 +10,7 @@ import org.apache.commons.io.FileUtils;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.util.GitHubUtil;
-import cloudgene.mapred.util.GitHubUtil.Repository;
-import genepi.io.FileUtil;
+import cloudgene.mapred.util.S3Util;
 
 public class CloneApplications extends BaseTool {
 
@@ -48,9 +46,16 @@ public class CloneApplications extends BaseTool {
 				e.printStackTrace();
 				return 1;
 			}
+		} else if (repo.startsWith("s3://")) {
+			try {
+				S3Util.copyS3ToFile(repo, new File(tmpFilename));
+				repo = tmpFilename;
+			} catch (Exception e) {
+				System.out.println("Error during download repository from " + repo);
+				e.printStackTrace();
+				return 1;
+			}
 		}
-
-		String folderRepo = new File(repo).getParentFile().getAbsolutePath();
 
 		try {
 			YamlReader reader = new YamlReader(new FileReader(repo));
@@ -64,34 +69,10 @@ public class CloneApplications extends BaseTool {
 				Application application = null;
 
 				System.out.println("Installing application " + url + "...");
-
+				
 				try {
 
-					if (url.startsWith("http://") || url.startsWith("https://")) {
-						application = repository.installFromUrl(url);
-					} else if (url.startsWith("github://")) {
-						String shorthand = url.replaceAll("github://", "");
-						Repository repository = GitHubUtil.parseShorthand(shorthand);
-						if (repository == null) {
-							printlnInRed("[ERROR] " + shorthand + " is not a valid GitHub repo.");
-							return 1;
-
-						}
-						application = this.repository.installFromGitHub(repository);
-					} else {
-
-						if (!url.startsWith("/")) {
-							url = FileUtil.path(folderRepo, url);
-						}
-
-						if (url.endsWith(".zip")) {
-							application = repository.installFromZipFile(url);
-						} else if (url.endsWith(".yaml")) {
-							application = repository.installFromYaml(url, false);
-							} else {
-								application = repository.installFromDirectory(url, false);
-						}
-					}
+					application = repository.install(url);
 
 					if (application != null) {
 						settings.save();
