@@ -3,7 +3,6 @@ package cloudgene.mapred.api.v2.admin.server;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -50,9 +49,8 @@ public class GetClusterDetails extends BaseResource {
 		object.put("threads_setup", getSettings().getThreadsSetupQueue());
 		object.put("threads", getSettings().getThreadsQueue());
 		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
-		URLClassLoader cl = (URLClassLoader) Main.class.getClassLoader();
 		try {
-			URL url = cl.findResource("META-INF/MANIFEST.MF");
+			URL url = GetClusterDetails.class.getClassLoader().getResource("META-INF/MANIFEST.MF");
 			Manifest manifest = new Manifest(url.openStream());
 			Attributes attr = manifest.getMainAttributes();
 			String buildVesion = attr.getValue("Version");

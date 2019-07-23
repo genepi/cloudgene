@@ -10,8 +10,8 @@ import cloudgene.mapred.steps.HadoopPigStep;
 import cloudgene.mapred.steps.HadoopSparkStep;
 import cloudgene.mapred.steps.HtmlWidgetStep;
 import cloudgene.mapred.steps.JavaExternalStep;
-import cloudgene.mapred.steps.RMarkdown2DockerStep;
-import cloudgene.mapred.steps.RMarkdown2Step;
+import cloudgene.mapred.steps.RMarkdownDockerStep;
+import cloudgene.mapred.steps.RMarkdownLocalStep;
 import cloudgene.mapred.steps.RMarkdownStep;
 import cloudgene.mapred.wdl.WdlStep;
 
@@ -51,7 +51,7 @@ public class CloudgeneStepFactory {
 			case "java":
 				return JavaExternalStep.class.getName();
 			case "rmd_docker":
-				return RMarkdown2DockerStep.class.getName();
+				return RMarkdownDockerStep.class.getName();
 			case "groovy":
 				return GroovyStep.class.getName();
 			case "html_widget":
@@ -78,7 +78,7 @@ public class CloudgeneStepFactory {
 		} else if (step.get("rmd2") != null) {
 
 			// rscript
-			return RMarkdown2Step.class.getName();
+			return RMarkdownStep.class.getName();
 
 		} else if (step.getClassname() != null) {
 

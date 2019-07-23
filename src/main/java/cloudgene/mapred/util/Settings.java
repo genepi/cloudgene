@@ -54,6 +54,8 @@ public class Settings {
 
 	private Map<String, String> cluster;
 
+	private Map<String, String> rscript;
+
 	private int autoRetireInterval = 5;
 
 	private int retireAfter = 6;
@@ -112,7 +114,7 @@ public class Settings {
 	public Settings() {
 
 		repository = new ApplicationRepository();
-		
+
 		// read default settings from env variables when set
 		String name = System.getenv().get("CLOUDGENE_SERVICE_NAME");
 		if (name != null) {
@@ -150,7 +152,7 @@ public class Settings {
 		if (config.getPort() != null && !config.getPort().trim().isEmpty()) {
 			setPort(config.getPort());
 		}
-		
+
 		if (config.getApps() != null) {
 			repository.setAppsFolder(config.getApps());
 		}
@@ -218,7 +220,7 @@ public class Settings {
 			if (config.getApps() != null) {
 				settings.getApplicationRepository().setAppsFolder(config.getApps());
 			}
-			
+
 			// database in config has higher priority
 			if (config.getDatabase() != null) {
 				Map<String, String> database = settings.getDatabase();
@@ -617,6 +619,18 @@ public class Settings {
 
 	public void setColors(Map<String, String> colors) {
 		this.colors = colors;
+	}
+
+	public Map<String, String> getRscript() {
+		return rscript;
+	}
+
+	public void setRscript(Map<String, String> rscript) {
+		this.rscript = rscript;
+	}
+
+	public void setRepository(ApplicationRepository repository) {
+		this.repository = repository;
 	}
 
 	public void setGoogleAnalytics(String googleAnalytics) {
