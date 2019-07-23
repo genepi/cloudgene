@@ -215,6 +215,10 @@ public class Settings {
 				settings.setPort(config.getPort());
 			}
 
+			if (config.getApps() != null) {
+				settings.getApplicationRepository().setAppsFolder(config.getApps());
+			}
+			
 			// database in config has higher priority
 			if (config.getDatabase() != null) {
 				Map<String, String> database = settings.getDatabase();
