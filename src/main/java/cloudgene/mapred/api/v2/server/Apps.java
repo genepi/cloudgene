@@ -27,51 +27,58 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class Apps extends BaseResource {
-	
+
 	private static final Log log = LogFactory.getLog(Apps.class);
-	
+
 	@Post
 	public Representation install(Representation entity) {
-
-		User user = getAuthUser();
-
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
-
-		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
-		}
-
-		Form form = new Form(entity);
-		String url = form.getFirstValue("url");
-
-		if (url == null) {
-			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return new StringRepresentation("No url or file location set.");
-		}
-
-		ApplicationRepository repository = getApplicationRepository();
-		
 		try {
+			User user = getAuthUser();
 
-			Application application = repository.install(url);
+			if (user == null) {
 
-			getSettings().save();
-			
-			if (application != null) {
-				JSONObject jsonObject = JSONConverter.convert(application);
-				updateState(application, jsonObject);
-				return new JsonRepresentation(jsonObject.toString());
-			} else {
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation("Application not installed: No workflow file found.");
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation("The request requires user authentication.");
+
 			}
-		} catch (Exception e) {
+
+			if (!user.isAdmin()) {
+				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
+				return new StringRepresentation("The request requires administration rights.");
+			}
+
+			Form form = new Form(entity);
+			String url = form.getFirstValue("url");
+
+			if (url == null) {
+				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return new StringRepresentation("No url or file location set.");
+			}
+
+			ApplicationRepository repository = getApplicationRepository();
+
+			try {
+
+				Application application = repository.install(url);
+
+				getSettings().save();
+
+				if (application != null) {
+					JSONObject jsonObject = JSONConverter.convert(application);
+					updateState(application, jsonObject);
+					return new JsonRepresentation(jsonObject.toString());
+				} else {
+					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+					return new StringRepresentation("Application not installed: No workflow file found.");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error("Application not installed. ", e);
+				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+				return new StringRepresentation("Application not installed: " + e.getMessage());
+			}
+		} catch (Error e) {
+			e.printStackTrace();
 			log.error("Application not installed. ", e);
 			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
 			return new StringRepresentation("Application not installed: " + e.getMessage());
@@ -97,7 +104,7 @@ public class Apps extends BaseResource {
 		}
 
 		ApplicationRepository repository = getApplicationRepository();
-		
+
 		String reload = getQueryValue("reload");
 		if (reload != null && reload.equals("true")) {
 			repository.reload();

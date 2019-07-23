@@ -9,7 +9,7 @@ import cloudgene.mapred.plugins.rscript.RScriptFile;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 
-public class RMarkdown2DockerStep extends DockerStep {
+public class RMarkdownDockerStep extends DockerStep {
 
 	public static final String DOCKER_R_BASE_IMAGE = "genepi/r-cran-docker:latest";
 
@@ -19,6 +19,9 @@ public class RMarkdown2DockerStep extends DockerStep {
 		String workingDirectory = context.getWorkingDirectory();
 
 		String rmd = step.get("rmd");
+		if (rmd == null || rmd.isEmpty()) {
+			rmd = step.get("rmd2");
+		}
 		if (rmd == null || rmd.isEmpty()) {
 			context.error("Execution failed. Please set the 'rmd' parameter.");
 			return false;
@@ -34,7 +37,6 @@ public class RMarkdown2DockerStep extends DockerStep {
 			image = DOCKER_R_BASE_IMAGE;
 		}
 
-		
 		String paramsString = step.get("params");
 		String[] params = new String[] {};
 		if (paramsString != null) {
@@ -55,7 +57,7 @@ public class RMarkdown2DockerStep extends DockerStep {
 	}
 
 	public boolean convert(String rmdScript, String image, String outputHtml, String[] args, CloudgeneContext context) {
-		
+
 		String localWorkspace = new File(context.getJob().getLocalWorkspace()).getAbsolutePath();
 
 		context.log("Creating RMarkdown report from " + rmdScript + "...");
@@ -89,12 +91,12 @@ public class RMarkdown2DockerStep extends DockerStep {
 		}
 
 		boolean result = runInDockerContainer(context, image, argsForScript);
-		
+
 		new File(outputHtml + ".md").delete();
 		new File(scriptFilename).delete();
 
-		RMarkdown2Step.deleteFolder(new File(folder));
-		
+		RMarkdownLocalStep.deleteFolder(new File(folder));
+
 		return result;
 
 	}

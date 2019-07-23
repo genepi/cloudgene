@@ -18,6 +18,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
+import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -38,11 +39,11 @@ public class ApplicationRepository {
 		apps = new Vector<Application>();
 		reload();
 	}
-	
+
 	public void setAppsFolder(String appsFolder) {
 		this.appsFolder = appsFolder;
 	}
-	
+
 	public List<Application> getAll() {
 		return apps;
 	}
@@ -51,7 +52,7 @@ public class ApplicationRepository {
 		this.apps = apps;
 		reload();
 	}
-	
+
 	public void reload() {
 		indexApps = new HashMap<String, Application>();
 		log.info("Reload applications...");
@@ -172,20 +173,23 @@ public class ApplicationRepository {
 	public void remove(Application application) throws IOException {
 		log.info("Remove application " + application.getId());
 		// delete application in app folder
-		// TODO: add some check to avoid deleting whole hdd. e.g. delete only if its in app folders...
-		//FileUtil.deleteDirectory(application.getWdlApp().getPath());
+		// TODO: add some check to avoid deleting whole hdd. e.g. delete only if its in
+		// app folders...
+		// FileUtil.deleteDirectory(application.getWdlApp().getPath());
 		// remove from app list
 		apps.remove(application);
 		reload();
 
 	}
-	
+
 	public Application install(String url) throws IOException, GitHubException {
-		
+
 		Application application = null;
-		
+
 		if (url.startsWith("http://") || url.startsWith("https://")) {
 			application = installFromUrl(url);
+		} else if (url.startsWith("s3://")) {
+			application = installFromS3(url);
 		} else if (url.startsWith("github://")) {
 
 			String repo = url.replace("github://", "");
@@ -208,7 +212,7 @@ public class ApplicationRepository {
 				} else {
 					application = installFromDirectory(url, false);
 				}
-				
+
 			} else {
 				String repo = url.replace("github://", "");
 
@@ -223,7 +227,7 @@ public class ApplicationRepository {
 		}
 
 		return application;
-		
+
 	}
 
 	public void removeById(String id) throws IOException {
@@ -237,40 +241,44 @@ public class ApplicationRepository {
 	public Application installFromUrl(String url) throws IOException {
 		// download file from url
 		if (url.endsWith(".zip")) {
-			File zipFile = File.createTempFile("download", ".zip");
+			File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
 			FileUtils.copyURLToFile(new URL(url), zipFile);
-			return installFromZipFile(zipFile.getAbsolutePath());
-		} /*
-			 * else { try { String appPath = FileUtil.path(appsFolder, "new-app");
-			 * FileUtil.createDirectory(appPath);
-			 * 
-			 * String yamlFilename = FileUtil.path(appPath, "cloudgene.yaml");
-			 * 
-			 * FileUtils.copyURLToFile(new URL(url), new File(yamlFilename)); Application
-			 * application = installFromYaml(yamlFilename);
-			 * 
-			 * return application;
-			 * 
-			 * } catch (IOException e) { e.printStackTrace(); throw e; } }
-			 */
+			Application application = installFromZipFile(zipFile.getAbsolutePath());
+			zipFile.delete();
+			return application;
+		}
 		return null;
 
+	}
+
+	public Application installFromS3(String bucket) throws IOException {
+		// download file from s3 bucket
+		if (bucket.endsWith(".zip")) {
+			File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
+			S3Util.copyS3ToFile(bucket, zipFile);
+			Application application = installFromZipFile(zipFile.getAbsolutePath());
+			zipFile.delete();
+			return application;
+		}
+		return null;
 	}
 
 	public Application installFromGitHub(Repository repository) throws MalformedURLException, IOException {
 
 		String url = GitHubUtil.buildUrlFromRepository(repository);
-		File zipFile = File.createTempFile("github", ".zip");
+		File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
 		FileUtils.copyURLToFile(new URL(url), zipFile);
 
 		String zipFilename = zipFile.getAbsolutePath();
 		if (repository.getDirectory() != null) {
 			// extract only sub dir
 			Application application = installFromZipFile(zipFilename, "^.*/" + repository.getDirectory() + ".*");
+			zipFile.delete();
 			return application;
 
 		} else {
 			Application application = installFromZipFile(zipFilename);
+			zipFile.delete();
 			return application;
 		}
 
@@ -401,13 +409,13 @@ public class ApplicationRepository {
 			FileUtil.createDirectory(targetPath);
 			File target = new File(targetPath);
 
-			//copy to apps and update filename
+			// copy to apps and update filename
 			FileUtils.copyDirectory(folder, target);
 			application.setFilename(FileUtil.path(targetPath, file.getName()));
-			
+
 			// delete older directory
 			FileUtil.deleteDirectory(folder);
-			
+
 			try {
 				application.loadWdlApp();
 			} catch (IOException e) {

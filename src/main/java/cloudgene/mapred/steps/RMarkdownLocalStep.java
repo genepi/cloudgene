@@ -16,7 +16,7 @@ import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
-public class RMarkdown2Step extends CloudgeneStep {
+public class RMarkdownLocalStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -25,7 +25,10 @@ public class RMarkdown2Step extends CloudgeneStep {
 
 		String workingDirectory = context.getWorkingDirectory();
 
-		String rmd = step.get("rmd2");
+		String rmd = step.get("rmd");
+		if (rmd == null || rmd.isEmpty()) {
+			rmd = step.get("rmd2");
+		}
 		if (rmd == null || rmd.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
 			return false;
@@ -133,7 +136,7 @@ public class RMarkdown2Step extends CloudgeneStep {
 		new File(outputHtml + ".md").delete();
 		new File(scriptFilename).delete();
 
-		RMarkdown2Step.deleteFolder(new File(folder));
+		RMarkdownLocalStep.deleteFolder(new File(folder));
 
 		return result;
 
@@ -157,6 +160,5 @@ public class RMarkdown2Step extends CloudgeneStep {
 	public String[] getRequirements() {
 		return new String[] { RScriptPlugin.ID, RMarkdownPlugin.ID };
 	}
-
 
 }
