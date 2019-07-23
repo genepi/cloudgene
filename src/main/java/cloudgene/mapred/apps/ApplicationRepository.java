@@ -241,9 +241,11 @@ public class ApplicationRepository {
 	public Application installFromUrl(String url) throws IOException {
 		// download file from url
 		if (url.endsWith(".zip")) {
-			File zipFile = File.createTempFile("download", ".zip");
+			File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
 			FileUtils.copyURLToFile(new URL(url), zipFile);
-			return installFromZipFile(zipFile.getAbsolutePath());
+			Application application = installFromZipFile(zipFile.getAbsolutePath());
+			zipFile.delete();
+			return application;
 		}
 		return null;
 
@@ -252,9 +254,11 @@ public class ApplicationRepository {
 	public Application installFromS3(String bucket) throws IOException {
 		// download file from s3 bucket
 		if (bucket.endsWith(".zip")) {
-			File zipFile = File.createTempFile("download", ".zip");
+			File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
 			S3Util.copyS3ToFile(bucket, zipFile);
-			return installFromZipFile(zipFile.getAbsolutePath());
+			Application application = installFromZipFile(zipFile.getAbsolutePath());
+			zipFile.delete();
+			return application;
 		}
 		return null;
 	}
@@ -262,17 +266,19 @@ public class ApplicationRepository {
 	public Application installFromGitHub(Repository repository) throws MalformedURLException, IOException {
 
 		String url = GitHubUtil.buildUrlFromRepository(repository);
-		File zipFile = File.createTempFile("github", ".zip");
+		File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
 		FileUtils.copyURLToFile(new URL(url), zipFile);
 
 		String zipFilename = zipFile.getAbsolutePath();
 		if (repository.getDirectory() != null) {
 			// extract only sub dir
 			Application application = installFromZipFile(zipFilename, "^.*/" + repository.getDirectory() + ".*");
+			zipFile.delete();
 			return application;
 
 		} else {
 			Application application = installFromZipFile(zipFilename);
+			zipFile.delete();
 			return application;
 		}
 
