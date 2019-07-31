@@ -10,6 +10,7 @@
     <option value="upload" selected>File Upload</option>
     <option value="http">URLs (HTTP)</option>
     <option value="sftp">Secure File Transfer Protocol (SFTP)</option>
+		<option value="s3">S3 Bucket</option>
   </select>
   <div class="form-control file-list-control">
     <ul class="fa-ul file-list">
@@ -32,6 +33,10 @@
   {{/is}}
   {{#is(source,'sftp')}}
     <button id="add-sftp-files-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-upload"></i> Import Files</button>
+    <input name="{{id}}" id="{{id}}" type ="text" style="display:none;" class="form-control hidden-parameter" {{#is(required, true)}}required{{/is}} value="{{value}}">
+  {{/is}}
+	{{#is(source,'s3')}}
+    <button id="add-s3-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-link"></i> Add S3 bucket</button>
     <input name="{{id}}" id="{{id}}" type ="text" style="display:none;" class="form-control hidden-parameter" {{#is(required, true)}}required{{/is}} value="{{value}}">
   {{/is}}
 	{{#if(details)}}

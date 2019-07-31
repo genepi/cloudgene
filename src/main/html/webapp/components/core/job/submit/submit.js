@@ -9,6 +9,7 @@ import ErrorPage from 'helpers/error-page';
 import Application from 'models/application';
 
 import template from './submit.stache';
+import templateS3Dialog from './dialogs/s3.stache';
 import templateHttpDialog from './dialogs/http.stache';
 import templateSftpDialog from './dialogs/sftp.stache';
 import templateUploadingDialog from './dialogs/uploading.stache';
@@ -266,6 +267,36 @@ export default Control.extend({
               bootbox.alert("Error: " + message.responseText);
             }
           });
+
+          return false;
+        }
+      });
+  },
+
+  '#add-s3-btn click': function(button) {
+
+    var parent = $(button).parent();
+
+    var fileList = $(parent).find(".file-list");
+    //fileList.empty();
+
+    var paramInputField = $(parent).find(".hidden-parameter");
+
+
+    var urlDialog = bootbox.confirm(
+      templateS3Dialog({
+        value: paramInputField.val()
+      }),
+      function(result) {
+        if (result) {
+
+          var buckets = $('#buckets').val();
+
+          fileList.empty();
+          fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + buckets + '</li>');
+
+          paramInputField.val(buckets);
+          urlDialog.modal('hide');
 
           return false;
         }

@@ -1,0 +1,5 @@
+<h4>Import data from S3 bucket</h4>
+<p>Please enter your S3 url. </p>
+<form>
+    <textarea class="form-control" id="buckets" placeholder="s3://my-bucket/input-folder" rows="8" name="buckets" width="30" height="20">{{value}}</textarea>
+</form>
