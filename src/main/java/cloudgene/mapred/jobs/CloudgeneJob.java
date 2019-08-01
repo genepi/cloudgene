@@ -448,7 +448,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	public boolean exportParameter(CloudgeneParameterOutput out) {
 
-		writeLog("  Exporting parameter " + out.getId() + "...");
+		writeLog("  Exporting parameter " + out.getName() + "...");
 
 		String localOutput = context.getLocalOutput();
 		String workspace = getHdfsWorkspace();
@@ -568,6 +568,7 @@ public class CloudgeneJob extends AbstractJob {
 						// upload to s3 bucket, update path and delte local file
 						String target = externalOutput + "/" + getId() + "/" + name + "/" + files[i].getName();
 						try {
+							context.log("  Upload file to " + target + "...");
 							S3Util.copyToS3(files[i], target);
 							download.setPath(target);
 							files[i].delete();
