@@ -30,13 +30,13 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class App extends BaseResource {
-	
+
 	@Get
 	public Representation getApp() {
 
 		User user = getAuthUser();
 
-		String appId =  getAttribute("tool");
+		String appId = getAttribute("tool");
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
@@ -85,6 +85,7 @@ public class App extends BaseResource {
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
 		jsonObject.put("params", jsonArray);
+		jsonObject.put("s3Workspace", settings.isS3Workspace() && settings.getS3WorkspaceLocation() == null);
 
 		return new StringRepresentation(jsonObject.toString());
 
@@ -113,8 +114,8 @@ public class App extends BaseResource {
 		} catch (UnsupportedEncodingException e2) {
 			return error404("Application '" + appId + "' is not in valid format.");
 		}
-		
-		ApplicationRepository repository = getApplicationRepository();		
+
+		ApplicationRepository repository = getApplicationRepository();
 		Application application = repository.getById(appId);
 		if (application != null) {
 			try {
@@ -163,7 +164,7 @@ public class App extends BaseResource {
 		String permission = form.getFirstValue("permission");
 		String reinstall = form.getFirstValue("reinstall");
 
-		ApplicationRepository repository = getApplicationRepository();	
+		ApplicationRepository repository = getApplicationRepository();
 		Application application = repository.getById(appId);
 		if (application != null) {
 

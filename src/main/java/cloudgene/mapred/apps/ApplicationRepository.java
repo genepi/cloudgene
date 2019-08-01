@@ -18,8 +18,8 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
-import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -255,7 +255,7 @@ public class ApplicationRepository {
 		// download file from s3 bucket
 		if (bucket.endsWith(".zip")) {
 			File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
-			S3Util.copyS3ToFile(bucket, zipFile);
+			S3Util.copyToFile(bucket, zipFile);
 			Application application = installFromZipFile(zipFile.getAbsolutePath());
 			zipFile.delete();
 			return application;

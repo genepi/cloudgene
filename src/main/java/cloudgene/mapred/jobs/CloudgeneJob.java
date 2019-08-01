@@ -28,6 +28,7 @@ import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.S3Util;
 import genepi.hadoop.importer.FileItem;
 import genepi.io.FileUtil;
 
@@ -42,7 +43,9 @@ public class CloudgeneJob extends AbstractJob {
 	public static final int MAX_DOWNLOAD = 10;
 
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
-	
+
+	private String externalOutput = null;
+
 	public CloudgeneJob() {
 		super();
 	}
@@ -78,6 +81,8 @@ public class CloudgeneJob extends AbstractJob {
 		setId(id);
 		setUser(user);
 		workingDirectory = app.getPath();
+
+		externalOutput = params.get("external-output");
 
 		// init parameters
 		inputParams = new Vector<CloudgeneParameterInput>();
@@ -209,7 +214,7 @@ public class CloudgeneJob extends AbstractJob {
 
 			Settings settings = getSettings();
 			ApplicationRepository repository = settings.getApplicationRepository();
-			
+
 			// find dependencies
 			List<WdlApp> applications = new Vector<>();
 
@@ -286,6 +291,40 @@ public class CloudgeneJob extends AbstractJob {
 				}
 
 			}
+
+			// check if s3 is used and test bucket
+			if (settings.isS3Workspace()) {
+
+				// if default location is set, override user defined
+				if (settings.getS3WorkspaceLocation() != null) {
+					externalOutput = settings.getS3WorkspaceLocation();
+				}
+
+				if (externalOutput == null) {
+					writeLog("No S3 Output Bucket specified.");
+					log.info("No S3 Output Bucket specified");
+					setError("No S3 Output Bucket specified");
+					return false;
+				}
+
+				if (!S3Util.isValidS3Url(externalOutput)) {
+					writeLog("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
+					log.info("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
+					setError("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
+					return false;
+				}
+
+				try {
+					S3Util.copyToS3(getApplication(), externalOutput + "/" + getId() + "/version.txt");
+				} catch (Exception e) {
+					writeLog("Output Url '" + externalOutput + "' is not writable.");
+					log.info("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
+					setError("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
+					return false;
+				}
+
+			}
+
 			return true;
 		} catch (Exception e) {
 			writeLog("Installation of Application " + getApplicationId() + " failed.");
@@ -524,6 +563,24 @@ public class CloudgeneJob extends AbstractJob {
 					download.setParameter(out);
 					download.setCount(MAX_DOWNLOAD);
 					downloads.add(download);
+
+					if (getSettings().isS3Workspace()) {
+						// upload to s3 bucket, update path and delte local file
+						String target = externalOutput + "/" + getId() + "/" + name + "/" + files[i].getName();
+						try {
+							S3Util.copyToS3(files[i], target);
+							download.setPath(target);
+							files[i].delete();
+						} catch (Exception e) {
+
+							writeLog("Error moving output to '" + target + "'. " + e);
+							log.info("Error moving output to '" + target + "'. " + e);
+							setError("Error moving output to '" + target + "'. " + e);
+							return false;
+						}
+
+					}
+
 				}
 			}
 

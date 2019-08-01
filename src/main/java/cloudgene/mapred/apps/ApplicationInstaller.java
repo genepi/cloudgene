@@ -1,8 +1,6 @@
 package cloudgene.mapred.apps;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
@@ -10,17 +8,11 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-
 import cloudgene.mapred.jobs.Environment;
-import cloudgene.mapred.util.S3Util;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.S3Util;
 import genepi.hadoop.io.HdfsLineWriter;
 import genepi.io.FileUtil;
 
@@ -103,7 +95,7 @@ public class ApplicationInstaller {
 
 		} else if (source.startsWith("s3://")) {
 
-			S3Util.copyS3ToFile(source, new File(tempFilename));
+			S3Util.copyToFile(source, new File(tempFilename));
 
 			if (source.endsWith(".zip")) {
 				HdfsUtil.createDirectory(target);

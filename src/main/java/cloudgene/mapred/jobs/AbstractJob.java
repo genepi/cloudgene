@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
+import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
 
@@ -287,6 +288,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 		boolean result = executeInstallation(forceInstallation);
 
 		if (result == false || state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
+			ErrorStep errorStep = new ErrorStep(getError()!= null ? getError() : "Error" );
+			errorStep.setJob(this);
+			errorStep.setName("Job Setup failed: " + getError());
+			getSteps().add(errorStep);			
 			setState(AbstractJob.STATE_FAILED);
 			onFailure();
 			setSetupComplete(false);

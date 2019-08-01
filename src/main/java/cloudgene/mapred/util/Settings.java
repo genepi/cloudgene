@@ -96,6 +96,8 @@ public class Settings {
 
 	private boolean secureCookie = false;
 
+	private Map<String, String> externalWorkspace = null;
+
 	private int uploadLimit = -1;
 
 	private String googleAnalytics = "";
@@ -660,4 +662,31 @@ public class Settings {
 	public ApplicationRepository getApplicationRepository() {
 		return repository;
 	}
+
+	public Map<String, String> getExternalWorkspace() {
+		return externalWorkspace;
+	}
+
+	public void setExternalWorkspace(Map<String, String> externalWorkspace) {
+		this.externalWorkspace = externalWorkspace;
+	}
+
+	public boolean isS3Workspace() {
+		return externalWorkspace != null && externalWorkspace.get("type") != null
+				&& externalWorkspace.get("type").equals("s3");
+	}
+
+	public String getS3WorkspaceLocation() {
+		if (externalWorkspace == null) {
+			return null;
+		}
+		
+		if (externalWorkspace.get("location") == null) {
+			return null;
+		}
+		
+		return externalWorkspace.get("location");
+
+	}
+
 }

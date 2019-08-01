@@ -78,6 +78,15 @@ stache.registerHelper('isImage', function(str, options) {
   }
 });
 
+stache.registerHelper('isS3', function(str, options) {
+  var s3 = str.startsWith('s3://')
+  if (s3) {
+    return options.fn();
+  } else {
+    return options.inverse();
+  }
+});
+
 stache.registerHelper('isParamChecked', function(param, options) {
   var value = param.attr('value');
   var result = options.inverse();

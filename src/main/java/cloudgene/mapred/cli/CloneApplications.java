@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.util.S3Util;
+import genepi.hadoop.S3Util;
 
 public class CloneApplications extends BaseTool {
 
@@ -48,7 +48,7 @@ public class CloneApplications extends BaseTool {
 			}
 		} else if (repo.startsWith("s3://")) {
 			try {
-				S3Util.copyS3ToFile(repo, new File(tmpFilename));
+				S3Util.copyToFile(repo, new File(tmpFilename));
 				repo = tmpFilename;
 			} catch (Exception e) {
 				System.out.println("Error during download repository from " + repo);

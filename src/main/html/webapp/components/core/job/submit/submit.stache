@@ -107,6 +107,20 @@
 
 <hr/>
 
+{{#is(application.s3Workspace, true)}}
+<div class="form-group row">
+	<label for="job-name" class="col-sm-2 col-form-label">S3 Output Bucket</label>
+	<div class="col-sm-4">
+		<input name="external-output" type="text" value="" class="form-control" placeholder="s3://my-bucket/my-output-folder" autocomplete="off" required>
+    <div class="invalid-feedback">
+      Please enter a S3 bucket to store your output data.
+    </div>
+	</div>
+</div>
+
+<hr />
+{{/is}}
+
 <!-- Submit Button -->
 <div class="form-group form-row">
 	<div class="col-sm-2 col-form-label">
