@@ -36,7 +36,7 @@
     <input name="{{id}}" id="{{id}}" type ="text" style="display:none;" class="form-control hidden-parameter" {{#is(required, true)}}required{{/is}} value="{{value}}">
   {{/is}}
 	{{#is(source,'s3')}}
-    <button id="add-s3-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-link"></i> Add S3 bucket</button>
+    <button id="add-s3-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-cloud"></i> Add S3 bucket</button>
     <input name="{{id}}" id="{{id}}" type ="text" style="display:none;" class="form-control hidden-parameter" {{#is(required, true)}}required{{/is}} value="{{value}}">
   {{/is}}
 	{{#if(details)}}

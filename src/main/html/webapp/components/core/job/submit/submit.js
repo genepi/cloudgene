@@ -282,21 +282,56 @@ export default Control.extend({
 
     var paramInputField = $(parent).find(".hidden-parameter");
 
-
     var urlDialog = bootbox.confirm(
-      templateS3Dialog({
-        value: paramInputField.val()
-      }),
+      templateS3Dialog(),
       function(result) {
         if (result) {
-
           var buckets = $('#buckets').val();
 
-          fileList.empty();
-          fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + buckets + '</li>');
+          var waitingDialog = bootbox.dialog({
+            close: false,
+            message: '<p><i class="fa fa-spin fa-spinner"></i> Connecting...</p>',
+            show: false
+          });
 
-          paramInputField.val(buckets);
-          urlDialog.modal('hide');
+          waitingDialog.on('shown.bs.modal', function() {
+
+            $.ajax({
+              url: "api/v2/importer/files",
+              type: "POST",
+              data: {
+                input: buckets
+              },
+
+              success: function(data) {
+
+                waitingDialog.modal('hide');
+
+                var arr = $.parseJSON(data);
+                fileList.empty();
+                $.each(arr, function(index, value) {
+                  fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
+                });
+
+                //update value
+                if (arr.length > 0) {
+                  paramInputField.val(buckets);
+                  urlDialog.modal('hide');
+                } else {
+                  paramInputField.val("");
+                  bootbox.alert('<p class="text-danger">Error: No valid files found on the provided urls. Please check your credentials and your file path.');
+                }
+
+              },
+              error: function(message) {
+                waitingDialog.modal('hide');
+                bootbox.alert('<p class="text-danger">Error: ' + message.responseText + '</p>');
+              }
+            });
+
+          });
+
+          waitingDialog.modal('show');
 
           return false;
         }
