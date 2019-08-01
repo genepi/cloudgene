@@ -19,6 +19,9 @@ public class Environment {
 		HashMap<String, String> environment = new HashMap<String, String>();
 		String hdfsFolder = FileUtil.path(hdfsAppFolder, application.getId().split(":")[0], application.getVersion());
 		String localFolder = application.getPath();
+		environment.put("app_id", application.getId());
+		environment.put("app_name", application.getName());
+		environment.put("app_version", application.getVersion());
 		environment.put("app_hdfs_folder", hdfsFolder);
 		environment.put("app_local_folder", localFolder);
 		// Deprecated
