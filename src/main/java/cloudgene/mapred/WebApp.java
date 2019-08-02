@@ -40,6 +40,7 @@ import cloudgene.mapred.api.v2.admin.server.UpdateTemplate;
 import cloudgene.mapred.api.v2.data.ImporterFileList;
 import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DownloadResults;
+import cloudgene.mapred.api.v2.jobs.ExternalResults;
 import cloudgene.mapred.api.v2.jobs.GetChunk;
 import cloudgene.mapred.api.v2.jobs.GetJobDetails;
 import cloudgene.mapred.api.v2.jobs.GetJobStatus;
@@ -198,7 +199,9 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
 		router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
+		router.attach(prefix + "/downloads/{hash}/{filename}", ExternalResults.class);
 
+		
 		// download resources
 		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
 		
@@ -212,7 +215,6 @@ public class WebApp extends Application {
 		// ------------------
 
 		router.attach(prefix + "/api/v2/importer/files", ImporterFileList.class);
-
 		setStatusService(new CustomStatusService());
 
 		Directory dir = new Directory(getContext(), webRoot2);

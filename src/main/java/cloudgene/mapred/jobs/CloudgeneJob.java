@@ -19,6 +19,8 @@ import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -45,6 +47,8 @@ public class CloudgeneJob extends AbstractJob {
 	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
 
 	private String externalOutput = null;
+
+	private IExternalWorkspace externalWorkspace;
 
 	public CloudgeneJob() {
 		super();
@@ -292,34 +296,22 @@ public class CloudgeneJob extends AbstractJob {
 
 			}
 
-			// check if s3 is used and test bucket
-			if (settings.isS3Workspace()) {
+			// if default location is set, override user defined
+			if (!settings.getExternalWorkspaceLocation().isEmpty()) {
+				externalOutput = settings.getExternalWorkspaceLocation();
+			}
 
-				// if default location is set, override user defined
-				if (settings.getS3WorkspaceLocation() != null) {
-					externalOutput = settings.getS3WorkspaceLocation();
-				}
+			externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
 
-				if (externalOutput == null) {
-					writeLog("No S3 Output Bucket specified.");
-					log.info("No S3 Output Bucket specified");
-					setError("No S3 Output Bucket specified");
-					return false;
-				}
-
-				if (!S3Util.isValidS3Url(externalOutput)) {
-					writeLog("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
-					log.info("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
-					setError("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
-					return false;
-				}
+			if (externalWorkspace != null) {
 
 				try {
-					S3Util.copyToS3(getApplication(), externalOutput + "/" + getId() + "/version.txt");
+					context.log("Setup External Workspace on " + externalWorkspace.getName());
+					externalWorkspace.setup(this);
 				} catch (Exception e) {
-					writeLog("Output Url '" + externalOutput + "' is not writable.");
-					log.info("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
-					setError("Output Url '" + externalOutput + "' is not a valid S3 bucket.");
+					writeLog(e.toString());
+					log.info("Error setup external workspace", e);
+					setError(e.toString());
 					return false;
 				}
 
@@ -564,19 +556,20 @@ public class CloudgeneJob extends AbstractJob {
 					download.setCount(MAX_DOWNLOAD);
 					downloads.add(download);
 
-					if (getSettings().isS3Workspace()) {
+					if (externalWorkspace != null) {
 						// upload to s3 bucket, update path and delte local file
-						String target = externalOutput + "/" + getId() + "/" + name + "/" + files[i].getName();
 						try {
-							context.log("  Upload file to " + target + "...");
-							S3Util.copyToS3(files[i], target);
-							download.setPath(target);
+
+							context.log("  Uploading file " + files[i].getAbsolutePath() + " to external workspace");
+							String url = externalWorkspace.upload(name, files[i]);
+							context.log("  Uploaded file to " + url + ".");
+							download.setPath(url);
 							files[i].delete();
 						} catch (Exception e) {
 
-							writeLog("Error moving output to '" + target + "'. " + e);
-							log.info("Error moving output to '" + target + "'. " + e);
-							setError("Error moving output to '" + target + "'. " + e);
+							writeLog("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
+							log.info("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
+							setError("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
 							return false;
 						}
 

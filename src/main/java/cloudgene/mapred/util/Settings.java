@@ -671,21 +671,29 @@ public class Settings {
 		this.externalWorkspace = externalWorkspace;
 	}
 
-	public boolean isS3Workspace() {
-		return externalWorkspace != null && externalWorkspace.get("type") != null
-				&& externalWorkspace.get("type").equals("s3");
-	}
-
-	public String getS3WorkspaceLocation() {
+	public String getExternalWorkspaceLocation() {
 		if (externalWorkspace == null) {
-			return null;
+			return "";
 		}
 		
 		if (externalWorkspace.get("location") == null) {
-			return null;
+			return "";
 		}
 		
 		return externalWorkspace.get("location");
+
+	}
+	
+	public String getExternalWorkspaceType() {
+		if (externalWorkspace == null) {
+			return "";
+		}
+		
+		if (externalWorkspace.get("type") == null) {
+			return "";
+		}
+		
+		return externalWorkspace.get("type");
 
 	}
 

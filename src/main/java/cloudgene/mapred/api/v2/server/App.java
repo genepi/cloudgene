@@ -85,7 +85,9 @@ public class App extends BaseResource {
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
 		jsonObject.put("params", jsonArray);
-		jsonObject.put("s3Workspace", settings.isS3Workspace() && settings.getS3WorkspaceLocation() == null);
+
+		jsonObject.put("s3Workspace", settings.getExternalWorkspaceType().equalsIgnoreCase("S3")
+				&& settings.getExternalWorkspaceLocation().isEmpty());
 
 		return new StringRepresentation(jsonObject.toString());
 
