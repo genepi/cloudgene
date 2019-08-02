@@ -18,8 +18,7 @@
           <tr {{data 'output'}}>
             <td style="padding-left: 25px">
               {{#isS3(path}}
-              <i class="fas fa-cloud"></i> {{name}} <span class="text-muted"> <i class="fas fa-long-arrow-alt-right"></i> {{path}}</span>
-
+              <a href="downloads/{{hash}}/{{name}}" target="_blank"><i class="far fa-file"></i> {{name}}</a>
               {{else}}
               <a href="results/{{path}}" target="_blank"><i class="far fa-file"></i> {{name}}</a>
               {{#isImage(name)}}
