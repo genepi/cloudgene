@@ -172,6 +172,11 @@ public class JavaInternalStepDeprecrated extends CloudgeneStep {
 			}
 			
 			@Override
+			public String createLinkToFile(String id, String filename) {
+				return context.createLinkToFile(id, filename);
+			}
+			
+			@Override
 			public void beginTask(String name) {
 				context.beginTask(name);				
 			}
