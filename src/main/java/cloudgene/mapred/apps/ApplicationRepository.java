@@ -14,11 +14,16 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.google.common.base.Objects;
+
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -251,16 +256,61 @@ public class ApplicationRepository {
 
 	}
 
-	public Application installFromS3(String bucket) throws IOException {
+	public Application installFromS3(String url) throws IOException {
 		// download file from s3 bucket
-		if (bucket.endsWith(".zip")) {
+		if (url.endsWith(".zip")) {
 			File zipFile = new File(FileUtil.path(appsFolder, "archive.zip"));
-			S3Util.copyToFile(bucket, zipFile);
+			S3Util.copyToFile(url, zipFile);
 			Application application = installFromZipFile(zipFile.getAbsolutePath());
 			zipFile.delete();
 			return application;
+		} else {
+
+			String appPath = FileUtil.path(appsFolder, "s3-download");
+			FileUtil.deleteDirectory(appPath);
+			FileUtil.createDirectory(appPath);
+
+			String baseKey = S3Util.getKey(url);
+
+			ObjectListing listing = S3Util.listObjects(url);
+
+			for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+
+				String bucket = summary.getBucketName();
+				String key = summary.getKey();
+
+				if (summary.getKey().endsWith("/")) {
+					System.out.println("Found folder" + bucket + "/" + key);
+					String relativeKey = summary.getKey().replaceAll(baseKey, "");
+					String target = FileUtil.path(appPath, relativeKey);
+					FileUtil.createDirectory(target);
+				}
+
+			}
+
+			for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+
+				String bucket = summary.getBucketName();
+				String key = summary.getKey();
+
+				if (!summary.getKey().endsWith("/")) {
+					System.out.println("Found file" + bucket + "/" + key);
+					String relativeKey = summary.getKey().replaceAll(baseKey, "");
+					String target = FileUtil.path(appPath, relativeKey);
+					File file = new File(target);
+					System.out.println("Copy file from " + bucket + "/" + key + " to " + target);
+					S3Util.copyToFile(bucket, key, file);
+				}
+			}
+
+			try {
+				Application application = installFromDirectory(appPath, true);
+				return application;
+			} finally {
+				FileUtil.deleteDirectory(appPath);
+			}
+
 		}
-		return null;
 	}
 
 	public Application installFromGitHub(Repository repository) throws MalformedURLException, IOException {
