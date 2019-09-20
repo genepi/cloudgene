@@ -39,14 +39,15 @@ public class BinaryFinder {
 		if (location != null) {
 			return this;
 		}
-
-		Map<String, String> config = settings.getPlugin(plugin);
-		if (config != null) {
-			String path = config.get(key);
-			if (path != null && !path.isEmpty()) {
-				String binary = FileUtil.path(path, name);
-				if (new File(binary).exists()) {
-					location = binary;
+		if (settings != null) {
+			Map<String, String> config = settings.getPlugin(plugin);
+			if (config != null) {
+				String path = config.get(key);
+				if (path != null && !path.isEmpty()) {
+					String binary = FileUtil.path(path, name);
+					if (new File(binary).exists()) {
+						location = binary;
+					}
 				}
 			}
 		}
