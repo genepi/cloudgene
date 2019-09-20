@@ -214,6 +214,8 @@ public class ApplicationRepository {
 					application = installFromZipFile(url);
 				} else if (url.endsWith(".yaml")) {
 					application = installFromYaml(url, false);
+				} else if (url.endsWith(".yml")) {
+					application = installFromYaml(url, false);					
 				} else {
 					application = installFromDirectory(url, false);
 				}
@@ -393,6 +395,14 @@ public class ApplicationRepository {
 				return application;
 			}
 		}
+		
+		cloudgeneFilename = FileUtil.path(path, "cloudgene.yml");
+		if (new File(cloudgeneFilename).exists()) {
+			Application application = installFromYaml(cloudgeneFilename, moveToApps);
+			if (application != null) {
+				return application;
+			}
+		}
 
 		// find all cloudgene workflows (use filename as id)
 		String[] files = FileUtil.getFiles(path, "*.yaml");
@@ -423,7 +433,7 @@ public class ApplicationRepository {
 		try {
 			application.loadWdlApp();
 		} catch (IOException e) {
-			log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
+			log.warn("Ignore file " + filename + ". Not a valid cloudgene file.", e);
 			return null;
 		}
 
@@ -469,7 +479,7 @@ public class ApplicationRepository {
 			try {
 				application.loadWdlApp();
 			} catch (IOException e) {
-				log.warn("Ignore file " + filename + ". Not a valid cloudgene.yaml file.", e);
+				log.warn("Ignore file " + filename + ". Not a valid cloudgene file.", e);
 				return null;
 			}
 
