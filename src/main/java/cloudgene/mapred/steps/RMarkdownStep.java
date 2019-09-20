@@ -15,7 +15,7 @@ public class RMarkdownStep extends CloudgeneStep {
 
 		String dockerImage = RMarkdownDockerStep.DOCKER_R_BASE_IMAGE;
 
-		Map<String, String> rscript = context.getSettings().getRscript();
+		Map<String, String> rscript = context.getSettings().getPlugin("rscript");
 		if (rscript != null) {
 			String useDockerString = rscript.get("docker");
 			if (useDockerString != null) {

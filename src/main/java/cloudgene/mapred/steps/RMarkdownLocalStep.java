@@ -70,7 +70,7 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 
 	}
 
-	public int convert(String rmdScript, String outputHtml, String[] args, WorkflowContext context) {
+	public int convert(String rmdScript, String outputHtml, String[] args, CloudgeneContext context) {
 
 		context.log("Creating RMarkdown report from " + rmdScript + "...");
 
@@ -89,7 +89,8 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 
 		script.save();
 
-		Command rScript = new Command(RScriptBinary.RSCRIPT_PATH);
+		RScriptBinary rscript = RScriptBinary.build(context.getSettings());
+		Command rScript = new Command(rscript.getBinary());
 		rScript.setSilent(true);
 
 		String[] argsForScript = new String[args.length + 1];

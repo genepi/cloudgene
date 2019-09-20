@@ -15,6 +15,8 @@ public class RMarkdownPlugin implements IPlugin {
 
 	private String dockerImage = RMarkdownDockerStep.DOCKER_R_BASE_IMAGE;
 
+	private Settings settings;
+
 	@Override
 	public String getId() {
 		return ID;
@@ -28,10 +30,12 @@ public class RMarkdownPlugin implements IPlugin {
 	@Override
 	public boolean isInstalled() {
 		if (useDocker) {
-			return DockerBinary.isInstalled();
+			DockerBinary docker = DockerBinary.build(settings);
+			return docker.isInstalled();
 		} else {
-			if (RScriptBinary.isInstalled()) {
-				return RScriptBinary.isMarkdownInstalled();
+			RScriptBinary rscript = RScriptBinary.build(settings);
+			if (rscript.isInstalled()) {
+				return rscript.isMarkdownInstalled();
 			} else {
 				return false;
 			}
@@ -43,13 +47,15 @@ public class RMarkdownPlugin implements IPlugin {
 		if (useDocker) {
 			return "RMarkdown support enabled. Using docker image " + dockerImage;
 		} else {
-			return RScriptBinary.getMarkdownDetails();
+			RScriptBinary rscript = RScriptBinary.build(settings);
+			return rscript.getMarkdownDetails();
 		}
 	}
 
 	@Override
 	public void configure(Settings settings) {
-		Map<String, String> rscript = settings.getRscript();
+		this.settings = settings;
+		Map<String, String> rscript = settings.getPlugin("rscript");
 		if (rscript != null) {
 			String useDockerString = rscript.get("docker");
 			if (useDockerString != null) {
@@ -68,13 +74,14 @@ public class RMarkdownPlugin implements IPlugin {
 		if (useDocker) {
 			return "RMarkdown support enabled. Using docker image " + dockerImage;
 		} else {
-			if (RScriptBinary.isInstalled()) {
+			RScriptBinary rscript = RScriptBinary.build(settings);
+			if (rscript.isInstalled()) {
 				if (isInstalled()) {
 					return "RMarkdown support enabled.";
 				} else {
 					return "RMarkdown support disabled. Please install the following packages: "
 							+ String.join(" ", RScriptBinary.PACKAGES) + "<br><br><pre>"
-							+ RScriptBinary.getMarkdownErrorDetails() + "</pre>";
+							+ rscript.getMarkdownErrorDetails() + "</pre>";
 				}
 			} else {
 				return "RMarkdown support disabled. Please install or configure RScript.";

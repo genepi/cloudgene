@@ -15,6 +15,8 @@ public class RScriptPlugin implements IPlugin {
 
 	private String dockerImage = RMarkdownDockerStep.DOCKER_R_BASE_IMAGE;
 
+	private Settings settings;
+
 	@Override
 	public String getId() {
 		return ID;
@@ -28,9 +30,11 @@ public class RScriptPlugin implements IPlugin {
 	@Override
 	public boolean isInstalled() {
 		if (useDocker) {
-			return DockerBinary.isInstalled();
+			DockerBinary docker = DockerBinary.build(settings);
+			return docker.isInstalled();
 		} else {
-			return RScriptBinary.isInstalled();
+			RScriptBinary rscript = RScriptBinary.build(settings);
+			return rscript.isInstalled();
 		}
 	}
 
@@ -38,14 +42,16 @@ public class RScriptPlugin implements IPlugin {
 	public String getDetails() {
 		if (useDocker) {
 			return "RScript support enabled. Using docker image " + dockerImage;
-		}else {
-			return RScriptBinary.getVersion();
+		} else {
+			RScriptBinary rscript = RScriptBinary.build(settings);
+			return rscript.getVersion();
 		}
 	}
 
 	@Override
 	public void configure(Settings settings) {
-		Map<String, String> rscript = settings.getRscript();
+		this.settings = settings;
+		Map<String, String> rscript = settings.getPlugin("rscript");
 		if (rscript != null) {
 			String useDockerString = rscript.get("docker");
 			if (useDockerString != null) {
@@ -65,14 +71,13 @@ public class RScriptPlugin implements IPlugin {
 			if (isInstalled()) {
 				return "RScript support enabled. Using docker image " + dockerImage;
 			} else {
-				return "RScript is configured to use Docker. Docker is not installed.";
+				return "RScript is configured to use Docker, but Docker is not installed.";
 			}
 		} else {
 			if (isInstalled()) {
 				return "RScript support enabled.";
 			} else {
-				return "RScript Binary not found. Please check if R is installed and file " + RScriptBinary.RSCRIPT_PATH
-						+ " exists.";
+				return "RScript Binary not found. RScript support disabled.";
 			}
 		}
 	}

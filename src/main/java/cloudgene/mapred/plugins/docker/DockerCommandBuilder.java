@@ -5,11 +5,17 @@ import java.util.Vector;
 
 public class DockerCommandBuilder {
 
+	private DockerBinary docker;
+
 	private String image;
 
 	private String[] cmd;
 
 	private String[] volumes;
+
+	public DockerCommandBuilder(DockerBinary docker) {
+		this.docker = docker;
+	}
 
 	public DockerCommandBuilder image(String image) {
 		this.image = image;
@@ -28,7 +34,7 @@ public class DockerCommandBuilder {
 
 	public List<String> build() {
 		List<String> commands = new Vector<>();
-		commands.add(DockerBinary.BINARY_PATH);
+		commands.add(docker.getBinary());
 		commands.add("run");
 
 		if (volumes != null) {

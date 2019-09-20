@@ -54,7 +54,7 @@ public class Settings {
 
 	private Map<String, String> cluster;
 
-	private Map<String, String> rscript;
+	private Map<String, Map<String, String>> plugins;
 
 	private int autoRetireInterval = 5;
 
@@ -623,12 +623,20 @@ public class Settings {
 		this.colors = colors;
 	}
 
-	public Map<String, String> getRscript() {
-		return rscript;
+	public void setPlugins(Map<String, Map<String, String>> plugins) {
+		this.plugins = plugins;
 	}
 
-	public void setRscript(Map<String, String> rscript) {
-		this.rscript = rscript;
+	public Map<String, Map<String, String>> getPlugins() {
+		return plugins;
+	}
+
+	public Map<String, String> getPlugin(String plugin) {
+		if (plugins != null) {
+			return plugins.get(plugin);
+		} else {
+			return null;
+		}
 	}
 
 	public void setRepository(ApplicationRepository repository) {
@@ -675,24 +683,24 @@ public class Settings {
 		if (externalWorkspace == null) {
 			return "";
 		}
-		
+
 		if (externalWorkspace.get("location") == null) {
 			return "";
 		}
-		
+
 		return externalWorkspace.get("location");
 
 	}
-	
+
 	public String getExternalWorkspaceType() {
 		if (externalWorkspace == null) {
 			return "";
 		}
-		
+
 		if (externalWorkspace.get("type") == null) {
 			return "";
 		}
-		
+
 		return externalWorkspace.get("type");
 
 	}

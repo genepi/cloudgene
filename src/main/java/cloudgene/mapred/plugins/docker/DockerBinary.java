@@ -2,20 +2,43 @@ package cloudgene.mapred.plugins.docker;
 
 import java.io.File;
 
+import cloudgene.mapred.util.BinaryFinder;
+import cloudgene.mapred.util.Settings;
 import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
 public class DockerBinary {
 
-	public static final String BINARY_PATH = "/usr/bin/docker";
+	private String binary = "";
 
-	public static boolean isInstalled() {
-		return (new File(BINARY_PATH)).exists();
+	public static DockerBinary build(Settings settings) {
+		String binary = new BinaryFinder("docker").settings(settings, "docker", "home").env("DOCKER_HOME")
+				.envPath().find();
+		return new DockerBinary(binary);
 	}
 
-	public static String getVersion() {
+	private DockerBinary(String binary) {
+		this.binary = binary;
+	}
+
+	public String getBinary() {
+		return binary;
+	}
+
+	public boolean isInstalled() {
+		if (binary != null) {
+			String binary = getBinary();
+			System.out.println("Found: " + binary);
+			return (new File(binary)).exists();
+		} else {
+			return false;
+		}
+	}
+
+	public String getVersion() {
 		if (isInstalled()) {
-			Command command = new Command(BINARY_PATH, "version");
+			String binary = getBinary();
+			Command command = new Command(binary, "version");
 			command.saveStdOut(FileUtil.path("docker-version.txt"));
 			command.setSilent(true);
 			command.execute();

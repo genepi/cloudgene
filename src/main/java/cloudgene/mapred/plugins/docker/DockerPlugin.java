@@ -8,6 +8,8 @@ public class DockerPlugin implements IPlugin {
 
 	public static final String ID = "docker";
 
+	private Settings settings;
+
 	@Override
 	public String getId() {
 		return ID;
@@ -20,16 +22,19 @@ public class DockerPlugin implements IPlugin {
 
 	@Override
 	public boolean isInstalled() {
-		return DockerBinary.isInstalled();
+		DockerBinary docker = DockerBinary.build(settings);
+		return docker.isInstalled();
 	}
 
 	@Override
 	public String getDetails() {
-		return DockerBinary.getVersion();
+		DockerBinary docker = DockerBinary.build(settings);
+		return docker.getVersion();
 	}
 
 	@Override
 	public void configure(Settings settings) {
+		this.settings = settings;
 		CloudgeneStepFactory factory = CloudgeneStepFactory.getInstance();
 		factory.register("docker", DockerStep.class);
 	}

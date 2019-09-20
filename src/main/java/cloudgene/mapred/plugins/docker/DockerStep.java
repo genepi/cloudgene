@@ -92,7 +92,8 @@ public class DockerStep extends CloudgeneStep {
 					context.getWorkingDirectory() + ":" + DOCKER_WORKING };
 			context.log("Command: " + Arrays.toString(newParams));
 
-			DockerCommandBuilder builder = new DockerCommandBuilder();
+			DockerBinary binary = DockerBinary.build(context.getSettings());
+			DockerCommandBuilder builder = new DockerCommandBuilder(binary);
 			List<String> command = builder.image(image).binds(volumes).command(newParams).build();
 
 			StringBuilder output = null;
@@ -135,6 +136,5 @@ public class DockerStep extends CloudgeneStep {
 	public String[] getRequirements() {
 		return new String[] { DockerPlugin.ID };
 	}
-
 
 }
