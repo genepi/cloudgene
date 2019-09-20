@@ -55,7 +55,7 @@ public class BinaryFinder {
 
 	}
 
-	private BinaryFinder path(String path) {
+	public BinaryFinder path(String path) {
 
 		if (location != null) {
 			return this;
@@ -75,11 +75,9 @@ public class BinaryFinder {
 		}
 
 		String envPath = System.getenv("PATH");
-		System.out.println(envPath);
 		if (envPath != null && !envPath.isEmpty()) {
 			String[] paths = envPath.split(":");
 			for (String path : paths) {
-				System.out.println(path);
 				String binary = FileUtil.path(path, name);
 				if (new File(binary).exists()) {
 					location = binary;
