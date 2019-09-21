@@ -536,14 +536,35 @@ public class CloudgeneJob extends AbstractJob {
 
 		if (f.exists() && f.isDirectory()) {
 
-			File[] files = f.listFiles();
+			try {
+				List<Download> downloads = new Vector<Download>();
+				exportFolder(out, "", name, f, downloads);
 
-			List<Download> downloads = new Vector<Download>();
+				Collections.sort(downloads);
+				out.setFiles(downloads);
+			} catch (Exception e) {
+
+				writeLog("Export paramater '" + out.getName() + "' failed:" + e);
+				log.info("Export paramater '" + out.getName() + "' failed:" + e);
+				setError("Export paramater '" + out.getName() + "' failed:" + e);
+				return false;
+			}
+
+		}
+
+		return true;
+	}
+
+	private void exportFolder(CloudgeneParameterOutput out, String prefix, String name, File folder,
+			List<Download> downloads) throws Exception {
+		if (folder.exists() && folder.isDirectory()) {
+
+			File[] files = folder.listFiles();
 
 			for (int i = 0; i < files.length; i++) {
 				if (!files[i].isDirectory()) {
 
-					String filename = files[i].getName();
+					String filename = prefix.equals("") ? files[i].getName() : prefix + "/" + files[i].getName();
 					String id = name + "/" + files[i].getName();
 					String size = FileUtils.byteCountToDisplaySize(files[i].length());
 					String hash = HashUtil.getMD5(filename + id + size + getId() + (Math.random() * 100000));
@@ -557,32 +578,25 @@ public class CloudgeneJob extends AbstractJob {
 					downloads.add(download);
 
 					if (externalWorkspace != null) {
-						// upload to s3 bucket, update path and delte local file
+						// upload to s3 bucket, update path and delete local file
 						try {
-
 							context.log("  Uploading file " + files[i].getAbsolutePath() + " to external workspace");
 							String url = externalWorkspace.upload(name, files[i]);
 							context.log("  Uploaded file to " + url + ".");
 							download.setPath(url);
 							files[i].delete();
 						} catch (Exception e) {
-
-							writeLog("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
-							log.info("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
-							setError("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
-							return false;
+							throw new Exception("Error uploading output '" + files[i].getAbsolutePath() + "'. " + e);
 						}
 
 					}
 
+				} else {
+					exportFolder(out, prefix.equals("") ? files[i].getName() : prefix + "/" + files[i].getName(),
+							name + "/" + files[i].getName(), files[i], downloads);
 				}
 			}
-
-			Collections.sort(downloads);
-			out.setFiles(downloads);
 		}
-
-		return true;
 	}
 
 	public String getWorkingDirectory() {
