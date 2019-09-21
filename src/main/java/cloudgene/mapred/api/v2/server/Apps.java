@@ -120,6 +120,11 @@ public class Apps extends BaseResource {
 
 			JSONObject jsonObject = JSONConverter.convert(app);
 			updateState(app, jsonObject);
+			
+			//read config
+			Map<String, String> config = repository.getConfig(app.getWdlApp());
+			jsonObject.put("config", config);
+			
 			jsonArray.add(jsonObject);
 		}
 
@@ -146,6 +151,7 @@ public class Apps extends BaseResource {
 			}
 			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, getSettings());
 			jsonObject.put("environment", environment);
+			
 		}
 	}
 

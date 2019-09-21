@@ -1,6 +1,8 @@
 package cloudgene.mapred.apps;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,14 +18,14 @@ import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.google.common.base.Objects;
+import com.esotericsoftware.yamlbeans.YamlReader;
+import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
-import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -215,7 +217,7 @@ public class ApplicationRepository {
 				} else if (url.endsWith(".yaml")) {
 					application = installFromYaml(url, false);
 				} else if (url.endsWith(".yml")) {
-					application = installFromYaml(url, false);					
+					application = installFromYaml(url, false);
 				} else {
 					application = installFromDirectory(url, false);
 				}
@@ -395,7 +397,7 @@ public class ApplicationRepository {
 				return application;
 			}
 		}
-		
+
 		cloudgeneFilename = FileUtil.path(path, "cloudgene.yml");
 		if (new File(cloudgeneFilename).exists()) {
 			Application application = installFromYaml(cloudgeneFilename, moveToApps);
@@ -523,4 +525,37 @@ public class ApplicationRepository {
 
 		return names;
 	}
+
+	public Map<String, String> getConfig(WdlApp app) {
+
+		String configFile = FileUtil.path(appsFolder, app.getId().split("@")[0]);
+		// TODO: read from file
+		if (new File(configFile).exists()) {
+			try {
+				YamlReader reader = new YamlReader(new FileReader(configFile));
+				Map<String, String> config = reader.read(Map.class);
+				reader.close();
+				return config;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return new HashMap<String, String>();
+
+	}
+
+	public void updateConfig(WdlApp app, Map<String, String> config) {
+		String appFolder = FileUtil.path(appsFolder, app.getId().split("@")[0]);
+		FileUtil.createDirectory(appFolder);
+		String configFile = FileUtil.path(appFolder, "config.yaml");
+		try {
+			YamlWriter writer = new YamlWriter(new FileWriter(configFile));
+			writer.write(config);
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

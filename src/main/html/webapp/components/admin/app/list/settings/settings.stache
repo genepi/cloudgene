@@ -1,0 +1,13 @@
+<h4>Settings</h4>
+<p>Change settings for application <b>{{application.wdlApp.name}}</b>.</p>
+
+<h5>Nextflow</h5>
+<form>
+
+  <p>Profile:</p>
+  <input class="form-control" id="nextflow-profile" name="nextflow-profile" autocomplete="off" value="{{application.config.attr('nextflow.profile')}}"/>
+  <br><p>Custom Configuration:</p>
+  <textarea class="form-control" id="nextflow-config" name="nextflow-config" style="height: 200px">{{application.config.attr('nextflow.config')}}</textarea>
+
+
+</form>
