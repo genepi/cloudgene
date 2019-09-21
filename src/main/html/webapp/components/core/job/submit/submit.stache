@@ -82,7 +82,11 @@
 					{{/case}}
 
 					{{#case("local_folder")}}
-						{{../controls_folder(.)}}
+            {{#is(pattern, undefined)}}
+              {{../controls_folder(.)}}
+            {{else}}
+              {{../controls_folder_pattern(.)}}
+            {{/is}}
 					{{/case}}
 
 					{{#case("hdfs_folder")}}

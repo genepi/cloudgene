@@ -70,6 +70,9 @@ public class JSONConverter {
 		object.put("required", input.isRequired());
 		object.put("adminOnly", input.isAdminOnly());
 		object.put("help", input.getHelp());
+		if (input.getPattern() != null && !input.getPattern().isEmpty()) {
+			object.put("pattern", input.getPattern());
+		}
 
 		if (input.getAccept() != null) {
 			object.put("accept", input.getAccept());

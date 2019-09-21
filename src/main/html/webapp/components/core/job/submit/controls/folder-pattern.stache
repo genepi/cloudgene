@@ -1,0 +1,39 @@
+<div class="col-sm-2">
+		<label for="{{id}}" class="col-form-label">{{{description}}}</label>
+		{{#if(help)}}
+			&nbsp;<a href="{{help}}" target="_blank"><i class="far fa-question-circle"></i></a>
+	  {{/if}}
+</div>
+
+<div class="col-sm-7" {{data 'param'}} >
+  <select class="form-control folder-source" name="{{id}}-source">
+    <option value="upload" selected>File Upload</option>
+		<option value="s3">S3 Bucket</option>
+  </select>
+	<small class="text-muted">Please enter a <a href="https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob" target="_blank">glob pattern</a> to filter or pair your files: </small> <input name="{{id}}-pattern" id="{{id}}-pattern" type ="text" class="form-control" required value="{{pattern}}" autocomplete="off">
+  <div class="form-control file-list-control">
+    <ul class="fa-ul file-list">
+    </ul>
+  </div>
+  {{#is(source,'upload')}}
+    <button id="select-files-btn" type="button" class="btn btn-sm btn-secondary"><i class="fa fa-folder-open"></i> Select Files</button>
+    <button id="change-files-btn" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-folder-open"></i> Change</button>
+    <button id="remove-all-files-btn" type="button" class="btn btn-sm btn-secondary" style="display:none;"><i class="fa fa-trash"></i> Remove All</button>
+    <input class="form-control file-upload-field-multiple" type="file" name="{{id}}" id="{{id}}"
+      {{#is(required, true)}}required{{/is}}
+			{{#if(accept)}}accept="{{accept}}"{{/if}}
+      style="display:none;" multiple
+    >
+    <small class="form-text text-muted">Multiple files can be selected by using the  <span class="badge badge-secondary">ctrl</span> /  <span class="badge badge-secondary">cmd</span> or  <span class="badge badge-secondary">shift</span> keys.</small>
+  {{/is}}
+	{{#is(source,'s3')}}
+    <button id="add-s3-btn" type="button" class="btn btn-sm btn-secondary"><i class="fas fa-cloud"></i> Add S3 bucket</button>
+    <input name="{{id}}" id="{{id}}" type ="text" style="display:none;" class="form-control hidden-parameter" {{#is(required, true)}}required{{/is}} value="{{value}}">
+  {{/is}}
+	{{#if(details)}}
+    <small class="form-text text-muted">{{details}}</small>
+  {{/if}}
+  <div class="invalid-feedback">
+    Please choose one or more files.
+  </div>
+</div>
