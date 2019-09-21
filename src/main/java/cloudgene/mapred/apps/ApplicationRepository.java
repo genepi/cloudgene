@@ -529,7 +529,6 @@ public class ApplicationRepository {
 	public Map<String, String> getConfig(WdlApp app) {
 
 		String configFile = FileUtil.path(appsFolder, app.getId().split("@")[0], "config.yaml");
-		// TODO: read from file
 		if (new File(configFile).exists()) {
 			try {
 				YamlReader reader = new YamlReader(new FileReader(configFile));
