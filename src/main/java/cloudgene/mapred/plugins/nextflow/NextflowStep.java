@@ -16,6 +16,8 @@ public class NextflowStep extends CloudgeneStep {
 
 	private CloudgeneContext context;
 
+	private boolean running = false;
+
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
@@ -97,23 +99,24 @@ public class NextflowStep extends CloudgeneStep {
 
 		command.add("-ansi-log");
 		command.add("false");
-		
+
 		command.add("-with-weblog");
 		command.add("http://localhost:8082/api/v2/collect/" + context.getJobId());
 
-		StringBuilder output = null;
+		StringBuilder output = new StringBuilder();
 
 		try {
 			context.beginTask("Running Nextflow pipeline...");
+			running = true;
 			boolean successful = executeCommand(command, context, output);
+			running = false;
 			if (successful) {
 				context.endTask(getNextflowInfo(), Message.OK);
 
 				return true;
 			} else {
 
-				String text = getNextflowInfo();
-				text += "<br><br>Pipeline execution failed.";
+				String text = "Pipeline execution failed.<br><br><pre style=\"font-size: 12px\">" + output + "</pre>";
 				context.endTask(text, Message.ERROR);
 
 				return false;
@@ -149,10 +152,10 @@ public class NextflowStep extends CloudgeneStep {
 
 	@Override
 	public void updateProgress() {
-		super.updateProgress();
-		String text = getNextflowInfo();
-		context.updateTask(text, WorkflowContext.RUNNING);
-
+		if (running) {
+			String text = getNextflowInfo();
+			context.updateTask(text, WorkflowContext.RUNNING);
+		}
 	}
 
 	@Override
