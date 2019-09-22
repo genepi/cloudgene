@@ -417,6 +417,21 @@ public class CloudgeneContext extends WorkflowContext {
 		logs.add(status);
 	}
 
+	
+	public Message createTask(String name) {
+		Message status = new Message(step, Message.RUNNING, name);
+
+		List<Message> logs = step.getLogMessages();
+		if (logs == null) {
+			logs = new Vector<Message>();
+			step.setLogMessages(logs);
+		}
+		logs.add(status);
+		return status;
+	}
+
+	
+	
 	public void beginTask(String name, int totalWork) {
 		beginTask(name);
 	}

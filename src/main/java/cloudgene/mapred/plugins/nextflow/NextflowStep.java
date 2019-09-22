@@ -1,7 +1,9 @@
 package cloudgene.mapred.plugins.nextflow;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import cloudgene.mapred.jobs.AbstractJob;
@@ -9,7 +11,6 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
 
 public class NextflowStep extends CloudgeneStep {
@@ -17,6 +18,8 @@ public class NextflowStep extends CloudgeneStep {
 	private CloudgeneContext context;
 
 	private boolean running = false;
+
+	private Map<String, Message> tasks = new HashMap<String, Message>();
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -115,16 +118,17 @@ public class NextflowStep extends CloudgeneStep {
 		StringBuilder output = new StringBuilder();
 
 		try {
-			context.beginTask("Running Nextflow pipeline...");
+			// context.beginTask("Running Nextflow pipeline...");
 			running = true;
 			boolean successful = executeCommand(command, context, output);
 			running = false;
 			if (successful) {
-				context.endTask(getNextflowInfo(), Message.OK);
+				// context.endTask(getNextflowInfo(), Message.OK);
 
 				return true;
 			} else {
 
+				context.beginTask("Running Nextflow pipeline...");
 				String text = "Pipeline execution failed.<br><br><pre style=\"font-size: 12px\">" + output + "</pre>";
 				context.endTask(text, Message.ERROR);
 
@@ -137,33 +141,61 @@ public class NextflowStep extends CloudgeneStep {
 
 	}
 
-	private String getNextflowInfo() {
+	private void getNextflowInfo() {
 		String job = context.getJobId();
 
 		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
-		String text = "";
+
 		for (NextflowProcess process : processes) {
-			text += "<b>" + process.getName() + "</b><br>";
-			text += "<ul>";
-			for (NextflowTask task : process.getTasks()) {
-				text += "<li>" + task.getTrace().getString("name") + " (" + task.getTrace().getString("status") + ")"
-						+ "</li>";
+
+			Message stepTask = tasks.get(process.getName());
+			if (stepTask == null) {
+				stepTask = context.createTask("<b>" + process.getName() + "</b>");
+				tasks.put(process.getName(), stepTask);
 			}
-			text += "</ul>";
+
+			String text = "<b>" + process.getName() + "</b>";
+			boolean running = false;
+			boolean ok = true;
+			for (NextflowTask task : process.getTasks()) {
+				if (task.getTrace().getString("status").equals("RUNNING")) {
+					running = true;
+				}
+				if (!task.getTrace().getString("status").equals("COMPLETED")) {
+					ok = false;
+
+				}
+				text += "<br><small>";
+
+				text += task.getTrace().getString("name");
+				if (task.getTrace().getString("status").equals("RUNNING")) {
+					text += "...";
+				}
+				if (task.getTrace().getString("status").equals("COMPLETED")) {
+					text += "&nbsp;<i class=\"fas fa-check text-success\"></i>";
+				}
+				text+= "</small>";
+			}
+
+			if (running) {
+				stepTask.setType(Message.RUNNING);
+			} else {
+				if (ok) {
+					stepTask.setType(Message.OK);
+				} else {
+					stepTask.setType(Message.ERROR);
+				}
+			}
+			stepTask.setMessage(text);
+			// TODO: set status
 		}
 
-		if (text.isEmpty()) {
-			return "Preparing execution....";
-		}
-
-		return text;
 	}
 
 	@Override
 	public void updateProgress() {
 		if (running) {
-			String text = getNextflowInfo();
-			context.updateTask(text, WorkflowContext.RUNNING);
+			getNextflowInfo();
 		}
 	}
 
