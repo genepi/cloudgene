@@ -41,6 +41,9 @@ public class JSONConverter {
 		object.put("description", app.getDescription());
 		object.put("author", app.getAuthor());
 		object.put("website", app.getWebsite());
+		if (app.getLogo() != null && !app.getLogo().isEmpty()) {
+			object.put("logo", app.getLogo());
+		}
 		object.put("submitButton", app.getSubmitButton());
 		return object;
 

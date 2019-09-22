@@ -10,7 +10,7 @@
     <option value="upload" selected>File Upload</option>
 		<option value="s3">S3 Bucket</option>
   </select>
-	<small class="text-muted">Please enter a <a href="https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob" target="_blank">glob pattern</a> to filter or pair your files: </small> <input name="{{id}}-pattern" id="{{id}}-pattern" type ="text" class="form-control" required value="{{pattern}}" autocomplete="off">
+	<small class="text-muted">Please define a <a href="https://docs.oracle.com/javase/tutorial/essential/io/fileOps.html#glob" target="_blank">glob pattern</a> to filter or pair your files: </small> <input name="{{id}}-pattern" id="{{id}}-pattern" type ="text" class="form-control" required value="{{pattern}}" autocomplete="off">
   <div class="form-control file-list-control">
     <ul class="fa-ul file-list">
     </ul>

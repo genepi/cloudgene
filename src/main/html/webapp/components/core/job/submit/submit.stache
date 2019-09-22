@@ -1,7 +1,18 @@
 <div class="page-header ">
   <div class="py-1 container">
-		<h2>{{application.name}} <small class="text-muted">{{application.version}}</small></h2>
-		{{{application.description}}}
+    <div class="job-header d-flex justify-content-start">
+      {{#application.logo}}
+			   <img src="{{.}}" height="80px" width="80px" style="margin-right: 20px;"/>
+      {{/application.logo}}
+			<div>
+        <h2>{{application.name}} <small class="text-muted">{{application.version}}</small></h2>
+    		{{{application.description}}}
+        {{#application.author}}
+        <br>
+        {{/application.author}}
+        <small class="text-muted">{{#application.author}}<i class="fas fa-user-cog"></i> {{.}}{{/application.author}}&nbsp;&nbsp;{{#application.website}}<i class="fas fa-home"></i> <a href="{{.}}" target="_blank">Website</a>{{/application.website}}</small>
+      </div>
+		</div>
   </div>
 </div>
 <div class="container page border-top pl-5 mt-5">
