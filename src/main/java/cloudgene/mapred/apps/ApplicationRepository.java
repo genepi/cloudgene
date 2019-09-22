@@ -526,35 +526,63 @@ public class ApplicationRepository {
 		return names;
 	}
 
+	public String getConfigDirectory(String id) {
+		Application app = getById(id);
+		return getConfigDirectory(app.getWdlApp());
+	}
+
+	public String getConfigDirectory(WdlApp app) {
+		return FileUtil.path(appsFolder, app.getId().split("@")[0]);
+	}
+
 	public Map<String, String> getConfig(WdlApp app) {
 
-		String configFile = FileUtil.path(appsFolder, app.getId().split("@")[0], "config.yaml");
-		if (new File(configFile).exists()) {
-			try {
-				YamlReader reader = new YamlReader(new FileReader(configFile));
-				Map<String, String> config = reader.read(Map.class);
-				reader.close();
-				return config;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		String appFolder = getConfigDirectory(app);
+
+		Map<String, String> config = new HashMap<String, String>();
+
+		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
+		if (new File(nextflowConfig).exists()) {
+			String content = FileUtil.readFileAsString(nextflowConfig);
+			config.put("nextflow.config", content);
 		}
 
-		return new HashMap<String, String>();
+		String nextflowProfile = FileUtil.path(appFolder, "nextflow.profile");
+		if (new File(nextflowProfile).exists()) {
+			String content = FileUtil.readFileAsString(nextflowProfile);
+			config.put("nextflow.profile", content);
+		}
+		
+		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
+		if (new File(nextflowWork).exists()) {
+			String content = FileUtil.readFileAsString(nextflowWork);
+			config.put("nextflow.work", content);
+		}
+		
+		return config;
 
 	}
 
 	public void updateConfig(WdlApp app, Map<String, String> config) {
-		String appFolder = FileUtil.path(appsFolder, app.getId().split("@")[0]);
+
+		String appFolder = getConfigDirectory(app);
 		FileUtil.createDirectory(appFolder);
-		String configFile = FileUtil.path(appFolder, "config.yaml");
-		try {
-			YamlWriter writer = new YamlWriter(new FileWriter(configFile));
-			writer.write(config);
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
+		String content = config.get("nextflow.config");
+		StringBuffer contentNextflowConfig = new StringBuffer(content == null ? "" : content);
+		FileUtil.writeStringBufferToFile(nextflowConfig, contentNextflowConfig);
+
+		String nextflowProfile = FileUtil.path(appFolder, "nextflow.profile");
+		content = config.get("nextflow.profile");
+		StringBuffer contentNextflowProfile = new StringBuffer(content == null ? "" : content);
+		FileUtil.writeStringBufferToFile(nextflowProfile, contentNextflowProfile);
+
+		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
+		content = config.get("nextflow.work");
+		StringBuffer contentNextflowWork = new StringBuffer(content == null ? "" : content);
+		FileUtil.writeStringBufferToFile(nextflowWork, contentNextflowWork);
+		
 	}
 
 }

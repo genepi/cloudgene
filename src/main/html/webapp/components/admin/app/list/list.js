@@ -205,17 +205,18 @@ export default Control.extend({
       function(result) {
         if (result) {
           var nextflowProfile = $('#nextflow-profile').val();
-          console.log("Lll: " + nextflowProfile);
           var nextflowConfig = $('#nextflow-config').val();
+          var nextflowWork = $('#nextflow-work').val();
 
           application.attr('config').attr('nextflow.profile', nextflowProfile);
           application.attr('config').attr('nextflow.config', nextflowConfig);
+          application.attr('config').attr('nextflow.work', nextflowWork);
           application.save(function(data) {},
             function(response) {
               showErrorDialog("Operation failed", response);
             });
         }
-      });
+      }).find("div.modal-dialog").css({ "width": "80%" });
 
   },
 

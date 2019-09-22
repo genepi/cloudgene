@@ -4,13 +4,13 @@ import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
+import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.io.FileUtil;
-import net.sf.json.JSONObject;
 
 public class NextflowStep extends CloudgeneStep {
 
@@ -43,21 +43,14 @@ public class NextflowStep extends CloudgeneStep {
 		command.add("run");
 		command.add(script);
 
-		// TODO: read from "application config"
-		String profile = "docker";
+		AbstractJob job = context.getJob();
+		String appFolder = context.getSettings().getApplicationRepository().getConfigDirectory(job.getApplicationId());
 
-		// TODO: read from "application config"
-		StringBuffer customConfig = new StringBuffer();
-		customConfig.append("params {\n");
-		customConfig.append("	// Limit resources so that this can run on my laptop\n");
-		customConfig.append("	max_cpus = 2\n");
-		customConfig.append("	max_memory = 6.GB\n");
-		customConfig.append("	max_time = 48.h\n");
-		customConfig.append("	genome = \"Custom\"\n");
-		customConfig.append("}\n");
-
-		String configFilename = FileUtil.path(context.getLocalTemp(), "custom.config");
-		FileUtil.writeStringBufferToFile(configFilename, customConfig);
+		String profile = "";
+		String nextflowProfile = FileUtil.path(appFolder, "nextflow.profile");
+		if (new File(nextflowProfile).exists()) {
+			profile = FileUtil.readFileAsString(nextflowProfile);
+		}
 
 		// set profile
 		if (!profile.isEmpty()) {
@@ -65,14 +58,30 @@ public class NextflowStep extends CloudgeneStep {
 			command.add(profile);
 		}
 
-		// set custom configuration
-		command.add("-c");
-		command.add(configFilename);
+		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
+		File nextflowConfigFile = new File(nextflowConfig);
+		if (nextflowConfigFile.exists()) {
+			// set custom configuration
+			command.add("-c");
+			command.add(nextflowConfigFile.getAbsolutePath());
+		}
 
-		String workDir = FileUtil.path(context.getLocalTemp(), "nextflow");
-		FileUtil.createDirectory(workDir);
-		command.add("-w");
-		command.add(workDir);
+		String work = "";
+		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
+		if (new File(nextflowWork).exists()) {
+			work = FileUtil.readFileAsString(nextflowWork);
+		}
+
+		// use workdir if set in settings
+		if (!work.trim().isEmpty()) {
+			command.add("-w");
+			command.add(work);
+		} else {
+			String workDir = FileUtil.path(context.getLocalTemp(), "nextflow");
+			FileUtil.createDirectory(workDir);
+			command.add("-w");
+			command.add(workDir);
+		}
 
 		// used to defined hard coded params
 		for (String key : step.keySet()) {

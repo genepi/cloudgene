@@ -1,13 +1,20 @@
+
 <h4>Settings</h4>
 <p>Change settings for application <b>{{application.wdlApp.name}}</b>.</p>
 
 <h5>Nextflow</h5>
 <form>
 
-  <p>Profile:</p>
+  <p>Profile:<br>
+  <small class="text-muted">The profile to be used for pipeline execution (e.g. a nf-core pipeline supports 'docker', 'conda', 'singularity' or 'AWSBATCH')</small></p>
   <input class="form-control" id="nextflow-profile" name="nextflow-profile" autocomplete="off" value="{{application.config.attr('nextflow.profile')}}"/>
-  <br><p>Custom Configuration:</p>
-  <textarea class="form-control" id="nextflow-config" name="nextflow-config" style="height: 200px">{{application.config.attr('nextflow.config')}}</textarea>
+  <br><p>Working Directory:<br>
+  <small class="text-muted">Clougene creates a temporary work directory for each job and deletes it after execution. You can change it or set it to S3 path if you use AWS Batch.</small></p>
+  <input class="form-control" id="nextflow-work" name="nextflow-work" autocomplete="off" value="{{application.config.attr('nextflow.work')}}"/>
+
+  <br><p>Custom Configuration:<br>
+  <small class="text-muted">All hardware specific parameters can be set here. If you use the AWSBatch profile this is the place to set your credentials</small></p>
+  <textarea class="form-control" id="nextflow-config" name="nextflow-config" style="height: 150px">{{application.config.attr('nextflow.config')}}</textarea>
 
 
 </form>

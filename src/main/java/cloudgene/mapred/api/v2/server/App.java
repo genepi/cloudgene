@@ -161,13 +161,13 @@ public class App extends BaseResource {
 			return error404("Application '" + appId + "' is not in valid format.");
 		}
 
-		
 		Form form = new Form(entity);
 		String enabled = form.getFirstValue("enabled");
 		String permission = form.getFirstValue("permission");
 		String reinstall = form.getFirstValue("reinstall");
-		String nextflowProfile = form.getFirstValue("config[nextflow.profile]");
 		String nextflowConfig = form.getFirstValue("config[nextflow.config]");
+		String nextflowProfile = form.getFirstValue("config[nextflow.profile]");
+		String nextflowWork = form.getFirstValue("config[nextflow.work]");
 
 		ApplicationRepository repository = getApplicationRepository();
 		Application application = repository.getById(appId);
@@ -195,15 +195,15 @@ public class App extends BaseResource {
 						getSettings().save();
 					}
 				}
-				
+
 				WdlApp wdlApp = application.getWdlApp();
 
-				if ((nextflowProfile != null && !nextflowProfile.isEmpty())
-						|| (nextflowConfig != null && !nextflowConfig.isEmpty())) {
-					
+				if (nextflowProfile != null || nextflowConfig != null || nextflowWork != null) {
+
 					Map<String, String> config = repository.getConfig(wdlApp);
-					config.put("nextflow.profile", nextflowProfile);
 					config.put("nextflow.config", nextflowConfig);
+					config.put("nextflow.profile", nextflowProfile);
+					config.put("nextflow.work", nextflowWork);
 					repository.updateConfig(wdlApp, config);
 				}
 
