@@ -111,7 +111,7 @@ public abstract class CloudgeneStep {
 		builder.redirectErrorStream(true);
 		Process process = builder.start();
 		InputStream is = process.getInputStream();
-		InputStreamReader isr = new InputStreamReader(is);
+		InputStreamReader isr = new InputStreamReader(is, "ISO-8859-1");
 		BufferedReader br = new BufferedReader(isr);
 		String line = null;
 

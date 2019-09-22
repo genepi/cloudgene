@@ -53,7 +53,7 @@ public class GetLogs extends BaseResource {
 
 		StringBuffer buffer = new StringBuffer();
 
-		buffer.append("<code><pre>");
+		//buffer.append("<code><pre>");
 
 		if (!logContent.isEmpty()) {
 			buffer.append("job.txt:\n\n");
@@ -67,7 +67,7 @@ public class GetLogs extends BaseResource {
 			buffer.append(outputContent);
 
 		}
-		buffer.append("</code></pre>");
+		//buffer.append("</code></pre>");
 		return new StringRepresentation(buffer.toString());
 
 	}

@@ -95,6 +95,9 @@ public class NextflowStep extends CloudgeneStep {
 
 		}
 
+		command.add("-ansi-log");
+		command.add("false");
+		
 		command.add("-with-weblog");
 		command.add("http://localhost:8082/api/v2/collect/" + context.getJobId());
 
@@ -109,7 +112,9 @@ public class NextflowStep extends CloudgeneStep {
 				return true;
 			} else {
 
-				context.endTask(getNextflowInfo(), Message.ERROR);
+				String text = getNextflowInfo();
+				text += "<br><br>Pipeline execution failed.";
+				context.endTask(text, Message.ERROR);
 
 				return false;
 			}
@@ -134,11 +139,11 @@ public class NextflowStep extends CloudgeneStep {
 			}
 			text += "</ul>";
 		}
-		
+
 		if (text.isEmpty()) {
 			return "Preparing execution....";
 		}
-		
+
 		return text;
 	}
 

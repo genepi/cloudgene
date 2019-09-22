@@ -1,5 +1,6 @@
 import dateFormat from 'dateformat';
 import stache from 'can-stache';
+import AU from 'ansi_up';
 
 
 stache.registerHelper('truncate', function(str, len) {
@@ -67,6 +68,11 @@ stache.registerHelper('prettyDate', function(unixTimestamp) {
   } else {
     return '-';
   }
+});
+
+stache.registerHelper('ansiToHtml', function(txt) {
+  var ansi_up = new AU();
+  return ansi_up.ansi_to_html(txt);
 });
 
 stache.registerHelper('isImage', function(str, options) {
