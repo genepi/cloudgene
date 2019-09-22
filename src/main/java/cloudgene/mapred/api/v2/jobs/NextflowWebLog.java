@@ -26,9 +26,11 @@ public class NextflowWebLog extends BaseResource {
 			JSONObject event = JSONObject.fromObject(entity.getText());
 			if (event.has("trace")) {
 				info.addEvent(job, event);
+			} else {
+				System.out.println(event.toString());
 			}
 
-		} catch (IOException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

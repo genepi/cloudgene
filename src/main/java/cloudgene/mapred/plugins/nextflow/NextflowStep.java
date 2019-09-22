@@ -122,13 +122,23 @@ public class NextflowStep extends CloudgeneStep {
 
 	private String getNextflowInfo() {
 		String job = context.getJobId();
-		List<JSONObject> events = NextflowInfo.getInstance().getEvents(job);
+
+		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
 		String text = "";
-		for (JSONObject event : events) {
-			JSONObject trace = event.getJSONObject("trace");
-			text += "[" + trace.getString("hash") + "] " + trace.getString("name") + ": " + trace.getString("status")
-					+ "<br>";
+		for (NextflowProcess process : processes) {
+			text += "<b>" + process.getName() + "</b><br>";
+			text += "<ul>";
+			for (NextflowTask task : process.getTasks()) {
+				text += "<li>" + task.getTrace().getString("name") + " (" + task.getTrace().getString("status") + ")"
+						+ "</li>";
+			}
+			text += "</ul>";
 		}
+		
+		if (text.isEmpty()) {
+			return "Preparing execution....";
+		}
+		
 		return text;
 	}
 

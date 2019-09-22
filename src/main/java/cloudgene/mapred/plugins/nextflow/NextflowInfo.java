@@ -11,7 +11,7 @@ public class NextflowInfo {
 
 	private static NextflowInfo instance;
 	
-	private Map<String, List<JSONObject>> data;
+	private Map<String, List<NextflowProcess>> data;
 	
 	public static NextflowInfo getInstance() {
 		if (instance == null) {
@@ -22,24 +22,35 @@ public class NextflowInfo {
 	}
 	
 	private NextflowInfo() {
-		data = new HashMap<String, List<JSONObject>>();
+		data = new HashMap<String, List<NextflowProcess>>();
 	}
 	
 	public void addEvent(String job, JSONObject event) {
-		List<JSONObject> events = data.get(job);
-		if (events == null) {
-			events = new Vector<JSONObject>();
-			data.put(job, events);
+		List<NextflowProcess> processes = data.get(job);
+		if (processes == null) {
+			processes = new Vector<NextflowProcess>();
+			data.put(job, processes);
 		}
-		events.add(event);
+		
+		JSONObject trace = event.getJSONObject("trace");
+		String processName = trace.getString("process");
+		for (NextflowProcess process : processes) {
+			if (process.getName().equals(processName)) {
+				process.addTrace(trace);
+				return;
+			}
+		}
+		NextflowProcess process = new NextflowProcess(trace);
+		processes.add(process);
 	}
 	
-	public List<JSONObject> getEvents(String job){
-		List<JSONObject> events = data.get(job);
-		if (events == null) {
-			events = new Vector<JSONObject>();
+	public List<NextflowProcess> getProcesses(String job){
+		List<NextflowProcess> processes = data.get(job);
+		if (processes == null) {
+			return new Vector<NextflowProcess>();
+		}{
+			return processes;
 		}
-		return events;
 	}
 	
 }
