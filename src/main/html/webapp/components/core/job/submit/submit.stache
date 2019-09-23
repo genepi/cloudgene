@@ -10,12 +10,32 @@
         {{#application.author}}
         <br>
         {{/application.author}}
-        <small class="text-muted">{{#application.author}}<i class="fas fa-user-cog"></i> {{.}}{{/application.author}}&nbsp;&nbsp;{{#application.website}}<i class="fas fa-home"></i> <a href="{{.}}" target="_blank">Website</a>{{/application.website}}</small>
+        <small class="text-muted">{{#application.author}}<i class="fas fa-user-friends"></i> {{.}}{{/application.author}}&nbsp;&nbsp;&nbsp;&nbsp;{{#application.website}}<i class="fas fa-link"></i> <a href="{{.}}" target="_blank">{{.}}</a>{{/application.website}}</small>
       </div>
 		</div>
   </div>
 </div>
-<div class="container page border-top pl-5 mt-5">
+
+<div class="full-container" style="border-bottom: 1px solid #dee2e6" >
+<div class="container">
+
+	<ul class="nav nav-tabs" style="border-bottom: 0px">
+
+		<li class="nav-item">
+			<a class="nav-link active">
+				<i class="far fa-play-circle"></i> Run
+			</a>
+		</li>
+
+		</ul>
+  </div>
+  </div>
+
+
+  <div class="py-4 full-container"  style="background: #fff">
+<div class="container">
+
+
 <form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
 
 <div class="form-group row">
@@ -144,4 +164,5 @@
 </div>
 
 </form>
+</div>
 </div>
