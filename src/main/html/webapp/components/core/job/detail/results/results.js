@@ -37,6 +37,31 @@ export default Control.extend({
     }), function() {
 
     });
+  },
+
+  '.folder-item click': function(el){
+    var ul = $(el).parent().children('UL');
+    ul.toggle();
+    if ( ul.css('display') == 'none' || ul.css("visibility") == "hidden"){
+      $(el).addClass('fa-folder ');
+      $(el).removeClass('fa-folder-open');
+    }else{
+      $(el).addClass('fa-folder-open');
+      $(el).removeClass('fa-folder');
+    }
+  },
+
+  '.folder-item-text click': function(el){
+    var item = $(el).parent().children('i')
+    var ul = $(el).parent().children('UL');
+    ul.toggle();
+    if ( ul.css('display') == 'none' || ul.css("visibility") == "hidden"){
+      $(item).addClass('fa-folder ');
+      $(item).removeClass('fa-folder-open');
+    }else{
+      $(item).addClass('fa-folder-open');
+      $(item).removeClass('fa-folder');
+    }
   }
 
 });

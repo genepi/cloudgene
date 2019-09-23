@@ -21,6 +21,8 @@ public class CloudgeneParameterOutput {
 	private String name = "";
 
 	private List<Download> files;
+	
+	private List<JobResultsTreeItem> tree;
 
 	private CloudgeneJob job;
 
@@ -174,6 +176,14 @@ public class CloudgeneParameterOutput {
 
 	public boolean isAdminOnly() {
 		return adminOnly;
+	}
+	
+	public void setTree(List<JobResultsTreeItem> tree) {
+		this.tree = tree;
+	}
+	
+	public List<JobResultsTreeItem> getTree() {
+		return tree;
 	}
 
 }

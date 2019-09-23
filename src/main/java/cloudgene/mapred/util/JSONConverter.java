@@ -10,10 +10,12 @@ import java.util.Map;
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
+import groovy.sql.OutParameter;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -29,6 +31,12 @@ public class JSONConverter {
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
 				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId", "count",
 				"username" });
+		
+		//create tree
+		for (CloudgeneParameterOutput param: job.getOutputParams()) {
+			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
+		}
+		
 		return JSONObject.fromObject(job, config);
 	}
 
