@@ -18,9 +18,7 @@ public class NextflowStep extends CloudgeneStep {
 
 	private CloudgeneContext context;
 
-	private boolean running = false;
-
-	private Map<String, Message> tasks = new HashMap<String, Message>();
+	private Map<String, Message> messages = new HashMap<String, Message>();
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -120,19 +118,14 @@ public class NextflowStep extends CloudgeneStep {
 
 		try {
 			// context.beginTask("Running Nextflow pipeline...");
-			running = true;
 			boolean successful = executeCommand(command, context, output);
-			running = false;
+			updateProgress();
 			if (successful) {
-				// context.endTask(getNextflowInfo(), Message.OK);
-				updateNextflowInfo();
 				return true;
 			} else {
-				updateNextflowInfo();
 				context.beginTask("Running Nextflow pipeline...");
 				String text = "Pipeline execution failed.<br><br><pre style=\"font-size: 12px\">" + output + "</pre>";
 				context.endTask(text, Message.ERROR);
-
 				return false;
 			}
 		} catch (Exception e) {
@@ -142,17 +135,18 @@ public class NextflowStep extends CloudgeneStep {
 
 	}
 
-	private void updateNextflowInfo() {
+	@Override
+	public void updateProgress() {
 		String job = makeSecretJobId(context.getJobId());
 
 		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
 
 		for (NextflowProcess process : processes) {
 
-			Message stepTask = tasks.get(process.getName());
-			if (stepTask == null) {
-				stepTask = context.createTask("<b>" + process.getName() + "</b>");
-				tasks.put(process.getName(), stepTask);
+			Message message = messages.get(process.getName());
+			if (message == null) {
+				message = context.createTask("<b>" + process.getName() + "</b>");
+				messages.put(process.getName(), message);
 			}
 
 			String text = "<b>" + process.getName() + "</b>";
@@ -177,26 +171,18 @@ public class NextflowStep extends CloudgeneStep {
 				}
 				text+= "</small>";
 			}
-
+			message.setMessage(text);
+			
 			if (running) {
-				stepTask.setType(Message.RUNNING);
+				message.setType(Message.RUNNING);
 			} else {
 				if (ok) {
-					stepTask.setType(Message.OK);
+					message.setType(Message.OK);
 				} else {
-					stepTask.setType(Message.ERROR);
+					message.setType(Message.ERROR);
 				}
 			}
-			stepTask.setMessage(text);
-			// TODO: set status
-		}
 
-	}
-
-	@Override
-	public void updateProgress() {
-		if (running) {
-			updateNextflowInfo();
 		}
 	}
 
