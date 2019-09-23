@@ -125,10 +125,10 @@ public class NextflowStep extends CloudgeneStep {
 			running = false;
 			if (successful) {
 				// context.endTask(getNextflowInfo(), Message.OK);
-
+				updateNextflowInfo();
 				return true;
 			} else {
-
+				updateNextflowInfo();
 				context.beginTask("Running Nextflow pipeline...");
 				String text = "Pipeline execution failed.<br><br><pre style=\"font-size: 12px\">" + output + "</pre>";
 				context.endTask(text, Message.ERROR);
@@ -142,7 +142,7 @@ public class NextflowStep extends CloudgeneStep {
 
 	}
 
-	private void getNextflowInfo() {
+	private void updateNextflowInfo() {
 		String job = makeSecretJobId(context.getJobId());
 
 		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
@@ -196,7 +196,7 @@ public class NextflowStep extends CloudgeneStep {
 	@Override
 	public void updateProgress() {
 		if (running) {
-			getNextflowInfo();
+			updateNextflowInfo();
 		}
 	}
 
