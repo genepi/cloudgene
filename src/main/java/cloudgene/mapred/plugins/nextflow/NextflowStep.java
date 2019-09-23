@@ -10,6 +10,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 
@@ -113,7 +114,7 @@ public class NextflowStep extends CloudgeneStep {
 		command.add("false");
 
 		command.add("-with-weblog");
-		command.add("http://localhost:8082/api/v2/collect/" + context.getJobId());
+		command.add("http://localhost:8082/api/v2/collect/" + makeSecretJobId(context.getJobId()));
 
 		StringBuilder output = new StringBuilder();
 
@@ -142,7 +143,7 @@ public class NextflowStep extends CloudgeneStep {
 	}
 
 	private void getNextflowInfo() {
-		String job = context.getJobId();
+		String job = makeSecretJobId(context.getJobId());
 
 		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
 
@@ -204,4 +205,8 @@ public class NextflowStep extends CloudgeneStep {
 		return new String[] { NextflowPlugin.ID };
 	}
 
+	public String makeSecretJobId(String job) {
+		return HashUtil.getMD5(job);
+	}
+	
 }
