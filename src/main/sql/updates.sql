@@ -94,3 +94,6 @@ create index idx_parameter_job_id on parameter(job_id,input);
 create index idx_steps_job_id on steps(job_id);
 create index idx_log_messages_step_id on log_messages(step_id);
 create index idx_job_user_id on job(user_id,state);
+
+-- 2.0.0
+ALTER TABLE log_messages ALTER COLUMN message VARCHAR (20000);
