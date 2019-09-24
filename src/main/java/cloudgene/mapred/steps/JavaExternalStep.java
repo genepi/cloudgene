@@ -15,8 +15,6 @@ import genepi.io.FileUtil;
 
 public class JavaExternalStep extends CloudgeneStep {
 
-	protected Process process;
-
 	protected static final Log log = LogFactory.getLog(JavaExternalStep.class);
 
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -110,13 +108,6 @@ public class JavaExternalStep extends CloudgeneStep {
 
 	public int getReduceProgress() {
 		return -1;
-	}
-
-	@Override
-	public void kill() {
-
-		process.destroy();
-
 	}
 
 }

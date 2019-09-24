@@ -119,13 +119,27 @@ public class NextflowStep extends CloudgeneStep {
 		try {
 			// context.beginTask("Running Nextflow pipeline...");
 			boolean successful = executeCommand(command, context, output);
-			updateProgress();
 			if (successful) {
+				updateProgress();
 				return true;
 			} else {
 				context.beginTask("Running Nextflow pipeline...");
-				String text = "Pipeline execution failed.<br><br><pre style=\"font-size: 12px\">" + output + "</pre>";
+				String text = "<pre style=\"font-size: 12px\">" + output
+						+ "</pre><br><br><span class=\"text-danger\">Pipeline execution failed.</span>";
 				context.endTask(text, Message.ERROR);
+
+				// set all running processes to failed
+				List<NextflowProcess> processes = NextflowInfo.getInstance()
+						.getProcesses(makeSecretJobId(context.getJobId()));
+				for (NextflowProcess process : processes) {
+					for (NextflowTask task : process.getTasks()) {
+						if (task.getTrace().getString("status").equals("RUNNING")) {
+							task.getTrace().put("status", "KILLED");
+						}
+					}
+				}
+				updateProgress();
+
 				return false;
 			}
 		} catch (Exception e) {
@@ -169,10 +183,14 @@ public class NextflowStep extends CloudgeneStep {
 				if (task.getTrace().getString("status").equals("COMPLETED")) {
 					text += "&nbsp;<i class=\"fas fa-check text-success\"></i>";
 				}
-				text+= "</small>";
+				if (task.getTrace().getString("status").equals("KILLED")
+						|| task.getTrace().getString("status").equals("GAILED")) {
+					text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
+				}
+				text += "</small>";
 			}
 			message.setMessage(text);
-			
+
 			if (running) {
 				message.setType(Message.RUNNING);
 			} else {
@@ -194,5 +212,5 @@ public class NextflowStep extends CloudgeneStep {
 	public String makeSecretJobId(String job) {
 		return HashUtil.getMD5(job);
 	}
-	
+
 }

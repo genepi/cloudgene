@@ -15,11 +15,13 @@ public class JavaInternalStep extends CloudgeneStep {
 
 	@Override
 	public void setup(CloudgeneContext context) {
+		super.setup(context);
 		workflowStep.setup(context);
 	}
 
 	@Override
 	public void kill() {
+		super.kill();
 		workflowStep.kill();
 	}
 

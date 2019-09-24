@@ -20,6 +20,10 @@ public abstract class CloudgeneStep {
 
 	private List<Message> logMessages;
 
+	protected Process process;
+
+	protected CloudgeneContext context;
+
 	public CloudgeneStep() {
 
 	}
@@ -53,7 +57,7 @@ public abstract class CloudgeneStep {
 	}
 
 	public void setup(CloudgeneContext context) {
-
+		this.context = context;
 	}
 
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -65,10 +69,6 @@ public abstract class CloudgeneStep {
 	}
 
 	public void updateProgress() {
-
-	}
-
-	public void kill() {
 
 	}
 
@@ -109,7 +109,7 @@ public abstract class CloudgeneStep {
 		ProcessBuilder builder = new ProcessBuilder(command);
 		builder.directory(new File(context.getWorkingDirectory()));
 		builder.redirectErrorStream(true);
-		Process process = builder.start();
+		process = builder.start();
 		InputStream is = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is, "ISO-8859-1");
 		BufferedReader br = new BufferedReader(isr);
@@ -135,6 +135,13 @@ public abstract class CloudgeneStep {
 			process.destroy();
 		}
 		return true;
+	}
+
+	public void kill() {
+		if (process != null && process.isAlive()) {
+			process.destroyForcibly();
+			context.log("Process killed by used.");
+		}
 	}
 
 }
