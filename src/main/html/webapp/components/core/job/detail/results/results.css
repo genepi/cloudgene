@@ -1,0 +1,35 @@
+.folder {
+  list-style: none;
+  padding-inline-start: 20px;
+}
+
+.root-folder {
+  margin: 0px;
+  padding: 0px
+}
+
+.sub-folder {
+  display: none;
+}
+
+.folder-item {
+  cursor: pointer;
+}
+
+.folder-item-icon {
+  cursor: poiner;
+}
+
+.folder-item-text {
+  cursor: pointer;
+  color: #212529 !important;
+}
+
+.file-item {
+  cursor: pointer;
+  color: #212529 !important;
+}
+
+.file-item-icon {
+  margin-left: 20px;
+}

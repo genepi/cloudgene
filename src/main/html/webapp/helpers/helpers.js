@@ -31,19 +31,19 @@ String.prototype.replaceAll = function(search, replacement) {
 };
 
 function renderTreeItem(items, level) {
-  var html = '<ul style="list-style-type:none;' + (level > 0 ? 'display:none;' : '') + '">';
+  var html = '<ul class="folder ' + (level > 0 ? 'sub-folder' : 'root-folder') + '">';
   for (var i = 0; i < items.length; i++) {
     html += '<li>';
     if (items[i].folder == true) {
-      html += '<i class="fas fa-folder folder-item text-muted" style="cursor:pointer"></i>&nbsp;&nbsp;';
-      html += '<span class="folder-item-text" style="cursor:pointer">' + items[i].name + '</span>';
+      html += '<i class="fas fa-angle-right folder-item text-muted fa-fw"></i>&nbsp;';
+      html += '<span class="folder-item-text fa-fw"><i class="fas fa-folder text-muted"></i>&nbsp' + items[i].name + '</span>';
       html += renderTreeItem(items[i].childs, level + 1);
     } else {
-      html += '<i class="fas fa-file text-muted"></i>&nbsp;&nbsp;'
+      html += '<i class="far fa-file-alt text-muted fa-fw file-item-icon""></i>&nbsp;'
       if (items[i].name.startsWith('s3://')) {
-        html += '<a href="downloads/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
+        html += '<a class="file-item" href="downloads/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
       } else {
-        html += '<a href="results/' + items[i].path + '" target="_blank">' + items[i].name + '</a>';
+        html += '<a class="file-item" href="results/' + items[i].path + '" target="_blank">' + items[i].name + '</a>';
       }
       html += '&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-muted">(' + items[i].size + ")</span>";
     }

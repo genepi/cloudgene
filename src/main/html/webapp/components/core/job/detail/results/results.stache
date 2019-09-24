@@ -2,26 +2,24 @@
 
   {{^is(files.length, 0)}}
 
-    <table class="table table-bordered">
-      <tbody>
+    <div class="list-group">
 
-        <tr {{data 'param'}} >
-          <td>
-            <b>{{description}}</b> {{#is(adminOnly, true)}} <small class="text-muted"><i class="fas fa-lock"></i> Admin</small>{{/is}}
-          </td>
-          <td width="100px;" align="right">
-            <span class="share-folder-btn" style="cursor: pointer;" title="Share All Data..."><i class="fas fa-download"></i> wget</span>
-          </td>
-        </tr>
-        <tr >
-          <td colspan="2">
-        {{{renderTree(tree)}}}
-        </td>
-        </tr>
+      <div class="list-group-item bg-light  flex-column align-items-start">
+        <div class="d-flex w-100 justify-content-between" {{data 'param'}}>
+          <span>{{description}}</span>
+          <span class="share-folder-btn" style="cursor: pointer;" title="Share All Data..."><i class="fas fa-download"></i> wget</span>
+        </div>
+      </div>
 
-      </tbody>
-    </table>
+      <div class="list-group-item flex-column align-items-start">
+        <p class="mb-1">{{{renderTree(tree)}}}</p>
+      </div>
+    </div>
+    <br>
 
   {{/is}}
+
+
+
 
 {{/job.outputParams}}
