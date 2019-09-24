@@ -24,6 +24,8 @@ public abstract class CloudgeneStep {
 
 	protected CloudgeneContext context;
 
+	protected boolean killed = false;
+
 	public CloudgeneStep() {
 
 	}
@@ -140,6 +142,7 @@ public abstract class CloudgeneStep {
 	public void kill() {
 		if (process != null && process.isAlive()) {
 			process.destroyForcibly();
+			killed = true;
 			context.log("Process killed by used.");
 		}
 	}

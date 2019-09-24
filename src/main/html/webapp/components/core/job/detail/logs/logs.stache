@@ -1,1 +1,14 @@
-<pre>{{{ansiToHtml(content)}}}</pre>
+<div class="list-group">
+
+  <div class="list-group-item bg-light  flex-column align-items-start">
+    <div class="d-flex w-100 justify-content-between" {{data 'param'}}>
+      <span>Logs</span>
+      <a title="Download log file" a href="/logs/{{job.id}}"><i class="fas fa-download"></i></a></span>
+    </div>
+  </div>
+
+  <div class="list-group-item flex-column align-items-start" style="padding: 0px;">
+    <pre class="tomorrow-night-eighties-ansi-theme">{{{ansiToHtml(content)}}}</pre>
+  </div>
+</div>
+<br>

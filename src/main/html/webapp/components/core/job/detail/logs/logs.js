@@ -10,7 +10,8 @@ export default Control.extend({
 
     $.get('/logs/' + options.job.attr('id'),function(data) {
       $(element).html(template({
-        content: data
+        content: data,
+        job: options.job
       }));
     });
   }

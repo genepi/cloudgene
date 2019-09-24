@@ -123,10 +123,6 @@ public class NextflowStep extends CloudgeneStep {
 				updateProgress();
 				return true;
 			} else {
-				context.beginTask("Running Nextflow pipeline...");
-				String text = "<pre style=\"font-size: 12px\">" + output
-						+ "</pre><br><br><span class=\"text-danger\">Pipeline execution failed.</span>";
-				context.endTask(text, Message.ERROR);
 
 				// set all running processes to failed
 				List<NextflowProcess> processes = NextflowInfo.getInstance()
@@ -139,6 +135,17 @@ public class NextflowStep extends CloudgeneStep {
 					}
 				}
 				updateProgress();
+
+				// Write nextflow output into step
+				context.beginTask("Running Nextflow pipeline...");
+				String text = "";
+
+				if (killed) {
+					text = output + "\n\n\n" + makeRed("Pipeline execution canceled.");
+				} else {
+					text = output + "\n\n\n" + makeRed("Pipeline execution failed.");
+				}
+				context.endTask(text, Message.ERROR_ANSI);
 
 				return false;
 			}
@@ -211,6 +218,10 @@ public class NextflowStep extends CloudgeneStep {
 
 	public String makeSecretJobId(String job) {
 		return HashUtil.getMD5(job);
+	}
+
+	private String makeRed(String text) {
+		return ((char) 27 + "[31m" + text + (char) 27 + "[0m");
 	}
 
 }

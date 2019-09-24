@@ -99,6 +99,7 @@ stache.registerHelper('prettyDate', function(unixTimestamp) {
 
 stache.registerHelper('ansiToHtml', function(txt) {
   var ansi_up = new AU();
+  ansi_up.use_classes = true;
   return ansi_up.ansi_to_html(txt);
 });
 
