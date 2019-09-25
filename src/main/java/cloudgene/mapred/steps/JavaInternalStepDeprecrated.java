@@ -19,6 +19,7 @@ public class JavaInternalStepDeprecrated extends CloudgeneStep {
 
 	@Override
 	public void setup(CloudgeneContext context) {
+		super.setup(context);
 		workflowStep.setup(adapter(context));
 	}
 

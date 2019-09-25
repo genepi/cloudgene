@@ -596,7 +596,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 		try {
 			if (stdOutStream != null && line != null) {
-				stdOutStream.write(line.getBytes());
+				stdOutStream.write(line.getBytes("UTF-8"));
 				stdOutStream.flush();
 
 			}
@@ -613,8 +613,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 				initStdOutFiles();
 			}
 
-			stdOutStream.write(line.getBytes());
-			stdOutStream.write("\n".getBytes());
+			stdOutStream.write(line.getBytes("UTF-8"));
+			stdOutStream.write("\n".getBytes("UTF-8"));
 			stdOutStream.flush();
 
 		} catch (IOException e) {
@@ -630,8 +630,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 			}
 
 			logStream.write((formatter.format(new Date()) + " ").getBytes());
-			logStream.write(line.getBytes());
-			logStream.write("\n".getBytes());
+			logStream.write(line.getBytes("UTF-8"));
+			logStream.write("\n".getBytes("UTF-8"));
 			logStream.flush();
 
 		} catch (IOException e) {

@@ -1,6 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
 import java.util.List;
+import java.util.Vector;
 
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -65,7 +66,19 @@ public class GetJobs extends BaseResource {
 			jobs = dao.findAllByUser(user);
 			page = "1";
 			pageSize = count;
-			
+
+		}
+
+		// if job is running, use in memory instance
+		List<AbstractJob> finalJobs = new Vector<AbstractJob>();
+		for (AbstractJob job : jobs) {
+			AbstractJob runningJob = getWorkflowEngine().getJobById(job.getId());
+			if (runningJob != null) {
+				finalJobs.add(runningJob);
+			} else {
+				finalJobs.add(job);
+			}
+
 		}
 
 		// exclude unused parameters
@@ -77,7 +90,7 @@ public class GetJobs extends BaseResource {
 
 		JSONObject object = PageUtil.createPageObject(Integer.parseInt(page), pageSize, count);
 
-		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
+		JSONArray jsonArray = JSONArray.fromObject(finalJobs, config);
 		object.put("data", jsonArray);
 
 		return new StringRepresentation(object.toString());

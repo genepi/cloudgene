@@ -46,6 +46,7 @@ import cloudgene.mapred.api.v2.jobs.GetJobDetails;
 import cloudgene.mapred.api.v2.jobs.GetJobStatus;
 import cloudgene.mapred.api.v2.jobs.GetJobs;
 import cloudgene.mapred.api.v2.jobs.GetLogs;
+import cloudgene.mapred.api.v2.jobs.NextflowWebLog;
 import cloudgene.mapred.api.v2.jobs.RestartJob;
 import cloudgene.mapred.api.v2.jobs.ShareResults;
 import cloudgene.mapred.api.v2.jobs.SubmitJob;
@@ -125,7 +126,8 @@ public class WebApp extends Application {
 		router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 
-		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
+		router.attach(prefix + "/api/v2/collect/{job}", NextflowWebLog.class);
+		
 		// jobs
 		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);

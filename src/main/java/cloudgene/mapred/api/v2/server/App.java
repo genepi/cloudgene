@@ -165,6 +165,9 @@ public class App extends BaseResource {
 		String enabled = form.getFirstValue("enabled");
 		String permission = form.getFirstValue("permission");
 		String reinstall = form.getFirstValue("reinstall");
+		String nextflowConfig = form.getFirstValue("config[nextflow.config]");
+		String nextflowProfile = form.getFirstValue("config[nextflow.profile]");
+		String nextflowWork = form.getFirstValue("config[nextflow.work]");
 
 		ApplicationRepository repository = getApplicationRepository();
 		Application application = repository.getById(appId);
@@ -195,6 +198,15 @@ public class App extends BaseResource {
 
 				WdlApp wdlApp = application.getWdlApp();
 
+				if (nextflowProfile != null || nextflowConfig != null || nextflowWork != null) {
+
+					Map<String, String> config = repository.getConfig(wdlApp);
+					config.put("nextflow.config", nextflowConfig);
+					config.put("nextflow.profile", nextflowProfile);
+					config.put("nextflow.work", nextflowWork);
+					repository.updateConfig(wdlApp, config);
+				}
+
 				// reinstall application
 				if (reinstall != null) {
 					if (reinstall.equals("true")) {
@@ -209,6 +221,10 @@ public class App extends BaseResource {
 
 				JSONObject jsonObject = JSONConverter.convert(application);
 				updateState(application, jsonObject);
+
+				// read config
+				Map<String, String> config = repository.getConfig(wdlApp);
+				jsonObject.put("config", config);
 
 				return new JsonRepresentation(jsonObject.toString());
 

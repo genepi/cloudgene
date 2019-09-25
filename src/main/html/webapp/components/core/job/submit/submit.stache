@@ -1,10 +1,41 @@
 <div class="page-header ">
   <div class="py-1 container">
-		<h2>{{application.name}} <small class="text-muted">{{application.version}}</small></h2>
-		{{{application.description}}}
+    <div class="job-header d-flex justify-content-start">
+      {{#application.logo}}
+			   <img src="{{.}}" height="80px" width="80px" style="margin-right: 20px;"/>
+      {{/application.logo}}
+			<div>
+        <h2>{{application.name}} <small class="text-muted">{{application.version}}</small></h2>
+    		{{{application.description}}}
+        {{#application.author}}
+        <br>
+        {{/application.author}}
+        <small class="text-muted">{{#application.author}}<i class="fas fa-user-friends"></i> {{.}}{{/application.author}}&nbsp;&nbsp;&nbsp;&nbsp;{{#application.website}}<i class="fas fa-link"></i> <a href="{{.}}" target="_blank">{{.}}</a>{{/application.website}}</small>
+      </div>
+		</div>
   </div>
 </div>
-<div class="container page border-top pl-5 mt-5">
+
+<div class="full-container" style="border-bottom: 1px solid #dee2e6" >
+<div class="container">
+
+	<ul class="nav nav-tabs" style="border-bottom: 0px">
+
+		<li class="nav-item">
+			<a class="nav-link active">
+				<i class="far fa-play-circle"></i> Run
+			</a>
+		</li>
+
+		</ul>
+  </div>
+  </div>
+
+
+  <div class="py-4 full-container"  style="background: #fff">
+<div class="container">
+
+
 <form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
 
 <div class="form-group row">
@@ -82,7 +113,11 @@
 					{{/case}}
 
 					{{#case("local_folder")}}
-						{{../controls_folder(.)}}
+            {{#is(pattern, undefined)}}
+              {{../controls_folder(.)}}
+            {{else}}
+              {{../controls_folder_pattern(.)}}
+            {{/is}}
 					{{/case}}
 
 					{{#case("hdfs_folder")}}
@@ -129,4 +164,5 @@
 </div>
 
 </form>
+</div>
 </div>

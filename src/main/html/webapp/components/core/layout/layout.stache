@@ -105,11 +105,11 @@
 
 <div id="content" class=""></div>
 
-<footer class="text-muted">
+<footer class="text-muted" style="border-top: 1px solid #dee2e6;">
   <div class="container">
     <p class="float-right">
-      <a href="#">Back to top</a>
+      <small><a href="#">Back to top</a></small>
     </p>
-    <p>{{{footer}}}</p>
+    <p><small>{{{footer}}}</p></small>
   </div>
 </footer>

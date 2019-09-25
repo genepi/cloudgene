@@ -39,6 +39,12 @@
       </div>
     {{/is}}
 
+    {{#is(type, 4)}}
+    <div class="list-group-item flex-column align-items-start step step-danger" style="padding: 0px">
+        <pre style="font-size: 12px;" class="tomorrow-night-eighties-ansi-theme">{{{ansiToHtml(message)}}}</pre>
+    </div>
+    {{/is}}
+
     {{#is(type, 27)}}
       <div class="list-group-item flex-column align-items-start" style="padding: 0px;">
         <div class="">

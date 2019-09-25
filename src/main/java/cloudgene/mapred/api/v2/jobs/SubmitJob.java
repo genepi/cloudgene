@@ -40,10 +40,8 @@ import genepi.io.FileUtil;
 
 public class SubmitJob extends BaseResource {
 
-
 	private static final Log log = LogFactory.getLog(SubmitJob.class);
 
-	
 	@Post
 	public Representation post(Representation entity) {
 
@@ -54,7 +52,6 @@ public class SubmitJob extends BaseResource {
 		} catch (UnsupportedEncodingException e2) {
 			return error404("Application '" + appId + "' is not in valid format.");
 		}
-
 
 		ApplicationRepository repository = getApplicationRepository();
 		Application application = repository.getByIdAndUser(appId, user);
@@ -99,13 +96,13 @@ public class SubmitJob extends BaseResource {
 		}
 
 		String hdfsWorkspace = "";
-		
+
 		try {
 			hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
-		}catch (NoClassDefFoundError e) {
+		} catch (NoClassDefFoundError e) {
 			log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
 		}
-		
+
 		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
@@ -185,17 +182,17 @@ public class SubmitJob extends BaseResource {
 						// remove upload indentification!
 						String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
 
-						boolean hdfs = false;
-						boolean folder = false;
+						// boolean hdfs = false;
+						// boolean folder = false;
 
+						WdlParameterInput inputParam = null;
 						for (WdlParameterInput input : app.getWorkflow().getInputs()) {
 							if (input.getId().equals(fieldName)) {
-								hdfs = input.isHdfs();
-								folder = input.isFolder();
+								inputParam = input;
 							}
 						}
 
-						if (hdfs) {
+						if (inputParam.isHdfs()) {
 
 							String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
 
@@ -203,7 +200,7 @@ public class SubmitJob extends BaseResource {
 
 							HdfsUtil.put(tmpFile, target);
 
-							if (folder) {
+							if (inputParam.isFolder()) {
 								// folder
 								props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName)));
 							} else {
@@ -223,9 +220,13 @@ public class SubmitJob extends BaseResource {
 
 							FileUtil.copy(tmpFile, target);
 
-							if (folder) {
+							if (inputParam.isFolder()) {
 								// folder
-								props.put(fieldName, new File(targetPath).getAbsolutePath());
+								if (inputParam.getPattern() != null && !inputParam.getPattern().isEmpty()) {
+									props.put(fieldName, new File(targetPath).getAbsolutePath());
+								} else {
+									props.put(fieldName, new File(targetPath).getAbsolutePath());
+								}
 							} else {
 								// file
 								props.put(fieldName, new File(target).getAbsolutePath());
@@ -247,22 +248,14 @@ public class SubmitJob extends BaseResource {
 
 				} else {
 
-					if (item.getFieldName().startsWith("input-")) {
-						String key = item.getFieldName().replace("input-", "");
-
-						String value = Streams.asString(item.openStream());
-						if (!props.containsKey(key)) {
-							// don't override uploaded files
-							props.put(key, value);
-						}
-
-					} else {
-						String key = item.getFieldName();
-						String value = Streams.asString(item.openStream());
-						if (!params.containsKey(key)) {
-							// don't override uploaded files
-							params.put(key, value);
-						}
+					String key = item.getFieldName();
+					if (key.startsWith("input-")) {
+						key = key.replace("input-", "");
+					}
+					String value = Streams.asString(item.openStream());
+					if (!props.containsKey(key)) {
+						// don't override uploaded files
+						props.put(key, value);
 					}
 
 				}
@@ -276,28 +269,35 @@ public class SubmitJob extends BaseResource {
 
 		}
 		try {
-		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-			if (!params.containsKey(input.getId())) {
-				if (props.containsKey(input.getId())) {
-					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
-						params.put(input.getId(), input.getValues().get("true"));
+			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
+				if (!params.containsKey(input.getId())) {
+					if (props.containsKey(input.getId())) {
+
+						if (input.isFolder() && input.getPattern() != null && !input.getPattern().isEmpty()) {
+							String pattern = props.get(input.getId() + "-pattern");
+							params.put(input.getId(), props.get(input.getId()) + "/" + pattern);
+						} else {
+
+							if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
+								params.put(input.getId(), input.getValues().get("true"));
+							} else {
+								params.put(input.getId(), props.get(input.getId()));
+							}
+						}
 					} else {
-						params.put(input.getId(), props.get(input.getId()));
-					}
-				} else {
-					// ignore invisible input parameters
-					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX && input.isVisible()) {
-						params.put(input.getId(), input.getValues().get("false"));
+						// ignore invisible input parameters
+						if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX && input.isVisible()) {
+							params.put(input.getId(), input.getValues().get("false"));
+						}
 					}
 				}
 			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+
 		}
-
-	} catch (Exception e) {
-		e.printStackTrace();
-		throw e;
-
-	}
 		return params;
 	}
 

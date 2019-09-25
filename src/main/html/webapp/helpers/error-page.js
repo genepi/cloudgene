@@ -11,17 +11,25 @@ export default Control.extend({
     var error = {};
     bootbox.hideAll();
 
-    if (options.responseJSON) {
+    if (options.status == 0) {
       error = {
-        statusText: options.status,
-        responseText: options.responseJSON.message
+        statusText: 'Error',
+        responseText: 'Could not establish connection to server'
       };
     } else {
-      error = {
-        statusText: options.status,
-        responseText: options.responseText
-      };
 
+      if (options.responseJSON) {
+        error = {
+          statusText: options.status,
+          responseText: options.responseJSON.message
+        };
+      } else {
+        error = {
+          statusText: options.status,
+          responseText: options.responseText
+        };
+
+      }
     }
     $(element).html(template({
       error: error

@@ -20,8 +20,8 @@
 <div class="container" id="application-repository">
 	<div class="row">
 		{{#applications}}
-			<div class="col-md-4">
-				<div class="card mb-4 box-shadow {{errorMessage}}') ? '.' : (app.attr('enabled') ? '.': '') %>" {{data 'application'}}>
+			<div class="col-md-6">
+				<div class="card mb-6 box-shadow {{errorMessage}}') ? '.' : (app.attr('enabled') ? '.': '') %>" {{data 'application'}}>
 					{{#if(wdlApp)}}
 						{{#if(wdlApp.workflow)}}
 							<div class="card-header app-header">
@@ -44,7 +44,7 @@
 						{{else}}
 							<h5 class=" text-truncate">{{wdlApp.name}}&nbsp;<small>{{wdlApp.version}}</small></h5>
 						{{/errorMessage}}
-						<div style="height: 150px; display: block; ">
+						<div style="height: 100px; display: block; ">
 							{{#changed}}
 								<small class="text-danger">Warning: File <b>{{filename}}</b> changed on disk. Reload Apps to solve this issue.</small>
 							{{/changed}}
@@ -76,6 +76,7 @@
 							<div>
 							</div>
 							<div class="btn-group">
+								<button type="button" class="edit-settings-btn btn btn-sm btn-outline-secondary"><i class="fas fa-cog"></i> Settings</button>
 								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-users"></i> {{permission}}</button>
 								<button type="button" class="delete-app-btn btn btn-sm btn-outline-secondary"><i class="fas fa-trash-alt"></i> Uninstall</button>
 								{{#enabled}}

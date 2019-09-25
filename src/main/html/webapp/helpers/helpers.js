@@ -1,5 +1,6 @@
 import dateFormat from 'dateformat';
 import stache from 'can-stache';
+import AU from 'ansi_up';
 
 
 stache.registerHelper('truncate', function(str, len) {
@@ -28,6 +29,33 @@ String.prototype.replaceAll = function(search, replacement) {
   var target = this;
   return target.replace(new RegExp(search, 'g'), replacement);
 };
+
+function renderTreeItem(items, level) {
+  var html = '<ul class="folder ' + (level > 0 ? 'sub-folder' : 'root-folder') + '">';
+  for (var i = 0; i < items.length; i++) {
+    html += '<li>';
+    if (items[i].folder == true) {
+      html += '<i class="fas fa-angle-right folder-item text-muted fa-fw"></i>&nbsp;';
+      html += '<span class="folder-item-text fa-fw"><i class="fas fa-folder text-muted"></i>&nbsp' + items[i].name + '</span>';
+      html += renderTreeItem(items[i].childs, level + 1);
+    } else {
+      html += '<i class="far fa-file-alt text-muted fa-fw file-item-icon""></i>&nbsp;'
+      if (items[i].path.startsWith('s3://')) {
+        html += '<a class="file-item" href="downloads/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
+      } else {
+        html += '<a class="file-item" href="results/' + items[i].path + '" target="_blank">' + items[i].name + '</a>';
+      }
+      html += '&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-muted">(' + items[i].size + ")</span>";
+    }
+    html += "</li>";
+  }
+  html += "</ul>";
+  return html;
+}
+
+stache.registerHelper('renderTree', function(item) {
+  return renderTreeItem(item, 0);
+});
 
 stache.registerHelper('replaceNL', function(value, total) {
   return value.replaceAll('\n', '<br>');
@@ -67,6 +95,12 @@ stache.registerHelper('prettyDate', function(unixTimestamp) {
   } else {
     return '-';
   }
+});
+
+stache.registerHelper('ansiToHtml', function(txt) {
+  var ansi_up = new AU();
+  ansi_up.use_classes = true;
+  return ansi_up.ansi_to_html(txt);
 });
 
 stache.registerHelper('isImage', function(str, options) {

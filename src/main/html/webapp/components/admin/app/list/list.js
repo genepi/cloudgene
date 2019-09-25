@@ -15,6 +15,7 @@ import template from './list.stache';
 import templateInstallGithub from './install-github/install-github.stache';
 import templateInstallUrl from './install-url/install-url.stache';
 import templatePermission from './permission/permission.stache';
+import templateSettings from './settings/settings.stache';
 
 export default Control.extend({
 
@@ -191,6 +192,34 @@ export default Control.extend({
     });
 
   },
+
+  '.edit-settings-btn click': function(el, ev) {
+
+    var card = $(el).closest('.card');
+    var application = domData.get.call(card[0], 'application');
+
+
+    bootbox.confirm(templateSettings({
+        application: application
+      }),
+      function(result) {
+        if (result) {
+          var nextflowProfile = $('#nextflow-profile').val();
+          var nextflowConfig = $('#nextflow-config').val();
+          var nextflowWork = $('#nextflow-work').val();
+
+          application.attr('config').attr('nextflow.profile', nextflowProfile);
+          application.attr('config').attr('nextflow.config', nextflowConfig);
+          application.attr('config').attr('nextflow.work', nextflowWork);
+          application.save(function(data) {},
+            function(response) {
+              showErrorDialog("Operation failed", response);
+            });
+        }
+      }).find("div.modal-dialog").css({ "width": "80%" });
+
+  },
+
 
   '.edit-permission-btn click': function(el, ev) {
 

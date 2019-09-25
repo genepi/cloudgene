@@ -59,10 +59,11 @@
 	</div>
 </div>
 {{^is(tab,'')}}
-<div class="py-5 container">
-<div class="tabbable">
 
-	<ul class="nav nav-tabs">
+<div class="full-container" style="border-bottom: 1px solid #dee2e6" >
+<div class="container">
+
+	<ul class="nav nav-tabs" style="border-bottom: 0px">
 
 		<li class="nav-item">
 			<a class="nav-link {{#is(tab, 'steps')}}active{{/is}}" href="#!jobs/{{job.id}}">
@@ -95,9 +96,11 @@
 			iframe.height = height + "px";
 		}
 	</script>
+</div>
+</div>
 
-<div class="page">
-	<div class="tab-content">
+<div class="py-4 full-container"  style="background: #fff">
+<div class="container">
 
 		{{#is(job.isPending, true)}}
 			<p><br></p>
@@ -131,7 +134,5 @@
 		{{/is}}
 
 	</div>
-</div>
-</div>
 </div>
 {{/is}}

@@ -1,5 +1,6 @@
 package cloudgene.mapred.wdl;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class WdlParameterInput implements WdlParameter {
@@ -27,6 +28,14 @@ public class WdlParameterInput implements WdlParameter {
 	private String accept = null;
 
 	private String details = null;
+	
+	private String pattern = null;
+	
+	public WdlParameterInput() {
+		values = new HashMap<String, String>();
+		values.put("true", "true");
+		values.put("false", "false");
+	}
 
 	public String getId() {
 		return id;
@@ -140,6 +149,14 @@ public class WdlParameterInput implements WdlParameter {
 
 	public String getDetails() {
 		return details;
+	}
+	
+	public void setPattern(String pattern) {
+		this.pattern = pattern;
+	}
+	
+	public String getPattern() {
+		return pattern;
 	}
 
 	public boolean hasDataBindung() {

@@ -1,28 +1,25 @@
-<h4>Share Data</h4>
-The private links for this folder are:<br><br>
+<h4>Download or share data</h4>
 
-<ul id="myTab" class="nav nav-tabs">
+<div class="card text-center">
+  <div class="card-header">
+    <ul class="nav nav-tabs card-header-tabs">
 	<li class="nav-item">
-		<a class="nav-link active" href="#links" data-toggle="tab">Links to share ({{files.length}})</a>
+		<a class="nav-link active" href="#wget" data-toggle="tab">wget commands ({{files.length}})</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link" href="#wget" data-toggle="tab">wget commands ({{files.length}})</a>
+		<a class="nav-link" href="#links" data-toggle="tab">Links to share ({{files.length}})</a>
 	</li>
 </ul>
-
+</div>
+<div class="card-body">
 <div id="myTabContent" class="tab-content">
-	<div class="tab-pane active in" id="links">
-		 <textarea class="form-control" id="message" rows="10">
-{{#files}}
-{{../hostname}}/share/results/{{hash}}/{{name}}
-{{/files}}
-		 </textarea>
+	<div class="tab-pane active" id="wget">
+	<textarea class="form-control" id="message" rows="10" wrap="off">{{#files}}wget {{../hostname}}/share/results/{{hash}}/{{name}}
+{{/files}}</textarea>
 	</div>
-	<div class="tab-pane" id="wget">
-	<textarea class="form-control" id="message" rows="10">
-{{#files}}
- wget {{../hostname}}/share/results/{{hash}}/{{name}}
-{{/files}}
-	</textarea>
+	<div class="tab-pane" id="links">
+		 <textarea class="form-control" id="message" rows="10" wrap="off">{{#files}}{{../hostname}}/share/results/{{hash}}/{{name}}
+{{/files}}</textarea>
 	</div>
+</div>
 </div>

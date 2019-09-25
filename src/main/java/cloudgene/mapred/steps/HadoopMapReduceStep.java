@@ -27,12 +27,6 @@ public class HadoopMapReduceStep extends CloudgeneStep {
 
 	private int reduce = 0;
 
-	private CloudgeneContext context;
-
-	public void setup(CloudgeneContext context) {
-		this.context = context;
-	}
-
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 

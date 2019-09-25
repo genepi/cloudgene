@@ -7,6 +7,7 @@ import java.util.Vector;
 
 import cloudgene.mapred.plugins.docker.DockerPlugin;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
+import cloudgene.mapred.plugins.nextflow.NextflowPlugin;
 import cloudgene.mapred.plugins.rscript.RMarkdownPlugin;
 import cloudgene.mapred.plugins.rscript.RScriptPlugin;
 import cloudgene.mapred.util.Settings;
@@ -32,6 +33,7 @@ public class PluginManager {
 		plugins.add(new DockerPlugin());
 		plugins.add(new RScriptPlugin());
 		plugins.add(new RMarkdownPlugin());
+		plugins.add(new NextflowPlugin());
 	}
 
 	public boolean initPlugins(Settings settings) {

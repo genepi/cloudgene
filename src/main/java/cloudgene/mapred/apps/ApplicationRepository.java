@@ -1,6 +1,8 @@
 package cloudgene.mapred.apps;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -16,14 +18,14 @@ import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.google.common.base.Objects;
+import com.esotericsoftware.yamlbeans.YamlReader;
+import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
-import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.core.ZipFile;
@@ -215,7 +217,7 @@ public class ApplicationRepository {
 				} else if (url.endsWith(".yaml")) {
 					application = installFromYaml(url, false);
 				} else if (url.endsWith(".yml")) {
-					application = installFromYaml(url, false);					
+					application = installFromYaml(url, false);
 				} else {
 					application = installFromDirectory(url, false);
 				}
@@ -395,7 +397,7 @@ public class ApplicationRepository {
 				return application;
 			}
 		}
-		
+
 		cloudgeneFilename = FileUtil.path(path, "cloudgene.yml");
 		if (new File(cloudgeneFilename).exists()) {
 			Application application = installFromYaml(cloudgeneFilename, moveToApps);
@@ -523,4 +525,64 @@ public class ApplicationRepository {
 
 		return names;
 	}
+
+	public String getConfigDirectory(String id) {
+		Application app = getById(id);
+		return getConfigDirectory(app.getWdlApp());
+	}
+
+	public String getConfigDirectory(WdlApp app) {
+		return FileUtil.path(appsFolder, app.getId().split("@")[0]);
+	}
+
+	public Map<String, String> getConfig(WdlApp app) {
+
+		String appFolder = getConfigDirectory(app);
+
+		Map<String, String> config = new HashMap<String, String>();
+
+		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
+		if (new File(nextflowConfig).exists()) {
+			String content = FileUtil.readFileAsString(nextflowConfig);
+			config.put("nextflow.config", content);
+		}
+
+		String nextflowProfile = FileUtil.path(appFolder, "nextflow.profile");
+		if (new File(nextflowProfile).exists()) {
+			String content = FileUtil.readFileAsString(nextflowProfile);
+			config.put("nextflow.profile", content);
+		}
+		
+		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
+		if (new File(nextflowWork).exists()) {
+			String content = FileUtil.readFileAsString(nextflowWork);
+			config.put("nextflow.work", content);
+		}
+		
+		return config;
+
+	}
+
+	public void updateConfig(WdlApp app, Map<String, String> config) {
+
+		String appFolder = getConfigDirectory(app);
+		FileUtil.createDirectory(appFolder);
+
+		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
+		String content = config.get("nextflow.config");
+		StringBuffer contentNextflowConfig = new StringBuffer(content == null ? "" : content);
+		FileUtil.writeStringBufferToFile(nextflowConfig, contentNextflowConfig);
+
+		String nextflowProfile = FileUtil.path(appFolder, "nextflow.profile");
+		content = config.get("nextflow.profile");
+		StringBuffer contentNextflowProfile = new StringBuffer(content == null ? "" : content);
+		FileUtil.writeStringBufferToFile(nextflowProfile, contentNextflowProfile);
+
+		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
+		content = config.get("nextflow.work");
+		StringBuffer contentNextflowWork = new StringBuffer(content == null ? "" : content);
+		FileUtil.writeStringBufferToFile(nextflowWork, contentNextflowWork);
+		
+	}
+
 }

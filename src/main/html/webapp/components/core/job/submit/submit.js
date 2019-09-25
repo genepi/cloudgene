@@ -20,6 +20,7 @@ import templateRadio from './controls/radio.stache';
 import templateCheckbox from './controls/checkbox.stache';
 import templateFile from './controls/file.stache';
 import templateFolder from './controls/folder.stache';
+import templateFolderPattern from './controls/folder-pattern.stache';
 import templateTermsCheckbox from './controls/terms-checkbox.stache';
 import templateText from './controls/text.stache';
 import templateTextarea from './controls/textarea.stache';
@@ -45,6 +46,7 @@ export default Control.extend({
         controls_checkbox: templateCheckbox,
         controls_file: templateFile,
         controls_folder: templateFolder,
+        controls_folder_pattern: templateFolderPattern,
         controls_terms_checkbox: templateTermsCheckbox,
         controls_textarea: templateTextarea,
         controls_select_binded: templateSelectBinded

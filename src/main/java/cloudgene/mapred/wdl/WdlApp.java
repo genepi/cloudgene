@@ -22,6 +22,8 @@ public class WdlApp implements Comparable<WdlApp> {
 	private String id;
 
 	private String release;
+	
+	private String logo;
 
 	private String submitButton = "Submit Job";
 
@@ -172,6 +174,14 @@ public class WdlApp implements Comparable<WdlApp> {
 		return release;
 	}
 
+	public void setLogo(String logo) {
+		this.logo = logo;
+	}
+	
+	public String getLogo() {
+		return logo;
+	}
+	
 	/* intern variables */
 
 	public String getPath() {
