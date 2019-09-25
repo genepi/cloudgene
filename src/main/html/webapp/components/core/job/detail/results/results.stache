@@ -4,10 +4,10 @@
 
     <div class="list-group">
 
-      <div class="list-group-item bg-light  flex-column align-items-start">
+      <div class="list-group-item bg-light flex-column align-items-start">
         <div class="d-flex w-100 justify-content-between" {{data 'param'}}>
-          <span>{{description}}</span>
-          <span class="share-folder-btn" style="cursor: pointer;" title="Share All Data..."><i class="fas fa-download"></i> wget</span>
+          <span class="align-middle">{{description}}</span>
+          <span class="share-folder-btn " style="cursor: pointer" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Get wget Commands"><i class="fas fa-download"></i> wget</span>
         </div>
       </div>
 

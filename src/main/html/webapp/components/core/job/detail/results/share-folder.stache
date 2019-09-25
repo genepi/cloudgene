@@ -1,13 +1,13 @@
-<h4>Download or share data</h4>
+<h4>Download data</h4>
 
 <div class="card text-center">
   <div class="card-header">
     <ul class="nav nav-tabs card-header-tabs">
 	<li class="nav-item">
-		<a class="nav-link active" href="#wget" data-toggle="tab">wget commands ({{files.length}})</a>
+		<a class="nav-link active" href="#wget" data-toggle="tab">wget ({{files.length}})</a>
 	</li>
 	<li class="nav-item">
-		<a class="nav-link" href="#links" data-toggle="tab">Links to share ({{files.length}})</a>
+		<a class="nav-link" href="#links" data-toggle="tab">URLs ({{files.length}})</a>
 	</li>
 </ul>
 </div>
