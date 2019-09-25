@@ -1,6 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -8,10 +7,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.ReaderRepresentation;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.database.DownloadDao;
@@ -19,7 +16,6 @@ import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
-import genepi.io.FileUtil;
 
 public class ExternalResults extends BaseResource {
 
@@ -38,14 +34,14 @@ public class ExternalResults extends BaseResource {
 			return error404("download not found.");
 		}
 
-		if (!download.getName().equals(filename)){
+		if (!download.getName().endsWith(filename)) {
 			return error404("download not found.");
 		}
-		
+
 		if (download.getCount() == 0) {
 			return error400("number of max downloads exceeded.");
 		}
-		
+
 		MediaType mediaType = MediaType.ALL;
 		if (filename.endsWith(".zip")) {
 			mediaType = MediaType.APPLICATION_ZIP;
@@ -58,22 +54,14 @@ public class ExternalResults extends BaseResource {
 		}
 
 		IExternalWorkspace workspace = ExternalWorkspaceFactory.get(download.getPath());
-		
-		
-		//download.decCount();
-		//dao.update(download);
-
 
 		try {
-			return new ReaderRepresentation(new InputStreamReader(workspace.download(download.getPath())));
+			return new ReaderRepresentation(new InputStreamReader(workspace.download(download.getPath())), mediaType);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return error(Status.CLIENT_ERROR_BAD_REQUEST, e.toString());
 		}
-		
-			
-		
+
 	}
 
 }
