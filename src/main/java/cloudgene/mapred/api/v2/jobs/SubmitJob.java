@@ -275,7 +275,11 @@ public class SubmitJob extends BaseResource {
 
 						if (input.isFolder() && input.getPattern() != null && !input.getPattern().isEmpty()) {
 							String pattern = props.get(input.getId() + "-pattern");
-							params.put(input.getId(), props.get(input.getId()) + "/" + pattern);
+							String value = props.get(input.getId());
+							if (!value.endsWith("/")) {
+								value = value + "/";
+							}
+							params.put(input.getId(), value + pattern);
 						} else {
 
 							if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
