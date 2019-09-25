@@ -111,17 +111,22 @@ public abstract class CloudgeneStep {
 		ProcessBuilder builder = new ProcessBuilder(command);
 		builder.directory(new File(context.getWorkingDirectory()));
 		builder.redirectErrorStream(true);
+		builder.redirectOutput();
 		process = builder.start();
 		InputStream is = process.getInputStream();
 		InputStreamReader isr = new InputStreamReader(is, "ISO-8859-1");
 		BufferedReader br = new BufferedReader(isr);
 		String line = null;
+		try {
 
-		while ((line = br.readLine()) != null) {
-			context.println(line);
-			if (output != null) {
-				output.append(line + "\n");
+			while ((line = br.readLine()) != null) {
+				context.println(line);
+				if (output != null) {
+					output.append(line + "\n");
+				}
 			}
+		} catch (Exception e) {
+			//e.printStackTrace();
 		}
 
 		br.close();
@@ -141,7 +146,15 @@ public abstract class CloudgeneStep {
 
 	public void kill() {
 		if (process != null && process.isAlive()) {
-			process.destroyForcibly();
+			process.destroy();
+			while (process.isAlive()) {
+				try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 			killed = true;
 			context.log("Process killed by used.");
 		}

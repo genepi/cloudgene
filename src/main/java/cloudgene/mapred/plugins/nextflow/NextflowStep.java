@@ -129,7 +129,8 @@ public class NextflowStep extends CloudgeneStep {
 						.getProcesses(makeSecretJobId(context.getJobId()));
 				for (NextflowProcess process : processes) {
 					for (NextflowTask task : process.getTasks()) {
-						if (task.getTrace().getString("status").equals("RUNNING")) {
+						if (task.getTrace().getString("status").equals("RUNNING")
+								|| task.getTrace().getString("status").equals("SUBMITTED")) {
 							task.getTrace().put("status", "KILLED");
 						}
 					}
@@ -174,7 +175,8 @@ public class NextflowStep extends CloudgeneStep {
 			boolean running = false;
 			boolean ok = true;
 			for (NextflowTask task : process.getTasks()) {
-				if (task.getTrace().getString("status").equals("RUNNING")) {
+				if (task.getTrace().getString("status").equals("RUNNING")
+						|| task.getTrace().getString("status").equals("SUBMITTED")) {
 					running = true;
 				}
 				if (!task.getTrace().getString("status").equals("COMPLETED")) {
@@ -191,7 +193,7 @@ public class NextflowStep extends CloudgeneStep {
 					text += "&nbsp;<i class=\"fas fa-check text-success\"></i>";
 				}
 				if (task.getTrace().getString("status").equals("KILLED")
-						|| task.getTrace().getString("status").equals("GAILED")) {
+						|| task.getTrace().getString("status").equals("FAILED")) {
 					text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
 				}
 				text += "</small>";

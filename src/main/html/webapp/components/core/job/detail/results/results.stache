@@ -17,9 +17,11 @@
     </div>
     <br>
 
+  {{else}}
+  <i>This folder is empty.</i>
   {{/is}}
 
 
-
-
+{{else}}
+  <i>This folder is empty.</i>
 {{/job.outputParams}}
