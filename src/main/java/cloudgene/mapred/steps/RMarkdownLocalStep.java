@@ -11,7 +11,6 @@ import cloudgene.mapred.plugins.rscript.RScriptBinary;
 import cloudgene.mapred.plugins.rscript.RScriptFile;
 import cloudgene.mapred.plugins.rscript.RScriptPlugin;
 import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
@@ -64,7 +63,7 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 			}
 			return true;
 		} else {
-			context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
+			context.endTask("Execution failed. Please contact the server administrators for help if you believe this job should have completed successfully.", Message.ERROR);
 			return false;
 		}
 

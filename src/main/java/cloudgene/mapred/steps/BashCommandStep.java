@@ -117,7 +117,7 @@ public class BashCommandStep extends CloudgeneStep {
 				if (streamStdout) {
 					context.endTask(output.toString(), Message.ERROR);
 				} else {
-					context.endTask("Execution failed. Please have a look at the logfile for details.", Message.ERROR);
+					context.endTask("Execution failed. Please contact the server administrators for help if you believe this job should have completed successfully.", Message.ERROR);
 				}
 				return false;
 			}
