@@ -57,9 +57,13 @@ Please fill out the form below to change your account settings or your password.
 			<button class="btn btn-danger" id="revoke_token">Revoke API Token</button>
 		</div>
 	</div>
+  <small class="{{#is(../user.apiTokenValid, false)}}text-danger{{#is}}">{{../user.apiTokenMessage}}</small>
 	{{else}}
 		<button class="btn btn-primary" id="create_token">Create API Token
 	</button>
+
+
+
 {{/user.hasApiToken}}
 
 <hr>

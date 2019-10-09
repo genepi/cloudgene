@@ -64,6 +64,7 @@ import cloudgene.mapred.api.v2.users.RegisterUser;
 import cloudgene.mapred.api.v2.users.ResetPassword;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
 import cloudgene.mapred.api.v2.users.UserProfile;
+import cloudgene.mapred.api.v2.users.VerifyApiToken;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -127,7 +128,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/logout", LogoutUser.class);
 
 		router.attach(prefix + "/api/v2/collect/{job}", NextflowWebLog.class);
-		
+
 		// jobs
 		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
@@ -155,9 +156,12 @@ public class WebApp extends Application {
 		// create, delete, get api token
 		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
 
+		// create, delete, get api token
+		router.attach(prefix + "/api/v2/tokens/verify", VerifyApiToken.class);
+
 		// returns all counters
-		router.attach(prefix + "/api/v2/server", Server.class);		
-		
+		router.attach(prefix + "/api/v2/server", Server.class);
+
 		// returns all counters
 		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
 
@@ -203,14 +207,13 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 		router.attach(prefix + "/downloads/{hash}/{filename}", ExternalResults.class);
 
-		
 		// download resources
 		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
-		
+
 		TemplateRoute route2 = router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
-        Map routeVariables = route2.getTemplate().getVariables();
-        routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
-		
+		Map routeVariables = route2.getTemplate().getVariables();
+		routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
+
 		router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
 		router.attach(prefix + "/logs/{id}", GetLogs.class);
 
@@ -261,7 +264,7 @@ public class WebApp extends Application {
 	public void setWorkflowEngine(WorkflowEngine workflowEngine) {
 		this.workflowEngine = workflowEngine;
 	}
-	
+
 	public void reloadTemplates() {
 		TemplateDao dao = new TemplateDao(database);
 		List<cloudgene.mapred.util.Template> templates = dao.findAll();

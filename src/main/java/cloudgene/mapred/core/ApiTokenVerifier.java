@@ -1,0 +1,87 @@
+package cloudgene.mapred.core;
+
+import java.util.Date;
+
+import org.json.JSONObject;
+import org.restlet.representation.StringRepresentation;
+
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACVerifier;
+
+import cloudgene.mapred.database.UserDao;
+import genepi.db.Database;
+
+public class ApiTokenVerifier {
+
+	public static JSONObject verify(String token, String secretKey, Database database) {
+
+		if (token.isEmpty()) {
+			JSONObject result = new JSONObject();
+			result.put("valid", false);
+			return result;
+		}
+
+		try {
+
+			JWSVerifier verifier = new MACVerifier(secretKey);
+			JWSObject jwsObject = JWSObject.parse(token);
+
+			if (jwsObject.verify(verifier)) {
+				// read valid-until and check
+				net.minidev.json.JSONObject payload = jwsObject.getPayload().toJSONObject();
+
+				User user = getUser(database, payload);
+				if (user == null) {
+					payload.put("valid", false);
+					payload.put("message", "Invalid Usern mae in API Token.");
+				} else {
+
+					Date expire = new Date((Long) payload.get("expire"));
+
+					if (((Long) payload.get("expire")) > System.currentTimeMillis()) {
+
+						// check if api key is on users whitelist
+						if (user.getApiToken().equals(token)) {
+							payload.put("valid", true);
+							payload.put("message", "API Token was created by " + user.getUsername()
+									+ " and is valid until " + expire + ".");
+						} else {
+							payload.put("valid", false);
+							payload.put("message", "API Token revoked by user.");
+						}
+					} else {
+						payload.put("valid", false);
+						payload.put("message",
+								"API Token was created by " + user.getUsername() + " and expired on " + expire + ".");
+					}
+				}
+
+				return new JSONObject(payload.toJSONString());
+
+			} else {
+				JSONObject result = new JSONObject();
+				result.put("valid", false);
+				result.put("message", "API Token is not valid.");
+				return result;
+			}
+
+		} catch (Exception e1) {
+			JSONObject result = new JSONObject();
+			result.put("valid", false);
+			result.put("error", "Unkown error.");
+			return result;
+		}
+
+	}
+
+	public static User getUser(Database database, net.minidev.json.JSONObject payload) {
+		String username = payload.get("username").toString();
+		if (username != null) {
+			UserDao userDao = new UserDao(database);
+			return userDao.findByUsername(username);
+		} else {
+			return null;
+		}
+	}
+}

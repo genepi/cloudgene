@@ -88,6 +88,8 @@ export default Control.extend({
 
     userToken.save(function(responseText) {
       user.attr('hasApiToken', true);
+      user.attr('apiTokenValid', true);
+      user.attr('apiTokenMessage', "");
       bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
     }, function(message) {
       bootbox.alert('<h4>API Token</h4>Error: ' + message);
@@ -107,6 +109,8 @@ export default Control.extend({
         userToken.attr('id', 'luki');
         userToken.destroy(function() {
           user.attr('hasApiToken', false);
+          user.attr('apiTokenValid', true);
+          user.attr('apiTokenMessage', "");
           bootbox.alert('<h4>API Token</h4>Your token is now inactive.');
         }, function(response) {
           bootbox.alert('<h4>API Token</h4>Error: ' + response);
