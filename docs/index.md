@@ -10,9 +10,12 @@ This page helps you to install, configure and running Cloudgene.
 You will need the following things properly installed on your computer.
 
 * [Java 8 or higher](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-* [Hadoop](http://hadoop.apache.org/) (Optional) Step by step tutorials about the installation of Hadoop can be found on this [page]().
-* [Docker](https://www.docker.com/) (Optional)
-* MySQL Server (Optional)
+
+### Optional
+
+* [Docker](https://www.docker.com/)
+* MySQL Server
+* [Hadoop](http://hadoop.apache.org/):  Step by step tutorials about the installation of Hadoop can be found on this [page]().
 
 
 ## Download and Installation

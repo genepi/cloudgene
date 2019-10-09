@@ -1,4 +1,4 @@
-site_name: Cloudgene 2.0.0 RC1
+site_name: Cloudgene 2.0.0
 theme:
   name: material
   feature:
@@ -12,16 +12,16 @@ pages:
 - Cloudgene:
     - Installation: index.md
     - Getting Started: daemon/getting-started.md
+    - Install Applications: daemon/install-apps.md
     - Configuration:
         - Settings File: daemon/configuration.md
         - Enable Hadoop Support: daemon/hadoop.md
         - Customization: daemon/customization.md
-    - Install Applications: daemon/install-apps.md
     - Manage Permissions: daemon/permissions.md
     - Manage Jobs: daemon/jobs.md
     - Administration: daemon/administration.md
 
-- Cloudgene CLI:
+- Usage:
     - Introduction: cli/introduction.md
     - cloudgene install: cli/cloudgene-install.md
     - cloudgene github-install: cli/cloudgene-github-install.md
