@@ -17,8 +17,6 @@
     </div>
     <br>
 
-  {{else}}
-  <i>This folder is empty.</i>
   {{/is}}
 
 

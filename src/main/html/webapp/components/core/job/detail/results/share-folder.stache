@@ -1,6 +1,6 @@
 <h4>Download data</h4>
 
-<div class="card text-center">
+<div id="card-share-folder" class="card">
   <div class="card-header">
     <ul class="nav nav-tabs card-header-tabs">
 	<li class="nav-item">
@@ -14,12 +14,20 @@
 <div class="card-body">
 <div id="myTabContent" class="tab-content">
 	<div class="tab-pane active" id="wget">
-	<textarea class="form-control" id="message" rows="10" wrap="off">{{#files}}wget {{../hostname}}/share/results/{{hash}}/{{name}}
-{{/files}}</textarea>
-	</div>
+	<textarea class="form-control form-control-sm code-font" id="message" rows="5" wrap="off">{{#files}}wget {{../hostname}}/share/results/{{hash}}/{{name}}
+{{/files}}</textarea><br>
+<small>Use the following command to download all results at once:</small>
+  <div class="input-group mb-3">
+    <input id="curl" value="curl -sL {{hostname}}/get/{{id}}/{{hash}} | bash" class="form-control form-control-sm code-font" />
+    <div class="input-group-append">
+      <button class="btn btn-outline-secondary btn-sm" id="btn-copy" type="button" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy"></i></button>
+    </div>
+  </div>
+</div>
 	<div class="tab-pane" id="links">
-		 <textarea class="form-control" id="message" rows="10" wrap="off">{{#files}}{{../hostname}}/share/results/{{hash}}/{{name}}
+		 <textarea class="form-control form-control-sm code-font" id="message" rows="8" wrap="off">{{#files}}{{../hostname}}/share/results/{{hash}}/{{name}}
 {{/files}}</textarea>
 	</div>
+</div>
 </div>
 </div>

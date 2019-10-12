@@ -3,6 +3,7 @@ package cloudgene.mapred.jobs;
 import java.util.List;
 import java.util.Vector;
 
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 
@@ -21,7 +22,7 @@ public class CloudgeneParameterOutput {
 	private String name = "";
 
 	private List<Download> files;
-	
+
 	private List<JobResultsTreeItem> tree;
 
 	private CloudgeneJob job;
@@ -39,6 +40,8 @@ public class CloudgeneParameterOutput {
 	private boolean removeHeader = true;
 
 	private boolean adminOnly = false;
+
+	private String hash = "";
 
 	public CloudgeneParameterOutput() {
 
@@ -177,13 +180,29 @@ public class CloudgeneParameterOutput {
 	public boolean isAdminOnly() {
 		return adminOnly;
 	}
-	
+
 	public void setTree(List<JobResultsTreeItem> tree) {
 		this.tree = tree;
 	}
-	
+
 	public List<JobResultsTreeItem> getTree() {
 		return tree;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
+	public String getHash() {
+		return hash;
+	}
+	
+	public String createHash() {
+		String hash = "";
+		for (Download download: files) {
+			hash += download.getHash();
+		}
+		return HashUtil.getMD5(hash);
 	}
 
 }

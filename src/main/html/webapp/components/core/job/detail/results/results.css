@@ -33,3 +33,8 @@
 .file-item-icon {
   margin-left: 20px;
 }
+
+.code-font{
+  font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  font-size: 0.75rem !important;
+}

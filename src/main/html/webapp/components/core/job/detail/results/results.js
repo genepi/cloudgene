@@ -7,6 +7,7 @@ import template from './results.stache';
 import templateShareFolder from './share-folder.stache';
 import templateShareFile from './share-file.stache';
 import './results.css';
+import ShareFolder from './share-folder';
 
 
 export default Control.extend({
@@ -31,13 +32,15 @@ export default Control.extend({
   '.share-folder-btn click': function(el) {
     var tr = $(el).closest('div');
     var param = domData.get.call(tr[0], 'param');
-    var files = param.attr('files');
     bootbox.alert(templateShareFolder({
       hostname: location.protocol + '//' + location.host,
-      files: files
+      files: param.attr('files'),
+      hash: param.attr('hash'),
+      id: param.attr('id')
     }), function() {
 
     });
+    new ShareFolder("#card-share-folder");
   },
 
   // file tree (collapsible folders)

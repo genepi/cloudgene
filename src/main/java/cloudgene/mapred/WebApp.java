@@ -209,17 +209,17 @@ public class WebApp extends Application {
 		router.attach(prefix + "/downloads/{hash}/{filename}", ExternalResults.class);
 
 		// download resources
-		router.attach(prefix + "/download/{job}/{id}/{hash}", DownloadScriptResults.class);
+		router.attach(prefix + "/get/{id}/{hash}", DownloadScriptResults.class);
 		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
 
 		TemplateRoute route2 = router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
 		Map routeVariables = route2.getTemplate().getVariables();
 		routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
-		
+
 		TemplateRoute route3 = router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
 		Map routeVariables3 = route3.getTemplate().getVariables();
 		routeVariables3.put("filename", new Variable(Variable.TYPE_URI_PATH));
-		
+
 		router.attach(prefix + "/logs/{id}", GetLogs.class);
 
 		// ------------------

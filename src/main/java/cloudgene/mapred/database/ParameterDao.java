@@ -153,6 +153,36 @@ public class ParameterDao extends JdbcDataAccessObject {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public CloudgeneParameterOutput findById(int id) {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from parameter ");
+		sql.append("where id = ?");
+
+		Object[] params = new Object[1];
+		params[0] = id;
+
+		CloudgeneParameterOutput result = null;
+
+		try {
+
+			result = (CloudgeneParameterOutput) queryForObject(sql.toString(), params, new ParameterOutputMapper());
+
+			DownloadDao downloadDao = new DownloadDao(database);
+			List<Download> downloads = downloadDao.findAllByParameter(result);
+			result.setFiles(downloads);
+
+			log.debug("find parameter by id '" + id + "' successful.");
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find parameter by id '" + id + "' failed.", e);
+			return null;
+		}
+	}
+
 	class ParameterInputMapper implements IRowMapper {
 
 		@Override
