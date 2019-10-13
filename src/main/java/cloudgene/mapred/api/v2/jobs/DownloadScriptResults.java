@@ -51,18 +51,20 @@ public class DownloadScriptResults extends BaseResource {
 
 		StringBuffer script = new StringBuffer();
 		script.append("#!/bin/bash\n");
-		script.append(" set -e\n");
+		script.append("set -e\n");
+		script.append("GREEN='\033[0;32m'\n");
+		script.append("NC='\033[0m'\n");
 		int i = 1;
 		for (Download download : downloads) {
 			script.append("echo \"\"\n");
 			script.append(
 					"echo \"Downloading file " + download.getName() + " (" + i + "/" + downloads.size() + ")...\"\n");
-			script.append("curl " + hostname + "/share/results/" + download.getHash() + "/" + download.getName()
+			script.append("curl -L " + hostname + "/share/results/" + download.getHash() + "/" + download.getName()
 					+ " -o " + download.getName() + " --create-dirs \n");
 			i++;
 		}
 		script.append("echo \"\"\n");
-		script.append("echo \"All " + downloads.size() + " file(s) downloaded.\"\n");
+		script.append("echo -e \"${GREEN}All " + downloads.size() + " file(s) downloaded.${NC}\"\n");
 		script.append("echo \"\"\n");
 		script.append("echo \"\"\n");
 		return new StringRepresentation(script.toString());
