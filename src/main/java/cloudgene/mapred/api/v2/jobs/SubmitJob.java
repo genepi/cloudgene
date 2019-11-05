@@ -296,6 +296,8 @@ public class SubmitJob extends BaseResource {
 					}
 				}
 			}
+			
+			params.put("job-name", props.get("job-name"));
 
 		} catch (Exception e) {
 			e.printStackTrace();
