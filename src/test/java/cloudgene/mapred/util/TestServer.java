@@ -245,20 +245,8 @@ public class TestServer {
 
 			database.connect(connector);
 
-			if (connector.isNewDatabase()) {
-
-				// init schema
-				InputStream is = Main.class.getResourceAsStream("/create-tables.sql");
-				connector.executeSQL(is);
-
-				File versionFile = new File("version.txt");
-				if (versionFile.exists()) {
-					versionFile.delete();
-				}
-			}
-
 			InputStream is = Main.class.getResourceAsStream("/updates.sql");
-			DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, "version.txt", is, Main.VERSION);
+			DatabaseUpdater askimedUpdater = new DatabaseUpdater(database, "version.txt", is, Main.VERSION);
 			if (askimedUpdater.needUpdate()) {
 				if (!askimedUpdater.update()) {
 					database.disconnect();
