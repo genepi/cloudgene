@@ -152,31 +152,13 @@ public class Main implements Daemon {
 		// update database schema if needed
 		log.info("Setup Database...");
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
-
-		if (askimedUpdater.needUpdate()) {
-			log.info("Database needs update...");
-			if (!askimedUpdater.update()) {
-				log.error("Updating database failed.");
-				database.disconnect();
-				System.exit(1);
-			}
-		} else {
-			log.info("Database is uptodate.");
-			if (!askimedUpdater.isVersionTableAvailable(database)) {
-				askimedUpdater.writeVersion(Main.VERSION);
-			}
-		}
-
-		String dbVersion = askimedUpdater.readVersionDB();
-		log.info("Database Version: " + askimedUpdater.readVersionDB());
-		log.info("Cloudgene Version: " + Main.VERSION);
 		
-		if (!dbVersion.equals(Main.VERSION)) {
-			log.error("Cloudgene and DB version does not match.");
+		DatabaseUpdater appUpdater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
+
+		if(!appUpdater.updateDB()) {
 			System.exit(-1);
 		}
-
+		
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
 		FileUtil.createDirectory(settings.getLocalWorkspace());
