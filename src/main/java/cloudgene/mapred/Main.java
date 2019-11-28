@@ -68,7 +68,7 @@ public class Main implements Daemon {
 
 		log.info("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
-		
+
 		// load cloudgene.conf file. contains path to settings, db, apps, ..
 		Config config = new Config();
 		if (new File(Config.CONFIG_FILENAME).exists()) {
@@ -91,7 +91,7 @@ public class Main implements Daemon {
 				System.exit(1);
 			}
 		}
-		
+
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);
 
@@ -149,24 +149,13 @@ public class Main implements Daemon {
 
 		}
 
-		// init schema
-		if (connector.isNewDatabase()) {
-
-			InputStream is = Main.class.getResourceAsStream("/create-tables.sql");
-			connector.executeSQL(is);
-
-			File versionFile = new File(config.getVersion());
-			if (versionFile.exists()) {
-				versionFile.delete();
-			}
-		}
-
 		// update database schema if needed
+		log.info("Setup Database...");
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, config.getVersion(), is, VERSION);
+		DatabaseUpdater askimedUpdater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
 
 		if (askimedUpdater.needUpdate()) {
-			log.info("Database needs update.");
+			log.info("Database needs update...");
 			if (!askimedUpdater.update()) {
 				log.error("Updating database failed.");
 				database.disconnect();
@@ -174,6 +163,18 @@ public class Main implements Daemon {
 			}
 		} else {
 			log.info("Database is uptodate.");
+			if (!askimedUpdater.isVersionTableAvailable(database)) {
+				askimedUpdater.writeVersion(Main.VERSION);
+			}
+		}
+
+		String dbVersion = askimedUpdater.readVersionDB();
+		log.info("Database Version: " + askimedUpdater.readVersionDB());
+		log.info("Cloudgene Version: " + Main.VERSION);
+		
+		if (!dbVersion.equals(Main.VERSION)) {
+			log.error("Cloudgene and DB version does not match.");
+			System.exit(-1);
 		}
 
 		// create directories
