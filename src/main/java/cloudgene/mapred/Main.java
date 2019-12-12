@@ -37,7 +37,7 @@ import genepi.io.FileUtil;
 
 public class Main implements Daemon {
 
-	public static final String VERSION = "2.0.3";
+	public static final String VERSION = "2.0.4";
 
 	private Database database;
 
@@ -68,7 +68,7 @@ public class Main implements Daemon {
 
 		log.info("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
-		
+
 		// load cloudgene.conf file. contains path to settings, db, apps, ..
 		Config config = new Config();
 		if (new File(Config.CONFIG_FILENAME).exists()) {
@@ -91,7 +91,7 @@ public class Main implements Daemon {
 				System.exit(1);
 			}
 		}
-		
+
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);
 
@@ -149,33 +149,16 @@ public class Main implements Daemon {
 
 		}
 
-		// init schema
-		if (connector.isNewDatabase()) {
-
-			InputStream is = Main.class.getResourceAsStream("/create-tables.sql");
-			connector.executeSQL(is);
-
-			File versionFile = new File(config.getVersion());
-			if (versionFile.exists()) {
-				versionFile.delete();
-			}
-		}
-
 		// update database schema if needed
+		log.info("Setup Database...");
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
-		DatabaseUpdater askimedUpdater = new DatabaseUpdater(connector, config.getVersion(), is, VERSION);
+		
+		DatabaseUpdater appUpdater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
 
-		if (askimedUpdater.needUpdate()) {
-			log.info("Database needs update.");
-			if (!askimedUpdater.update()) {
-				log.error("Updating database failed.");
-				database.disconnect();
-				System.exit(1);
-			}
-		} else {
-			log.info("Database is uptodate.");
+		if(!appUpdater.updateDB()) {
+			System.exit(-1);
 		}
-
+		
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
 		FileUtil.createDirectory(settings.getLocalWorkspace());
