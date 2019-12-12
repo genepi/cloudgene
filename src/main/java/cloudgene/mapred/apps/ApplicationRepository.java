@@ -302,6 +302,11 @@ public class ApplicationRepository {
 					String relativeKey = summary.getKey().replaceAll(baseKey, "");
 					String target = FileUtil.path(appPath, relativeKey);
 					File file = new File(target);
+					// create parent folder
+					File parent = file.getParentFile();
+					if (!parent.exists()) {
+						parent.mkdirs();
+					}
 					System.out.println("Copy file from " + bucket + "/" + key + " to " + target);
 					S3Util.copyToFile(bucket, key, file);
 				}
@@ -552,13 +557,13 @@ public class ApplicationRepository {
 			String content = FileUtil.readFileAsString(nextflowProfile);
 			config.put("nextflow.profile", content);
 		}
-		
+
 		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
 		if (new File(nextflowWork).exists()) {
 			String content = FileUtil.readFileAsString(nextflowWork);
 			config.put("nextflow.work", content);
 		}
-		
+
 		return config;
 
 	}
@@ -582,7 +587,7 @@ public class ApplicationRepository {
 		content = config.get("nextflow.work");
 		StringBuffer contentNextflowWork = new StringBuffer(content == null ? "" : content);
 		FileUtil.writeStringBufferToFile(nextflowWork, contentNextflowWork);
-		
+
 	}
 
 }
