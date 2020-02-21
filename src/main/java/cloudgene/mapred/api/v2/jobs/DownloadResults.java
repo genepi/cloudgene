@@ -1,13 +1,12 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.io.File;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
 import cloudgene.mapred.core.User;
@@ -16,6 +15,8 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
 import genepi.io.FileUtil;
@@ -55,17 +56,6 @@ public class DownloadResults extends BaseResource {
 				return error403("Access denied.");
 			}
 
-			MediaType mediaType = MediaType.ALL;
-			if (filename.endsWith(".zip")) {
-				mediaType = MediaType.APPLICATION_ZIP;
-			} else if (filename.endsWith(".txt") || filename.endsWith(".csv")) {
-				mediaType = MediaType.TEXT_PLAIN;
-			} else if (filename.endsWith(".pdf")) {
-				mediaType = MediaType.APPLICATION_PDF;
-			} else if (filename.endsWith(".html")) {
-				mediaType = MediaType.TEXT_HTML;
-			}
-
 			DownloadDao dao = new DownloadDao(getDatabase());
 			Download download = dao.findByJobAndPath(jobId, FileUtil.path(paramId, filename));
 
@@ -73,47 +63,62 @@ public class DownloadResults extends BaseResource {
 			// autoexport params
 			if (download == null) {
 				for (CloudgeneParameterOutput param : job.getOutputParams()) {
-					if (param.isAutoExport()) {
-						if (param.getFiles() != null) {
-							for (Download download2 : param.getFiles()) {
-								if (download2.getPath().equals(jobId + "/" + FileUtil.path(paramId, filename))) {
-									download = download2;
-								}
+					if (param.isAutoExport() && param.getFiles() != null) {
+						for (Download download2 : param.getFiles()) {
+							if (download2.getPath().equals(FileUtil.path(jobId, paramId, filename))) {
+								download = download2;
 							}
 						}
 					}
 				}
 			}
 
-			if (download == null) {
-				String localFile = FileUtil.path(getSettings().getLocalWorkspace(), jobId,
-						FileUtil.path(paramId, filename));
-				System.out.println(localFile);
-				if (new File(localFile).exists()) {
-					return new FileRepresentation(localFile, mediaType);
-				}
-				return error404("download not found.");
-			}
 
 			if (download.getCount() == 0) {
 				return error400("number of max downloads exceeded.");
 			}
-
-			String resultFile = FileUtil.path(getSettings().getLocalWorkspace(), download.getPath());
-
-			log.debug("Downloading file " + resultFile);
 
 			// update download counter if it not set to unlimited
 			if (download.getCount() != -1) {
 				download.decCount();
 				dao.update(download);
 			}
-			return new FileRepresentation(resultFile, mediaType);
+
+			IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
+			if (externalWorkspace != null) {
+				// external workspace found, use link method and create redirect response
+				String publicUrl = externalWorkspace.createPublicLink(download.getPath());
+				redirectTemporary(publicUrl);
+				return new StringRepresentation(publicUrl);
+			} else {
+				// no external workspace found, use local workspace
+				String localWorkspace = getSettings().getLocalWorkspace();
+				String resultFile = FileUtil.path(localWorkspace, download.getPath());
+				log.debug("Downloading file from local workspace " + resultFile);
+				MediaType mediaType = getMediaType(download.getPath());
+				return new FileRepresentation(resultFile, mediaType);
+			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Processing download failed.", e);
+			return error(Status.CLIENT_ERROR_BAD_REQUEST, "Processing download failed.");
 		}
-		return error(Status.CLIENT_ERROR_BAD_REQUEST, "oje");
+	}
+
+	public static MediaType getMediaType(String filename) {
+
+		if (filename.endsWith(".zip")) {
+			return MediaType.APPLICATION_ZIP;
+		} else if (filename.endsWith(".txt") || filename.endsWith(".csv")) {
+			return MediaType.TEXT_PLAIN;
+		} else if (filename.endsWith(".pdf")) {
+			return MediaType.APPLICATION_PDF;
+		} else if (filename.endsWith(".html")) {
+			return MediaType.TEXT_HTML;
+		} else {
+			return MediaType.ALL;
+		}
+
 	}
 
 }

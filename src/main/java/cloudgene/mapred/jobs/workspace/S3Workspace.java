@@ -3,9 +3,15 @@ package cloudgene.mapred.jobs.workspace;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 
@@ -14,10 +20,14 @@ import genepi.hadoop.S3Util;
 
 public class S3Workspace implements IExternalWorkspace {
 
+	public static long EXPIRATION_MS = 1000 * 60 * 60;
+	
+	private static final Log log = LogFactory.getLog(S3Workspace.class);
+	
 	private String location;
 
 	private AbstractJob job;
-
+	
 	public S3Workspace(String location) {
 		this.location = location;
 	}
@@ -71,8 +81,31 @@ public class S3Workspace implements IExternalWorkspace {
 
 	@Override
 	public void delete(AbstractJob job) throws IOException {
-		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public String createPublicLink(String url) {
+		
+		String bucket = S3Util.getBucket(url);
+		String key = S3Util.getKey(url);
+		
+		AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
 
+		java.util.Date expiration = new java.util.Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += EXPIRATION_MS;
+        expiration.setTime(expTimeMillis);
+
+        // Generate the presigned URL.
+        log.debug("Generating pre-signed URL for "  + url + "...");
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucket, key)
+                        .withMethod(HttpMethod.GET)
+                        .withExpiration(expiration);
+        URL publicUrl = s3.generatePresignedUrl(generatePresignedUrlRequest);
+        log.debug("Pre-signed URL for "  + url + " generated. Link: " + publicUrl.toString());
+				return publicUrl.toString();
 	}
 
 }
