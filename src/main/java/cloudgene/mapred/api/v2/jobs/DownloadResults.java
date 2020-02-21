@@ -73,6 +73,9 @@ public class DownloadResults extends BaseResource {
 				}
 			}
 
+			if (download == null) {
+				return error404("download not found.");
+			}
 
 			if (download.getCount() == 0) {
 				return error400("number of max downloads exceeded.");
