@@ -9,6 +9,8 @@ import org.apache.commons.logging.LogFactory;
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
@@ -26,29 +28,41 @@ public class CleanUpTasks {
 		List<AbstractJob> oldJobs = dao.findAllNotifiedJobs();
 
 		int deleted = 0;
+
+		IExternalWorkspace externalWorkspace = null;
+		if (!settings.getExternalWorkspaceLocation().isEmpty()) {
+			String externalOutput = settings.getExternalWorkspaceLocation();
+			externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
+		}
+
 		for (AbstractJob job : oldJobs) {
 
 			if (job.getDeletedOn() < System.currentTimeMillis()) {
 
 				// delete local directory and hdfs directory
-				String localOutput = FileUtil.path(
-						settings.getLocalWorkspace(), job.getId());
+				String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 				FileUtil.deleteDirectory(localOutput);
-				
+
 				try {
-				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(
-						settings.getHdfsWorkspace(), job.getId()));				
-				HdfsUtil.delete(hdfsOutput);
-				}catch (NoClassDefFoundError e) {
+					String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
+					HdfsUtil.delete(hdfsOutput);
+				} catch (NoClassDefFoundError e) {
 					// TODO: handle exception
 				}
-				
-				
+
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 
 				log.info("Job " + job.getId() + " retired.");
 				deleted++;
+
+				if (externalWorkspace != null) {
+					try {
+						externalWorkspace.delete(job);
+					} catch (Exception e) {
+						log.error("Retire " + job.getId() + " failed.", e);
+					}
+				}
 
 			}
 
@@ -56,9 +70,9 @@ public class CleanUpTasks {
 
 		File workspace = new File(settings.getLocalWorkspace());
 
-		int free =  Math.round(workspace.getFreeSpace() / 1024 / 1024 / 1024);		
+		int free = Math.round(workspace.getFreeSpace() / 1024 / 1024 / 1024);
 		MailUtil.notifySlack(settings, "Hi! I retired " + deleted + " jobs. There are now " + free + " GB free :+1:");
-		
+
 		log.info(deleted + " jobs retired.");
 		return deleted;
 	}

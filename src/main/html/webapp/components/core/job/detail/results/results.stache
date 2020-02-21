@@ -12,7 +12,7 @@
       </div>
 
       <div class="list-group-item flex-column align-items-start">
-        <p class="mb-1">{{{renderTree(tree)}}}</p>
+        <p class="mb-1">{{{renderTree(../job.id, tree)}}}</p>
       </div>
     </div>
     <br>
