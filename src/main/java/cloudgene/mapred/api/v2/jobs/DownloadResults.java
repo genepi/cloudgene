@@ -12,6 +12,7 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.ParameterDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
@@ -59,13 +60,19 @@ public class DownloadResults extends BaseResource {
 			DownloadDao dao = new DownloadDao(getDatabase());
 			Download download = dao.findByJobAndPath(jobId, FileUtil.path(paramId, filename));
 
+			System.out.println("paramId:" + paramId);
+			System.out.println("filename:" + filename);
+
 			// job is running and not in database --> download possible of
 			// autoexport params
 			if (download == null) {
 				for (CloudgeneParameterOutput param : job.getOutputParams()) {
-					if (param.isAutoExport() && param.getFiles() != null) {
+					if ((param.isAutoExport() || !job.isRunning()) && param.getFiles() != null) {
 						for (Download download2 : param.getFiles()) {
 							if (download2.getPath().equals(FileUtil.path(jobId, paramId, filename))) {
+								download = download2;
+							}
+							if (download2.getName().equals(filename)) {
 								download = download2;
 							}
 						}
