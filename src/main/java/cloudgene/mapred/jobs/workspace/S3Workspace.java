@@ -74,7 +74,7 @@ public class S3Workspace implements IExternalWorkspace {
 		String bucket = S3Util.getBucket(url);
 		String key = S3Util.getKey(url);
 
-		final AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
+		AmazonS3 s3 = S3Util.getAmazonS3();
 
 		S3Object o = s3.getObject(bucket, key);
 		S3ObjectInputStream s3is = o.getObjectContent();
@@ -95,7 +95,7 @@ public class S3Workspace implements IExternalWorkspace {
 			String bucket = S3Util.getBucket(url);
 			String key = S3Util.getKey(url);
 
-			AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
+			AmazonS3 s3 = S3Util.getAmazonS3();
 
 			log.debug("Deleting " + job.getId() + " on S3 workspace...");
 
@@ -129,7 +129,7 @@ public class S3Workspace implements IExternalWorkspace {
 		String bucket = S3Util.getBucket(url);
 		String key = S3Util.getKey(url);
 
-		AmazonS3 s3 = AmazonS3ClientBuilder.defaultClient();
+		AmazonS3 s3 = S3Util.getAmazonS3();
 
 		java.util.Date expiration = new java.util.Date();
 		long expTimeMillis = expiration.getTime();
