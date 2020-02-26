@@ -60,9 +60,6 @@ public class DownloadResults extends BaseResource {
 			DownloadDao dao = new DownloadDao(getDatabase());
 			Download download = dao.findByJobAndPath(jobId, FileUtil.path(paramId, filename));
 
-			System.out.println("paramId:" + paramId);
-			System.out.println("filename:" + filename);
-
 			// job is running and not in database --> download possible of
 			// autoexport params
 			if (download == null) {
@@ -72,7 +69,7 @@ public class DownloadResults extends BaseResource {
 							if (download2.getPath().equals(FileUtil.path(jobId, paramId, filename))) {
 								download = download2;
 							}
-							if (download2.getName().equals(filename)) {
+							if (download2.getPath().startsWith("s3://") && download2.getName().equals(filename)) {
 								download = download2;
 							}
 						}
