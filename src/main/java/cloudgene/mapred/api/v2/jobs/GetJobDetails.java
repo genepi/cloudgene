@@ -15,9 +15,12 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PublicUser;
+import cloudgene.mapred.util.Settings;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
@@ -28,13 +31,13 @@ public class GetJobDetails extends BaseResource {
 
 	@Get
 	public Representation get(Representation entity, Variant variant) {
-				
+
 		User user = getAuthUser();
 
 		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
 			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "This functionality is currently under maintenance.");
 		}
-		
+
 		String id = getAttribute("job");
 
 		if (id == null) {
@@ -83,7 +86,7 @@ public class GetJobDetails extends BaseResource {
 			}
 		}
 		job.getOutputParams().removeAll(adminParams);
-	
+
 		// set log if user is admin
 		if (user.isAdmin()) {
 			job.setLogs("logs/" + job.getId());
@@ -95,9 +98,8 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		object.put("username", job.getUser().getUsername());
-		
-		return new StringRepresentation(object.toString(),
-				MediaType.APPLICATION_JSON);
+
+		return new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 	}
 
 	@Delete
@@ -128,22 +130,33 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		// delete local directory and hdfs directory
-		String localOutput = FileUtil.path(getSettings().getLocalWorkspace(),
-				job.getId());
+		String localOutput = FileUtil.path(getSettings().getLocalWorkspace(), job.getId());
 
 		FileUtil.deleteDirectory(localOutput);
 
 		try {
-		String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(getSettings()
-				.getHdfsWorkspace(), job.getId()));
-		HdfsUtil.delete(hdfsOutput);
-		}catch (NoClassDefFoundError e) {
+			String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(getSettings().getHdfsWorkspace(), job.getId()));
+			HdfsUtil.delete(hdfsOutput);
+		} catch (NoClassDefFoundError e) {
 			// TODO: handle exception
 		}
 
 		// delete job from database
 		job.setState(AbstractJob.STATE_DELETED);
 		dao.update(job);
+
+		Settings settings = getSettings();
+
+		IExternalWorkspace externalWorkspace = null;
+		if (!settings.getExternalWorkspaceLocation().isEmpty()) {
+			String externalOutput = settings.getExternalWorkspaceLocation();
+			externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
+			try {
+				externalWorkspace.delete(job);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
 		JSONObject object = JSONConverter.convert(job);
 

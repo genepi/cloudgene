@@ -8,6 +8,8 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Settings;
 import genepi.hadoop.HdfsUtil;
@@ -55,18 +57,33 @@ public class ArchiveJob extends BaseResource {
 
 			try {
 
+				IExternalWorkspace externalWorkspace = null;
+				if (!settings.getExternalWorkspaceLocation().isEmpty()) {
+					String externalOutput = settings.getExternalWorkspaceLocation();
+					externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(),
+							externalOutput);
+				}
+
 				// delete local directory and hdfs directory
 				String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 				FileUtil.deleteDirectory(localOutput);
 
 				try {
-				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
-				HdfsUtil.delete(hdfsOutput);
-				}catch (NoClassDefFoundError e) {
-					
+					String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
+					HdfsUtil.delete(hdfsOutput);
+				} catch (NoClassDefFoundError e) {
+
 				}
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
+
+				if (externalWorkspace != null) {
+					try {
+						externalWorkspace.delete(job);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 
 				return new StringRepresentation("Retired job " + jobId);
 

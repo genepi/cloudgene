@@ -18,4 +18,6 @@ public interface IExternalWorkspace {
 	
 	public String getName();
 	
+	public String createPublicLink(String url);
+	
 }

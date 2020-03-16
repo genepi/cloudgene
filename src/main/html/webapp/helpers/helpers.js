@@ -30,18 +30,18 @@ String.prototype.replaceAll = function(search, replacement) {
   return target.replace(new RegExp(search, 'g'), replacement);
 };
 
-function renderTreeItem(items, level) {
+function renderTreeItem(jobId, items, level) {
   var html = '<ul class="folder ' + (level > 0 ? 'sub-folder' : 'root-folder') + '">';
   for (var i = 0; i < items.length; i++) {
     html += '<li>';
     if (items[i].folder == true) {
       html += '<i class="fas fa-angle-right folder-item text-muted fa-fw"></i>&nbsp;';
       html += '<span class="folder-item-text fa-fw"><i class="fas fa-folder text-muted"></i>&nbsp' + items[i].name + '</span>';
-      html += renderTreeItem(items[i].childs, level + 1);
+      html += renderTreeItem(jobId, items[i].childs, level + 1);
     } else {
       html += '<i class="far fa-file-alt text-muted fa-fw file-item-icon""></i>&nbsp;'
       if (items[i].path.startsWith('s3://')) {
-        html += '<a class="file-item" href="downloads/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
+        html += '<a class="file-item" href="downloads/' + jobId + '/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
       } else {
         html += '<a class="file-item" href="results/' + items[i].path + '" target="_blank">' + items[i].name + '</a>';
       }
@@ -53,8 +53,8 @@ function renderTreeItem(items, level) {
   return html;
 }
 
-stache.registerHelper('renderTree', function(item) {
-  return renderTreeItem(item, 0);
+stache.registerHelper('renderTree', function(jobId, item) {
+  return renderTreeItem(jobId, item, 0);
 });
 
 stache.registerHelper('replaceNL', function(value, total) {
