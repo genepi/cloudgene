@@ -7,7 +7,7 @@ When you execute workflows with Hadoop steps, Cloudgene needs to know where the 
 
 ## Copy the Configuration Files from Cluster to Cloudgene
 
-When you plan to run Cloudgene on a different server than the Namenode, then you have to copy the confioguration files from the cluster to your Cloudgene instance.
+When you plan to run Cloudgene on a different server than the Namenode, then you have to copy the configuration files from the cluster to your Cloudgene instance.
 
 Copy the following configuration files from the `$HADOOP_HOME/conf` on your Namenode to a directory on your Cloudgene instance (e.g. `/path/to/cloudgene/hadoop-conf/`):
 
