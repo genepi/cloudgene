@@ -20,7 +20,6 @@ import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -29,9 +28,8 @@ import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 import cloudgene.mapred.wdl.WdlStep;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.S3Util;
-import genepi.hadoop.importer.FileItem;
 import genepi.io.FileUtil;
 
 public class CloudgeneJob extends AbstractJob {
@@ -307,7 +305,8 @@ public class CloudgeneJob extends AbstractJob {
 
 				try {
 					context.log("Setup External Workspace on " + externalWorkspace.getName());
-					externalWorkspace.setup(this);
+					externalWorkspace.setup(this.getId());
+					context.setExternalWorkspace(externalWorkspace);
 				} catch (Exception e) {
 					writeLog(e.toString());
 					log.info("Error setup external workspace", e);

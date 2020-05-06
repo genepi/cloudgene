@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
@@ -18,7 +17,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
-import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.S3Util;
 
 public class S3Workspace implements IExternalWorkspace {
@@ -29,7 +28,7 @@ public class S3Workspace implements IExternalWorkspace {
 
 	private String location;
 
-	private AbstractJob job;
+	private String job;
 
 	public S3Workspace(String location) {
 		this.location = location;
@@ -41,7 +40,7 @@ public class S3Workspace implements IExternalWorkspace {
 	}
 
 	@Override
-	public void setup(AbstractJob job) throws IOException {
+	public void setup(String job) throws IOException {
 
 		this.job = job;
 
@@ -54,7 +53,7 @@ public class S3Workspace implements IExternalWorkspace {
 		}
 
 		try {
-			S3Util.copyToS3(job.getApplication(), location + "/" + job.getId() + "/version.txt");
+			S3Util.copyToS3(job, location + "/" + job + "/version.txt");
 		} catch (Exception e) {
 			throw new IOException("Output Url '" + location + "' is not writable.");
 		}
@@ -63,7 +62,7 @@ public class S3Workspace implements IExternalWorkspace {
 
 	@Override
 	public String upload(String id, File file) throws IOException {
-		String target = location + "/" + job.getId() + "/" + id + "/" + file.getName();
+		String target = location + "/" + job + "/" + id + "/" + file.getName();
 		S3Util.copyToS3(file, target);
 		return target;
 	}
@@ -83,21 +82,21 @@ public class S3Workspace implements IExternalWorkspace {
 	}
 
 	@Override
-	public void delete(AbstractJob job) throws IOException {
+	public void delete(String job) throws IOException {
 
 		if (!S3Util.isValidS3Url(location)) {
 			throw new IOException("Output Url '" + location + "' is not a valid S3 bucket.");
 		}
 
 		try {
-			String url = location + "/" + job.getId();
+			String url = location + "/" + job;
 
 			String bucket = S3Util.getBucket(url);
 			String key = S3Util.getKey(url);
 
 			AmazonS3 s3 = S3Util.getAmazonS3();
 
-			log.debug("Deleting " + job.getId() + " on S3 workspace...");
+			log.debug("Deleting " + job + " on S3 workspace...");
 
 			ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withBucketName(bucket).withPrefix(key);
 
@@ -115,7 +114,7 @@ public class S3Workspace implements IExternalWorkspace {
 				}
 			}
 
-			log.debug("Deleted all files on S3 for job " + job.getId() + ".");
+			log.debug("Deleted all files on S3 for job " + job + ".");
 
 		} catch (Exception e) {
 			throw new IOException("Output Url '" + location + "' is not writable.");

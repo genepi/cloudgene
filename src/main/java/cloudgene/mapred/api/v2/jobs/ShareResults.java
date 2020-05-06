@@ -11,8 +11,8 @@ import org.restlet.resource.Get;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
 
 public class ShareResults extends BaseResource {

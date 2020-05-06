@@ -10,10 +10,10 @@ import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
@@ -58,7 +58,7 @@ public class CleanUpTasks {
 
 				if (externalWorkspace != null) {
 					try {
-						externalWorkspace.delete(job);
+						externalWorkspace.delete(job.getId());
 					} catch (Exception e) {
 						log.error("Retire " + job.getId() + " failed.", e);
 					}

@@ -16,11 +16,11 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
@@ -152,7 +152,7 @@ public class GetJobDetails extends BaseResource {
 			String externalOutput = settings.getExternalWorkspaceLocation();
 			externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
 			try {
-				externalWorkspace.delete(job);
+				externalWorkspace.delete(job.getId());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

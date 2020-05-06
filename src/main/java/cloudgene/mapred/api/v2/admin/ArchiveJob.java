@@ -9,9 +9,9 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Settings;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
@@ -79,7 +79,7 @@ public class ArchiveJob extends BaseResource {
 
 				if (externalWorkspace != null) {
 					try {
-						externalWorkspace.delete(job);
+						externalWorkspace.delete(job.getId());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

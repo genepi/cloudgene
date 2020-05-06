@@ -1,5 +1,7 @@
 package cloudgene.mapred.jobs.workspace;
 
+import cloudgene.sdk.internal.IExternalWorkspace;
+
 public class ExternalWorkspaceFactory {
 
 	public static IExternalWorkspace get(String type, String location) {

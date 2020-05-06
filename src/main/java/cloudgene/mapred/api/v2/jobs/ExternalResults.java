@@ -15,9 +15,9 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
+import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
 
 public class ExternalResults extends BaseResource {
