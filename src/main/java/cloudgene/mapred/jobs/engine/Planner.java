@@ -131,7 +131,7 @@ public class Planner {
 			context.log("      Outputs: " + outputs);
 		}
 
-		context.log("  Dipendencies: " + graph.getEdges().size());
+		context.log("  Dependencies: " + graph.getEdges().size());
 		for (GraphEdge edge : graph.getEdges()) {
 			context.log("    " + edge.getSource().getStep().getName() + "->" + edge.getTarget().getStep().getName());
 		}
