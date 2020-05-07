@@ -533,14 +533,12 @@ public class CloudgeneJob extends AbstractJob {
 
 		File f = new File(n);
 
+		List<Download> downloads = new Vector<Download>();
+
 		if (f.exists() && f.isDirectory()) {
 
 			try {
-				List<Download> downloads = new Vector<Download>();
 				exportFolder(out, "", name, f, downloads);
-
-				Collections.sort(downloads);
-				out.setFiles(downloads);
 			} catch (Exception e) {
 
 				writeLog("Export paramater '" + out.getName() + "' failed:" + e);
@@ -548,8 +546,20 @@ public class CloudgeneJob extends AbstractJob {
 				setError("Export paramater '" + out.getName() + "' failed:" + e);
 				return false;
 			}
-
+			writeLog("  Added " + downloads.size() + " downloads.");
 		}
+
+		List<Download> customDownloads = context.getDownloads(out.getName());
+		if (customDownloads != null) {
+			for (Download download : customDownloads) {
+				download.setParameter(out);
+			}
+			writeLog("  Added " + customDownloads.size() + " custom downloads.");
+			downloads.addAll(customDownloads);
+		}
+
+		Collections.sort(downloads);
+		out.setFiles(downloads);
 
 		return true;
 	}

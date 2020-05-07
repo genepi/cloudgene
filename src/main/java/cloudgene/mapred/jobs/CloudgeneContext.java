@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.Vector;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.WorkflowContext;
@@ -56,6 +57,8 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private int chunks = 0;
 
+	private Map<String, List<Download>> customDownloads = new HashMap<String,  List<Download>>();
+	
 	public CloudgeneContext(CloudgeneJob job) {
 
 		this.workingDirectory = job.getWorkingDirectory();
@@ -88,8 +91,10 @@ public class CloudgeneContext extends WorkflowContext {
 		}
 
 		outputParameters = new HashMap<String, CloudgeneParameterOutput>();
+		customDownloads = new HashMap<String, List<Download>>();
 		for (CloudgeneParameterOutput param : job.getOutputParams()) {
 			outputParameters.put(param.getName(), param);
+			customDownloads.put(param.getName(), new Vector<Download>());
 		}
 
 		settings = job.getSettings();
@@ -217,6 +222,28 @@ public class CloudgeneContext extends WorkflowContext {
 		} else {
 			return result;
 		}
+	}
+	
+	@Override
+	public void addDownload(String param, String name, String size, String path) {
+		List<Download> downloads = customDownloads.get(param);
+		if (downloads == null) {
+			new RuntimeException("Parameter " + param + " is unknown.");
+		}
+		
+		String hash = HashUtil.getMD5(name + size + path + (Math.random() * 100000));		
+		Download download = new Download();
+		download.setName(name);
+		download.setSize(size);
+		download.setPath(path);
+		download.setHash(hash);
+		download.setCount(CloudgeneJob.MAX_DOWNLOAD);
+		
+		downloads.add(download);
+	}
+	
+	public List<Download> getDownloads(String param){
+		return customDownloads.get(param);
 	}
 
 	public Settings getSettings() {
