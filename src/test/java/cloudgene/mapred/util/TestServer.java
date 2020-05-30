@@ -263,7 +263,7 @@ public class TestServer {
 			if (adminUser == null) {
 				adminUser = new User();
 				adminUser.setUsername(username);
-				password = HashUtil.getMD5(password);
+				password = HashUtil.hashPassword(password);
 				adminUser.setPassword(password);
 				adminUser.makeAdmin();
 				dao.insert(adminUser);
@@ -277,7 +277,7 @@ public class TestServer {
 			if (user == null) {
 				user = new User();
 				user.setUsername(usernameUser);
-				password = HashUtil.getMD5(passwordUser);
+				password = HashUtil.hashPassword(passwordUser);
 				user.setPassword(passwordUser);
 				user.setRoles(new String[] { "public" });
 				dao.insert(user);

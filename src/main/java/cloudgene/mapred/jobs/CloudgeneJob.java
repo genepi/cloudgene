@@ -576,7 +576,7 @@ public class CloudgeneJob extends AbstractJob {
 					String filename = prefix.equals("") ? files[i].getName() : prefix + "/" + files[i].getName();
 					String id = name + "/" + files[i].getName();
 					String size = FileUtils.byteCountToDisplaySize(files[i].length());
-					String hash = HashUtil.getMD5(filename + id + size + getId() + (Math.random() * 100000));
+					String hash = HashUtil.getSha256(filename + id + size + getId() + (Math.random() * 100000));
 					Download download = new Download();
 					download.setName(filename);
 					download.setPath(FileUtil.path(getId(), id));

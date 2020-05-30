@@ -35,7 +35,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
-		testUser1.setPassword(HashUtil.getMD5("oldpassword"));
+		testUser1.setPassword(HashUtil.hashPassword("oldpassword"));
 		userDao.insert(testUser1);
 
 		User testUse2 = new User();
@@ -45,7 +45,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		testUse2.setRoles(new String[] { "User" });
 		testUse2.setActive(false);
 		testUse2.setActivationCode("fdsfdsfsdfsdfsd");
-		testUse2.setPassword(HashUtil.getMD5("oldpassword"));
+		testUse2.setPassword(HashUtil.hashPassword("oldpassword"));
 		userDao.insert(testUse2);
 
 	}

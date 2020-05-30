@@ -231,7 +231,7 @@ public class CloudgeneContext extends WorkflowContext {
 			new RuntimeException("Parameter " + param + " is unknown.");
 		}
 		
-		String hash = HashUtil.getMD5(name + size + path + (Math.random() * 100000));		
+		String hash = HashUtil.getSha256(name + size + path + (Math.random() * 100000));		
 		Download download = new Download();
 		download.setName(name);
 		download.setSize(size);

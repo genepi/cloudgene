@@ -33,7 +33,7 @@ public class ChangeGroupTest extends JobsApiTestCase {
 		testUser3.setMail("testuser1@test.com");
 		testUser3.setRoles(new String[] { "User" });
 		testUser3.setActive(true);
-		testUser3.setPassword(HashUtil.getMD5("oldpassword"));
+		testUser3.setPassword(HashUtil.hashPassword("oldpassword"));
 		userDao.insert(testUser3);
 
 	}

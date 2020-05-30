@@ -12,7 +12,7 @@ public class PublicUser {
 		if (user == null) {
 			user = new User();
 			user.setUsername("public");
-			String password = HashUtil.getMD5("public-password");
+			String password = HashUtil.getSha256("public-password");
 			user.setPassword(password);
 			user.setRoles(new String[]{"public"});
 			dao.insert(user);

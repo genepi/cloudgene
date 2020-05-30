@@ -90,7 +90,7 @@ public class SubmitJob extends BaseResource {
 			user = PublicUser.getUser(getDatabase());
 
 			String uuid = UUID.randomUUID().toString();
-			id = id + "-" + HashUtil.getMD5(uuid);
+			id = id + "-" + HashUtil.getSha256(uuid);
 			publicMode = true;
 
 		}

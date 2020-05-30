@@ -39,7 +39,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		testUser1.setRoles(new String[] { "private" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
-		testUser1.setPassword(HashUtil.getMD5("Test1Password"));
+		testUser1.setPassword(HashUtil.hashPassword("Test1Password"));
 		userDao.insert(testUser1);
 
 	}

@@ -30,7 +30,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
-		testUser1.setPassword(HashUtil.getMD5("testuser99"));
+		testUser1.setPassword(HashUtil.hashPassword("testuser99"));
 		userDao.insert(testUser1);
 
 	}

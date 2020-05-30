@@ -35,12 +35,13 @@ public class UserProfile extends BaseResource {
 
 		JSONObject object = JSONConverter.convert(updatedUser);
 		try {
-		if (object.getBoolean("hasApiToken")) {
-			org.json.JSONObject result = ApiTokenVerifier.verify(user.getApiToken(), getSettings().getSecretKey(), getDatabase());
-			object.put("apiTokenValid", result.get("valid"));
-			object.put("apiTokenMessage", result.get("message"));
-		}
-		}catch (Exception e) {
+			if (object.getBoolean("hasApiToken")) {
+				org.json.JSONObject result = ApiTokenVerifier.verify(user.getApiToken(), getSettings().getSecretKey(),
+						getDatabase());
+				object.put("apiTokenValid", result.get("valid"));
+				object.put("apiTokenMessage", result.get("message"));
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		StringRepresentation representation = new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
@@ -100,7 +101,7 @@ public class UserProfile extends BaseResource {
 			if (error != null) {
 				return new JSONAnswer(error, false);
 			}
-			newUser.setPassword(HashUtil.getMD5(newPassword));
+			newUser.setPassword(HashUtil.hashPassword(newPassword));
 
 		}
 
@@ -129,17 +130,15 @@ public class UserProfile extends BaseResource {
 			return error401("You are not allowed to delete this user profile.");
 		}
 
-		String md5Password = HashUtil.getMD5(password);
-		if (user.getPassword().equals(md5Password)) {
+		if (HashUtil.checkPassword(password, user.getPassword())) {
 
 			UserDao dao = new UserDao(getDatabase());
 			boolean deleted = dao.delete(user);
 			if (deleted) {
-				return new JSONAnswer("User profile sucessfully delete.", true);				
-			}else {
+				return new JSONAnswer("User profile sucessfully delete.", true);
+			} else {
 				return error400("Error during deleting your user profile.");
 			}
-
 
 		} else {
 			return error401("Wrong password.");
