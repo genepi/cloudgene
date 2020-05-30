@@ -28,8 +28,8 @@ public class JWT {
 				.put("expire", System.currentTimeMillis() + lifetime);
 
 		// Create JWS header with HS256 algorithm
-		JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
-		header.setContentType("text/plain");
+		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256).
+                contentType("text/plain").build();
 
 		// Create JWS payload
 		Payload payload = new Payload(jsonObject);
@@ -37,11 +37,12 @@ public class JWT {
 		// Create JWS object
 		JWSObject jwsObject = new JWSObject(header, payload);
 
-		JWSSigner signer = new MACSigner(key);
 		try {
+			JWSSigner signer = new MACSigner(key);
 			jwsObject.sign(signer);
 			return jwsObject.serialize();
 		} catch (JOSEException e) {
+			e.printStackTrace();
 			return null;
 		}
 

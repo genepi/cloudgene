@@ -46,7 +46,7 @@ public class Settings {
 
 	private Map<String, String> colors;
 
-	private String secretKey = "default-key-change-me";
+	private String secretKey = "default-key-change-me-immediately";
 
 	private Map<String, String> mail;
 

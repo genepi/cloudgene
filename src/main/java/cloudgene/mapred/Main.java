@@ -11,9 +11,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.daemon.Daemon;
-import org.apache.commons.daemon.DaemonContext;
-import org.apache.commons.daemon.DaemonInitException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
@@ -35,7 +32,7 @@ import genepi.db.DatabaseConnector;
 import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 
-public class Main implements Daemon {
+public class Main {
 
 	public static final String VERSION = "2.2.0";
 
@@ -152,13 +149,13 @@ public class Main implements Daemon {
 		// update database schema if needed
 		log.info("Setup Database...");
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
-		
+
 		DatabaseUpdater appUpdater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
 
-		if(!appUpdater.updateDB()) {
+		if (!appUpdater.updateDB()) {
 			System.exit(-1);
 		}
-		
+
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
 		FileUtil.createDirectory(settings.getLocalWorkspace());
@@ -220,28 +217,6 @@ public class Main implements Daemon {
 
 		}
 
-	}
-
-	@Override
-	public void init(DaemonContext context) throws DaemonInitException, Exception {
-		String[] args = context.getArguments();
-		runCloudgene(null, args);
-	}
-
-	@Override
-	public void start() throws Exception {
-
-	}
-
-	@Override
-	public void destroy() {
-
-	}
-
-	@Override
-	public void stop() throws Exception {
-		server.stop();
-		database.disconnect();
 	}
 
 	public static void main(String[] args) throws Exception {

@@ -28,7 +28,7 @@ import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import net.lingala.zip4j.model.FileHeader;
 
