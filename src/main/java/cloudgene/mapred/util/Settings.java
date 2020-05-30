@@ -135,7 +135,7 @@ public class Settings {
 		navigation.add(helpMenuItem);
 
 		database = new HashMap<String, String>();
-		initDefaultDatabase(database, "data/mapred");
+		initDefaultDatabase(database, "data/cloudgene");
 
 		colors = getDefaultColors();
 
@@ -259,8 +259,8 @@ public class Settings {
 	public static void initDefaultDatabase(Map<String, String> database, String defaultSchema) {
 		database.put("driver", "h2");
 		database.put("database", defaultSchema);
-		database.put("user", "mapred");
-		database.put("password", "mapred");
+		database.put("user", "cloudgene");
+		database.put("password", "cloudgene");
 	}
 
 	public static Map<String, String> getDefaultColors() {
