@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -46,7 +48,7 @@ public class Settings {
 
 	private Map<String, String> colors;
 
-	private String secretKey = "default-key-change-me-immediately";
+	private String secretKey = "";
 
 	private Map<String, String> mail;
 
@@ -108,6 +110,8 @@ public class Settings {
 
 	private String port = "8082";
 
+	public static final String DEFAULT_SECURITY_KEY= "default-key-change-me-immediately";
+	
 	// fake!
 	private List<Application> apps = new Vector<Application>();
 
@@ -568,6 +572,10 @@ public class Settings {
 	}
 
 	public String getSecretKey() {
+		if (secretKey == null || secretKey.isEmpty() || secretKey.equals(DEFAULT_SECURITY_KEY)) {
+			secretKey = RandomStringUtils.randomAlphabetic(64);
+			save();
+		}
 		return secretKey;
 	}
 

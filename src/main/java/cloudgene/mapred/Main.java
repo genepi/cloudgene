@@ -19,6 +19,7 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.database.updates.BcryptHashUpdate;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
@@ -34,7 +35,7 @@ import genepi.io.FileUtil;
 
 public class Main {
 
-	public static final String VERSION = "2.2.0";
+	public static final String VERSION = "2.3.0";
 
 	private Database database;
 
@@ -150,9 +151,10 @@ public class Main {
 		log.info("Setup Database...");
 		InputStream is = Main.class.getResourceAsStream("/updates.sql");
 
-		DatabaseUpdater appUpdater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
-
-		if (!appUpdater.updateDB()) {
+		DatabaseUpdater updater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
+		updater.addUpdate("2.3.0", new BcryptHashUpdate());
+		
+		if (!updater.updateDB()) {
 			System.exit(-1);
 		}
 

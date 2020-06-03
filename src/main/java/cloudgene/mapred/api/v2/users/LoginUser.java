@@ -29,7 +29,7 @@ public class LoginUser extends BaseResource {
 
 		String username = form.getFirstValue("loginUsername");
 		String password = form.getFirstValue("loginPassword");
-		password = HashUtil.getMD5(password);
+		//password = HashUtil.getMD5(password);
 
 		UserDao dao = new UserDao(getDatabase());
 		User user = dao.findByUsername(username);
@@ -50,10 +50,10 @@ public class LoginUser extends BaseResource {
 				}
 			}
 
-			if (user.getPassword().equals(password)) {
+			if (HashUtil.checkPassword(password, user.getPassword())) {
 
 				// create unique csrf token
-				String csrfToken = HashUtil.getMD5("csrf_token_for_" + user.getUsername());
+				String csrfToken = HashUtil.getCsrfToken(user);
 
 				// create cookie token with crf token
 				String token = JWTUtil.createCookieToken(user, getSettings().getSecretKey(), csrfToken);

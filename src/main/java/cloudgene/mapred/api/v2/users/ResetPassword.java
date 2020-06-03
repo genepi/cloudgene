@@ -55,7 +55,7 @@ public class ResetPassword extends BaseResource {
 			} else {
 
 				// create activation token
-				key = HashUtil.getMD5(System.currentTimeMillis() + "_" + Math.round(2000));
+				key = HashUtil.getActivationHash(user);
 				user.setActivationCode(key);
 				dao.update(user);
 			}

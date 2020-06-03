@@ -26,7 +26,7 @@ public class Fixtures {
 		if (user == null) {
 			user = new User();
 			user.setUsername(USERNAME);
-			PASSWORD = HashUtil.getMD5(PASSWORD);
+			PASSWORD = HashUtil.hashPassword(PASSWORD);
 			user.setPassword(PASSWORD);
 			user.makeAdmin();
 

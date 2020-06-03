@@ -157,3 +157,6 @@ create index idx_job_user_id on job(user_id,state);
 
 -- 2.0.0
 ALTER TABLE log_messages MODIFY COLUMN message VARCHAR (20000);
+
+-- 2.3.0
+

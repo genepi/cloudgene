@@ -32,7 +32,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		testUser1.setRoles(new String[] { "User" });
 		testUser1.setActive(true);
 		testUser1.setActivationCode("");
-		testUser1.setPassword(HashUtil.getMD5("Test1Password"));
+		testUser1.setPassword(HashUtil.hashPassword("Test1Password"));
 		userDao.insert(testUser1);
 
 		User testUser2 = new User();
@@ -42,7 +42,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		testUser2.setRoles(new String[] { "User" });
 		testUser2.setActive(true);
 		testUser2.setActivationCode("");
-		testUser2.setPassword(HashUtil.getMD5("Test2Password"));
+		testUser2.setPassword(HashUtil.hashPassword("Test2Password"));
 		userDao.insert(testUser2);
 
 	}

@@ -21,11 +21,11 @@ public class RegisterUser extends BaseResource {
 
 		String hostname = "";
 		if (getRequest().getReferrerRef() != null) {
-			hostname = getRequest().getReferrerRef().getHostIdentifier(); 
-		}else {
+			hostname = getRequest().getReferrerRef().getHostIdentifier();
+		} else {
 			hostname = getRequest().getHostRef().getHostIdentifier();
 		}
-		
+
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");
 		String fullname = form.getFirstValue("full-name");
@@ -69,7 +69,7 @@ public class RegisterUser extends BaseResource {
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
 		newUser.setRoles(new String[] { DEFAULT_ROLE });
-		newUser.setPassword(HashUtil.getMD5(newPassword));
+		newUser.setPassword(HashUtil.hashPassword(newPassword));
 
 		try {
 
@@ -78,7 +78,7 @@ public class RegisterUser extends BaseResource {
 
 			if (getSettings().getMail() != null) {
 
-				String activationKey = HashUtil.getMD5(System.currentTimeMillis() + username + mail);
+				String activationKey = HashUtil.getActivationHash(newUser);
 				newUser.setActive(false);
 				newUser.setActivationCode(activationKey);
 

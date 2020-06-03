@@ -219,7 +219,7 @@ public class NextflowStep extends CloudgeneStep {
 	}
 
 	public String makeSecretJobId(String job) {
-		return HashUtil.getMD5(job);
+		return HashUtil.getSha256(job);
 	}
 
 	private String makeRed(String text) {

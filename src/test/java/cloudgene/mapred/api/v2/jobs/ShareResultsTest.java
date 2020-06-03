@@ -60,7 +60,7 @@ public class ShareResultsTest extends JobsApiTestCase {
 		assertEquals("lukas_text", content1);
 
 		// check if it returns 404
-		String randomHash = HashUtil.getMD5("random-text");
+		String randomHash = HashUtil.getSha256("random-text");
 		ClientResource resource = createClientResource("/share/" + username1 + "/" + randomHash + "/output");
 		try {
 			resource.get();

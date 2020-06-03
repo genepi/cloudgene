@@ -47,7 +47,7 @@ public class UpdatePassword extends BaseResource {
 			return new JSONAnswer(error, false);
 		}
 
-		user.setPassword(HashUtil.getMD5(newPassword));
+		user.setPassword(HashUtil.hashPassword(newPassword));
 		user.setActivationCode("");
 		dao.update(user);
 

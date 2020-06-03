@@ -202,7 +202,7 @@ public class CloudgeneParameterOutput {
 		for (Download download: files) {
 			hash += download.getHash();
 		}
-		return HashUtil.getMD5(hash);
+		return HashUtil.getSha256(hash);
 	}
 
 }
