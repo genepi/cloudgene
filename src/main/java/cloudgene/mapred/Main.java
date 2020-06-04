@@ -11,6 +11,7 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
@@ -123,6 +124,13 @@ public class Main {
 
 		database = new Database();
 
+		String secretKey = settings.getSecretKey();
+		if (secretKey == null || secretKey.isEmpty() || secretKey.equals(Settings.DEFAULT_SECURITY_KEY)) {
+			secretKey = RandomStringUtils.randomAlphabetic(64);
+			settings.setSecretKey(secretKey);
+			settings.save();
+		}
+		
 		// create h2 or mysql connector
 		DatabaseConnector connector = DatabaseConnectorFactory.createConnector(settings.getDatabase());
 

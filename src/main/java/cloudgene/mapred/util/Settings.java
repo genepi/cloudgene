@@ -572,10 +572,6 @@ public class Settings {
 	}
 
 	public String getSecretKey() {
-		if (secretKey == null || secretKey.isEmpty() || secretKey.equals(DEFAULT_SECURITY_KEY)) {
-			secretKey = RandomStringUtils.randomAlphabetic(64);
-			save();
-		}
 		return secretKey;
 	}
 
