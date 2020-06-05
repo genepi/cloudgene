@@ -4,7 +4,6 @@ package cloudgene.mapred.util;
 import java.net.URLDecoder;
 import java.util.Map;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Status;
@@ -32,16 +31,8 @@ public class BaseResource extends ServerResource {
 		super.doInit();
 
 		application = (WebApp) getApplication();
-		database = application.getDatabase();
+		database = application.getDatabase();	
 		
-		String secretKey = getSettings().getSecretKey();
-		if (secretKey == null || secretKey.isEmpty() || secretKey.equals(Settings.DEFAULT_SECURITY_KEY)) {
-			secretKey = RandomStringUtils.randomAlphabetic(64);
-			getSettings().setSecretKey(secretKey);
-			getSettings().save();
-		}
-
-			
 	}
 
 	public Database getDatabase() {
