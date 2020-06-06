@@ -1,7 +1,9 @@
 Cloudgene
 =========
 
-[![Build Status](https://travis-ci.org/genepi/cloudgene.svg?branch=master)](https://travis-ci.org/genepi/cloudgene) [![GitHub release](https://img.shields.io/github/release/genepi/cloudgene.svg)](https://GitHub.com/genepi/cloudgene/releases/)
+[![Build Status](https://travis-ci.org/genepi/cloudgene.svg?branch=master)](https://travis-ci.org/genepi/cloudgene)
+[![codecov](https://codecov.io/gh/genepi/cloudgene/branch/master/graph/badge.svg)](https://codecov.io/gh/genepi/cloudgene)
+[![GitHub release](https://img.shields.io/github/release/genepi/cloudgene.svg)](https://GitHub.com/genepi/cloudgene/releases/)
 
 
 A framework to build Software As A Service (SaaS) platforms for data analysis pipelines.
