@@ -14,7 +14,7 @@ installation:
       source: ${local_app_folder}/folder.tar.gz
       target: ${hdfs_app_folder}/gz
   - import:
-      source: http://cloudgene.uibk.ac.at/hello-cloudgene.yaml
+      source: http://cloudgene.io/hello-cloudgene.yaml
       target: ${hdfs_app_folder}/http.yaml
 workflow:
   steps:
