@@ -86,6 +86,11 @@ See Cloudgene in action:
 
 More about how to build Cloudgene from source can be found [here](https://github.com/genepi/cloudgene/blob/master/DEVELOPING.md).
 
+## Contact
+
+- Lukas Forer @lukfor
+- Sebastian Schönherr @seppinho
+
 ## License
 
 Cloudgene is licensed under [AGPL-3.0](https://opensource.org/licenses/AGPL-3.0).
