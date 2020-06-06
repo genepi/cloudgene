@@ -9,34 +9,29 @@ Moreover, the task has much more capabilities to communicate with the workflow m
 First, you have to create a new java project and include our genepi-hadoop library. We have a maven repository for that library:
 
 ```xml
-<repositories>
-	<repository>
-		<id>genepi-hadoop</id>
-		<url>https://raw.github.com/genepi/maven-repository/mvn-repo/</url>
-		<snapshots>
-			<enabled>true</enabled>
-			<updatePolicy>always</updatePolicy>
-		</snapshots>
-	</repository>
-</repositories>
+<repository>
+    <id>bintray-genepi-maven</id>
+    <name>bintray</name>
+    <url>https://dl.bintray.com/genepi/maven</url>
+</repository>
 ```
 
 The dependency is the following:
 
 ```xml
 <dependencies>
-	<dependency>
-		<groupId>genepi</groupId>
-		<artifactId>genepi-hadoop</artifactId>
-		<version>mr1-1.2.0</version>
-	</dependency>
+    <dependency>
+        <groupId>cloudgene</groupId>
+        <artifactId>cloudgene-java-sdk</artifactId>
+        <version>1.0.2</version>
+    </dependency>
 </dependencies>
 ```
 
 Next, you have to extend `genepi.hadoop.common.WorkflowStep` and implement the run method :
 
 ```java
-public class YourValidation extends WorkflowStep {
+public class YourValidation extends CloudgeneStep {
 
     public boolean run(WorkflowContext context) {
 
