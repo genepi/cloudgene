@@ -10,6 +10,8 @@ before_install:
 - cat /etc/hosts
 script:
 - mvn install
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 deploy:
   provider: releases
   api_key:
