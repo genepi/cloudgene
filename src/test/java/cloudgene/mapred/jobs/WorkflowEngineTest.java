@@ -515,6 +515,33 @@ public class WorkflowEngineTest extends TestCase {
 
 	}
 
+	public void testOptionalApplicationLinks() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links-optional.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		Message message = job.getSteps().get(0).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertFalse(message.getMessage().contains("property1:hey!"));
+		assertFalse(message.getMessage().contains("property2:hey2!"));
+		assertFalse(message.getMessage().contains("property3:hey3!"));
+
+	}
+	
 	public void testApplicationLinksWrongApplication() throws Exception {
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");

@@ -254,12 +254,16 @@ public class CloudgeneJob extends AbstractJob {
 							return false;
 						}
 					} else {
-						String error = "Paramter: " + input.getName() + " '" + value
-								+ "' is not a valid application link.";
-						log.info(error);
-						writeOutput(error);
-						setError(error);
-						return false;
+
+						if (!value.isEmpty()) {
+
+							String error = "Parameter " + input.getName() + ": '" + value
+									+ "' is not a valid application link.";
+							log.info(error);
+							writeOutput(error);
+							setError(error);
+							return false;
+						}
 					}
 				}
 			}
