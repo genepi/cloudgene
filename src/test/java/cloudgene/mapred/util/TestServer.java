@@ -181,13 +181,19 @@ public class TestServer {
 			app18.setFilename("test-data/app-links-child.yaml");
 			app18.setPermission("public");
 			applications.add(app18);
+			
+			Application app188 = new Application();
+			app188.setId("app-links-child-version@1.0.0");
+			app188.setFilename("test-data/app-links-child.yaml");
+			app188.setPermission("public");
+			applications.add(app188);
 
 			Application app19 = new Application();
 			app19.setId("app-links-child-protected");
 			app19.setFilename("test-data/app-links-child.yaml");
 			app19.setPermission("protected");
 			applications.add(app19);
-
+			
 			Application app20 = new Application();
 			app20.setId("app-installation2");
 			app20.setFilename("test-data/app-installation2.yaml");

@@ -41,6 +41,17 @@ public class ApiTokensTest extends JobsApiTestCase {
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.hashPassword("Test1Password"));
 		userDao.insert(testUser1);
+		
+		
+		User testUser2 = new User();
+		testUser2.setUsername("testUserToken2");
+		testUser2.setFullName("test2");
+		testUser2.setMail("test1@test.com");
+		testUser2.setRoles(new String[] { "private" });
+		testUser2.setActive(true);
+		testUser2.setActivationCode("");
+		testUser2.setPassword(HashUtil.hashPassword("Test2Password"));
+		userDao.insert(testUser2);
 
 	}
 
@@ -115,10 +126,10 @@ public class ApiTokensTest extends JobsApiTestCase {
 
 	public void testSubmitWithoutVersion() throws JSONException, IOException, InterruptedException {
 
-		LoginToken token = login("testUserToken", "Test1Password");
+		LoginToken token = login("testUserToken2", "Test2Password");
 
 		// check if token is empty
-		ClientResource resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		ClientResource resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -131,7 +142,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		resource.release();
 
 		// create token
-		resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
 		try {
 			resource.post(new Form());
 		} catch (Exception e) {
@@ -161,7 +172,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		assertEquals(1, jobs.length());
 
 		// revoke token
-		resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
 		try {
 			resource.delete();
 		} catch (Exception e) {
