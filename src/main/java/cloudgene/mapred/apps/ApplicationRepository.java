@@ -26,6 +26,7 @@ import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.db.DatabaseUpdater;
 import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.ZipFile;
@@ -122,6 +123,45 @@ public class ApplicationRepository {
 	public Application getById(String id) {
 
 		Application app = indexApps.get(id);
+
+		if (app == null) {
+			// try without version
+
+			List<Application> versions = new Vector<Application>();
+
+			for (String idd : indexApps.keySet()) {
+				String tiles[] = idd.split("@");
+				if (tiles.length == 2) {
+					if (id.equals(tiles[0])) {
+						versions.add(indexApps.get(idd));
+					}
+				}
+			}
+
+			if (!versions.isEmpty()) {
+				// find latest
+
+				Application latest = versions.get(0);
+
+				for (int i = 1; i < versions.size(); i++) {
+
+					String latestVersion = latest.getWdlApp().getVersion();
+					String version = versions.get(i).getWdlApp().getVersion();
+
+					if (DatabaseUpdater.compareVersion(version, latestVersion) == 1) {
+						latest = versions.get(i);
+					}
+
+				}
+
+				return latest;
+
+			} else {
+				return null;
+			}
+
+		}
+
 		return app;
 
 	}

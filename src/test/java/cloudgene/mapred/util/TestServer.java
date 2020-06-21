@@ -208,6 +208,19 @@ public class TestServer {
 			applications.add(app22);
 			
 			
+			Application app23 = new Application();
+			app23.setId("app-version-test@1.0.1");
+			app23.setFilename("test-data/app-version-test.yaml");
+			app23.setPermission("private");
+			applications.add(app23);
+			
+			
+			Application app24 = new Application();
+			app24.setId("app-version-test@1.2.1");
+			app24.setFilename("test-data/app-version-test2.yaml");
+			app24.setPermission("private");
+			applications.add(app24);
+			
 			
 			settings.setApps(applications);
 
