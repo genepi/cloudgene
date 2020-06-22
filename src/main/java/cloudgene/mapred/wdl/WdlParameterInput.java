@@ -28,9 +28,11 @@ public class WdlParameterInput implements WdlParameter {
 	private String accept = null;
 
 	private String details = null;
-	
+
 	private String pattern = null;
-	
+
+	private String emptySelection = null;
+
 	public WdlParameterInput() {
 		values = new HashMap<String, String>();
 		values.put("true", "true");
@@ -150,13 +152,21 @@ public class WdlParameterInput implements WdlParameter {
 	public String getDetails() {
 		return details;
 	}
-	
+
 	public void setPattern(String pattern) {
 		this.pattern = pattern;
 	}
-	
+
 	public String getPattern() {
 		return pattern;
+	}
+
+	public void setEmptySelection(String emptySelection) {
+		this.emptySelection = emptySelection;
+	}
+
+	public String getEmptySelection() {
+		return emptySelection;
 	}
 
 	public boolean hasDataBindung() {

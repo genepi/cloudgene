@@ -15,7 +15,6 @@ import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
-import groovy.sql.OutParameter;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
@@ -98,6 +97,11 @@ public class JSONConverter {
 		if (input.isFolder()) {
 			object.put("source", "upload");
 		}
+		
+		if (input.getEmptySelection() != null) {
+			object.put("emptySelection", input.getEmptySelection());
+		}
+
 
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST && input.hasDataBindung()) {
 			JSONArray array = new JSONArray();

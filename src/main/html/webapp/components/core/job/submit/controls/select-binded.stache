@@ -10,7 +10,7 @@
 {{application.params}}
 
   <select name="{{id}}" id="{{id}}" class="form-control" {{#is(required, true)}}required{{/is}} value:bind="value">
-    <option value="">-- select an option --</option>
+    <option value="">{{#emptySelection}}{{.}}{{else}}-- select an option --{{/emptySelection}}</option>
     {{#values}}
 			{{#is(enabled,true)}}
 			<optgroup label="{{label}}">
