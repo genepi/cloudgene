@@ -12,6 +12,8 @@ public class Template {
 
 	public static final String RETIRE_JOB_MAIL = "RETIRE_JOB_MAIL";
 
+	public static final String FOOTER_SUBMIT_JOB = "FOOTER_SUBMIT_JOB";
+
 	public static final Template[] SNIPPETS = new Template[] {
 
 			new Template(MAINTENANCE_MESSAGE,
@@ -28,8 +30,11 @@ public class Template {
 					"Dear %s,\nYour job retires in %s days! All imputation results will be deleted at that time.\n\n"
 							+ "Please ensure that you have downloaded all results from https://imputationserver.sph.umich.edu/start.html#!jobs/%s"),
 
-			new Template(RECOVERY_MAIL, "Dear %s,\nThis email has been sent automatically by the \"%s\" system.\n\n"
-					+ "To reset your password, please click on this link %s. "),
+			new Template(RECOVERY_MAIL,
+					"Dear %s,\nThis email has been sent automatically by the \"%s\" system.\n\n"
+							+ "To reset your password, please click on this link %s. "),
+
+			new Template(FOOTER_SUBMIT_JOB, ""),
 
 	};
 

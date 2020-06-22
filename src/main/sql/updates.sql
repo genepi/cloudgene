@@ -160,3 +160,5 @@ ALTER TABLE log_messages MODIFY COLUMN message VARCHAR (20000);
 
 -- 2.3.0
 
+-- 2.3.4
+ALTER TABLE html_snippets MODIFY COLUMN text VARCHAR (8000);

@@ -163,6 +163,13 @@
 	<button class="btn btn-primary" type="submit" data-loading-text="Uploading"><i class="far fa-play-circle"></i> {{application.submitButton}}</button>
 </div>
 
+{{#application.footer}}
+<hr />
+{{{.}}}
+
+{{/application.footer}}
+
+
 </form>
 </div>
 </div>

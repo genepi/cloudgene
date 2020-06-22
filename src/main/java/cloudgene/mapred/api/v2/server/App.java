@@ -24,6 +24,7 @@ import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import net.sf.json.JSONArray;
@@ -88,6 +89,11 @@ public class App extends BaseResource {
 
 		jsonObject.put("s3Workspace", settings.getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& settings.getExternalWorkspaceLocation().isEmpty());
+		
+		String footer =  getWebApp().getTemplate(Template.FOOTER_SUBMIT_JOB); 
+		if (footer != null && !footer.trim().isEmpty()) {
+			jsonObject.put("footer", footer);
+		}
 
 		return new StringRepresentation(jsonObject.toString());
 
