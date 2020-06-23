@@ -41,6 +41,17 @@ public class ApiTokensTest extends JobsApiTestCase {
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.hashPassword("Test1Password"));
 		userDao.insert(testUser1);
+		
+		
+		User testUser2 = new User();
+		testUser2.setUsername("testUserToken2");
+		testUser2.setFullName("test2");
+		testUser2.setMail("test1@test.com");
+		testUser2.setRoles(new String[] { "private" });
+		testUser2.setActive(true);
+		testUser2.setActivationCode("");
+		testUser2.setPassword(HashUtil.hashPassword("Test2Password"));
+		userDao.insert(testUser2);
 
 	}
 
@@ -113,6 +124,75 @@ public class ApiTokensTest extends JobsApiTestCase {
 		}
 	}
 
+	public void testSubmitWithoutVersion() throws JSONException, IOException, InterruptedException {
+
+		LoginToken token = login("testUserToken2", "Test2Password");
+
+		// check if token is empty
+		ClientResource resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		try {
+			resource.get();
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertEquals(object.get("token"), "");
+		resource.release();
+
+		// create token
+		resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		try {
+			resource.post(new Form());
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertFalse(object.get("token").equals(""));
+
+		String apiToken = object.getString("token");
+
+		// submit job
+		String id = submitTestJobWithoutVersion(apiToken);
+
+		// check feedback
+		waitForJobWithApiToken(id, apiToken);
+
+		JSONObject result = getJobDetailsWithApiToken(id, apiToken);
+
+		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+
+		resource.release();
+
+		// check if job list contains one job
+		JSONArray jobs = getJobsWithApiToken(apiToken);
+		assertEquals(1, jobs.length());
+
+		// revoke token
+		resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		try {
+			resource.delete();
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertEquals(object.get("token"), "");
+		resource.release();
+
+		// check if token is invalid now
+		try {
+			id = submitTestJob(apiToken);
+			assertTrue(false);
+		} catch (Exception e) {
+
+		}
+	}
+	
 	public void testSubmitTokenWithInCorrectApitoken() throws JSONException, IOException, InterruptedException {
 
 		// submit job
@@ -146,6 +226,29 @@ public class ApiTokensTest extends JobsApiTestCase {
 
 		// submit job
 		return submitJobWithApiToken("all-possible-inputs-private", form, apiToken);
+
+	}
+	
+	private String submitTestJobWithoutVersion(String apiToken) throws JSONException, IOException {
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.getEntries().add(new FormData("input-text", "my-text"));
+		form.getEntries().add(new FormData("input-number", "27"));
+		// ignore checkbox
+		form.getEntries().add(new FormData("input-list", "keya"));
+		// local-file
+		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
+		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
+
+		// local-folder
+		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
+		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
+
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
+
+		// submit job
+		return submitJobWithApiToken("app-version-test", form, apiToken);
 
 	}
 

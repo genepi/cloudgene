@@ -226,12 +226,16 @@ public class CloudgeneJob extends AbstractJob {
 			for (CloudgeneParameterInput input : getInputParams()) {
 				if (input.getType() == WdlParameterInputType.APP_LIST) {
 					String value = input.getValue();
+					String linkedAppId = value;
 					if (value.startsWith("apps@")) {
-						String linkedAppId = value.replaceAll("apps@", "");
+						linkedAppId = value.replaceAll("apps@", "");
+					}
+
+					if (!value.isEmpty()) {
 						Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
 						if (linkedApp != null) {
 							applications.add(linkedApp.getWdlApp());
-							// update evenirnoment variables
+							// update environment variables
 							Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(),
 									settings);
 							Map<String, String> envJob = Environment.getJobVariables(context);
@@ -248,17 +252,6 @@ public class CloudgeneJob extends AbstractJob {
 							getContext().setData(input.getName(), properties);
 						} else {
 							String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
-							log.info(error);
-							writeOutput(error);
-							setError(error);
-							return false;
-						}
-					} else {
-
-						if (!value.isEmpty()) {
-
-							String error = "Parameter " + input.getName() + ": '" + value
-									+ "' is not a valid application link.";
 							log.info(error);
 							writeOutput(error);
 							setError(error);

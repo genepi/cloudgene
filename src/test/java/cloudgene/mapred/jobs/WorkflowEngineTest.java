@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.TestServer;
@@ -514,6 +513,63 @@ public class WorkflowEngineTest extends TestCase {
 		assertTrue(message.getMessage().contains("property3:hey3!"));
 
 	}
+	
+	public void testApplicationLinksWithoutAppsPrefix() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("app", "app-links-child");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		Message message = job.getSteps().get(0).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().contains("property1:hey!"));
+		assertTrue(message.getMessage().contains("property2:hey2!"));
+		assertTrue(message.getMessage().contains("property3:hey3!"));
+
+	}
+	
+	public void testApplicationLinksWithoutVersion() throws Exception {
+
+		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
+
+		Map<String, String> params = new HashMap<String, String>();
+		params.put("app", "app-links-child-version");
+
+		AbstractJob job = createJobFromWdl(app, params);
+		engine.submit(job);
+		while (!job.isComplete()) {
+			Thread.sleep(500);
+		}
+		assertTrue(job.getSubmittedOn() > 0);
+		assertTrue(job.getFinishedOn() > 0);
+		assertTrue(job.getSetupStartTime() > 0);
+		assertTrue(job.getSetupEndTime() > 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
+		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
+
+		Message message = job.getSteps().get(0).getLogMessages().get(0);
+		assertEquals(Message.OK, message.getType());
+		assertTrue(message.getMessage().contains("property1:hey!"));
+		assertTrue(message.getMessage().contains("property2:hey2!"));
+		assertTrue(message.getMessage().contains("property3:hey3!"));
+
+	}
+	
 
 	public void testOptionalApplicationLinks() throws Exception {
 
