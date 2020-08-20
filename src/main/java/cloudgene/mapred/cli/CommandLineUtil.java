@@ -104,38 +104,7 @@ public class CommandLineUtil {
 						}
 
 					} else {
-
-						String targetPath = FileUtil.path(local, "input", input.getId());
-
-						FileUtil.createDirectory(targetPath);
-
-						if (tmpFile.isDirectory()) {
-							String[] files = FileUtil.getFiles(value, "");
-							for (String sourceFile : files) {
-								if (!new File(sourceFile).isDirectory()) {
-									String name = FileUtil.getFilename(sourceFile);
-									String targetFile = FileUtil.path(targetPath, name);
-									FileUtil.copy(sourceFile, targetFile);
-								}
-							}
-						} else {
-							String targetFile = FileUtil.path(targetPath, entryName);
-							// System.out.println("Copy file " + value + " to "
-							// +
-							// targetFile);
-							FileUtil.copy(value, targetFile);
-						}
-
-						if (input.isFolder()) {
-							// folder
-							props.put(input.getId(),
-									new File(FileUtil.path(local, "input", input.getId())).getAbsolutePath());
-						} else {
-							// file
-							props.put(input.getId(), new File(FileUtil.path(local, "input", input.getId(), entryName))
-									.getAbsolutePath());
-						}
-
+						props.put(input.getId(), value);
 					}
 				}
 			} else {
