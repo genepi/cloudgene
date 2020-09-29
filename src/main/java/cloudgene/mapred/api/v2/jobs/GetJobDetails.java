@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Vector;
 
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -35,7 +34,7 @@ public class GetJobDetails extends BaseResource {
 		User user = getAuthUser();
 
 		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
-			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "This functionality is currently under maintenance.");
+			return error503("This functionality is currently under maintenance.");
 		}
 
 		String id = getAttribute("job");

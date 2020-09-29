@@ -3,7 +3,6 @@ package cloudgene.mapred.api.v2.jobs;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -107,7 +106,7 @@ public class DownloadResults extends BaseResource {
 
 		} catch (Exception e) {
 			log.error("Processing download failed.", e);
-			return error(Status.CLIENT_ERROR_BAD_REQUEST, "Processing download failed.");
+			return error400("Processing download failed.");
 		}
 	}
 
