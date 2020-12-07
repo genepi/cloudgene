@@ -14,6 +14,8 @@ public class Template {
 
 	public static final String FOOTER_SUBMIT_JOB = "FOOTER_SUBMIT_JOB";
 
+	public static final String TERMS = "TERMS";
+	
 	public static final Template[] SNIPPETS = new Template[] {
 
 			new Template(MAINTENANCE_MESSAGE,
@@ -35,6 +37,9 @@ public class Template {
 							+ "To reset your password, please click on this link %s. "),
 
 			new Template(FOOTER_SUBMIT_JOB, ""),
+			
+			new Template(TERMS, "I will not attempt to re-identify or contact research participants.<br>" + 
+					"I will report any inadvertent data release, security breach or other data management incident of which I become aware.")
 
 	};
 
