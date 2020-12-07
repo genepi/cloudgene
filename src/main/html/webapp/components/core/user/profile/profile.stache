@@ -47,7 +47,7 @@ Please fill out the form below to change your account settings or your password.
 <h3>API Access</h3>
 
 <p>This service provides a rich RestAPI to submit, monitor and download jobs.</p>
-<p>You need a access token to use the API. <a href="">Learn more</a>.</p>
+<p>You need a access token to use the API. <a href="https://imputationbot.readthedocs.io/en/latest/getting-started/">Learn more</a>.</p>
 
 {{#user.hasApiToken}}
 
