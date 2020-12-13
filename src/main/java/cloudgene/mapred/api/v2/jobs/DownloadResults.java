@@ -45,7 +45,7 @@ public class DownloadResults extends BaseResource {
 				job = getWorkflowEngine().getJobById(jobId);
 			}
 
-			User user = getAuthUser(false);
+			User user = getAuthUserAndAllowApiToken(false);
 
 			// public mode
 			if (user == null) {

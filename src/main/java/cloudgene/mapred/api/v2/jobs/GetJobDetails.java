@@ -32,7 +32,7 @@ public class GetJobDetails extends BaseResource {
 	@Get
 	public Representation get(Representation entity, Variant variant) {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
 			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "This functionality is currently under maintenance.");

@@ -45,7 +45,7 @@ public class SubmitJob extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 		String appId = getAttribute("tool");
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());

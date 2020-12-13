@@ -35,7 +35,7 @@ public class App extends BaseResource {
 	@Get
 	public Representation getApp() {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		String appId = getAttribute("tool");
 		try {

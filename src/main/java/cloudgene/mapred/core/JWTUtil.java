@@ -104,36 +104,37 @@ public class JWTUtil {
 				return null;
 			}
 
-		} else {
+		}
+		
+		return null;
 
-			// check auth header: no cookie and csrf token needed, but key has
-			// to be an API
-			// key
+	}
 
-			JSONObject payload = JWT.validate(request, secretKey);
+	public static User getUserByApiToken(Database database, Request request, String secretKey) {
 
-			if (payload != null) {
+		JSONObject payload = JWT.validate(request, secretKey);
 
-				// check if it is an api key
-				if (isApiToken(payload)) {
-					User user = getUser(database, payload);
-					// check if api key is on users whitelist
-					if (user != null && user.getApiToken().equals(payload.get("request-token").toString())) {
-						return user;
-					} else {
-						return null;
-					}
+		if (payload != null) {
+
+			// check if it is an api key
+			if (isApiToken(payload)) {
+				User user = getUser(database, payload);
+				// check if api key is on users whitelist
+				if (user != null && user.getApiToken().equals(payload.get("request-token").toString())) {
+					return user;
 				} else {
 					return null;
 				}
-
 			} else {
-
-				// invalid access-token
-
 				return null;
-
 			}
+
+		} else {
+
+			// invalid access-token
+
+			return null;
+
 		}
 
 	}

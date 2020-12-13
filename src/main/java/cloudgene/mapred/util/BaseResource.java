@@ -25,6 +25,8 @@ public class BaseResource extends ServerResource {
 	private WebApp application;
 
 	private Database database;
+	
+	private boolean accessedByApi = false;
 		
 	@Override
 	protected void doInit() throws ResourceException {
@@ -48,14 +50,24 @@ public class BaseResource extends ServerResource {
 	}
 		
 	public User getAuthUser(boolean checkCsrf) {
+		return JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
+	}
 
+	public User getAuthUserAndAllowApiToken() {
+		return 	getAuthUserAndAllowApiToken(true);
+	}
+	
+	public User getAuthUserAndAllowApiToken(boolean checkCsrf) {
 		User user = JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
-		if (user != null) {
-			return user;
-		} else {
-			return null;
+		if (user == null) {
+			user = JWTUtil.getUserByApiToken(getDatabase(), getRequest(), getSettings().getSecretKey());
+			accessedByApi = true;
 		}
-
+		return user;
+	}
+	
+	public boolean isAccessedByApi() {
+		return accessedByApi;
 	}
 
 	public Settings getSettings() {
