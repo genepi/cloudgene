@@ -5,6 +5,7 @@ import bootbox from 'bootbox';
 
 import ErrorPage from 'helpers/error-page';
 import User from 'models/user';
+import Template from 'models/template';
 import UserToken from 'models/user-token';
 import UserProfile from 'models/user-profile';
 
@@ -81,20 +82,41 @@ export default Control.extend({
 
   '#create_token click': function() {
 
-    var user = this.options.user;
+    //load template
+    var that = this;
+    Template.findOne({
+      key: 'TERMS'
+    }, function(template) {
 
-    var userToken = new UserToken();
-    userToken.attr('user', user.attr('username'));
+      bootbox.confirm({
+        message: '<h4>Terms of Service</h4>' + template.attr('text'),
+        buttons: {
+          confirm: {
+            label: 'I Agree',
+            className: 'btn-success'
+          }
+        },
+        callback: function(result) {
+          if (result) {
 
-    userToken.save(function(responseText) {
-      user.attr('hasApiToken', true);
-      user.attr('apiTokenValid', true);
-      user.attr('apiTokenMessage', "");
-      bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
-    }, function(message) {
-      bootbox.alert('<h4>API Token</h4>Error: ' + message);
+
+            var user = that.options.user;
+
+            var userToken = new UserToken();
+            userToken.attr('user', user.attr('username'));
+
+            userToken.save(function(responseText) {
+              user.attr('hasApiToken', true);
+              user.attr('apiTokenValid', true);
+              user.attr('apiTokenMessage', "");
+              bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
+            }, function(message) {
+              bootbox.alert('<h4>API Token</h4>Error: ' + message);
+            });
+          }
+        }
+      })
     });
-
   },
 
   '#revoke_token click': function() {

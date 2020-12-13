@@ -46,6 +46,11 @@ public class SubmitJob extends BaseResource {
 	public Representation post(Representation entity) {
 
 		User user = getAuthUserAndAllowApiToken();
+
+		if (getSettings().isMaintenance() && !user.isAdmin()) {
+			return error503("This functionality is currently under maintenance.");
+		}
+
 		String appId = getAttribute("tool");
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
@@ -59,9 +64,7 @@ public class SubmitJob extends BaseResource {
 		try {
 			app = application.getWdlApp();
 		} catch (Exception e1) {
-
 			return error404("Application '" + appId + "' not found or the request requires user authentication.");
-
 		}
 
 		if (app.getWorkflow() == null) {

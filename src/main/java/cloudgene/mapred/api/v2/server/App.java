@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.restlet.data.Form;
-import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -50,30 +49,23 @@ public class App extends BaseResource {
 		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation(
-					"Application '" + appId + "' not found or the request requires user authentication..");
+			return error404("Application '" + appId + "' not found or the request requires user authentication..");
 		}
 
 		WdlApp wdlApp = application.getWdlApp();
 		if (wdlApp.getWorkflow() == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Application '" + appId + "' is a data package.");
+			return error404("Application '" + appId + "' is a data package.");
 		}
 
 		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
-
-			setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-			return new StringRepresentation("This functionality is currently under maintenance.");
-
+			return error503("This functionality is currently under maintenance.");
 		}
 
 		if (wdlApp.getWorkflow().hasHdfsInputs()) {
 
 			PluginManager manager = PluginManager.getInstance();
 			if (!manager.isEnabled(HadoopPlugin.ID)) {
-				setStatus(Status.SERVER_ERROR_SERVICE_UNAVAILABLE);
-				return new StringRepresentation(
+				return error503(
 						"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
 			}
 		}
@@ -89,8 +81,8 @@ public class App extends BaseResource {
 
 		jsonObject.put("s3Workspace", settings.getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& settings.getExternalWorkspaceLocation().isEmpty());
-		
-		String footer =  getWebApp().getTemplate(Template.FOOTER_SUBMIT_JOB); 
+
+		String footer = getWebApp().getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
 			jsonObject.put("footer", footer);
 		}
@@ -105,15 +97,11 @@ public class App extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
+			return error401("The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			return error401("The request requires administration rights.");
 		}
 
 		String appId = getAttribute("tool");
@@ -135,12 +123,10 @@ public class App extends BaseResource {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation("Application not removed: " + e.getMessage());
+				return error400("Application not removed: " + e.getMessage());
 			}
 		} else {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Application '" + appId + "' not found.");
+			return error404("Application '" + appId + "' not found.");
 		}
 	}
 
@@ -150,16 +136,13 @@ public class App extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
+			return error401("The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			return error401("The request requires administration rights.");
 		}
+
 		String appId = getAttribute("tool");
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
@@ -236,13 +219,11 @@ public class App extends BaseResource {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation("Application not installed: " + e.getMessage());
+				return error400("Application not installed: " + e.getMessage());
 			}
 
 		} else {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Application '" + appId + "' not found.");
+			return error404("Application '" + appId + "' not found.");
 		}
 	}
 
