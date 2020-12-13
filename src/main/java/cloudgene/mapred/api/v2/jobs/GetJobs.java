@@ -27,7 +27,7 @@ public class GetJobs extends BaseResource {
 	@Get
 	public Representation getJobs() {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		if (user == null) {
 			return error401("The request requires user authentication.");

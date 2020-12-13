@@ -73,6 +73,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private User user;
 
+	private String userAgent = "";
+
 	private long deletedOn = -1;
 
 	private String application;
@@ -88,7 +90,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private boolean setupRunning = false;
 
 	private boolean complete = true;
-	
+
 	private int positionInQueue = -1;
 
 	protected List<CloudgeneParameterInput> inputParams = new Vector<CloudgeneParameterInput>();
@@ -118,7 +120,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private boolean forceInstallation = false;
 
 	private String workspaceSize = null;
-	
+
 	public String getId() {
 		return id;
 	}
@@ -223,6 +225,14 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return deletedOn;
 	}
 
+	public void setUserAgent(String userAgent) {
+		this.userAgent = userAgent;
+	}
+	
+	public String getUserAgent() {
+		return userAgent;
+	}
+
 	public List<CloudgeneParameterInput> getInputParams() {
 		return inputParams;
 	}
@@ -250,11 +260,11 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public void setWorkspaceSize(String workspaceSize) {
 		this.workspaceSize = workspaceSize;
 	}
-	
+
 	public String getWorkspaceSize() {
 		return workspaceSize;
 	}
-	
+
 	public boolean afterSubmission() {
 		try {
 
@@ -288,10 +298,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 		boolean result = executeInstallation(forceInstallation);
 
 		if (result == false || state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
-			ErrorStep errorStep = new ErrorStep(getError()!= null ? getError() : "Error" );
+			ErrorStep errorStep = new ErrorStep(getError() != null ? getError() : "Error");
 			errorStep.setJob(this);
 			errorStep.setName("Job Setup failed: " + getError());
-			getSteps().add(errorStep);			
+			getSteps().add(errorStep);
 			setState(AbstractJob.STATE_FAILED);
 			onFailure();
 			setSetupComplete(false);
@@ -366,7 +376,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 				closeStdOutFiles();
 
-				
 			} else if (!succesfull) {
 
 				setState(AbstractJob.STATE_FAILED);
@@ -383,7 +392,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 				setSetupComplete(false);
 
 				closeStdOutFiles();
-				
+
 			}
 
 		} catch (Exception | Error e) {
@@ -407,7 +416,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 			closeStdOutFiles();
 
 			setSetupRunning(false);
-			
+
 		}
 	}
 
@@ -429,7 +438,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 			writeLog("  Name: " + getName());
 			writeLog("  Job-Id: " + getId());
 			writeLog("  Submitted On: " + new Date(getSubmittedOn()).toString());
-			writeLog("  Completed On: " + new Date(getFinishedOn()).toString());
+			writeLog("  Submitted By: " + getUser().getUsername());
+			writeLog("  User-Agent: " + getUserAgent());
 			writeLog("  Inputs:");
 			for (CloudgeneParameterInput parameter : inputParams) {
 				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
@@ -737,11 +747,11 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public String getApplicationId() {
 		return applicationId;
 	}
-	
+
 	public void setComplete(boolean complete) {
 		this.complete = complete;
 	}
-	
+
 	public boolean isComplete() {
 		return this.complete;
 	}
@@ -750,10 +760,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return canceld;
 	}
 
-	public boolean isRunning(){
+	public boolean isRunning() {
 		return !complete;
 	}
-	
+
 	abstract public boolean execute();
 
 	abstract public boolean executeSetupSteps();
@@ -785,13 +795,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public void forceInstallation(boolean forceInstallation) {
 		this.forceInstallation = forceInstallation;
 	}
-	
-	public long getCurrentTime(){
+
+	public long getCurrentTime() {
 		return System.currentTimeMillis();
 	}
-	
-	public void setCurrentTime(long time){
-		
+
+	public void setCurrentTime(long time) {
+
 	}
 
 }

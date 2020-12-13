@@ -30,12 +30,12 @@ public class JobDao extends JdbcDataAccessObject {
 	public boolean insert(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id, submitted_on, finished_on, setup_start_time, setup_end_time) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id, submitted_on, finished_on, setup_start_time, setup_end_time, user_agent) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[14];
+			Object[] params = new Object[15];
 			params[0] = job.getId();
 			params[1] = job.getName();
 			params[2] = job.getState();
@@ -50,6 +50,7 @@ public class JobDao extends JdbcDataAccessObject {
 			params[11] = job.getFinishedOn();
 			params[12] = job.getSetupStartTime();
 			params[13] = job.getSetupEndTime();
+			params[14] = trimToLength(job.getUserAgent(), 350);
 
 			update(sql.toString(), params);
 
@@ -482,6 +483,7 @@ public class JobDao extends JdbcDataAccessObject {
 			job.setFinishedOn(rs.getLong("job.finished_on"));
 			job.setSetupStartTime(rs.getLong("job.setup_start_time"));
 			job.setSetupEndTime(rs.getLong("job.setup_end_time"));
+			job.setUserAgent(rs.getString("job.user_agent"));
 
 			return job;
 		}
@@ -505,6 +507,10 @@ public class JobDao extends JdbcDataAccessObject {
 			return job;
 		}
 
+	}
+
+	public String trimToLength(String string, int maxLength) {
+		return string.substring(0, Math.min(string.length(), maxLength));
 	}
 
 }

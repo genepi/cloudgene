@@ -162,3 +162,6 @@ ALTER TABLE log_messages MODIFY COLUMN message VARCHAR (20000);
 
 -- 2.3.4
 ALTER TABLE html_snippets MODIFY COLUMN text VARCHAR (8000);
+
+-- 2.3.7
+alter table job add column user_agent VARCHAR (400);

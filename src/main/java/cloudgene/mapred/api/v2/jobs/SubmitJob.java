@@ -45,7 +45,7 @@ public class SubmitJob extends BaseResource {
 	@Post
 	public Representation post(Representation entity) {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		if (getSettings().isMaintenance() && !user.isAdmin()) {
 			return error503("This functionality is currently under maintenance.");
@@ -137,6 +137,9 @@ public class SubmitJob extends BaseResource {
 		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(appId);
+
+		String userAgent = getRequest().getClientInfo().getAgent();
+		job.setUserAgent(userAgent);
 
 		engine.submit(job);
 

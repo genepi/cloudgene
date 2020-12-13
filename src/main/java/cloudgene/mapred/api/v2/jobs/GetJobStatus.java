@@ -18,7 +18,7 @@ public class GetJobStatus extends BaseResource {
 	@Get
 	public Representation get(Representation entity) {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		String id = getAttribute("job");
 
