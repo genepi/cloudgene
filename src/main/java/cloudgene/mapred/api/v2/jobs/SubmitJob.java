@@ -135,6 +135,9 @@ public class SubmitJob extends BaseResource {
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(appId);
 
+		String userAgent = getRequest().getClientInfo().getAgent();
+		job.setUserAgent(userAgent);
+
 		engine.submit(job);
 
 		Map<String, Object> params = new HashMap<String, Object>();
@@ -296,7 +299,7 @@ public class SubmitJob extends BaseResource {
 					}
 				}
 			}
-			
+
 			params.put("job-name", props.get("job-name"));
 
 		} catch (Exception e) {
