@@ -73,7 +73,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private User user;
 
-	private String userAgent;
+	private String userAgent = "";
 
 	private long deletedOn = -1;
 
