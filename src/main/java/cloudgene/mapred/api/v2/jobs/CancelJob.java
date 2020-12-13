@@ -16,7 +16,7 @@ public class CancelJob extends BaseResource {
 	@Get
 	public Representation get(Representation entity) {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		if (user == null) {
 			user = PublicUser.getUser(getDatabase());
