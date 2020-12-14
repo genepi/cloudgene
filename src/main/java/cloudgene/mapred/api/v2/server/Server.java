@@ -19,7 +19,7 @@ public class Server extends BaseResource {
 	@Get
 	public Representation getServer() {
 
-		User user = getAuthUser(false);
+		User user = getAuthUserAndAllowApiToken(false);
 
 		JSONObject data = new JSONObject();
 		data.put("name", getSettings().getName());
