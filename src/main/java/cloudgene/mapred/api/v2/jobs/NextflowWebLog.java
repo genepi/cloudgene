@@ -27,7 +27,7 @@ public class NextflowWebLog extends BaseResource {
 			if (event.has("trace")) {
 				info.addEvent(job, event);
 			} else {
-				System.out.println(event.toString());
+				//System.out.println(event.toString());
 			}
 
 		} catch (Exception e) {
