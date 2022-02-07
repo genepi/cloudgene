@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="MyApp">
+
+	<Appenders>
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
+		</Console>
+	</Appenders>
+
+	<Loggers>
+		<Logger name="LogService" level="info" additivity="false">
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="cloudgene" level="info" additivity="false">
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="genepi.db" level="info" additivity="false">
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="genepi.hadoop" level="info" additivity="false">
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+		<Logger name="org.apache.hadoop.mapred.JobClient" level="info"
+			additivity="false">
+			<AppenderRef ref="STDOUT" />
+		</Logger>
+	</Loggers>
+
+</Configuration>
