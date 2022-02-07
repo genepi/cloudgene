@@ -339,20 +339,6 @@
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
 			<type>test-jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -360,24 +346,6 @@
 			<artifactId>hadoop-hdfs</artifactId>
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -385,24 +353,6 @@
 			<artifactId>hadoop-common</artifactId>
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -411,24 +361,6 @@
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
 			<type>test-jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -436,28 +368,6 @@
 			<artifactId>hadoop-test</artifactId>
 			<version>2.6.0-mr1-cdh5.16.1</version>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-httpclient</groupId>
-					<artifactId>commons-httpclient</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>log4j</groupId>
-					<artifactId>log4j</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-log4j12</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
