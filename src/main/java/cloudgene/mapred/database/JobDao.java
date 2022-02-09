@@ -242,7 +242,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("order by job.id asc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
@@ -266,7 +266,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where state != ? AND state != ? ");
 		sql.append("order by job.id desc ");
 
@@ -295,7 +295,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where state != ? AND state != ? AND state != ? AND state != ? ");
 		sql.append("order by job.id desc ");
 
@@ -326,7 +326,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where  state = ? or state = ? ");
 		sql.append("order by job.id desc ");
 
@@ -355,7 +355,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where  state = ? AND finished_on != 0 AND finished_on < ? ");
 		sql.append("order by job.id desc ");
 
@@ -384,7 +384,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where state = ? ");
 		sql.append("order by job.id desc ");
 
@@ -417,7 +417,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where job.id = ? and state != ? ");
 
 		Object[] params = new Object[2];

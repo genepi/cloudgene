@@ -25,7 +25,7 @@ public class UserDao extends JdbcDataAccessObject {
 	public boolean insert(User user) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"insert into user (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token, last_login, locked_until, login_attempts) ");
+				"insert into `user` (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token, last_login, locked_until, login_attempts) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
@@ -67,7 +67,7 @@ public class UserDao extends JdbcDataAccessObject {
 	public boolean update(User user) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"update user set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ?, last_login = ?, locked_until = ?, login_attempts = ? ");
+				"update `user` set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ?, last_login = ?, locked_until = ?, login_attempts = ? ");
 		sql.append("where id = ?");
 
 		try {
@@ -109,7 +109,7 @@ public class UserDao extends JdbcDataAccessObject {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select * ");
-		sql.append("from user ");
+		sql.append("from `user` ");
 		sql.append("where username = ?");
 
 		Object[] params = new Object[1];
@@ -136,7 +136,7 @@ public class UserDao extends JdbcDataAccessObject {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select * ");
-		sql.append("from user ");
+		sql.append("from `user` ");
 		sql.append("where mail = ?");
 
 		Object[] params = new Object[1];
@@ -162,7 +162,7 @@ public class UserDao extends JdbcDataAccessObject {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select * ");
-		sql.append("from user ");
+		sql.append("from `user` ");
 		sql.append("where id = ?");
 
 		Object[] params = new Object[1];
@@ -190,7 +190,7 @@ public class UserDao extends JdbcDataAccessObject {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select * ");
-		sql.append("from user ");
+		sql.append("from `user` ");
 		sql.append("order by username");
 
 		List<User> result = new Vector<User>();
@@ -214,7 +214,7 @@ public class UserDao extends JdbcDataAccessObject {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select * ");
-		sql.append("from user ");
+		sql.append("from `user` ");
 		sql.append("where mail like ? or username like ? or full_name like ? ");
 		sql.append("order by username");
 
@@ -244,7 +244,7 @@ public class UserDao extends JdbcDataAccessObject {
 		StringBuffer sql = new StringBuffer();
 
 		sql.append("select * ");
-		sql.append("from user ");
+		sql.append("from `user` ");
 		sql.append("order by username ");
 		sql.append("limit ?,?");
 
@@ -280,7 +280,7 @@ public class UserDao extends JdbcDataAccessObject {
 		}
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("delete from user ");
+		sql.append("delete from `user` ");
 		sql.append("where id = ? ");
 		try {
 
