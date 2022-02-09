@@ -86,7 +86,7 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-io</artifactId>
-			<version>1.0.12</version>
+			<version>1.2.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>log4j</groupId>
