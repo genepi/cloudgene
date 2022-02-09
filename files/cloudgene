@@ -21,4 +21,4 @@ CLASS="cloudgene.mapred.CommandLineInterface"
 cd $FILE_PATH
 
 # execute cloudgene
-java -cp $CLASS_PATH $CLASS "$@"
+java -Dlog4j.configurationFile=config/log4j2.xml -cp $CLASS_PATH $CLASS "$@"
