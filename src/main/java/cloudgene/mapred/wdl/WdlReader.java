@@ -7,24 +7,16 @@ import java.io.StringReader;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
-import genepi.io.FileUtil;
-
 public class WdlReader {
 
 	public static WdlApp loadAppFromString(String filename, String content) throws IOException {
 
 		YamlReader reader = new YamlReader(new StringReader(content));
 
-		try {
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "workflow", WdlWorkflow.class);
-		}catch (Exception e) {
-			
-		}
-		try {
+
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlWorkflow.class);
-		}catch (Exception e) {
-			
-		}
+
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "steps", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "setups", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "inputs", WdlParameterInput.class);
@@ -44,17 +36,10 @@ public class WdlReader {
 
 		YamlReader reader = new YamlReader(new FileReader(filename));
 
-		try {
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "workflow", WdlWorkflow.class);
-		}catch (Exception e) {
-		
-		}
-		try {
+
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlWorkflow.class);
-		}catch (Exception e) {
-			
-		}
-		
+
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "steps", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "setups", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "inputs", WdlParameterInput.class);
@@ -75,7 +60,8 @@ public class WdlReader {
 		String path = new File(new File(filename).getAbsolutePath()).getParentFile().getAbsolutePath();
 		app.setPath(path);
 		app.setManifestFile(filename);
-		//app.setId(FileUtil.getFilename(app.getManifestFile()).replaceAll(".yaml", ""));
+		// app.setId(FileUtil.getFilename(app.getManifestFile()).replaceAll(".yaml",
+		// ""));
 		// check mandatory fields errors
 		/*
 		 * if (app.getId() == null || app.getId().isEmpty()) { throw new

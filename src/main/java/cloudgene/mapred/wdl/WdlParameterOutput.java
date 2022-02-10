@@ -6,7 +6,10 @@ public class WdlParameterOutput implements WdlParameter {
 
 	private String description;
 
-	private WdlParameterOutputType type;
+	//needed, because yamlbeans expects property AND getter/setter methods.
+	private String type;
+	
+	private WdlParameterOutputType typeEnum;
 
 	private boolean makeAbsolute = true;
 
@@ -40,15 +43,15 @@ public class WdlParameterOutput implements WdlParameter {
 
 	@Deprecated
 	public String getType() {
-		return type.toString();
+		return typeEnum.toString();
 	}
 
 	public void setType(String type) {
-		this.type = WdlParameterOutputType.getEnum(type);
+		this.typeEnum = WdlParameterOutputType.getEnum(type);
 	}
 
 	public WdlParameterOutputType getTypeAsEnum() {
-		return type;
+		return typeEnum;
 	}
 
 	public boolean isMergeOutput() {
@@ -117,16 +120,16 @@ public class WdlParameterOutput implements WdlParameter {
 	}
 
 	public boolean isFileOrFolder() {
-		return (type == WdlParameterOutputType.HDFS_FILE || type == WdlParameterOutputType.HDFS_FOLDER
-				|| type == WdlParameterOutputType.LOCAL_FILE || type == WdlParameterOutputType.LOCAL_FOLDER);
+		return (typeEnum == WdlParameterOutputType.HDFS_FILE || typeEnum == WdlParameterOutputType.HDFS_FOLDER
+				|| typeEnum == WdlParameterOutputType.LOCAL_FILE || typeEnum == WdlParameterOutputType.LOCAL_FOLDER);
 	}
 
 	public boolean isHdfs() {
-		return (type == WdlParameterOutputType.HDFS_FOLDER || type == WdlParameterOutputType.HDFS_FILE);
+		return (typeEnum == WdlParameterOutputType.HDFS_FOLDER || typeEnum == WdlParameterOutputType.HDFS_FILE);
 	}
 
 	public boolean isFolder() {
-		return (type == WdlParameterOutputType.HDFS_FOLDER || type == WdlParameterOutputType.LOCAL_FOLDER);
+		return (typeEnum == WdlParameterOutputType.HDFS_FOLDER || typeEnum == WdlParameterOutputType.LOCAL_FOLDER);
 	}
 
 }
