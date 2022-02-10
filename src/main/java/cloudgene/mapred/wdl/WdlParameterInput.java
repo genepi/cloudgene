@@ -11,7 +11,10 @@ public class WdlParameterInput implements WdlParameter {
 
 	private String value = "";
 
-	private WdlParameterInputType type;
+	//needed, because yamlbeans expects property AND getter/setter methods.
+	private String type;
+	
+	private WdlParameterInputType typeEnum;
 
 	private boolean visible = true;
 
@@ -65,15 +68,15 @@ public class WdlParameterInput implements WdlParameter {
 
 	@Deprecated
 	public String getType() {
-		return type.toString();
+		return typeEnum.toString();
 	}
 
 	public void setType(String type) {
-		this.type = WdlParameterInputType.getEnum(type);
+		this.typeEnum = WdlParameterInputType.getEnum(type);
 	}
 
 	public WdlParameterInputType getTypeAsEnum() {
-		return type;
+		return typeEnum;
 	}
 
 	public Map<String, String> getValues() {
@@ -109,16 +112,16 @@ public class WdlParameterInput implements WdlParameter {
 	}
 
 	public boolean isFileOrFolder() {
-		return (type == WdlParameterInputType.HDFS_FILE || type == WdlParameterInputType.HDFS_FOLDER
-				|| type == WdlParameterInputType.LOCAL_FILE || type == WdlParameterInputType.LOCAL_FOLDER);
+		return (typeEnum == WdlParameterInputType.HDFS_FILE || typeEnum == WdlParameterInputType.HDFS_FOLDER
+				|| typeEnum == WdlParameterInputType.LOCAL_FILE || typeEnum == WdlParameterInputType.LOCAL_FOLDER);
 	}
 
 	public boolean isHdfs() {
-		return (type == WdlParameterInputType.HDFS_FOLDER || type == WdlParameterInputType.HDFS_FILE);
+		return (typeEnum == WdlParameterInputType.HDFS_FOLDER || typeEnum == WdlParameterInputType.HDFS_FILE);
 	}
 
 	public boolean isFolder() {
-		return (type == WdlParameterInputType.HDFS_FOLDER || type == WdlParameterInputType.LOCAL_FOLDER);
+		return (typeEnum == WdlParameterInputType.HDFS_FOLDER || typeEnum == WdlParameterInputType.LOCAL_FOLDER);
 	}
 
 	public void setHelp(String help) {

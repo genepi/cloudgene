@@ -28,6 +28,9 @@ public class WdlApp implements Comparable<WdlApp> {
 	private String submitButton = "Submit Job";
 
 	private WdlWorkflow workflow;
+	
+	//needed, because yamlbeans expects property AND getter/setter methods.
+	private WdlWorkflow mapred;
 
 	private List<Map<String, Object>> installation;
 

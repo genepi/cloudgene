@@ -28,7 +28,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 	public boolean insert(CloudgeneParameterInput parameter) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format, admin_only) ");
+		sql.append("insert into parameter (name, `value`, input, job_id, type, variable, download, format, admin_only) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?)");
 
 		try {
@@ -63,7 +63,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 	public boolean insert(CloudgeneParameterOutput parameter) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into parameter (name, value, input, job_id, type, variable, download, format, admin_only) ");
+		sql.append("insert into parameter (name, `value`, input, job_id, type, variable, download, format, admin_only) ");
 		sql.append("values (?,?,?,?,?,?,?,?,?)");
 
 		try {

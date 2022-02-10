@@ -1,12 +1,14 @@
 package cloudgene.mapred.core;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.restlet.Request;
 import org.restlet.data.Parameter;
 import org.restlet.util.Series;
 
 import cloudgene.mapred.database.UserDao;
 import genepi.db.Database;
-import net.minidev.json.JSONObject;
 
 public class JWTUtil {
 
@@ -21,7 +23,7 @@ public class JWTUtil {
 
 	public static String createCookieToken(User user, String secretKey, String csrfToken) {
 
-		JSONObject playload = new JSONObject();
+		Map<String, Object> playload = new HashMap<String, Object>();
 		playload.put("username", user.getUsername());
 		playload.put("name", user.getFullName());
 		playload.put("mail", user.getMail());
@@ -35,7 +37,7 @@ public class JWTUtil {
 
 	public static String createApiToken(User user, String secretKey) {
 
-		JSONObject playload = new JSONObject();
+		Map<String, Object> playload = new HashMap<String, Object>();
 		playload.put("username", user.getUsername());
 		playload.put("name", user.getFullName());
 		playload.put("mail", user.getMail());
@@ -45,7 +47,7 @@ public class JWTUtil {
 		return token;
 	}
 
-	public static User getUser(Database database, JSONObject payload) {
+	public static User getUser(Database database, Map<String, Object> payload) {
 		String username = payload.get("username").toString();
 		if (username != null) {
 			UserDao userDao = new UserDao(database);
@@ -55,7 +57,7 @@ public class JWTUtil {
 		}
 	}
 
-	public static boolean isApiToken(JSONObject payload) {
+	public static boolean isApiToken(Map<String, Object> payload) {
 		if (payload.containsKey("api")) {
 			return (Boolean) payload.get("api");
 		} else {
@@ -84,7 +86,7 @@ public class JWTUtil {
 				return null;
 			}
 
-			JSONObject payload = JWT.validate(token, secretKey);
+			Map<String, Object> payload = JWT.validate(token, secretKey);
 
 			if (payload != null) {
 
@@ -105,14 +107,14 @@ public class JWTUtil {
 			}
 
 		}
-		
+
 		return null;
 
 	}
 
 	public static User getUserByApiToken(Database database, Request request, String secretKey) {
 
-		JSONObject payload = JWT.validate(request, secretKey);
+		Map<String, Object> payload = JWT.validate(request, secretKey);
 
 		if (payload != null) {
 
