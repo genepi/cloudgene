@@ -15,12 +15,21 @@ public class WdlReader {
 
 		YamlReader reader = new YamlReader(new StringReader(content));
 
+		try {
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "workflow", WdlWorkflow.class);
+		}catch (Exception e) {
+			
+		}
+		try {
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlWorkflow.class);
+		}catch (Exception e) {
+			
+		}
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "steps", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "setups", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "inputs", WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "outputs", WdlParameterOutput.class);
+		reader.getConfig().readConfig.setIgnoreUnknownProperties(true);
 
 		WdlApp app = reader.read(WdlApp.class);
 		reader.close();
@@ -35,12 +44,22 @@ public class WdlReader {
 
 		YamlReader reader = new YamlReader(new FileReader(filename));
 
+		try {
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "workflow", WdlWorkflow.class);
+		}catch (Exception e) {
+		
+		}
+		try {
 		reader.getConfig().setPropertyDefaultType(WdlApp.class, "mapred", WdlWorkflow.class);
+		}catch (Exception e) {
+			
+		}
+		
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "steps", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "setups", WdlStep.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "inputs", WdlParameterInput.class);
 		reader.getConfig().setPropertyElementType(WdlWorkflow.class, "outputs", WdlParameterOutput.class);
+		reader.getConfig().readConfig.setIgnoreUnknownProperties(true);
 
 		WdlApp app = reader.read(WdlApp.class);
 		reader.close();
