@@ -14,8 +14,6 @@ mapred:
     - name: ReturnTrueStep
       classname: cloudgene.mapred.jobs.steps.ReturnTrueStep
 
-  steps:
-
   inputs:
 
     - id: inputtext
