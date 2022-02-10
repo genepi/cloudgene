@@ -169,7 +169,7 @@
 			<version>${restlet.version}</version>
 		</dependency>
 
-		 <dependency>
+		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.slf4j</artifactId>
 			<version>${restlet.version}</version>
@@ -215,11 +215,11 @@
 		</dependency>
 
 		<!-- use slf4j with log4j2 -->
-		  <dependency>
+		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.17.1</version>
-		</dependency> 
+		</dependency>
 
 		<!-- use apache commons with log4j2 -->
 		<dependency>
@@ -262,10 +262,11 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4</version>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>com.jcraft</groupId>
@@ -383,6 +384,16 @@
 			<artifactId>dumbster</artifactId>
 			<version>1.6</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.activation</groupId>
+					<artifactId>activation</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
