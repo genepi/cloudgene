@@ -6,8 +6,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import net.minidev.json.JSONObject;
-import net.minidev.json.parser.JSONParser;
+import com.nimbusds.jose.shaded.json.JSONObject;
+import com.nimbusds.jose.shaded.json.parser.JSONParser;
+
 
 public class GitHubUtil {
 	

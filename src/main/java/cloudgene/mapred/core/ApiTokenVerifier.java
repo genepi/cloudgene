@@ -1,9 +1,9 @@
 package cloudgene.mapred.core;
 
 import java.util.Date;
+import java.util.Map;
 
 import org.json.JSONObject;
-import org.restlet.representation.StringRepresentation;
 
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jose.JWSVerifier;
@@ -29,7 +29,7 @@ public class ApiTokenVerifier {
 
 			if (jwsObject.verify(verifier)) {
 				// read valid-until and check
-				net.minidev.json.JSONObject payload = jwsObject.getPayload().toJSONObject();
+				Map<String, Object> payload = jwsObject.getPayload().toJSONObject();
 
 				User user = getUser(database, payload);
 				if (user == null) {
@@ -57,7 +57,7 @@ public class ApiTokenVerifier {
 					}
 				}
 
-				return new JSONObject(payload.toJSONString());
+				return new JSONObject(payload);
 
 			} else {
 				JSONObject result = new JSONObject();
@@ -75,7 +75,7 @@ public class ApiTokenVerifier {
 
 	}
 
-	public static User getUser(Database database, net.minidev.json.JSONObject payload) {
+	public static User getUser(Database database, Map<String, Object> payload) {
 		String username = payload.get("username").toString();
 		if (username != null) {
 			UserDao userDao = new UserDao(database);
