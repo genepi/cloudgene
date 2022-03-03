@@ -355,6 +355,12 @@
 			<artifactId>hadoop-common</artifactId>
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpcore</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
