@@ -4,8 +4,7 @@ import java.io.InputStream;
 
 import org.junit.Test;
 
-import cloudgene.mapred.Main;
-import cloudgene.mapred.util.TestCluster;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
 import genepi.db.DatabaseUpdater;
@@ -23,9 +22,9 @@ public class DatabaseUpdateTest extends TestCase {
 	public void testVersionNoUpdateFromDB()   {
 
 		Database database = TestServer.getInstance().getDatabase();
-		InputStream is = Main.class.getResourceAsStream("/updates.sql");
+		InputStream is = Application.class.getResourceAsStream("/updates.sql");
 		DatabaseUpdater databaseUpdater = new DatabaseUpdater(database, null, is,
-				Main.VERSION);
+				Application.VERSION);
 	
 		assertEquals(false, databaseUpdater.needUpdate());
 

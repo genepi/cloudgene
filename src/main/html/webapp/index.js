@@ -94,6 +94,23 @@ function loggedInGuard(appState) {
   return appState.attr('loggedIn');
 }
 
+$.ajaxPrefilter(function(options) {
+  if (!options.beforeSend) {
+    options.beforeSend = function(xhr) {
+      if (localStorage.getItem("cloudgene")) {
+        try {
+          // get data
+          var data = JSON.parse(localStorage.getItem("cloudgene"));
+          xhr.setRequestHeader("X-CSRF-Token", data.csrf);
+          xhr.setRequestHeader("Authorization", "Bearer " + data.token);
+        } catch (e) {
+          // do nothing
+        }
+      }
+    }
+  }
+});
+
 Server.findOne({}, function(server) {
 
   new LayoutControl("#main", {

@@ -13,6 +13,7 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.TestServer;
+import cloudgene.mapred.util.auth.DatabaseAuthenticationProvider;
 import genepi.db.Database;
 
 public class LoginUserTest extends JobsApiTestCase {
@@ -102,7 +103,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		int oldLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
 		// login should work xx times
-		for (int i = 1; i < LoginUser.MAX_LOGIN_ATTEMMPTS + 10; i++) {
+		for (int i = 1; i < DatabaseAuthenticationProvider.MAX_LOGIN_ATTEMMPTS + 10; i++) {
 			ClientResource resource = createClientResource("/login");
 			Form form = new Form();
 			form.set("loginUsername", "lockeduser");
@@ -114,7 +115,7 @@ public class LoginUserTest extends JobsApiTestCase {
 
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
-			if (i <= LoginUser.MAX_LOGIN_ATTEMMPTS) {
+			if (i <= DatabaseAuthenticationProvider.MAX_LOGIN_ATTEMMPTS) {
 				// check login counter
 				assertEquals(oldLoginAttempts + 1, newLoginAttempts);
 				oldLoginAttempts = newLoginAttempts;
@@ -123,7 +124,7 @@ public class LoginUserTest extends JobsApiTestCase {
 				assertEquals(false, object.get("success"));
 				assertEquals(0, resource.getResponse().getCookieSettings().size());
 			} else {
-				assertEquals("The user account is locked for " + LoginUser.LOCKING_TIME_MIN
+				assertEquals("The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
 						+ " minutes. Too many failed logins.", object.getString("message"));
 				assertEquals(false, object.get("success"));
 				assertEquals(0, resource.getResponse().getCookieSettings().size());
@@ -142,7 +143,7 @@ public class LoginUserTest extends JobsApiTestCase {
 			assertEquals(200, resource.getStatus().getCode());
 			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 
-			assertEquals("The user account is locked for " + LoginUser.LOCKING_TIME_MIN
+			assertEquals("The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
 					+ " minutes. Too many failed logins.", object.getString("message"));
 			assertEquals(false, object.get("success"));
 			assertEquals(0, resource.getResponse().getCookieSettings().size());

@@ -1,31 +1,40 @@
 package cloudgene.mapred.api.v2.server;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Vector;
 
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class Server extends BaseResource {
-	
-	@Get
-	public Representation getServer() {
+@Controller
+public class Server {
 
-		User user = getAuthUserAndAllowApiToken(false);
+	@Inject
+	protected Application application;
+
+	@Get("/api/v2/server")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String getServer(@Nullable Principal principal) {
+
+		User user = application.getUserByPrincipal(principal);
 
 		JSONObject data = new JSONObject();
-		data.put("name", getSettings().getName());
-		data.put("background", getSettings().getColors().get("background"));
-		data.put("foreground", getSettings().getColors().get("foreground"));
-		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
+		data.put("name", application.getSettings().getName());
+		data.put("background", application.getSettings().getColors().get("background"));
+		data.put("foreground", application.getSettings().getColors().get("foreground"));
+		data.put("footer", application.getTemplate(Template.FOOTER));
+
 		if (user != null) {
 			JSONObject userJson = new JSONObject();
 			userJson.put("username", user.getUsername());
@@ -34,7 +43,7 @@ public class Server extends BaseResource {
 			userJson.put("name", user.getFullName());
 			data.put("user", userJson);
 
-			ApplicationRepository repository = getApplicationRepository();
+			ApplicationRepository repository = application.getSettings().getApplicationRepository();
 			List<WdlApp> apps = repository.getAllByUser(user);
 			data.put("apps", apps);
 
@@ -42,18 +51,17 @@ public class Server extends BaseResource {
 			List<JSONObject> deprecatedAppsJson = new Vector<JSONObject>();
 			List<JSONObject> experimentalAppsJson = new Vector<JSONObject>();
 
-
 			for (WdlApp app : apps) {
 				JSONObject appJson = new JSONObject();
 				appJson.put("id", app.getId());
 				appJson.put("name", app.getName());
 				if (app.getRelease() == null) {
 					appsJson.add(appJson);
-				} else if (app.getRelease().equals("deprecated")){
+				} else if (app.getRelease().equals("deprecated")) {
 					deprecatedAppsJson.add(appJson);
-				} else if (app.getRelease().equals("experimental")){
+				} else if (app.getRelease().equals("experimental")) {
 					experimentalAppsJson.add(appJson);
-				}else {
+				} else {
 					appsJson.add(appJson);
 				}
 			}
@@ -65,21 +73,21 @@ public class Server extends BaseResource {
 
 		} else {
 			// get Public apps
-			ApplicationRepository repository = getApplicationRepository();
+			ApplicationRepository repository = application.getSettings().getApplicationRepository();
 			List<WdlApp> apps = repository.getAllByUser(null);
 			data.put("apps", apps);
 			data.put("loggedIn", false);
 		}
 
-		data.put("navigation", getSettings().getNavigation());
-		if (getSettings().isMaintenance()) {
+		data.put("navigation", application.getSettings().getNavigation());
+		if (application.getSettings().isMaintenance()) {
 			data.put("maintenace", true);
-			data.put("maintenaceMessage", getWebApp().getTemplate(Template.MAINTENANCE_MESSAGE));
+			data.put("maintenaceMessage", application.getTemplate(Template.MAINTENANCE_MESSAGE));
 		} else {
 			data.put("maintenace", false);
 		}
 
-		return new StringRepresentation(data.toString());
+		return data.toString();
 
 	}
 

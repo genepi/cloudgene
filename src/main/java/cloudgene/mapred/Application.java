@@ -3,23 +3,23 @@ package cloudgene.mapred;
 import java.io.File;
 import java.io.FileReader;
 import java.io.InputStream;
+import java.security.Principal;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.engine.Engine;
-//import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
@@ -33,23 +33,30 @@ import genepi.db.Database;
 import genepi.db.DatabaseConnector;
 import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
+import io.micronaut.context.annotation.Context;
+import io.micronaut.runtime.Micronaut;
 
-public class Main {
+@Context
+public class Application {
 
 	public static final String VERSION = "2.5.1";
 
 	private Database database;
 
-	private WebServer server;
+	private Settings settings;
 
-	public void runCloudgene(Settings settings, String[] args) throws Exception {
+	private WorkflowEngine engine;
+
+	private Map<String, String> cacheTemplates;
+
+	public Application() throws Exception {
 
 		// configure logger
 
 		Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 		Engine.getInstance().setLoggerFacade(loggerFacade);
 
-		Log log = LogFactory.getLog(Main.class);
+		Log log = LogFactory.getLog(Application.class);
 
 		log.debug("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
@@ -64,49 +71,20 @@ public class Main {
 		String settingsFilename = config.getSettings();
 
 		// load default settings when not yet loaded
-		if (settings == null) {
-			if (new File(settingsFilename).exists()) {
-				log.info("Loading settings from " + settingsFilename + "...");
-				settings = Settings.load(config);
-			} else {
-				settings = new Settings(config);
-			}
 
-			if (!settings.testPaths()) {
-				System.exit(1);
-			}
+		if (new File(settingsFilename).exists()) {
+			log.info("Loading settings from " + settingsFilename + "...");
+			settings = Settings.load(config);
+		} else {
+			settings = new Settings(config);
+		}
+
+		if (!settings.testPaths()) {
+			System.exit(1);
 		}
 
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);
-
-		// create the command line parser
-		CommandLineParser parser = new DefaultParser();
-
-		// create the Options
-		Options options = new Options();
-		Option portOption = new Option(null, "port", true, "runs cloudgene on port <PORT>");
-		portOption.setRequired(false);
-		portOption.setArgName("PORT");
-		options.addOption(portOption);
-
-		// parse the command line arguments
-		CommandLine line = null;
-		try {
-
-			line = parser.parse(options, args);
-
-		} catch (Exception e) {
-
-			System.out.println(e.getMessage() + "\n");
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("hadoop jar cloudgene-mapred.jar", options);
-
-			log.error("Parsing arguments failed", e);
-
-			System.exit(1);
-
-		}
 
 		database = new Database();
 
@@ -143,7 +121,7 @@ public class Main {
 
 		// update database schema if needed
 		log.info("Setup Database...");
-		InputStream is = Main.class.getResourceAsStream("/updates.sql");
+		InputStream is = Application.class.getResourceAsStream("/updates.sql");
 
 		DatabaseUpdater updater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
 		updater.addUpdate("2.3.0", new BcryptHashUpdate());
@@ -151,6 +129,8 @@ public class Main {
 		if (!updater.updateDB()) {
 			System.exit(-1);
 		}
+
+		reloadTemplates();
 
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
@@ -162,46 +142,9 @@ public class Main {
 		// start workflow engine
 		try {
 
-			WorkflowEngine engine = new PersistentWorkflowEngine(database, settings.getThreadsQueue(),
+			engine = new PersistentWorkflowEngine(database, settings.getThreadsQueue(),
 					settings.getThreadsSetupQueue());
 			new Thread(engine).start();
-
-			int port = Integer.parseInt(line.getOptionValue("port", settings.getPort()));
-
-			// loggerFacade = new Slf4jLoggerFacade();
-			// Engine.getInstance().setLoggerFacade(loggerFacade);
-
-			log.info("Starting web server at port " + port);
-
-			String webAppFolder = "";
-
-			if (new File("webapp").exists()) {
-				webAppFolder = "webapp";
-			} else {
-				webAppFolder = FileUtil.path("src", "main", "html", "webapp");
-			}
-
-			String pagesFolder = "";
-			if (new File(config.getPages()).exists()) {
-				pagesFolder = config.getPages();
-			} else {
-				pagesFolder = "sample/pages";
-			}
-
-			server = new WebServer();
-			server.setPort(port);
-			server.setRootDirectory(webAppFolder);
-			server.setPagesDirectory(pagesFolder);
-			if (settings.isHttps()) {
-				String keystore = settings.getHttpsKeystore();
-				String phrase = settings.getHttpsPassword();
-				server.setHttpsCertificate(keystore, phrase);
-			}
-			server.setDatabase(database);
-			server.setSettings(settings);
-			server.setWorkflowEngine(engine);
-
-			server.start();
 
 		} catch (Exception e) {
 
@@ -215,8 +158,62 @@ public class Main {
 
 	}
 
-	public static void main(String[] args) throws Exception {
-		Main main = new Main();
-		main.runCloudgene(null, args);
+	public WorkflowEngine getWorkflowEngine() {
+		return engine;
+	}
+
+	public Settings getSettings() {
+		return settings;
+	}
+
+	public Database getDatabase() {
+		return database;
+	}
+
+	public void reloadTemplates() {
+		TemplateDao dao = new TemplateDao(database);
+		List<cloudgene.mapred.util.Template> templates = dao.findAll();
+
+		cacheTemplates = new HashMap<String, String>();
+		for (cloudgene.mapred.util.Template snippet : templates) {
+			cacheTemplates.put(snippet.getKey(), snippet.getText());
+		}
+	}
+
+	public String getTemplate(String key) {
+
+		String template = cacheTemplates.get(key);
+
+		if (template != null) {
+			return template;
+		} else {
+			return "!" + key;
+		}
+
+	}
+
+	public String getTemplate(String key, Object... strings) {
+
+		String template = cacheTemplates.get(key);
+
+		if (template != null) {
+			return String.format(template, strings);
+		} else {
+			return "!" + key;
+		}
+
+	}
+
+	public User getUserByPrincipal(Principal principal) {
+		User user = null;
+		if (principal != null) {
+			UserDao userDao = new UserDao(database);
+			user = userDao.findByUsername(principal.getName());
+		}
+		return user;
+	}
+
+	public static void main(String[] args) {
+		Micronaut.run(Application.class, args);
 	}
 }

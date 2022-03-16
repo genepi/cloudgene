@@ -13,7 +13,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
-import cloudgene.mapred.Main;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
@@ -43,7 +43,7 @@ public class GetClusterDetails extends BaseResource {
 		// general settigns
 		object.put("maintenance", getSettings().isMaintenance());
 		object.put("blocked", !getWorkflowEngine().isRunning());
-		object.put("version", Main.VERSION);
+		object.put("version", Application.VERSION);
 		object.put("maintenance", getSettings().isMaintenance());
 		object.put("blocked", !getWorkflowEngine().isRunning());
 		object.put("threads_setup", getSettings().getThreadsSetupQueue());

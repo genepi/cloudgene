@@ -59,7 +59,6 @@ import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.server.Server;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
-import cloudgene.mapred.api.v2.users.LoginUser;
 import cloudgene.mapred.api.v2.users.LogoutUser;
 import cloudgene.mapred.api.v2.users.RegisterUser;
 import cloudgene.mapred.api.v2.users.ResetPassword;
@@ -125,13 +124,13 @@ public class WebApp extends Application {
 		router.attach(prefix + "/admin.html", Admin.class);
 
 		// user authentication
-		router.attach(prefix + "/login", LoginUser.class);
+		//router.attach(prefix + "/login", LoginUser.class);
 		router.attach(prefix + "/logout", LogoutUser.class);
 
 		router.attach(prefix + "/api/v2/collect/{job}", NextflowWebLog.class);
 
 		// jobs
-		router.attach(prefix + "/api/v2/jobs", GetJobs.class);
+		//router.attach(prefix + "/api/v2/jobs", GetJobs.class);
 		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
 		router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
@@ -161,10 +160,10 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/tokens/verify", VerifyApiToken.class);
 
 		// returns all counters
-		router.attach(prefix + "/api/v2/server", Server.class);
+		//router.attach(prefix + "/api/v2/server", Server.class);
 
 		// returns all counters
-		router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
+		//router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
 
 		// returns meta data about an app
 		router.attach(prefix + "/api/v2/server/apps/{tool}", App.class);

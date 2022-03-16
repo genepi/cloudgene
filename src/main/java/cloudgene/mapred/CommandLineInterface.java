@@ -28,7 +28,7 @@ public class CommandLineInterface extends Toolbox {
 
 	private void printHeader() {
 		System.out.println();
-		System.out.println("Cloudgene " + Main.VERSION);
+		System.out.println("Cloudgene " + Application.VERSION);
 		System.out.println("http://www.cloudgene.io");
 		System.out.println("(c) 2009-2019 Lukas Forer and Sebastian Schoenherr");
 		System.out.println(BuildUtil.getBuildInfos());

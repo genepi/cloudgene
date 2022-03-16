@@ -6,7 +6,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
-import cloudgene.mapred.Main;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.util.BaseResource;
 
 public class GetVersion extends BaseResource {
@@ -19,10 +19,10 @@ public class GetVersion extends BaseResource {
 			+ "		<text x=\"27.5\" y=\"15\" fill=\"#010101\" fill-opacity=\".3\">version</text>"
 			+ "		<text x=\"27.5\" y=\"14\">version</text>"
 			+ "		<text x=\"74.5\" y=\"15\" fill=\"#010101\" fill-opacity=\".3\">"
-			+ Main.VERSION
+			+ Application.VERSION
 			+ "</text>"
 			+ "		<text x=\"74.5\" y=\"14\">"
-			+ Main.VERSION + "</text>" + "	</g>" + "</svg>";
+			+ Application.VERSION + "</text>" + "	</g>" + "</svg>";
 
 	@Get
 	public Representation getVersion() {

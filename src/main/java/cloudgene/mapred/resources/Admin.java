@@ -13,7 +13,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
 
-import cloudgene.mapred.Main;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.BaseResource;
@@ -53,7 +53,7 @@ public class Admin extends BaseResource {
 		data.put("name", getSettings().getName());
 		data.put("background", getSettings().getColors().get("background"));
 		data.put("foreground", getSettings().getColors().get("foreground"));
-		data.put("version", Main.VERSION);
+		data.put("version", Application.VERSION);
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
 
 		return new TemplateRepresentation("admin.html", cfg, data,

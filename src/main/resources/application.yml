@@ -1,0 +1,38 @@
+micronaut:
+  application:
+    name: cloudgene
+
+  security:
+      authentication: bearer
+      intercept-url-map:
+        - pattern : /api/**
+          access:
+            - isAuthenticated()
+        - pattern : /static/**
+          access:
+            - isAnonymous()
+        - pattern : /**
+          access:
+            - isAnonymous()
+      token:
+        jwt:
+          signatures:
+            secret:
+              generator:
+                secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+
+  router:
+    static-resources:
+      webapp:
+        paths:
+          - file:src/main/html/webapp
+        enabled: true
+      pages:
+        enabled: true
+        mapping: "/static/**"
+        paths:
+          - file:sample/pages
+netty:
+  default:
+    allocator:
+      max-order: 3

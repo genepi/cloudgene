@@ -1,22 +1,27 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Vector;
 
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PageUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
-public class GetJobs extends BaseResource {
+@Controller
+public class GetJobs {
 
 	/**
 	 * Resource to get a list of all jobs for authenticated user.
@@ -24,20 +29,23 @@ public class GetJobs extends BaseResource {
 
 	public static final int DEFAULT_PAGE_SIZE = 15;
 
-	@Get
-	public Representation getJobs() {
+	@Inject
+	protected Application application;
+	
+	@Get("/api/v2/jobs")
+	@Secured(SecurityRule.IS_AUTHENTICATED) 
+	public String getJobs(@Nullable Principal principal, @QueryValue String page) {
 
-		User user = getAuthUserAndAllowApiToken();
+		User user = application.getUserByPrincipal(principal);
 
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			throw new RuntimeException("The request requires user authentication.");
 		}
 
-		if (getSettings().isMaintenance() && !user.isAdmin()) {
-			return error503("This functionality is currently under maintenance.");
+		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
+			throw new RuntimeException("This functionality is currently under maintenance.");
 		}
 
-		String page = getQueryValue("page");
 		int pageSize = DEFAULT_PAGE_SIZE;
 
 		int offset = 0;
@@ -51,7 +59,7 @@ public class GetJobs extends BaseResource {
 		}
 
 		// find all jobs by user
-		JobDao dao = new JobDao(getDatabase());
+		JobDao dao = new JobDao(application.getDatabase());
 
 		// count all jobs
 		int count = dao.countAllByUser(user);
@@ -69,7 +77,7 @@ public class GetJobs extends BaseResource {
 		// if job is running, use in memory instance
 		List<AbstractJob> finalJobs = new Vector<AbstractJob>();
 		for (AbstractJob job : jobs) {
-			AbstractJob runningJob = getWorkflowEngine().getJobById(job.getId());
+			AbstractJob runningJob = application.getWorkflowEngine().getJobById(job.getId());
 			if (runningJob != null) {
 				finalJobs.add(runningJob);
 			} else {
@@ -90,7 +98,7 @@ public class GetJobs extends BaseResource {
 		JSONArray jsonArray = JSONArray.fromObject(finalJobs, config);
 		object.put("data", jsonArray);
 
-		return new StringRepresentation(object.toString());
+		return object.toString();
 	}
 
 }

@@ -10,7 +10,6 @@ import java.util.Vector;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
-import cloudgene.mapred.Main;
 import cloudgene.mapred.WebServer;
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
@@ -260,8 +259,8 @@ public class TestServer {
 
 			database.connect(connector);
 
-			InputStream is = Main.class.getResourceAsStream("/updates.sql");
-			DatabaseUpdater askimedUpdater = new DatabaseUpdater(database, "version.txt", is, Main.VERSION);
+			InputStream is = cloudgene.mapred.Application.class.getResourceAsStream("/updates.sql");
+			DatabaseUpdater askimedUpdater = new DatabaseUpdater(database, "version.txt", is, cloudgene.mapred.Application.VERSION);
 			if (askimedUpdater.needUpdate()) {
 				if (!askimedUpdater.update()) {
 					database.disconnect();
@@ -359,7 +358,7 @@ public class TestServer {
 					webAppFolder = "webapp";
 				} else {
 					webAppFolder = FileUtil
-							.path(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath())
+							.path(new File(Application.class.getProtectionDomain().getCodeSource().getLocation().getPath())
 									.getParent(), "html", "webapp");
 					System.out.println(webAppFolder);
 				}
