@@ -205,11 +205,13 @@ public class Application {
 	}
 
 	public User getUserByPrincipal(Principal principal) {
+		
 		User user = null;
 		if (principal != null) {
 			UserDao userDao = new UserDao(database);
 			user = userDao.findByUsername(principal.getName());
 		}
+		
 		return user;
 	}
 

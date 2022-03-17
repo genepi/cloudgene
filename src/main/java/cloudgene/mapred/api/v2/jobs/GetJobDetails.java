@@ -1,71 +1,71 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Vector;
 
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.Delete;
-import org.restlet.resource.Get;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
-import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class GetJobDetails extends BaseResource {
+@Controller
+public class GetJobDetails {
 
-	private boolean publicMode = false;
+	@Inject
+	protected Application application;
 
-	@Get
-	public Representation get(Representation entity, Variant variant) {
+	@Get("/api/v2/jobs/{id}")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String getJob(@PathVariable @NotBlank String id, Principal principal) {
 
-		User user = getAuthUserAndAllowApiToken();
+		User user = application.getUserByPrincipal(principal);
 
-		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
-			return error503("This functionality is currently under maintenance.");
+		if (user == null) {
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
-		String id = getAttribute("job");
-
-		if (id == null) {
-			return error404("No job id specified.");
+		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
+			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
 		}
 
 		// running job is in workflow engine
-		AbstractJob job = getWorkflowEngine().getJobById(id);
+		AbstractJob job = application.getWorkflowEngine().getJobById(id);
 
 		if (job == null) {
 			// finished job is in database
-			JobDao dao = new JobDao(getDatabase());
+			JobDao dao = new JobDao(application.getDatabase());
 			job = dao.findById(id, true);
 
 		}
 
 		if (job == null) {
-			return error404("Job " + id + " not found.");
-		}
-
-		// no user, change to public mode
-		if (user == null) {
-			user = PublicUser.getUser(getDatabase());
-			publicMode = true;
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		// check permissions
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			return error403("Access denied.");
+		if (!user.isAdmin() && (job.getUser().getId() != user.getId())) {
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
 
 		// removes outputs that are for admin only
@@ -92,49 +92,48 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		JSONObject object = JSONConverter.convert(job);
-		if (publicMode) {
-			object.put("public", publicMode);
-		}
-
 		object.put("username", job.getUser().getUsername());
 
-		return new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
+		return object.toString();
 	}
 
-	@Delete
-	public Representation deleteJob(Representation entity) {
+	@Delete("/api/v2/jobs/{id}")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String deleteJob(@PathVariable @NotBlank String id, Principal principal) {
 
-		User user = getAuthUser();
+		User user = application.getUserByPrincipal(principal);
 
 		if (user == null) {
-			user = PublicUser.getUser(getDatabase());
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
-		String id = getAttribute("job");
-
-		if (id == null) {
-			return error404("No job id specified.");
+		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
+			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
 		}
 
 		// delete job from database
-		JobDao dao = new JobDao(getDatabase());
+		JobDao dao = new JobDao(application.getDatabase());
 		AbstractJob job = dao.findById(id);
 
 		if (job == null) {
-			return error404("Job " + id + " not found.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			return error403("Access denied.");
+		// check permissions
+		if (!user.isAdmin() && (job.getUser().getId() != user.getId())) {
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
+
+		Settings settings = application.getSettings();
 
 		// delete local directory and hdfs directory
-		String localOutput = FileUtil.path(getSettings().getLocalWorkspace(), job.getId());
+		String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 
 		FileUtil.deleteDirectory(localOutput);
 
 		try {
-			String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(getSettings().getHdfsWorkspace(), job.getId()));
+			String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
 			HdfsUtil.delete(hdfsOutput);
 		} catch (NoClassDefFoundError e) {
 			// TODO: handle exception
@@ -143,8 +142,6 @@ public class GetJobDetails extends BaseResource {
 		// delete job from database
 		job.setState(AbstractJob.STATE_DELETED);
 		dao.update(job);
-
-		Settings settings = getSettings();
 
 		IExternalWorkspace externalWorkspace = null;
 		if (!settings.getExternalWorkspaceLocation().isEmpty()) {
@@ -159,7 +156,7 @@ public class GetJobDetails extends BaseResource {
 
 		JSONObject object = JSONConverter.convert(job);
 
-		return new StringRepresentation(object.toString());
+		return object.toString();
 
 	}
 
