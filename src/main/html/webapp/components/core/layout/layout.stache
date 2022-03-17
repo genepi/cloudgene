@@ -78,7 +78,7 @@
               <a class="dropdown-item" href="admin.html">Admin Panel</a>
               <div class="dropdown-divider"></div>
             {{/is}}
-            <a class="dropdown-item" href="logout">Logout</a>
+            <a class="dropdown-item" href="#!pages/logout">Logout</a>
           </div>
          </li>
        {{else}}

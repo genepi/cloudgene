@@ -11,6 +11,7 @@ import RouterControl from 'helpers/router';
 import StaticPage from 'helpers/static-page';
 import DashboardControl from 'components/core/dashboard/';
 import UserLoginControl from 'components/core/user/login/';
+import UserLogoutControl from 'components/core/user/logout/';
 import UserSignupControl from 'components/core/user/signup/';
 import UserActivateControl from 'components/core/user/activate/';
 import UserPasswordRecoveryControl from 'components/core/user/password-recovery/';
@@ -42,6 +43,9 @@ var routes = [{
 }, {
   path: 'pages/login',
   control: UserLoginControl,
+}, {
+  path: 'pages/logout',
+  control: UserLogoutControl,
 }, {
   path: 'activate/{user}/{key}',
   control: UserActivateControl

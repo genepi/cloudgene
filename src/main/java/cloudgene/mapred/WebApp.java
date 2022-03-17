@@ -55,13 +55,11 @@ import cloudgene.mapred.api.v2.server.CloudgeneApps;
 import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.api.v2.users.ActivateUser;
 import cloudgene.mapred.api.v2.users.ApiTokens;
-import cloudgene.mapred.api.v2.users.LogoutUser;
 import cloudgene.mapred.api.v2.users.RegisterUser;
 import cloudgene.mapred.api.v2.users.ResetPassword;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
 import cloudgene.mapred.api.v2.users.UserProfile;
 import cloudgene.mapred.api.v2.users.VerifyApiToken;
-import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
@@ -121,7 +119,7 @@ public class WebApp extends Application {
 
 		// user authentication
 		//router.attach(prefix + "/login", LoginUser.class);
-		router.attach(prefix + "/logout", LogoutUser.class);
+		//router.attach(prefix + "/logout", LogoutUser.class);
 
 		router.attach(prefix + "/api/v2/collect/{job}", NextflowWebLog.class);
 
