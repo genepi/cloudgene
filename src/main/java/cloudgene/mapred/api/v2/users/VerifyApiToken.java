@@ -6,7 +6,7 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.core.ApiTokenVerifier;
+import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.util.BaseResource;
 
 public class VerifyApiToken extends BaseResource {
@@ -17,7 +17,7 @@ public class VerifyApiToken extends BaseResource {
 		Form form = new Form(entity);
 
 		String token = form.getFirstValue("token", "");
-		JSONObject result = ApiTokenVerifier.verify(token, getSettings().getSecretKey(), getDatabase());
+		JSONObject result = ApiToken.verify(token, getSettings().getSecretKey(), getDatabase());
 
 		return new StringRepresentation(result.toString());
 

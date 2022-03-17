@@ -15,7 +15,6 @@ import org.restlet.resource.ServerResource;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import genepi.db.Database;
@@ -50,7 +49,7 @@ public class BaseResource extends ServerResource {
 	}
 
 	public User getAuthUser(boolean checkCsrf) {
-		return JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
+		return null;
 	}
 
 	public User getAuthUserAndAllowApiToken() {
@@ -58,12 +57,7 @@ public class BaseResource extends ServerResource {
 	}
 	
 	public User getAuthUserAndAllowApiToken(boolean checkCsrf) {
-		User user = JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
-		if (user == null) {
-			user = JWTUtil.getUserByApiToken(getDatabase(), getRequest(), getSettings().getSecretKey());
-			accessedByApi = true;
-		}
-		return user;
+		return null;
 	}
 	
 	public boolean isAccessedByApi() {

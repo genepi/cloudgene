@@ -8,7 +8,7 @@ import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.core.JWTUtil;
+import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
@@ -29,7 +29,7 @@ public class ApiTokens extends BaseResource {
 		}
 
 		// create token
-		String token = JWTUtil.createApiToken(user,getSettings().getSecretKey());
+		String token = ApiToken.create(user,getSettings().getSecretKey());
 
 		// update token
 		user.setApiToken(token);

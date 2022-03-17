@@ -9,7 +9,7 @@ import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.core.ApiTokenVerifier;
+import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
@@ -36,7 +36,7 @@ public class UserProfile extends BaseResource {
 		JSONObject object = JSONConverter.convert(updatedUser);
 		try {
 			if (object.getBoolean("hasApiToken")) {
-				org.json.JSONObject result = ApiTokenVerifier.verify(user.getApiToken(), getSettings().getSecretKey(),
+				org.json.JSONObject result = ApiToken.verify(user.getApiToken(), getSettings().getSecretKey(),
 						getDatabase());
 				object.put("apiTokenValid", result.get("valid"));
 				object.put("apiTokenMessage", result.get("message"));
