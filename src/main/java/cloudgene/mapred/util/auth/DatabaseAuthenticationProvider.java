@@ -41,14 +41,16 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 			if (user != null) {
 
 				if (!user.isActive()) {
-					emitter.error(AuthenticationResponse.exception());
+					emitter.error(AuthenticationResponse.exception("Login Failed! User account is not activated."));
 					return;
 				}
 
 				if (user.getLoginAttempts() >= MAX_LOGIN_ATTEMMPTS) {
 					if (user.getLockedUntil() == null || user.getLockedUntil().after(new Date())) {
 
-						emitter.error(AuthenticationResponse.exception());
+						emitter.error(AuthenticationResponse.exception(
+								"The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
+										+ " minutes. Too many failed logins."));
 						return;
 
 					} else {
@@ -63,7 +65,7 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 					user.setLastLogin(new Date());
 					dao.update(user);
 
-					emitter.success(AuthenticationResponse.success("admin"));
+					emitter.success(AuthenticationResponse.success(user.getUsername()));
 
 				} else {
 
@@ -78,11 +80,11 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 					}
 					dao.update(user);
 
-					emitter.error(AuthenticationResponse.exception());
+					emitter.error(AuthenticationResponse.exception("Login Failed! Wrong Username or Password."));
 					return;
 				}
 			} else {
-				emitter.error(AuthenticationResponse.exception());
+				emitter.error(AuthenticationResponse.exception("Login Failed! Wrong Username or Password."));
 				return;
 			}
 

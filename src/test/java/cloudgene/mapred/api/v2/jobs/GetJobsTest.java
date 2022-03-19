@@ -1,31 +1,47 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.ext.html.FormData;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestCluster;
-import cloudgene.mapred.util.TestServer;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class GetJobsTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class GetJobsTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+	
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 		TestCluster.getInstance().start();
 	}
 
+	@Test
 	public void testGetJobsAsPublicUser() throws IOException, JSONException, InterruptedException {
 
-		ClientResource resourceJobs = createClientResource("/api/v2/jobs");
+		ClientResource resourceJobs = client.createClientResource("/api/v2/jobs");
 
 		try {
 			resourceJobs.get();
@@ -36,11 +52,12 @@ public class GetJobsTest extends JobsApiTestCase {
 
 	}
 
+	@Test
 	public void testGetJobsAsAdminUser() throws IOException, JSONException, InterruptedException {
 
-		LoginToken token = login("admin", "admin1978");
+		LoginToken token = client.login("admin", "admin1978");
 
-		ClientResource resourceJobs = createClientResource("/api/v2/jobs", token);
+		ClientResource resourceJobs = client.createClientResource("/api/v2/jobs", token);
 
 		try {
 			resourceJobs.get();
@@ -52,27 +69,28 @@ public class GetJobsTest extends JobsApiTestCase {
 
 	}
 
+	@Test
 	public void testGetJobsAsAdminUserAndSubmit() throws IOException, JSONException, InterruptedException {
 
-		LoginToken token = login("admin", "admin1978");
+		LoginToken token = client.login("admin", "admin1978");
 
-		JSONArray jobsBefore = getJobs(token);
+		JSONArray jobsBefore = client.getJobs(token);
 
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJob("return-true-step-public", form, token);
+		String id = client.submitJob("return-true-step-public", form, token);
 
 		// check feedback
-		waitForJob(id, token);
+		client.waitForJob(id, token);
 
-		JSONObject result = getJobDetails(id, token);
+		JSONObject result = client.getJobDetails(id, token);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
-		JSONArray jobsAfter = getJobs(token);
+		JSONArray jobsAfter = client.getJobs(token);
 
 		assertEquals(jobsBefore.length() + 1, jobsAfter.length());
 

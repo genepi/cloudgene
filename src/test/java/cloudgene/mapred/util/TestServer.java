@@ -25,7 +25,7 @@ import genepi.io.FileUtil;
 
 public class TestServer {
 
-	public static int PORT = 8085;
+	public static int PORT = 8080;
 
 	public static final String HOSTNAME = "http://localhost:" + PORT;
 

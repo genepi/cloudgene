@@ -34,7 +34,7 @@ public class GetJobs {
 	
 	@Get("/api/v2/jobs")
 	@Secured(SecurityRule.IS_AUTHENTICATED) 
-	public String getJobs(@Nullable Principal principal, @QueryValue String page) {
+	public String getJobs(@Nullable Principal principal, @QueryValue @Nullable String page) {
 
 		User user = application.getUserByPrincipal(principal);
 

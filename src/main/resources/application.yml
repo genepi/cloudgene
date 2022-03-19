@@ -1,7 +1,8 @@
 micronaut:
   application:
     name: cloudgene
-
+  server:
+    port: 8080
   security:
       authentication: bearer
       intercept-url-map:

@@ -1,6 +1,7 @@
 package cloudgene.mapred;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStream;
 import java.security.Principal;
@@ -15,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
+import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.core.User;
@@ -49,14 +51,11 @@ public class Application {
 
 	private Map<String, String> cacheTemplates;
 
+	protected Log log = LogFactory.getLog(Application.class);
+
 	public Application() throws Exception {
 
 		// configure logger
-
-		Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
-		Engine.getInstance().setLoggerFacade(loggerFacade);
-
-		Log log = LogFactory.getLog(Application.class);
 
 		log.debug("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
@@ -68,20 +67,7 @@ public class Application {
 			config = reader.read(Config.class);
 		}
 
-		String settingsFilename = config.getSettings();
-
-		// load default settings when not yet loaded
-
-		if (new File(settingsFilename).exists()) {
-			log.info("Loading settings from " + settingsFilename + "...");
-			settings = Settings.load(config);
-		} else {
-			settings = new Settings(config);
-		}
-
-		if (!settings.testPaths()) {
-			System.exit(1);
-		}
+		settings = loadSettings(config);
 
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);
@@ -158,6 +144,24 @@ public class Application {
 
 	}
 
+	protected Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
+		String settingsFilename = config.getSettings();
+
+		// load default settings when not yet loaded
+
+		if (new File(settingsFilename).exists()) {
+			log.info("Loading settings from " + settingsFilename + "...");
+			settings = Settings.load(config);
+		} else {
+			settings = new Settings(config);
+		}
+
+		if (!settings.testPaths()) {
+			System.exit(1);
+		}
+		return settings;
+	}
+
 	public WorkflowEngine getWorkflowEngine() {
 		return engine;
 	}
@@ -205,13 +209,13 @@ public class Application {
 	}
 
 	public User getUserByPrincipal(Principal principal) {
-		
+
 		User user = null;
 		if (principal != null) {
 			UserDao userDao = new UserDao(database);
 			user = userDao.findByUsername(principal.getName());
 		}
-		
+
 		return user;
 	}
 
