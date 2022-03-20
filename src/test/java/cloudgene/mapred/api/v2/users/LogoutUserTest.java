@@ -1,26 +1,41 @@
 package cloudgene.mapred.api.v2.users;
 
+import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 
 import org.json.JSONException;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.resource.ClientResource;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.LoginToken;
-import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class LogoutUserTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class LogoutUserTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 
 		// insert two dummy users
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User testUser1 = new User();
@@ -35,12 +50,13 @@ public class LogoutUserTest extends JobsApiTestCase {
 
 	}
 
+	@Test
 	public void testLogout() throws JSONException, IOException {
 
-		LoginToken token = login("testuser99", "testuser99");
+		LoginToken token = client.login("testuser99", "testuser99");
 
 		// test protected resource
-		ClientResource resource = createClientResource("/api/v2/users/testuser99/profile", token);
+		ClientResource resource = client.createClientResource("/api/v2/users/testuser99/profile", token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -50,7 +66,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 		resource.release();
 
 		// logout
-		resource = createClientResource("/logout");
+		resource = client.createClientResource("/logout");
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -60,7 +76,7 @@ public class LogoutUserTest extends JobsApiTestCase {
 		resource.release();
 
 		// test protected resource again
-		resource = createClientResource("/api/v2/users/testuser99/profile");
+		resource = client.createClientResource("/api/v2/users/testuser99/profile");
 		try {
 			resource.get();
 		} catch (Exception e) {

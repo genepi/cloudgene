@@ -1,24 +1,40 @@
 package cloudgene.mapred.api.v2.users;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
-import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.TestApplication;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.TestMailServer;
-import cloudgene.mapred.util.TestServer;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class RegisterUserTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class RegisterUserTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 		TestMailServer.getInstance().start();
 	}
 
+	@Test
 	public void testWithCorrectData() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -34,7 +50,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -84,6 +100,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithEmptyUsername() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -97,7 +114,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -105,9 +122,10 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertTrue(object.get("message").toString().contains("username is required"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 		resource.release();
-		
+
 	}
 
+	@Test
 	public void testWithWrongUsername() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -121,7 +139,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -161,6 +179,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithShortUsername() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -174,7 +193,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -184,6 +203,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithEmptyName() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -197,7 +217,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -207,6 +227,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithEmptyMail() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -220,7 +241,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -230,6 +251,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithWrongMail() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -243,7 +265,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -253,6 +275,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithWrongConfirmPassword() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -266,7 +289,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "password1");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -276,6 +299,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithWrongPasswordLength() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -289,7 +313,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "pass");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -299,6 +323,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithPasswordWithMissingUppercase() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -312,7 +337,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "passwordword27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -322,6 +347,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithPasswordWithMissingLowercase() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -335,7 +361,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "PASSWORD2727");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -345,6 +371,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithPasswordWithMissingNumber() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -358,7 +385,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "PASSWORDpassword");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());

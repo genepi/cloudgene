@@ -1,31 +1,47 @@
 package cloudgene.mapred.api.v2.users;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
 import com.dumbster.smtp.SmtpMessage;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.TestMailServer;
-import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class ResetPasswordTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ResetPasswordTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 		TestMailServer.getInstance().start();
 
 		// insert two dummy users
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User testUser1 = new User();
@@ -50,6 +66,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 
 	}
 
+	@Test
 	public void testWithWrongName() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -59,7 +76,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		form.set("username", "unknown-user-wrong");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/reset");
+		ClientResource resource = client.createClientResource("/api/v2/users/reset");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -69,6 +86,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithInActiveUser() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -78,7 +96,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		form.set("username", "testreset2");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/reset");
+		ClientResource resource = client.createClientResource("/api/v2/users/reset");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -88,6 +106,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithWrongEMail() throws JSONException, IOException {
 		TestMailServer mailServer = TestMailServer.getInstance();
 		int mailsBefore = mailServer.getReceivedEmailSize();
@@ -96,7 +115,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		form.set("username", "wrong@e-mail.com");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/reset");
+		ClientResource resource = client.createClientResource("/api/v2/users/reset");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -106,6 +125,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testWithSpecial() throws JSONException, IOException {
 		TestMailServer mailServer = TestMailServer.getInstance();
 		int mailsBefore = mailServer.getReceivedEmailSize();
@@ -114,7 +134,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		form.set("username", "%");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/reset");
+		ClientResource resource = client.createClientResource("/api/v2/users/reset");
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
@@ -124,6 +144,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	@Test
 	public void testResetPassword() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -134,7 +155,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		form.set("username", "testreset");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/reset");
+		ClientResource resource = client.createClientResource("/api/v2/users/reset");
 		// register user
 
 		resource.post(form);
@@ -155,7 +176,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 
 		// check correct activtion code is in mail
 		// get activation key from database
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 		User user = userDao.findByUsername("testreset");
 		assertNotNull(user);

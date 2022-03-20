@@ -1,10 +1,17 @@
 package cloudgene.mapred.api.v2.users;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.ext.html.FormData;
@@ -12,24 +19,33 @@ import org.restlet.ext.html.FormDataSet;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.ClientResource;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.LoginToken;
-import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
 import genepi.io.FileUtil;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class ApiTokensTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ApiTokensTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 
 		// insert two dummy users
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User testUser1 = new User();
@@ -41,8 +57,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		testUser1.setActivationCode("");
 		testUser1.setPassword(HashUtil.hashPassword("Test1Password"));
 		userDao.insert(testUser1);
-		
-		
+
 		User testUser2 = new User();
 		testUser2.setUsername("testUserToken2");
 		testUser2.setFullName("test2");
@@ -55,12 +70,13 @@ public class ApiTokensTest extends JobsApiTestCase {
 
 	}
 
+	@Test
 	public void testCreateTokenWithCorrectCredentials() throws JSONException, IOException, InterruptedException {
 
-		LoginToken token = login("testUserToken", "Test1Password");
+		LoginToken token = client.login("testUserToken", "Test1Password");
 
 		// check if token is empty
-		ClientResource resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		ClientResource resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -73,7 +89,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		resource.release();
 
 		// create token
-		resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
 		try {
 			resource.post(new Form());
 		} catch (Exception e) {
@@ -90,20 +106,20 @@ public class ApiTokensTest extends JobsApiTestCase {
 		String id = submitTestJob(apiToken);
 
 		// check feedback
-		waitForJobWithApiToken(id, apiToken);
+		client.waitForJobWithApiToken(id, apiToken);
 
-		JSONObject result = getJobDetailsWithApiToken(id, apiToken);
+		JSONObject result =client. getJobDetailsWithApiToken(id, apiToken);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		resource.release();
 
 		// check if job list contains one job
-		JSONArray jobs = getJobsWithApiToken(apiToken);
+		JSONArray jobs = client.getJobsWithApiToken(apiToken);
 		assertEquals(1, jobs.length());
 
 		// revoke token
-		resource = createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
 		try {
 			resource.delete();
 		} catch (Exception e) {
@@ -124,12 +140,13 @@ public class ApiTokensTest extends JobsApiTestCase {
 		}
 	}
 
+	@Test
 	public void testSubmitWithoutVersion() throws JSONException, IOException, InterruptedException {
 
-		LoginToken token = login("testUserToken2", "Test2Password");
+		LoginToken token = client.login("testUserToken2", "Test2Password");
 
 		// check if token is empty
-		ClientResource resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		ClientResource resource = client.createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -142,7 +159,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		resource.release();
 
 		// create token
-		resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
 		try {
 			resource.post(new Form());
 		} catch (Exception e) {
@@ -159,20 +176,20 @@ public class ApiTokensTest extends JobsApiTestCase {
 		String id = submitTestJobWithoutVersion(apiToken);
 
 		// check feedback
-		waitForJobWithApiToken(id, apiToken);
+		client.waitForJobWithApiToken(id, apiToken);
 
-		JSONObject result = getJobDetailsWithApiToken(id, apiToken);
+		JSONObject result = client.getJobDetailsWithApiToken(id, apiToken);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		resource.release();
 
 		// check if job list contains one job
-		JSONArray jobs = getJobsWithApiToken(apiToken);
+		JSONArray jobs = client.getJobsWithApiToken(apiToken);
 		assertEquals(1, jobs.length());
 
 		// revoke token
-		resource = createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
 		try {
 			resource.delete();
 		} catch (Exception e) {
@@ -192,7 +209,8 @@ public class ApiTokensTest extends JobsApiTestCase {
 
 		}
 	}
-	
+
+	@Test
 	public void testSubmitTokenWithInCorrectApitoken() throws JSONException, IOException, InterruptedException {
 
 		// submit job
@@ -225,10 +243,10 @@ public class ApiTokensTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
-		return submitJobWithApiToken("all-possible-inputs-private", form, apiToken);
+		return client.submitJobWithApiToken("all-possible-inputs-private", form, apiToken);
 
 	}
-	
+
 	private String submitTestJobWithoutVersion(String apiToken) throws JSONException, IOException {
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);
@@ -248,7 +266,7 @@ public class ApiTokensTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
-		return submitJobWithApiToken("app-version-test", form, apiToken);
+		return client.submitJobWithApiToken("app-version-test", form, apiToken);
 
 	}
 

@@ -23,7 +23,7 @@ public class CloudgeneClient {
 
 	public ClientResource createClientResource(String path) {
 
-		ClientResource l = new ClientResource(TestServer.HOSTNAME + path);
+		ClientResource l = new ClientResource("http://localhost:8080" + path);
 		return l;
 	}
 

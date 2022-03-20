@@ -1,29 +1,46 @@
 package cloudgene.mapred.api.v2.users;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
 import com.dumbster.smtp.SmtpMessage;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.TestMailServer;
-import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class ActivateUserTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ActivateUserTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 		TestMailServer.getInstance().start();
 	}
 
+	@Test
 	public void testUserActivation() throws JSONException, IOException {
 
 		TestMailServer mailServer = TestMailServer.getInstance();
@@ -39,7 +56,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		form.set("confirm-new-password", "Password27");
 
 		// register user
-		ClientResource resource = createClientResource("/api/v2/users/register");
+		ClientResource resource = client.createClientResource("/api/v2/users/register");
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -52,7 +69,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
 
 		// get activation key from database
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 		User user = userDao.findByUsername("usernameunique5");
 		assertNotNull(user);
@@ -63,7 +80,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		resource.release();
 		
 		// login should not be possible
-		resource = createClientResource("/login");
+		resource = client.createClientResource("/login");
 		form = new Form();
 		form.set("loginUsername", "usernameunique5");
 		form.set("loginPassword", "Password27");
@@ -77,7 +94,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		resource.release();
 		
 		// activate user with wrong activation code
-		resource = createClientResource("/users/activate/" + user.getUsername() + "/RANDOMACTIVATIONCODE");
+		resource = client.createClientResource("/users/activate/" + user.getUsername() + "/RANDOMACTIVATIONCODE");
 		resource.get();
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("Wrong activation code.", object.getString("message"));
@@ -85,7 +102,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		resource.release();
 		
 		// activate user with wrong username
-		resource = createClientResource("/users/activate/randomusername/" + user.getActivationCode());
+		resource = client.createClientResource("/users/activate/randomusername/" + user.getActivationCode());
 		resource.get();
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("Wrong username.", object.getString("message"));
@@ -93,7 +110,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		resource.release();
 		
 		// login should not be possible
-		resource = createClientResource("/login");
+		resource = client.createClientResource("/login");
 		form = new Form();
 		form.set("loginUsername", "usernameunique5");
 		form.set("loginPassword", "Password27");
@@ -107,7 +124,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		resource.release();
 		
 		// activate user with correct data
-		resource = createClientResource("/users/activate/" + user.getUsername() + "/" + user.getActivationCode());
+		resource = client.createClientResource("/users/activate/" + user.getUsername() + "/" + user.getActivationCode());
 		resource.get();
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("User sucessfully activated.", object.getString("message"));
@@ -115,7 +132,7 @@ public class ActivateUserTest extends JobsApiTestCase {
 		resource.release();
 		
 		// login should work
-		resource = createClientResource("/login");
+		resource = client.createClientResource("/login");
 		form = new Form();
 		form.set("loginUsername", "usernameunique5");
 		form.set("loginPassword", "Password27");

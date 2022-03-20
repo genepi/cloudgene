@@ -1,30 +1,46 @@
 package cloudgene.mapred.api.v2.admin;
 
+import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestMailServer;
-import cloudgene.mapred.util.TestServer;
 import genepi.db.Database;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class ChangeGroupTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class ChangeGroupTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 		TestMailServer.getInstance().start();
 
 		// insert two dummy users
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User testUser3 = new User();
@@ -40,15 +56,15 @@ public class ChangeGroupTest extends JobsApiTestCase {
 
 	public void testWithWrongCredentials() throws JSONException, IOException {
 
-		LoginToken token = login("username-group-test", "oldpassword");
+		LoginToken token = client.login("username-group-test", "oldpassword");
 
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User oldUser = userDao.findByUsername("username-group-test");
 
 		// try to update with no credentials
-		ClientResource resource = createClientResource("/api/v2/admin/users/changegroup", token);
+		ClientResource resource = client.createClientResource("/api/v2/admin/users/changegroup", token);
 		Form form = new Form();
 		form.set("username", "username-group-test");
 		form.set("role", "user,newgroup,test");
@@ -69,7 +85,7 @@ public class ChangeGroupTest extends JobsApiTestCase {
 
 	public void testWithAdminCredentials() throws JSONException, IOException {
 
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User oldUser = userDao.findByUsername("username-group-test");
@@ -83,10 +99,10 @@ public class ChangeGroupTest extends JobsApiTestCase {
 		assertFalse(oldUser.hasRole("secret-group"));
 		assertFalse(oldUser.isAdmin());
 
-		LoginToken token = login("admin", "admin1978");
+		LoginToken token = client.login("admin", "admin1978");
 
 		// try to update invalid password
-		ClientResource resource = createClientResource("/api/v2/admin/users/changegroup", token);
+		ClientResource resource = client.createClientResource("/api/v2/admin/users/changegroup", token);
 		Form form = new Form();
 		form.set("username", "username-group-test");
 		form.set("role", "user,newgroup,test");

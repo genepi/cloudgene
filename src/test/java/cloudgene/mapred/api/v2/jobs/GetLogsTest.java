@@ -1,30 +1,45 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.MediaType;
 import org.restlet.ext.html.FormData;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.representation.FileRepresentation;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.JobsApiTestCase;
+import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.TestCluster;
-import cloudgene.mapred.util.TestServer;
 import genepi.io.FileUtil;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class GetLogsTest extends JobsApiTestCase {
+@MicronautTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+public class GetLogsTest {
 
-	@Override
+	@Inject
+	TestApplication application;
+
+	@Inject
+	CloudgeneClient client;
+
+	@BeforeAll
 	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
 		TestCluster.getInstance().start();
 	}
-
-	public void testSubmitAllPossibleInputs() throws IOException,
-			JSONException, InterruptedException {
+	
+	@Test
+	public void testSubmitAllPossibleInputs() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -35,32 +50,23 @@ public class GetLogsTest extends JobsApiTestCase {
 		// ignore checkbox
 		form.getEntries().add(new FormData("input-list", "keya"));
 		// local-file
-		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer(
-				"content-of-my-file"));
-		form.getEntries().add(
-				new FormData("input-file", new FileRepresentation("test.txt",
-						MediaType.TEXT_PLAIN)));
+		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
+		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
 
 		// local-folder
-		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer(
-				"content-of-my-file-in-folder1"));
-		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer(
-				"content-of-my-file-in-folder2"));
+		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
+		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
-		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation(
-						"test1.txt", MediaType.TEXT_PLAIN)));
-		form.getEntries().add(
-				new FormData("input-folder", new FileRepresentation(
-						"test2.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
 
 		// submit job
-		String id = submitJobPublic("all-possible-inputs", form);
+		String id = client.submitJobPublic("all-possible-inputs", form);
 
 		// check feedback
-		waitForJob(id);
+		client.waitForJob(id);
 
-		JSONObject result = getJobDetails(id);
+		JSONObject result = client.getJobDetails(id);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
@@ -69,7 +75,7 @@ public class GetLogsTest extends JobsApiTestCase {
 		assertEquals("", logs);
 
 		// but direct link should work
-		String content = downloadURL("/logs/" + id);
+		String content = client.downloadURL("/logs/" + id);
 
 		// check content for some success messages
 		assertTrue(content.contains("Cleanup successful."));
@@ -85,8 +91,8 @@ public class GetLogsTest extends JobsApiTestCase {
 
 	}
 
-	public void testWriteToStdOuStepPublic() throws IOException, JSONException,
-			InterruptedException {
+	@Test
+	public void testWriteToStdOuStepPublic() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
@@ -95,12 +101,12 @@ public class GetLogsTest extends JobsApiTestCase {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		String id = submitJobPublic("write-text-to-std-out", form);
+		String id = client.submitJobPublic("write-text-to-std-out", form);
 
 		// check feedback
-		waitForJob(id);
+		client.waitForJob(id);
 
-		JSONObject result = getJobDetails(id);
+		JSONObject result = client.getJobDetails(id);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
@@ -109,7 +115,7 @@ public class GetLogsTest extends JobsApiTestCase {
 		assertEquals("", logs);
 
 		// but direct link should work
-		String content = downloadURL("/logs/" + id);
+		String content = client.downloadURL("/logs/" + id);
 
 		assertTrue(content.contains("taks write to system out"));
 		assertTrue(content.contains("taks write to system out2"));
