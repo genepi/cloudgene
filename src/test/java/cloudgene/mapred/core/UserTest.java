@@ -1,9 +1,13 @@
 package cloudgene.mapred.core;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class UserTest extends TestCase {
+import org.junit.jupiter.api.Test;
 
+public class UserTest {
+
+	@Test
 	public void testUsernameRules() {
 
 		assertNotNull(User.checkUsername("user_name"));
@@ -23,6 +27,7 @@ public class UserTest extends TestCase {
 
 	}
 
+	@Test
 	public void testPasswordRules() {
 
 		assertNotNull(User.checkPassword("password1", "password"));
@@ -35,6 +40,7 @@ public class UserTest extends TestCase {
 
 	}
 
+	@Test
 	public void testMail() {
 		assertNotNull(User.checkMail("user.name@host"));
 		assertNotNull(User.checkMail("user.name@host."));

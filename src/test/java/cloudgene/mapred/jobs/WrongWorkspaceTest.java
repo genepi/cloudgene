@@ -1,31 +1,34 @@
 package cloudgene.mapred.jobs;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
-import cloudgene.mapred.apps.ApplicationRepository;
+import org.junit.jupiter.api.Test;
+
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class WrongWorkspaceTest extends TestCase {
+@MicronautTest
+public class WrongWorkspaceTest {
 
-	private WorkflowEngine engine;
+	@Inject
+	TestApplication application;
 
-	@Override
-	protected void setUp() throws Exception {
-		engine = TestServer.getInstance().startWorkflowEngineWithoutServer();
-
-	}
-
+	@Test
 	public void testReturnTrueStep() throws Exception {
+
+		WorkflowEngine engine = application.getWorkflowEngine();
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true.yaml");
 
@@ -39,7 +42,7 @@ public class WrongWorkspaceTest extends TestCase {
 		}
 		Thread.sleep(10000);
 
-		JobDao dao = new JobDao(TestServer.getInstance().getDatabase());
+		JobDao dao = new JobDao(application.getDatabase());
 
 		AbstractJob jobFromDb = dao.findById(job.getId());
 
@@ -50,8 +53,10 @@ public class WrongWorkspaceTest extends TestCase {
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
-		User user = TestServer.getInstance().getUser();
-		Settings settings = TestServer.getInstance().getSettings();
+		UserDao userDao = new UserDao(application.getDatabase());
+		User user = userDao.findByUsername("user");
+
+		Settings settings = application.getSettings();
 
 		String id = "test_" + System.currentTimeMillis();
 

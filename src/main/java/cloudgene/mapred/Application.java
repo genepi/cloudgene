@@ -124,6 +124,8 @@ public class Application {
 
 		// insert fixtures
 		Fixtures.insert(database);
+		
+		afterDatabaseConnection(database);
 
 		// start workflow engine
 		try {
@@ -217,6 +219,10 @@ public class Application {
 		}
 
 		return user;
+	}
+	
+	protected void afterDatabaseConnection(Database database) {
+		
 	}
 
 	public static void main(String[] args) {

@@ -1,10 +1,12 @@
 package cloudgene.mapred.util;
 
-import cloudgene.mapred.util.GitHubUtil.Repository;
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class GitHubUtilTest extends TestCase {
+import org.junit.jupiter.api.Test;
 
+public class GitHubUtilTest {
+
+	@Test
 	public void testInstall() {
 		assertTrue(true);
 	}

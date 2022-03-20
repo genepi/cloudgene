@@ -1,35 +1,42 @@
 package cloudgene.mapred.steps;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cloudgene.mapred.apps.ApplicationRepository;
+import org.junit.jupiter.api.Test;
+
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
-import junit.framework.TestCase;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class TestCommand extends TestCase {
+@MicronautTest
+public class TestCommand {
 
-	private WorkflowEngine engine;
 
-	@Override
-	protected void setUp() throws Exception {
-		engine = TestServer.getInstance().startWorkflowEngineWithoutServer();
+	@Inject
+	TestApplication application;
 
-	}
-
+	@Test
 	public void testValidCommand() throws Exception {
+		
+		WorkflowEngine engine = application.getWorkflowEngine();
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/valid-command.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -48,14 +55,14 @@ public class TestCommand extends TestCase {
 		assertEquals(messages.get(0).getType(), WorkflowContext.OK);
 		assertTrue(messages.get(0).getMessage().contains("Execution successful."));
 
-		String stdout = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(),
+		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(),
 				"std.out");
 		String contentStdOut = FileUtil.readFileAsString(stdout);
 
 		// simple ls result check
 		assertTrue(contentStdOut.contains("invalid-command.yaml"));
 
-		String jobLog = FileUtil.path(TestServer.getInstance().getSettings().getLocalWorkspace(), job.getId(),
+		String jobLog = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(),
 				"job.txt");
 		String contentjobLog = FileUtil.readFileAsString(jobLog);
 
@@ -64,7 +71,11 @@ public class TestCommand extends TestCase {
 
 	}
 
+	@Test
 	public void testInvalidCommand() throws Exception {
+		
+		WorkflowEngine engine = application.getWorkflowEngine();
+		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/invalid-command.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -119,8 +130,10 @@ public class TestCommand extends TestCase {
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
-		User user = TestServer.getInstance().getUser();
-		Settings settings = TestServer.getInstance().getSettings();
+		UserDao userDao = new UserDao(application.getDatabase());
+		User user = userDao.findByUsername("user");
+		
+		Settings settings = application.getSettings();
 
 		String id = "test_" + System.currentTimeMillis();
 

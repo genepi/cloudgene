@@ -1,31 +1,36 @@
 package cloudgene.mapred.jobs;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import cloudgene.mapred.apps.ApplicationRepository;
+import org.junit.jupiter.api.Test;
+
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.TestServer;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
-import junit.framework.TestCase;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class PriorityThreadPoolExecutorTest extends TestCase {
+@MicronautTest
+public class PriorityThreadPoolExecutorTest {
 
-	private WorkflowEngine engine;
+	@Inject
+	TestApplication application;
 
-	@Override
-	protected void setUp() throws Exception {
-		engine = TestServer.getInstance().startWorkflowEngineWithoutServer();
-
-	}
-
+	@Test
 	public void testCancelRunningJob() throws Exception {
 
+		WorkflowEngine engine = application.getWorkflowEngine();
+		
 		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
@@ -63,7 +68,11 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 
 	}
 
+	@Test
 	public void testCancelWaitingJob() throws Exception {
+		
+		WorkflowEngine engine = application.getWorkflowEngine();
+
 		
 		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
 			Thread.sleep(6000);
@@ -116,9 +125,12 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
-
+	@Test
 	public void testMultipleJobs() throws Exception {
 
+		WorkflowEngine engine = application.getWorkflowEngine();
+
+		
 		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
@@ -218,8 +230,12 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMultipleJobsWithPriority() throws Exception {
 
+		WorkflowEngine engine = application.getWorkflowEngine();
+
+		
 		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
@@ -319,8 +335,12 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testMultipleJobsAndUpdatePriority() throws Exception {
 
+		WorkflowEngine engine = application.getWorkflowEngine();
+
+		
 		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
@@ -440,10 +460,13 @@ public class PriorityThreadPoolExecutorTest extends TestCase {
 		}
 	}
 
+	@Test
 	public CloudgeneJob createJobFromWdl(WdlApp app, String id, Map<String, String> inputs) throws Exception {
 
-		User user = TestServer.getInstance().getUser();
-		Settings settings = TestServer.getInstance().getSettings();
+		UserDao userDao = new UserDao(application.getDatabase());				
+		User user = userDao.findByUsername("user");
+		
+		Settings settings = application.getSettings();
 
 		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);

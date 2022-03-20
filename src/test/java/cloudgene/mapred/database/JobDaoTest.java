@@ -1,34 +1,36 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.util.JobsApiTestCase;
-import cloudgene.mapred.util.TestServer;
+import genepi.db.Database;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class JobDaoTest extends JobsApiTestCase {
+@MicronautTest
+public class JobDaoTest {
 
+	@Inject
+	TestApplication application;
+	
 	public static int DAYS_MS = 24 * 60 * 60 * 1000;
 
 	public static int DAYS_SECONDS = 24 * 60 * 60;
-
-	@Override
-	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
-	}
 
 	@Test
 	public void testFindAllOlderThan() throws Exception {
 
 		// add 3 old jobs and one new
 
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 
 		UserDao userDao = new UserDao(database);
 		User user = userDao.findByUsername("admin");
@@ -97,7 +99,7 @@ public class JobDaoTest extends JobsApiTestCase {
 	@Test
 	public void testFindAllByState() throws Exception {
 
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 
 		UserDao userDao = new UserDao(database);
 		User user = userDao.findByUsername("admin");

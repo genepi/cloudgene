@@ -1,27 +1,28 @@
 package cloudgene.mapred.database;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.InputStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import cloudgene.mapred.Application;
-import cloudgene.mapred.util.TestServer;
+import cloudgene.mapred.TestApplication;
 import genepi.db.Database;
 import genepi.db.DatabaseUpdater;
-import junit.framework.TestCase;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 
-public class DatabaseUpdateTest extends TestCase {
+@MicronautTest
+public class DatabaseUpdateTest {
 	
-	@Override
-	protected void setUp() throws Exception {
-		TestServer.getInstance().start();
-	}
-
+	@Inject
+	TestApplication application;	
 	
 	@Test
 	public void testVersionNoUpdateFromDB()   {
 
-		Database database = TestServer.getInstance().getDatabase();
+		Database database = application.getDatabase();
 		InputStream is = Application.class.getResourceAsStream("/updates.sql");
 		DatabaseUpdater databaseUpdater = new DatabaseUpdater(database, null, is,
 				Application.VERSION);
