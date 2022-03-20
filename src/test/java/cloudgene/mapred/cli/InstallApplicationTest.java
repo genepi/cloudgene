@@ -1,16 +1,14 @@
 package cloudgene.mapred.cli;
 
-import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.util.Config;
-import cloudgene.mapred.util.Settings;
-import genepi.io.FileUtil;
-import junit.framework.TestCase;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class InstallApplicationTest extends TestCase {
+import org.junit.jupiter.api.Test;
+
+public class InstallApplicationTest {
 
 	public static String TEST_SETTINGS = null;
 
+	@Test
 	public void testInstall() {
 		assertTrue(true);
 	}

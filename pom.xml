@@ -205,6 +205,12 @@
 			<artifactId>groovy-all</artifactId>
 			<version>3.0.9</version>
 			<type>pom</type>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -516,7 +522,7 @@
 			</plugin>
 
 			<plugin>
-			    <groupId>org.apache.maven.plugins</groupId>			
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<!-- <source>${java.version}</source> -->
@@ -534,7 +540,7 @@
 						<path>
 							<groupId>io.micronaut.security</groupId>
 							<artifactId>micronaut-security-annotations</artifactId>
-              				<version>${micronaut.security.version}</version>
+							<version>${micronaut.security.version}</version>
 						</path>
 					</annotationProcessorPaths>
 					<compilerArgs>
@@ -542,6 +548,23 @@
 						<arg>-Amicronaut.processing.module=cloudgene</arg>
 					</compilerArgs>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<dependencies>
+					<dependency>
+						<groupId>org.junit.platform</groupId>
+						<artifactId>junit-platform-surefire-provider</artifactId>
+						<version>1.3.0</version>
+					</dependency>
+					<dependency>
+						<groupId>org.junit.jupiter</groupId>
+						<artifactId>junit-jupiter-engine</artifactId>
+						<version>5.7.2</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 
 			<!-- Create webapp for production -->

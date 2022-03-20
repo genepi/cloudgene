@@ -1,7 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import static org.junit.Assert.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.io.IOException;
 
