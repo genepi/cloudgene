@@ -1,94 +1,106 @@
 package cloudgene.mapred.api.v2.users;
 
-import org.restlet.data.Form;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Post;
-
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.runtime.server.EmbeddedServer;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class RegisterUser extends BaseResource {
+@Controller
+public class RegisterUser {
 
 	public static final String DEFAULT_ROLE = "User";
 
-	@Post
-	public Representation post(Representation entity) {
+	protected final String hostname;
 
-		String hostname = "";
-		if (getRequest().getReferrerRef() != null) {
-			hostname = getRequest().getReferrerRef().getHostIdentifier();
-		} else {
-			hostname = getRequest().getHostRef().getHostIdentifier();
-		}
+	public RegisterUser(EmbeddedServer embeddedServer) {
+		hostname = embeddedServer.getURL().toString();
+	}
 
-		Form form = new Form(entity);
-		String username = form.getFirstValue("username");
-		String fullname = form.getFirstValue("full-name");
-		String mail = form.getFirstValue("mail").toString();
-		String newPassword = form.getFirstValue("new-password");
-		String confirmNewPassword = form.getFirstValue("confirm-new-password");
+	@Inject
+	protected Application application;
+
+	@Post(uri = "/api/v2/users/register", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String post(String username, String full_name, String mail, String new_password,
+			String confirm_new_password) {
 
 		// check username
 		String error = User.checkUsername(username);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 		if (dao.findByUsername(username) != null) {
-			return new JSONAnswer("Username already exists.", false);
+			return new JSONAnswer("Username already exists.", false).toString();
 		}
 
 		// check email
 		error = User.checkMail(mail);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
 		if (dao.findByMail(mail) != null) {
-			return new JSONAnswer("E-Mail is already registered.", false);
+			return new JSONAnswer("E-Mail is already registered.", false).toString();
 		}
 
 		// check password
-		error = User.checkPassword(newPassword, confirmNewPassword);
+		error = User.checkPassword(new_password, confirm_new_password);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
 
 		// check password
-		error = User.checkName(fullname);
+		error = User.checkName(full_name);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
 
 		User newUser = new User();
 		newUser.setUsername(username);
-		newUser.setFullName(fullname);
+		newUser.setFullName(full_name);
 		newUser.setMail(mail);
 		newUser.setRoles(new String[] { DEFAULT_ROLE });
-		newUser.setPassword(HashUtil.hashPassword(newPassword));
+		newUser.setPassword(HashUtil.hashPassword(new_password));
 
 		try {
 
 			// if email server configured, send mails with activation link. Else
 			// activate user immediately.
 
-			if (getSettings().getMail() != null) {
+			// send email with activation code
+			String activationKey = HashUtil.getActivationHash(newUser);
+			newUser.setActive(false);
+			newUser.setActivationCode(activationKey);
+			String appName = application.getSettings().getName();
+			String subject = "[" + appName + "] Signup activation";
+			String activationLink = hostname + "/#!activate/" + username + "/" + activationKey;
+			String body = application.getTemplate(Template.REGISTER_MAIL, full_name, application, activationLink);
 
-				String activationKey = HashUtil.getActivationHash(newUser);
+			System.out.println(body);
+
+			if (application.getSettings().getMail() != null) {
+
+				activationKey = HashUtil.getActivationHash(newUser);
 				newUser.setActive(false);
 				newUser.setActivationCode(activationKey);
 
 				// send email with activation code
-				String application = getSettings().getName();
-				String subject = "[" + application + "] Signup activation";
-				String activationLink = hostname + "/#!activate/" + username + "/" + activationKey;
-				String body = getWebApp().getTemplate(Template.REGISTER_MAIL, fullname, application, activationLink);
+				appName = application.getSettings().getName();
+				subject = "[" + appName + "] Signup activation";
+				activationLink = hostname + "/#!activate/" + username + "/" + activationKey;
+				body = application.getTemplate(Template.REGISTER_MAIL, full_name, application, activationLink);
 
-				MailUtil.send(getSettings(), mail, subject, body);
+				MailUtil.send(application.getSettings(), mail, subject, body);
 
 			} else {
 
@@ -97,15 +109,16 @@ public class RegisterUser extends BaseResource {
 
 			}
 
-			MailUtil.notifySlack(getSettings(), "Hi! say hello to " + username + " (" + mail + ") :hugging_face:");
+			MailUtil.notifySlack(application.getSettings(),
+					"Hi! say hello to " + username + " (" + mail + ") :hugging_face:");
 
 			dao.insert(newUser);
 
-			return new JSONAnswer("User sucessfully created.", true);
+			return new JSONAnswer("User sucessfully created.", true).toString();
 
 		} catch (Exception e) {
 
-			return new JSONAnswer(e.getMessage(), false);
+			return new JSONAnswer(e.getMessage(), false).toString();
 
 		}
 
