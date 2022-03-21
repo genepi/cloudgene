@@ -101,8 +101,24 @@ public class ExternalResults extends BaseResource {
 			String localWorkspace = getSettings().getLocalWorkspace();
 			String resultFile = FileUtil.path(localWorkspace, download.getPath());
 			log.debug("Downloading file from local workspace " + resultFile);
-			MediaType mediaType = DownloadResults.getMediaType(download.getPath());
+			MediaType mediaType = getMediaType(download.getPath());
 			return new FileRepresentation(resultFile, mediaType);
+		}
+
+	}
+	
+	public static MediaType getMediaType(String filename) {
+
+		if (filename.endsWith(".zip")) {
+			return MediaType.APPLICATION_ZIP;
+		} else if (filename.endsWith(".txt") || filename.endsWith(".csv")) {
+			return MediaType.TEXT_PLAIN;
+		} else if (filename.endsWith(".pdf")) {
+			return MediaType.APPLICATION_PDF;
+		} else if (filename.endsWith(".html")) {
+			return MediaType.TEXT_HTML;
+		} else {
+			return MediaType.ALL;
 		}
 
 	}

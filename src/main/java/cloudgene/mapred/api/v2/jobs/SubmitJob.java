@@ -2,77 +2,163 @@ package cloudgene.mapred.api.v2.jobs;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.Vector;
 
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
 import org.apache.commons.fileupload.FileUploadBase.FileUploadIOException;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.ext.fileupload.RestletFileUpload;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Post;
+import org.json.JSONObject;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
+import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.http.multipart.CompletedPart;
+import io.micronaut.http.server.multipart.MultipartBody;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
+import reactor.core.publisher.Mono;
 
-public class SubmitJob extends BaseResource {
+@Controller
+public class SubmitJob {
+
+	@Inject
+	protected cloudgene.mapred.Application application;
 
 	private static final Log log = LogFactory.getLog(SubmitJob.class);
 
-	@Post
-	public Representation post(Representation entity) {
+	@Post(uri = "/api/v2/jobs/submit/{appId}", consumes = MediaType.MULTIPART_FORM_DATA, produces = MediaType.TEXT_PLAIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	@Secured(SecurityRule.IS_ANONYMOUS)
 
-		User user = getAuthUserAndAllowApiToken();
+	public Publisher<Object> submit(String appId, @Body MultipartBody body, @Nullable Principal principal) {
 
-		if (getSettings().isMaintenance() && !user.isAdmin()) {
-			return error503("This functionality is currently under maintenance.");
+		return Mono.create(emitter -> {
+			body.subscribe(new Subscriber<CompletedPart>() {
+
+				List<FormParameter> form = new Vector<FormParameter>();
+
+				private Subscription s;
+
+				@Override
+				public void onSubscribe(Subscription s) {
+					this.s = s;
+					s.request(1);
+				}
+
+				@Override
+				public void onNext(CompletedPart completedPart) {
+					String partName = completedPart.getName();
+					if (completedPart instanceof CompletedFileUpload) {
+						String originalFileName = ((CompletedFileUpload) completedPart).getFilename();
+						String tmpFile = application.getSettings().getTempFilename(originalFileName);
+						File file = new File(tmpFile);
+
+						try {
+							InputStream stream = completedPart.getInputStream();
+							FileUtils.copyInputStreamToFile(stream, file);
+							stream.close();
+
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						form.add(new FormParameter(partName, file));
+
+					} else {
+						try {
+							String value = Streams.asString(completedPart.getInputStream());
+							log.info(partName + " --> " + value);
+							form.add(new FormParameter(partName, value));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+					s.request(1);
+				}
+
+				@Override
+				public void onError(Throwable t) {
+					emitter.error(t);
+				}
+
+				@Override
+				public void onComplete() {
+					String result = submit(appId, form, principal);
+					emitter.success(result);
+				}
+			});
+		});
+
+	}
+
+	public String submit(String appId, List<FormParameter> form, @Nullable Principal principal) {
+
+		WorkflowEngine engine = this.application.getWorkflowEngine();
+		Settings settings = this.application.getSettings();
+		Database database = this.application.getDatabase();
+
+		User user = application.getUserByPrincipal(principal);
+
+		if (settings.isMaintenance() && !user.isAdmin()) {
+			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
 		}
 
-		String appId = getAttribute("tool");
+		// TODO: still needed?
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
-			return error404("Application '" + appId + "' is not in valid format.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
 		}
 
-		ApplicationRepository repository = getApplicationRepository();
+		ApplicationRepository repository = settings.getApplicationRepository();
 		Application application = repository.getByIdAndUser(appId, user);
 		WdlApp app = null;
 		try {
 			app = application.getWdlApp();
 		} catch (Exception e1) {
-			return error404("Application '" + appId + "' not found or the request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND,
+					"Application '" + appId + "' not found or the request requires user authentication.");
 		}
 
 		if (app.getWorkflow() == null) {
-			return error404("Application '" + appId + "' has no mapred section.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' has no workflow section.");
 		}
-
-		WorkflowEngine engine = getWorkflowEngine();
-		Settings settings = getSettings();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
 		String id = "job-" + sdf.format(new Date());
@@ -84,13 +170,14 @@ public class SubmitJob extends BaseResource {
 
 			int maxPerUser = settings.getMaxRunningJobsPerUser();
 			if (!user.isAdmin() && engine.getJobsByUser(user).size() >= maxPerUser) {
-				return error400("Only " + maxPerUser + " jobs per user can be executed simultaneously.");
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST,
+						"Only " + maxPerUser + " jobs per user can be executed simultaneously.");
 			}
 
 		} else {
 
 			// public mode
-			user = PublicUser.getUser(getDatabase());
+			user = PublicUser.getUser(database);
 
 			String uuid = UUID.randomUUID().toString();
 			id = id + "-" + HashUtil.getSha256(uuid);
@@ -101,24 +188,24 @@ public class SubmitJob extends BaseResource {
 		String hdfsWorkspace = "";
 
 		try {
-			hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
+			hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		} catch (NoClassDefFoundError e) {
 			log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
 		}
 
-		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
+		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
 		Map<String, String> inputParams = null;
 
 		try {
-			inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
+			inputParams = parseAndUpdateInputParams(form, app, hdfsWorkspace, localWorkspace);
 		} catch (FileUploadIOException e) {
-			return error400("Upload limit reached.");
+			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Upload limit reached.");
 		}
 
 		if (inputParams == null) {
-			return error400("Error during input parameter parsing.");
+			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Error during input parameter parsing.");
 		}
 
 		String name = id;
@@ -133,63 +220,55 @@ public class SubmitJob extends BaseResource {
 		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);
 		job.setHdfsWorkspace(hdfsWorkspace);
-		job.setSettings(getSettings());
-		job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
+		job.setSettings(settings);
+		job.setRemoveHdfsWorkspace(settings.isRemoveHdfsWorkspace());
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(appId);
 
-		String userAgent = getRequest().getClientInfo().getAgent();
+		// String userAgent = getRequest().getClientInfo().getAgent();
+		// TODO: How to read userAgent from micronaut request!
+		String userAgent = "Web.Interface";
 		job.setUserAgent(userAgent);
 
 		engine.submit(job);
 
-		Map<String, Object> params = new HashMap<String, Object>();
-		params.put("id", id);
-		return ok("Your job was successfully added to the job queue.", params);
+		JSONObject jsonObject = new JSONObject();
+
+		try {
+
+			jsonObject.put("success", true);
+			jsonObject.put("message", "Your job was successfully added to the job queue.");
+			jsonObject.put("id", id);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
+		return jsonObject.toString();
 
 	}
 
-	private Map<String, String> parseAndUpdateInputParams(Representation entity, WdlApp app, String hdfsWorkspace,
+	private Map<String, String> parseAndUpdateInputParams(List<FormParameter> form, WdlApp app, String hdfsWorkspace,
 			String localWorkspace) throws FileUploadIOException {
+
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
 
-		FileItemIterator iterator = null;
-		try {
-			iterator = parseRequest(entity);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-
-		}
 		// uploaded files
 		try {
-			while (iterator.hasNext()) {
+			for (FormParameter formParam : form) {
 
-				FileItemStream item = iterator.next();
+				String name = formParam.name;
+				Object value = formParam.value;
 
-				String name = item.getName();
-
-				if (name != null) {
-
-					File file = null;
+				if (value instanceof File) {
+					File inputFile = (File) value;
 
 					try {
-						// file parameter
-						// write local file
-						String tmpFile = getSettings().getTempFilename(item.getName());
-						file = new File(tmpFile);
 
-						FileUtils.copyInputStreamToFile(item.openStream(), file);
-
-						// import into hdfs
-						String entryName = item.getName();
+						String entryName = inputFile.getName();
 
 						// remove upload indentification!
-						String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
-
-						// boolean hdfs = false;
-						// boolean folder = false;
+						String fieldName = name.replace("-upload", "").replace("input-", "");
 
 						WdlParameterInput inputParam = null;
 						for (WdlParameterInput input : app.getWorkflow().getInputs()) {
@@ -204,7 +283,7 @@ public class SubmitJob extends BaseResource {
 
 							String target = HdfsUtil.path(targetPath, entryName);
 
-							HdfsUtil.put(tmpFile, target);
+							HdfsUtil.put(inputFile.getAbsolutePath(), target);
 
 							if (inputParam.isFolder()) {
 								// folder
@@ -217,14 +296,13 @@ public class SubmitJob extends BaseResource {
 
 						} else {
 
-							// copy to workspace in temp directory
+							// copy to workspace in input directory
 							String targetPath = FileUtil.path(localWorkspace, "input", fieldName);
-
 							FileUtil.createDirectory(targetPath);
 
 							String target = FileUtil.path(targetPath, entryName);
 
-							FileUtil.copy(tmpFile, target);
+							FileUtil.copy(inputFile.getAbsolutePath(), target);
 
 							if (inputParam.isFolder()) {
 								// folder
@@ -241,37 +319,29 @@ public class SubmitJob extends BaseResource {
 						}
 
 						// deletes temporary file
-						FileUtil.deleteFile(tmpFile);
+						FileUtil.deleteFile(inputFile.getAbsolutePath());
 
-					} catch (FileUploadIOException e) {
-						file.delete();
-						throw e;
 					} catch (Exception e) {
-						file.delete();
-						return null;
-
+						FileUtil.deleteFile(inputFile.getAbsolutePath());
+						throw e;
 					}
 
 				} else {
 
-					String key = item.getFieldName();
+					String key = name;
 					if (key.startsWith("input-")) {
 						key = key.replace("input-", "");
 					}
-					String value = Streams.asString(item.openStream());
 					if (!props.containsKey(key)) {
 						// don't override uploaded files
-						props.put(key, value);
+						props.put(key, value.toString());
 					}
 
 				}
 
 			}
-		} catch (FileUploadIOException e) {
-			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+			throw e;
 
 		}
 		try {
@@ -310,22 +380,19 @@ public class SubmitJob extends BaseResource {
 			throw e;
 
 		}
+
 		return params;
 	}
 
-	private FileItemIterator parseRequest(Representation entity) throws FileUploadException, IOException {
+	class FormParameter {
+		public String name;
 
-		// 1/ Create a factory for disk-based file items
-		DiskFileItemFactory factory = new DiskFileItemFactory();
-		factory.setSizeThreshold(1000240);
+		public Object value;
 
-		// 2/ Create a new file upload handler based on the Restlet
-		// FileUpload extension that will parse Restlet requests and
-		// generates FileItems.
-		RestletFileUpload upload = new RestletFileUpload(factory);
-		Settings settings = getSettings();
-		upload.setFileSizeMax(settings.getUploadLimit());
-		return upload.getItemIterator(entity);
-
+		public FormParameter(String name, Object value) {
+			this.name = name;
+			this.value = value;
+		}
 	}
+
 }

@@ -125,8 +125,8 @@ public class WebApp extends Application {
 
 		// jobs
 		//router.attach(prefix + "/api/v2/jobs", GetJobs.class);
-		router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
+		//router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
+		//router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
@@ -202,13 +202,13 @@ public class WebApp extends Application {
 
 		// download resources
 		router.attach(prefix + "/get/{id}/{hash}", DownloadScriptResults.class);
-		router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
+		//router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
 		router.attach(prefix + "/downloads/{job}/{hash}/{filename}", ExternalResults.class);
 
 		
-		TemplateRoute route2 = router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
-		Map routeVariables = route2.getTemplate().getVariables();
-		routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
+		//TemplateRoute route2 = router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
+		//Map routeVariables = route2.getTemplate().getVariables();
+		//routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
 
 		TemplateRoute route3 = router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
 		Map routeVariables3 = route3.getTemplate().getVariables();
