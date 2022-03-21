@@ -160,7 +160,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/server/counters", GetCounter.class);
 
 		// returns meta data about an app
-		router.attach(prefix + "/api/v2/server/apps/{tool}", App.class);
+		//router.attach(prefix + "/api/v2/server/apps/{tool}", App.class);
 
 		// returns a list of all installed apps
 		router.attach(prefix + "/api/v2/server/apps", Apps.class);
