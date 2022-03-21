@@ -1,38 +1,42 @@
 package cloudgene.mapred.api.v2.users;
 
-import org.restlet.data.Form;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Post;
-
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
+import io.micronaut.context.env.Environment;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.runtime.server.EmbeddedServer;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class ResetPassword extends BaseResource {
+@Controller
+public class ResetPassword {
 
-	@Post
-	public Representation get(Representation entity) {
+	protected final String hostname;
 
-		String hostname = "";
-		if (getRequest().getReferrerRef() != null) {
-			hostname = getRequest().getReferrerRef().getHostIdentifier(); 
-		}else {
-			hostname = getRequest().getHostRef().getHostIdentifier();
-		}
-		
+	public ResetPassword(EmbeddedServer embeddedServer) {
+		hostname = embeddedServer.getURL().toString();
+	}
 
-		Form form = new Form(entity);
-		String username = form.getFirstValue("username");
+	@Inject
+	protected Application application;
+
+	@Post(uri = "/api/v2/users/reset", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String get(String username) {
 
 		if (username == null || username.isEmpty()) {
-			return new JSONAnswer("Please enter a valid username or email address.", false);
+			return new JSONAnswer("Please enter a valid username or email address.", false).toString();
 		}
 
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 		User user = dao.findByUsername(username);
 
 		if (user == null) {
@@ -42,7 +46,7 @@ public class ResetPassword extends BaseResource {
 		if (user != null) {
 
 			if (!user.isActive()) {
-				return new JSONAnswer("Account is not activated.", false);
+				return new JSONAnswer("Account is not activated.", false).toString();
 			}
 			String key = "";
 			if (user.getActivationCode() != null && !user.getActivationCode().isEmpty()) {
@@ -62,30 +66,33 @@ public class ResetPassword extends BaseResource {
 
 			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
 
+			System.out.println("LLLL " + link);
+
 			// send email with activation code
 
-			String application = getSettings().getName();
-			String subject = "[" + application + "] Password Recovery";
-			String body = getWebApp().getTemplate(Template.RECOVERY_MAIL, user.getFullName(), application, link);
+			String app = application.getSettings().getName();
+			String subject = "[" + app + "] Password Recovery";
+			String body = application.getTemplate(Template.RECOVERY_MAIL, user.getFullName(), application, link);
 
 			try {
 
-				MailUtil.notifySlack(getSettings(), "Hi! " + username + " asked for a new password :key:");
+				MailUtil.notifySlack(application.getSettings(), "Hi! " + username + " asked for a new password :key:");
 
-				MailUtil.send(getSettings(), user.getMail(), subject, body);
+				MailUtil.send(application.getSettings(), user.getMail(), subject, body);
 
 				return new JSONAnswer(
-						"Email sent to " + user.getMail() + " with instructions on how to reset your password.", true);
+						"Email sent to " + user.getMail() + " with instructions on how to reset your password.", true)
+								.toString();
 
 			} catch (Exception e) {
 
-				return new JSONAnswer("Sending recovery email failed. " + e.getMessage(), false);
+				return new JSONAnswer("Sending recovery email failed. " + e.getMessage(), false).toString();
 
 			}
 
 		} else {
 
-			return new JSONAnswer("We couldn't find an account with that username or email.", false);
+			return new JSONAnswer("We couldn't find an account with that username or email.", false).toString();
 
 		}
 
