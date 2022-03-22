@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
+import org.restlet.resource.ResourceException;
 
 import com.dumbster.smtp.SmtpMessage;
 
@@ -82,16 +83,24 @@ public class ActivateUserTest {
 		// login should not be possible
 		resource = client.createClientResource("/login");
 		form = new Form();
-		form.set("loginUsername", "usernameunique5");
-		form.set("loginPassword", "Password27");
-		resource.post(form);
-
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
-		assertEquals(false, object.get("success"));
-		assertEquals(0, resource.getResponse().getCookieSettings().size());
+		form.set("username", "usernameunique5");
+		form.set("password", "Password27");
+		
+		try {
+			resource.post(form);
+		} catch (ResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		assertEquals(401, resource.getStatus().getCode());
 		resource.release();
+
+		//assertEquals(200, resource.getStatus().getCode());
+		//object = new JSONObject(resource.getResponseEntity().getText());
+		//assertEquals("Login Failed! User account is not activated.", object.getString("message"));
+		//assertEquals(false, object.get("success"));
+		//assertEquals(0, resource.getResponse().getCookieSettings().size());
 		
 		// activate user with wrong activation code
 		resource = client.createClientResource("/users/activate/" + user.getUsername() + "/RANDOMACTIVATIONCODE");
@@ -112,16 +121,25 @@ public class ActivateUserTest {
 		// login should not be possible
 		resource = client.createClientResource("/login");
 		form = new Form();
-		form.set("loginUsername", "usernameunique5");
-		form.set("loginPassword", "Password27");
-		resource.post(form);
-
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
-		assertEquals(false, object.get("success"));
-		assertEquals(0, resource.getResponse().getCookieSettings().size());
+		form.set("username", "usernameunique5");
+		form.set("password", "Password27");
+		
+		try {
+			resource.post(form);
+		} catch (ResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		assertEquals(401, resource.getStatus().getCode());
 		resource.release();
+
+		//assertEquals(200, resource.getStatus().getCode());
+		//object = new JSONObject(resource.getResponseEntity().getText());
+		//assertEquals("Login Failed! User account is not activated.", object.getString("message"));
+		//assertEquals(false, object.get("success"));
+		//assertEquals(0, resource.getResponse().getCookieSettings().size());
+		//resource.release();
 		
 		// activate user with correct data
 		resource = client.createClientResource("/users/activate/" + user.getUsername() + "/" + user.getActivationCode());
@@ -134,15 +152,16 @@ public class ActivateUserTest {
 		// login should work
 		resource = client.createClientResource("/login");
 		form = new Form();
-		form.set("loginUsername", "usernameunique5");
-		form.set("loginPassword", "Password27");
+		form.set("username", "usernameunique5");
+		form.set("password", "Password27");
 		resource.post(form);
 		
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login successfull.", object.getString("message"));
-		assertEquals(true, object.get("success"));
-		assertEquals(1, resource.getResponse().getCookieSettings().size());
+		assertEquals("usernameunique5", object.get("username"));
+		//assertEquals("Login successfull.", object.getString("message"));
+		//assertEquals(true, object.get("success"));
+		//assertEquals(1, resource.getResponse().getCookieSettings().size());
 		resource.release();
 	}
 

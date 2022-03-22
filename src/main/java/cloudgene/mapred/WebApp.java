@@ -136,13 +136,13 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/users/register", RegisterUser.class);
 
 		// activate user after registration
-		router.attach(prefix + "/users/activate/{user}/{code}", ActivateUser.class);
+		//router.attach(prefix + "/users/activate/{user}/{code}", ActivateUser.class);
 
 		// reset password. Sends mail with link to update password
 		//router.attach(prefix + "/api/v2/users/reset", ResetPassword.class);
 
 		// after reset, update password (needs activation code...)
-		router.attach(prefix + "/api/v2/users/update-password", UpdatePassword.class);
+		//router.attach(prefix + "/api/v2/users/update-password", UpdatePassword.class);
 
 		// get or update user profile
 		router.attach(prefix + "/api/v2/users/{user}/profile", UserProfile.class);

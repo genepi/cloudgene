@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
+import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
@@ -108,29 +109,41 @@ public class UpdatePasswordTest {
 		// try login with old password
 		resource = client.createClientResource("/login");
 		form = new Form();
-		form.set("loginUsername", "testupdate3");
-		form.set("loginPassword", "old-password");
-		resource.post(form);
-
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-		assertEquals(false, object.get("success"));
-		assertEquals(0, resource.getResponse().getCookieSettings().size());
+		form.set("username", "testupdate3");
+		form.set("password", "old-password");
+		
+		try {
+			resource.post(form);
+		} catch (ResourceException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		assertEquals(401, resource.getStatus().getCode());
 		resource.release();
+
+
+		//assertEquals(200, resource.getStatus().getCode());
+		//object = new JSONObject(resource.getResponseEntity().getText());
+		//assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
+		//assertEquals(false, object.get("success"));
+		//assertEquals(0, resource.getResponse().getCookieSettings().size());
+		//resource.release();
 
 		// try login with new password
 		resource = client.createClientResource("/login");
 		form = new Form();
-		form.set("loginUsername", "testupdate3");
-		form.set("loginPassword", "New-password9");
+		form.set("username", "testupdate3");
+		form.set("password", "New-password9");
 		resource.post(form);
-
+		
 		assertEquals(200, resource.getStatus().getCode());
+		
 		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login successfull.", object.getString("message"));
-		assertEquals(true, object.get("success"));
-		assertEquals(1, resource.getResponse().getCookieSettings().size());
+		assertEquals("testupdate3", object.get("username"));
+		//assertEquals("Login successfull.", object.getString("message"));
+		//assertEquals(true, object.get("success"));
+		//assertEquals(1, resource.getResponse().getCookieSettings().size());
 		resource.release();
 	}
 

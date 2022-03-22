@@ -1,41 +1,49 @@
 package cloudgene.mapred.api.v2.users;
 
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
-import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class ActivateUser extends BaseResource {
+@Controller
+public class ActivateUser {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		String username = (String) getRequest().getAttributes().get("user");
-		String code = (String) getRequest().getAttributes().get("code");
+	@Get("/users/activate/{user}/{code}")
+	@Secured(SecurityRule.IS_ANONYMOUS) 
+	
+	public String get(@PathVariable @NotBlank String user, @PathVariable @NotBlank String code) {
 
-		UserDao dao = new UserDao(getDatabase());
-		User user = dao.findByUsername(username);
+		UserDao dao = new UserDao(application.getDatabase());
+		User userObject = dao.findByUsername(user);
 
-		if (user != null) {
+		if (userObject != null) {
+			
+			if (userObject.getActivationCode() != null && userObject.getActivationCode().equals(code)) {
 
-			if (user.getActivationCode() != null && user.getActivationCode().equals(code)) {
-
-				user.setActive(true);
-				user.setActivationCode("");
-				dao.update(user);
-				return new JSONAnswer("User sucessfully activated.", true);
+				userObject.setActive(true);
+				userObject.setActivationCode("");
+				dao.update(userObject);
+				return new JSONAnswer("User sucessfully activated.", true).toString();
 
 			} else {
 
-				return new JSONAnswer("Wrong activation code.", false);
+				return new JSONAnswer("Wrong activation code.", false).toString();
 
 			}
 		} else {
 
-			return new JSONAnswer("Wrong username.", false);
+			return new JSONAnswer("Wrong username.", false).toString();
 
 		}
 
