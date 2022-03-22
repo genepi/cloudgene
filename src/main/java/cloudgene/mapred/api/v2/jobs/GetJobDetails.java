@@ -13,10 +13,12 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
@@ -35,13 +37,13 @@ public class GetJobDetails {
 	protected Application application;
 
 	@Get("/api/v2/jobs/{id}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String getJob(@PathVariable @NotBlank String id, Principal principal) {
+	@Secured(SecurityRule.IS_ANONYMOUS) 
+	public String getJob(@PathVariable @NotBlank String id, @Nullable Principal principal) {
 
 		User user = application.getUserByPrincipal(principal);
 
 		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
+			user = PublicUser.getUser(application.getDatabase());
 		}
 
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {

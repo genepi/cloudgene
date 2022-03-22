@@ -2,16 +2,9 @@ package cloudgene.mapred.api.v2.server;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
-
-import org.restlet.data.Form;
-import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Delete;
-import org.restlet.resource.Get;
-import org.restlet.resource.Put;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
@@ -20,52 +13,69 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Put;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-public class App extends BaseResource {
+@Controller
+public class App {
 
-	@Get
-	public Representation getApp() {
+	@Inject
+	protected cloudgene.mapred.Application application;
 
-		User user = getAuthUserAndAllowApiToken();
+	@Get("/api/v2/server/apps/{appId}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String getApp(String appId, @Nullable Principal principal) {
 
-		String appId = getAttribute("tool");
+		User user = application.getUserByPrincipal(principal);
+
+		// TODO: check if still needed.
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
-			return error404("Application '" + appId + "' is not in valid format.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
 		}
 
-		Settings settings = getSettings();
+		Settings settings = application.getSettings();
 
-		ApplicationRepository repository = getApplicationRepository();
+		ApplicationRepository repository = settings.getApplicationRepository();
 		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
-			return error404("Application '" + appId + "' not found or the request requires user authentication..");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND,
+					"Application '" + appId + "' not found or the request requires user authentication..");
 		}
 
 		WdlApp wdlApp = application.getWdlApp();
 		if (wdlApp.getWorkflow() == null) {
-			return error404("Application '" + appId + "' is a data package.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is a data package.");
 		}
 
 		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
-			return error503("This functionality is currently under maintenance.");
+			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
 		}
 
 		if (wdlApp.getWorkflow().hasHdfsInputs()) {
 
 			PluginManager manager = PluginManager.getInstance();
 			if (!manager.isEnabled(HadoopPlugin.ID)) {
-				return error503(
+				throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 						"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
 			}
 		}
@@ -82,83 +92,76 @@ public class App extends BaseResource {
 		jsonObject.put("s3Workspace", settings.getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& settings.getExternalWorkspaceLocation().isEmpty());
 
-		String footer = getWebApp().getTemplate(Template.FOOTER_SUBMIT_JOB);
+		String footer = this.application.getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
 			jsonObject.put("footer", footer);
 		}
 
-		return new StringRepresentation(jsonObject.toString());
+		return jsonObject.toString();
 
 	}
 
-	@Delete
-	public Representation removeApp() {
+	@Delete("/api/v2/server/apps/{appId}")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String removeApp(String appId, @Nullable Principal principal) {
 
-		User user = getAuthUser();
+		User user = application.getUserByPrincipal(principal);
 
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
-			return error401("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
 
-		String appId = getAttribute("tool");
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
-			return error404("Application '" + appId + "' is not in valid format.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
 		}
 
-		ApplicationRepository repository = getApplicationRepository();
+		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
 		Application application = repository.getById(appId);
 		if (application != null) {
 			try {
 				repository.remove(application);
-				getSettings().save();
+				this.application.getSettings().save();
 
 				JSONObject jsonObject = JSONConverter.convert(application);
-				return new JsonRepresentation(jsonObject.toString());
+				return jsonObject.toString();
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				return error400("Application not removed: " + e.getMessage());
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not removed: " + e.getMessage());
 			}
 		} else {
-			return error404("Application '" + appId + "' not found.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
 	}
 
-	@Put
-	public Representation updateApp(Representation entity) {
+	@Put(uri = "/api/v2/server/apps/{appId}", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String updateApp(String appId, String enabled, String permission, String reinstall, String nextflowConfig,
+			String nextflowProfile, String nextflowWork, @Nullable Principal principal) {
 
-		User user = getAuthUser();
+		User user = application.getUserByPrincipal(principal);
 
 		if (user == null) {
-			return error401("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
-			return error401("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
 
-		String appId = getAttribute("tool");
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
-			return error404("Application '" + appId + "' is not in valid format.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
 		}
 
-		Form form = new Form(entity);
-		String enabled = form.getFirstValue("enabled");
-		String permission = form.getFirstValue("permission");
-		String reinstall = form.getFirstValue("reinstall");
-		String nextflowConfig = form.getFirstValue("config[nextflow.config]");
-		String nextflowProfile = form.getFirstValue("config[nextflow.profile]");
-		String nextflowWork = form.getFirstValue("config[nextflow.work]");
-
-		ApplicationRepository repository = getApplicationRepository();
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 		Application application = repository.getById(appId);
 		if (application != null) {
 
@@ -168,11 +171,11 @@ public class App extends BaseResource {
 					if (application.isEnabled() && enabled.equals("false")) {
 						application.setEnabled(false);
 						repository.reload();
-						getSettings().save();
+						this.application.getSettings().save();
 					} else if (!application.isEnabled() && enabled.equals("true")) {
 						application.setEnabled(true);
 						repository.reload();
-						getSettings().save();
+						this.application.getSettings().save();
 					}
 				}
 
@@ -181,7 +184,7 @@ public class App extends BaseResource {
 					if (!application.getPermission().equals(permission)) {
 						application.setPermission(permission);
 						repository.reload();
-						getSettings().save();
+						this.application.getSettings().save();
 					}
 				}
 
@@ -199,9 +202,9 @@ public class App extends BaseResource {
 				// reinstall application
 				if (reinstall != null) {
 					if (reinstall.equals("true")) {
-						boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
+						boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
 						if (installed) {
-							ApplicationInstaller.uninstall(wdlApp, getSettings());
+							ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
 						}
 					}
 				}
@@ -215,15 +218,15 @@ public class App extends BaseResource {
 				Map<String, String> config = repository.getConfig(wdlApp);
 				jsonObject.put("config", config);
 
-				return new JsonRepresentation(jsonObject.toString());
+				return jsonObject.toString();
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				return error400("Application not installed: " + e.getMessage());
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not installed: " + e.getMessage());
 			}
 
 		} else {
-			return error404("Application '" + appId + "' not found.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
 	}
 
@@ -231,7 +234,7 @@ public class App extends BaseResource {
 		WdlApp wdlApp = app.getWdlApp();
 		if (wdlApp != null) {
 			if (wdlApp.needsInstallation()) {
-				boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
+				boolean installed = ApplicationInstaller.isInstalled(wdlApp, application.getSettings());
 				if (installed) {
 					jsonObject.put("state", "completed");
 				} else {
@@ -240,7 +243,7 @@ public class App extends BaseResource {
 			} else {
 				jsonObject.put("state", "n/a");
 			}
-			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, getSettings());
+			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, application.getSettings());
 			jsonObject.put("environment", environment);
 		}
 	}

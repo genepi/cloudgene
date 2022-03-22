@@ -1,32 +1,41 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
+import java.security.Principal;
 
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.util.PublicUser;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class GetJobStatus extends BaseResource {
-	
-	@Get
-	public Representation get(Representation entity) {
+@Controller
+public class GetJobStatus {
 
-		User user = getAuthUserAndAllowApiToken();
+	@Inject
+	protected Application application;
 
-		String id = getAttribute("job");
+	@Get("/api/v2/jobs/{id}/status")
+	@Secured(SecurityRule.IS_ANONYMOUS) 
+	public String get(String id, @Nullable Principal principal) {
 
-		AbstractJob job = getWorkflowEngine().getJobById(id);
+		User user = application.getUserByPrincipal(principal);
+
+		AbstractJob job = application.getWorkflowEngine().getJobById(id);
 
 		if (job == null) {
 
-			JobDao dao = new JobDao(getDatabase());
+			JobDao dao = new JobDao(application.getDatabase());
 			job = dao.findById(id, false);
 
 		} else {
@@ -40,23 +49,22 @@ public class GetJobStatus extends BaseResource {
 		}
 
 		if (job == null) {
-			return error404("Job " + id + " not found.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		// public mode
 		if (user == null) {
-			UserDao dao = new UserDao(getDatabase());
-			user = dao.findByUsername("public");
+			user = PublicUser.getUser(application.getDatabase());
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			return error403("Access denied.");
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
 
 		JSONObject object = JSONConverter.convert(job);
 
-		return new StringRepresentation(object.toString());
+		return object.toString();
 
 	}
-	
+
 }

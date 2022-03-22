@@ -1,13 +1,14 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import java.io.File;
+import java.security.Principal;
+
+import javax.validation.constraints.NotBlank;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.data.MediaType;
-import org.restlet.representation.FileRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
 
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
@@ -15,47 +16,58 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class DownloadResults extends BaseResource {
+@Controller
+public class DownloadResults {
 
 	private static final Log log = LogFactory.getLog(DownloadResults.class);
 
-	@Get
-	public Representation get() {
-		try {
-			String jobId = getAttribute("job");
-			String paramId = getAttribute("id");
-			String filename = getAttribute("filename");
+	@Inject
+	protected Application application;
 
-			JobDao jobDao = new JobDao(getDatabase());
+	@Get("/results/{jobId}/{paramId}/{filename}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public File download(@PathVariable @NotBlank String jobId, @PathVariable @NotBlank String paramId,
+			@PathVariable @NotBlank String filename, @Nullable Principal principal) {
+		try {
+
+			JobDao jobDao = new JobDao(application.getDatabase());
 			AbstractJob job = jobDao.findById(jobId);
 
 			if (job == null) {
-				return error404("Job " + jobId + " not found.");
+				throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
 			}
 
 			// job is running -> load it from queue
 			if (job.getState() == AbstractJob.STATE_WAITING || job.getState() == AbstractJob.STATE_RUNNING
 					|| job.getState() == AbstractJob.STATE_EXPORTING) {
-				job = getWorkflowEngine().getJobById(jobId);
+				job = application.getWorkflowEngine().getJobById(jobId);
 			}
 
-			User user = getAuthUserAndAllowApiToken(false);
+			User user = application.getUserByPrincipal(principal);
 
 			// public mode
 			if (user == null) {
-				user = PublicUser.getUser(getDatabase());
+				user = PublicUser.getUser(application.getDatabase());
 			}
 
 			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-				return error403("Access denied.");
+				throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 			}
 
-			DownloadDao dao = new DownloadDao(getDatabase());
+			DownloadDao dao = new DownloadDao(application.getDatabase());
 			Download download = dao.findByJobAndPath(jobId, FileUtil.path(paramId, filename));
 
 			// job is running and not in database --> download possible of
@@ -76,11 +88,11 @@ public class DownloadResults extends BaseResource {
 			}
 
 			if (download == null) {
-				return error404("download not found.");
+				throw new HttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
 			}
 
 			if (download.getCount() == 0) {
-				return error400("number of max downloads exceeded.");
+				throw new HttpStatusException(HttpStatus.NOT_FOUND, "number of max downloads exceeded.");
 			}
 
 			// update download counter if it not set to unlimited
@@ -93,37 +105,22 @@ public class DownloadResults extends BaseResource {
 			if (externalWorkspace != null) {
 				// external workspace found, use link method and create redirect response
 				String publicUrl = externalWorkspace.createPublicLink(download.getPath());
-				redirectTemporary(publicUrl);
-				return new StringRepresentation(publicUrl);
+				//redirectTemporary(publicUrl);
+				//return new StringRepresentation(publicUrl);
+				//TODO: redirect to externak URL!
+				throw new HttpStatusException(HttpStatus.NOT_IMPLEMENTED, "Redirection not yet implemented!!");
 			} else {
 				// no external workspace found, use local workspace
-				String localWorkspace = getSettings().getLocalWorkspace();
+				String localWorkspace = application.getSettings().getLocalWorkspace();
 				String resultFile = FileUtil.path(localWorkspace, download.getPath());
 				log.debug("Downloading file from local workspace " + resultFile);
-				MediaType mediaType = getMediaType(download.getPath());
-				return new FileRepresentation(resultFile, mediaType);
+				return new File(resultFile);
 			}
 
 		} catch (Exception e) {
 			log.error("Processing download failed.", e);
-			return error400("Processing download failed.");
+			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Processing download failed.");
 		}
-	}
-
-	public static MediaType getMediaType(String filename) {
-
-		if (filename.endsWith(".zip")) {
-			return MediaType.APPLICATION_ZIP;
-		} else if (filename.endsWith(".txt") || filename.endsWith(".csv")) {
-			return MediaType.TEXT_PLAIN;
-		} else if (filename.endsWith(".pdf")) {
-			return MediaType.APPLICATION_PDF;
-		} else if (filename.endsWith(".html")) {
-			return MediaType.TEXT_HTML;
-		} else {
-			return MediaType.ALL;
-		}
-
 	}
 
 }

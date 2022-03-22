@@ -10,9 +10,11 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
@@ -39,12 +41,14 @@ public class GetJobs {
 		User user = application.getUserByPrincipal(principal);
 
 		if (user == null) {
-			throw new RuntimeException("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
-			throw new RuntimeException("This functionality is currently under maintenance.");
+			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
 		}
+
 
 		int pageSize = DEFAULT_PAGE_SIZE;
 

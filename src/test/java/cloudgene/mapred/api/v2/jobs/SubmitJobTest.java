@@ -17,6 +17,7 @@ import org.restlet.ext.html.FormData;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.ClientResource;
+import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -58,8 +59,6 @@ public class SubmitJobTest {
 			resource.post(form);
 		} catch (Exception e) {
 			assertEquals(404, resource.getStatus().getCode());
-			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-			assertEquals(object.get("success"), false);
 		}
 		resource.release();
 	}
@@ -341,6 +340,7 @@ public class SubmitJobTest {
 
 		// submit job
 		String id = client.submitJobPublic("sftp-import", form);
+		
 
 		// get details to check *** bug
 		client.getJobDetails(id);
@@ -360,7 +360,7 @@ public class SubmitJobTest {
 		sftp.stop();
 
 		// check results!
-
+		
 	}
 
 	// TODO: wrong permissions
