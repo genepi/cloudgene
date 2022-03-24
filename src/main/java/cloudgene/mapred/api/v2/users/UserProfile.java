@@ -1,147 +1,140 @@
 package cloudgene.mapred.api.v2.users;
 
-import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Delete;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-
-import cloudgene.mapred.core.ApiToken;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JSONConverter;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Delete;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class UserProfile extends BaseResource {
+@Controller
+public class UserProfile {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUserAndAllowApiToken();
+	@Get("/api/v2/users/{user2}/profile")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, String user2) {
+
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 		User updatedUser = dao.findByUsername(user.getUsername());
 
 		JSONObject object = JSONConverter.convert(updatedUser);
 		try {
 			if (object.getBoolean("hasApiToken")) {
-				org.json.JSONObject result = ApiToken.verify(user.getApiToken(), getSettings().getSecretKey(),
-						getDatabase());
-				object.put("apiTokenValid", result.get("valid"));
-				object.put("apiTokenMessage", result.get("message"));
+				//org.json.JSONObject result = ApiToken.verify(user.getApiToken(), getSettings().getSecretKey(),
+				//		getDatabase());
+				//object.put("apiTokenValid", result.get("valid"));
+				//object.put("apiTokenMessage", result.get("message"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		StringRepresentation representation = new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
-
-		return representation;
+		
+		return object.toString();
 
 	}
 
-	@Post
-	public Representation post(Representation entity) {
+	@Post(uri = "/api/v2/users/{user2}/profile", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String post(Authentication authentication, String user2, String username, String full_name, String mail, String new_password, String confirm_new_password) {
 
-		User user = getAuthUser();
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
-		Form form = new Form(entity);
-
-		String username = form.getFirstValue("username");
-		String fullname = form.getFirstValue("full-name");
-		String mail = form.getFirstValue("mail");
-		String newPassword = form.getFirstValue("new-password");
-		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
 		String error = User.checkUsername(username);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			return new JSONAnswer("You are not allowed to change this user profile.", false);
+			return new JSONAnswer("You are not allowed to change this user profile.", false).toString();
 		}
 
-		error = User.checkName(fullname);
+		error = User.checkName(full_name);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
 
 		error = User.checkMail(mail);
 		if (error != null) {
-			return new JSONAnswer(error, false);
+			return new JSONAnswer(error, false).toString();
 		}
 
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 		User newUser = dao.findByUsername(username);
-		newUser.setFullName(fullname);
+		newUser.setFullName(full_name);
 		newUser.setMail(mail);
 
 		// update password only when it's not empty
-		if (newPassword != null && !newPassword.isEmpty()) {
+		if (new_password != null && !new_password.isEmpty()) {
 
-			error = User.checkPassword(newPassword, confirmNewPassword);
+			error = User.checkPassword(new_password, confirm_new_password);
 
 			if (error != null) {
-				return new JSONAnswer(error, false);
+				return new JSONAnswer(error, false).toString();
 			}
-			newUser.setPassword(HashUtil.hashPassword(newPassword));
+			newUser.setPassword(HashUtil.hashPassword(new_password));
 
 		}
 
 		dao.update(newUser);
 
-		return new JSONAnswer("User profile sucessfully updated.", true);
+		return new JSONAnswer("User profile sucessfully updated.", true).toString();
 
 	}
 
-	@Delete
-	public Representation delete(Representation entity) {
+	@Delete("/api/v2/users/{user2}/profile")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String delete(Authentication authentication, String user2, String username, String password) {
 
-		User user = getAuthUser();
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return error401("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
-
-		Form form = new Form(entity);
-		String username = form.getFirstValue("username");
-		String password = form.getFirstValue("password");
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			return error401("You are not allowed to delete this user profile.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "You are not allowed to delete this user profile.");
 		}
 
 		if (HashUtil.checkPassword(password, user.getPassword())) {
 
-			UserDao dao = new UserDao(getDatabase());
+			UserDao dao = new UserDao(application.getDatabase());
 			boolean deleted = dao.delete(user);
 			if (deleted) {
-				return new JSONAnswer("User profile sucessfully delete.", true);
+				return new JSONAnswer("User profile sucessfully delete.", true).toString();
 			} else {
-				return error400("Error during deleting your user profile.");
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Error during deleting your user profile.");
 			}
 
 		} else {
-			return error401("Wrong password.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Wrong password.");
 		}
 
 	}

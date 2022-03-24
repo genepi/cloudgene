@@ -145,13 +145,13 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/users/update-password", UpdatePassword.class);
 
 		// get or update user profile
-		router.attach(prefix + "/api/v2/users/{user}/profile", UserProfile.class);
+		//router.attach(prefix + "/api/v2/users/{user}/profile", UserProfile.class);
 
 		// create, delete, get api token
 		//router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
 
 		// create, delete, get api token
-		router.attach(prefix + "/api/v2/tokens/verify", VerifyApiToken.class);
+		//router.attach(prefix + "/api/v2/tokens/verify", VerifyApiToken.class);
 
 		// returns all counters
 		//router.attach(prefix + "/api/v2/server", Server.class);
@@ -193,7 +193,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
 		router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
-		router.attach(prefix + "/api/v2/admin/server/templates/{id}", UpdateTemplate.class);
+		//router.attach(prefix + "/api/v2/admin/server/templates/{id}", UpdateTemplate.class);
 
 		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);

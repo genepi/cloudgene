@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStream;
-import java.security.Principal;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -13,8 +12,6 @@ import java.util.Map;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.engine.Engine;
-import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;

@@ -53,6 +53,11 @@ public class ApiTokens {
 		Map<String, Object> attribtues = new HashMap<String, Object>();
 		attribtues.put("token_type", "API");
 		attribtues.put("api_hash", apiHash);
+		//addition attributes that are needed by imputationbot
+		attribtues.put("username", user.getUsername());
+		attribtues.put("name", user.getFullName());
+		attribtues.put("mail", user.getMail());
+		attribtues.put("api", true);
 
 		Authentication authentication2 = Authentication.build(user.getUsername(), attribtues);
 		Optional<String> token = tokenGenerator.generateToken(authentication2, TOKEN_LIFETIME_API_SEC);
@@ -91,6 +96,8 @@ public class ApiTokens {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
+		// TODO: remove this resource. it is unnecessary, because we never store api
+		// token!
 		// return token
 		JSONObject answer = new JSONObject();
 		answer.put("success", true);

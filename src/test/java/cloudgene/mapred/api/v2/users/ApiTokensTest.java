@@ -19,6 +19,8 @@ import org.restlet.ext.html.FormDataSet;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.ClientResource;
 
+import com.google.gson.JsonObject;
+
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -70,6 +72,62 @@ public class ApiTokensTest {
 
 	}
 
+	@Test
+	public void testValidateToken() throws JSONException, IOException, InterruptedException {
+
+		LoginToken token = client.login("testUserToken", "Test1Password");
+
+		// check if token is empty
+		ClientResource resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		try {
+			resource.get();
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertEquals(object.get("token"), "");
+		resource.release();
+
+		// create token
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		try {
+			resource.post(new Form());
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertFalse(object.get("token").equals(""));
+		resource.release();
+
+		String apiToken = object.getString("token");
+
+		// validate token
+		object = client.validateToken(apiToken, token);
+		assertTrue(object.getBoolean("valid"));
+
+		// revoke token
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		try {
+			resource.delete();
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertEquals(object.get("token"), "");
+		resource.release();
+
+		// validate token
+		object = client.validateToken(apiToken, token);
+		assertFalse(object.getBoolean("valid"));
+
+		
+	}
 	
 	@Test
 	public void testCreateTokenWithCorrectCredentials() throws JSONException, IOException, InterruptedException {

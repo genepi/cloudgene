@@ -1,76 +1,74 @@
 package cloudgene.mapred.api.v2.admin.server;
 
-import org.restlet.data.Form;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Template;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class UpdateTemplate extends BaseResource {
+@Controller
+public class UpdateTemplate {
 
-	@Post
-	public Representation post(Representation entity) {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Post(uri = "/api/v2/admin/server/templates/{id}", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String post(Authentication authentication, String id, String text) {
+
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
 
-		String key = getAttribute("id");
+		Template template = new Template(id, text);
 
-		Form form = new Form(entity);
-		String text = form.getFirstValue("text");
-
-		Template template = new Template(key, text);
-		
-		TemplateDao dao = new TemplateDao(getDatabase());		
+		TemplateDao dao = new TemplateDao(application.getDatabase());
 		dao.update(template);
 
-		getWebApp().reloadTemplates();
+		application.reloadTemplates();
 
 		JSONObject jsonObject = JSONObject.fromObject(template);
-		return new StringRepresentation(jsonObject.toString());
-		
-	}
-	
-	@Get
-	public Representation get() {
+		return jsonObject.toString();
 
-		User user = getAuthUser();
+	}
+
+	@Get("/api/v2/admin/server/templates/{id}")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, String id) {
+
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
-		TemplateDao dao = new TemplateDao(getDatabase());
+		TemplateDao dao = new TemplateDao(application.getDatabase());
 
-		String key = getAttribute("id");
-		Template template = dao.findByKey(key);
+		Template template = dao.findByKey(id);
 
 		if (template == null) {
-			return error404("Template " + key + " not found.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Template " + id + " not found.");
 		}
 
 		JSONObject jsonObject = JSONObject.fromObject(template);
 
-		return new StringRepresentation(jsonObject.toString());
+		return jsonObject.toString();
 
 	}
 

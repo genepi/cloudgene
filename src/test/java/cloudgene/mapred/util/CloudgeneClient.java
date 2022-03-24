@@ -353,6 +353,20 @@ public class CloudgeneClient {
 
 	}
 
+	public JSONObject validateToken(String apiToken, LoginToken token) throws JSONException, IOException {
+
+		ClientResource resource = createClientResource("/api/v2/tokens/verify");
+		Form form = new Form();
+		form.add("token", apiToken);
+		setupApiToken(resource, apiToken);
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		resource.release();
+		return object;
+	}
+	
 	public LoginToken login(String username, String password) throws IOException {
 
 		ClientResource resourceLogin = createClientResource("/login");
