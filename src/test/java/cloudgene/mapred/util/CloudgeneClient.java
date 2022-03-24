@@ -37,13 +37,14 @@ public class CloudgeneClient {
 
 	public void setupAccessToken(ClientResource resource, String token) {
 		
-		
-		ChallengeResponse challengeResponse = new ChallengeResponse(
-                new ChallengeScheme("", ""));
-challengeResponse.setRawValue("Bearer " + token);
-resource.setChallengeResponse(challengeResponse);
-		
-	
+		Series<Header> requestHeader = (Series<Header>) resource.getRequest().getAttributes()
+				.get(HeaderConstants.ATTRIBUTE_HEADERS);
+		if (requestHeader == null) {
+			requestHeader = new Series(Header.class);
+			resource.getRequest().getAttributes().put(HeaderConstants.ATTRIBUTE_HEADERS, requestHeader);
+		}
+		requestHeader.add("X-Auth-Token", token);
+
 	}
 
 	public void setupApiToken(ClientResource resource, String token) {

@@ -17,6 +17,9 @@ micronaut:
             - isAnonymous()
       token:
         jwt:
+          bearer:
+            header-name: "X-Auth-Token"
+            prefix: ""
           signatures:
             secret:
               generator:
