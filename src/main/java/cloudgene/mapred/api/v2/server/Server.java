@@ -1,6 +1,5 @@
 package cloudgene.mapred.api.v2.server;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Vector;
 
@@ -13,6 +12,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
@@ -25,9 +25,9 @@ public class Server {
 
 	@Get("/api/v2/server")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String getServer(@Nullable Principal principal) {
+	public String getServer(@Nullable Authentication authentication) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		JSONObject data = new JSONObject();
 		data.put("name", application.getSettings().getName());

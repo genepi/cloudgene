@@ -1,6 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Vector;
 
@@ -26,6 +25,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
@@ -38,9 +38,9 @@ public class GetJobDetails {
 
 	@Get("/api/v2/jobs/{id}")
 	@Secured(SecurityRule.IS_ANONYMOUS) 
-	public String getJob(@PathVariable @NotBlank String id, @Nullable Principal principal) {
+	public String getJob(@PathVariable @NotBlank String id, @Nullable Authentication authentication) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			user = PublicUser.getUser(application.getDatabase());
@@ -101,9 +101,9 @@ public class GetJobDetails {
 
 	@Delete("/api/v2/jobs/{id}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String deleteJob(@PathVariable @NotBlank String id, Principal principal) {
+	public String deleteJob(@PathVariable @NotBlank String id, Authentication authentication) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");

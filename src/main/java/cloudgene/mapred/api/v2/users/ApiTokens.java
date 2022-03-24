@@ -1,7 +1,13 @@
 package cloudgene.mapred.api.v2.users;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.json.JSONObject;
+
 import cloudgene.mapred.Application;
-import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
@@ -14,37 +20,48 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
+import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import jakarta.inject.Inject;
-
-import java.security.Principal;
-
-import org.json.JSONObject;
 
 @Controller
 public class ApiTokens {
 
 	@Inject
 	protected Application application;
-	
-	@Post(uri="/api/v2/users/{user}/api-token", consumes = MediaType.ALL)
-	@Secured(SecurityRule.IS_AUTHENTICATED) 
-	public String createApiKey(String user, @Nullable Principal principal) {
 
-		User userObject = application.getUserByPrincipal(principal);
+	@Inject
+	protected JwtTokenGenerator tokenGenerator;
 
-		if (userObject == null) {
+	public static int TOKEN_LIFETIME_API_SEC = 30 * 24 * 60 * 60;
+
+	@Post(uri = "/api/v2/users/{username}/api-token", consumes = MediaType.ALL)
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String createApiKey(String username, @Nullable Authentication authentication) {
+
+		User user = application.getUserByAuthentication(authentication);
+
+		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
 		// create token
-		String token = ApiToken.create(userObject, application.getSettings().getSecretKey());
+
+		String apiHash = RandomStringUtils.random(30);
+
+		Map<String, Object> attribtues = new HashMap<String, Object>();
+		attribtues.put("token_type", "API");
+		attribtues.put("api_hash", apiHash);
+
+		Authentication authentication2 = Authentication.build(user.getUsername(), attribtues);
+		Optional<String> token = tokenGenerator.generateToken(authentication2, TOKEN_LIFETIME_API_SEC);
 
 		// update token
-		userObject.setApiToken(token);
+		user.setApiToken(apiHash);
 
 		UserDao userDao = new UserDao(application.getDatabase());
-		boolean successful = userDao.update(userObject);
+		boolean successful = userDao.update(user);
 
 		if (successful) {
 
@@ -52,7 +69,7 @@ public class ApiTokens {
 			JSONObject answer = new JSONObject();
 			answer.put("success", true);
 			answer.put("message", "Creation successfull.");
-			answer.put("token", token);
+			answer.put("token", token.get());
 			answer.put("type", "plain");
 			return answer.toString();
 
@@ -65,10 +82,10 @@ public class ApiTokens {
 	}
 
 	@Get("/api/v2/users/{user}/api-token")
-	@Secured(SecurityRule.IS_AUTHENTICATED) 
-	public String getApiKey(String user, @Nullable Principal principal) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String getApiKey(String user, @Nullable Authentication authentication) {
 
-		User userObject = application.getUserByPrincipal(principal);
+		User userObject = application.getUserByAuthentication(authentication);
 
 		if (userObject == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
@@ -84,10 +101,10 @@ public class ApiTokens {
 	}
 
 	@Delete("/api/v2/users/{user}/api-token")
-	@Secured(SecurityRule.IS_AUTHENTICATED) 
-	public String revokeApiKey(String user, @Nullable Principal principal) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String revokeApiKey(String user, @Nullable Authentication authentication) {
 
-		User userObject = application.getUserByPrincipal(principal);
+		User userObject = application.getUserByAuthentication(authentication);
 
 		if (userObject == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");

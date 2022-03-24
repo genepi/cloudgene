@@ -148,7 +148,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/users/{user}/profile", UserProfile.class);
 
 		// create, delete, get api token
-		router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
+		//router.attach(prefix + "/api/v2/users/{user}/api-token", ApiTokens.class);
 
 		// create, delete, get api token
 		router.attach(prefix + "/api/v2/tokens/verify", VerifyApiToken.class);

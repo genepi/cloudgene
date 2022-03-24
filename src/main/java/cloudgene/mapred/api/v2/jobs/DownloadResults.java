@@ -1,7 +1,6 @@
 package cloudgene.mapred.api.v2.jobs;
 
 import java.io.File;
-import java.security.Principal;
 
 import javax.validation.constraints.NotBlank;
 
@@ -26,6 +25,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 
@@ -40,7 +40,7 @@ public class DownloadResults {
 	@Get("/results/{jobId}/{paramId}/{filename}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public File download(@PathVariable @NotBlank String jobId, @PathVariable @NotBlank String paramId,
-			@PathVariable @NotBlank String filename, @Nullable Principal principal) {
+			@PathVariable @NotBlank String filename, @Nullable Authentication authentication) {
 		try {
 
 			JobDao jobDao = new JobDao(application.getDatabase());
@@ -56,7 +56,7 @@ public class DownloadResults {
 				job = application.getWorkflowEngine().getJobById(jobId);
 			}
 
-			User user = application.getUserByPrincipal(principal);
+			User user = application.getUserByAuthentication(authentication);
 
 			// public mode
 			if (user == null) {

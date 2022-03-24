@@ -37,6 +37,7 @@ import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.runtime.Micronaut;
+import io.micronaut.security.authentication.Authentication;
 
 @Context
 public class Application {
@@ -210,12 +211,23 @@ public class Application {
 
 	}
 
-	public User getUserByPrincipal(Principal principal) {
+	public User getUserByAuthentication(Authentication authentication) {
 
 		User user = null;
-		if (principal != null) {
+		if (authentication != null) {
 			UserDao userDao = new UserDao(database);
-			user = userDao.findByUsername(principal.getName());
+			user = userDao.findByUsername(authentication.getName());
+			Map<String, Object> attributes = authentication.getAttributes();
+			if (attributes.containsKey("token_type")) {
+				if (attributes.get("token_type").equals("API")){
+					if (user.getApiToken().equals(attributes.get("api_hash"))) {
+						return user;
+					} else {
+						return null;
+					}
+				}
+			}
+			
 		}
 
 		return user;

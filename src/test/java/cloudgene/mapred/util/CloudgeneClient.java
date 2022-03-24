@@ -364,7 +364,7 @@ public class CloudgeneClient {
 
 		assertEquals(200, resourceLogin.getStatus().getCode());
 		JSONObject object = new JSONObject(resourceLogin.getResponseEntity().getText());
-		assertEquals(username, object.get("username"));
+		assertEquals(username.toLowerCase(), object.getString("username").toLowerCase());
 		resourceLogin.release();
 
 		LoginToken loginToken = new LoginToken();

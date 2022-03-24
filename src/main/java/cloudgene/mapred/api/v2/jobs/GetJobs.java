@@ -1,6 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.security.Principal;
 import java.util.List;
 import java.util.Vector;
 
@@ -16,6 +15,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
@@ -36,9 +36,9 @@ public class GetJobs {
 	
 	@Get("/api/v2/jobs")
 	@Secured(SecurityRule.IS_AUTHENTICATED) 
-	public String getJobs(@Nullable Principal principal, @QueryValue @Nullable String page) {
+	public String getJobs(@Nullable Authentication authentication, @QueryValue @Nullable String page) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");

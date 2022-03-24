@@ -70,6 +70,7 @@ public class ApiTokensTest {
 
 	}
 
+	
 	@Test
 	public void testCreateTokenWithCorrectCredentials() throws JSONException, IOException, InterruptedException {
 
@@ -211,7 +212,7 @@ public class ApiTokensTest {
 	}
 
 	@Test
-	public void testSubmitTokenWithInCorrectApitoken() throws JSONException, IOException, InterruptedException {
+	public void testSubmitTokenWithWtongApiToken() throws JSONException, IOException, InterruptedException {
 
 		// submit job
 		String id = null;

@@ -27,6 +27,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Put;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
@@ -40,9 +41,9 @@ public class App {
 
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String getApp(String appId, @Nullable Principal principal) {
+	public String getApp(String appId, @Nullable Authentication authentication) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		// TODO: check if still needed.
 		try {
@@ -103,9 +104,9 @@ public class App {
 
 	@Delete("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String removeApp(String appId, @Nullable Principal principal) {
+	public String removeApp(String appId, @Nullable Authentication authentication) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
@@ -143,9 +144,9 @@ public class App {
 	@Put(uri = "/api/v2/server/apps/{appId}", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String updateApp(String appId, String enabled, String permission, String reinstall, String nextflowConfig,
-			String nextflowProfile, String nextflowWork, @Nullable Principal principal) {
+			String nextflowProfile, String nextflowWork, @Nullable Authentication authentication) {
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -50,6 +49,7 @@ import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.CompletedPart;
 import io.micronaut.http.server.multipart.MultipartBody;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
@@ -66,7 +66,7 @@ public class SubmitJob {
 	@Produces(MediaType.TEXT_PLAIN)
 	@Secured(SecurityRule.IS_ANONYMOUS)
 
-	public Publisher<Object> submit(String appId, @Body MultipartBody body, @Nullable Principal principal) {
+	public Publisher<Object> submit(String appId, @Body MultipartBody body, @Nullable Authentication authentication) {
 
 		return Mono.create(emitter -> {
 			body.subscribe(new Subscriber<CompletedPart>() {
@@ -118,7 +118,7 @@ public class SubmitJob {
 
 				@Override
 				public void onComplete() {
-					String result = submit(appId, form, principal);
+					String result = submit(appId, form, authentication);
 					emitter.success(result);
 				}
 			});
@@ -126,13 +126,13 @@ public class SubmitJob {
 
 	}
 
-	public String submit(String appId, List<FormParameter> form, @Nullable Principal principal) {
-
+	public String submit(String appId, List<FormParameter> form, @Nullable Authentication authentication) {
+		
 		WorkflowEngine engine = this.application.getWorkflowEngine();
 		Settings settings = this.application.getSettings();
 		Database database = this.application.getDatabase();
 
-		User user = application.getUserByPrincipal(principal);
+		User user = application.getUserByAuthentication(authentication);
 
 		if (settings.isMaintenance() && !user.isAdmin()) {
 			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
