@@ -113,7 +113,7 @@ export default Control.extend({
               // get data
               var data = JSON.parse(localStorage.getItem("cloudgene"));
               xhr.setRequestHeader("X-CSRF-Token", data.csrf);
-              xhr.setRequestHeader("Authorization", "Bearer " + data.token);
+              xhr.setRequestHeader("X-Auth-Token", data.token);
             } catch (e) {
               // do nothing
             }
