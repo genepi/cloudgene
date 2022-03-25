@@ -266,12 +266,7 @@
 			<artifactId>velocity</artifactId>
 			<version>1.7</version>
 		</dependency>
-
-		<dependency>
-			<groupId>com.nimbusds</groupId>
-			<artifactId>nimbus-jose-jwt</artifactId>
-		</dependency>
-
+		
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
@@ -479,11 +474,12 @@
 			<artifactId>micronaut-security-jwt</artifactId>
 			<scope>compile</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>io.projectreactor</groupId>
-			<artifactId>reactor-core</artifactId>
+			<groupId>io.micronaut.reactor</groupId>
+			<artifactId>micronaut-reactor</artifactId>
+			<scope>compile</scope>
 		</dependency>
+	
 
 		<dependency>
 			<groupId>jakarta.annotation</groupId>
