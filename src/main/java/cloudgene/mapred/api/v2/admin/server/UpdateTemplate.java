@@ -1,6 +1,7 @@
 package cloudgene.mapred.api.v2.admin.server;
 
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.util.Template;
@@ -22,11 +23,14 @@ public class UpdateTemplate {
 	@Inject
 	protected Application application;
 
+	@Inject
+	protected AuthenticationService authenticationService;
+	
 	@Post(uri = "/api/v2/admin/server/templates/{id}", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String post(Authentication authentication, String id, String text) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
@@ -52,7 +56,7 @@ public class UpdateTemplate {
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String get(Authentication authentication, String id) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");

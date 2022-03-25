@@ -16,11 +16,11 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.TestApplication;
+import cloudgene.mapred.auth.DatabaseAuthenticationProvider;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.auth.DatabaseAuthenticationProvider;
 import genepi.db.Database;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;

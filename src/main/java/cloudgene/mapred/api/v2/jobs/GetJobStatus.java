@@ -1,6 +1,8 @@
 package cloudgene.mapred.api.v2.jobs;
 
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -24,11 +26,14 @@ public class GetJobStatus {
 	@Inject
 	protected Application application;
 
+	@Inject
+	protected AuthenticationService authenticationService;
+	
 	@Get("/api/v2/jobs/{id}/status")
 	@Secured(SecurityRule.IS_ANONYMOUS) 
 	public String get(String id, @Nullable Authentication authentication) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		AbstractJob job = application.getWorkflowEngine().getJobById(id);
 

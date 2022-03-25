@@ -25,6 +25,8 @@ import org.reactivestreams.Subscription;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -59,6 +61,9 @@ public class SubmitJob {
 
 	@Inject
 	protected cloudgene.mapred.Application application;
+
+	@Inject
+	protected AuthenticationService authenticationService;
 
 	private static final Log log = LogFactory.getLog(SubmitJob.class);
 
@@ -127,12 +132,12 @@ public class SubmitJob {
 	}
 
 	public String submit(String appId, List<FormParameter> form, @Nullable Authentication authentication) {
-		
+
 		WorkflowEngine engine = this.application.getWorkflowEngine();
 		Settings settings = this.application.getSettings();
 		Database database = this.application.getDatabase();
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		if (settings.isMaintenance() && !user.isAdmin()) {
 			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,

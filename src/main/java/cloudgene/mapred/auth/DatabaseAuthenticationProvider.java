@@ -1,4 +1,4 @@
-package cloudgene.mapred.util.auth;
+package cloudgene.mapred.auth;
 
 import java.util.Date;
 

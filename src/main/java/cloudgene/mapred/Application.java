@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
@@ -122,7 +123,7 @@ public class Application {
 
 		// insert fixtures
 		Fixtures.insert(database);
-		
+
 		afterDatabaseConnection(database);
 
 		// start workflow engine
@@ -208,30 +209,8 @@ public class Application {
 
 	}
 
-	public User getUserByAuthentication(Authentication authentication) {
-
-		User user = null;
-		if (authentication != null) {
-			UserDao userDao = new UserDao(database);
-			user = userDao.findByUsername(authentication.getName());
-			Map<String, Object> attributes = authentication.getAttributes();
-			if (attributes.containsKey("token_type")) {
-				if (attributes.get("token_type").equals("API")){
-					if (user.getApiToken().equals(attributes.get("api_hash"))) {
-						return user;
-					} else {
-						return null;
-					}
-				}
-			}
-			
-		}
-
-		return user;
-	}
-	
 	protected void afterDatabaseConnection(Database database) {
-		
+
 	}
 
 	public static void main(String[] args) {

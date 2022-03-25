@@ -5,6 +5,8 @@ import java.util.Vector;
 
 import cloudgene.mapred.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
@@ -23,11 +25,14 @@ public class Server {
 	@Inject
 	protected Application application;
 
+	@Inject
+	protected AuthenticationService authenticationService;
+	
 	@Get("/api/v2/server")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String getServer(@Nullable Authentication authentication) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		JSONObject data = new JSONObject();
 		data.put("name", application.getSettings().getName());

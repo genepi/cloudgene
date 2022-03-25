@@ -1,28 +1,21 @@
 package cloudgene.mapred.api.v2.users;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import org.apache.commons.lang.RandomStringUtils;
 import org.json.JSONObject;
 
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
-import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
-import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import jakarta.inject.Inject;
 
 @Controller
@@ -32,38 +25,20 @@ public class ApiTokens {
 	protected Application application;
 
 	@Inject
-	protected JwtTokenGenerator tokenGenerator;
+	protected AuthenticationService authenticationService;
 
 	public static int TOKEN_LIFETIME_API_SEC = 30 * 24 * 60 * 60;
 
 	@Post(uri = "/api/v2/users/{username}/api-token", consumes = MediaType.ALL)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String createApiKey(String username, @Nullable Authentication authentication) {
+	public String createApiKey(String username, Authentication authentication) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
+		ApiToken apiToken = authenticationService.createApiToken(user, TOKEN_LIFETIME_API_SEC);
 
-		// create token
-
-		String apiHash = RandomStringUtils.random(30);
-
-		Map<String, Object> attribtues = new HashMap<String, Object>();
-		attribtues.put("token_type", "API");
-		attribtues.put("api_hash", apiHash);
-		//addition attributes that are needed by imputationbot
-		attribtues.put("username", user.getUsername());
-		attribtues.put("name", user.getFullName());
-		attribtues.put("mail", user.getMail());
-		attribtues.put("api", true);
-
-		Authentication authentication2 = Authentication.build(user.getUsername(), attribtues);
-		Optional<String> token = tokenGenerator.generateToken(authentication2, TOKEN_LIFETIME_API_SEC);
-
-		// update token
-		user.setApiToken(apiHash);
+		// store random hash (not access token) in database to validate token
+		user.setApiToken(apiToken.getHash());
 
 		UserDao userDao = new UserDao(application.getDatabase());
 		boolean successful = userDao.update(user);
@@ -74,7 +49,7 @@ public class ApiTokens {
 			JSONObject answer = new JSONObject();
 			answer.put("success", true);
 			answer.put("message", "Creation successfull.");
-			answer.put("token", token.get());
+			answer.put("token", apiToken.getAccessToken());
 			answer.put("type", "plain");
 			return answer.toString();
 
@@ -86,42 +61,35 @@ public class ApiTokens {
 
 	}
 
-	@Get("/api/v2/users/{user}/api-token")
+	@Get("/api/v2/users/{username}/api-token")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String getApiKey(String user, @Nullable Authentication authentication) {
+	public String getApiKey(String username, Authentication authentication) {
 
-		User userObject = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
-		if (userObject == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
 
 		// TODO: remove this resource. it is unnecessary, because we never store api
 		// token!
 		// return token
 		JSONObject answer = new JSONObject();
 		answer.put("success", true);
-		answer.put("token", userObject.getApiToken());
+		answer.put("token", user.getApiToken());
 		answer.put("type", "plain");
 		return answer.toString();
 
 	}
 
-	@Delete("/api/v2/users/{user}/api-token")
+	@Delete("/api/v2/users/{username}/api-token")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String revokeApiKey(String user, @Nullable Authentication authentication) {
+	public String revokeApiKey(String username, Authentication authentication) {
 
-		User userObject = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
-		if (userObject == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
-
-		// update token
-		userObject.setApiToken("");
+		// remove token
+		user.setApiToken("");
 
 		UserDao userDao = new UserDao(application.getDatabase());
-		boolean successful = userDao.update(userObject);
+		boolean successful = userDao.update(user);
 
 		if (successful) {
 
@@ -140,5 +108,15 @@ public class ApiTokens {
 		}
 
 	}
+	
+	@Post(uri = "/api/v2/tokens/verify", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String verifyApiKey(String token) {
+
+		JSONObject result = authenticationService.validateApiToken(token);
+		return result.toString();
+
+	}
+
 
 }

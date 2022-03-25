@@ -1,11 +1,14 @@
 package cloudgene.mapred.api.v2.users;
 
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JSONConverter;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -25,11 +28,14 @@ public class UserProfile {
 	@Inject
 	protected Application application;
 
+	@Inject
+	protected AuthenticationService authenticationService;
+
 	@Get("/api/v2/users/{user2}/profile")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String get(Authentication authentication, String user2) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
@@ -41,29 +47,30 @@ public class UserProfile {
 		JSONObject object = JSONConverter.convert(updatedUser);
 		try {
 			if (object.getBoolean("hasApiToken")) {
-				//org.json.JSONObject result = ApiToken.verify(user.getApiToken(), getSettings().getSecretKey(),
-				//		getDatabase());
-				//object.put("apiTokenValid", result.get("valid"));
-				//object.put("apiTokenMessage", result.get("message"));
+				// org.json.JSONObject result = ApiToken.verify(user.getApiToken(),
+				// getSettings().getSecretKey(),
+				// getDatabase());
+				// object.put("apiTokenValid", result.get("valid"));
+				// object.put("apiTokenMessage", result.get("message"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return object.toString();
 
 	}
 
 	@Post(uri = "/api/v2/users/{user2}/profile", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String post(Authentication authentication, String user2, String username, String full_name, String mail, String new_password, String confirm_new_password) {
+	public String post(Authentication authentication, String user2, @Nullable String username, String full_name,
+			String mail, String new_password, String confirm_new_password) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
-
 
 		String error = User.checkUsername(username);
 		if (error != null) {
@@ -112,7 +119,7 @@ public class UserProfile {
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String delete(Authentication authentication, String user2, String username, String password) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");

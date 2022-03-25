@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -34,11 +36,14 @@ public class GetJobs {
 	@Inject
 	protected Application application;
 	
+	@Inject
+	protected AuthenticationService authenticationService;
+	
 	@Get("/api/v2/jobs")
 	@Secured(SecurityRule.IS_AUTHENTICATED) 
 	public String getJobs(@Nullable Authentication authentication, @QueryValue @Nullable String page) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");

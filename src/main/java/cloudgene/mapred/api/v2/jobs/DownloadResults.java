@@ -8,6 +8,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
@@ -37,6 +39,9 @@ public class DownloadResults {
 	@Inject
 	protected Application application;
 
+	@Inject
+	protected AuthenticationService authenticationService;
+	
 	@Get("/results/{jobId}/{paramId}/{filename}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public File download(@PathVariable @NotBlank String jobId, @PathVariable @NotBlank String paramId,
@@ -56,7 +61,7 @@ public class DownloadResults {
 				job = application.getWorkflowEngine().getJobById(jobId);
 			}
 
-			User user = application.getUserByAuthentication(authentication);
+			User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 			// public mode
 			if (user == null) {

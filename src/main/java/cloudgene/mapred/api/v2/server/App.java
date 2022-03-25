@@ -2,13 +2,14 @@ package cloudgene.mapred.api.v2.server;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
@@ -39,11 +40,14 @@ public class App {
 	@Inject
 	protected cloudgene.mapred.Application application;
 
+	@Inject
+	protected AuthenticationService authenticationService;
+	
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String getApp(String appId, @Nullable Authentication authentication) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		// TODO: check if still needed.
 		try {
@@ -106,7 +110,7 @@ public class App {
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String removeApp(String appId, @Nullable Authentication authentication) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
@@ -146,7 +150,7 @@ public class App {
 	public String updateApp(String appId, String enabled, String permission, String reinstall, String nextflowConfig,
 			String nextflowProfile, String nextflowWork, @Nullable Authentication authentication) {
 
-		User user = application.getUserByAuthentication(authentication);
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
 			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
