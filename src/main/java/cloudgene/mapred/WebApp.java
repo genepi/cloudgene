@@ -116,7 +116,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/jobs/submit/{tool}", SubmitJob.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
+		//router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/chunks/{filename}", GetChunk.class);
 

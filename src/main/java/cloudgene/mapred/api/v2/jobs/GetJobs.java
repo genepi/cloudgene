@@ -8,6 +8,7 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;
@@ -15,7 +16,6 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -45,12 +45,8 @@ public class GetJobs {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
-
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 					"This functionality is currently under maintenance.");
 		}
 

@@ -13,6 +13,7 @@ import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
@@ -25,7 +26,6 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -52,7 +52,7 @@ public class DownloadResults {
 			AbstractJob job = jobDao.findById(jobId);
 
 			if (job == null) {
-				throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
+				throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
 			}
 
 			// job is running -> load it from queue
@@ -69,7 +69,7 @@ public class DownloadResults {
 			}
 
 			if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-				throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
+				throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 			}
 
 			DownloadDao dao = new DownloadDao(application.getDatabase());
@@ -93,11 +93,11 @@ public class DownloadResults {
 			}
 
 			if (download == null) {
-				throw new HttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
+				throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
 			}
 
 			if (download.getCount() == 0) {
-				throw new HttpStatusException(HttpStatus.NOT_FOUND, "number of max downloads exceeded.");
+				throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "number of max downloads exceeded.");
 			}
 
 			// update download counter if it not set to unlimited
@@ -113,7 +113,7 @@ public class DownloadResults {
 				//redirectTemporary(publicUrl);
 				//return new StringRepresentation(publicUrl);
 				//TODO: redirect to externak URL!
-				throw new HttpStatusException(HttpStatus.NOT_IMPLEMENTED, "Redirection not yet implemented!!");
+				throw new JsonHttpStatusException(HttpStatus.NOT_IMPLEMENTED, "Redirection not yet implemented!!");
 			} else {
 				// no external workspace found, use local workspace
 				String localWorkspace = application.getSettings().getLocalWorkspace();
@@ -124,7 +124,7 @@ public class DownloadResults {
 
 		} catch (Exception e) {
 			log.error("Processing download failed.", e);
-			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Processing download failed.");
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Processing download failed.");
 		}
 	}
 

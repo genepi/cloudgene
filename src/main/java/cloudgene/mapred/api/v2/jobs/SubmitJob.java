@@ -28,6 +28,7 @@ import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.HashUtil;
@@ -46,7 +47,6 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.CompletedPart;
 import io.micronaut.http.server.multipart.MultipartBody;
@@ -140,7 +140,7 @@ public class SubmitJob {
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		if (settings.isMaintenance() && !user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 					"This functionality is currently under maintenance.");
 		}
 
@@ -148,7 +148,8 @@ public class SubmitJob {
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
+					"Application '" + appId + "' is not in valid format.");
 		}
 
 		ApplicationRepository repository = settings.getApplicationRepository();
@@ -157,12 +158,13 @@ public class SubmitJob {
 		try {
 			app = application.getWdlApp();
 		} catch (Exception e1) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND,
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
 					"Application '" + appId + "' not found or the request requires user authentication.");
 		}
 
 		if (app.getWorkflow() == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' has no workflow section.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
+					"Application '" + appId + "' has no workflow section.");
 		}
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
@@ -175,7 +177,7 @@ public class SubmitJob {
 
 			int maxPerUser = settings.getMaxRunningJobsPerUser();
 			if (!user.isAdmin() && engine.getJobsByUser(user).size() >= maxPerUser) {
-				throw new HttpStatusException(HttpStatus.BAD_REQUEST,
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
 						"Only " + maxPerUser + " jobs per user can be executed simultaneously.");
 			}
 
@@ -206,11 +208,11 @@ public class SubmitJob {
 		try {
 			inputParams = parseAndUpdateInputParams(form, app, hdfsWorkspace, localWorkspace);
 		} catch (FileUploadIOException e) {
-			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Upload limit reached.");
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Upload limit reached.");
 		}
 
 		if (inputParams == null) {
-			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Error during input parameter parsing.");
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Error during input parameter parsing.");
 		}
 
 		String name = id;

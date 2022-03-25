@@ -5,6 +5,7 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JSONConverter;
@@ -15,7 +16,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -36,10 +36,6 @@ public class UserProfile {
 	public String get(Authentication authentication, String user2) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
 
 		UserDao dao = new UserDao(application.getDatabase());
 		User updatedUser = dao.findByUsername(user.getUsername());
@@ -67,10 +63,6 @@ public class UserProfile {
 			String mail, String new_password, String confirm_new_password) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
 
 		String error = User.checkUsername(username);
 		if (error != null) {
@@ -121,13 +113,9 @@ public class UserProfile {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
-		}
-
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "You are not allowed to delete this user profile.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "You are not allowed to delete this user profile.");
 		}
 
 		if (HashUtil.checkPassword(password, user.getPassword())) {
@@ -137,11 +125,11 @@ public class UserProfile {
 			if (deleted) {
 				return new JSONAnswer("User profile sucessfully delete.", true).toString();
 			} else {
-				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Error during deleting your user profile.");
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Error during deleting your user profile.");
 			}
 
 		} else {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "Wrong password.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "Wrong password.");
 		}
 
 	}

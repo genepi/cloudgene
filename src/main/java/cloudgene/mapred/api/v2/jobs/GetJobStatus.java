@@ -5,6 +5,7 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.JSONConverter;
@@ -13,7 +14,6 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -53,7 +53,7 @@ public class GetJobStatus {
 		}
 
 		if (job == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		// public mode
@@ -62,7 +62,7 @@ public class GetJobStatus {
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
 
 		JSONObject object = JSONConverter.convert(job);

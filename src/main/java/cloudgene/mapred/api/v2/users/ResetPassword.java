@@ -7,7 +7,7 @@ import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
-import io.micronaut.context.env.Environment;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
@@ -30,7 +30,7 @@ public class ResetPassword {
 
 	@Post(uri = "/api/v2/users/reset", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String get(String username) {
+	public String get(@Nullable String username) {
 
 		if (username == null || username.isEmpty()) {
 			return new JSONAnswer("Please enter a valid username or email address.", false).toString();
@@ -66,10 +66,7 @@ public class ResetPassword {
 
 			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
 
-			System.out.println("LLLL " + link);
-
 			// send email with activation code
-
 			String app = application.getSettings().getName();
 			String subject = "[" + app + "] Password Recovery";
 			String body = application.getTemplate(Template.RECOVERY_MAIL, user.getFullName(), application, link);

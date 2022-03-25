@@ -86,8 +86,6 @@ public class RegisterUser {
 			String activationLink = hostname + "/#!activate/" + username + "/" + activationKey;
 			String body = application.getTemplate(Template.REGISTER_MAIL, full_name, application, activationLink);
 
-			System.out.println(body);
-
 			if (application.getSettings().getMail() != null) {
 
 				activationKey = HashUtil.getActivationHash(newUser);

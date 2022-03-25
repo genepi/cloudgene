@@ -10,6 +10,7 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
@@ -25,7 +26,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -52,7 +52,7 @@ public class GetJobDetails {
 		}
 
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 					"This functionality is currently under maintenance.");
 		}
 
@@ -67,12 +67,12 @@ public class GetJobDetails {
 		}
 
 		if (job == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		// check permissions
 		if (!user.isAdmin() && (job.getUser().getId() != user.getId())) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
 
 		// removes outputs that are for admin only
@@ -111,11 +111,11 @@ public class GetJobDetails {
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
 		}
 
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 					"This functionality is currently under maintenance.");
 		}
 
@@ -124,12 +124,12 @@ public class GetJobDetails {
 		AbstractJob job = dao.findById(id);
 
 		if (job == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		// check permissions
 		if (!user.isAdmin() && (job.getUser().getId() != user.getId())) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
 
 		Settings settings = application.getSettings();

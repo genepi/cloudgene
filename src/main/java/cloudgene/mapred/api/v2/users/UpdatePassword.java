@@ -5,6 +5,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.HashUtil;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
@@ -20,7 +21,7 @@ public class UpdatePassword {
 
 	@Post(uri = "/api/v2/users/update-password", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String post(String token, String username, String new_password, String confirm_new_password) {
+	public String post(String token, @Nullable String username, String new_password, String confirm_new_password) {
 
 		if (username == null || username.isEmpty()) {
 			return new JSONAnswer("No username set.", false).toString();
