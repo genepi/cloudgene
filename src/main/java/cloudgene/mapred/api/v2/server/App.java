@@ -11,6 +11,7 @@ import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
@@ -25,7 +26,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Put;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -48,38 +48,31 @@ public class App {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		// TODO: check if still needed. was needed because we used "id@version" in application id
-		try {
-			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e2) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
-		}
-
 		Settings settings = application.getSettings();
+
+		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
+		}
 
 		ApplicationRepository repository = settings.getApplicationRepository();
 		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND,
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
 					"Application '" + appId + "' not found or the request requires user authentication..");
 		}
 
 		WdlApp wdlApp = application.getWdlApp();
 		if (wdlApp.getWorkflow() == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is a data package.");
-		}
-
-		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
-			throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-					"This functionality is currently under maintenance.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is a data package.");
 		}
 
 		if (wdlApp.getWorkflow().hasHdfsInputs()) {
 
 			PluginManager manager = PluginManager.getInstance();
 			if (!manager.isEnabled(HadoopPlugin.ID)) {
-				throw new HttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+				throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 						"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
 			}
 		}
@@ -112,13 +105,7 @@ public class App {
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
-		}
-
-		try {
-			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e2) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
@@ -133,10 +120,10 @@ public class App {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not removed: " + e.getMessage());
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Application not removed: " + e.getMessage());
 			}
 		} else {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
 	}
 
@@ -148,13 +135,14 @@ public class App {
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
 
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is not in valid format.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
+					"Application '" + appId + "' is not in valid format.");
 		}
 
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
@@ -218,11 +206,11 @@ public class App {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not updated: " + e.getMessage());
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Application not updated: " + e.getMessage());
 			}
 
 		} else {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
 	}
 

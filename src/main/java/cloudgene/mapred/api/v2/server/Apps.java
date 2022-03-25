@@ -43,7 +43,7 @@ public class Apps {
 
 	@Post("/api/v2/server/apps")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String install(@Nullable Authentication authentication, String url) {
+	public String install(@Nullable Authentication authentication, @Nullable String url) {
 
 		try {
 
