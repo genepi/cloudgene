@@ -21,7 +21,6 @@ import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
@@ -42,14 +41,14 @@ public class App {
 
 	@Inject
 	protected AuthenticationService authenticationService;
-	
+
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String getApp(String appId, @Nullable Authentication authentication) {
+	public String getApp(@Nullable Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		// TODO: check if still needed.
+		// TODO: check if still needed. was needed because we used "id@version" in application id
 		try {
 			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
 		} catch (UnsupportedEncodingException e2) {
@@ -108,13 +107,9 @@ public class App {
 
 	@Delete("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String removeApp(String appId, @Nullable Authentication authentication) {
+	public String removeApp(Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
-		}
 
 		if (!user.isAdmin()) {
 			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
@@ -145,16 +140,12 @@ public class App {
 		}
 	}
 
-	@Put(uri = "/api/v2/server/apps/{appId}", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Put(uri = "/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String updateApp(String appId, String enabled, String permission, String reinstall, String nextflowConfig,
-			String nextflowProfile, String nextflowWork, @Nullable Authentication authentication) {
+	public String updateApp(Authentication authentication, String appId, @Nullable String enabled,
+			@Nullable String permission, @Nullable String reinstall, @Nullable Map<String, String> config) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (user == null) {
-			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires user authentication.");
-		}
 
 		if (!user.isAdmin()) {
 			throw new HttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
@@ -195,13 +186,13 @@ public class App {
 
 				WdlApp wdlApp = application.getWdlApp();
 
-				if (nextflowProfile != null || nextflowConfig != null || nextflowWork != null) {
+				if (config != null) {
 
-					Map<String, String> config = repository.getConfig(wdlApp);
-					config.put("nextflow.config", nextflowConfig);
-					config.put("nextflow.profile", nextflowProfile);
-					config.put("nextflow.work", nextflowWork);
-					repository.updateConfig(wdlApp, config);
+					Map<String, String> updatedConfig = repository.getConfig(wdlApp);
+					updatedConfig.put("nextflow.config", config.get("nextflow.config"));
+					updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
+					updatedConfig.put("nextflow.work", config.get("nextflow.work"));
+					repository.updateConfig(wdlApp, updatedConfig);
 				}
 
 				// reinstall application
@@ -220,14 +211,14 @@ public class App {
 				updateState(application, jsonObject);
 
 				// read config
-				Map<String, String> config = repository.getConfig(wdlApp);
-				jsonObject.put("config", config);
+				Map<String, String> updatedConfig = repository.getConfig(wdlApp);
+				jsonObject.put("config", updatedConfig);
 
 				return jsonObject.toString();
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not installed: " + e.getMessage());
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not updated: " + e.getMessage());
 			}
 
 		} else {
