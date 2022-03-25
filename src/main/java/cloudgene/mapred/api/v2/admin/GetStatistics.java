@@ -4,51 +4,55 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
-import cloudgene.mapred.util.BaseResource;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 
-public class GetStatistics extends BaseResource {
+@Controller
+public class GetStatistics {
 
 	/**
 	 * Resource to get statistics
 	 */
 
-	public String[] counters = new String[] { "runningJobs", "waitingJobs",
-			"completeJobs", "users" };
+	@Inject
+	protected Application application;
 
-	@Get
-	public Representation getStatistics() {
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		User user = getAuthUser();
-		long days = 1;
-		if (getQueryValue("days") != null) {
-			days = Long.parseLong(getQueryValue("days"));
+	public String[] counters = new String[] { "runningJobs", "waitingJobs", "completeJobs", "users" };
+
+	@Get("/api/v2/admin/server/statistics")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String getStatistics(Authentication authentication, @Nullable @QueryValue("days") Integer days) {
+
+		if (days == null) {
+			days = 1;
 		}
 
-		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		CounterHistoryDao dao = new CounterHistoryDao(getDatabase());
+		CounterHistoryDao dao = new CounterHistoryDao(application.getDatabase());
 
 		List<Map<String, String>> stats = dao.getAllBeetween(
-				System.currentTimeMillis() - (1000L * 60L * 60L * 24L * days),
-				System.currentTimeMillis());
+				System.currentTimeMillis() - (1000L * 60L * 60L * 24L * days), System.currentTimeMillis());
 
 		// minimize points
 		List<Map<String, String>> toRemove = new Vector<Map<String, String>>();
@@ -57,8 +61,7 @@ public class GetStatistics extends BaseResource {
 			Map<String, String> current = stats.get(i);
 			Map<String, String> next = stats.get(i + 1);
 
-			if (equals(prev, current, counters)
-					&& equals(current, next, counters)) {
+			if (equals(prev, current, counters) && equals(current, next, counters)) {
 				toRemove.add(current);
 			}
 
@@ -66,25 +69,22 @@ public class GetStatistics extends BaseResource {
 		stats.removeAll(toRemove);
 		JSONArray jsonArray = JSONArray.fromObject(stats);
 
-		return new StringRepresentation(jsonArray.toString());
+		return jsonArray.toString();
 
 	}
 
-	private boolean equals(Map<String, String> a, Map<String, String> b,
-			String[] counters) {
-		
-		
+	private boolean equals(Map<String, String> a, Map<String, String> b, String[] counters) {
+
 		for (String key : counters) {
 
-			if (a.get(key) == null){
+			if (a.get(key) == null) {
 				return false;
 			}
-			
-			if (b.get(key) == null){
+
+			if (b.get(key) == null) {
 				return false;
 			}
-			
-			
+
 			if (!a.get(key).equals(b.get(key))) {
 				return false;
 			}

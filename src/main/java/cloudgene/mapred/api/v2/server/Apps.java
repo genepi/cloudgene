@@ -7,92 +7,96 @@ import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.data.Form;
-import org.restlet.ext.json.JsonRepresentation;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-import org.restlet.resource.Post;
-
-import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
+import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.Environment;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-public class Apps extends BaseResource {
+@Controller
+public class Apps {
 
 	private static final Log log = LogFactory.getLog(Apps.class);
 
-	@Post
-	public Representation install(Representation entity) {
-		try {
-			User user = getAuthUser();
+	@Inject
+	protected cloudgene.mapred.Application application;
 
-			if (user == null) {
-				return error401("The request requires user authentication.");
-			}
+	@Inject
+	protected AuthenticationService authenticationService;
+
+	@Post("/api/v2/server/apps")
+	@Secured(SecurityRule.IS_AUTHENTICATED) 
+	public String install(@Nullable Authentication authentication, String url) {
+		try {
+			System.out.println(url);
+			User user = authenticationService.getUserByAuthentication(authentication);
 
 			if (!user.isAdmin()) {
-				return error401("The request requires administration rights.");
+				throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 			}
-
-			Form form = new Form(entity);
-			String url = form.getFirstValue("url");
 
 			if (url == null) {
-				return error400("No url or file location set.");
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "No url or file location set.");
 			}
 
-			ApplicationRepository repository = getApplicationRepository();
+			ApplicationRepository repository = application.getSettings().getApplicationRepository();
 
 			try {
 
-				Application application = repository.install(url);
+				Application app = repository.install(url);
 
-				getSettings().save();
+				application.getSettings().save();
 
 				if (application != null) {
-					JSONObject jsonObject = JSONConverter.convert(application);
-					updateState(application, jsonObject);
-					return new JsonRepresentation(jsonObject.toString());
+					JSONObject jsonObject = JSONConverter.convert(app);
+					updateState(app, jsonObject);
+					return jsonObject.toString();
 				} else {
-					return error400("Application not installed: No workflow file found.");
+					throw new HttpStatusException(HttpStatus.BAD_REQUEST,
+							"Application not installed: No workflow file found.");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.error("Application not installed. ", e);
-				return error400("Application not installed: " + e.getMessage());
+				throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not installed: " + e.getMessage());
 			}
 		} catch (Error e) {
 			e.printStackTrace();
 			log.error("Application not installed. ", e);
-			return error400("Application not installed: " + e.getMessage());
+			throw new HttpStatusException(HttpStatus.BAD_REQUEST, "Application not installed: " + e.getMessage());
 		}
 
 	}
 
-	@Get
-	public Representation get() {
+	@Get("/api/v2/server/apps")
+	@Secured(SecurityRule.IS_AUTHENTICATED) 
+	public String get(Authentication authentication, @Nullable @QueryValue("reload") String reload) {
 
-		User user = getAuthUser();
-
-		if (user == null) {
-			return error401("The request requires user authentication.");
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			return error401("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		ApplicationRepository repository = getApplicationRepository();
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 
-		String reload = getQueryValue("reload");
 		if (reload != null && reload.equals("true")) {
 			repository.reload();
 		}
@@ -107,15 +111,15 @@ public class Apps extends BaseResource {
 
 			JSONObject jsonObject = JSONConverter.convert(app);
 			updateState(app, jsonObject);
-			
-			//read config
+
+			// read config
 			Map<String, String> config = repository.getConfig(app.getWdlApp());
 			jsonObject.put("config", config);
-			
+
 			jsonArray.add(jsonObject);
 		}
 
-		return new StringRepresentation(jsonArray.toString());
+		return jsonArray.toString();
 
 	}
 
@@ -124,7 +128,7 @@ public class Apps extends BaseResource {
 		if (wdlApp != null) {
 			if (wdlApp.needsInstallation()) {
 				try {
-					boolean installed = ApplicationInstaller.isInstalled(wdlApp, getSettings());
+					boolean installed = ApplicationInstaller.isInstalled(wdlApp, application.getSettings());
 					if (installed) {
 						jsonObject.put("state", "completed");
 					} else {
@@ -136,9 +140,9 @@ public class Apps extends BaseResource {
 			} else {
 				jsonObject.put("state", "n/a");
 			}
-			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, getSettings());
+			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, application.getSettings());
 			jsonObject.put("environment", environment);
-			
+
 		}
 	}
 

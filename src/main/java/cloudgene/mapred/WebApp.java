@@ -151,7 +151,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/server/apps/{tool}", App.class);
 
 		// returns a list of all installed apps
-		router.attach(prefix + "/api/v2/server/apps", Apps.class);
+		//router.attach(prefix + "/api/v2/server/apps", Apps.class);
 
 		// returns a list of all apps registed on cloudgene.io
 		router.attach(prefix + "/api/v2/server/cloudgene-apps", CloudgeneApps.class);
@@ -186,7 +186,7 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
-		router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
+		//router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 
 		// download resources
 		router.attach(prefix + "/get/{id}/{hash}", DownloadScriptResults.class);
