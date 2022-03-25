@@ -105,7 +105,7 @@ export default Control.extend({
 
   'setupAuthentication': function() {
 
-    $.ajaxPrefilter(function(options) {
+    $.ajaxPrefilter(function(options, orig, xhr) {
       if (!options.beforeSend) {
         options.beforeSend = function(xhr) {
           if (localStorage.getItem("cloudgene")) {
@@ -120,6 +120,16 @@ export default Control.extend({
           }
         }
       }
+
+      //canjs has an bug while sending data in json format: data is not in json format, so we need to fix it convert it manually to JSON
+      if (options.processData &&
+        /^application\/json((\+|;).+)?$/i.test(options.contentType) &&
+        /^(post|put|delete)$/i.test(options.type)
+      ) {
+        options.data = JSON.stringify(orig.data);
+        options.processData = false;
+      }
+
     });
 
 

@@ -89,7 +89,7 @@ var routes = [{
   path: 'run/{app}',
   control: SubmitJobControl,
   classes: 'fullsize-container'
-},{
+}, {
   path: 'pages/{page}',
   control: StaticPage
 }];
@@ -98,7 +98,7 @@ function loggedInGuard(appState) {
   return appState.attr('loggedIn');
 }
 
-$.ajaxPrefilter(function(options) {
+$.ajaxPrefilter(function(options, orig, xhr) {
   if (!options.beforeSend) {
     options.beforeSend = function(xhr) {
       if (localStorage.getItem("cloudgene")) {
@@ -113,7 +113,18 @@ $.ajaxPrefilter(function(options) {
       }
     }
   }
+  //canjs has an bug while sending data in json format: data is not in json format, so we need to fix it convert it manually to JSON
+  if (options.processData &&
+    /^application\/json((\+|;).+)?$/i.test(options.contentType) &&
+    /^(post|put|delete)$/i.test(options.type)
+  ) {
+    options.data = JSON.stringify(orig.data);
+    options.processData = false;
+  }
+
 });
+
+
 
 Server.findOne({}, function(server) {
 
