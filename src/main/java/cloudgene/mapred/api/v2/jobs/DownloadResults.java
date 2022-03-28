@@ -1,6 +1,8 @@
 package cloudgene.mapred.api.v2.jobs;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.validation.constraints.NotBlank;
 
@@ -22,6 +24,7 @@ import cloudgene.mapred.util.PublicUser;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -44,8 +47,8 @@ public class DownloadResults {
 
 	@Get("/results/{jobId}/{paramId}/{filename}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public File download(@PathVariable @NotBlank String jobId, @PathVariable @NotBlank String paramId,
-			@PathVariable @NotBlank String filename, @Nullable Authentication authentication) {
+	public HttpResponse<File> download(@PathVariable @NotBlank String jobId, @PathVariable @NotBlank String paramId,
+			@PathVariable @NotBlank String filename, @Nullable Authentication authentication) throws URISyntaxException {
 
 		JobDao jobDao = new JobDao(application.getDatabase());
 		AbstractJob job = jobDao.findById(jobId);
@@ -109,16 +112,14 @@ public class DownloadResults {
 		if (externalWorkspace != null) {
 			// external workspace found, use link method and create redirect response
 			String publicUrl = externalWorkspace.createPublicLink(download.getPath());
-			// redirectTemporary(publicUrl);
-			// return new StringRepresentation(publicUrl);
-			// TODO: redirect to externak URL!
-			throw new JsonHttpStatusException(HttpStatus.NOT_IMPLEMENTED, "Redirection not yet implemented!!");
+			URI location = new URI(publicUrl);
+			return HttpResponse.redirect(location);		
 		} else {
 			// no external workspace found, use local workspace
 			String localWorkspace = application.getSettings().getLocalWorkspace();
 			String resultFile = FileUtil.path(localWorkspace, download.getPath());
 			log.debug("Downloading file from local workspace " + resultFile);
-			return new File(resultFile);
+			return HttpResponse.ok(new File(resultFile));
 		}
 
 	}

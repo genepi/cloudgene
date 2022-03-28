@@ -3,40 +3,40 @@ package cloudgene.mapred.api.v2.admin.server;
 import java.io.File;
 import java.io.IOException;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class GetServerLogs extends BaseResource {
+@Controller
+public class GetServerLogs {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/server/logs/{logfile}")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, String logfile) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
-
-		String logfile = (String) getRequest().getAttributes().get("logfile");
 
 		String content = tail(new File(logfile), 1000);
 
-		return new StringRepresentation(content);
+		return content;
 
 	}
 

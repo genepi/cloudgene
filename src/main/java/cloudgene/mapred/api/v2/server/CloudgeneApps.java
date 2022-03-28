@@ -1,36 +1,44 @@
 package cloudgene.mapred.api.v2.server;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
+import java.io.IOException;
+
 import org.restlet.resource.ClientResource;
-import org.restlet.resource.Get;
+import org.restlet.resource.ResourceException;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class CloudgeneApps extends BaseResource {
+@Controller
+public class CloudgeneApps {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/server/cloudgene-apps")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication) throws ResourceException, IOException {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
 		}
 
-		//http://127.0.0.1:4000
+		// http://127.0.0.1:4000
 		ClientResource clientResource = new ClientResource("http://apps.cloudgene.io/api/apps.json");
-		return clientResource.get();
+		return clientResource.get().getText();
 
 	}
 

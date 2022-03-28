@@ -94,7 +94,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/login", LoginUser.class);
 		//router.attach(prefix + "/logout", LogoutUser.class);
 
-		router.attach(prefix + "/api/v2/collect/{job}", NextflowWebLog.class);
+		//router.attach(prefix + "/api/v2/collect/{job}", NextflowWebLog.class);
 
 		// jobs
 		//router.attach(prefix + "/api/v2/jobs", GetJobs.class);
@@ -103,7 +103,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/chunks/{filename}", GetChunk.class);
+		//router.attach(prefix + "/api/v2/jobs/{job}/chunks/{filename}", GetChunk.class);
 
 		// user registration
 		//router.attach(prefix + "/api/v2/users/register", RegisterUser.class);
@@ -139,10 +139,10 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/server/apps", Apps.class);
 
 		// returns a list of all apps registed on cloudgene.io
-		router.attach(prefix + "/api/v2/server/cloudgene-apps", CloudgeneApps.class);
+		//router.attach(prefix + "/api/v2/server/cloudgene-apps", CloudgeneApps.class);
 
 		// returns current version as svg image
-		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
+		//router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
 
 		// admin jobs
 		//router.attach(prefix + "/api/v2/admin/jobs", GetAllJobs.class);
@@ -170,24 +170,24 @@ public class WebApp extends Application {
 
 		//router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
 		//router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
-		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
+		//router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
 		//router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 
 		// download resources
 		//router.attach(prefix + "/get/{id}/{hash}", DownloadScriptResults.class);
 		//router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
-		router.attach(prefix + "/downloads/{job}/{hash}/{filename}", ExternalResults.class);
+		//router.attach(prefix + "/downloads/{job}/{hash}/{filename}", ExternalResults.class);
 
 		
 		//TemplateRoute route2 = router.attach(prefix + "/results/{job}/{id}/{filename}", DownloadResults.class);
 		//Map routeVariables = route2.getTemplate().getVariables();
 		//routeVariables.put("filename", new Variable(Variable.TYPE_URI_PATH));
 
-		TemplateRoute route3 = router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
-		Map routeVariables3 = route3.getTemplate().getVariables();
-		routeVariables3.put("filename", new Variable(Variable.TYPE_URI_PATH));
+		//TemplateRoute route3 = router.attach(prefix + "/share/{username}/{hash}/{filename}", ShareResults.class);
+		//Map routeVariables3 = route3.getTemplate().getVariables();
+		//routeVariables3.put("filename", new Variable(Variable.TYPE_URI_PATH));
 
-		router.attach(prefix + "/logs/{id}", GetLogs.class);
+		//router.attach(prefix + "/logs/{id}", GetLogs.class);
 
 		// ------------------
 

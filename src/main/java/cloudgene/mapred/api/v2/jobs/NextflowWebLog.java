@@ -1,33 +1,31 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.io.IOException;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Post;
 
 import cloudgene.mapred.plugins.nextflow.NextflowInfo;
-import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Post;
 import net.sf.json.JSONObject;
 
-public class NextflowWebLog extends BaseResource {
+public class NextflowWebLog {
 
 	private static final Log log = LogFactory.getLog(NextflowWebLog.class);
 
-	@Post
-	public Representation post(Representation entity) {
-
-		String job = getAttribute("job");
+	@Post("/api/v2/collect/{job}")
+	public String post(String job, @Body Map<Object, Object> event) {
 
 		try {
 
 			NextflowInfo info = NextflowInfo.getInstance();
-			JSONObject event = JSONObject.fromObject(entity.getText());
-			if (event.has("trace")) {
-				info.addEvent(job, event);
+			JSONObject eventObject = new JSONObject();
+			eventObject.putAll(event);
+			if (eventObject.has("trace")) {
+				info.addEvent(job, eventObject);
 			} else {
-				//System.out.println(event.toString());
+				// System.out.println(event.toString());
 			}
 
 		} catch (Exception e) {
@@ -35,7 +33,7 @@ public class NextflowWebLog extends BaseResource {
 			e.printStackTrace();
 		}
 
-		return ok("");
+		return "";
 
 	}
 

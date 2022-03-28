@@ -2,8 +2,6 @@ package cloudgene.mapred.api.v2.jobs;
 
 import java.util.List;
 
-import org.restlet.representation.StringRepresentation;
-
 import cloudgene.mapred.Application;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.database.DownloadDao;

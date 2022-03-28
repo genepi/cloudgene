@@ -1,59 +1,70 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class GetLogs extends BaseResource {
+@Controller
+public class GetLogs {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUserAndAllowApiToken(false);
+	@Inject
+	protected AuthenticationService authenticationService;
+
+	@Get("/logs/{id}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String get(@Nullable Authentication authentication, String id) {
+
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		if (user == null) {
-			user = PublicUser.getUser(getDatabase());
+			user = PublicUser.getUser(application.getDatabase());
 		}
 
-		String id = getAttribute("id");
-
-		JobDao jobDao = new JobDao(getDatabase());
+		JobDao jobDao = new JobDao(application.getDatabase());
 		AbstractJob job = jobDao.findById(id);
 
 		if (job == null) {
-			job = getWorkflowEngine().getJobById(id);
+			job = application.getWorkflowEngine().getJobById(id);
 		}
 
 		if (job == null) {
-			return error404("Job " + id + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			return error403("Access denied.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
 
-		Settings settings = getSettings();
+		Settings settings = application.getSettings();
 		// log file
-		String logFilename = FileUtil.path(settings.getLocalWorkspace(), id,
-				"job.txt");
+		String logFilename = FileUtil.path(settings.getLocalWorkspace(), id, "job.txt");
 		String logContent = FileUtil.readFileAsString(logFilename);
 
 		// std out
-		String outputFilename = FileUtil.path(settings.getLocalWorkspace(), id,
-				"std.out");
+		String outputFilename = FileUtil.path(settings.getLocalWorkspace(), id, "std.out");
 		String outputContent = FileUtil.readFileAsString(outputFilename);
 
 		StringBuffer buffer = new StringBuffer();
 
-		//buffer.append("<code><pre>");
+		// buffer.append("<code><pre>");
 
 		if (!logContent.isEmpty()) {
 			buffer.append("job.txt:\n\n");
@@ -67,8 +78,8 @@ public class GetLogs extends BaseResource {
 			buffer.append(outputContent);
 
 		}
-		//buffer.append("</code></pre>");
-		return new StringRepresentation(buffer.toString());
+		// buffer.append("</code></pre>");
+		return buffer.toString();
 
 	}
 
