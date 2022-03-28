@@ -3,8 +3,6 @@ package cloudgene.mapred.api.v2.admin.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.constraints.NotBlank;
-
 import cloudgene.mapred.Application;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;

@@ -7,7 +7,6 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;

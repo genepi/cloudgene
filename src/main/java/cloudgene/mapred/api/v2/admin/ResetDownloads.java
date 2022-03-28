@@ -13,7 +13,6 @@ import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.util.BaseResource;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;

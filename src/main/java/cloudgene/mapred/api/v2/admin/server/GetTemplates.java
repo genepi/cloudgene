@@ -6,6 +6,7 @@ import cloudgene.mapred.Application;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.Template;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
@@ -15,7 +16,6 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 
 @Controller
 public class GetTemplates {

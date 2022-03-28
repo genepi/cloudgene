@@ -8,7 +8,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;

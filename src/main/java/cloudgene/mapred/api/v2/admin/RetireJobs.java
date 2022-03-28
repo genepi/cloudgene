@@ -4,6 +4,7 @@ import cloudgene.mapred.Application;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.cron.CleanUpTasks;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -12,7 +13,6 @@ import io.micronaut.http.annotation.Produces;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import jakarta.inject.Inject;
 
 @Controller

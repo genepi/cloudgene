@@ -5,7 +5,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cloudgene.mapred.WebApp;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.util.MailUtil;
 import genepi.hadoop.HadoopUtil;
 
@@ -15,7 +15,7 @@ public class AlertJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 
 		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		WebApp application = (WebApp) dataMap.get("application");
+		Application application = (Application) dataMap.get("application");
 
 		// check namenode state
 

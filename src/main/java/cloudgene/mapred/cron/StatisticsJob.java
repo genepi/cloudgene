@@ -8,7 +8,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cloudgene.mapred.WebApp;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.UserDao;
@@ -23,7 +23,7 @@ public class StatisticsJob implements Job {
 			throws JobExecutionException {
 
 		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		WebApp application = (WebApp) dataMap.get("application");
+		Application application = (Application) dataMap.get("application");
 		WorkflowEngine engine = application.getWorkflowEngine();
 		Database database = application.getDatabase();
 

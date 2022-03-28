@@ -5,7 +5,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cloudgene.mapred.WebApp;
+import cloudgene.mapred.Application;
 import cloudgene.mapred.util.Settings;
 import genepi.db.Database;
 
@@ -16,7 +16,7 @@ public class RetireJob implements Job {
 			throws JobExecutionException {
 
 		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		WebApp application = (WebApp) dataMap.get("application");
+		Application application = (Application) dataMap.get("application");
 		Database database = application.getDatabase();
 		Settings settings = application.getSettings();
 

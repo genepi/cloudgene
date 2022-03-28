@@ -10,9 +10,9 @@ import java.util.jar.Manifest;
 import cloudgene.mapred.Application;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -21,7 +21,6 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import net.sf.json.JSONObject;
 
 @Controller
