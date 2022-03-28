@@ -105,13 +105,13 @@ public class GetJobDetails {
 	}
 
 	@Delete("/api/v2/jobs/{id}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String deleteJob(@PathVariable @NotBlank String id, Authentication authentication) {
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String deleteJob(@PathVariable @NotBlank String id, @Nullable Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (user == null) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires user authentication.");
+			user = PublicUser.getUser(application.getDatabase());
 		}
 
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
