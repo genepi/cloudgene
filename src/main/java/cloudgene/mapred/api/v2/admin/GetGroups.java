@@ -3,41 +3,46 @@ package cloudgene.mapred.api.v2.admin;
 import java.util.List;
 import java.util.Vector;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 
-public class GetGroups extends BaseResource {
+@Controller
+public class GetGroups {
 	
-	@Get
-	public Representation get() {
+	@Inject
+	protected cloudgene.mapred.Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/groups")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
 		groups.add(new Group("user"));
+		application.getSettings();
 		
-		ApplicationRepository repository = getApplicationRepository();
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 
 		for (Application application : repository.getAll()) {
 			Group group = new Group(application.getPermission());
@@ -53,7 +58,7 @@ public class GetGroups extends BaseResource {
 
 		JSONArray jsonArray = JSONArray.fromObject(groups);
 
-		return new StringRepresentation(jsonArray.toString());
+		return jsonArray.toString();
 
 	}
 

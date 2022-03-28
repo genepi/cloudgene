@@ -2,41 +2,47 @@ package cloudgene.mapred.api.v2.admin;
 
 import java.util.List;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PageUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-public class GetUsers extends BaseResource {
+@Controller
+public class GetUsers {
 
 	public static final int DEFAULT_PAGE_SIZE = 100;
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/users")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, @Nullable @QueryValue("page") String page, @Nullable @QueryValue("query") String query) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		String page = getQueryValue("page");
 		int pageSize = DEFAULT_PAGE_SIZE;
 
 		int offset = 0;
@@ -49,11 +55,11 @@ public class GetUsers extends BaseResource {
 			offset = (offset - 1) * pageSize;
 		}
 
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 
 		List<User> users = null;
 		int count = 0;
-		String query = getQueryValue("query");
+
 		if (query != null && !query.isEmpty()) {
 			users = dao.findByQuery(query);
 			page = "1";
@@ -76,7 +82,7 @@ public class GetUsers extends BaseResource {
 		JSONObject object = PageUtil.createPageObject(Integer.parseInt(page), pageSize, count);
 		object.put("data", jsonArray);
 
-		return new StringRepresentation(object.toString());
+		return object.toString();
 
 	}
 

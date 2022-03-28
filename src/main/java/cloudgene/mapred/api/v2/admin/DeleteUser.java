@@ -1,53 +1,54 @@
 package cloudgene.mapred.api.v2.admin;
 
-import org.restlet.data.Form;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Post;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class DeleteUser extends BaseResource {
+@Controller
+public class DeleteUser {
 
-	@Post
-	public Representation post(Representation entity) {
+	@Inject
+	protected Application application;
 
-		Form form = new Form(entity);
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		User user = getAuthUser();
+	@Post("/api/v2/admin/users/{username}/delete")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String post(Authentication authentication, @PathVariable @NotBlank String username) {
 
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
-
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
-
-		String username = getAttribute("username");
 
 		// delete user from database
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 		User user1 = dao.findByUsername(username);
-		if (user1 != null) {
-			dao.delete(user1);
 
-			JSONObject object = JSONObject.fromObject(user1);
-			return new StringRepresentation(object.toString());
-		} else {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("User " + username + " not found.");
+		if (user1 == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "User " + username + " not found.");
 		}
+
+		dao.delete(user1);
+		JSONObject object = JSONObject.fromObject(user1);
+		return object.toString();
 
 	}
 

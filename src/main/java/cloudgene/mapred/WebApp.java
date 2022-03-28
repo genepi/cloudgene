@@ -165,10 +165,10 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/admin/jobs/{job}/archive", ArchiveJob.class);
 
 		// admin users
-		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
-		router.attach(prefix + "/api/v2/admin/users/{username}/delete", DeleteUser.class);
-		router.attach(prefix + "/api/v2/admin/users/changegroup", ChangeGroup.class);
-		router.attach(prefix + "/api/v2/admin/groups", GetGroups.class);
+		//router.attach(prefix + "/api/v2/admin/users", GetUsers.class);
+		//router.attach(prefix + "/api/v2/admin/users/{username}/delete", DeleteUser.class);
+		//router.attach(prefix + "/api/v2/admin/users/changegroup", ChangeGroup.class);
+		//router.attach(prefix + "/api/v2/admin/groups", GetGroups.class);
 
 		// admin server management
 		router.attach(prefix + "/api/v2/admin/server/cluster", GetClusterDetails.class);

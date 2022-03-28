@@ -1,58 +1,46 @@
 package cloudgene.mapred.api.v2.admin;
 
-import org.restlet.data.Form;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Post;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.JSONConverter;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class ChangeGroup extends BaseResource {
+@Controller
+public class ChangeGroup {
 
-	@Post
-	public Representation post(Representation entity) {
+	@Inject
+	protected Application application;
 
-		Form form = new Form(entity);
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		User user = getAuthUser();
+	@Post("/api/v2/admin/users/changegroup")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String post(Authentication authentication, @NotBlank String username, @NotBlank String role) {
 
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
-
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		String username = form.getFirstValue("username");
-		if (username == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("No username provided.");
-		}
-
-		String role = form.getFirstValue("role");
-		if (role == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("No role provided.");
-		}
-
-		UserDao dao = new UserDao(getDatabase());
+		UserDao dao = new UserDao(application.getDatabase());
 		User user1 = dao.findByUsername(username);
 
 		if (user1 == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("User '" + username + "' not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "User " + username + " not found.");
 		}
 
 		// update user role in database
@@ -60,7 +48,7 @@ public class ChangeGroup extends BaseResource {
 		dao.update(user1);
 
 		JSONObject object = JSONConverter.convert(user1);
-		return new StringRepresentation(object.toString());
+		return object.toString();
 
 	}
 
