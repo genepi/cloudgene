@@ -36,8 +36,9 @@ export default Control.extend({
 
       },
       error: function(response) {
+        console.log(response);
         password.addClass('is-invalid');
-        password.closest('.form-group').find('.invalid-feedback').html("Login Failed! Wrong Username or Password.");
+        password.closest('.form-group').find('.invalid-feedback').html(response.responseJSON.message);
 
       }
     });

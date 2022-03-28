@@ -22,7 +22,6 @@ import cloudgene.mapred.api.v2.admin.ChangeRetireDate;
 import cloudgene.mapred.api.v2.admin.DeleteUser;
 import cloudgene.mapred.api.v2.admin.GetAllJobs;
 import cloudgene.mapred.api.v2.admin.GetGroups;
-import cloudgene.mapred.api.v2.admin.GetStatistics;
 import cloudgene.mapred.api.v2.admin.GetUsers;
 import cloudgene.mapred.api.v2.admin.HotRetireJob;
 import cloudgene.mapred.api.v2.admin.ResetDownloads;
@@ -37,15 +36,12 @@ import cloudgene.mapred.api.v2.admin.server.GetTemplates;
 import cloudgene.mapred.api.v2.admin.server.OpenQueue;
 import cloudgene.mapred.api.v2.admin.server.UpdateSettings;
 import cloudgene.mapred.api.v2.data.ImporterFileList;
-import cloudgene.mapred.api.v2.jobs.CancelJob;
 import cloudgene.mapred.api.v2.jobs.DownloadScriptResults;
 import cloudgene.mapred.api.v2.jobs.ExternalResults;
 import cloudgene.mapred.api.v2.jobs.GetChunk;
 import cloudgene.mapred.api.v2.jobs.GetLogs;
 import cloudgene.mapred.api.v2.jobs.NextflowWebLog;
-import cloudgene.mapred.api.v2.jobs.RestartJob;
 import cloudgene.mapred.api.v2.jobs.ShareResults;
-import cloudgene.mapred.api.v2.server.Apps;
 import cloudgene.mapred.api.v2.server.CloudgeneApps;
 import cloudgene.mapred.api.v2.server.GetVersion;
 import cloudgene.mapred.database.TemplateDao;
@@ -117,7 +113,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/jobs/{job}/status", GetJobStatus.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}", GetJobDetails.class);
 		//router.attach(prefix + "/api/v2/jobs/{job}/cancel", CancelJob.class);
-		router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
+		//router.attach(prefix + "/api/v2/jobs/{job}/restart", RestartJob.class);
 		router.attach(prefix + "/api/v2/jobs/{job}/chunks/{filename}", GetChunk.class);
 
 		// user registration

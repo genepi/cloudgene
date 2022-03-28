@@ -1,7 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Date;
@@ -31,10 +31,10 @@ public class LoginUserTest {
 
 	@Inject
 	TestApplication application;
-	
+
 	@Inject
 	CloudgeneClient client;
-	
+
 	@BeforeAll
 	public void setUp() throws Exception {
 
@@ -87,6 +87,7 @@ public class LoginUserTest {
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("testuser1", object.get("username"));
+		assertTrue(object.has("access_token"));
 		resource.release();
 	}
 
@@ -105,9 +106,10 @@ public class LoginUserTest {
 
 			resource.post(form);
 			assertEquals(200, resource.getStatus().getCode());
-						
+
 			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 			assertEquals("lockeduser", object.get("username"));
+			assertTrue(object.has("access_token"));
 
 			// check login attempts are the same
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
@@ -123,13 +125,13 @@ public class LoginUserTest {
 			Form form = new Form();
 			form.set("username", "lockeduser");
 			form.set("password", "wrong-password");
-try {
-			resource.post(form);
-}catch (ResourceException e) {
-	
-}
+			try {
+				resource.post(form);
+			} catch (ResourceException e) {
+
+			}
 			assertEquals(401, resource.getStatus().getCode());
-			//JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
@@ -138,14 +140,10 @@ try {
 				assertEquals(oldLoginAttempts + 1, newLoginAttempts);
 				oldLoginAttempts = newLoginAttempts;
 				// check error messages
-				//assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-				//assertEquals(false, object.get("success"));
-				//assertEquals(0, resource.getResponse().getCookieSettings().size());
+				assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
 			} else {
-				//assertEquals("The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
-				//		+ " minutes. Too many failed logins.", object.getString("message"));
-				//assertEquals(false, object.get("success"));
-				//assertEquals(0, resource.getResponse().getCookieSettings().size());
+				assertEquals("The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
+						+ " minutes. Too many failed logins.", object.getString("message"));
 			}
 			resource.release();
 		}
@@ -157,17 +155,15 @@ try {
 			form.set("username", "lockeduser");
 			form.set("password", "lockedpasssord");
 
-try {
-			resource.post(form);
-}catch (ResourceException e) {
-	
-}
+			try {
+				resource.post(form);
+			} catch (ResourceException e) {
+
+			}
 			assertEquals(401, resource.getStatus().getCode());
-			//JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-			//assertEquals("The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
-			//		+ " minutes. Too many failed logins.", object.getString("message"));
-			//assertEquals(false, object.get("success"));
-			//assertEquals(0, resource.getResponse().getCookieSettings().size());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+			assertEquals("The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
+					+ " minutes. Too many failed logins.", object.getString("message"));
 			resource.release();
 		}
 
@@ -186,10 +182,9 @@ try {
 
 			resource.post(form);
 			assertEquals(200, resource.getStatus().getCode());
-			//JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-			//assertEquals("Login successfull.", object.getString("message"));
-			//assertEquals(true, object.get("success"));
-			//assertEquals(1, resource.getResponse().getCookieSettings().size());
+			JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+			assertEquals("lockeduser", object.getString("username"));
+			assertTrue(object.has("access_token"));
 
 			// check login attempts are the same
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
@@ -207,16 +202,15 @@ try {
 		Form form = new Form();
 		form.set("username", "testuser2");
 		form.set("password", "test2");
-try {
-		resource.post(form);
-}catch (ResourceException e) {
-	
-}
-		
+		try {
+			resource.post(form);
+		} catch (ResourceException e) {
+
+		}
+
 		assertEquals(401, resource.getStatus().getCode());
-		//JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		//assertEquals("Login Failed! User account is not activated.", object.getString("message"));
-		//assertEquals(0, resource.getResponse().getCookieSettings().size());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		resource.release();
 	}
 

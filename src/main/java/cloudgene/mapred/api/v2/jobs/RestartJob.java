@@ -1,92 +1,108 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.restlet.representation.Representation;
-import org.restlet.resource.Get;
+import org.json.JSONObject;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.PublicUser;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class RestartJob extends BaseResource {
-	
+public class RestartJob {
+
+	@Inject
+	protected cloudgene.mapred.Application application;
+
+	@Inject
+	protected AuthenticationService authenticationService;
+
 	private static final Log log = LogFactory.getLog(RestartJob.class);
 
-	@Get
-	public Representation get(Representation entity) {
+	@Get("/api/v2/jobs/{id}/cancel")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String restart(@Nullable Authentication authentication, String id) {
 
-		User user = getAuthUser();
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		if (user == null) {
-			user = PublicUser.getUser(getDatabase());
+			user = PublicUser.getUser(application.getDatabase());
 		}
-
-		String id = getAttribute("job");
 
 		if (id == null) {
-			return error404("No job id specified.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "No job id specified.");
 		}
 
-		JobDao dao = new JobDao(getDatabase());
-		AbstractJob job = dao.findById(id);
+		AbstractJob job = application.getWorkflowEngine().getJobById(id);
 
 		if (job == null) {
-			return error404("Job " + id + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
 		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			return error403("Access denied.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
 		}
+
+		Settings settings = application.getSettings();
 
 		if (job.getState() == AbstractJob.STATE_DEAD) {
 
-			String hdfsWorkspace = "";			
+			String hdfsWorkspace = "";
 			try {
-				hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
-			}catch (NoClassDefFoundError e) {
+				hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
+			} catch (NoClassDefFoundError e) {
 				log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
 			}
-			String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
+			String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 
 			job.setLocalWorkspace(localWorkspace);
 			job.setHdfsWorkspace(hdfsWorkspace);
-			job.setSettings(getSettings());
-			job.setRemoveHdfsWorkspace(getSettings().isRemoveHdfsWorkspace());
+			job.setSettings(settings);
+			job.setRemoveHdfsWorkspace(settings.isRemoveHdfsWorkspace());
 
 			String appId = job.getApplicationId();
 
-			ApplicationRepository repository = getApplicationRepository();
+			ApplicationRepository repository = settings.getApplicationRepository();
 			Application application = repository.getByIdAndUser(appId, job.getUser());
 			WdlApp app = null;
 			try {
 				app = application.getWdlApp();
 			} catch (Exception e1) {
 
-				return error400("Application '" + appId + "' not found or the request requires user authentication.");
+				throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
+						"Application '" + appId + "' not found or the request requires user authentication.");
 
 			}
 
 			((CloudgeneJob) job).loadConfig(app);
 
-			getWorkflowEngine().restart(job);
+			this.application.getWorkflowEngine().restart(job);
 
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("id", id);
-			return ok("Your job was successfully added to the job queue.", params);
+			JSONObject json = new JSONObject();
+			json.put("id", id);
+			json.put("message", "Your job was successfully added to the job queue.");
+			json.put("success", true);
+			return json.toString();
+			
 		} else {
-			return error400("Job " + id + " is not pending.");
+			
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Job " + id + " is not pending.");
 
 		}
 	}

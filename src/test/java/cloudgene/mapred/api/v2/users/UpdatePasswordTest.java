@@ -120,15 +120,9 @@ public class UpdatePasswordTest {
 		}
 		
 		assertEquals(401, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
 		resource.release();
-
-
-		//assertEquals(200, resource.getStatus().getCode());
-		//object = new JSONObject(resource.getResponseEntity().getText());
-		//assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-		//assertEquals(false, object.get("success"));
-		//assertEquals(0, resource.getResponse().getCookieSettings().size());
-		//resource.release();
 
 		// try login with new password
 		resource = client.createClientResource("/login");
@@ -141,9 +135,6 @@ public class UpdatePasswordTest {
 		
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("testupdate3", object.get("username"));
-		//assertEquals("Login successfull.", object.getString("message"));
-		//assertEquals(true, object.get("success"));
-		//assertEquals(1, resource.getResponse().getCookieSettings().size());
 		resource.release();
 	}
 
