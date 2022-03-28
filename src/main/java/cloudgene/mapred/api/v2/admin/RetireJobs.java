@@ -5,8 +5,10 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.cron.CleanUpTasks;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -24,6 +26,7 @@ public class RetireJobs {
 
 	@Get("/api/v2/admin/jobs/retire")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
 	public String get(Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);

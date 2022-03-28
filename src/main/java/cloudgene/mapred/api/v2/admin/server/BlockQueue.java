@@ -1,37 +1,42 @@
 package cloudgene.mapred.api.v2.admin.server;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Produces;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class BlockQueue extends BaseResource {
+@Controller
+public class BlockQueue {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
-
+	@Get("/api/v2/admin/server/queue/block")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String get(Authentication authentication) {
+		
+		User user = authenticationService.getUserByAuthentication(authentication);
+		
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		getWorkflowEngine().block();
+		application.getWorkflowEngine().block();
 
-		return new StringRepresentation("Queue blocked.");
+		return "Queue blocked.";
 
 	}
 

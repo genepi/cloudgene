@@ -7,48 +7,53 @@ import java.util.Date;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import org.restlet.data.MediaType;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
 import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.util.BaseResource;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import net.sf.json.JSONObject;
 
-public class GetClusterDetails extends BaseResource {
+@Controller
+public class GetClusterDetails {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-		}
+	@Get("/api/v2/admin/server/cluster")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication) {
+
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
 		JSONObject object = new JSONObject();
 
 		// general settigns
-		object.put("maintenance", getSettings().isMaintenance());
-		object.put("blocked", !getWorkflowEngine().isRunning());
+		object.put("maintenance", application.getSettings().isMaintenance());
+		object.put("blocked", !application.getWorkflowEngine().isRunning());
 		object.put("version", Application.VERSION);
-		object.put("maintenance", getSettings().isMaintenance());
-		object.put("blocked", !getWorkflowEngine().isRunning());
-		object.put("threads_setup", getSettings().getThreadsSetupQueue());
-		object.put("threads", getSettings().getThreadsQueue());
-		object.put("max_jobs_user", getSettings().getMaxRunningJobsPerUser());
+		object.put("maintenance", application.getSettings().isMaintenance());
+		object.put("blocked", !application.getWorkflowEngine().isRunning());
+		object.put("threads_setup", application.getSettings().getThreadsSetupQueue());
+		object.put("threads", application.getSettings().getThreadsQueue());
+		object.put("max_jobs_user", application.getSettings().getMaxRunningJobsPerUser());
 		try {
 			URL url = GetClusterDetails.class.getClassLoader().getResource("META-INF/MANIFEST.MF");
 			Manifest manifest = new Manifest(url.openStream());
@@ -65,7 +70,7 @@ public class GetClusterDetails extends BaseResource {
 		}
 
 		// workspace and hdd
-		File workspace = new File(getSettings().getLocalWorkspace());
+		File workspace = new File(application.getSettings().getLocalWorkspace());
 		object.put("workspace_path", workspace.getAbsolutePath());
 		object.put("free_disc_space", workspace.getUsableSpace() / 1024 / 1024 / 1024);
 		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
@@ -89,32 +94,29 @@ public class GetClusterDetails extends BaseResource {
 		object.put("plugins", pluginsArray);
 
 		// database
-		object.put("db_max_active", getDatabase().getDataSource().getMaxActive());
-		object.put("db_active", getDatabase().getDataSource().getNumActive());
-		object.put("db_max_idle", getDatabase().getDataSource().getMaxIdle());
-		object.put("db_idle", getDatabase().getDataSource().getNumIdle());
-		object.put("db_max_open_prep_statements", getDatabase().getDataSource().getMaxOpenPreparedStatements());
+		object.put("db_max_active", application.getDatabase().getDataSource().getMaxActive());
+		object.put("db_active", application.getDatabase().getDataSource().getNumActive());
+		object.put("db_max_idle", application.getDatabase().getDataSource().getMaxIdle());
+		object.put("db_idle", application.getDatabase().getDataSource().getNumIdle());
+		object.put("db_max_open_prep_statements", application.getDatabase().getDataSource().getMaxOpenPreparedStatements());
 
-		JSONObject hostnames = new JSONObject();
-		if (getRequest().getHostRef() != null) {
-			hostnames.put("host_ref", getRequest().getHostRef().getHostIdentifier());
-		}
-		if (getRequest().getOriginalRef() != null) {
-			hostnames.put("original_ref", getRequest().getOriginalRef().getHostIdentifier());
-		}
-		if (getRequest().getResourceRef() != null) {
-			hostnames.put("resource_ref", getRequest().getResourceRef().getHostIdentifier());
-		}
-		if (getRequest().getRootRef() != null) {
-			hostnames.put("root_ref", getRequest().getRootRef().getHostIdentifier());
-		}
-		if (getRequest().getReferrerRef() != null) {
-			hostnames.put("referrer_ref", getRequest().getReferrerRef().getHostIdentifier());
-		}
+		/*
+		 * JSONObject hostnames = new JSONObject(); if (getRequest().getHostRef() !=
+		 * null) { hostnames.put("host_ref",
+		 * getRequest().getHostRef().getHostIdentifier()); } if
+		 * (getRequest().getOriginalRef() != null) { hostnames.put("original_ref",
+		 * getRequest().getOriginalRef().getHostIdentifier()); } if
+		 * (getRequest().getResourceRef() != null) { hostnames.put("resource_ref",
+		 * getRequest().getResourceRef().getHostIdentifier()); } if
+		 * (getRequest().getRootRef() != null) { hostnames.put("root_ref",
+		 * getRequest().getRootRef().getHostIdentifier()); } if
+		 * (getRequest().getReferrerRef() != null) { hostnames.put("referrer_ref",
+		 * getRequest().getReferrerRef().getHostIdentifier()); }
+		 */
 
-		object.put("hostnames", hostnames);
+		//object.put("hostnames", hostnames);
 
-		return new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
+		return object.toString();
 
 	}
 }

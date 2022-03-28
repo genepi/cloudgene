@@ -15,17 +15,6 @@ import org.restlet.routing.Template;
 import org.restlet.routing.TemplateRoute;
 import org.restlet.routing.Variable;
 
-import cloudgene.mapred.api.v2.admin.ArchiveJob;
-import cloudgene.mapred.api.v2.admin.ChangeGroup;
-import cloudgene.mapred.api.v2.admin.ChangePriority;
-import cloudgene.mapred.api.v2.admin.ChangeRetireDate;
-import cloudgene.mapred.api.v2.admin.DeleteUser;
-import cloudgene.mapred.api.v2.admin.GetAllJobs;
-import cloudgene.mapred.api.v2.admin.GetGroups;
-import cloudgene.mapred.api.v2.admin.GetUsers;
-import cloudgene.mapred.api.v2.admin.HotRetireJob;
-import cloudgene.mapred.api.v2.admin.ResetDownloads;
-import cloudgene.mapred.api.v2.admin.RetireJobs;
 import cloudgene.mapred.api.v2.admin.server.BlockQueue;
 import cloudgene.mapred.api.v2.admin.server.EnterMaintenance;
 import cloudgene.mapred.api.v2.admin.server.ExitMaintenance;
@@ -171,16 +160,16 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/admin/groups", GetGroups.class);
 
 		// admin server management
-		router.attach(prefix + "/api/v2/admin/server/cluster", GetClusterDetails.class);
-		router.attach(prefix + "/api/v2/admin/server/queue/open", OpenQueue.class);
-		router.attach(prefix + "/api/v2/admin/server/queue/block", BlockQueue.class);
-		router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
-		router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
-		router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
+		//router.attach(prefix + "/api/v2/admin/server/cluster", GetClusterDetails.class);
+		//router.attach(prefix + "/api/v2/admin/server/queue/open", OpenQueue.class);
+		//router.attach(prefix + "/api/v2/admin/server/queue/block", BlockQueue.class);
+		//router.attach(prefix + "/api/v2/admin/server/maintenance/enter", EnterMaintenance.class);
+		//router.attach(prefix + "/api/v2/admin/server/maintenance/exit", ExitMaintenance.class);
+		//router.attach(prefix + "/api/v2/admin/server/templates", GetTemplates.class);
 		//router.attach(prefix + "/api/v2/admin/server/templates/{id}", UpdateTemplate.class);
 
-		router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
-		router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
+		//router.attach(prefix + "/api/v2/admin/server/settings", GetSettings.class);
+		//router.attach(prefix + "/api/v2/admin/server/settings/update", UpdateSettings.class);
 		router.attach(prefix + "/api/v2/admin/server/logs/{logfile}", GetServerLogs.class);
 		//router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 

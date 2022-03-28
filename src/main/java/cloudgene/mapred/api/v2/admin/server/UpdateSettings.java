@@ -3,83 +3,77 @@ package cloudgene.mapred.api.v2.admin.server;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.restlet.data.Form;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Post;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.util.BaseResource;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.Settings;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class UpdateSettings extends BaseResource {
+@Controller
+public class UpdateSettings {
 
-	@Post
-	public Representation post(Representation entity) {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Post("/api/v2/admin/server/settings/update")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, String name, String background_color, String foreground_color,
+			String google_analytics, String mail, String mail_smtp, String mail_port, String mail_user,
+			String mail_password, String mail_name) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		Form form = new Form(entity);
-		String name = form.getFirstValue("name");
-		String background = form.getFirstValue("background-color");
-		String foreground = form.getFirstValue("foreground-color");
-		String googleAnalytics = form.getFirstValue("google-analytics");
-
-		String usingMail = form.getFirstValue("mail");
-		String mailSmtp = form.getFirstValue("mail-smtp");
-		String mailPort = form.getFirstValue("mail-port");
-		String mailUser = form.getFirstValue("mail-user");
-		String mailPassword = form.getFirstValue("mail-password");
-		String mailName = form.getFirstValue("mail-name");
-
-		Settings settings = getSettings();
+		Settings settings = application.getSettings();
 		settings.setName(name);
-		settings.getColors().put("background", background);
-		settings.getColors().put("foreground", foreground);
-		settings.setGoogleAnalytics(googleAnalytics);
+		settings.getColors().put("background", background_color);
+		settings.getColors().put("foreground", foreground_color);
+		settings.setGoogleAnalytics(google_analytics);
 
-		if (usingMail != null && usingMail.equals("true")) {
-			Map<String, String> mail = new HashMap<String, String>();
-			mail.put("smtp", mailSmtp);
-			mail.put("port", mailPort);
-			mail.put("user", mailUser);
-			mail.put("password", mailPassword);
-			mail.put("name", mailName);
-			getSettings().setMail(mail);
+		if (mail != null && mail.equals("true")) {
+			Map<String, String> mailConfig = new HashMap<String, String>();
+			mailConfig.put("smtp", mail_smtp);
+			mailConfig.put("port", mail_port);
+			mailConfig.put("user", mail_user);
+			mailConfig.put("password", mail_password);
+			mailConfig.put("name", mail_name);
+			application.getSettings().setMail(mailConfig);
 		} else {
-			getSettings().setMail(null);
+			application.getSettings().setMail(null);
 		}
 
-		getSettings().save();
+		application.getSettings().save();
 
 		JSONObject object = new JSONObject();
-		object.put("name", getSettings().getName());
-		object.put("background-color", getSettings().getColors().get("background"));
-		object.put("foreground-color", getSettings().getColors().get("foreground"));
-		object.put("google-analytics", getSettings().getGoogleAnalytics());
+		object.put("name", application.getSettings().getName());
+		object.put("background-color", application.getSettings().getColors().get("background"));
+		object.put("foreground-color", application.getSettings().getColors().get("foreground"));
+		object.put("google-analytics", application.getSettings().getGoogleAnalytics());
 
-		Map<String, String> mail = getSettings().getMail();
-		if (getSettings().getMail() != null) {
+		Map<String, String> mailConfig = application.getSettings().getMail();
+		if (application.getSettings().getMail() != null) {
 			object.put("mail", true);
-			object.put("mail-smtp", mail.get("smtp"));
-			object.put("mail-port", mail.get("port"));
-			object.put("mail-user", mail.get("user"));
-			object.put("mail-password", mail.get("password"));
-			object.put("mail-name", mail.get("name"));
+			object.put("mail-smtp", mailConfig.get("smtp"));
+			object.put("mail-port", mailConfig.get("port"));
+			object.put("mail-user", mailConfig.get("user"));
+			object.put("mail-password", mailConfig.get("password"));
+			object.put("mail-name", mailConfig.get("name"));
 		} else {
 			object.put("mail", false);
 			object.put("mail-smtp", "");
@@ -89,7 +83,7 @@ public class UpdateSettings extends BaseResource {
 			object.put("mail-name", "");
 		}
 
-		return new StringRepresentation(object.toString());
+		return object.toString();
 
 	}
 
