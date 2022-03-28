@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,6 +24,8 @@ import genepi.io.FileUtil;
 
 public class Settings {
 
+	private String hostname = "http://locahost:8080";
+	
 	private String hadoopPath = "/usr/";
 
 	private String pigPath = "/usr/";
@@ -707,6 +707,15 @@ public class Settings {
 
 		return externalWorkspace.get("type");
 
+	}
+	
+	public void setHostname(String hostname) {
+		this.hostname = hostname;
+	}
+	
+	
+	public String getHostname() {
+		return hostname;
 	}
 
 }

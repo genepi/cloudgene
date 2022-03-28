@@ -174,7 +174,7 @@ public class WebApp extends Application {
 		//router.attach(prefix + "/api/v2/admin/server/statistics", GetStatistics.class);
 
 		// download resources
-		router.attach(prefix + "/get/{id}/{hash}", DownloadScriptResults.class);
+		//router.attach(prefix + "/get/{id}/{hash}", DownloadScriptResults.class);
 		//router.attach(prefix + "/results/{job}/{id}", DownloadResults.class);
 		router.attach(prefix + "/downloads/{job}/{hash}/{filename}", ExternalResults.class);
 

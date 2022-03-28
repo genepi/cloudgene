@@ -10,7 +10,6 @@ import cloudgene.mapred.util.Template;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
@@ -19,12 +18,6 @@ import jakarta.inject.Inject;
 public class RegisterUser {
 
 	public static final String DEFAULT_ROLE = "User";
-
-	protected final String hostname;
-
-	public RegisterUser(EmbeddedServer embeddedServer) {
-		hostname = embeddedServer.getURL().toString();
-	}
 
 	@Inject
 	protected Application application;
@@ -73,6 +66,8 @@ public class RegisterUser {
 		newUser.setPassword(HashUtil.hashPassword(new_password));
 
 		try {
+			
+			String hostname = application.getSettings().getHostname();;
 
 			// if email server configured, send mails with activation link. Else
 			// activate user immediately.

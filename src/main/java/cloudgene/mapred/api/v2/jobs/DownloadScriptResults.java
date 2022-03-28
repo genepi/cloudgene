@@ -2,51 +2,57 @@ package cloudgene.mapred.api.v2.jobs;
 
 import java.util.List;
 
-import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.ParameterDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class DownloadScriptResults extends BaseResource {
+@Controller
+public class DownloadScriptResults {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		String paramId = getAttribute("id");
-		String hash = getAttribute("hash");
+	@Inject
+	protected AuthenticationService authenticationService;
+
+	@Get("/get/{paramId}/{hash}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String downloadScript(String paramId, String hash) {
 
 		int id = -1;
 		try {
 			id = Integer.parseInt(paramId);
 		} catch (NumberFormatException e) {
-			return error400("Parameter ID is not numeric.");
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Parameter ID is not numeric.");
 		}
 
-		ParameterDao parameterDao = new ParameterDao(getDatabase());
+		ParameterDao parameterDao = new ParameterDao(application.getDatabase());
 		CloudgeneParameterOutput param = parameterDao.findById(id);
 
 		if (param == null) {
-			return error404("Param " + param + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Param " + param + " not found.");
 		}
 
 		if (!hash.equals(param.createHash())) {
-			return error403("Download forbidden.");
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Download forbidden.");
 		}
 
-		DownloadDao dao = new DownloadDao(getDatabase());
+		DownloadDao dao = new DownloadDao(application.getDatabase());
 		List<Download> downloads = dao.findAllByParameter(param);
 
-		String hostname = "";
-		if (getRequest().getReferrerRef() != null) {
-			hostname = getRequest().getReferrerRef().getHostIdentifier();
-		} else {
-			hostname = getRequest().getHostRef().getHostIdentifier();
-		}
+		String hostname = application.getSettings().getHostname();
 
 		StringBuffer script = new StringBuffer();
 		script.append("#!/bin/bash\n");
@@ -66,7 +72,7 @@ public class DownloadScriptResults extends BaseResource {
 		script.append("echo -e \"${GREEN}All " + downloads.size() + " file(s) downloaded.${NC}\"\n");
 		script.append("echo \"\"\n");
 		script.append("echo \"\"\n");
-		return new StringRepresentation(script.toString());
+		return script.toString();
 
 	}
 

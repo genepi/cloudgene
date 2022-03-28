@@ -19,12 +19,6 @@ import jakarta.inject.Inject;
 @Controller
 public class ResetPassword {
 
-	protected final String hostname;
-
-	public ResetPassword(EmbeddedServer embeddedServer) {
-		hostname = embeddedServer.getURL().toString();
-	}
-
 	@Inject
 	protected Application application;
 
@@ -63,6 +57,8 @@ public class ResetPassword {
 				user.setActivationCode(key);
 				dao.update(user);
 			}
+
+			String hostname = application.getSettings().getHostname();
 
 			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
 
