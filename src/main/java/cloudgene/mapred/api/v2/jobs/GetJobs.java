@@ -41,7 +41,7 @@ public class GetJobs {
 	
 	@Get("/api/v2/jobs")
 	@Secured(SecurityRule.IS_AUTHENTICATED) 
-	public String getJobs(@Nullable Authentication authentication, @QueryValue @Nullable String page) {
+	public String getJobs(@Nullable Authentication authentication, @QueryValue @Nullable Integer page) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
@@ -56,7 +56,7 @@ public class GetJobs {
 		int offset = 0;
 		if (page != null) {
 
-			offset = Integer.valueOf(page);
+			offset = page;
 			if (offset < 1) {
 				offset = 1;
 			}
@@ -74,7 +74,7 @@ public class GetJobs {
 			jobs = dao.findAllByUser(user, offset, pageSize);
 		} else {
 			jobs = dao.findAllByUser(user);
-			page = "1";
+			page = 1;
 			pageSize = count;
 
 		}
@@ -98,7 +98,7 @@ public class GetJobs {
 				"logs", "removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "steps", "workingDirectory",
 				"map", "reduce", "logOutFile", "deletedOn", "applicationId", "running" });
 
-		JSONObject object = PageUtil.createPageObject(Integer.parseInt(page), pageSize, count);
+		JSONObject object = PageUtil.createPageObject(page, pageSize, count);
 
 		JSONArray jsonArray = JSONArray.fromObject(finalJobs, config);
 		object.put("data", jsonArray);
