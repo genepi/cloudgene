@@ -160,13 +160,13 @@ public class WebApp extends Application {
 		router.attach(prefix + "/api/v2/server/version.svg", GetVersion.class);
 
 		// admin jobs
-		router.attach(prefix + "/api/v2/admin/jobs", GetAllJobs.class);
-		router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/reset", ResetDownloads.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/retire", HotRetireJob.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/priority", ChangePriority.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/change-retire/{days}", ChangeRetireDate.class);
-		router.attach(prefix + "/api/v2/admin/jobs/{job}/archive", ArchiveJob.class);
+		//router.attach(prefix + "/api/v2/admin/jobs", GetAllJobs.class);
+		//router.attach(prefix + "/api/v2/admin/jobs/retire", RetireJobs.class);
+		//router.attach(prefix + "/api/v2/admin/jobs/{job}/reset", ResetDownloads.class);
+		//router.attach(prefix + "/api/v2/admin/jobs/{job}/retire", HotRetireJob.class);
+		//router.attach(prefix + "/api/v2/admin/jobs/{job}/priority", ChangePriority.class);
+		//router.attach(prefix + "/api/v2/admin/jobs/{job}/change-retire/{days}", ChangeRetireDate.class);
+		//router.attach(prefix + "/api/v2/admin/jobs/{job}/archive", ArchiveJob.class);
 
 		// admin users
 		router.attach(prefix + "/api/v2/admin/users", GetUsers.class);

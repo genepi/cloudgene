@@ -1,107 +1,100 @@
 package cloudgene.mapred.api.v2.admin;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class HotRetireJob extends BaseResource {
+@Controller
+public class HotRetireJob {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/jobs/{jobId}/retire")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String get(Authentication authentication, @PathVariable @NotBlank String jobId) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		Settings settings = getSettings();
+		Settings settings = application.getSettings();
 
-		String jobId = getAttribute("job");
-
-		JobDao dao = new JobDao(getDatabase());
+		JobDao dao = new JobDao(application.getDatabase());
 
 		int days = settings.getRetireAfter() - settings.getNotificationAfter();
-
-		if (jobId == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("no job id found.");
-		}
 
 		AbstractJob job = dao.findById(jobId);
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + jobId + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
 		}
 
 		if (job.getState() == AbstractJob.STATE_SUCCESS) {
 
 			try {
 
-				String subject = "[" + settings.getName() + "] Job "
-						+ job.getId() + " will be retired in " + days
+				String subject = "[" + settings.getName() + "] Job " + job.getId() + " will be retired in " + days
 						+ " days";
 
-				String body = getWebApp().getTemplate(Template.RETIRE_JOB_MAIL,
-						job.getUser().getFullName(), days, job.getId());
+				String body = application.getTemplate(Template.RETIRE_JOB_MAIL, job.getUser().getFullName(), days,
+						job.getId());
 
 				if (!job.getUser().getUsername().equals("public")) {
 
-					MailUtil.send(settings, job.getUser().getMail(), subject,
-							body);
+					MailUtil.send(settings, job.getUser().getMail(), subject, body);
 
 				}
 
 				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
 				job.setDeletedOn(System.currentTimeMillis()
-						+ ((settings.getRetireAfterInSec() - settings
-								.getNotificationAfterInSec()) * 1000));
+						+ ((settings.getRetireAfterInSec() - settings.getNotificationAfterInSec()) * 1000));
 				dao.update(job);
 
-				return new StringRepresentation("Sent notification for job "
-						+ job.getId() + ".");
+				return "Sent notification for job " + job.getId() + ".";
 
 			} catch (Exception e) {
 
-				return new StringRepresentation("Sent notification for job "
-						+ job.getId() + " failed.");
+				return "Sent notification for job " + job.getId() + " failed.";
 			}
 
-		} else if (job.getState() == AbstractJob.STATE_FAILED
-				|| job.getState() == AbstractJob.STATE_CANCELED) {
+		} else if (job.getState() == AbstractJob.STATE_FAILED || job.getState() == AbstractJob.STATE_CANCELED) {
 			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
 			job.setDeletedOn(System.currentTimeMillis()
-					+ ((settings.getRetireAfterInSec() - settings
-							.getNotificationAfterInSec()) * 1000));
+					+ ((settings.getRetireAfterInSec() - settings.getNotificationAfterInSec()) * 1000));
 			dao.update(job);
 
-			return new StringRepresentation(jobId
-					+ ": delete date set. job failed, no notification sent.");
+			return jobId + ": delete date set. job failed, no notification sent.";
 
 		} else {
 
-			return new StringRepresentation("Job " + jobId
-					+ " has wrong state for this operation.");
+			return "Job " + jobId + " has wrong state for this operation.";
 		}
 
 	}

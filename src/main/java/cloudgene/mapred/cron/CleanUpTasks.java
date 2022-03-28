@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import cloudgene.mapred.Application;
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -77,7 +78,7 @@ public class CleanUpTasks {
 		return deleted;
 	}
 
-	public static int sendNotifications(WebApp application) {
+	public static int sendNotifications(Application application) {
 
 		Database database = application.getDatabase();
 		Settings settings = application.getSettings();

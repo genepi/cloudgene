@@ -2,47 +2,60 @@ package cloudgene.mapred.api.v2.admin;
 
 import java.util.List;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class ResetDownloads extends BaseResource {
+@Controller
+public class ResetDownloads {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/jobs/{jobId}/reset")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String get(Authentication authentication, @PathVariable @NotBlank String jobId,
+			@Nullable @QueryValue("max") String max) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
-
-		String jobId = getAttribute("job");
 
 		if (jobId != null) {
 
-			AbstractJob job = getWorkflowEngine().getJobById(jobId);
+			AbstractJob job = application.getWorkflowEngine().getJobById(jobId);
 
 			if (job == null) {
 
-				JobDao dao = new JobDao(getDatabase());
+				JobDao dao = new JobDao(application.getDatabase());
 				job = dao.findById(jobId, true);
 
 			}
@@ -51,13 +64,13 @@ public class ResetDownloads extends BaseResource {
 
 				int maxDownloads = 0;
 
-				if (getQueryValue("max") != null) {
-					maxDownloads = Integer.parseInt(getQueryValue("max"));
+				if (max != null) {
+					maxDownloads = Integer.parseInt(max);
 				} else {
-					maxDownloads = getSettings().getMaxDownloads();
+					maxDownloads = application.getSettings().getMaxDownloads();
 				}
 
-				DownloadDao downloadDao = new DownloadDao(getDatabase());
+				DownloadDao downloadDao = new DownloadDao(application.getDatabase());
 				int count = 0;
 				for (CloudgeneParameterOutput param : job.getOutputParams()) {
 					if (param.isDownload()) {
@@ -72,13 +85,10 @@ public class ResetDownloads extends BaseResource {
 					}
 				}
 
-				return new StringRepresentation(
-						jobId + ": counter of " + count + " downloads reset to " + maxDownloads);
+				return jobId + ": counter of " + count + " downloads reset to " + maxDownloads;
 
 			}
 		}
-		setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-		return new StringRepresentation("Job not found,.");
-
+		throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
 	}
 }

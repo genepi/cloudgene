@@ -1,55 +1,58 @@
 package cloudgene.mapred.api.v2.admin;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class ArchiveJob extends BaseResource {
+@Controller
+public class ArchiveJob {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/jobs/{jobId}/archive")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String get(Authentication authentication, @PathVariable @NotBlank String jobId) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		Settings settings = getSettings();
+		Settings settings = application.getSettings();
 
-		String jobId = getAttribute("job");
-
-		JobDao dao = new JobDao(getDatabase());
-
-		if (jobId == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("no job id found.");
-		}
+		JobDao dao = new JobDao(application.getDatabase());
 
 		AbstractJob job = dao.findById(jobId);
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + jobId + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
 		}
 
 		if (job.getState() == AbstractJob.STATE_SUCCESS || job.getState() == AbstractJob.STATE_FAILED
@@ -67,12 +70,10 @@ public class ArchiveJob extends BaseResource {
 				// delete local directory and hdfs directory
 				String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 				FileUtil.deleteDirectory(localOutput);
-
 				try {
 					String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
 					HdfsUtil.delete(hdfsOutput);
 				} catch (NoClassDefFoundError e) {
-
 				}
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
@@ -85,16 +86,15 @@ public class ArchiveJob extends BaseResource {
 					}
 				}
 
-				return new StringRepresentation("Retired job " + jobId);
+				return "Retired job " + jobId;
 
 			} catch (Exception e) {
-
-				return new StringRepresentation("Retire " + job.getId() + " failed.");
+				return "Retire " + job.getId() + " failed.";
 			}
 
 		} else {
 
-			return new StringRepresentation("Job " + jobId + " has wrong state for this operation.");
+			return "Job " + jobId + " has wrong state for this operation.";
 		}
 
 	}

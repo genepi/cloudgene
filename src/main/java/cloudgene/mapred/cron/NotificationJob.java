@@ -5,6 +5,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import cloudgene.mapred.Application;
 import cloudgene.mapred.WebApp;
 
 public class NotificationJob implements Job {
@@ -13,7 +14,7 @@ public class NotificationJob implements Job {
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 
 		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		WebApp application = (WebApp)dataMap.get("application");		
+		Application application = (Application)dataMap.get("application");		
 		CleanUpTasks.sendNotifications(application);
 
 	}

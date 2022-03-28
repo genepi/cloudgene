@@ -1,41 +1,42 @@
 package cloudgene.mapred.api.v2.admin;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
-
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.cron.CleanUpTasks;
-import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import jakarta.inject.Inject;
 
-public class RetireJobs extends BaseResource {
+@Controller
+public class RetireJobs {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/jobs/retire")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation(
-					"The request requires administration rights.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		int notifications = CleanUpTasks.sendNotifications(getWebApp());
-		int retired = CleanUpTasks.executeRetire(getDatabase(), getSettings());
+		int notifications = CleanUpTasks.sendNotifications(application);
+		int retired = CleanUpTasks.executeRetire(application.getDatabase(), application.getSettings());
 
-		return new StringRepresentation("NotificationJob:\n" + notifications
-				+ " notifications sent." + "\n\nRetireJob:\n" + retired
-				+ " jobs retired.");
+		return "NotificationJob:\n" + notifications + " notifications sent." + "\n\nRetireJob:\n" + retired
+				+ " jobs retired.";
 
 	}
 

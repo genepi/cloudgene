@@ -1,55 +1,61 @@
 package cloudgene.mapred.api.v2.admin;
 
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
+import javax.validation.constraints.NotBlank;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 
-public class ChangeRetireDate extends BaseResource {
+@Controller
+public class ChangeRetireDate {
 
-	@Get
-	public Representation get() {
+	@Inject
+	protected Application application;
 
-		User user = getAuthUser();
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		if (user == null) {
+	@Get("/api/v2/admin/jobs/{jobId}/change-retire/{days}")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String get(Authentication authentication, @PathVariable @NotBlank String jobId,
+			@PathVariable @NotBlank String days) {
 
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		String jobId = getAttribute("job");
-
-		int days = 0;
+		int amountDays;
 		try {
-			days = Integer.parseInt(getAttribute("days"));
+			amountDays = Integer.parseInt(days);
 		} catch (Exception e) {
-			return error400("The provided number value '" + getAttribute("days") + "' is not an integer.");
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+					"The provided number value '" + days + "' is not an integer.");
 		}
 
-		JobDao dao = new JobDao(getDatabase());
-
-		if (jobId == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("no job id found.");
-		}
+		JobDao dao = new JobDao(application.getDatabase());
 
 		AbstractJob job = dao.findById(jobId);
 
 		if (job == null) {
-			setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-			return new StringRepresentation("Job " + jobId + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
 		}
 
 		if (job.getState() == AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND
@@ -57,19 +63,19 @@ public class ChangeRetireDate extends BaseResource {
 
 			try {
 
-				job.setDeletedOn(job.getDeletedOn() + (days * 24 * 60 * 60 * 1000));
+				job.setDeletedOn(job.getDeletedOn() + (amountDays * 24 * 60 * 60 * 1000));
 
 				dao.update(job);
 
-				return new StringRepresentation("Update delete on date for job " + job.getId() + ".");
+				return "Update delete on date for job " + job.getId() + ".";
 
 			} catch (Exception e) {
 
-				return new StringRepresentation("Update delete date for job " + job.getId() + " failed.");
+				return "Update delete date for job " + job.getId() + " failed.";
 			}
 
 		} else {
-			return new StringRepresentation("Job " + jobId + " has wrong state for this operation.");
+			return "Job " + jobId + " has wrong state for this operation.";
 		}
 
 	}

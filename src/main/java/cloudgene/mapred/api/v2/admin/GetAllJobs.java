@@ -5,80 +5,82 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
-import org.restlet.data.Status;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
-import org.restlet.resource.Get;
 
+import cloudgene.mapred.Application;
+import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.BaseResource;
 import genepi.io.FileUtil;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpStatus;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.exceptions.HttpStatusException;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.rules.SecurityRule;
+import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 
-public class GetAllJobs extends BaseResource {
+@Controller
+public class GetAllJobs {
 
-	/**
-	 * Resource to get job status information
-	 */
+	@Inject
+	protected Application application;
 
-	@Get
-	public Representation getJobs() {
+	@Inject
+	protected AuthenticationService authenticationService;
 
-		User user = getAuthUser();
+	@Get("/api/v2/admin/jobs")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String getJobs(Authentication authentication, @Nullable @QueryValue("state") String state) {
 
-		if (user == null) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-		}
+		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
 		}
 
-		String state = "";
-		if (getQuery().getFirst("state") != null) {
-			state = getQuery().getFirst("state").getValue();
-		}
-
-		WorkflowEngine engine = getWorkflowEngine();
-		JobDao dao = new JobDao(getDatabase());
+		WorkflowEngine engine = application.getWorkflowEngine();
+		JobDao dao = new JobDao(application.getDatabase());
 		List<AbstractJob> jobs = new Vector<AbstractJob>();
 
-		switch (state) {
+		if (state != null) {
+			switch (state) {
 
-		case "running-ltq":
+			case "running-ltq":
 
-			jobs = engine.getAllJobsInLongTimeQueue();
-			break;
+				jobs = engine.getAllJobsInLongTimeQueue();
+				break;
 
-		case "running-stq":
+			case "running-stq":
 
-			jobs = engine.getAllJobsInShortTimeQueue();
-			break;
+				jobs = engine.getAllJobsInShortTimeQueue();
+				break;
 
-		case "current":
+			case "current":
 
-			jobs = dao.findAllNotRetiredJobs();
-			List<AbstractJob> toRemove = new Vector<AbstractJob>();
-			for (AbstractJob job : jobs) {
-				if (engine.isInQueue(job)) {
-					toRemove.add(job);
+				jobs = dao.findAllNotRetiredJobs();
+				List<AbstractJob> toRemove = new Vector<AbstractJob>();
+				for (AbstractJob job : jobs) {
+					if (engine.isInQueue(job)) {
+						toRemove.add(job);
+					}
 				}
+				jobs.removeAll(toRemove);
+				break;
+
+			case "retired":
+
+				jobs = dao.findAllByState(AbstractJob.STATE_RETIRED);
+				break;
+
 			}
-			jobs.removeAll(toRemove);
-			break;
-
-		case "retired":
-
-			jobs = dao.findAllByState(AbstractJob.STATE_RETIRED);
-			break;
-
 		}
 
 		JsonConfig config = new JsonConfig();
@@ -99,15 +101,15 @@ public class GetAllJobs extends BaseResource {
 		int running = 0;
 
 		for (AbstractJob job : jobs) {
-			
-			String workspace = getSettings().getLocalWorkspace();
+
+			String workspace = application.getSettings().getLocalWorkspace();
 			String folder = FileUtil.path(workspace, job.getId());
 			File file = new File(folder);
 			if (file.exists()) {
 				long size = FileUtils.sizeOfDirectory(file);
 				job.setWorkspaceSize(FileUtils.byteCountToDisplaySize(size));
 			}
-			
+
 			if (job.getState() == AbstractJob.STATE_EXPORTING || job.getState() == AbstractJob.STATE_RUNNING) {
 				running++;
 			}
@@ -141,7 +143,7 @@ public class GetAllJobs extends BaseResource {
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 		object.put("data", jsonArray);
 
-		return new StringRepresentation(object.toString());
+		return object.toString();
 
 	}
 }
