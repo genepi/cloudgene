@@ -126,14 +126,13 @@ public class UserProfileTest {
 		form.set("password", "Test2Password");
 		try {
 			resource.post(form);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			// TODO: handle exception
 		}
-	
+
 		assertEquals(401, resource.getStatus().getCode());
-		//object = new JSONObject(resource.getResponseEntity().getText());
-		//assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-		//assertEquals(false, object.get("success"));
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
 		resource.release();
 
 		// try login with new password
@@ -145,8 +144,6 @@ public class UserProfileTest {
 
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
-		//assertEquals("Login successfull.", object.getString("message"));
-		//assertEquals(true, object.get("success"));
 		resource.release();
 	}
 
@@ -192,6 +189,15 @@ public class UserProfileTest {
 		form.set("confirm-new-password", "new-Password27");
 
 		try {
+			resource.post(form);
+			// TODO: csrf token not yet implemented. pwd update works withtout token. Reset
+			// pwd that other tests can work.
+			form = new Form();
+			form.set("username", "test1");
+			form.set("full-name", "new full-name");
+			form.set("mail", "test1@test.com");
+			form.set("new-password", "Test1Password");
+			form.set("confirm-new-password", "Test1Password");
 			resource.post(form);
 			assertFalse(true);
 		} catch (Exception e) {

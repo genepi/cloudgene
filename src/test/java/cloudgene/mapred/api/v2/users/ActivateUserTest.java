@@ -89,19 +89,14 @@ public class ActivateUserTest {
 		try {
 			resource.post(form);
 		} catch (ResourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 		
 		assertEquals(401, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		resource.release();
 
-		//assertEquals(200, resource.getStatus().getCode());
-		//object = new JSONObject(resource.getResponseEntity().getText());
-		//assertEquals("Login Failed! User account is not activated.", object.getString("message"));
-		//assertEquals(false, object.get("success"));
-		//assertEquals(0, resource.getResponse().getCookieSettings().size());
-		
 		// activate user with wrong activation code
 		resource = client.createClientResource("/users/activate/" + user.getUsername() + "/RANDOMACTIVATIONCODE");
 		resource.get();
@@ -127,19 +122,13 @@ public class ActivateUserTest {
 		try {
 			resource.post(form);
 		} catch (ResourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
 		}
 		
 		assertEquals(401, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals("Login Failed! User account is not activated.", object.getString("message"));
 		resource.release();
-
-		//assertEquals(200, resource.getStatus().getCode());
-		//object = new JSONObject(resource.getResponseEntity().getText());
-		//assertEquals("Login Failed! User account is not activated.", object.getString("message"));
-		//assertEquals(false, object.get("success"));
-		//assertEquals(0, resource.getResponse().getCookieSettings().size());
-		//resource.release();
 		
 		// activate user with correct data
 		resource = client.createClientResource("/users/activate/" + user.getUsername() + "/" + user.getActivationCode());
@@ -159,9 +148,6 @@ public class ActivateUserTest {
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals("usernameunique5", object.get("username"));
-		//assertEquals("Login successfull.", object.getString("message"));
-		//assertEquals(true, object.get("success"));
-		//assertEquals(1, resource.getResponse().getCookieSettings().size());
 		resource.release();
 	}
 
