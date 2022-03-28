@@ -39,14 +39,14 @@ public class GetStatistics {
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String getStatistics(Authentication authentication, @Nullable @QueryValue("days") Integer days) {
 
-		if (days == null) {
-			days = 1;
-		}
-
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		if (!user.isAdmin()) {
 			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
+		}
+
+		if (days == null) {
+			days = 1;
 		}
 
 		CounterHistoryDao dao = new CounterHistoryDao(application.getDatabase());
