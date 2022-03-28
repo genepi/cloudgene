@@ -84,12 +84,14 @@ export default Control.extend({
     uploadDialog.on('shown.bs.modal', function() {
 
       var csrfToken;
+      var accessToken;
       if (localStorage.getItem("cloudgene")) {
         try {
 
           // get data
           var data = JSON.parse(localStorage.getItem("cloudgene"));
           csrfToken = data.csrf;
+          accessToken = data.token;
 
         } catch (e) {
           //do nothing.
@@ -101,7 +103,8 @@ export default Control.extend({
         dataType: 'json',
 
         headers: {
-          "X-CSRF-Token": csrfToken
+          "X-CSRF-Token": csrfToken,
+          "X-Auth-Token": accessToken,
         },
 
         success: function(answer) {
