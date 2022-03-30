@@ -19,6 +19,12 @@ import reactor.core.publisher.Mono;
 @Singleton
 public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 
+	private static final String MESSAGE_LOGIN_FAILED = "Login Failed! Wrong Username or Password.";
+
+	private static final String MESSAGE_ACCOUNT_IS_INACTIVE = "Login Failed! User account is not activated.";
+
+	private static final String MESSAGE_ACCOUNT_LOCKED = "The user account is locked for %d minutes. Too many failed logins.";
+
 	public static final int MAX_LOGIN_ATTEMMPTS = 5;
 
 	public static final int LOCKING_TIME_MIN = 30;
@@ -41,16 +47,15 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 			if (user != null) {
 
 				if (!user.isActive()) {
-					emitter.error(AuthenticationResponse.exception("Login Failed! User account is not activated."));
+					emitter.error(AuthenticationResponse.exception(MESSAGE_ACCOUNT_IS_INACTIVE));
 					return;
 				}
 
 				if (user.getLoginAttempts() >= MAX_LOGIN_ATTEMMPTS) {
 					if (user.getLockedUntil() == null || user.getLockedUntil().after(new Date())) {
 
-						emitter.error(AuthenticationResponse.exception(
-								"The user account is locked for " + DatabaseAuthenticationProvider.LOCKING_TIME_MIN
-										+ " minutes. Too many failed logins."));
+						emitter.error(AuthenticationResponse
+								.exception(String.format(MESSAGE_ACCOUNT_LOCKED, LOCKING_TIME_MIN)));
 						return;
 
 					} else {
@@ -80,11 +85,11 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 					}
 					dao.update(user);
 
-					emitter.error(AuthenticationResponse.exception("Login Failed! Wrong Username or Password."));
+					emitter.error(AuthenticationResponse.exception(MESSAGE_LOGIN_FAILED));
 					return;
 				}
 			} else {
-				emitter.error(AuthenticationResponse.exception("Login Failed! Wrong Username or Password."));
+				emitter.error(AuthenticationResponse.exception(MESSAGE_LOGIN_FAILED));
 				return;
 			}
 

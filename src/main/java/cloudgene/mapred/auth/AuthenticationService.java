@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.json.JSONObject;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -14,6 +13,7 @@ import cloudgene.mapred.Application;
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.responses.ValidatedApiTokenResponse;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import io.micronaut.security.token.jwt.validator.JwtTokenValidator;
@@ -23,6 +23,10 @@ import reactor.core.publisher.Mono;
 
 @Singleton
 public class AuthenticationService {
+
+	private static final String MESSAGE_VALID_API_TOKEN = "API Token was created by %s and is valid.";
+
+	private static final String MESSAGE_INVALID_API_TOKEN = "Invalid API Token.";
 
 	@Inject
 	protected Application application;
@@ -86,7 +90,6 @@ public class AuthenticationService {
 	}
 
 	public ApiToken createApiToken(User user, int lifetime) {
-		// create token
 
 		String hash = RandomStringUtils.random(30);
 
@@ -106,11 +109,11 @@ public class AuthenticationService {
 
 	}
 
-	public JSONObject validateApiToken(String token) {
+	public ValidatedApiTokenResponse validateApiToken(String token) {
 
 		Publisher<Authentication> authentication = validator.validateToken(token, null);
 
-		return Mono.<JSONObject>create(emitter -> {
+		return Mono.<ValidatedApiTokenResponse>create(emitter -> {
 			authentication.subscribe(new Subscriber<Authentication>() {
 
 				private Subscription subscription;
@@ -128,16 +131,12 @@ public class AuthenticationService {
 				@Override
 				public void onNext(Authentication authentication) {
 
-					JSONObject result = new JSONObject(authentication.getAttributes());
 					User user = getUserByAuthentication(authentication, AuthenticationType.API_TOKEN);
 					if (user == null) {
-						result.put("valid", false);
-						result.put("message", "Invalid API Token.");
+						emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
 					} else {
-						result.put("valid", true);
-						result.put("message", "API Token was created by " + user.getUsername() + " and is valid.");
+						emitter.success(ValidatedApiTokenResponse.valid(MESSAGE_VALID_API_TOKEN));
 					}
-					emitter.success(result);
 					subscription.request(1);
 				}
 

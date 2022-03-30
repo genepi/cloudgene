@@ -6,10 +6,11 @@ import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.responses.MessageResponse;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JSONConverter;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
@@ -25,6 +26,16 @@ import net.sf.json.JSONObject;
 @Controller
 public class UserProfile {
 
+	private static final String MESSAGE_USER_PROFILE_DELETE = "User profile sucessfully delete.";
+
+	private static final String MESSAGE_DELETE_ERROR = "Error during deleting your user profile.";
+
+	private static final String MESSAGE_WRONG_PASSWORD = "Wrong password.";
+
+	private static final String MESSAGE_PROFILE_UPDATED = "User profile sucessfully updated.";
+
+	private static final String MESSAGE_NOT_ALLOWED = "You are not allowed to change this user profile.";
+
 	@Inject
 	protected Application application;
 
@@ -39,6 +50,8 @@ public class UserProfile {
 
 		UserDao dao = new UserDao(application.getDatabase());
 		User updatedUser = dao.findByUsername(user.getUsername());
+
+		// TODO: Create UserRepsonse object instead of JSONConverter
 
 		JSONObject object = JSONConverter.convert(updatedUser);
 		try {
@@ -59,29 +72,29 @@ public class UserProfile {
 
 	@Post(uri = "/api/v2/users/{user2}/profile", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String post(Authentication authentication, String user2, @Nullable String username, String full_name,
-			String mail, String new_password, String confirm_new_password) {
+	public HttpResponse<MessageResponse> post(Authentication authentication, String user2, @Nullable String username,
+			String full_name, String mail, String new_password, String confirm_new_password) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		String error = User.checkUsername(username);
 		if (error != null) {
-			return new JSONAnswer(error, false).toString();
+			return HttpResponse.ok(MessageResponse.error(error));
 		}
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			return new JSONAnswer("You are not allowed to change this user profile.", false).toString();
+			return HttpResponse.ok(MessageResponse.error(MESSAGE_NOT_ALLOWED));
 		}
 
 		error = User.checkName(full_name);
 		if (error != null) {
-			return new JSONAnswer(error, false).toString();
+			return HttpResponse.ok(MessageResponse.error(error));
 		}
 
 		error = User.checkMail(mail);
 		if (error != null) {
-			return new JSONAnswer(error, false).toString();
+			return HttpResponse.ok(MessageResponse.error(error));
 		}
 
 		UserDao dao = new UserDao(application.getDatabase());
@@ -95,7 +108,7 @@ public class UserProfile {
 			error = User.checkPassword(new_password, confirm_new_password);
 
 			if (error != null) {
-				return new JSONAnswer(error, false).toString();
+				return HttpResponse.ok(MessageResponse.error(error));
 			}
 			newUser.setPassword(HashUtil.hashPassword(new_password));
 
@@ -103,19 +116,20 @@ public class UserProfile {
 
 		dao.update(newUser);
 
-		return new JSONAnswer("User profile sucessfully updated.", true).toString();
+		return HttpResponse.ok(MessageResponse.success(MESSAGE_PROFILE_UPDATED));
 
 	}
 
 	@Delete("/api/v2/users/{user2}/profile")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String delete(Authentication authentication, String user2, String username, String password) {
+	public HttpResponse<MessageResponse> delete(Authentication authentication, String user2, String username,
+			String password) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "You are not allowed to delete this user profile.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, MESSAGE_NOT_ALLOWED);
 		}
 
 		if (HashUtil.checkPassword(password, user.getPassword())) {
@@ -123,13 +137,13 @@ public class UserProfile {
 			UserDao dao = new UserDao(application.getDatabase());
 			boolean deleted = dao.delete(user);
 			if (deleted) {
-				return new JSONAnswer("User profile sucessfully delete.", true).toString();
+				return HttpResponse.ok(MessageResponse.success(MESSAGE_USER_PROFILE_DELETE));
 			} else {
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Error during deleting your user profile.");
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, MESSAGE_DELETE_ERROR);
 			}
 
 		} else {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "Wrong password.");
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, MESSAGE_WRONG_PASSWORD);
 		}
 
 	}

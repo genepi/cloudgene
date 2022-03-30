@@ -7,7 +7,10 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.representations.JSONAnswer;
+import cloudgene.mapred.responses.ApiTokenResponse;
+import cloudgene.mapred.responses.MessageResponse;
+import cloudgene.mapred.responses.ValidatedApiTokenResponse;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
@@ -21,6 +24,10 @@ import jakarta.inject.Inject;
 @Controller
 public class ApiTokens {
 
+	private static final String MESSAGE_API_TOKEN_CREATED = "Creation successfull.";
+
+	private static final String MESSAGE_APT_TOKEN_ERROR = "Error during API token generation.";
+
 	@Inject
 	protected Application application;
 
@@ -31,7 +38,7 @@ public class ApiTokens {
 
 	@Post(uri = "/api/v2/users/{username}/api-token", consumes = MediaType.ALL)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String createApiKey(String username, Authentication authentication) {
+	public HttpResponse<MessageResponse> createApiKey(String username, Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -45,17 +52,11 @@ public class ApiTokens {
 
 		if (successful) {
 
-			// return token
-			JSONObject answer = new JSONObject();
-			answer.put("success", true);
-			answer.put("message", "Creation successfull.");
-			answer.put("token", apiToken.getAccessToken());
-			answer.put("type", "plain");
-			return answer.toString();
+			return HttpResponse.ok(new ApiTokenResponse(apiToken));
 
 		} else {
 
-			return new JSONAnswer("Error during API token generation.", false).toString();
+			return HttpResponse.ok(MessageResponse.error(MESSAGE_APT_TOKEN_ERROR));
 
 		}
 
@@ -66,7 +67,6 @@ public class ApiTokens {
 	public String getApiKey(String username, Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
 
 		// TODO: remove this resource. it is unnecessary, because we never store api
 		// token!
@@ -81,7 +81,7 @@ public class ApiTokens {
 
 	@Delete("/api/v2/users/{username}/api-token")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String revokeApiKey(String username, Authentication authentication) {
+	public HttpResponse<MessageResponse> revokeApiKey(String username, Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -93,30 +93,22 @@ public class ApiTokens {
 
 		if (successful) {
 
-			// return token
-			JSONObject answer = new JSONObject();
-			answer.put("success", true);
-			answer.put("message", "Creation successfull.");
-			answer.put("token", "");
-			answer.put("type", "plain");
-			return answer.toString();
+			return HttpResponse.ok(MessageResponse.success(MESSAGE_API_TOKEN_CREATED));
 
 		} else {
 
-			return new JSONAnswer("Error during API token generation.", false).toString();
+			return HttpResponse.ok(MessageResponse.error(MESSAGE_APT_TOKEN_ERROR));
 
 		}
 
 	}
-	
+
 	@Post(uri = "/api/v2/tokens/verify", consumes = MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String verifyApiKey(String token) {
+	public HttpResponse<ValidatedApiTokenResponse> verifyApiKey(String token) {
 
-		JSONObject result = authenticationService.validateApiToken(token);
-		return result.toString();
+		return HttpResponse.ok(authenticationService.validateApiToken(token));
 
 	}
-
 
 }

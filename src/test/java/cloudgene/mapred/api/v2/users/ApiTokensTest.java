@@ -119,7 +119,6 @@ public class ApiTokensTest {
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
-		assertEquals(object.get("token"), "");
 		resource.release();
 
 		// validate token
@@ -187,7 +186,6 @@ public class ApiTokensTest {
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
-		assertEquals(object.get("token"), "");
 		resource.release();
 
 		// check if token is invalid now
@@ -257,7 +255,6 @@ public class ApiTokensTest {
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
-		assertEquals(object.get("token"), "");
 		resource.release();
 
 		// check if token is invalid now
