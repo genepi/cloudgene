@@ -19,6 +19,8 @@ import jakarta.inject.Inject;
 @Controller("/api/v2/admin/server/templates")
 public class TemplateController {
 
+	private static final String MESSAGE_TEMPLATE_NOT_FOUND = "Template %s not found.";
+
 	@Inject
 	protected Application application;
 
@@ -60,7 +62,7 @@ public class TemplateController {
 		Template template = dao.findByKey(key);
 
 		if (template == null) {
-			throw new HttpStatusException(HttpStatus.NOT_FOUND, "Template " + key + " not found.");
+			throw new HttpStatusException(HttpStatus.NOT_FOUND, String.format(MESSAGE_TEMPLATE_NOT_FOUND, key));
 		}
 
 		return template;
