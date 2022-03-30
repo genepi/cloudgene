@@ -13,6 +13,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
@@ -70,9 +71,10 @@ public class UserProfile {
 
 	}
 
-	@Post(uri = "/api/v2/users/{user2}/profile", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Post("/api/v2/users/{user2}/profile")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> post(Authentication authentication, String user2, @Nullable String username,
+	public HttpResponse<MessageResponse> update(Authentication authentication, String user2, @Nullable String username,
 			String full_name, String mail, String new_password, String confirm_new_password) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);

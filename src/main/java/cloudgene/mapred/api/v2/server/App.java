@@ -127,7 +127,7 @@ public class App {
 		}
 	}
 
-	@Put(uri = "/api/v2/server/apps/{appId}")
+	@Put("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String updateApp(Authentication authentication, String appId, @Nullable String enabled,
 			@Nullable String permission, @Nullable String reinstall, @Nullable Map<String, String> config) {

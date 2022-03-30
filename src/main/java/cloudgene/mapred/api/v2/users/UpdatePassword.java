@@ -8,6 +8,7 @@ import cloudgene.mapred.util.HashUtil;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
@@ -30,9 +31,10 @@ public class UpdatePassword {
 	@Inject
 	protected Application application;
 
-	@Post(uri = "/api/v2/users/update-password", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Post("/api/v2/users/update-password")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<MessageResponse> post(String token, @Nullable String username, String new_password,
+	public HttpResponse<MessageResponse> updatePassword(String token, @Nullable String username, String new_password,
 			String confirm_new_password) {
 
 		if (username == null || username.isEmpty()) {

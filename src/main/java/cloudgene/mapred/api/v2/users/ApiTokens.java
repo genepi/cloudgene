@@ -12,6 +12,7 @@ import cloudgene.mapred.responses.MessageResponse;
 import cloudgene.mapred.responses.ValidatedApiTokenResponse;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
@@ -36,9 +37,10 @@ public class ApiTokens {
 
 	public static int TOKEN_LIFETIME_API_SEC = 30 * 24 * 60 * 60;
 
-	@Post(uri = "/api/v2/users/{username}/api-token", consumes = MediaType.ALL)
+	@Post("/api/v2/users/{username}/api-token")
+	@Consumes(MediaType.ALL)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> createApiKey(String username, Authentication authentication) {
+	public HttpResponse<MessageResponse> create(String username, Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -64,7 +66,7 @@ public class ApiTokens {
 
 	@Get("/api/v2/users/{username}/api-token")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String getApiKey(String username, Authentication authentication) {
+	public String get(String username, Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -81,7 +83,7 @@ public class ApiTokens {
 
 	@Delete("/api/v2/users/{username}/api-token")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> revokeApiKey(String username, Authentication authentication) {
+	public HttpResponse<MessageResponse> revoke(String username, Authentication authentication) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -103,9 +105,10 @@ public class ApiTokens {
 
 	}
 
-	@Post(uri = "/api/v2/tokens/verify", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Post("/api/v2/tokens/verify")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<ValidatedApiTokenResponse> verifyApiKey(String token) {
+	public HttpResponse<ValidatedApiTokenResponse> verify(String token) {
 
 		return HttpResponse.ok(authenticationService.validateApiToken(token));
 

@@ -10,6 +10,7 @@ import cloudgene.mapred.util.Template;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
@@ -32,9 +33,10 @@ public class ResetPassword {
 	@Inject
 	protected Application application;
 
-	@Post(uri = "/api/v2/users/reset", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Post("/api/v2/users/reset")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<MessageResponse> get(@Nullable String username) {
+	public HttpResponse<MessageResponse> resetPassword(@Nullable String username) {
 
 		if (username == null || username.isEmpty()) {
 			return HttpResponse.ok(MessageResponse.error(MESSAGE_INVALID_USERNAME));

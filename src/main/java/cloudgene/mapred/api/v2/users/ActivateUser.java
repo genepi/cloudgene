@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.users;
 
-import javax.validation.constraints.NotBlank;
-
 import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -9,7 +7,6 @@ import cloudgene.mapred.responses.MessageResponse;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
@@ -26,21 +23,21 @@ public class ActivateUser {
 	@Inject
 	protected Application application;
 
-	@Get("/users/activate/{user}/{code}")
+	@Get("/users/activate/{username}/{code}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-
-	public HttpResponse<MessageResponse> get(@PathVariable @NotBlank String user, @PathVariable @NotBlank String code) {
+	public HttpResponse<MessageResponse> activate(String username, String code) {
 
 		UserDao dao = new UserDao(application.getDatabase());
-		User userObject = dao.findByUsername(user);
+		User user = dao.findByUsername(username);
 
-		if (userObject != null) {
+		if (user != null) {
 
-			if (userObject.getActivationCode() != null && userObject.getActivationCode().equals(code)) {
+			if (user.getActivationCode() != null && user.getActivationCode().equals(code)) {
 
-				userObject.setActive(true);
-				userObject.setActivationCode("");
-				dao.update(userObject);
+				user.setActive(true);
+				user.setActivationCode("");
+				dao.update(user);
+
 				return HttpResponse.ok(MessageResponse.success(MESSAGE_USER_ACTIVATED));
 
 			} else {
@@ -48,6 +45,7 @@ public class ActivateUser {
 				return HttpResponse.ok(MessageResponse.error(MESSAGE_WRONG_ACTIVATION_CODE));
 
 			}
+
 		} else {
 
 			return HttpResponse.ok(MessageResponse.error(MESSAGE_WRONG_USERNAME));

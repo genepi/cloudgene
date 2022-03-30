@@ -9,6 +9,7 @@ import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
@@ -29,9 +30,10 @@ public class RegisterUser {
 	@Inject
 	protected Application application;
 
-	@Post(uri = "/api/v2/users/register", consumes = MediaType.APPLICATION_FORM_URLENCODED)
+	@Post("/api/v2/users/register")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<MessageResponse> post(String username, String full_name, String mail, String new_password,
+	public HttpResponse<MessageResponse> register(String username, String full_name, String mail, String new_password,
 			String confirm_new_password) {
 
 		// check username
