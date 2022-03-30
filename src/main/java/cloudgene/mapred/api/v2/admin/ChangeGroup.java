@@ -9,6 +9,8 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.JSONConverter;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
@@ -27,6 +29,7 @@ public class ChangeGroup {
 	protected AuthenticationService authenticationService;
 
 	@Post("/api/v2/admin/users/changegroup")
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String post(Authentication authentication, @NotBlank String username, @NotBlank String role) {
 

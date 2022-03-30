@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.resource.ClientResource;
@@ -54,6 +55,7 @@ public class ChangeGroupTest {
 
 	}
 
+	@Test
 	public void testWithWrongCredentials() throws JSONException, IOException {
 
 		LoginToken token = client.login("username-group-test", "oldpassword");
@@ -83,6 +85,7 @@ public class ChangeGroupTest {
 
 	}
 
+	@Test
 	public void testWithAdminCredentials() throws JSONException, IOException {
 
 		Database database = application.getDatabase();
