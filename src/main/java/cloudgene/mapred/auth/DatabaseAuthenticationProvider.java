@@ -1,5 +1,6 @@
 package cloudgene.mapred.auth;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.reactivestreams.Publisher;
@@ -70,7 +71,7 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 					user.setLastLogin(new Date());
 					dao.update(user);
 
-					emitter.success(AuthenticationResponse.success(user.getUsername()));
+					emitter.success(AuthenticationResponse.success(user.getUsername(), Arrays.asList(user.getRoles())));
 
 				} else {
 

@@ -2,7 +2,6 @@ package cloudgene.mapred.api.v2.admin;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -74,8 +73,9 @@ public class ChangeGroupTest {
 		try {
 			resource.post(form);
 		} catch (Exception e) {
+
 		}
-		assertNotSame(200, resource.getStatus().getCode());
+		assertEquals(403, resource.getStatus().getCode());
 		resource.release();
 
 		User newUser = userDao.findByUsername("username-group-test");

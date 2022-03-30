@@ -15,12 +15,13 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
 @Controller
 public class ChangeGroup {
+
+	private static final String MESSAGE_USER_NOT_FOUND = "User %s not found.";
 
 	@Inject
 	protected Application application;
@@ -30,27 +31,21 @@ public class ChangeGroup {
 
 	@Post("/api/v2/admin/users/changegroup")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Secured(User.ROLE_ADMIN)
 	public String post(Authentication authentication, @NotBlank String username, @NotBlank String role) {
 
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
-
 		UserDao dao = new UserDao(application.getDatabase());
-		User user1 = dao.findByUsername(username);
+		User user = dao.findByUsername(username);
 
-		if (user1 == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "User " + username + " not found.");
+		if (user == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(MESSAGE_USER_NOT_FOUND, username));
 		}
 
 		// update user role in database
-		user1.setRoles(role.split(User.ROLE_SEPARATOR));
-		dao.update(user1);
+		user.setRoles(role.split(User.ROLE_SEPARATOR));
+		dao.update(user);
 
-		JSONObject object = JSONConverter.convert(user1);
+		JSONObject object = JSONConverter.convert(user);
 		return object.toString();
 
 	}
