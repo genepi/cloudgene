@@ -7,8 +7,8 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.responses.MessageResponse;
+import cloudgene.mapred.responses.UserResponse;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.JSONConverter;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -22,7 +22,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONObject;
 
 @Controller
 public class UserProfile {
@@ -45,29 +44,14 @@ public class UserProfile {
 
 	@Get("/api/v2/users/{user2}/profile")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(Authentication authentication, String user2) {
+	public UserResponse get(Authentication authentication, String user2) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		UserDao dao = new UserDao(application.getDatabase());
 		User updatedUser = dao.findByUsername(user.getUsername());
 
-		// TODO: Create UserRepsonse object instead of JSONConverter
-
-		JSONObject object = JSONConverter.convert(updatedUser);
-		try {
-			if (object.getBoolean("hasApiToken")) {
-				// org.json.JSONObject result = ApiToken.verify(user.getApiToken(),
-				// getSettings().getSecretKey(),
-				// getDatabase());
-				// object.put("apiTokenValid", result.get("valid"));
-				// object.put("apiTokenMessage", result.get("message"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return object.toString();
+		return UserResponse.build(updatedUser);
 
 	}
 

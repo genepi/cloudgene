@@ -7,7 +7,7 @@ import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.util.JSONConverter;
+import cloudgene.mapred.responses.UserResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
@@ -15,7 +15,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import jakarta.inject.Inject;
-import net.sf.json.JSONObject;
 
 @Controller
 public class ChangeGroup {
@@ -31,7 +30,7 @@ public class ChangeGroup {
 	@Post("/api/v2/admin/users/changegroup")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(User.ROLE_ADMIN)
-	public String post(@NotBlank String username, @NotBlank String role) {
+	public UserResponse post(@NotBlank String username, @NotBlank String role) {
 
 		UserDao dao = new UserDao(application.getDatabase());
 		User user = dao.findByUsername(username);
@@ -43,10 +42,7 @@ public class ChangeGroup {
 		// update user role in database
 		user.setRoles(role.split(User.ROLE_SEPARATOR));
 		dao.update(user);
-
-		JSONObject object = JSONConverter.convert(user);
-		return object.toString();
-
+		return UserResponse.build(user);
 	}
 
 }
