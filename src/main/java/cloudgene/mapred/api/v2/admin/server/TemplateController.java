@@ -6,7 +6,6 @@ import cloudgene.mapred.Application;
 import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.Template;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
@@ -14,7 +13,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 
@@ -28,14 +26,8 @@ public class TemplateController {
 	protected AuthenticationService authenticationService;
 
 	@Get("/")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public List<Template> list(Authentication authentication) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public List<Template> list() {
 
 		TemplateDao dao = new TemplateDao(application.getDatabase());
 		List<Template> templates = dao.findAll();
@@ -45,14 +37,8 @@ public class TemplateController {
 	}
 
 	@Post("/{key}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public Template update(Authentication authentication, String key, String text) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public Template update(String key, String text) {
 
 		Template template = new Template(key, text);
 
@@ -67,7 +53,7 @@ public class TemplateController {
 
 	@Get("/{key}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public Template get(Authentication authentication, String key) {
+	public Template get(String key) {
 
 		TemplateDao dao = new TemplateDao(application.getDatabase());
 

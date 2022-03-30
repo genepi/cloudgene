@@ -14,7 +14,6 @@ import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
@@ -32,7 +31,7 @@ public class ChangeGroup {
 	@Post("/api/v2/admin/users/changegroup")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(User.ROLE_ADMIN)
-	public String post(Authentication authentication, @NotBlank String username, @NotBlank String role) {
+	public String post(@NotBlank String username, @NotBlank String role) {
 
 		UserDao dao = new UserDao(application.getDatabase());
 		User user = dao.findByUsername(username);
