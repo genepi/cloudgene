@@ -1,6 +1,8 @@
 package cloudgene.mapred.server.responses;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 import cloudgene.mapred.core.User;
 
@@ -42,6 +44,14 @@ public class UserResponse {
 		response.setAdmin(user.isAdmin());
 		response.setHasApiToken(user.getApiToken() != null && !user.getApiToken().isEmpty());
 		return response;
+	}
+	
+	public static List<UserResponse> build(List<User> users) {
+		 List<UserResponse> response = new Vector<UserResponse>();
+		 for (User user: users) {
+			 response.add(UserResponse.build(user));
+		 }
+		 return response;		
 	}
 
 	public static String lockedUntilToString(Date date) {

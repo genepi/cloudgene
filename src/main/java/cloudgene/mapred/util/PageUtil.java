@@ -4,6 +4,10 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 public class PageUtil {
+	
+	public static JSONObject createPageObject(Page<?> page) {
+		return createPageObject(page.getPage(), page.getPageSize(), page.getCount());		
+	}
 
 	public static JSONObject createPageObject(int page, int pageSize, int count) {
 
