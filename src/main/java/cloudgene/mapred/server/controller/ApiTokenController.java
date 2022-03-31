@@ -1,4 +1,4 @@
-package cloudgene.mapred.api.v2.users;
+package cloudgene.mapred.server.controller;
 
 import org.json.JSONObject;
 
@@ -23,7 +23,7 @@ import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 
 @Controller
-public class ApiTokens {
+public class ApiTokenController {
 
 	private static final String MESSAGE_API_TOKEN_CREATED = "Creation successfull.";
 
