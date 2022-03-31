@@ -46,11 +46,31 @@ public class ApplicationResponse {
 		if (new File(app.getFilename()).exists()) {
 			appResponse.setSource(FileUtil.readFileAsString(app.getFilename()));
 		}
+
+		return appResponse;
+
+	}
+	
+	public static ApplicationResponse buildWithDetails(Application app, Settings settings) {
+
+		ApplicationResponse appResponse = new ApplicationResponse();
+		appResponse.setId(app.getId());
+		appResponse.setEnabled(app.isEnabled());
+		appResponse.setFilename(app.getFilename());
+		appResponse.setLoaded(app.isLoaded());
+		appResponse.setErrorMessage(app.getErrorMessage());
+		appResponse.setChanged(app.isChanged());
+		appResponse.setPermission(app.getPermission());
+		appResponse.setApp(app.getWdlApp());
+
+		if (new File(app.getFilename()).exists()) {
+			appResponse.setSource(FileUtil.readFileAsString(app.getFilename()));
+		}
 		appResponse.setState(updateState(app, settings));
 
 		Map<String, String> environment = Environment.getApplicationVariables(app.getWdlApp(), settings);
 		appResponse.setEnvironmentMap(environment);
-
+		
 		return appResponse;
 
 	}
@@ -62,6 +82,7 @@ public class ApplicationResponse {
 		}
 		return response;
 	}
+	
 
 	private static String updateState(Application app, Settings settings) {
 		WdlApp wdlApp = app.getWdlApp();

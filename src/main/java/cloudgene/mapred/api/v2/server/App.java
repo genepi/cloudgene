@@ -176,7 +176,7 @@ public class App {
 				}
 
 				application.checkForChanges();
-				ApplicationResponse appResponse = ApplicationResponse.build(application, this.application.getSettings());
+				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application, this.application.getSettings());
 
 				// read config
 				Map<String, String> updatedConfig = repository.getConfig(wdlApp);
