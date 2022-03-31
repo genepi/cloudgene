@@ -2,8 +2,11 @@ package cloudgene.mapred.server.controller;
 
 import java.util.List;
 import java.util.Vector;
+import java.util.function.Function;
 
 import javax.validation.constraints.NotBlank;
+
+import org.reactivestreams.Publisher;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -13,18 +16,24 @@ import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.server.services.JobService;
+import cloudgene.mapred.util.FormUtil;
+import cloudgene.mapred.util.FormUtil.Parameter;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.PublicUser;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
+import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.server.multipart.MultipartBody;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -45,9 +54,12 @@ public class JobController {
 	@Inject
 	protected AuthenticationService authenticationService;
 
+	@Inject
+	protected FormUtil formUtil;
+
 	@Get("/{id}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String get(@PathVariable @NotBlank String id, @Nullable Authentication authentication) {
+	public String get(@Nullable Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
@@ -92,9 +104,40 @@ public class JobController {
 		return object.toString();
 	}
 
+	@Post("/submit/{app}")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public Publisher<Object> submit(@Nullable Authentication authentication, String app, @Body MultipartBody body) {
+
+		return formUtil.processMultipartBody(body, new Function<List<Parameter>, Object>() {
+
+			@Override
+			public Object apply(List<Parameter> form) {
+
+				User user = authenticationService.getUserByAuthentication(authentication);
+
+				if (user == null) {
+					user = PublicUser.getUser(application.getDatabase());
+				}
+
+				AbstractJob job = jobService.submitJob(app, form, user);
+
+				//TODO: create response object or add custom properties to MessageResponse?
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("success", true);
+				jsonObject.put("message", "Your job was successfully added to the job queue.");
+				jsonObject.put("id", job.getId());
+
+				return jsonObject.toString();
+
+			}
+		});
+
+	}
+
 	@Delete("/{id}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String delete(@PathVariable @NotBlank String id, @Nullable Authentication authentication) {
+	public String delete(@Nullable Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -117,7 +160,7 @@ public class JobController {
 
 	@Get("/{id}/status")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String status(String id, @Nullable Authentication authentication) {
+	public String status(@Nullable Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
@@ -172,12 +215,10 @@ public class JobController {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String reset(@PathVariable @NotBlank String id, @Nullable @QueryValue("max") String max) {
 
-		int maxDownloads = 0;
+		int maxDownloads = application.getSettings().getMaxDownloads();
 
 		if (max != null) {
 			maxDownloads = Integer.parseInt(max);
-		} else {
-			maxDownloads = application.getSettings().getMaxDownloads();
 		}
 
 		AbstractJob job = jobService.getById(id);
