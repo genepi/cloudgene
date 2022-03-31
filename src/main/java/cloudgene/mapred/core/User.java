@@ -33,6 +33,8 @@ public class User {
 
 	public static final String ROLE_ADMIN = "admin";
 
+	public static final String ROLE_USER = "user";
+
 	public void setUsername(String username) {
 		this.username = username;
 	}
