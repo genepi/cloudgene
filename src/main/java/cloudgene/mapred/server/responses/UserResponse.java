@@ -6,17 +6,27 @@ import cloudgene.mapred.core.User;
 
 public class UserResponse {
 
-	int id;
-	String username = "";
-	String fullName = "";
-	String lastLogin = "";
-	String lockedUntil = "";
-	boolean active = false;
-	int loginAttempts;
-	String role = "";
-	String mail = "";
-	boolean admin = false;
-	boolean hasApiToken = false;
+	private int id;
+
+	private String username = "";
+
+	private String fullName = "";
+
+	private String lastLogin = "";
+
+	private String lockedUntil = "";
+
+	private boolean active = false;
+
+	private int loginAttempts;
+
+	private String role = "";
+
+	private String mail = "";
+
+	private boolean admin = false;
+
+	private boolean hasApiToken = false;
 
 	public static UserResponse build(User user) {
 		UserResponse response = new UserResponse();
@@ -24,7 +34,7 @@ public class UserResponse {
 		response.setUsername(user.getUsername());
 		response.setFullName(user.getFullName());
 		response.setLastLogin(user.getLastLogin() != null ? user.getLastLogin().toString() : "");
-		response.setLockedUntil(getLockedUntil(user));
+		response.setLockedUntil(lockedUntilToString(user.getLockedUntil()));
 		response.setActive(user.isActive());
 		response.setLoginAttempts(user.getLoginAttempts());
 		response.setRole(String.join(User.ROLE_SEPARATOR, user.getRoles()).toLowerCase());
@@ -34,10 +44,10 @@ public class UserResponse {
 		return response;
 	}
 
-	public static String getLockedUntil(User user) {
-		if (user.getLockedUntil() != null) {
-			if (user.getLockedUntil().after(new Date())) {
-				return user.getLockedUntil().toString();
+	public static String lockedUntilToString(Date date) {
+		if (date != null) {
+			if (date.after(new Date())) {
+				return date.toString();
 			} else {
 				return "";
 			}
