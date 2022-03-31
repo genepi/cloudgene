@@ -16,6 +16,7 @@ import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.responses.ApplicationResponse;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -100,7 +101,7 @@ public class App {
 
 	@Delete("/api/v2/server/apps/{appId}")
 	@Secured(User.ROLE_ADMIN)
-	public String removeApp(String appId) {
+	public ApplicationResponse removeApp(String appId) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
 		Application application = repository.getById(appId);
@@ -109,8 +110,7 @@ public class App {
 				repository.remove(application);
 				this.application.getSettings().save();
 
-				JSONObject jsonObject = JSONConverter.convert(application);
-				return jsonObject.toString();
+				return ApplicationResponse.build(application, this.application.getSettings());
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -124,7 +124,7 @@ public class App {
 
 	@Put("/api/v2/server/apps/{appId}")
 	@Secured(User.ROLE_ADMIN)
-	public String updateApp(String appId, @Nullable String enabled, @Nullable String permission,
+	public ApplicationResponse updateApp(String appId, @Nullable String enabled, @Nullable String permission,
 			@Nullable String reinstall, @Nullable Map<String, String> config) {
 
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
@@ -176,15 +176,13 @@ public class App {
 				}
 
 				application.checkForChanges();
-
-				JSONObject jsonObject = JSONConverter.convert(application);
-				updateState(application, jsonObject);
+				ApplicationResponse appResponse = ApplicationResponse.build(application, this.application.getSettings());
 
 				// read config
 				Map<String, String> updatedConfig = repository.getConfig(wdlApp);
-				jsonObject.put("config", updatedConfig);
+				appResponse.setConfigMap(updatedConfig);
 
-				return jsonObject.toString();
+				return appResponse;
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -196,22 +194,5 @@ public class App {
 		}
 	}
 
-	private void updateState(Application app, JSONObject jsonObject) {
-		WdlApp wdlApp = app.getWdlApp();
-		if (wdlApp != null) {
-			if (wdlApp.needsInstallation()) {
-				boolean installed = ApplicationInstaller.isInstalled(wdlApp, application.getSettings());
-				if (installed) {
-					jsonObject.put("state", "completed");
-				} else {
-					jsonObject.put("state", "on demand");
-				}
-			} else {
-				jsonObject.put("state", "n/a");
-			}
-			Map<String, String> environment = Environment.getApplicationVariables(wdlApp, application.getSettings());
-			jsonObject.put("environment", environment);
-		}
-	}
 
 }
