@@ -115,7 +115,7 @@ public class UserProfile {
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, MESSAGE_NOT_ALLOWED);
+			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, MESSAGE_NOT_ALLOWED);
 		}
 
 		if (HashUtil.checkPassword(password, user.getPassword())) {
