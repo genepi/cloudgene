@@ -1,4 +1,4 @@
-package cloudgene.mapred.responses;
+package cloudgene.mapred.server.responses;
 
 public class MessageResponse {
 

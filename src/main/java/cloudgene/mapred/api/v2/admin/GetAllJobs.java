@@ -6,12 +6,12 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
 import genepi.io.FileUtil;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;

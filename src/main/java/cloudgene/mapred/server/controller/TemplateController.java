@@ -1,12 +1,12 @@
-package cloudgene.mapred.api.v2.admin.server;
+package cloudgene.mapred.server.controller;
 
 import java.util.List;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
+import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
-import cloudgene.mapred.util.Template;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;

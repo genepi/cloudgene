@@ -5,7 +5,7 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cloudgene.mapred.Application;
+import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.Settings;
 import genepi.db.Database;
 

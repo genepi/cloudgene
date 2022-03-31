@@ -6,12 +6,12 @@ import org.json.JSONObject;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.auth.AuthenticationService;
-import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.auth.AuthenticationType;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -28,7 +28,7 @@ import jakarta.inject.Inject;
 public class RestartJob {
 
 	@Inject
-	protected cloudgene.mapred.Application application;
+	protected cloudgene.mapred.server.Application application;
 
 	@Inject
 	protected AuthenticationService authenticationService;

@@ -1,4 +1,4 @@
-package cloudgene.mapred.util;
+package cloudgene.mapred.core;
 
 public class Template {
 

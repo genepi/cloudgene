@@ -1,4 +1,4 @@
-package cloudgene.mapred.responses;
+package cloudgene.mapred.server.responses;
 
 import java.util.HashMap;
 import java.util.Map;

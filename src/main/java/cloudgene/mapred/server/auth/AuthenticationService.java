@@ -1,4 +1,4 @@
-package cloudgene.mapred.auth;
+package cloudgene.mapred.server.auth;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,11 +9,11 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-import cloudgene.mapred.Application;
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.responses.ValidatedApiTokenResponse;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.responses.ValidatedApiTokenResponse;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import io.micronaut.security.token.jwt.validator.JwtTokenValidator;

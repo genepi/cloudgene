@@ -1,9 +1,9 @@
 package cloudgene.mapred.api.v2.admin.server;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;

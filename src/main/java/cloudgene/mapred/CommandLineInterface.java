@@ -1,10 +1,5 @@
 package cloudgene.mapred;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
 import cloudgene.mapred.cli.CloneApplications;
 import cloudgene.mapred.cli.InstallApplication;
 import cloudgene.mapred.cli.InstallGitHubApplication;
@@ -16,6 +11,7 @@ import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import cloudgene.mapred.cli.ValidateApplication;
 import cloudgene.mapred.cli.VerifyCluster;
+import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.BuildUtil;
 import genepi.base.Toolbox;
 
@@ -30,21 +26,8 @@ public class CommandLineInterface extends Toolbox {
 		System.out.println();
 		System.out.println("Cloudgene " + Application.VERSION);
 		System.out.println("http://www.cloudgene.io");
-		System.out.println("(c) 2009-2019 Lukas Forer and Sebastian Schoenherr");
+		System.out.println("(c) 2009-2022 Lukas Forer and Sebastian Schoenherr");
 		System.out.println(BuildUtil.getBuildInfos());
-
-		try {
-			URL url = this.getClass().getClassLoader().getResource("META-INF/MANIFEST.MF");
-			Manifest manifest = new Manifest(url.openStream());
-			Attributes attr = manifest.getMainAttributes();
-			String buildTime = attr.getValue("Build-Time");
-			String builtBy = attr.getValue("Built-By");
-			System.out.println("Built by " + builtBy + " on " + buildTime);
-
-		} catch (IOException E) {
-			// handle
-		}
-
 		System.out.println();
 	}
 

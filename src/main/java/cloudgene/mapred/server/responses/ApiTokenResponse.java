@@ -1,4 +1,4 @@
-package cloudgene.mapred.responses;
+package cloudgene.mapred.server.responses;
 
 import cloudgene.mapred.core.ApiToken;
 

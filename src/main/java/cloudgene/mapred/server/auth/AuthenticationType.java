@@ -1,4 +1,4 @@
-package cloudgene.mapred.auth;
+package cloudgene.mapred.server.auth;
 
 public enum AuthenticationType {
 

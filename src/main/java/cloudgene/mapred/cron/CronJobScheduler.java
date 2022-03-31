@@ -11,7 +11,7 @@ import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 
-import cloudgene.mapred.Application;
+import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.Settings;
 
 public class CronJobScheduler {

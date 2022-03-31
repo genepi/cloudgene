@@ -6,8 +6,8 @@ import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
 
-import cloudgene.mapred.Application;
 import cloudgene.mapred.TestApplication;
+import cloudgene.mapred.server.Application;
 import genepi.db.Database;
 import genepi.db.DatabaseUpdater;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;

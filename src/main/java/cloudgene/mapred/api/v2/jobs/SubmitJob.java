@@ -25,12 +25,12 @@ import org.reactivestreams.Subscription;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.auth.AuthenticationService;
-import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.auth.AuthenticationType;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
@@ -60,7 +60,7 @@ import reactor.core.publisher.Mono;
 public class SubmitJob {
 
 	@Inject
-	protected cloudgene.mapred.Application application;
+	protected cloudgene.mapred.server.Application application;
 
 	@Inject
 	protected AuthenticationService authenticationService;

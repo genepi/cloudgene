@@ -7,12 +7,12 @@ import java.net.URISyntaxException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.database.DownloadDao;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;

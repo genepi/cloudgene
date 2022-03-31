@@ -1,9 +1,9 @@
 package cloudgene.mapred.api.v2.users;
 
-import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.responses.MessageResponse;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.responses.MessageResponse;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;

@@ -1,13 +1,13 @@
-package cloudgene.mapred.auth;
+package cloudgene.mapred.server.auth;
 
 import java.util.Arrays;
 import java.util.Date;
 
 import org.reactivestreams.Publisher;
 
-import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.HashUtil;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.security.authentication.AuthenticationProvider;

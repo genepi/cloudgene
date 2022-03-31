@@ -5,9 +5,9 @@ import java.util.Vector;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -21,7 +21,7 @@ import net.sf.json.JSONArray;
 public class GetGroups {
 	
 	@Inject
-	protected cloudgene.mapred.Application application;
+	protected cloudgene.mapred.server.Application application;
 
 	@Inject
 	protected AuthenticationService authenticationService;

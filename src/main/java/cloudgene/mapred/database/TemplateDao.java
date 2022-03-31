@@ -8,7 +8,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.util.Template;
+import cloudgene.mapred.core.Template;
 import genepi.db.Database;
 import genepi.db.IRowMapper;
 import genepi.db.JdbcDataAccessObject;

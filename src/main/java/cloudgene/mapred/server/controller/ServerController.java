@@ -1,16 +1,16 @@
-package cloudgene.mapred.api.v2.server;
+package cloudgene.mapred.server.controller;
 
 import java.util.List;
 import java.util.Vector;
 
-import cloudgene.mapred.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.auth.AuthenticationService;
-import cloudgene.mapred.auth.AuthenticationType;
+import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.responses.CounterResponse;
-import cloudgene.mapred.util.Template;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.auth.AuthenticationType;
+import cloudgene.mapred.server.responses.CounterResponse;
 import cloudgene.mapred.wdl.WdlApp;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.Controller;

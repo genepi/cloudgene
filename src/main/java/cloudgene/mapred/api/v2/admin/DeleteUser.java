@@ -2,11 +2,11 @@ package cloudgene.mapred.api.v2.admin;
 
 import javax.validation.constraints.NotBlank;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;

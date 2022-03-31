@@ -1,4 +1,4 @@
-package cloudgene.mapred;
+package cloudgene.mapred.server;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,10 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
-import cloudgene.mapred.auth.AuthenticationType;
-import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
-import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
 import cloudgene.mapred.database.util.Fixtures;
@@ -34,8 +31,6 @@ import genepi.db.DatabaseConnector;
 import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 import io.micronaut.context.annotation.Context;
-import io.micronaut.runtime.Micronaut;
-import io.micronaut.security.authentication.Authentication;
 
 @Context
 public class Application {
@@ -177,10 +172,10 @@ public class Application {
 
 	public void reloadTemplates() {
 		TemplateDao dao = new TemplateDao(database);
-		List<cloudgene.mapred.util.Template> templates = dao.findAll();
+		List<cloudgene.mapred.core.Template> templates = dao.findAll();
 
 		cacheTemplates = new HashMap<String, String>();
-		for (cloudgene.mapred.util.Template snippet : templates) {
+		for (cloudgene.mapred.core.Template snippet : templates) {
 			cacheTemplates.put(snippet.getKey(), snippet.getText());
 		}
 	}
@@ -213,7 +208,4 @@ public class Application {
 
 	}
 
-	public static void main(String[] args) {
-		Micronaut.run(Application.class, args);
-	}
 }

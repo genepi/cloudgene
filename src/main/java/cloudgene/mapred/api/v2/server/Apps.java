@@ -11,10 +11,10 @@ import org.apache.commons.logging.LogFactory;
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.Environment;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
 import io.micronaut.core.annotation.Nullable;
@@ -36,7 +36,7 @@ public class Apps {
 	private static final Log log = LogFactory.getLog(Apps.class);
 
 	@Inject
-	protected cloudgene.mapred.Application application;
+	protected cloudgene.mapred.server.Application application;
 
 	@Inject
 	protected AuthenticationService authenticationService;

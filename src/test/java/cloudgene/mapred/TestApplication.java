@@ -19,7 +19,7 @@ import genepi.io.FileUtil;
 import io.micronaut.context.annotation.Context;
 
 @Context
-public class TestApplication extends cloudgene.mapred.Application {
+public class TestApplication extends cloudgene.mapred.server.Application {
 
 	public TestApplication() throws Exception {
 		super();

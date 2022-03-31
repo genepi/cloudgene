@@ -16,9 +16,9 @@ import org.restlet.resource.ClientResource;
 import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.TestApplication;
-import cloudgene.mapred.auth.DatabaseAuthenticationProvider;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.server.auth.DatabaseAuthenticationProvider;
 import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
 import genepi.db.Database;

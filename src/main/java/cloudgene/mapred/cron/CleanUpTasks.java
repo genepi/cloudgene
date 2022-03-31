@@ -6,13 +6,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.Application;
+import cloudgene.mapred.core.Template;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Template;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;

@@ -8,16 +8,16 @@ import java.util.Map;
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.auth.AuthenticationService;
-import cloudgene.mapred.auth.AuthenticationType;
+import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.auth.AuthenticationType;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Template;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import io.micronaut.core.annotation.Nullable;
@@ -37,7 +37,7 @@ import net.sf.json.JSONObject;
 public class App {
 
 	@Inject
-	protected cloudgene.mapred.Application application;
+	protected cloudgene.mapred.server.Application application;
 
 	@Inject
 	protected AuthenticationService authenticationService;

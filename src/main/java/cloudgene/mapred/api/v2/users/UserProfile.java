@@ -1,12 +1,12 @@
 package cloudgene.mapred.api.v2.users;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
-import cloudgene.mapred.auth.AuthenticationType;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.responses.MessageResponse;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.auth.AuthenticationType;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JSONConverter;
 import io.micronaut.core.annotation.Nullable;

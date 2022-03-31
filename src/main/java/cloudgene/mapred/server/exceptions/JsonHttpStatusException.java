@@ -1,4 +1,4 @@
-package cloudgene.mapred.exceptions;
+package cloudgene.mapred.server.exceptions;
 
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.exceptions.HttpStatusException;

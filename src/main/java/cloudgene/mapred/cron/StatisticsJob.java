@@ -8,12 +8,12 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
-import cloudgene.mapred.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.server.Application;
 import genepi.db.Database;
 
 public class StatisticsJob implements Job {

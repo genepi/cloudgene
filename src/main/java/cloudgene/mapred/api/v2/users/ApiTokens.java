@@ -2,14 +2,14 @@ package cloudgene.mapred.api.v2.users;
 
 import org.json.JSONObject;
 
-import cloudgene.mapred.Application;
-import cloudgene.mapred.auth.AuthenticationService;
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.responses.ApiTokenResponse;
-import cloudgene.mapred.responses.MessageResponse;
-import cloudgene.mapred.responses.ValidatedApiTokenResponse;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.responses.ApiTokenResponse;
+import cloudgene.mapred.server.responses.MessageResponse;
+import cloudgene.mapred.server.responses.ValidatedApiTokenResponse;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
