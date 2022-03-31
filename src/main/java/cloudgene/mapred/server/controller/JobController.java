@@ -114,15 +114,12 @@ public class JobController {
 			@Override
 			public Object apply(List<Parameter> form) {
 
-				User user = authenticationService.getUserByAuthentication(authentication);
-
-				if (user == null) {
-					user = PublicUser.getUser(application.getDatabase());
-				}
+				User user = authenticationService.getUserByAuthentication(authentication,
+						AuthenticationType.ALL_TOKENS);
 
 				AbstractJob job = jobService.submitJob(app, form, user);
 
-				//TODO: create response object or add custom properties to MessageResponse?
+				// TODO: create response object or add custom properties to MessageResponse?
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("success", true);
 				jsonObject.put("message", "Your job was successfully added to the job queue.");

@@ -29,7 +29,7 @@ public class FormUtil {
 	public Publisher<Object> processMultipartBody(MultipartBody body, Function<List<Parameter>, Object> callback) {
 
 		return Mono.<Object>create(emitter -> {
-			System.out.println("start subscribe");
+
 			body.subscribe(new Subscriber<CompletedPart>() {
 
 				List<Parameter> form = new Vector<Parameter>();

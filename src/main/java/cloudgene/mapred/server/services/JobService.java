@@ -102,7 +102,7 @@ public class JobService {
 
 		boolean publicMode = false;
 
-		if (!user.getUsername().equals("public")) {
+		if (user != null) {
 			// private mode
 
 			int maxPerUser = settings.getMaxRunningJobsPerUser();
