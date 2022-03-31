@@ -14,14 +14,10 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import genepi.io.FileUtil;
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.QueryValue;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -37,14 +33,9 @@ public class GetAllJobs {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/admin/jobs")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String getJobs(Authentication authentication, @Nullable @QueryValue("state") String state) {
+	@Secured(User.ROLE_ADMIN)
+	public String getJobs(@Nullable @QueryValue("state") String state) {
 
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 		JobDao dao = new JobDao(application.getDatabase());

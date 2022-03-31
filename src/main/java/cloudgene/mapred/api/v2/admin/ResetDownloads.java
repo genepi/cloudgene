@@ -21,10 +21,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 
 @Controller
@@ -37,16 +34,9 @@ public class ResetDownloads {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/admin/jobs/{jobId}/reset")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Secured(User.ROLE_ADMIN)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String get(Authentication authentication, @PathVariable @NotBlank String jobId,
-			@Nullable @QueryValue("max") String max) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
+	public String reset(@PathVariable @NotBlank String jobId, @Nullable @QueryValue("max") String max) {
 
 		if (jobId != null) {
 

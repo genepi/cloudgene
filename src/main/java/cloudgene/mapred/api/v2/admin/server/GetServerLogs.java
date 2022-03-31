@@ -6,13 +6,9 @@ import java.io.IOException;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
-import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 
 @Controller
@@ -25,17 +21,10 @@ public class GetServerLogs {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/admin/server/logs/{logfile}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(Authentication authentication, String logfile) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public String getLogs(String logfile) {
 
 		String content = tail(new File(logfile), 1000);
-
 		return content;
 
 	}

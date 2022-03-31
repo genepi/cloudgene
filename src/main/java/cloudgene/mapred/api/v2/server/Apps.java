@@ -24,8 +24,6 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -42,17 +40,10 @@ public class Apps {
 	protected AuthenticationService authenticationService;
 
 	@Post("/api/v2/server/apps")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String install(@Nullable Authentication authentication, @Nullable String url) {
+	@Secured(User.ROLE_ADMIN)
+	public String install(@Nullable String url) {
 
 		try {
-
-			User user = authenticationService.getUserByAuthentication(authentication);
-
-			if (!user.isAdmin()) {
-				throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED,
-						"The request requires administration rights.");
-			}
 
 			if (url == null) {
 				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "No url or file location set.");
@@ -90,14 +81,8 @@ public class Apps {
 	}
 
 	@Get("/api/v2/server/apps")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(Authentication authentication, @Nullable @QueryValue("reload") String reload) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public String list(@Nullable @QueryValue("reload") String reload) {
 
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 

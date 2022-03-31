@@ -99,14 +99,8 @@ public class App {
 	}
 
 	@Delete("/api/v2/server/apps/{appId}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String removeApp(Authentication authentication, String appId) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public String removeApp(String appId) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
 		Application application = repository.getById(appId);
@@ -125,25 +119,13 @@ public class App {
 		} else {
 			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
+		
 	}
 
 	@Put("/api/v2/server/apps/{appId}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String updateApp(Authentication authentication, String appId, @Nullable String enabled,
-			@Nullable String permission, @Nullable String reinstall, @Nullable Map<String, String> config) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "The request requires administration rights.");
-		}
-
-		try {
-			appId = java.net.URLDecoder.decode(appId, StandardCharsets.UTF_8.name());
-		} catch (UnsupportedEncodingException e2) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
-					"Application '" + appId + "' is not in valid format.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public String updateApp(String appId, @Nullable String enabled, @Nullable String permission,
+			@Nullable String reinstall, @Nullable Map<String, String> config) {
 
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 		Application application = repository.getById(appId);

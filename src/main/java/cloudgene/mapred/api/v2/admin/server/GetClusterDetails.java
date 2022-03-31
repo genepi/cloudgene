@@ -12,13 +12,9 @@ import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
-import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -33,14 +29,8 @@ public class GetClusterDetails {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/admin/server/cluster")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(Authentication authentication) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public String getDetails() {
 
 		JSONObject object = new JSONObject();
 

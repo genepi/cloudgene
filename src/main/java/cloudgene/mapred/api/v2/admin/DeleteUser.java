@@ -12,8 +12,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
@@ -27,25 +25,19 @@ public class DeleteUser {
 	protected AuthenticationService authenticationService;
 
 	@Post("/api/v2/admin/users/{username}/delete")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String post(Authentication authentication, @PathVariable @NotBlank String username) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
+	@Secured(User.ROLE_ADMIN)
+	public String deleteUser(@PathVariable @NotBlank String username) {
 
 		// delete user from database
 		UserDao dao = new UserDao(application.getDatabase());
-		User user1 = dao.findByUsername(username);
+		User user = dao.findByUsername(username);
 
-		if (user1 == null) {
+		if (user == null) {
 			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "User " + username + " not found.");
 		}
 
-		dao.delete(user1);
-		JSONObject object = JSONObject.fromObject(user1);
+		dao.delete(user);
+		JSONObject object = JSONObject.fromObject(user);
 		return object.toString();
 
 	}

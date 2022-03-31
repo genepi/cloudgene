@@ -33,15 +33,9 @@ public class HotRetireJob {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/admin/jobs/{jobId}/retire")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Secured(User.ROLE_ADMIN)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String get(Authentication authentication, @PathVariable @NotBlank String jobId) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
+	public String retireJob(@PathVariable @NotBlank String jobId) {
 
 		Settings settings = application.getSettings();
 

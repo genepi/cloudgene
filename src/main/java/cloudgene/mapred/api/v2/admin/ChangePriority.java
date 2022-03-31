@@ -13,14 +13,11 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Produces;
-import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 
 @Controller
-public class ChangePriority  {
+public class ChangePriority {
 
 	public static final long HIGH_PRIORITY = 0;
 
@@ -31,16 +28,9 @@ public class ChangePriority  {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/admin/jobs/{jobId}/priority")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Secured(User.ROLE_ADMIN)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String get(Authentication authentication, @PathVariable @NotBlank String jobId) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new HttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
-
+	public String changePriority(@PathVariable @NotBlank String jobId) {
 
 		AbstractJob job = application.getWorkflowEngine().getJobById(jobId);
 

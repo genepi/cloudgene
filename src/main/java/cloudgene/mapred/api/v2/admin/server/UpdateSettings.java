@@ -6,14 +6,10 @@ import java.util.Map;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
-import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.Settings;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
-import io.micronaut.security.authentication.Authentication;
-import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
@@ -27,16 +23,10 @@ public class UpdateSettings {
 	protected AuthenticationService authenticationService;
 
 	@Post("/api/v2/admin/server/settings/update")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(Authentication authentication, String name, String background_color, String foreground_color,
+	@Secured(User.ROLE_ADMIN)
+	public String updateSettings(String name, String background_color, String foreground_color,
 			String google_analytics, String mail, String mail_smtp, String mail_port, String mail_user,
 			String mail_password, String mail_name) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "The request requires administration rights.");
-		}
 
 		Settings settings = application.getSettings();
 		settings.setName(name);
