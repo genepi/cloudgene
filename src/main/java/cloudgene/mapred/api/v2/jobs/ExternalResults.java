@@ -18,10 +18,8 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.util.PublicUser;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
@@ -43,8 +41,8 @@ public class ExternalResults {
 	private static final Log log = LogFactory.getLog(ExternalResults.class);
 
 	@Get("/downloads/{jobId}/{hash}/{filename}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> get(@Nullable Authentication authentication, String jobId, String hash, String filename)
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public HttpResponse<File> get(Authentication authentication, String jobId, String hash, String filename)
 			throws URISyntaxException {
 
 		JobDao jobDao = new JobDao(application.getDatabase());
@@ -61,11 +59,6 @@ public class ExternalResults {
 		}
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		// public mode
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
 			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");

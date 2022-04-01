@@ -17,11 +17,11 @@ import org.restlet.ext.html.FormData;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
+import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestCluster;
 import cloudgene.mapred.util.TestSFTPServer;
 import cloudgene.sdk.internal.WorkflowContext;
@@ -45,6 +45,66 @@ public class SubmitJobTest {
 	}
 
 	@Test
+	public void testSubmitWithoutLogin() throws IOException, JSONException, InterruptedException {
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.getEntries().add(new FormData("input-input", "input-file"));
+
+		// submit job
+		ClientResource resource = client.createClientResource("/api/v2/jobs/submit/all-possible-inputs");
+		try {
+			resource.post(form);
+		} catch (Exception e) {
+			assertEquals(401, resource.getStatus().getCode());
+		}
+		resource.release();
+	}
+
+	@Test
+	public void testSubmitBlockedInMaintenance() throws IOException, JSONException, InterruptedException {
+
+		// form data
+
+		application.getSettings().setMaintenance(true);
+
+		// form data
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		form.getEntries().add(new FormData("job-name", ""));
+		form.getEntries().add(new FormData("input-text", "my-text"));
+		form.getEntries().add(new FormData("input-number", "27"));
+		// ignore checkbox
+		form.getEntries().add(new FormData("input-list", "keya"));
+		// local-file
+		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
+		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
+
+		// local-folder
+		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
+		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
+
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
+		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
+
+		// submit job
+		LoginToken token = client.loginAsPublicUser();
+		ClientResource resource = client.createClientResource("/api/v2/jobs/submit/all-possible-inputs", token);
+		try {
+			resource.post(form);
+		} catch (Exception e) {
+			assertEquals(503, resource.getStatus().getCode());
+		}
+
+		application.getSettings().setMaintenance(false);
+
+		resource.release();
+	}
+
+	@Test
 	public void testSubmitWrongApplication() throws IOException, JSONException, InterruptedException {
 
 		// form data
@@ -54,7 +114,8 @@ public class SubmitJobTest {
 		form.getEntries().add(new FormData("input-input", "input-file"));
 
 		// submit job
-		ClientResource resource = client.createClientResource("/api/v2/jobs/submit/wrong-application");
+		LoginToken token = client.loginAsPublicUser();
+		ClientResource resource = client.createClientResource("/api/v2/jobs/submit/wrong-application", token);
 		try {
 			resource.post(form);
 		} catch (Exception e) {
@@ -70,6 +131,7 @@ public class SubmitJobTest {
 
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);
+		form.getEntries().add(new FormData("job-name", ""));
 		form.getEntries().add(new FormData("input-text", "my-text"));
 		form.getEntries().add(new FormData("input-number", "27"));
 		// ignore checkbox
@@ -92,6 +154,7 @@ public class SubmitJobTest {
 		client.waitForJob(id);
 
 		JSONObject result = client.getJobDetails(id);
+		System.out.println(result.get("name"));
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
@@ -340,7 +403,6 @@ public class SubmitJobTest {
 
 		// submit job
 		String id = client.submitJobPublic("sftp-import", form);
-		
 
 		// get details to check *** bug
 		client.getJobDetails(id);
@@ -360,7 +422,7 @@ public class SubmitJobTest {
 		sftp.stop();
 
 		// check results!
-		
+
 	}
 
 	// TODO: wrong permissions

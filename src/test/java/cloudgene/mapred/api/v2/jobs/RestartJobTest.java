@@ -12,6 +12,7 @@ import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.TestCluster;
+import io.micronaut.runtime.Micronaut;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 

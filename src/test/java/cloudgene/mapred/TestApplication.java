@@ -52,7 +52,8 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 		// Set threads for workflow engine to 1
 		settings.setThreadsQueue(1);
 		settings.setThreadsSetupQueue(1);
-		
+		settings.setMaintenance(false);
+
 		registerApplications(settings);
 
 		return settings;
@@ -219,7 +220,7 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 		return applications;
 
 	}
-	
+
 	@Override
 	protected void afterDatabaseConnection(Database database) {
 
@@ -251,7 +252,17 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 			user.setRoles(new String[] { "public" });
 			dao.insert(user);
 		}
-		
+
+		User userPublic = dao.findByUsername("public");
+		if (userPublic == null) {
+			userPublic = new User();
+			userPublic.setUsername("public");
+			password = HashUtil.hashPassword("public");
+			userPublic.setPassword(password);
+			userPublic.setRoles(new String[] { "public" });
+			dao.insert(userPublic);
+		}
+
 	}
 
 }

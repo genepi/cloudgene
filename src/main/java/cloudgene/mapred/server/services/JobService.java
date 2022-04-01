@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
@@ -21,14 +20,11 @@ import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.FormUtil.Parameter;
-import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpStatus;
@@ -65,6 +61,10 @@ public class JobService {
 	}
 
 	public AbstractJob getByIdAndUser(String id, User user) {
+		
+		if (user == null) {
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "Access denied.");
+		}
 
 		AbstractJob job = getById(id);
 
@@ -78,52 +78,33 @@ public class JobService {
 
 	public AbstractJob submitJob(String appId, List<Parameter> form, User user) {
 
+		if (user == null) {
+			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "Access denied.");
+		}
+		
 		WorkflowEngine engine = this.application.getWorkflowEngine();
 		Settings settings = this.application.getSettings();
-		Database database = this.application.getDatabase();
+
+		int maxPerUser = settings.getMaxRunningJobsPerUser();
+		if (!user.isAdmin() && engine.getJobsByUser(user).size() >= maxPerUser) {
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+					"Only " + maxPerUser + " jobs per user can be executed simultaneously.");
+		}
 
 		ApplicationRepository repository = settings.getApplicationRepository();
 		cloudgene.mapred.apps.Application application = repository.getByIdAndUser(appId, user);
-		WdlApp app = null;
-		try {
-			app = application.getWdlApp();
-		} catch (Exception e) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
-					"Application '" + appId + "' not found or the request requires user authentication.");
+		if (application == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
-
+		WdlApp app = application.getWdlApp();
 		if (app.getWorkflow() == null) {
 			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
 					"Application '" + appId + "' has no workflow section.");
 		}
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
-		String id = "job-" + sdf.format(new Date());
-
-		boolean publicMode = false;
-
-		if (user != null) {
-			// private mode
-
-			int maxPerUser = settings.getMaxRunningJobsPerUser();
-			if (!user.isAdmin() && engine.getJobsByUser(user).size() >= maxPerUser) {
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-						"Only " + maxPerUser + " jobs per user can be executed simultaneously.");
-			}
-
-		} else {
-
-			// public mode
-			user = PublicUser.getUser(database);
-
-			String uuid = UUID.randomUUID().toString();
-			id = id + "-" + HashUtil.getSha256(uuid);
-			publicMode = true;
-
-		}
+		String id = createId();
 
 		String hdfsWorkspace = "";
-
 		try {
 			hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		} catch (NoClassDefFoundError e) {
@@ -136,10 +117,9 @@ public class JobService {
 		Map<String, String> inputParams = parseAndUpdateInputParams(form, app, hdfsWorkspace, localWorkspace);
 
 		String name = id;
-		if (!publicMode) {
-			if (inputParams.get("job-name") != null && !inputParams.get("job-name").trim().isEmpty()) {
-				name = inputParams.get("job-name");
-			}
+		String jobName = inputParams.get("job-name");
+		if (jobName != null && !jobName.trim().isEmpty()) {
+			name = jobName;
 		}
 
 		CloudgeneJob job = new CloudgeneJob(user, id, app, inputParams);
@@ -208,7 +188,6 @@ public class JobService {
 
 		if (job.getState() != AbstractJob.STATE_DEAD) {
 			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Job " + job.getId() + " is not pending.");
-
 		}
 
 		String hdfsWorkspace = "";
@@ -228,17 +207,12 @@ public class JobService {
 
 		ApplicationRepository repository = settings.getApplicationRepository();
 		cloudgene.mapred.apps.Application application = repository.getByIdAndUser(appId, job.getUser());
-		WdlApp app = null;
-		try {
-			app = application.getWdlApp();
-		} catch (Exception e) {
-
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
-					"Application '" + appId + "' not found or the request requires user authentication.");
+		if (application == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 
 		}
 
-		((CloudgeneJob) job).loadConfig(app);
+		((CloudgeneJob) job).loadConfig(application.getWdlApp());
 
 		this.application.getWorkflowEngine().restart(job);
 
@@ -267,7 +241,12 @@ public class JobService {
 
 	}
 
-	//TODO: refactore and combine this method with CommandLineUtil.parseArgs...
+	public String createId() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
+		return "job-" + sdf.format(new Date());
+	}
+
+	// TODO: refactore and combine this method with CommandLineUtil.parseArgs...
 
 	private Map<String, String> parseAndUpdateInputParams(List<Parameter> form, WdlApp app, String hdfsWorkspace,
 			String localWorkspace) {
@@ -279,8 +258,8 @@ public class JobService {
 
 		for (Parameter formParam : form) {
 
-			String name = formParam.name;
-			Object value = formParam.value;
+			String name = formParam.getName();
+			Object value = formParam.getValue();
 
 			if (value instanceof File) {
 				File inputFile = (File) value;

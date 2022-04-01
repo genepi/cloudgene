@@ -75,7 +75,7 @@ public class App {
 			}
 		}
 
-		List<WdlApp> apps = repository.getAllByUser(user, false);
+		List<WdlApp> apps = repository.getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
 
 		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
 
@@ -116,7 +116,7 @@ public class App {
 		} else {
 			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
-		
+
 	}
 
 	@Put("/api/v2/server/apps/{appId}")
@@ -173,7 +173,9 @@ public class App {
 				}
 
 				application.checkForChanges();
+
 				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application, this.application.getSettings(), repository);
+
 
 				return appResponse;
 
@@ -186,6 +188,5 @@ public class App {
 			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
 		}
 	}
-
 
 }

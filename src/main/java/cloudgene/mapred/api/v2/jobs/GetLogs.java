@@ -7,10 +7,8 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.util.PublicUser;
 import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -29,14 +27,10 @@ public class GetLogs {
 	protected AuthenticationService authenticationService;
 
 	@Get("/logs/{id}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String get(@Nullable Authentication authentication, String id) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
 
 		JobDao jobDao = new JobDao(application.getDatabase());
 		AbstractJob job = jobDao.findById(id);

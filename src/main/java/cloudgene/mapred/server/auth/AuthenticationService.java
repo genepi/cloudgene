@@ -15,6 +15,8 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.responses.ValidatedApiTokenResponse;
 import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.authentication.AuthenticationException;
+import io.micronaut.security.authentication.AuthorizationException;
 import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import io.micronaut.security.token.jwt.validator.JwtTokenValidator;
 import jakarta.inject.Inject;
@@ -84,9 +86,12 @@ public class AuthenticationService {
 
 			}
 
+			throw new AuthorizationException(authentication);
+
 		}
 
-		return null;
+		throw new AuthenticationException();
+
 	}
 
 	public ApiToken createApiToken(User user, int lifetime) {
@@ -130,12 +135,15 @@ public class AuthenticationService {
 
 				@Override
 				public void onNext(Authentication authentication) {
-
-					User user = getUserByAuthentication(authentication, AuthenticationType.API_TOKEN);
-					if (user == null) {
+					try {
+						User user = getUserByAuthentication(authentication, AuthenticationType.API_TOKEN);
+						if (user == null) {
+							emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
+						} else {
+							emitter.success(ValidatedApiTokenResponse.valid(MESSAGE_VALID_API_TOKEN));
+						}
+					} catch (Exception e) {
 						emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
-					} else {
-						emitter.success(ValidatedApiTokenResponse.valid(MESSAGE_VALID_API_TOKEN));
 					}
 					subscription.request(1);
 				}

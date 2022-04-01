@@ -12,6 +12,7 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
+import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestCluster;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -58,8 +59,8 @@ public class CancelJobTest {
 
 		String id = "some-random-id";
 
-		// Handle answer!
-		ClientResource resource = client.createClientResource("/api/v2/jobs/" + id + "/cancel");
+		LoginToken token = client.loginAsPublicUser();
+		ClientResource resource = client.createClientResource("/api/v2/jobs/" + id + "/cancel", token);
 
 		try {
 			resource.get();
@@ -70,6 +71,22 @@ public class CancelJobTest {
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
 		assertEquals(object.get("message"), "Job " + id + " not found.");
+		resource.release();
+	}
+
+	@Test
+	public void testCancelWithoutLogin() throws Exception {
+
+		String id = "some-random-id";
+
+		ClientResource resource = client.createClientResource("/api/v2/jobs/" + id + "/cancel");
+
+		try {
+			resource.get();
+		} catch (Exception e) {
+
+		}
+		assertEquals(401, resource.getStatus().getCode());
 		resource.release();
 	}
 

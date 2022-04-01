@@ -1,8 +1,6 @@
 package cloudgene.mapred.apps;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,8 +16,6 @@ import org.apache.commons.logging.LogFactory;
 
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.esotericsoftware.yamlbeans.YamlReader;
-import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.GitHubException;
@@ -42,6 +38,12 @@ public class ApplicationRepository {
 	private String appsFolder = "apps";
 
 	private static final Log log = LogFactory.getLog(ApplicationRepository.class);
+
+	public static int APPS = 1;
+
+	public static int APPS_AND_DATASETS = 2;
+
+	public static int DATASETS = 4;
 
 	public ApplicationRepository() {
 		apps = new Vector<Application>();
@@ -86,34 +88,10 @@ public class ApplicationRepository {
 
 	public Application getByIdAndUser(String id, User user) {
 
-		Application app = getById(id);
+		Application application = getById(id);
 
-		if (app != null && app.isEnabled() && app.isLoaded() && !app.hasSyntaxError()) {
-
-			if (user == null) {
-				if (app.getPermission().toLowerCase().equals("public")) {
-					if (app.getWdlApp().getWorkflow() != null) {
-						return app;
-					} else {
-						return app;
-					}
-				} else {
-					return null;
-				}
-			}
-
-			if (user.isAdmin() || user.hasRole(app.getPermission())
-					|| app.getPermission().toLowerCase().equals("public")) {
-				if (app.getWdlApp().getWorkflow() != null) {
-					return app;
-				} else {
-					return app;
-				}
-
-			} else {
-				return null;
-			}
-
+		if (hasAccess(user, application) && isActivated(application)) {
+			return application;
 		}
 
 		return null;
@@ -122,9 +100,9 @@ public class ApplicationRepository {
 
 	public Application getById(String id) {
 
-		Application app = indexApps.get(id);
+		Application application = indexApps.get(id);
 
-		if (app == null) {
+		if (application == null) {
 			// try without version
 
 			List<Application> versions = new Vector<Application>();
@@ -162,49 +140,29 @@ public class ApplicationRepository {
 
 		}
 
-		return app;
+		return application;
 
 	}
 
-	public List<WdlApp> getAllByUser(User user) {
-		return getAllByUser(user, true);
-	}
-
-	public List<WdlApp> getAllByUser(User user, boolean appsOnly) {
+	public List<WdlApp> getAllByUser(User user, int filter) {
 
 		List<WdlApp> listApps = new Vector<WdlApp>();
 
 		for (Application application : getAll()) {
 
-			boolean using = true;
+			if (hasAccess(user, application) && isActivated(application)) {
 
-			if (user == null) {
-				if (application.getPermission().toLowerCase().equals("public")) {
-					using = true;
-				} else {
-					using = false;
-				}
-			} else {
+				WdlApp wdlApp = application.getWdlApp();
 
-				if (!user.isAdmin() && !application.getPermission().toLowerCase().equals("public")) {
-
-					if (!user.hasRole(application.getPermission())) {
-						using = false;
+				if (filter == APPS_AND_DATASETS) {
+					listApps.add(wdlApp);
+				} else if (filter == APPS) {
+					if (wdlApp != null) {
+						listApps.add(wdlApp);
 					}
-				}
-			}
-
-			if (using) {
-
-				if (application.isEnabled() && application.isLoaded() && !application.hasSyntaxError()) {
-					if (appsOnly) {
-						if (application.getWdlApp().getWorkflow() != null) {
-							WdlApp app = application.getWdlApp();
-							listApps.add(app);
-						}
-					} else {
-						WdlApp app = application.getWdlApp();
-						listApps.add(app);
+				} else if (filter == DATASETS) {
+					if (wdlApp == null) {
+						listApps.add(wdlApp);
 					}
 				}
 
@@ -393,6 +351,7 @@ public class ApplicationRepository {
 		try {
 			ZipFile file = new ZipFile(zipFilename);
 			file.extractAll(appPath);
+			file.close();
 		} catch (ZipException e) {
 			throw new IOException(e);
 		}
@@ -420,6 +379,7 @@ public class ApplicationRepository {
 					file.extractFile(fileHeader, appPath);
 				}
 			}
+			file.close();
 		} catch (ZipException e) {
 			throw new IOException(e);
 		}
@@ -606,6 +566,20 @@ public class ApplicationRepository {
 
 		return config;
 
+	}
+
+	public boolean hasAccess(User user, Application application) {
+		if (application == null || user == null) {
+			return false;
+		}
+		return user.isAdmin() || user.hasRole(application.getPermission());
+	}
+
+	public boolean isActivated(Application application) {
+		if (application == null) {
+			return false;
+		}
+		return application.isEnabled() && application.isLoaded() && !application.hasSyntaxError();
 	}
 
 	public void updateConfig(WdlApp app, Map<String, String> config) {
