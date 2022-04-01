@@ -34,7 +34,10 @@ public class ServerController {
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String get(@Nullable Authentication authentication) {
 
-		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
+		User user = null;
+		if (authentication != null) {
+			user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
+		}
 
 		JSONObject data = new JSONObject();
 		data.put("name", application.getSettings().getName());
