@@ -1,7 +1,12 @@
 package cloudgene.mapred.server.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
@@ -23,7 +28,9 @@ import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Put;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -40,12 +47,17 @@ public class AppController {
 	private static final String APPLICATION_IS_DATA_PACKAGE = "Application %s is a data package.";
 	private static final String APPLICATION_NOT_REMOVED = "Application not removed: %s";
 	private static final String APPLICATION_NOT_UPDATED = "Application not updated: %s";
+	private static final String APPLICATION_NOT_INSTALLED = "Application not installed. ";
+	private static final String NO_URL = "No url or file location set.";
+	private static final String APPLICATION_NOT_INSTALLED_NO_WORKFLOW = "Application not installed: No workflow file found.";
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;
 
 	@Inject
 	protected AuthenticationService authenticationService;
+
+	private static final Log log = LogFactory.getLog(AppController.class);
 
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
@@ -193,6 +205,67 @@ public class AppController {
 		} else {
 			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
+	}
+
+	@Post("/api/v2/server/apps")
+	@Secured(User.ROLE_ADMIN)
+	public ApplicationResponse install(@Nullable String url) {
+
+		try {
+
+			if (url == null) {
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, NO_URL);
+			}
+
+			ApplicationRepository repository = application.getSettings().getApplicationRepository();
+
+			try {
+
+				Application app = repository.install(url);
+
+				application.getSettings().save();
+
+				if (application != null) {
+					return ApplicationResponse.buildWithDetails(app, application.getSettings(), repository);
+				} else {
+					throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, APPLICATION_NOT_INSTALLED_NO_WORKFLOW);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error(APPLICATION_NOT_INSTALLED, e);
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+						String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
+			}
+
+		} catch (Error e) {
+			e.printStackTrace();
+			log.error(APPLICATION_NOT_INSTALLED, e);
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+					String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
+		}
+
+	}
+
+	@Get("/api/v2/server/apps")
+	@Secured(User.ROLE_ADMIN)
+	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") String reload) {
+
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
+
+		if (reload != null && reload.equals("true")) {
+			repository.reload();
+		}
+
+		List<Application> apps = new Vector<Application>(repository.getAll());
+		Collections.sort(apps);
+
+		for (Application app : apps) {
+			app.checkForChanges();
+
+		}
+
+		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);
+
 	}
 
 }
