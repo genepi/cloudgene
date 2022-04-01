@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
@@ -20,6 +21,7 @@ import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.FormUtil.Parameter;
+import cloudgene.mapred.util.Page;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
@@ -61,7 +63,7 @@ public class JobService {
 	}
 
 	public AbstractJob getByIdAndUser(String id, User user) {
-		
+
 		if (user == null) {
 			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "Access denied.");
 		}
@@ -81,7 +83,7 @@ public class JobService {
 		if (user == null) {
 			throw new JsonHttpStatusException(HttpStatus.UNAUTHORIZED, "Access denied.");
 		}
-		
+
 		WorkflowEngine engine = this.application.getWorkflowEngine();
 		Settings settings = this.application.getSettings();
 
@@ -140,6 +142,56 @@ public class JobService {
 		engine.submit(job);
 
 		return job;
+
+	}
+
+	public Page<AbstractJob> getAllByUserAndPage(User user, Integer page, int pageSize) {
+
+		int offset = 0;
+		if (page != null) {
+
+			offset = page;
+			if (offset < 1) {
+				offset = 1;
+			}
+			offset = (offset - 1) * pageSize;
+		}
+
+		// find all jobs by user
+		JobDao dao = new JobDao(application.getDatabase());
+
+		// count all jobs
+		int count = dao.countAllByUser(user);
+
+		List<AbstractJob> jobs = null;
+		if (page != null) {
+			jobs = dao.findAllByUser(user, offset, pageSize);
+		} else {
+			jobs = dao.findAllByUser(user);
+			page = 1;
+			pageSize = count;
+
+		}
+
+		// if job is running, use in memory instance
+		List<AbstractJob> finalJobs = new Vector<AbstractJob>();
+		for (AbstractJob job : jobs) {
+			AbstractJob runningJob = application.getWorkflowEngine().getJobById(job.getId());
+			if (runningJob != null) {
+				finalJobs.add(runningJob);
+			} else {
+				finalJobs.add(job);
+			}
+
+		}
+
+		Page<AbstractJob> result = new Page<AbstractJob>();
+		result.setCount(count);
+		result.setPage(page);
+		result.setPageSize(pageSize);
+		result.setData(finalJobs);
+
+		return result;
 
 	}
 
