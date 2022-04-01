@@ -15,19 +15,30 @@ import genepi.io.FileUtil;
 
 public class ApplicationResponse {
 
-	String id = "";
-	boolean enabled = false;
-	String filename = "";
-	boolean loaded2 = false;
-	String errorMessage = "";
-	boolean changed = false;
-	String permission = "";
-	WdlApp wdlApp = null;
-	String source = "";
-	String state = "";
-	Map<String, String> environment;
-	Map<String, String> config;
-	
+	private String id = "";
+
+	private boolean enabled = false;
+
+	private String filename = "";
+
+	private boolean loaded2 = false;
+
+	private String errorMessage = "";
+
+	private boolean changed = false;
+
+	private String permission = "";
+
+	private WdlApp wdlApp = null;
+
+	private String source = "";
+
+	private String state = "";
+
+	private Map<String, String> environment;
+
+	private Map<String, String> config;
+
 	public static ApplicationResponse build(Application app, Settings settings) {
 
 		ApplicationResponse appResponse = new ApplicationResponse();
@@ -51,19 +62,8 @@ public class ApplicationResponse {
 	public static ApplicationResponse buildWithDetails(Application app, Settings settings,
 			ApplicationRepository repository) {
 
-		ApplicationResponse appResponse = new ApplicationResponse();
-		appResponse.setId(app.getId());
-		appResponse.setEnabled(app.isEnabled());
-		appResponse.setFilename(app.getFilename());
-		appResponse.setLoaded(app.isLoaded());
-		appResponse.setErrorMessage(app.getErrorMessage());
-		appResponse.setChanged(app.isChanged());
-		appResponse.setPermission(app.getPermission());
-		appResponse.setWdlApp(app.getWdlApp());
+		ApplicationResponse appResponse = build(app, settings);
 
-		if (new File(app.getFilename()).exists()) {
-			appResponse.setSource(FileUtil.readFileAsString(app.getFilename()));
-		}
 		appResponse.setState(updateState(app, settings));
 
 		Map<String, String> environment = Environment.getApplicationVariables(app.getWdlApp(), settings);
@@ -201,6 +201,5 @@ public class ApplicationResponse {
 	public void setConfig(Map<String, String> config) {
 		this.config = config;
 	}
-
 
 }
