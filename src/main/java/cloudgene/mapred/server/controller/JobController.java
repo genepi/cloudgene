@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import org.reactivestreams.Publisher;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.server.auth.AuthenticationService;
@@ -19,7 +20,7 @@ import cloudgene.mapred.server.services.JobService;
 import cloudgene.mapred.util.FormUtil;
 import cloudgene.mapred.util.FormUtil.Parameter;
 import cloudgene.mapred.util.JSONConverter;
-import cloudgene.mapred.util.PublicUser;
+import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -38,12 +39,16 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
 
 @Controller("/api/v2/jobs")
 public class JobController {
 
 	private static final String MESSAGE_JOB_RESTARTED = "Your job was successfully added to the job queue.";
+
+	public static final int DEFAULT_PAGE_SIZE = 15;
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;
@@ -58,19 +63,12 @@ public class JobController {
 	protected FormUtil formUtil;
 
 	@Get("/{id}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String get(@Nullable Authentication authentication, String id) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String get(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
-
-		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-					"This functionality is currently under maintenance.");
-		}
+		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 
@@ -106,16 +104,17 @@ public class JobController {
 
 	@Post("/submit/{app}")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public Publisher<Object> submit(@Nullable Authentication authentication, String app, @Body MultipartBody body) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public Publisher<HttpResponse<Object>> submit(Authentication authentication, String app, @Body MultipartBody body) {
 
-		return formUtil.processMultipartBody(body, new Function<List<Parameter>, Object>() {
+		return formUtil.processMultipartBody(body, new Function<List<Parameter>, HttpResponse<Object>>() {
 
 			@Override
-			public Object apply(List<Parameter> form) {
+			public HttpResponse<Object> apply(List<Parameter> form) {
 
 				User user = authenticationService.getUserByAuthentication(authentication,
 						AuthenticationType.ALL_TOKENS);
+				blockInMaintenanceMode(user);
 
 				AbstractJob job = jobService.submitJob(app, form, user);
 
@@ -125,27 +124,83 @@ public class JobController {
 				jsonObject.put("message", "Your job was successfully added to the job queue.");
 				jsonObject.put("id", job.getId());
 
-				return jsonObject.toString();
+				return HttpResponse.ok(jsonObject.toString());
 
 			}
 		});
 
 	}
 
+	@Get("/")
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String list(Authentication authentication, @QueryValue @Nullable Integer page) {
+
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
+		blockInMaintenanceMode(user);
+
+		// TODO: move into JobService.getAll(...) and use Page Object
+
+		int pageSize = DEFAULT_PAGE_SIZE;
+
+		int offset = 0;
+		if (page != null) {
+
+			offset = page;
+			if (offset < 1) {
+				offset = 1;
+			}
+			offset = (offset - 1) * pageSize;
+		}
+
+		// find all jobs by user
+		JobDao dao = new JobDao(application.getDatabase());
+
+		// count all jobs
+		int count = dao.countAllByUser(user);
+
+		List<AbstractJob> jobs = null;
+		if (page != null) {
+			jobs = dao.findAllByUser(user, offset, pageSize);
+		} else {
+			jobs = dao.findAllByUser(user);
+			page = 1;
+			pageSize = count;
+
+		}
+
+		// if job is running, use in memory instance
+		List<AbstractJob> finalJobs = new Vector<AbstractJob>();
+		for (AbstractJob job : jobs) {
+			AbstractJob runningJob = application.getWorkflowEngine().getJobById(job.getId());
+			if (runningJob != null) {
+				finalJobs.add(runningJob);
+			} else {
+				finalJobs.add(job);
+			}
+
+		}
+
+		// exclude unused parameters
+		JsonConfig config = new JsonConfig();
+		config.setExcludes(new String[] { "user", "outputParams", "inputParams", "output", "error", "s3Url", "task",
+				"config", "mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
+				"logs", "removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "steps", "workingDirectory",
+				"map", "reduce", "logOutFile", "deletedOn", "applicationId", "running" });
+
+		JSONObject object = PageUtil.createPageObject(page, pageSize, count);
+
+		JSONArray jsonArray = JSONArray.fromObject(finalJobs, config);
+		object.put("data", jsonArray);
+
+		return object.toString();
+	}
+
 	@Delete("/{id}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String delete(@Nullable Authentication authentication, String id) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String delete(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
-
-		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
-			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-					"This functionality is currently under maintenance.");
-		}
+		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.delete(job);
@@ -156,14 +211,11 @@ public class JobController {
 	}
 
 	@Get("/{id}/status")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String status(@Nullable Authentication authentication, String id) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String status(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
+		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		JSONObject object = JSONConverter.convert(job);
@@ -173,14 +225,11 @@ public class JobController {
 	}
 
 	@Get("/{id}/cancel")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String cancel(@Nullable Authentication authentication, String id) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public String cancel(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
+		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.cancel(job);
@@ -192,14 +241,11 @@ public class JobController {
 	}
 
 	@Get("/{id}/restart")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<MessageResponse> restart(@Nullable Authentication authentication, String id) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public HttpResponse<MessageResponse> restart(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
+		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.restart(job);
@@ -225,6 +271,14 @@ public class JobController {
 		// TODO: use MessageResponse and update Client to support json message
 		return id + ": counter of " + count + " downloads reset to " + maxDownloads;
 
+	}
+
+	private void blockInMaintenanceMode(User user) {
+
+		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
+					"This functionality is currently under maintenance.");
+		}
 	}
 
 }

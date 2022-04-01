@@ -29,7 +29,7 @@ public class ServerController {
 
 	@Inject
 	protected AuthenticationService authenticationService;
-	
+
 	@Get("/")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String get(@Nullable Authentication authentication) {
@@ -51,7 +51,7 @@ public class ServerController {
 			data.put("user", userJson);
 
 			ApplicationRepository repository = application.getSettings().getApplicationRepository();
-			List<WdlApp> apps = repository.getAllByUser(user);
+			List<WdlApp> apps = repository.getAllByUser(user, ApplicationRepository.APPS);
 			data.put("apps", apps);
 
 			List<JSONObject> appsJson = new Vector<JSONObject>();
@@ -79,10 +79,7 @@ public class ServerController {
 			data.put("loggedIn", true);
 
 		} else {
-			// get Public apps
-			ApplicationRepository repository = application.getSettings().getApplicationRepository();
-			List<WdlApp> apps = repository.getAllByUser(null);
-			data.put("apps", apps);
+			data.put("apps", new Vector<JSONObject>());
 			data.put("loggedIn", false);
 		}
 
@@ -97,7 +94,7 @@ public class ServerController {
 		return data.toString();
 
 	}
-	
+
 	@Get("/counters")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public CounterResponse counters() {
@@ -112,7 +109,7 @@ public class ServerController {
 		return response;
 
 	}
-	
-	//TODO: add getStatistics
+
+	// TODO: add getStatistics
 
 }

@@ -20,10 +20,8 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.util.PublicUser;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.io.FileUtil;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
@@ -46,9 +44,9 @@ public class DownloadResults {
 	protected AuthenticationService authenticationService;
 
 	@Get("/results/{jobId}/{paramId}/{filename}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
+	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public HttpResponse<File> download(@PathVariable @NotBlank String jobId, @PathVariable @NotBlank String paramId,
-			@PathVariable @NotBlank String filename, @Nullable Authentication authentication) throws URISyntaxException {
+			@PathVariable @NotBlank String filename, Authentication authentication) throws URISyntaxException {
 
 		JobDao jobDao = new JobDao(application.getDatabase());
 		AbstractJob job = jobDao.findById(jobId);
@@ -65,10 +63,6 @@ public class DownloadResults {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		// public mode
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
 			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");

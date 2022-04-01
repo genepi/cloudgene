@@ -39,7 +39,7 @@ public class GetJobsTest {
 	}
 
 	@Test
-	public void testGetJobsAsPublicUser() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsWithoutLogin() throws IOException, JSONException, InterruptedException {
 
 		ClientResource resourceJobs = client.createClientResource("/api/v2/jobs");
 
@@ -47,7 +47,7 @@ public class GetJobsTest {
 			resourceJobs.get();
 		} catch (Exception e) {
 		}
-		assertNotSame(200, resourceJobs.getStatus().getCode());
+		assertNotSame(401, resourceJobs.getStatus().getCode());
 		resourceJobs.release();
 
 	}

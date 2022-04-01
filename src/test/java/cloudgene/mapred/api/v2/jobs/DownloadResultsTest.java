@@ -15,6 +15,7 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
+import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestCluster;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -37,6 +38,8 @@ public class DownloadResultsTest {
 	@Test
 	public void testDownloadSingleFile() throws IOException, JSONException, InterruptedException {
 
+		LoginToken token = client.loginAsPublicUser();
+		
 		// form data
 
 		FormDataSet form = new FormDataSet();
@@ -69,7 +72,7 @@ public class DownloadResultsTest {
 
 		// check if it returns 404
 		String randomPath = id + "/output/lukas.txt";
-		ClientResource resource = client.createClientResource("/results/" + randomPath);
+		ClientResource resource = client.createClientResource("/results/" + randomPath, token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -234,7 +237,8 @@ public class DownloadResultsTest {
 		}
 
 		// check if download is blocked
-		ClientResource resource = client.createClientResource("/results/" + path1);
+		LoginToken token = client.loginAsPublicUser();
+		ClientResource resource = client.createClientResource("/results/" + path1, token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -248,12 +252,29 @@ public class DownloadResultsTest {
 	}
 
 	@Test
-	public void testJobNotFound() throws IOException, JSONException, InterruptedException {
+	public void testJobWithoutLogin() throws IOException, JSONException, InterruptedException {
 
 		String path = "job-lukas277/output/file1.txt";
 
 		// check if download is blocked
 		ClientResource resource = client.createClientResource("/results/" + path);
+		try {
+			resource.get();
+		} catch (Exception e) {
+
+		}
+		assertEquals(401, resource.getStatus().getCode());
+		resource.release();
+	}
+	
+	@Test
+	public void testJobNotFound() throws IOException, JSONException, InterruptedException {
+
+		String path = "job-lukas277/output/file1.txt";
+
+		// check if download is blocked
+		LoginToken login = client.login("admin", "admin1978");
+		ClientResource resource = client.createClientResource("/results/" + path, login);
 		try {
 			resource.get();
 		} catch (Exception e) {

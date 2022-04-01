@@ -13,6 +13,7 @@ import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.CompletedPart;
 import io.micronaut.http.server.multipart.MultipartBody;
@@ -26,9 +27,9 @@ public class FormUtil {
 	@Inject
 	protected cloudgene.mapred.server.Application application;
 
-	public Publisher<Object> processMultipartBody(MultipartBody body, Function<List<Parameter>, Object> callback) {
+	public Publisher<HttpResponse<Object>> processMultipartBody(MultipartBody body, Function<List<Parameter>, HttpResponse<Object>> callback) {
 
-		return Mono.<Object>create(emitter -> {
+		return Mono.<HttpResponse<Object>>create(emitter -> {
 
 			body.subscribe(new Subscriber<CompletedPart>() {
 
@@ -58,7 +59,7 @@ public class FormUtil {
 
 				@Override
 				public void onComplete() {
-					Object result = callback.apply(form);
+					HttpResponse<Object> result = callback.apply(form);
 					emitter.success(result);
 				}
 			});
@@ -101,12 +102,27 @@ public class FormUtil {
 
 	public static class Parameter {
 
-		public String name;
+		private String name;
 
-		public Object value;
+		private Object value;
 
 		public Parameter(String name, Object value) {
 			this.name = name;
+			this.value = value;
+		}
+		
+		public String getName() {
+			return name;
+		}
+		public void setName(String name) {
+			this.name = name;
+		}
+		
+		public Object getValue() {
+			return value;
+		}
+		
+		public void setValue(Object value) {
 			this.value = value;
 		}
 	}

@@ -8,9 +8,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import cloudgene.mapred.util.PublicUser;
 import genepi.io.FileUtil;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -29,8 +27,8 @@ public class GetChunk {
 	protected AuthenticationService authenticationService;
 
 	@Get("/api/v2/jobs/{jobId}/chunks/{filename}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public File get(@Nullable Authentication authentication, String jobId, String filename) {
+	@Secured(SecurityRule.IS_AUTHENTICATED)
+	public File get(Authentication authentication, String jobId, String filename) {
 
 		JobDao jobDao = new JobDao(application.getDatabase());
 		AbstractJob job = jobDao.findById(jobId);
@@ -46,11 +44,6 @@ public class GetChunk {
 		}
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
-		// public mode
-		if (user == null) {
-			user = PublicUser.getUser(application.getDatabase());
-		}
 
 		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
 			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");

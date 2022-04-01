@@ -7,8 +7,6 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.restlet.data.ChallengeResponse;
-import org.restlet.data.ChallengeScheme;
 import org.restlet.data.Form;
 import org.restlet.data.Header;
 import org.restlet.engine.header.HeaderConstants;
@@ -36,7 +34,7 @@ public class CloudgeneClient {
 	}
 
 	public void setupAccessToken(ClientResource resource, String token) {
-		
+
 		Series<Header> requestHeader = (Series<Header>) resource.getRequest().getAttributes()
 				.get(HeaderConstants.ATTRIBUTE_HEADERS);
 		if (requestHeader == null) {
@@ -58,7 +56,8 @@ public class CloudgeneClient {
 	}
 
 	public String submitJobPublic(String tool, FormDataSet form) throws JSONException, IOException {
-		return submitJob(tool, form, null);
+		LoginToken token = loginAsPublicUser();
+		return submitJob(tool, form, token);
 	}
 
 	public String submitJob(String tool, FormDataSet form, LoginToken loginToken) throws JSONException, IOException {
@@ -88,7 +87,8 @@ public class CloudgeneClient {
 	}
 
 	public String restartJob(String id) throws JSONException, IOException {
-		return restartJob(id, null);
+		LoginToken token = loginAsPublicUser();
+		return restartJob(id, token);
 	}
 
 	public String restartJob(String id, LoginToken loginCookie) throws JSONException, IOException {
@@ -105,7 +105,8 @@ public class CloudgeneClient {
 	}
 
 	public String cancelJob(String id) throws JSONException, IOException {
-		return cancelJob(id, null);
+		LoginToken token = loginAsPublicUser();
+		return cancelJob(id, token);
 	}
 
 	public String cancelJob(String id, LoginToken loginCookie) throws JSONException, IOException {
@@ -122,7 +123,8 @@ public class CloudgeneClient {
 	}
 
 	public String deleteJob(String id) throws JSONException, IOException {
-		return deleteJob(id, null);
+		LoginToken token = loginAsPublicUser();
+		return deleteJob(id, token);
 	}
 
 	public String deleteJob(String id, LoginToken loginCookie) throws JSONException, IOException {
@@ -140,7 +142,8 @@ public class CloudgeneClient {
 	}
 
 	public void waitForJob(String id) throws IOException, JSONException, InterruptedException {
-		waitForJob(id, null);
+		LoginToken token = loginAsPublicUser();
+		waitForJob(id, token);
 	}
 
 	public void waitForJob(String id, LoginToken loginCookie) throws IOException, JSONException, InterruptedException {
@@ -180,7 +183,8 @@ public class CloudgeneClient {
 	}
 
 	public JSONObject getJobDetails(String id) throws IOException, JSONException, InterruptedException {
-		return getJobDetails(id, null);
+		LoginToken token = loginAsPublicUser();
+		return getJobDetails(id, token);
 	}
 
 	public JSONObject getJobDetails(String id, LoginToken loginCookie)
@@ -214,7 +218,8 @@ public class CloudgeneClient {
 	}
 
 	public String downloadResults(String path) throws IOException, JSONException, InterruptedException {
-		return downloadResults(path, null);
+		LoginToken token = loginAsPublicUser();
+		return downloadResults(path, token);
 	}
 
 	public String downloadResults(String path, LoginToken loginCookie)
@@ -285,7 +290,8 @@ public class CloudgeneClient {
 	}
 
 	public String downloadURL(String url) throws IOException, JSONException, InterruptedException {
-		return downloadURL(url, null);
+		LoginToken token = loginAsPublicUser();
+		return downloadURL(url, token);
 	}
 
 	public String downloadURL(String url, LoginToken loginCookie)
@@ -316,8 +322,7 @@ public class CloudgeneClient {
 				resourceJobs.get();
 			} catch (Exception e) {
 			}
-			
-			
+
 			assertEquals(200, resourceJobs.getStatus().getCode());
 
 			JSONObject object = new JSONObject(resourceJobs.getResponseEntity().getText());
@@ -366,7 +371,7 @@ public class CloudgeneClient {
 		resource.release();
 		return object;
 	}
-	
+
 	public LoginToken login(String username, String password) throws IOException {
 
 		ClientResource resourceLogin = createClientResource("/login");
@@ -386,6 +391,10 @@ public class CloudgeneClient {
 
 		return loginToken;
 
+	}
+
+	public LoginToken loginAsPublicUser() throws IOException {
+		return login("public", "public");
 	}
 
 }
