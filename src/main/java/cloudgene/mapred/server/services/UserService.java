@@ -53,6 +53,7 @@ public class UserService {
 		result.setCount(count);
 		result.setPage(Integer.parseInt(page));
 		result.setPageSize(pageSize);
+		result.setData(users);
 
 		return result;
 
