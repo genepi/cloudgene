@@ -111,7 +111,7 @@ export default Control.extend({
 
     bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
       if (result) {
-        $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive').then(
+        $.get('api/v2/jobs/' + job.attr('id') + '/archive').then(
           function(data) {
             bootbox.alert(data);
             that.init(that.element, that.options);

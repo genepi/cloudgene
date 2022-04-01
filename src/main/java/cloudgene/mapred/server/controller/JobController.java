@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.function.Function;
 
-import javax.validation.constraints.NotBlank;
-
 import org.reactivestreams.Publisher;
 
 import cloudgene.mapred.core.User;
@@ -31,7 +29,6 @@ import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.server.multipart.MultipartBody;
@@ -217,7 +214,7 @@ public class JobController {
 
 	@Get("/{id}/reset")
 	@Secured(User.ROLE_ADMIN)
-	public MessageResponse reset(@PathVariable @NotBlank String id, @Nullable @QueryValue("max") String max) {
+	public MessageResponse reset(String id, @Nullable @QueryValue("max") String max) {
 
 		int maxDownloads = application.getSettings().getMaxDownloads();
 		if (max != null) {
@@ -232,7 +229,7 @@ public class JobController {
 
 	@Get("/{id}/retire")
 	@Secured(User.ROLE_ADMIN)
-	public MessageResponse retire(@PathVariable @NotBlank String id) {
+	public MessageResponse retire(String id) {
 
 		Settings settings = application.getSettings();
 		int days = settings.getRetireAfter() - settings.getNotificationAfter();
@@ -244,11 +241,21 @@ public class JobController {
 
 	@Get("/{id}/priority")
 	@Secured(User.ROLE_ADMIN)
-	public MessageResponse changePriority(@PathVariable @NotBlank String id) {
+	public MessageResponse changePriority(String id) {
 
 		AbstractJob job = jobService.getById(id);
 		jobService.changePriority(job, HIGH_PRIORITY);
 		return MessageResponse.success("Update priority for job " + job.getId() + ".");
+
+	}
+
+	@Get("/{id}/archive")
+	@Secured(User.ROLE_ADMIN)
+	public MessageResponse archive(String id) {
+
+		AbstractJob job = jobService.getById(id);
+		String message = jobService.archive(job);
+		return MessageResponse.success(message);
 
 	}
 
