@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
@@ -21,6 +22,7 @@ import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.FormUtil.Parameter;
+import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Page;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -291,6 +293,55 @@ public class JobService {
 
 		return count;
 
+	}
+
+	public String retire(AbstractJob job, int days) {
+
+		int daysInMilliSeconds = days * 24 * 60 * 60 * 1000;
+
+		Settings settings = application.getSettings();
+		JobDao dao = new JobDao(application.getDatabase());
+
+		if (job.getState() == AbstractJob.STATE_SUCCESS) {
+
+			try {
+
+				String subject = "[" + settings.getName() + "] Job " + job.getId() + " will be retired in " + days
+						+ " days";
+
+				String body = application.getTemplate(Template.RETIRE_JOB_MAIL, job.getUser().getFullName(), days,
+						job.getId());
+
+				MailUtil.send(settings, job.getUser().getMail(), subject, body);
+
+				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
+				job.setDeletedOn(System.currentTimeMillis() + daysInMilliSeconds);
+				dao.update(job);
+
+				return "Sent notification for job " + job.getId() + ".";
+
+			} catch (Exception e) {
+
+				return "Sent notification for job " + job.getId() + " failed.";
+			}
+
+		} else if (job.getState() == AbstractJob.STATE_FAILED || job.getState() == AbstractJob.STATE_CANCELED) {
+
+			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
+			job.setDeletedOn(System.currentTimeMillis() + daysInMilliSeconds);
+			dao.update(job);
+
+			return job.getId() + ": delete date set. job failed, no notification sent.";
+
+		} else {
+
+			return "Job " + job.getId() + " has wrong state for this operation.";
+		}
+	}
+
+	public AbstractJob changePriority(AbstractJob job, long priority) {
+		application.getWorkflowEngine().updatePriority(job, priority);
+		return job;
 	}
 
 	public String createId() {
