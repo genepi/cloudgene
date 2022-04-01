@@ -1,4 +1,4 @@
-package cloudgene.mapred.api.v2.server;
+package cloudgene.mapred.server.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -32,7 +32,14 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Controller
-public class App {
+public class AppController {
+
+	private static final String HADOOP_CLUSTER_UNREACHABLE = "Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.";
+	private static final String UNDER_MAINTENANCE = "This functionality is currently under maintenance.";
+	private static final String APPLICATION_NOT_FOUND = "Application %s not found or the request requires user authentication.";
+	private static final String APPLICATION_IS_DATA_PACKAGE = "Application %s is a data package.";
+	private static final String APPLICATION_NOT_REMOVED = "Application not removed: %s";
+	private static final String APPLICATION_NOT_UPDATED = "Application not updated: %s";
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;
@@ -49,29 +56,26 @@ public class App {
 		Settings settings = application.getSettings();
 
 		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
-			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-					"This functionality is currently under maintenance.");
+			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE, UNDER_MAINTENANCE);
 		}
 
 		ApplicationRepository repository = settings.getApplicationRepository();
 		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND,
-					"Application '" + appId + "' not found or the request requires user authentication..");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
 
 		WdlApp wdlApp = application.getWdlApp();
 		if (wdlApp.getWorkflow() == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' is a data package.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_IS_DATA_PACKAGE, appId));
 		}
 
 		if (wdlApp.getWorkflow().hasHdfsInputs()) {
 
 			PluginManager manager = PluginManager.getInstance();
 			if (!manager.isEnabled(HadoopPlugin.ID)) {
-				throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-						"Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.");
+				throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE, HADOOP_CLUSTER_UNREACHABLE);
 			}
 		}
 
@@ -111,10 +115,11 @@ public class App {
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Application not removed: " + e.getMessage());
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+						String.format(APPLICATION_NOT_REMOVED, e.getMessage()));
 			}
 		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
 
 	}
@@ -174,18 +179,19 @@ public class App {
 
 				application.checkForChanges();
 
-				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application, this.application.getSettings(), repository);
-
+				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application,
+						this.application.getSettings(), repository);
 
 				return appResponse;
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Application not updated: " + e.getMessage());
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+						String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
 			}
 
 		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Application '" + appId + "' not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
 	}
 
