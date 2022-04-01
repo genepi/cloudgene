@@ -157,11 +157,11 @@ public class ApplicationRepository {
 				if (filter == APPS_AND_DATASETS) {
 					listApps.add(wdlApp);
 				} else if (filter == APPS) {
-					if (wdlApp != null) {
+					if (wdlApp.getWorkflow() != null) {
 						listApps.add(wdlApp);
 					}
 				} else if (filter == DATASETS) {
-					if (wdlApp == null) {
+					if (wdlApp.getWorkflow() == null) {
 						listApps.add(wdlApp);
 					}
 				}
