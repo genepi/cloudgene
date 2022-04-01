@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.server;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -10,7 +8,6 @@ import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.server.auth.AuthenticationService;
@@ -176,11 +173,7 @@ public class App {
 				}
 
 				application.checkForChanges();
-				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application, this.application.getSettings());
-
-				// read config
-				Map<String, String> updatedConfig = repository.getConfig(wdlApp);
-				appResponse.setConfigMap(updatedConfig);
+				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application, this.application.getSettings(), repository);
 
 				return appResponse;
 
