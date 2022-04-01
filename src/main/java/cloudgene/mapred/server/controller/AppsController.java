@@ -1,4 +1,4 @@
-package cloudgene.mapred.api.v2.server;
+package cloudgene.mapred.server.controller;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,9 +32,15 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 @Controller
-public class Apps {
+public class AppsController {
 
-	private static final Log log = LogFactory.getLog(Apps.class);
+	private static final String NO_URL = "No url or file location set.";
+
+	private static final String APPLICATION_NOT_INSTALLED = "Application not installed. ";
+
+	private static final String APPLICATION_NOT_INSTALLED_NO_WORKFLOW = "Application not installed: No workflow file found.";
+
+	private static final Log log = LogFactory.getLog(AppsController.class);
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;
@@ -49,7 +55,7 @@ public class Apps {
 		try {
 
 			if (url == null) {
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "No url or file location set.");
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, NO_URL);
 			}
 
 			ApplicationRepository repository = application.getSettings().getApplicationRepository();
@@ -63,20 +69,20 @@ public class Apps {
 				if (application != null) {
 					return ApplicationResponse.buildWithDetails(app, application.getSettings(), repository);
 				} else {
-					throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-							"Application not installed: No workflow file found.");
+					throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, APPLICATION_NOT_INSTALLED_NO_WORKFLOW);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
-				log.error("Application not installed. ", e);
+				log.error(APPLICATION_NOT_INSTALLED, e);
 				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-						"Application not installed: " + e.getMessage());
+						String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
 			}
 
 		} catch (Error e) {
 			e.printStackTrace();
-			log.error("Application not installed. ", e);
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Application not installed: " + e.getMessage());
+			log.error(APPLICATION_NOT_INSTALLED, e);
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+					String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
 		}
 
 	}
@@ -98,9 +104,9 @@ public class Apps {
 			app.checkForChanges();
 
 		}
-		
+
 		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);
 
 	}
-
+
 }
