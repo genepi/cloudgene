@@ -21,6 +21,7 @@ import cloudgene.mapred.util.FormUtil.Parameter;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Page;
 import cloudgene.mapred.util.PageUtil;
+import cloudgene.mapred.util.Settings;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -32,7 +33,6 @@ import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.server.multipart.MultipartBody;
 import io.micronaut.security.annotation.Secured;
@@ -49,6 +49,8 @@ public class JobController {
 	private static final String MESSAGE_JOB_RESTARTED = "Your job was successfully added to the job queue.";
 
 	public static final int DEFAULT_PAGE_SIZE = 15;
+
+	public static final long HIGH_PRIORITY = 0;
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;
@@ -202,7 +204,7 @@ public class JobController {
 
 	@Get("/{id}/restart")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> restart(Authentication authentication, String id) {
+	public MessageResponse restart(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 		blockInMaintenanceMode(user);
@@ -210,31 +212,47 @@ public class JobController {
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.restart(job);
 
-		return HttpResponse.ok(MessageResponse.success(MESSAGE_JOB_RESTARTED));
+		return MessageResponse.success(MESSAGE_JOB_RESTARTED);
 	}
 
 	@Get("/{id}/reset")
 	@Secured(User.ROLE_ADMIN)
-	@Produces(MediaType.TEXT_PLAIN)
-	public String reset(@PathVariable @NotBlank String id, @Nullable @QueryValue("max") String max) {
+	public MessageResponse reset(@PathVariable @NotBlank String id, @Nullable @QueryValue("max") String max) {
 
 		int maxDownloads = application.getSettings().getMaxDownloads();
-
 		if (max != null) {
 			maxDownloads = Integer.parseInt(max);
 		}
 
 		AbstractJob job = jobService.getById(id);
-
 		int count = jobService.reset(job, maxDownloads);
 
-		// TODO: use MessageResponse and update Client to support json message
-		return id + ": counter of " + count + " downloads reset to " + maxDownloads;
+		return MessageResponse.success(id + ": counter of " + count + " downloads reset to " + maxDownloads);
+	}
+
+	@Get("/{id}/retire")
+	@Secured(User.ROLE_ADMIN)
+	public MessageResponse retire(@PathVariable @NotBlank String id) {
+
+		Settings settings = application.getSettings();
+		int days = settings.getRetireAfter() - settings.getNotificationAfter();
+		AbstractJob job = jobService.getById(id);
+		String message = jobService.retire(job, days);
+		return MessageResponse.success(message);
+
+	}
+
+	@Get("/{id}/priority")
+	@Secured(User.ROLE_ADMIN)
+	public MessageResponse changePriority(@PathVariable @NotBlank String id) {
+
+		AbstractJob job = jobService.getById(id);
+		jobService.changePriority(job, HIGH_PRIORITY);
+		return MessageResponse.success("Update priority for job " + job.getId() + ".");
 
 	}
 
 	private void blockInMaintenanceMode(User user) {
-
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
 			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE,
 					"This functionality is currently under maintenance.");

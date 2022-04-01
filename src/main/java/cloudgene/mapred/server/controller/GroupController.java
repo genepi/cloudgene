@@ -10,13 +10,13 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
 import jakarta.inject.Inject;
 
-@Controller
+@Controller("/api/v2/admin/groups")
 public class GroupController {
-	
-@Inject
-protected GroupService groupService;
 
-	@Get("/api/v2/admin/groups")
+	@Inject
+	protected GroupService groupService;
+
+	@Get("/")
 	@Secured(User.ROLE_ADMIN)
 	public List<Group> list() {
 
