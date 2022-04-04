@@ -5,13 +5,18 @@ import java.util.List;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.Page;
+import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
 public class UserService {
 
+	public static final String MESSAGE_USER_NOT_FOUND = "User %s not found.";
+
+	
 	@Inject
 	protected Application application;
 
@@ -58,5 +63,26 @@ public class UserService {
 		return result;
 
 	}
-
+	
+	public User getByUsername(String username) {
+		UserDao dao = new UserDao(application.getDatabase());
+		User user = dao.findByUsername(username);
+		if (user == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(MESSAGE_USER_NOT_FOUND, username));
+		}
+		return user;
+	}
+	
+	public User deleteUser(User user) {
+		UserDao dao = new UserDao(application.getDatabase());
+		dao.delete(user);
+		return user;
+	}
+	
+	public User changeRoles(User user, String roles) {
+		UserDao dao = new UserDao(application.getDatabase());
+		user.setRoles(roles.split(User.ROLE_SEPARATOR));
+		dao.update(user);
+		return user;
+	}
 }

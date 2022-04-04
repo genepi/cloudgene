@@ -30,6 +30,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.server.multipart.MultipartBody;
 import io.micronaut.security.annotation.Secured;
@@ -214,11 +215,11 @@ public class JobController {
 
 	@Get("/{id}/reset")
 	@Secured(User.ROLE_ADMIN)
-	public MessageResponse reset(String id, @Nullable @QueryValue("max") String max) {
+	public MessageResponse reset(String id, @Nullable @QueryValue("max") Integer max) {
 
 		int maxDownloads = application.getSettings().getMaxDownloads();
 		if (max != null) {
-			maxDownloads = Integer.parseInt(max);
+			maxDownloads = max;
 		}
 
 		AbstractJob job = jobService.getById(id);
@@ -255,6 +256,17 @@ public class JobController {
 
 		AbstractJob job = jobService.getById(id);
 		String message = jobService.archive(job);
+		return MessageResponse.success(message);
+
+	}
+
+	@Get("/{id}/change-retire/{days}")
+	@Secured(User.ROLE_ADMIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	public MessageResponse increaseRetireDate(String id, Integer days) {
+
+		AbstractJob job = jobService.getById(id);
+		String message = jobService.increaseRetireDate(job, days);
 		return MessageResponse.success(message);
 
 	}
