@@ -19,6 +19,7 @@ import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.server.responses.ApplicationResponse;
+import cloudgene.mapred.server.services.ApplicationService;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -41,10 +42,7 @@ import net.sf.json.JSONObject;
 @Controller
 public class AppController {
 
-	private static final String HADOOP_CLUSTER_UNREACHABLE = "Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.";
-	private static final String UNDER_MAINTENANCE = "This functionality is currently under maintenance.";
 	private static final String APPLICATION_NOT_FOUND = "Application %s not found or the request requires user authentication.";
-	private static final String APPLICATION_IS_DATA_PACKAGE = "Application %s is a data package.";
 	private static final String APPLICATION_NOT_REMOVED = "Application not removed: %s";
 	private static final String APPLICATION_NOT_UPDATED = "Application not updated: %s";
 	private static final String APPLICATION_NOT_INSTALLED = "Application not installed. ";
@@ -56,6 +54,9 @@ public class AppController {
 
 	@Inject
 	protected AuthenticationService authenticationService;
+	
+	@Inject
+	protected ApplicationService applicationService;
 
 	private static final Log log = LogFactory.getLog(AppController.class);
 
@@ -65,37 +66,18 @@ public class AppController {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
+		Application app = applicationService.getbyIdAndUser(user, appId);
+		
+		applicationService.chcekRequirements(app);
+		
 		Settings settings = application.getSettings();
 
-		if (settings.isMaintenance() && (user == null || !user.isAdmin())) {
-			throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE, UNDER_MAINTENANCE);
-		}
+		List<WdlApp> apps = settings.getApplicationRepository().getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
 
-		ApplicationRepository repository = settings.getApplicationRepository();
-		Application application = repository.getByIdAndUser(appId, user);
-
-		if (application == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
-		}
-
-		WdlApp wdlApp = application.getWdlApp();
-		if (wdlApp.getWorkflow() == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_IS_DATA_PACKAGE, appId));
-		}
-
-		if (wdlApp.getWorkflow().hasHdfsInputs()) {
-
-			PluginManager manager = PluginManager.getInstance();
-			if (!manager.isEnabled(HadoopPlugin.ID)) {
-				throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE, HADOOP_CLUSTER_UNREACHABLE);
-			}
-		}
-
-		List<WdlApp> apps = repository.getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
-
-		JSONObject jsonObject = JSONConverter.convert(application.getWdlApp());
-
-		List<WdlParameterInput> params = wdlApp.getWorkflow().getInputs();
+		JSONObject jsonObject = JSONConverter.convert(app.getWdlApp());
+		
+		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
+		
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
 		jsonObject.put("params", jsonArray);
