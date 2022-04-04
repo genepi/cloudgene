@@ -42,8 +42,6 @@ import net.sf.json.JSONObject;
 @Controller
 public class AppController {
 
-	private static final String APPLICATION_NOT_FOUND = "Application %s not found or the request requires user authentication.";
-	private static final String APPLICATION_NOT_UPDATED = "Application not updated: %s";
 	private static final String APPLICATION_NOT_INSTALLED = "Application not installed. ";
 	private static final String NO_URL = "No url or file location set.";
 	private static final String APPLICATION_NOT_INSTALLED_NO_WORKFLOW = "Application not installed: No workflow file found.";
@@ -106,68 +104,25 @@ public class AppController {
 
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 		Application application = repository.getById(appId);
-		if (application != null) {
 
-			try {
-				// enable or disable
-				if (enabled != null) {
-					if (application.isEnabled() && enabled.equals("false")) {
-						application.setEnabled(false);
-						repository.reload();
-						this.application.getSettings().save();
-					} else if (!application.isEnabled() && enabled.equals("true")) {
-						application.setEnabled(true);
-						repository.reload();
-						this.application.getSettings().save();
-					}
-				}
+		// enable or disable
+		applicationService.enableApp(appId, enabled);
 
-				// update permissions
-				if (permission != null) {
-					if (!application.getPermission().equals(permission)) {
-						application.setPermission(permission);
-						repository.reload();
-						this.application.getSettings().save();
-					}
-				}
+		// update permissions
+		applicationService.updatePermissions(appId, permission);
 
-				WdlApp wdlApp = application.getWdlApp();
+		// update config
+		applicationService.updateConfig(appId, config);
 
-				if (config != null) {
+		// reinstall application
+		applicationService.reinstallApp(appId, reinstall);
 
-					Map<String, String> updatedConfig = repository.getConfig(wdlApp);
-					updatedConfig.put("nextflow.config", config.get("nextflow.config"));
-					updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
-					updatedConfig.put("nextflow.work", config.get("nextflow.work"));
-					repository.updateConfig(wdlApp, updatedConfig);
-				}
+		application.checkForChanges();
 
-				// reinstall application
-				if (reinstall != null) {
-					if (reinstall.equals("true")) {
-						boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
-						if (installed) {
-							ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
-						}
-					}
-				}
+		ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application,
+				this.application.getSettings(), repository);
 
-				application.checkForChanges();
-
-				ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application,
-						this.application.getSettings(), repository);
-
-				return appResponse;
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-						String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
-			}
-
-		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
-		}
+		return appResponse;
 	}
 
 	@Post("/api/v2/server/apps")
@@ -213,19 +168,9 @@ public class AppController {
 	@Secured(User.ROLE_ADMIN)
 	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") String reload) {
 
+		List<Application> apps = applicationService.listApps(reload);
+
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
-
-		if (reload != null && reload.equals("true")) {
-			repository.reload();
-		}
-
-		List<Application> apps = new Vector<Application>(repository.getAll());
-		Collections.sort(apps);
-
-		for (Application app : apps) {
-			app.checkForChanges();
-
-		}
 
 		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);
 
