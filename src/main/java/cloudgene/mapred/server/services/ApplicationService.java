@@ -38,7 +38,7 @@ public class ApplicationService {
 	@Inject
 	protected cloudgene.mapred.server.Application application;
 
-	public Application getbyIdAndUser(User user, String appId) {
+	public Application getByIdAndUser(User user, String appId) {
 
 		Settings settings = application.getSettings();
 
@@ -57,7 +57,7 @@ public class ApplicationService {
 
 	}
 
-	public void chcekRequirements(Application app) {
+	public void checkRequirements(Application app) {
 
 		WdlApp wdlApp = app.getWdlApp();
 

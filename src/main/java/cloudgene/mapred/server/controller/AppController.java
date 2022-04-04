@@ -45,9 +45,9 @@ public class AppController {
 	public String getApp(@Nullable Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-		Application app = applicationService.getbyIdAndUser(user, appId);
+		Application app = applicationService.getByIdAndUser(user, appId);
 
-		applicationService.chcekRequirements(app);
+		applicationService.checkRequirements(app);
 
 		List<WdlApp> apps = application.getSettings().getApplicationRepository().getAllByUser(user,
 				ApplicationRepository.APPS_AND_DATASETS);
