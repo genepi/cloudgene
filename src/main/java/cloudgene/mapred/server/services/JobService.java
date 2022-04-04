@@ -389,6 +389,31 @@ public class JobService {
 
 	}
 
+	public String increaseRetireDate(AbstractJob job, int days) {
+
+		JobDao dao = new JobDao(application.getDatabase());
+		if (job.getState() == AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND
+				|| job.getState() == AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND) {
+
+			try {
+
+				job.setDeletedOn(job.getDeletedOn() + (days * 24 * 60 * 60 * 1000));
+
+				dao.update(job);
+
+				return "Update delete on date for job " + job.getId() + ".";
+
+			} catch (Exception e) {
+
+				return "Update delete date for job " + job.getId() + " failed.";
+			}
+
+		} else {
+			return "Job " + job.getId() + " has wrong state for this operation.";
+		}
+
+	}
+
 	public String createId() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss-SSS");
 		return "job-" + sdf.format(new Date());

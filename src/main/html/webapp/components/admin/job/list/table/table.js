@@ -172,7 +172,7 @@ export default Control.extend({
       function(result) {
         if (result) {
           var days = $('#message').val();
-          $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/' + days).then(
+          $.get('api/v2/jobs/' + job.attr('id') + '/change-retire/' + days).then(
             function(data) {
               bootbox.alert(data);
               that.init(that.element, that.options);
