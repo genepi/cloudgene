@@ -43,7 +43,6 @@ import net.sf.json.JSONObject;
 public class AppController {
 
 	private static final String APPLICATION_NOT_FOUND = "Application %s not found or the request requires user authentication.";
-	private static final String APPLICATION_NOT_REMOVED = "Application not removed: %s";
 	private static final String APPLICATION_NOT_UPDATED = "Application not updated: %s";
 	private static final String APPLICATION_NOT_INSTALLED = "Application not installed. ";
 	private static final String NO_URL = "No url or file location set.";
@@ -54,7 +53,7 @@ public class AppController {
 
 	@Inject
 	protected AuthenticationService authenticationService;
-	
+
 	@Inject
 	protected ApplicationService applicationService;
 
@@ -67,23 +66,22 @@ public class AppController {
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
 		Application app = applicationService.getbyIdAndUser(user, appId);
-		
-		applicationService.chcekRequirements(app);
-		
-		Settings settings = application.getSettings();
 
-		List<WdlApp> apps = settings.getApplicationRepository().getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
+		applicationService.chcekRequirements(app);
+
+		List<WdlApp> apps = application.getSettings().getApplicationRepository().getAllByUser(user,
+				ApplicationRepository.APPS_AND_DATASETS);
 
 		JSONObject jsonObject = JSONConverter.convert(app.getWdlApp());
-		
+
 		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
-		
+
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
 		jsonObject.put("params", jsonArray);
 
-		jsonObject.put("s3Workspace", settings.getExternalWorkspaceType().equalsIgnoreCase("S3")
-				&& settings.getExternalWorkspaceLocation().isEmpty());
+		jsonObject.put("s3Workspace", application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
+				&& application.getSettings().getExternalWorkspaceLocation().isEmpty());
 
 		String footer = this.application.getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
@@ -97,25 +95,8 @@ public class AppController {
 	@Delete("/api/v2/server/apps/{appId}")
 	@Secured(User.ROLE_ADMIN)
 	public ApplicationResponse removeApp(String appId) {
-
-		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-		Application application = repository.getById(appId);
-		if (application != null) {
-			try {
-				repository.remove(application);
-				this.application.getSettings().save();
-
-				return ApplicationResponse.build(application, this.application.getSettings());
-
-			} catch (Exception e) {
-				e.printStackTrace();
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-						String.format(APPLICATION_NOT_REMOVED, e.getMessage()));
-			}
-		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
-		}
-
+		Application app = applicationService.removeApp(appId);
+		return ApplicationResponse.build(app, this.application.getSettings());
 	}
 
 	@Put("/api/v2/server/apps/{appId}")

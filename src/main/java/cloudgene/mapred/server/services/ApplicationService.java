@@ -6,6 +6,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.responses.ApplicationResponse;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import io.micronaut.http.HttpStatus;
@@ -17,6 +18,7 @@ public class ApplicationService {
 	private static final String APPLICATION_NOT_FOUND = "Application %s not found or the request requires user authentication.";
 	private static final String HADOOP_CLUSTER_UNREACHABLE = "Hadoop cluster seems unreachable or misconfigured. Hadoop support is disabled, but this application requires it.";
 	private static final String APPLICATION_IS_DATA_PACKAGE = "Application %s is a data package.";
+	private static final String APPLICATION_NOT_REMOVED = "Application not removed: %s";
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;
@@ -55,6 +57,28 @@ public class ApplicationService {
 			if (!manager.isEnabled(HadoopPlugin.ID)) {
 				throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE, HADOOP_CLUSTER_UNREACHABLE);
 			}
+		}
+
+	}
+
+	public Application removeApp(String appId) {
+
+		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
+		Application app = repository.getById(appId);
+
+		if (app != null) {
+			try {
+				repository.remove(app);
+				this.application.getSettings().save();
+				return app;
+
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+						String.format(APPLICATION_NOT_REMOVED, e.getMessage()));
+			}
+		} else {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
 
 	}
