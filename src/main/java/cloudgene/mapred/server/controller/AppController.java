@@ -1,31 +1,20 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
-import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.server.responses.ApplicationResponse;
 import cloudgene.mapred.server.services.ApplicationService;
 import cloudgene.mapred.util.JSONConverter;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
@@ -42,10 +31,6 @@ import net.sf.json.JSONObject;
 @Controller
 public class AppController {
 
-	private static final String APPLICATION_NOT_INSTALLED = "Application not installed. ";
-	private static final String NO_URL = "No url or file location set.";
-	private static final String APPLICATION_NOT_INSTALLED_NO_WORKFLOW = "Application not installed: No workflow file found.";
-
 	@Inject
 	protected cloudgene.mapred.server.Application application;
 
@@ -55,14 +40,11 @@ public class AppController {
 	@Inject
 	protected ApplicationService applicationService;
 
-	private static final Log log = LogFactory.getLog(AppController.class);
-
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String getApp(@Nullable Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
 		Application app = applicationService.getbyIdAndUser(user, appId);
 
 		applicationService.chcekRequirements(app);
@@ -71,16 +53,13 @@ public class AppController {
 				ApplicationRepository.APPS_AND_DATASETS);
 
 		JSONObject jsonObject = JSONConverter.convert(app.getWdlApp());
-
 		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
 
 		JSONArray jsonArray = JSONConverter.convert(params, apps);
 
 		jsonObject.put("params", jsonArray);
-
 		jsonObject.put("s3Workspace", application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& application.getSettings().getExternalWorkspaceLocation().isEmpty());
-
 		String footer = this.application.getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
 			jsonObject.put("footer", footer);
@@ -107,13 +86,10 @@ public class AppController {
 
 		// enable or disable
 		applicationService.enableApp(appId, enabled);
-
 		// update permissions
 		applicationService.updatePermissions(appId, permission);
-
 		// update config
 		applicationService.updateConfig(appId, config);
-
 		// reinstall application
 		applicationService.reinstallApp(appId, reinstall);
 
@@ -128,52 +104,17 @@ public class AppController {
 	@Post("/api/v2/server/apps")
 	@Secured(User.ROLE_ADMIN)
 	public ApplicationResponse install(@Nullable String url) {
-
-		try {
-
-			if (url == null) {
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, NO_URL);
-			}
-
-			ApplicationRepository repository = application.getSettings().getApplicationRepository();
-
-			try {
-
-				Application app = repository.install(url);
-
-				application.getSettings().save();
-
-				if (application != null) {
-					return ApplicationResponse.buildWithDetails(app, application.getSettings(), repository);
-				} else {
-					throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, APPLICATION_NOT_INSTALLED_NO_WORKFLOW);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				log.error(APPLICATION_NOT_INSTALLED, e);
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-						String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
-			}
-
-		} catch (Error e) {
-			e.printStackTrace();
-			log.error(APPLICATION_NOT_INSTALLED, e);
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-					String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
-		}
-
+		Application app = applicationService.installApp(url);
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
+		return ApplicationResponse.buildWithDetails(app, application.getSettings(), repository);
 	}
 
 	@Get("/api/v2/server/apps")
 	@Secured(User.ROLE_ADMIN)
 	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") String reload) {
-
 		List<Application> apps = applicationService.listApps(reload);
-
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
-
 		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);
-
 	}
 
 }
