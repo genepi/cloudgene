@@ -45,11 +45,11 @@ public class AppController {
 	public String getApp(@Nullable Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-		Application app = applicationService.getbyIdAndUser(user, appId);
+		Application app = applicationService.getByIdAndUser(user, appId);
 
-		applicationService.chcekRequirements(app);
-
-		List<WdlApp> apps = application.getSettings().getApplicationRepository().getAllByUser(user,
+		applicationService.checkRequirements(app);
+		ApplicationRepository repository = applicationService.getRepository();
+		List<WdlApp> apps = repository.getAllByUser(user,
 				ApplicationRepository.APPS_AND_DATASETS);
 
 		JSONObject jsonObject = JSONConverter.convert(app.getWdlApp());
@@ -81,22 +81,23 @@ public class AppController {
 	public ApplicationResponse updateApp(String appId, @Nullable String enabled, @Nullable String permission,
 			@Nullable String reinstall, @Nullable Map<String, String> config) {
 
-		ApplicationRepository repository = application.getSettings().getApplicationRepository();
-		Application application = repository.getById(appId);
+		Application app = applicationService.getById(appId);
 
 		// enable or disable
-		applicationService.enableApp(appId, enabled);
+		applicationService.enableApp(app, enabled);
 		// update permissions
-		applicationService.updatePermissions(appId, permission);
+		applicationService.updatePermissions(app, permission);
 		// update config
-		applicationService.updateConfig(appId, config);
+		applicationService.updateConfig(app, config);
 		// reinstall application
-		applicationService.reinstallApp(appId, reinstall);
+		applicationService.reinstallApp(app, reinstall);
 
-		application.checkForChanges();
+		app.checkForChanges();
 
-		ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(application,
-				this.application.getSettings(), repository);
+		ApplicationRepository repository = applicationService.getRepository();
+
+		ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(app, this.application.getSettings(),
+				repository);
 
 		return appResponse;
 	}
@@ -105,7 +106,7 @@ public class AppController {
 	@Secured(User.ROLE_ADMIN)
 	public ApplicationResponse install(@Nullable String url) {
 		Application app = applicationService.installApp(url);
-		ApplicationRepository repository = application.getSettings().getApplicationRepository();
+		ApplicationRepository repository = applicationService.getRepository();
 		return ApplicationResponse.buildWithDetails(app, application.getSettings(), repository);
 	}
 
@@ -113,7 +114,7 @@ public class AppController {
 	@Secured(User.ROLE_ADMIN)
 	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") String reload) {
 		List<Application> apps = applicationService.listApps(reload);
-		ApplicationRepository repository = application.getSettings().getApplicationRepository();
+		ApplicationRepository repository = applicationService.getRepository();
 		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);
 	}
 

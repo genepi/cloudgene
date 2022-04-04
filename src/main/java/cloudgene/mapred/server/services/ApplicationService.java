@@ -38,7 +38,20 @@ public class ApplicationService {
 	@Inject
 	protected cloudgene.mapred.server.Application application;
 
-	public Application getbyIdAndUser(User user, String appId) {
+	public Application getById(String appId) {
+
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
+		Application app = repository.getById(appId);
+
+		if (app == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
+		}
+
+		return app;
+
+	}
+
+	public Application getByIdAndUser(User user, String appId) {
 
 		Settings settings = application.getSettings();
 
@@ -57,7 +70,7 @@ public class ApplicationService {
 
 	}
 
-	public void chcekRequirements(Application app) {
+	public void checkRequirements(Application app) {
 
 		WdlApp wdlApp = app.getWdlApp();
 
@@ -98,32 +111,27 @@ public class ApplicationService {
 
 	}
 
-	public void enableApp(String appId, String enabled) {
+	public void enableApp(Application app, String enabled) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-		Application app = repository.getById(appId);
-		if (app != null) {
-			if (enabled != null) {
-				if (app.isEnabled() && enabled.equals("false")) {
-					app.setEnabled(false);
-					repository.reload();
-					this.application.getSettings().save();
-				} else if (!app.isEnabled() && enabled.equals("true")) {
-					app.setEnabled(true);
-					repository.reload();
-					this.application.getSettings().save();
-				}
-			}
 
-		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
+		if (enabled != null) {
+			if (app.isEnabled() && enabled.equals("false")) {
+				app.setEnabled(false);
+				repository.reload();
+				this.application.getSettings().save();
+			} else if (!app.isEnabled() && enabled.equals("true")) {
+				app.setEnabled(true);
+				repository.reload();
+				this.application.getSettings().save();
+			}
 		}
+
 	}
 
-	public void updatePermissions(String appId, String permission) {
+	public void updatePermissions(Application app, String permission) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-		Application app = repository.getById(appId);
 		if (app != null) {
 			if (permission != null) {
 				if (!app.getPermission().equals(permission)) {
@@ -132,57 +140,44 @@ public class ApplicationService {
 					this.application.getSettings().save();
 				}
 			}
-		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
 	}
 
-	public void updateConfig(String appId, Map<String, String> config) {
+	public void updateConfig(Application app, Map<String, String> config) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-		Application app = repository.getById(appId);
-		if (app != null) {
-			WdlApp wdlApp = app.getWdlApp();
+		WdlApp wdlApp = app.getWdlApp();
 
-			if (config != null) {
+		if (config != null) {
 
-				Map<String, String> updatedConfig = repository.getConfig(wdlApp);
-				updatedConfig.put("nextflow.config", config.get("nextflow.config"));
-				updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
-				updatedConfig.put("nextflow.work", config.get("nextflow.work"));
-				repository.updateConfig(wdlApp, updatedConfig);
-			}
-
-		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
+			Map<String, String> updatedConfig = repository.getConfig(wdlApp);
+			updatedConfig.put("nextflow.config", config.get("nextflow.config"));
+			updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
+			updatedConfig.put("nextflow.work", config.get("nextflow.work"));
+			repository.updateConfig(wdlApp, updatedConfig);
 		}
 	}
 
-	public void reinstallApp(String appId, String reinstall) {
+	public void reinstallApp(Application app, String reinstall) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-		Application app = repository.getById(appId);
-		if (app != null) {
-			WdlApp wdlApp = app.getWdlApp();
+		WdlApp wdlApp = app.getWdlApp();
 
-			if (reinstall != null) {
-				if (reinstall.equals("true")) {
-					boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
-					if (installed) {
-						try {
-							ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
-						} catch (IOException e) {
-							e.printStackTrace();
-							throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-									String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
-						}
+		if (reinstall != null) {
+			if (reinstall.equals("true")) {
+				boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
+				if (installed) {
+					try {
+						ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
+					} catch (IOException e) {
+						e.printStackTrace();
+						throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+								String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
 					}
 				}
 			}
-
-		} else {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, String.format(APPLICATION_NOT_FOUND, appId));
 		}
+
 	}
 
 	public List<Application> listApps(String reload) {
@@ -239,4 +234,7 @@ public class ApplicationService {
 
 	}
 
+	public ApplicationRepository getRepository() {
+		return this.application.getSettings().getApplicationRepository();
+	}
 }
