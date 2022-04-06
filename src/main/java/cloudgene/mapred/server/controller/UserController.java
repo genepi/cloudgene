@@ -2,8 +2,6 @@ package cloudgene.mapred.server.controller;
 
 import java.util.List;
 
-import javax.validation.constraints.NotBlank;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
@@ -16,7 +14,6 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
@@ -50,7 +47,7 @@ public class UserController {
 
 	@Post("/api/v2/admin/users/{username}/delete")
 	@Secured(User.ROLE_ADMIN)
-	public UserResponse delete(@PathVariable @NotBlank String username) {
+	public UserResponse delete(String username) {
 		User user = userService.getByUsername(username);
 		user = userService.deleteUser(user);
 		return UserResponse.build(user);
@@ -59,9 +56,9 @@ public class UserController {
 	@Post("/api/v2/admin/users/changegroup")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(User.ROLE_ADMIN)
-	public UserResponse changeGroup(@NotBlank String username, @NotBlank String roles) {
+	public UserResponse changeGroup(String username, String role) {
 		User user = userService.getByUsername(username);
-		user = userService.changeRoles(user, roles);
+		user = userService.changeRoles(user, role);
 		return UserResponse.build(user);
 	}
 
