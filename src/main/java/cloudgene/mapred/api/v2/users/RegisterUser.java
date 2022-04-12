@@ -5,6 +5,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.responses.MessageResponse;
+import cloudgene.mapred.server.services.UserService;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import io.micronaut.http.HttpResponse;
@@ -24,8 +25,6 @@ public class RegisterUser {
 	private static final String MESAGE_EMAIL_ALREADY_REGISTERED = "E-Mail is already registered.";
 
 	private static final String MESSAGE_USERNAME_ALREADY_EXISTS = "Username already exists.";
-
-	public static final String DEFAULT_ROLE = "User";
 
 	@Inject
 	protected Application application;
@@ -71,7 +70,7 @@ public class RegisterUser {
 		newUser.setUsername(username);
 		newUser.setFullName(full_name);
 		newUser.setMail(mail);
-		newUser.setRoles(new String[] { DEFAULT_ROLE });
+		newUser.setRoles(new String[] { UserService.DEFAULT_ROLE });
 		newUser.setPassword(HashUtil.hashPassword(new_password));
 
 		try {

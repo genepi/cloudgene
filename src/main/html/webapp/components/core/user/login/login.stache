@@ -21,6 +21,15 @@
   </div>
 </form>
 
+<hr>
+
+</p>or sign in with: </p>
+
+<ul>
+<li><a href="/oauth/login/google">Google</a></li>
+</ul>
+
+
 <br>
 <p>New user? <a href="#!pages/register">Sign up for free</a></p>
 <p>Forgotten your password? <a href="#!pages/reset-password">Reset your password</a></p>

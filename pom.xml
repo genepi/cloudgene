@@ -225,11 +225,11 @@
 
 		<!-- Logging -->
 
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>jcl-over-slf4j</artifactId>
-    <version>1.7.28</version>
-</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>1.7.28</version>
+		</dependency>
 
 		<!-- End Logging -->
 
@@ -250,7 +250,7 @@
 			<artifactId>velocity</artifactId>
 			<version>1.7</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
@@ -459,11 +459,28 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>io.micronaut.security</groupId>
+			<artifactId>micronaut-security-oauth2</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.micronaut.reactor</groupId>
 			<artifactId>micronaut-reactor</artifactId>
 			<scope>compile</scope>
 		</dependency>
-	
+		
+		<dependency>
+   <groupId>io.netty</groupId>
+   <artifactId>netty-resolver-dns-classes-macos	</artifactId>
+   			<scope>runtime</scope>
+</dependency>
+		
+		
+<dependency>
+   <groupId>io.netty</groupId>
+   <artifactId>netty-resolver-dns-native-macos</artifactId>
+   			<scope>runtime</scope>
+</dependency>
 
 		<dependency>
 			<groupId>jakarta.annotation</groupId>

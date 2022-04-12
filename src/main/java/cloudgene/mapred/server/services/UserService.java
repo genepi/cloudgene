@@ -16,6 +16,7 @@ public class UserService {
 
 	public static final String MESSAGE_USER_NOT_FOUND = "User %s not found.";
 
+	public static final String DEFAULT_ROLE = "User";
 	
 	@Inject
 	protected Application application;
