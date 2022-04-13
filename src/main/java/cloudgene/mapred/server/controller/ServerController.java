@@ -17,6 +17,7 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
+import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
@@ -30,6 +31,9 @@ public class ServerController {
 	@Inject
 	protected AuthenticationService authenticationService;
 
+	@Inject
+	protected List< OauthClientConfigurationProperties> clients;
+	
 	@Get("/")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String get(@Nullable Authentication authentication) {
@@ -45,6 +49,12 @@ public class ServerController {
 		data.put("foreground", application.getSettings().getColors().get("foreground"));
 		data.put("footer", application.getTemplate(Template.FOOTER));
 
+		List<String> authClients = new Vector<String>();
+		for ( OauthClientConfigurationProperties client: clients) {
+			authClients.add(client.getName());
+		}
+		data.put("oauth", authClients);
+		
 		if (user != null) {
 			JSONObject userJson = new JSONObject();
 			userJson.put("username", user.getUsername());

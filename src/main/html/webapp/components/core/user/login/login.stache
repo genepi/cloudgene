@@ -26,7 +26,9 @@
 </p>or sign in with: </p>
 
 <ul>
-<li><a href="/oauth/login/google">Google</a></li>
+  {{#oauth}}
+    <li><a href="/oauth/login/{{.}}">{{.}}</a></li>
+  {{/oauth}}
 </ul>
 
 

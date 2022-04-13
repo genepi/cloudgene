@@ -9,7 +9,9 @@ export default Control.extend({
 
   "init": function(element, options) {
     $(element).hide();
-    $(element).html(template());
+    $(element).html(template({
+      oauth: options.appState.attr('oauth')
+    }));
     $(element).fadeIn();
   },
 
