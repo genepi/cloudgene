@@ -1,7 +1,6 @@
 package cloudgene.mapred.server.controller;
 
 import java.io.File;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -10,17 +9,16 @@ import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
-import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.ParameterDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import cloudgene.sdk.internal.IExternalWorkspace;
+import cloudgene.mapred.server.services.DownloadService;
+import cloudgene.mapred.server.services.JobService;
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -34,7 +32,7 @@ import jakarta.inject.Inject;
 @Controller
 public class DownloadController {
 
-	private static final Log log = LogFactory.getLog(DownloadController.class);
+	protected static final Log log = LogFactory.getLog(DownloadController.class);
 
 	@Inject
 	protected Application application;
@@ -42,32 +40,26 @@ public class DownloadController {
 	@Inject
 	protected AuthenticationService authenticationService;
 
+	@Inject
+	protected DownloadService downloadService;
+
+	@Inject
+	protected JobService jobService;
+
 	@Get("/results/{jobId}/{paramId}/{filename}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public HttpResponse<File> download(Authentication authentication, String jobId, String paramId, String filename)
 			throws URISyntaxException {
 
-		JobDao jobDao = new JobDao(application.getDatabase());
-		AbstractJob job = jobDao.findById(jobId);
-
-		if (job == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
-		}
-
-		// job is running -> load it from queue
-		if (job.getState() == AbstractJob.STATE_WAITING || job.getState() == AbstractJob.STATE_RUNNING
-				|| job.getState() == AbstractJob.STATE_EXPORTING) {
-			job = application.getWorkflowEngine().getJobById(jobId);
-		}
-
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
-		}
+		AbstractJob job = jobService.getByIdAndUser(jobId, user);
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByJobAndPath(jobId, FileUtil.path(paramId, filename));
+		System.out.println(jobId);
+		System.out.println(paramId);
+		System.out.println(filename);
 
 		// job is running and not in database --> download possible of
 		// autoexport params
@@ -86,59 +78,18 @@ public class DownloadController {
 			}
 		}
 
-		if (download == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
-		}
-
-		if (download.getCount() == 0) {
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "number of max downloads exceeded.");
-		}
-
-		// update download counter if it not set to unlimited
-		if (download.getCount() != -1) {
-			download.decCount();
-			dao.update(download);
-		}
-
-		IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
-		if (externalWorkspace != null) {
-			// external workspace found, use link method and create redirect response
-			String publicUrl = externalWorkspace.createPublicLink(download.getPath());
-			URI location = new URI(publicUrl);
-			return HttpResponse.redirect(location);
-		} else {
-			// no external workspace found, use local workspace
-			String localWorkspace = application.getSettings().getLocalWorkspace();
-			String resultFile = FileUtil.path(localWorkspace, download.getPath());
-			log.debug("Downloading file from local workspace " + resultFile);
-			return HttpResponse.ok(new File(resultFile));
-		}
+		return downloadService.download(download);
 
 	}
-	
+
 	@Get("/downloads/{jobId}/{hash}/{filename}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<File> downloadExternalResults(Authentication authentication, String jobId, String hash, String filename)
-			throws URISyntaxException {
-
-		JobDao jobDao = new JobDao(application.getDatabase());
-		AbstractJob job = jobDao.findById(jobId);
-
-		if (job == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
-		}
-
-		// job is running -> load it from queue
-		if (job.getState() == AbstractJob.STATE_WAITING || job.getState() == AbstractJob.STATE_RUNNING
-				|| job.getState() == AbstractJob.STATE_EXPORTING) {
-			job = application.getWorkflowEngine().getJobById(jobId);
-		}
+	public HttpResponse<File> downloadExternalResults(Authentication authentication, String jobId, String hash,
+			String filename) throws URISyntaxException {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
-		}
+		AbstractJob job = jobService.getByIdAndUser(jobId, user);
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
@@ -157,41 +108,10 @@ public class DownloadController {
 			}
 		}
 
-		if (download == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
-		}
-
-		if (!download.getName().endsWith(filename)) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
-		}
-
-		if (download.getCount() == 0) {
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "number of max downloads exceeded.");
-		}
-
-		// update download counter if it not set to unlimited
-		if (download.getCount() != -1) {
-			download.decCount();
-			dao.update(download);
-		}
-
-		IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
-		if (externalWorkspace != null) {
-			// external workspace found, use link method and create redirect response
-			String publicUrl = externalWorkspace.createPublicLink(download.getPath());
-			URI location = new URI(publicUrl);
-			return HttpResponse.redirect(location);
-		} else {
-			// no external workspace found, use local workspace
-			String localWorkspace = application.getSettings().getLocalWorkspace();
-			String resultFile = FileUtil.path(localWorkspace, download.getPath());
-			log.debug("Downloading file from local workspace " + resultFile);
-			return HttpResponse.ok(new File(resultFile));
-		}
+		return downloadService.download(download);
 
 	}
 
-	
 	@Get("/get/{paramId}/{hash}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String downloadScript(String paramId, String hash) {
@@ -240,30 +160,14 @@ public class DownloadController {
 		return script.toString();
 
 	}
-	
-	
+
 	@Get("/api/v2/jobs/{jobId}/chunks/{filename}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public File downloadChunk(Authentication authentication, String jobId, String filename) {
 
-		JobDao jobDao = new JobDao(application.getDatabase());
-		AbstractJob job = jobDao.findById(jobId);
+		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
-		if (job == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + jobId + " not found.");
-		}
-
-		// job is running -> load it from queue
-		if (job.getState() == AbstractJob.STATE_WAITING || job.getState() == AbstractJob.STATE_RUNNING
-				|| job.getState() == AbstractJob.STATE_EXPORTING) {
-			job = application.getWorkflowEngine().getJobById(jobId);
-		}
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
-		}
+		AbstractJob job = jobService.getByIdAndUser(jobId, user);
 
 		String resultFile = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "chunks",
 				filename);
@@ -271,48 +175,16 @@ public class DownloadController {
 		return new File(resultFile);
 
 	}
-	
-	
-	@Get("/share/{username}/{hash}/{filename}")
+
+	@Get("/share/results/{hash}/{filename}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> downloadPublicLink(String username, String hash, String filename) throws URISyntaxException {
+	public HttpResponse<File> downloadPublicLink(String hash, String filename) throws URISyntaxException {
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 
-		if (download == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
-		}
-
-		if (!download.getName().equals(filename)) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "download not found.");
-		}
-
-		if (download.getCount() == 0) {
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "number of max downloads exceeded.");
-		}
-
-		// update download counter if it not set to unlimited
-		if (download.getCount() != -1) {
-			download.decCount();
-			dao.update(download);
-		}
-
-		IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
-		if (externalWorkspace != null) {
-			// external workspace found, use link method and create redirect response
-			String publicUrl = externalWorkspace.createPublicLink(download.getPath());
-			URI location = new URI(publicUrl);
-			return HttpResponse.redirect(location);
-		} else {
-			// no external workspace found, use local workspace
-			String localWorkspace = application.getSettings().getLocalWorkspace();
-			String resultFile = FileUtil.path(localWorkspace, download.getPath());
-			log.debug("Downloading file from local workspace " + resultFile);
-			return HttpResponse.ok(new File(resultFile));
-		}
+		return downloadService.download(download);
 
 	}
-
 
 }
