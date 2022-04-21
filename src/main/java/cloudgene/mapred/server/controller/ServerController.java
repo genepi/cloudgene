@@ -13,8 +13,10 @@ import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.responses.CounterResponse;
 import cloudgene.mapred.wdl.WdlApp;
 import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
@@ -32,8 +34,8 @@ public class ServerController {
 	protected AuthenticationService authenticationService;
 
 	@Inject
-	protected List< OauthClientConfigurationProperties> clients;
-	
+	protected List<OauthClientConfigurationProperties> clients;
+
 	@Get("/")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String get(@Nullable Authentication authentication) {
@@ -50,11 +52,11 @@ public class ServerController {
 		data.put("footer", application.getTemplate(Template.FOOTER));
 
 		List<String> authClients = new Vector<String>();
-		for ( OauthClientConfigurationProperties client: clients) {
+		for (OauthClientConfigurationProperties client : clients) {
 			authClients.add(client.getName());
 		}
 		data.put("oauth", authClients);
-		
+
 		if (user != null) {
 			JSONObject userJson = new JSONObject();
 			userJson.put("username", user.getUsername());
@@ -123,6 +125,40 @@ public class ServerController {
 
 	}
 
+	@Get("/queue/block")
+	@Secured(User.ROLE_ADMIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String blockQueue() {
+		application.getWorkflowEngine().block();
+		return "Queue blocked.";
+	}
+	
+	@Get("/queue/open")
+	@Secured(User.ROLE_ADMIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String openQueue() {
+		application.getWorkflowEngine().resume();
+		return "Queue opened.";
+	}
+
+	@Get("/maintenance/enter")
+	@Secured(User.ROLE_ADMIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String enterMaintenance() {
+		application.getSettings().setMaintenance(true);
+		application.getSettings().save();
+		return "Enter Maintenance mode.";
+	}
+	
+	@Get("/maintenance/exit")
+	@Secured(User.ROLE_ADMIN)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String exitMaintenance() {
+		application.getSettings().setMaintenance(false);
+		application.getSettings().save();
+		return "Exit Maintenance mode.";
+	}
+	
 	// TODO: add getStatistics
 
 }
