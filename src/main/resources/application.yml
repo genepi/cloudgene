@@ -24,11 +24,14 @@ micronaut:
             secret:
               generator:
                 secret: '"${JWT_GENERATOR_SIGNATURE_SECRET:pleaseChangeThisSecretForANewOne}"'
+      redirect:
+        enabled: false
+
       endpoints:
         login:
            enabled: false
         logout:
-           get-allowed: true 
+           get-allowed: true
 
   router:
     static-resources:
