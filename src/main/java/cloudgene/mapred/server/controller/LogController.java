@@ -1,17 +1,17 @@
 package cloudgene.mapred.server.controller;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
-import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.services.JobService;
 import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
-import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
@@ -26,53 +26,37 @@ public class LogController {
 	@Inject
 	protected AuthenticationService authenticationService;
 
+	@Inject
+	protected JobService jobService;
+
 	@Get("/logs/{id}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
+	@Produces(MediaType.TEXT_PLAIN)
 	public String getByJobs(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		JobDao jobDao = new JobDao(application.getDatabase());
-		AbstractJob job = jobDao.findById(id);
-
-		if (job == null) {
-			job = application.getWorkflowEngine().getJobById(id);
-		}
-
-		if (job == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Job " + id + " not found.");
-		}
-
-		if (!user.isAdmin() && job.getUser().getId() != user.getId()) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Access denied.");
-		}
+		AbstractJob job = jobService.getByIdAndUser(id, user);
 
 		Settings settings = application.getSettings();
 		// log file
-		String logFilename = FileUtil.path(settings.getLocalWorkspace(), id, "job.txt");
+		String logFilename = FileUtil.path(settings.getLocalWorkspace(), job.getId(), "job.txt");
 		String logContent = FileUtil.readFileAsString(logFilename);
 
 		// std out
-		String outputFilename = FileUtil.path(settings.getLocalWorkspace(), id, "std.out");
+		String outputFilename = FileUtil.path(settings.getLocalWorkspace(), job.getId(), "std.out");
 		String outputContent = FileUtil.readFileAsString(outputFilename);
 
 		StringBuffer buffer = new StringBuffer();
 
-		// buffer.append("<code><pre>");
-
 		if (!logContent.isEmpty()) {
 			buffer.append("job.txt:\n\n");
 			buffer.append(logContent);
-
 		}
 
 		if (!outputContent.isEmpty()) {
-
 			buffer.append("\n\nstd.out:\n\n");
 			buffer.append(outputContent);
-
 		}
-		// buffer.append("</code></pre>");
 		return buffer.toString();
 
 	}
