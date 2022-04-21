@@ -24,7 +24,7 @@ import genepi.io.FileUtil;
 
 public class Settings {
 
-	private String hostname = "http://locahost:8080";
+	private String hostname = "http://localhost:8080";
 	
 	private String hadoopPath = "/usr/";
 
