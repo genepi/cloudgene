@@ -40,11 +40,7 @@ function renderTreeItem(jobId, items, level) {
       html += renderTreeItem(jobId, items[i].childs, level + 1);
     } else {
       html += '<i class="far fa-file-alt text-muted fa-fw file-item-icon""></i>&nbsp;'
-      if (items[i].path.startsWith('s3://')) {
-        html += '<a class="file-item" href="downloads/' + jobId + '/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
-      } else {
-        html += '<a class="file-item" href="results/' + items[i].path + '" target="_blank">' + items[i].name + '</a>';
-      }
+      html += '<a class="file-item" href="downloads/' + jobId + '/' + items[i].hash + '/' + items[i].name + '" target="_blank">' + items[i].name + '</a>';
       html += '&nbsp;&nbsp;&nbsp;&nbsp;<span class="text-muted">(' + items[i].size + ")</span>";
     }
     html += "</li>";

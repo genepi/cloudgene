@@ -37,8 +37,6 @@ public class DownloadService {
 			download.decCount();
 			dao.update(download);
 		}
-
-		System.out.println(download.getPath());
 		
 		IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
 		if (externalWorkspace != null) {

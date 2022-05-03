@@ -46,50 +46,12 @@ public class DownloadController {
 	@Inject
 	protected JobService jobService;
 
-	@Get("/results/{jobId}/{paramId}/{filename}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<File> download(Authentication authentication, String jobId, String paramId, String filename)
+	@Get("/downloads/{jobId}/{hash}/{filename}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public HttpResponse<File> downloadExternalResults(String jobId, String hash, String filename)
 			throws URISyntaxException {
 
-		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		AbstractJob job = jobService.getByIdAndUser(jobId, user);
-
-		DownloadDao dao = new DownloadDao(application.getDatabase());
-		Download download = dao.findByJobAndPath(jobId, FileUtil.path(paramId, filename));
-		System.out.println(jobId);
-		System.out.println(paramId);
-		System.out.println(filename);
-
-		// job is running and not in database --> download possible of
-		// autoexport params
-		if (download == null) {
-			for (CloudgeneParameterOutput param : job.getOutputParams()) {
-				if ((param.isAutoExport() || !job.isRunning()) && param.getFiles() != null) {
-					for (Download download2 : param.getFiles()) {
-						if (download2.getPath().equals(FileUtil.path(jobId, paramId, filename))) {
-							download = download2;
-						}
-						if (download2.getPath().startsWith("s3://") && download2.getName().equals(filename)) {
-							download = download2;
-						}
-					}
-				}
-			}
-		}
-
-		return downloadService.download(download);
-
-	}
-
-	@Get("/downloads/{jobId}/{hash}/{filename}")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<File> downloadExternalResults(Authentication authentication, String jobId, String hash,
-			String filename) throws URISyntaxException {
-
-		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
-
-		AbstractJob job = jobService.getByIdAndUser(jobId, user);
+		AbstractJob job = jobService.getById(jobId);
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
@@ -107,6 +69,17 @@ public class DownloadController {
 				}
 			}
 		}
+
+		return downloadService.download(download);
+
+	}
+
+	@Get("/share/results/{hash}/{filename}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public HttpResponse<File> downloadPublicLink(String hash, String filename) throws URISyntaxException {
+
+		DownloadDao dao = new DownloadDao(application.getDatabase());
+		Download download = dao.findByHash(hash);
 
 		return downloadService.download(download);
 
@@ -173,17 +146,6 @@ public class DownloadController {
 				filename);
 
 		return new File(resultFile);
-
-	}
-
-	@Get("/share/results/{hash}/{filename}")
-	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> downloadPublicLink(String hash, String filename) throws URISyntaxException {
-
-		DownloadDao dao = new DownloadDao(application.getDatabase());
-		Download download = dao.findByHash(hash);
-
-		return downloadService.download(download);
 
 	}
 
