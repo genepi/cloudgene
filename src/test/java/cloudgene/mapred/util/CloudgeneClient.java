@@ -217,15 +217,46 @@ public class CloudgeneClient {
 
 	}
 
-	public String downloadResults(String path) throws IOException, JSONException, InterruptedException {
-		LoginToken token = loginAsPublicUser();
-		return downloadResults(path, token);
-	}
+	/*
+	 * public String downloadResults(String path) throws IOException, JSONException,
+	 * InterruptedException { LoginToken token = loginAsPublicUser(); return
+	 * downloadResults(path, token); }
+	 * 
+	 * public String downloadResults(String path, LoginToken loginCookie) throws
+	 * IOException, JSONException, InterruptedException {
+	 * 
+	 * ClientResource resourceDownload = createClientResource("/results/" + path,
+	 * loginCookie);
+	 * 
+	 * try { resourceDownload.get(); assertEquals(200,
+	 * resourceDownload.getStatus().getCode()); String text =
+	 * resourceDownload.getResponseEntity().getText(); resourceDownload.release();
+	 * return text; } catch (Exception e) { e.printStackTrace();
+	 * System.out.println(resourceDownload.getResponseEntity().getText());
+	 * assertEquals(false, true); return null; }
+	 * 
+	 * }
+	 * 
+	 * public String downloadResultsWithApiToken(String path, String token) throws
+	 * IOException, JSONException, InterruptedException {
+	 * 
+	 * ClientResource resourceDownload = createClientResource("/results/" + path);
+	 * setupApiToken(resourceDownload, token);
+	 * 
+	 * try { resourceDownload.get(); assertEquals(200,
+	 * resourceDownload.getStatus().getCode()); String text =
+	 * resourceDownload.getResponseEntity().getText(); resourceDownload.release();
+	 * return text; } catch (Exception e) { e.printStackTrace();
+	 * System.out.println(resourceDownload.getResponseEntity().getText());
+	 * assertEquals(false, true); return null; }
+	 * 
+	 * }
+	 */
 
-	public String downloadResults(String path, LoginToken loginCookie)
-			throws IOException, JSONException, InterruptedException {
+	public String download(String job, JSONObject file) throws IOException, JSONException, InterruptedException {
 
-		ClientResource resourceDownload = createClientResource("/results/" + path, loginCookie);
+		ClientResource resourceDownload = createClientResource(
+				"/downloads/" + job + "/" + file.getString("hash") + "/" + file.getString("name"));
 
 		try {
 			resourceDownload.get();
@@ -242,37 +273,15 @@ public class CloudgeneClient {
 
 	}
 
-	public String downloadResultsWithApiToken(String path, String token)
+	public String downloadSharedResults(String hash, String filename)
 			throws IOException, JSONException, InterruptedException {
-
-		ClientResource resourceDownload = createClientResource("/results/" + path);
-		setupApiToken(resourceDownload, token);
-
-		try {
-			resourceDownload.get();
-			assertEquals(200, resourceDownload.getStatus().getCode());
-			String text = resourceDownload.getResponseEntity().getText();
-			resourceDownload.release();
-			return text;
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.out.println(resourceDownload.getResponseEntity().getText());
-			assertEquals(false, true);
-			return null;
-		}
-
+		return downloadSharedResults(hash, filename, null);
 	}
 
-	public String downloadSharedResults(String user, String hash, String filename)
-			throws IOException, JSONException, InterruptedException {
-		return downloadSharedResults(user, hash, filename, null);
-	}
-
-	public String downloadSharedResults(String user, String hash, String filename, LoginToken loginCookie)
+	public String downloadSharedResults(String hash, String filename, LoginToken loginCookie)
 			throws IOException, JSONException, InterruptedException {
 
-		ClientResource resourceDownload = createClientResource("/share/" + user + "/" + hash + "/" + filename,
-				loginCookie);
+		ClientResource resourceDownload = createClientResource("/share/results/" + hash + "/" + filename, loginCookie);
 
 		try {
 			resourceDownload.get();

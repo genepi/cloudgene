@@ -34,12 +34,12 @@ public class DownloadResultsTest {
 	protected void setUp() throws Exception {
 		TestCluster.getInstance().start();
 	}
-	
+
 	@Test
 	public void testDownloadSingleFile() throws IOException, JSONException, InterruptedException {
 
 		LoginToken token = client.loginAsPublicUser();
-		
+
 		// form data
 
 		FormDataSet form = new FormDataSet();
@@ -65,14 +65,15 @@ public class DownloadResultsTest {
 		assertEquals("output", ouput.get("name"));
 		assertEquals(1, ouput.getJSONArray("files").length());
 
-		String path1 = ouput.getJSONArray("files").getJSONObject(0).getString("path");
+		JSONObject file1 = ouput.getJSONArray("files").getJSONObject(0);
+		String path1 = file1.getString("path");
 		assertEquals(id + "/output/output", path1);
-		String content1 = client.downloadResults(path1);
+		String content1 = client.download(id, file1);
 		assertEquals("lukas_text", content1);
 
 		// check if it returns 404
-		String randomPath = id + "/output/lukas.txt";
-		ClientResource resource = client.createClientResource("/results/" + randomPath, token);
+		String randomPath = id + "/hash/lukas.txt";
+		ClientResource resource = client.createClientResource("/downloads/" + randomPath, token);
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -114,29 +115,34 @@ public class DownloadResultsTest {
 		assertEquals("output", ouput.get("name"));
 		assertEquals(5, ouput.getJSONArray("files").length());
 
-		String path1 = ouput.getJSONArray("files").getJSONObject(0).getString("path");
+		JSONObject file1 = ouput.getJSONArray("files").getJSONObject(0);
+		String path1 = file1.getString("path");
 		assertEquals(id + "/output/file1.txt", path1);
-		String content1 = client.downloadResults(path1);
+		String content1 = client.download(id, file1);
 		assertEquals("lukas_text", content1);
 
-		String path2 = ouput.getJSONArray("files").getJSONObject(1).getString("path");
+		JSONObject file2 = ouput.getJSONArray("files").getJSONObject(1);
+		String path2 = file2.getString("path");
 		assertEquals(id + "/output/file2.txt", path2);
-		String content2 = client.downloadResults(path2);
+		String content2 = client.download(id, file2);
 		assertEquals("lukas_text", content2);
 
-		String path3 = ouput.getJSONArray("files").getJSONObject(2).getString("path");
+		JSONObject file3 = ouput.getJSONArray("files").getJSONObject(2);
+		String path3 = file3.getString("path");
 		assertEquals(id + "/output/file3.txt", path3);
-		String content3 = client.downloadResults(path3);
+		String content3 = client.download(id, file3);
 		assertEquals("lukas_text", content3);
 
-		String path4 = ouput.getJSONArray("files").getJSONObject(3).getString("path");
+		JSONObject file4 = ouput.getJSONArray("files").getJSONObject(3);
+		String path4 = file4.getString("path");
 		assertEquals(id + "/output/file4.txt", path4);
-		String content4 = client.downloadResults(path4);
+		String content4 = client.download(id, file4);
 		assertEquals("lukas_text", content4);
 
-		String path5 = ouput.getJSONArray("files").getJSONObject(4).getString("path");
+		JSONObject file5 = ouput.getJSONArray("files").getJSONObject(4);
+		String path5 = file5.getString("path");
 		assertEquals(id + "/output/file5.txt", path5);
-		String content5 = client.downloadResults(path5);
+		String content5 = client.download(id, file5);
 		assertEquals("lukas_text", content5);
 
 	}
@@ -170,29 +176,34 @@ public class DownloadResultsTest {
 		assertEquals("output", ouput.get("name"));
 		assertEquals(5, ouput.getJSONArray("files").length());
 
-		String path1 = ouput.getJSONArray("files").getJSONObject(0).getString("path");
+		JSONObject file1 = ouput.getJSONArray("files").getJSONObject(0);
+		String path1 = file1.getString("path");
 		assertEquals(id + "/output/file1.txt", path1);
-		String content1 = client.downloadResults(path1);
+		String content1 = client.download(id, file1);
 		assertEquals("lukas_text", content1);
 
-		String path2 = ouput.getJSONArray("files").getJSONObject(1).getString("path");
+		JSONObject file2 = ouput.getJSONArray("files").getJSONObject(1);
+		String path2 = file2.getString("path");
 		assertEquals(id + "/output/file2.txt", path2);
-		String content2 = client.downloadResults(path2);
+		String content2 = client.download(id, file2);
 		assertEquals("lukas_text", content2);
 
-		String path3 = ouput.getJSONArray("files").getJSONObject(2).getString("path");
+		JSONObject file3 = ouput.getJSONArray("files").getJSONObject(2);
+		String path3 = file3.getString("path");
 		assertEquals(id + "/output/file3.txt", path3);
-		String content3 = client.downloadResults(path3);
+		String content3 = client.download(id, file3);
 		assertEquals("lukas_text", content3);
 
-		String path4 = ouput.getJSONArray("files").getJSONObject(3).getString("path");
+		JSONObject file4 = ouput.getJSONArray("files").getJSONObject(3);
+		String path4 = file4.getString("path");
 		assertEquals(id + "/output/file4.txt", path4);
-		String content4 = client.downloadResults(path4);
+		String content4 = client.download(id, file4);
 		assertEquals("lukas_text", content4);
 
-		String path5 = ouput.getJSONArray("files").getJSONObject(4).getString("path");
+		JSONObject file5 = ouput.getJSONArray("files").getJSONObject(4);
+		String path5 = file5.getString("path");
 		assertEquals(id + "/output/file5.txt", path5);
-		String content5 = client.downloadResults(path5);
+		String content5 = client.download(id, file5);
 		assertEquals("lukas_text", content5);
 
 	}
@@ -226,19 +237,19 @@ public class DownloadResultsTest {
 		assertEquals("output", ouput.get("name"));
 		assertEquals(5, ouput.getJSONArray("files").length());
 
-		String path1 = ouput.getJSONArray("files").getJSONObject(0).getString("path");
+		JSONObject file1 =  ouput.getJSONArray("files").getJSONObject(0);
+		String path1 = file1.getString("path");
 		assertEquals(id + "/output/file1.txt", path1);
 
 		int maxDownloads = application.getSettings().getMaxDownloads();
 		// download file max_download
 		for (int i = 0; i < maxDownloads; i++) {
-			String content1 = client.downloadResults(path1);
+			String content1 = client.download(id, file1);
 			assertEquals("lukas_text", content1);
 		}
 
 		// check if download is blocked
-		LoginToken token = client.loginAsPublicUser();
-		ClientResource resource = client.createClientResource("/results/" + path1, token);
+		ClientResource resource = client.createClientResource("/downloads/" + id + "/" + file1.getString("hash") + "/" + file1.getString("name"));
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -251,30 +262,15 @@ public class DownloadResultsTest {
 		resource.release();
 	}
 
-	@Test
-	public void testJobWithoutLogin() throws IOException, JSONException, InterruptedException {
 
-		String path = "job-lukas277/output/file1.txt";
-
-		// check if download is blocked
-		ClientResource resource = client.createClientResource("/results/" + path);
-		try {
-			resource.get();
-		} catch (Exception e) {
-
-		}
-		assertEquals(401, resource.getStatus().getCode());
-		resource.release();
-	}
-	
 	@Test
 	public void testJobNotFound() throws IOException, JSONException, InterruptedException {
 
-		String path = "job-lukas277/output/file1.txt";
+		String path = "job-lukas277/HASH/file1.txt";
 
 		// check if download is blocked
 		LoginToken login = client.login("admin", "admin1978");
-		ClientResource resource = client.createClientResource("/results/" + path, login);
+		ClientResource resource = client.createClientResource("/downloads/" + path, login);
 		try {
 			resource.get();
 		} catch (Exception e) {

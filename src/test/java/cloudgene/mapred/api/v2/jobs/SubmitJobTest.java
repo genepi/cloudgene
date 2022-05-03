@@ -278,10 +278,8 @@ public class SubmitJobTest {
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		// get path and download file
-		String path = result.getJSONArray("outputParams").getJSONObject(0).getJSONArray("files").getJSONObject(0)
-				.getString("path");
-
-		String content = client.downloadResults(path);
+		JSONObject file = result.getJSONArray("outputParams").getJSONObject(0).getJSONArray("files").getJSONObject(0);
+		String content = client.download(id, file);
 
 		assertEquals("lukas_text", content);
 
@@ -311,10 +309,9 @@ public class SubmitJobTest {
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		// get path and download file
-		String path = result.getJSONArray("outputParams").getJSONObject(0).getJSONArray("files").getJSONObject(0)
-				.getString("path");
+		JSONObject file = result.getJSONArray("outputParams").getJSONObject(0).getJSONArray("files").getJSONObject(0);
 
-		String content = client.downloadResults(path);
+		String content = client.download(id, file);
 
 		assertEquals("lukas_text", content);
 

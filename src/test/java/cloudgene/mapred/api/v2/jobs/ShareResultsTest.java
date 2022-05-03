@@ -24,9 +24,6 @@ import jakarta.inject.Inject;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShareResultsTest {
 
-	public static final String username1 = "some_username"; // dummy value, only
-															// needed to build
-															// readable urls.
 	@Inject
 	TestApplication application;
 
@@ -70,12 +67,12 @@ public class ShareResultsTest {
 		String hash1 = ouput.getJSONArray("files").getJSONObject(0).getString("hash");
 		String filename = ouput.getJSONArray("files").getJSONObject(0).getString("name");
 		assertEquals(id + "/output/output", path1);
-		String content1 = client.downloadSharedResults(username1, hash1, filename);
+		String content1 = client.downloadSharedResults(hash1, filename);
 		assertEquals("lukas_text", content1);
 
 		// check if it returns 404
 		String randomHash = HashUtil.getSha256("random-text");
-		ClientResource resource = client.createClientResource("/share/" + username1 + "/" + randomHash + "/output");
+		ClientResource resource = client.createClientResource("/share/results/" + randomHash + "/output");
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -121,35 +118,35 @@ public class ShareResultsTest {
 		String hash1 = ouput.getJSONArray("files").getJSONObject(0).getString("hash");
 		String filename1 = ouput.getJSONArray("files").getJSONObject(0).getString("name");
 		assertEquals(id + "/output/file1.txt", path1);
-		String content1 = client.downloadSharedResults(username1, hash1, filename1);
+		String content1 = client.downloadSharedResults(hash1, filename1);
 		assertEquals("lukas_text", content1);
 
 		String path2 = ouput.getJSONArray("files").getJSONObject(1).getString("path");
 		String hash2 = ouput.getJSONArray("files").getJSONObject(1).getString("hash");
 		String filename2 = ouput.getJSONArray("files").getJSONObject(1).getString("name");
 		assertEquals(id + "/output/file2.txt", path2);
-		String content2 = client.downloadSharedResults(username1, hash2, filename2);
+		String content2 = client.downloadSharedResults(hash2, filename2);
 		assertEquals("lukas_text", content2);
 
 		String path3 = ouput.getJSONArray("files").getJSONObject(2).getString("path");
 		String hash3 = ouput.getJSONArray("files").getJSONObject(2).getString("hash");
 		String filename3 = ouput.getJSONArray("files").getJSONObject(2).getString("name");
 		assertEquals(id + "/output/file3.txt", path3);
-		String content3 = client.downloadSharedResults(username1, hash3, filename3);
+		String content3 = client.downloadSharedResults(hash3, filename3);
 		assertEquals("lukas_text", content3);
 
 		String path4 = ouput.getJSONArray("files").getJSONObject(3).getString("path");
 		String hash4 = ouput.getJSONArray("files").getJSONObject(3).getString("hash");
 		String filename4 = ouput.getJSONArray("files").getJSONObject(3).getString("name");
 		assertEquals(id + "/output/file4.txt", path4);
-		String content4 = client.downloadSharedResults(username1, hash4, filename4);
+		String content4 = client.downloadSharedResults(hash4, filename4);
 		assertEquals("lukas_text", content4);
 
 		String path5 = ouput.getJSONArray("files").getJSONObject(4).getString("path");
 		String hash5 = ouput.getJSONArray("files").getJSONObject(4).getString("hash");
 		String filename5 = ouput.getJSONArray("files").getJSONObject(4).getString("name");
 		assertEquals(id + "/output/file5.txt", path5);
-		String content5 = client.downloadSharedResults(username1, hash5, filename5);
+		String content5 = client.downloadSharedResults(hash5, filename5);
 		assertEquals("lukas_text", content5);
 
 	}
@@ -191,12 +188,12 @@ public class ShareResultsTest {
 		// download file max_download
 		int maxDownloads = application.getSettings().getMaxDownloads();
 		for (int i = 0; i < maxDownloads; i++) {
-			String content1 = client.downloadSharedResults(username1, hash1, filename1);
+			String content1 = client.downloadSharedResults(hash1, filename1);
 			assertEquals("lukas_text", content1);
 		}
 
 		// check if download is blocked
-		ClientResource resource = client.createClientResource("/share/" + username1 + "/" + hash1 + "/" + filename1);
+		ClientResource resource = client.createClientResource("/share/results/" + hash1 + "/" + filename1);
 		try {
 			resource.get();
 		} catch (Exception e) {
