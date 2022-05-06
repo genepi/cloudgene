@@ -189,7 +189,7 @@ public class UpdatePasswordTest {
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), false);
-		assertEquals("We couldn't find an account with that username.", object.get("message").toString());
+		assertEquals("We couldn't find an account with that username or email.", object.get("message").toString());
 	}
 
 	@Test
