@@ -171,44 +171,6 @@ public class UserProfileTest {
 	}
 
 	@Test
-	public void testUpdateWithMissingCSRFToken() throws JSONException, IOException {
-
-		// login as user test1
-		LoginToken token = client.login("test1", "Test1Password");
-
-		// try to update password with missing csrf token
-
-		token.setCsrfToken("");
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-
-		Form form = new Form();
-		form.set("username", "test1");
-		form.set("full-name", "new full-name");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "new-Password27");
-		form.set("confirm-new-password", "new-Password27");
-
-		try {
-			resource.post(form);
-			// TODO: csrf token not yet implemented. pwd update works withtout token. Reset
-			// pwd that other tests can work.
-			form = new Form();
-			form.set("username", "test1");
-			form.set("full-name", "new full-name");
-			form.set("mail", "test1@test.com");
-			form.set("new-password", "Test1Password");
-			form.set("confirm-new-password", "Test1Password");
-			resource.post(form);
-			assertFalse(true);
-		} catch (Exception e) {
-
-		}
-		assertNotSame(200, resource.getStatus().getCode());
-
-		resource.release();
-	}
-
-	@Test
 	public void testUpdateWithWrongConfirmPassword() throws JSONException, IOException {
 
 		// login as user test1
