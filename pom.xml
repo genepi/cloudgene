@@ -468,19 +468,19 @@
 			<artifactId>micronaut-reactor</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
-   <groupId>io.netty</groupId>
-   <artifactId>netty-resolver-dns-classes-macos	</artifactId>
-   			<scope>runtime</scope>
-</dependency>
-		
-		
-<dependency>
-   <groupId>io.netty</groupId>
-   <artifactId>netty-resolver-dns-native-macos</artifactId>
-   			<scope>runtime</scope>
-</dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-classes-macos</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-resolver-dns-native-macos</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>jakarta.annotation</groupId>
@@ -607,28 +607,6 @@
 						</configuration>
 					</execution>
 				</executions>
-			</plugin>
-
-			<!-- Build jar -->
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>cloudgene.mapred.CommandLineInterface</mainClass>
-						</manifest>
-						<manifestEntries>
-							<Version>${project.version}</Version>
-							<Build-Time>${maven.build.timestamp}</Build-Time>
-						</manifestEntries>
-					</archive>
-				</configuration>
-
 			</plugin>
 
 			<!-- Build final directory structure and zip files -->

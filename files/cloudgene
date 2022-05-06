@@ -2,7 +2,7 @@
 #  Cloudgene CLI
 
 
-# The path to the folder containing MyDaemon.jar
+# The path to the folder containing cloudgene.jar
 FILE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Hadoop path with all jars
@@ -21,4 +21,4 @@ CLASS="cloudgene.mapred.CommandLineInterface"
 cd $FILE_PATH
 
 # execute cloudgene
-java -Dlog4j.configurationFile=config/log4j2.xml -cp $CLASS_PATH $CLASS "$@"
+java -Dmicronaut.config.files="config/security.yml" -cp $CLASS_PATH $CLASS "$@"

@@ -1,8 +1,11 @@
 package cloudgene.mapred.cli;
 
+import java.io.File;
+
 import cloudgene.mapred.server.Application;
 import genepi.base.Tool;
 import genepi.hadoop.HadoopCluster;
+import io.micronaut.context.env.Environment;
 import io.micronaut.runtime.Micronaut;
 
 public class StartServer extends Tool {
@@ -45,7 +48,17 @@ public class StartServer extends Tool {
 		}
 
 		try {
-			Micronaut.run(Application.class, args);
+			if (new File("webapp").exists()) {
+
+				Micronaut.run(Application.class, args);
+
+			} else {
+
+				System.out.println("Start in DEVELOPMENT mode");
+				Micronaut.build(args).mainClass(Application.class).defaultEnvironments(Environment.DEVELOPMENT).start();
+
+			}
+
 			// TODO: check why we need this?
 			System.out.println();
 			System.out.println("Server is running");
