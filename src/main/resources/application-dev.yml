@@ -1,0 +1,12 @@
+micronaut:
+  router:
+    static-resources:
+      webapp:
+        paths:
+          - file:src/main/html/webapp
+        enabled: true
+      pages:
+        enabled: true
+        mapping: "/static/**"
+        paths:
+          - file:sample/pages

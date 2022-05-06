@@ -13,14 +13,6 @@
 
 	<includeBaseDirectory>false</includeBaseDirectory>
 
-	<dependencySets>
-		<dependencySet>
-			<outputDirectory>lib</outputDirectory>
-
-			<useProjectArtifact>false</useProjectArtifact>
-		</dependencySet>
-	</dependencySets>
-
 	<files>
 		<file>
 			<outputDirectory>/</outputDirectory>

@@ -37,7 +37,7 @@ micronaut:
     static-resources:
       webapp:
         paths:
-          - file:src/main/html/webapp
+          - file:webapp
         enabled: true
       pages:
         enabled: true
