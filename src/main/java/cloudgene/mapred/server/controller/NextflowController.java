@@ -1,4 +1,4 @@
-package cloudgene.mapred.api.v2.jobs;
+package cloudgene.mapred.server.controller;
 
 import java.util.Map;
 
@@ -6,14 +6,31 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.plugins.nextflow.NextflowInfo;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.services.DownloadService;
+import cloudgene.mapred.server.services.JobService;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Post;
+import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
-public class NextflowWebLog {
+public class NextflowController {
 
-	private static final Log log = LogFactory.getLog(NextflowWebLog.class);
+	protected static final Log log = LogFactory.getLog(DownloadController.class);
 
+	@Inject
+	protected Application application;
+
+	@Inject
+	protected AuthenticationService authenticationService;
+
+	@Inject
+	protected DownloadService downloadService;
+
+	@Inject
+	protected JobService jobService;
+	
 	@Post("/api/v2/collect/{job}")
 	public String post(String job, @Body Map<Object, Object> event) {
 
@@ -36,5 +53,5 @@ public class NextflowWebLog {
 		return "";
 
 	}
-
+	
 }
