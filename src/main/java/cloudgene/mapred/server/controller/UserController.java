@@ -2,23 +2,18 @@ package cloudgene.mapred.server.controller;
 
 import java.util.List;
 
-import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
-import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.server.responses.UserResponse;
 import cloudgene.mapred.server.services.UserService;
-import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Page;
 import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
