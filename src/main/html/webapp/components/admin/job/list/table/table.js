@@ -94,7 +94,7 @@ export default Control.extend({
     var tr = $(el).closest('tr');
     var job = domData.get.call(tr[0], 'job');
     var that = this;
-    $.get('api/v2/jobs/' + job.attr('id') + '/priority').then(
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/priority').then(
       function(data) {
         bootbox.alert(data);
         that.init(that.element, that.options);
@@ -111,7 +111,7 @@ export default Control.extend({
 
     bootbox.confirm("Are you sure you want to archive <b>" + job.attr('id') + "</b> now? <b>All results will be deleted!</b>", function(result) {
       if (result) {
-        $.get('api/v2/jobs/' + job.attr('id') + '/archive').then(
+        $.get('api/v2/admin/jobs/' + job.attr('id') + '/archive').then(
           function(data) {
             bootbox.alert(data);
             that.init(that.element, that.options);
@@ -126,7 +126,7 @@ export default Control.extend({
   '.reset-downloads-btn click': function(el, ev) {
     var tr = $(el).closest('tr');
     var job = domData.get.call(tr[0], 'job');
-    $.get('api/v2/jobs/' + job.attr('id') + '/reset').then(
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset').then(
       function(data) {
         bootbox.alert(data);
       },
@@ -138,7 +138,7 @@ export default Control.extend({
   '.unlimited-downloads-btn click': function(el, ev) {
     var tr = $(el).closest('tr');
     var job = domData.get.call(tr[0], 'job');
-    $.get('api/v2/jobs/' + job.attr('id') + '/reset?max=-1').then(
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/reset?max=-1').then(
       function(data) {
         bootbox.alert(data);
       },
@@ -152,7 +152,7 @@ export default Control.extend({
     var tr = $(el).closest('tr');
     var job = domData.get.call(tr[0], 'job');
     var that = this;
-    $.get('api/v2/jobs/' + job.attr('id') + '/retire').then(
+    $.get('api/v2/admin/jobs/' + job.attr('id') + '/retire').then(
       function(data) {
         bootbox.alert(data);
         that.init(that.element, that.options);
@@ -172,7 +172,7 @@ export default Control.extend({
       function(result) {
         if (result) {
           var days = $('#message').val();
-          $.get('api/v2/jobs/' + job.attr('id') + '/change-retire/' + days).then(
+          $.get('api/v2/admin/jobs/' + job.attr('id') + '/change-retire/' + days).then(
             function(data) {
               bootbox.alert(data);
               that.init(that.element, that.options);
