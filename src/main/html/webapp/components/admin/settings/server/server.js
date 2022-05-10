@@ -43,7 +43,7 @@ export default Control.extend({
             template.attr('text', text);
             template.save();
 
-            $.get('api/v2/server/maintenance/enter').then(function(data) {
+            $.get('api/v2/admin/server/maintenance/enter').then(function(data) {
               bootbox.alert(data);
               that.init(element, that.options);
             }, function(response) {
@@ -61,7 +61,7 @@ export default Control.extend({
 
   "#maintenance-exit-btn click": function() {
     var that = this;
-    $.get('api/v2/server/maintenance/exit').then(function(data) {
+    $.get('api/v2/admin/server/maintenance/exit').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(response) {
@@ -75,7 +75,7 @@ export default Control.extend({
 
   "#queue-block-btn click": function() {
     var that = this;
-    $.get('api/v2/server/queue/block').then(function(data) {
+    $.get('api/v2/admin/server/queue/block').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(response) {
@@ -85,7 +85,7 @@ export default Control.extend({
 
   "#queue-open-btn click": function() {
     var that = this;
-    $.get('api/v2/server/queue/open').then(function(data) {
+    $.get('api/v2/admin/server/queue/open').then(function(data) {
       bootbox.alert(data);
       that.init(that.element, that.options);
     }, function(response) {
