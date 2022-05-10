@@ -251,15 +251,13 @@ export default Control.extend({
               input: urls
             },
             success: function(data) {
-
-              var arr = $.parseJSON(data);
               fileList.empty();
-              $.each(arr, function(index, value) {
+              $.each(data, function(index, value) {
                 fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
               });
 
               //update value
-              if (arr.length > 0) {
+              if (data.length > 0) {
                 paramInputField.val(urls);
                 urlDialog.modal('hide');
               } else {
@@ -312,14 +310,13 @@ export default Control.extend({
 
                 waitingDialog.modal('hide');
 
-                var arr = $.parseJSON(data);
-                fileList.empty();
-                $.each(arr, function(index, value) {
+               fileList.empty();
+                $.each(data, function(index, value) {
                   fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
                 });
 
                 //update value
-                if (arr.length > 0) {
+                if (data.length > 0) {
                   paramInputField.val(buckets);
                   urlDialog.modal('hide');
                 } else {
@@ -379,14 +376,13 @@ export default Control.extend({
 
                 waitingDialog.modal('hide');
 
-                var arr = $.parseJSON(data);
                 fileList.empty();
-                $.each(arr, function(index, value) {
+                $.each(data, function(index, value) {
                   fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
                 });
 
                 //update value
-                if (arr.length > 0) {
+                if (data.length > 0) {
                   paramInputField.val(path + ';' + username + ';' + password);
                   urlDialog.modal('hide');
                 } else {
