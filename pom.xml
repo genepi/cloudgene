@@ -11,7 +11,7 @@
 		<relativePath>io.micronaut:micronaut-parent</relativePath>
 		<groupId>io.micronaut</groupId>
 		<artifactId>micronaut-parent</artifactId>
-		<version>3.3.4</version>
+		<version>3.4.3</version>
 	</parent>
 
 	<name>Cloudgene</name>
