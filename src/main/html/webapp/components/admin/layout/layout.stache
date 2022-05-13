@@ -1,3 +1,4 @@
+{{#admin}}
 <nav class="navbar navbar-expand-md fixed-top navbar-dark" style="background: #4f5d73;">
   <div class="container d-flex justify-content-between">
 
@@ -42,6 +43,7 @@
    </div>
  </div>
  </nav>
+{{/admin}}
 
 <div class=" py-5 bg-white">
    <div class="container">

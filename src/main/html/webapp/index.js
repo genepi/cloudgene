@@ -88,7 +88,8 @@ var routes = [{
 }, {
   path: 'run/{app}',
   control: SubmitJobControl,
-  classes: 'fullsize-container'
+  classes: 'fullsize-container',
+  guard: loggedInGuard
 }, {
   path: 'pages/{page}',
   control: StaticPage

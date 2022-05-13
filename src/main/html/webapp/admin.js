@@ -32,56 +32,79 @@ var routes = [{
   control: DashboardControl,
   options: {
     login: false
-  }
+  },
+  guard: adminGuard
 }, {
   path: 'pages/admin-home',
   control: DashboardControl,
   options: {
     login: false
-  }
+  },
+  guard: adminGuard
 }, {
   path: 'pages/jobs',
-  control: JobListControl
+  control: JobListControl,
+  guard: adminGuard
 }, {
   path: 'pages/users',
   control: UserListControl,
   options: {
     page: 1
-  }
+  },
+  guard: adminGuard
 }, {
   path: 'pages/users/pages/{page}',
   control: UserListControl,
-},{
+  guard: adminGuard
+}, {
   path: 'pages/users/search/{query}',
   control: UserListControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-apps',
-  control: AppListControl
+  control: AppListControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-apps-repository',
-  control: AppRepositoryControl
+  control: AppRepositoryControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-server',
-  control: SettingsServerControl
+  control: SettingsServerControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-settings-general',
-  control: SettingsGeneralControl
+  control: SettingsGeneralControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-settings-mail',
-  control: SettingsMailControl
+  control: SettingsMailControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-settings-templates',
-  control: SettingsTemplatesControl
+  control: SettingsTemplatesControl,
+  guard: adminGuard
 }, {
   path: 'pages/admin-logs',
-  control: SettingsLogsControl
+  control: SettingsLogsControl,
+  guard: adminGuard
 }, {
   path: 'jobs/{job}',
   control: JobDetailControl,
+  guard: adminGuard
 }, {
   path: 'jobs/{job}/{tab}',
   control: JobDetailControl,
+  guard: adminGuard
 }];
+
+function adminGuard(appState) {
+  if (appState.attr('loggedIn')) {
+    return appState.attr('user').attr('admin');
+  } else {
+    return false;
+  }
+}
 
 $.ajaxPrefilter(function(options, orig, xhr) {
   if (!options.beforeSend) {
@@ -112,7 +135,9 @@ $.ajaxPrefilter(function(options, orig, xhr) {
 
 Server.findOne({}, function(server) {
 
-  new LayoutControl("#main", {});
+  new LayoutControl("#main", {
+    appState: server
+  });
 
 
   new RouterControl("#content", {
@@ -121,8 +146,8 @@ Server.findOne({}, function(server) {
     forbidden: {
       control: ErrorPage,
       options: {
-        status: '401',
-        message: 'Oops, you need to <a href="#!pages/login">login</a> to view this content.'
+        status: '403',
+        responseText: 'Oops, you are not allowed to view this content.'
       }
     }
   });
