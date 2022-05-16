@@ -11,7 +11,6 @@ import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Page;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -276,8 +275,6 @@ public class UserService {
 
 			try {
 
-				MailUtil.notifySlack(application.getSettings(), "Hi! " + username + " asked for a new password :key:");
-
 				MailUtil.send(application.getSettings(), user.getMail(), subject, body);
 
 				return MessageResponse.success(String.format(MESSAGE_EMAIL_SENT, user.getMail()));
@@ -363,9 +360,6 @@ public class UserService {
 				newUser.setActivationCode("");
 
 			}
-
-			MailUtil.notifySlack(application.getSettings(),
-					"Hi! say hello to " + username + " (" + mail + ") :hugging_face:");
 
 			dao.insert(newUser);
 

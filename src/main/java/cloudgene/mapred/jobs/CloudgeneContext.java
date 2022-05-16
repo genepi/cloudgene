@@ -338,8 +338,6 @@ public class CloudgeneContext extends WorkflowContext {
 
 	@Override
 	public boolean sendNotification(String text) throws Exception {
-		Settings settings = getSettings();
-		MailUtil.notifySlack(settings, text);
 		return true;
 	}
 

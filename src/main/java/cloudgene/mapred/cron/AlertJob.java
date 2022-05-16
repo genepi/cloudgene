@@ -13,9 +13,9 @@ public class AlertJob {
 	@Inject
 	protected Application application;
 
-	@Scheduled(fixedDelay = "1m") 
+	@Scheduled(fixedDelay = "1m")
 	public void execute() {
-		
+
 		// check namenode state
 
 		try {
@@ -26,10 +26,6 @@ public class AlertJob {
 				if (application.getWorkflowEngine().isRunning()) {
 
 					try {
-
-						MailUtil.notifySlack(application.getSettings(),
-								"Hi!\n\n" + "Your Hadoop cluster is in Safemode :scream:. "
-										+ "Don't worry, I blocked the queue for you ;)");
 
 						MailUtil.notifyAdmin(application.getSettings(),
 								"[" + application.getSettings().getName() + "] Problems with your Hadoop cluster",
