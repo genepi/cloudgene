@@ -1,8 +1,17 @@
 package cloudgene.mapred.cli;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.server.Application;
+import cloudgene.mapred.util.Config;
+import cloudgene.mapred.util.Settings;
 import genepi.base.Tool;
 import genepi.hadoop.HadoopCluster;
 import io.micronaut.context.env.Environment;
@@ -48,14 +57,36 @@ public class StartServer extends Tool {
 		}
 
 		try {
+
+			// load cloudgene.conf file. contains path to settings, db, apps, ..
+			Application.config = new Config();
+			if (new File(Config.CONFIG_FILENAME).exists()) {
+				YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
+				Application.config = reader.read(Config.class);
+			}
+
+			// load setting.yaml. contains applications, server configuration, ...
+			Application.settings = loadSettings(Application.config);
+
+			String port = Application.settings.getPort();
+			Map<String, Object> properties = new HashMap<String, Object>();
+			properties.put("micronaut.server.port", port);
+			if (Application.settings.getUploadLimit() != -1) {
+				properties.put("micronaut.server.multipart.maxFileSize", Application.settings.getUploadLimit() + "MB");
+			}
+			properties.put("micronaut.security.token.jwt.signatures.secret.generator.secret",
+					Application.settings.getSecretKey());
+			// TODO: urlPrefix
+
 			if (new File("webapp").exists()) {
 
-				Micronaut.run(Application.class, args);
+				Micronaut.build(args).mainClass(Application.class).properties(properties).start();
 
 			} else {
 
 				System.out.println("Start in DEVELOPMENT mode");
-				Micronaut.build(args).mainClass(Application.class).defaultEnvironments(Environment.DEVELOPMENT).start();
+				Micronaut.build(args).mainClass(Application.class).properties(properties)
+						.defaultEnvironments(Environment.DEVELOPMENT).start();
 
 			}
 
@@ -76,6 +107,30 @@ public class StartServer extends Tool {
 	@Override
 	public void init() {
 
+	}
+
+	protected Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
+		String settingsFilename = config.getSettings();
+
+		// load default settings when not yet loaded
+		Settings settings;
+		if (new File(settingsFilename).exists()) {
+			System.out.println("Loading settings from " + settingsFilename + "...");
+			settings = Settings.load(config);
+		} else {
+			settings = new Settings(config);
+		}
+
+		if (!settings.testPaths()) {
+			System.exit(1);
+		}
+
+		if (settings.getHostname() == null || settings.getHostname().trim().isEmpty()) {
+			System.out.println("Hostname not set. Please set hostname in file '" + settingsFilename + "'");
+			System.exit(1);
+		}
+
+		return settings;
 	}
 
 }

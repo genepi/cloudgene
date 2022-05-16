@@ -21,12 +21,20 @@ import io.micronaut.context.annotation.Context;
 @Context
 public class TestApplication extends cloudgene.mapred.server.Application {
 
+	static {
+		TestApplication.config = new Config();
+		try {
+			TestApplication.settings = loadSettings(config);
+		} catch (FileNotFoundException | YamlException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public TestApplication() throws Exception {
 		super();
 	}
 
-	@Override
-	protected Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
+	protected static Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
 		Settings settings = new Settings(new Config());
 
 		HashMap<String, String> mail = new HashMap<String, String>();
@@ -59,7 +67,7 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 		return settings;
 	}
 
-	public List<Application> registerApplications(Settings settings) {
+	protected static List<Application> registerApplications(Settings settings) {
 
 		List<Application> applications = new Vector<Application>();
 
