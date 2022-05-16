@@ -76,6 +76,8 @@ public class StartServer extends Tool {
 			}
 			properties.put("micronaut.security.token.jwt.signatures.secret.generator.secret",
 					Application.settings.getSecretKey());
+			properties.put("micronaut.autoRetireInterval", Application.settings.getAutoRetireInterval() + "h");
+
 			// TODO: urlPrefix
 
 			if (new File("webapp").exists()) {

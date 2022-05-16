@@ -3,11 +3,6 @@ package cloudgene.mapred.cron;
 import java.util.List;
 import java.util.Map;
 
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.UserDao;
@@ -15,15 +10,23 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.server.Application;
 import genepi.db.Database;
+import io.micronaut.scheduling.annotation.Scheduled;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-public class StatisticsJob implements Job {
+@Singleton
+public class StatisticsJob {
 
-	@Override
-	public void execute(JobExecutionContext context)
-			throws JobExecutionException {
+	@Inject
+	protected Application application;
+	
+	@Scheduled(fixedDelay = "5m") 
+	public void execute() {
 
-		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		Application application = (Application) dataMap.get("application");
+		if (!application.getSettings().isWriteStatistics()) {
+			return;
+		}
+		
 		WorkflowEngine engine = application.getWorkflowEngine();
 		Database database = application.getDatabase();
 

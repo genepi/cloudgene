@@ -1,19 +1,23 @@
 package cloudgene.mapred.cron;
 
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 import cloudgene.mapred.server.Application;
+import io.micronaut.scheduling.annotation.Scheduled;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-public class NotificationJob implements Job {
+@Singleton
+public class NotificationJob {
 
-	@Override
-	public void execute(JobExecutionContext context) throws JobExecutionException {
+	@Inject
+	protected Application application;
+	
+	@Scheduled(fixedDelay =  "${micronaut.autoRetireInterval}")
+	public void execute()  {
 
-		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		Application application = (Application)dataMap.get("application");		
+		if (!application.getSettings().isAutoRetire()) {
+			return;
+		}
+		
 		CleanUpTasks.sendNotifications(application);
 
 	}
