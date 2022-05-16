@@ -27,9 +27,9 @@ export default Control.extend({
     event.preventDefault();
 
     this.settings.attr('name', $(form).find("[name='name']").val());
-    this.settings.attr('background-color', $(form).find("[name='background-color']").val());
-    this.settings.attr('foreground-color', $(form).find("[name='foreground-color']").val());
-    this.settings.attr('google-analytics', $(form).find("[name='google-analytics']").val());
+    this.settings.attr('backgroundColor', $(form).find("[name='background-color']").val());
+    this.settings.attr('foregroundColor', $(form).find("[name='foreground-color']").val());
+    this.settings.attr('googleAnalytics', $(form).find("[name='google-analytics']").val());
     this.settings.save(function(data) {
       bootbox.alert("Settings updated.");
     }, function(response) {

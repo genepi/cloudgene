@@ -143,7 +143,6 @@ public class UserController {
 
 	}
 
-	//TODO put in extra controller?
 	@Get("/users/activate/{username}/{code}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public HttpResponse<MessageResponse> activate(String username, String code) {
