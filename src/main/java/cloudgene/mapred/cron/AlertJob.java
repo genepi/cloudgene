@@ -1,52 +1,48 @@
 package cloudgene.mapred.cron;
 
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.MailUtil;
 import genepi.hadoop.HadoopUtil;
+import io.micronaut.scheduling.annotation.Scheduled;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-public class AlertJob implements Job {
+@Singleton
+public class AlertJob {
 
-	@Override
-	public void execute(JobExecutionContext context) throws JobExecutionException {
+	@Inject
+	protected Application application;
 
-		JobDataMap dataMap = context.getJobDetail().getJobDataMap();
-		Application application = (Application) dataMap.get("application");
+	@Scheduled(fixedDelay = "1m")
+	public void execute() {
 
 		// check namenode state
 
 		try {
-		boolean safemode = HadoopUtil.getInstance().isInSafeMode();
+			boolean safemode = HadoopUtil.getInstance().isInSafeMode();
 
-		if (safemode) {
+			if (safemode) {
 
-			if (application.getWorkflowEngine().isRunning()) {
+				if (application.getWorkflowEngine().isRunning()) {
 
-				try {
+					try {
 
-					MailUtil.notifySlack(application.getSettings(), "Hi!\n\n" + "Your Hadoop cluster is in Safemode :scream:. "
-							+ "Don't worry, I blocked the queue for you ;)");
+						MailUtil.notifyAdmin(application.getSettings(),
+								"[" + application.getSettings().getName() + "] Problems with your Hadoop cluster",
+								"Hi,\n\n" + "This is a notification sent by Cloudgene.\n\n"
+										+ "Your Hadoop cluster is in Safemode. "
+										+ "Don't worry, we blocked the queue for you!");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 
-					MailUtil.notifyAdmin(application.getSettings(),
-							"[" + application.getSettings().getName() + "] Problems with your Hadoop cluster",
-							"Hi,\n\n" + "This is a notification sent by Cloudgene.\n\n"
-									+ "Your Hadoop cluster is in Safemode. "
-									+ "Don't worry, we blocked the queue for you!");
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					application.getWorkflowEngine().block();
+
 				}
 
-				application.getWorkflowEngine().block();
-
 			}
-
-		}
-		}catch (NoClassDefFoundError e) {
+		} catch (NoClassDefFoundError e) {
 			// TODO: handle exception
 		}
 

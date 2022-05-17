@@ -1,8 +1,5 @@
 package cloudgene.mapred.server;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -13,9 +10,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlReader;
-
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
@@ -23,7 +17,6 @@ import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
 import genepi.db.Database;
@@ -39,7 +32,9 @@ public class Application {
 
 	private Database database;
 
-	private Settings settings;
+	public static Settings settings;
+	
+	public static Config config;
 
 	private WorkflowEngine engine;
 
@@ -48,20 +43,6 @@ public class Application {
 	protected Log log = LogFactory.getLog(Application.class);
 
 	public Application() throws Exception {
-
-		// configure logger
-
-		log.debug("Cloudgene " + VERSION);
-		log.info(BuildUtil.getBuildInfos());
-
-		// load cloudgene.conf file. contains path to settings, db, apps, ..
-		Config config = new Config();
-		if (new File(Config.CONFIG_FILENAME).exists()) {
-			YamlReader reader = new YamlReader(new FileReader(Config.CONFIG_FILENAME));
-			config = reader.read(Config.class);
-		}
-
-		settings = loadSettings(config);
 
 		PluginManager pluginManager = PluginManager.getInstance();
 		pluginManager.initPlugins(settings);
@@ -138,24 +119,6 @@ public class Application {
 
 		}
 
-	}
-
-	protected Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
-		String settingsFilename = config.getSettings();
-
-		// load default settings when not yet loaded
-
-		if (new File(settingsFilename).exists()) {
-			log.info("Loading settings from " + settingsFilename + "...");
-			settings = Settings.load(config);
-		} else {
-			settings = new Settings(config);
-		}
-
-		if (!settings.testPaths()) {
-			System.exit(1);
-		}
-		return settings;
 	}
 
 	public WorkflowEngine getWorkflowEngine() {

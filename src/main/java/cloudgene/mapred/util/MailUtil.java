@@ -12,9 +12,6 @@ import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.logging.LogFactory;
 
-import net.gpedro.integrations.slack.SlackApi;
-import net.gpedro.integrations.slack.SlackMessage;
-
 public class MailUtil {
 
 	private static final org.apache.commons.logging.Log log = LogFactory.getLog(MailUtil.class);
@@ -28,17 +25,6 @@ public class MailUtil {
 					subject, text);
 		}
 
-	}
-
-	public static void notifySlack(Settings settings,
-			String text){
-		if (settings.getSlack() != null && !settings.getSlack().isEmpty()){
-			SlackApi api = new SlackApi(settings.getSlack());
-			SlackMessage message = new SlackMessage("Cloudgene", text);
-			message.setIcon(":rocket:");
-			api.call(message);
-			log.debug("Sent slack notification");
-		}
 	}
 
 	public static void send(Settings settings, String tos, String subject, String text) throws Exception {

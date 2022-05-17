@@ -1,6 +1,5 @@
 package cloudgene.mapred.cron;
 
-import java.io.File;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -67,11 +66,6 @@ public class CleanUpTasks {
 			}
 
 		}
-
-		File workspace = new File(settings.getLocalWorkspace());
-
-		int free = Math.round(workspace.getFreeSpace() / 1024 / 1024 / 1024);
-		MailUtil.notifySlack(settings, "Hi! I retired " + deleted + " jobs. There are now " + free + " GB free :+1:");
 
 		log.info(deleted + " jobs retired.");
 		return deleted;
@@ -153,9 +147,7 @@ public class CleanUpTasks {
 
 		}
 
-		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email ntofication.");
-
-		MailUtil.notifySlack(settings, "Hi! I sent " + send + " notifications :love_letter:");
+		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email notfication.");
 
 		return send;
 
