@@ -2,8 +2,11 @@ package cloudgene.mapred.server.responses;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import cloudgene.mapred.util.Settings;
 
+@JsonInclude(JsonInclude.Include.ALWAYS)
 public class ServerResponse {
 
 	private String name;
@@ -31,6 +34,8 @@ public class ServerResponse {
 			response.setMailPort(mail.get("port"));
 			response.setMailUser(mail.get("user"));
 			response.setMailPassword(mail.get("password"));
+			response.setMailUser("");
+			response.setMailPassword("");
 			response.setMailName(mail.get("name"));
 
 		} else {

@@ -31,11 +31,11 @@ export default Control.extend({
   'submit': function(form, event) {
     event.preventDefault();
 
-    this.settings.attr('mail-smtp', $(form).find("[name='mail-smtp']").val());
-    this.settings.attr('mail-port', $(form).find("[name='mail-port']").val());
-    this.settings.attr('mail-user', $(form).find("[name='mail-user']").val());
-    this.settings.attr('mail-password', $(form).find("[name='mail-password']").val());
-    this.settings.attr('mail-name', $(form).find("[name='mail-name']").val());
+    this.settings.attr('mailSmtp', $(form).find("[name='mail-smtp']").val());
+    this.settings.attr('mailPort', $(form).find("[name='mail-port']").val());
+    this.settings.attr('mailUser', $(form).find("[name='mail-user']").val());
+    this.settings.attr('mailPassword', $(form).find("[name='mail-password']").val());
+    this.settings.attr('mailName', $(form).find("[name='mail-name']").val());
     this.settings.attr('piggene', $(form).find("[name='piggene']").val());
     this.settings.save(function(data) {
       bootbox.alert("E-Mail configuration updated.");

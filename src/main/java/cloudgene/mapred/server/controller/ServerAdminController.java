@@ -19,7 +19,6 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.responses.ServerResponse;
 import cloudgene.mapred.server.services.ServerService;
-import cloudgene.mapred.util.Settings;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -156,63 +155,17 @@ public class ServerAdminController {
 		
 		return ServerResponse.build( application.getSettings());
 
-		/*
-		 * JSONObject object = new JSONObject(); object.put("name",
-		 * application.getSettings().getName()); object.put("background-color",
-		 * application.getSettings().getColors().get("background"));
-		 * object.put("foreground-color",
-		 * application.getSettings().getColors().get("foreground"));
-		 * object.put("google-analytics",
-		 * application.getSettings().getGoogleAnalytics());
-		 * 
-		 * Map<String, String> mail = application.getSettings().getMail(); if
-		 * (application.getSettings().getMail() != null) { object.put("mail", true);
-		 * object.put("mail-smtp", mail.get("smtp")); object.put("mail-port",
-		 * mail.get("port")); object.put("mail-user", mail.get("user"));
-		 * object.put("mail-password", mail.get("password")); object.put("mail-name",
-		 * mail.get("name")); } else { object.put("mail", false);
-		 * object.put("mail-smtp", ""); object.put("mail-port", "");
-		 * object.put("mail-user", ""); object.put("mail-password", "");
-		 * object.put("mail-name", ""); }
-		 * 
-		 * return object.toString();
-		 */
-
 	}
 
 	@Post("/settings/update")
 	public ServerResponse updateSettings(String name, String backgroundColor, String foregroundColor, String googleAnalytics,
-			boolean mail, String mailSmtp, String mailPort, String mailName) {
+			boolean mail, String mailSmtp, String mailUser, String mailPassword, String mailPort, String mailName) {
 		
 		serverService.updateSettings(name, backgroundColor, foregroundColor, googleAnalytics, String.valueOf(mail), mailSmtp,
-				mailPort, "", "", mailName);
+				mailPort, mailUser, mailPassword, mailName);
 		
 		return ServerResponse.build( application.getSettings());
 		
-		/*
-		 * JSONObject object = new JSONObject();
-		 * 
-		 * object.put("name", application.getSettings().getName());
-		 * object.put("background-color",
-		 * application.getSettings().getColors().get("background"));
-		 * object.put("foreground-color",
-		 * application.getSettings().getColors().get("foreground"));
-		 * object.put("google-analytics",
-		 * application.getSettings().getGoogleAnalytics());
-		 * 
-		 * Map<String, String> mailConfig = application.getSettings().getMail(); if
-		 * (application.getSettings().getMail() != null) { object.put("mail", true);
-		 * object.put("mail-smtp", mailConfig.get("smtp")); object.put("mail-port",
-		 * mailConfig.get("port")); object.put("mail-user", mailConfig.get("user"));
-		 * object.put("mail-password", mailConfig.get("password"));
-		 * object.put("mail-name", mailConfig.get("name")); } else { object.put("mail",
-		 * false); object.put("mail-smtp", ""); object.put("mail-port", "");
-		 * object.put("mail-user", ""); object.put("mail-password", "");
-		 * object.put("mail-name", ""); }
-		 * 
-		 * return object.toString();
-		 */
-
 	}
 
 	@Get("/cloudgene-apps")
