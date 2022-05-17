@@ -1,4 +1,4 @@
-package cloudgene.mapred.cron;
+package cloudgene.mapred.server.services;
 
 import java.util.List;
 
@@ -16,12 +16,22 @@ import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
-public class CleanUpTasks {
+@Singleton
+public class JobCleanUpService {
 
-	private static final Log log = LogFactory.getLog(CleanUpTasks.class);
+	private static final Log log = LogFactory.getLog(JobCleanUpService.class);
 
-	public static int executeRetire(Database database, Settings settings) {
+	@Inject
+	protected Application application;
+
+	public int executeRetire() {
+
+		Database database = application.getDatabase();
+		Settings settings = application.getSettings();
+
 		JobDao dao = new JobDao(database);
 
 		List<AbstractJob> oldJobs = dao.findAllNotifiedJobs();
@@ -71,7 +81,53 @@ public class CleanUpTasks {
 		return deleted;
 	}
 
-	public static int sendNotifications(Application application) {
+	// TODO: duplicate code!
+	public String sendNotification(AbstractJob job, int days) {
+
+		int daysInMilliSeconds = days * 24 * 60 * 60 * 1000;
+
+		Settings settings = application.getSettings();
+		JobDao dao = new JobDao(application.getDatabase());
+
+		if (job.getState() == AbstractJob.STATE_SUCCESS) {
+
+			try {
+
+				String subject = "[" + settings.getName() + "] Job " + job.getId() + " will be retired in " + days
+						+ " days";
+
+				String body = application.getTemplate(Template.RETIRE_JOB_MAIL, job.getUser().getFullName(), days,
+						job.getId());
+
+				MailUtil.send(settings, job.getUser().getMail(), subject, body);
+
+				job.setState(AbstractJob.STATE_SUCESS_AND_NOTIFICATION_SEND);
+				job.setDeletedOn(System.currentTimeMillis() + daysInMilliSeconds);
+				dao.update(job);
+
+				return "Sent notification for job " + job.getId() + ".";
+
+			} catch (Exception e) {
+
+				return "Sent notification for job " + job.getId() + " failed.";
+			}
+
+		} else if (job.getState() == AbstractJob.STATE_FAILED || job.getState() == AbstractJob.STATE_CANCELED) {
+
+			job.setState(AbstractJob.STATE_FAILED_AND_NOTIFICATION_SEND);
+			job.setDeletedOn(System.currentTimeMillis() + daysInMilliSeconds);
+			dao.update(job);
+
+			return job.getId() + ": delete date set. job failed, no notification sent.";
+
+		} else {
+
+			return "Job " + job.getId() + " has wrong state for this operation.";
+		}
+	}
+
+	// TODO: reuse sendNotification(job)
+	public int sendNotifications() {
 
 		Database database = application.getDatabase();
 		Settings settings = application.getSettings();

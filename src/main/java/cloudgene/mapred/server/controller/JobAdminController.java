@@ -8,13 +8,13 @@ import java.util.Vector;
 import org.apache.commons.io.FileUtils;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.cron.CleanUpTasks;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.responses.MessageResponse;
+import cloudgene.mapred.server.services.JobCleanUpService;
 import cloudgene.mapred.server.services.JobService;
 import cloudgene.mapred.util.FormUtil;
 import cloudgene.mapred.util.Settings;
@@ -50,6 +50,9 @@ public class JobAdminController {
 	protected AuthenticationService authenticationService;
 
 	@Inject
+	protected JobCleanUpService cleanUpService;
+
+	@Inject
 	protected FormUtil formUtil;
 
 	@Get("/{id}/reset")
@@ -72,7 +75,7 @@ public class JobAdminController {
 		Settings settings = application.getSettings();
 		int days = settings.getRetireAfter() - settings.getNotificationAfter();
 		AbstractJob job = jobService.getById(id);
-		String message = jobService.retire(job, days);
+		String message = cleanUpService.sendNotification(job, days);
 		return MessageResponse.success(message);
 
 	}
@@ -109,8 +112,8 @@ public class JobAdminController {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String retireJobs() {
 
-		int notifications = CleanUpTasks.sendNotifications(application);
-		int retired = CleanUpTasks.executeRetire(application.getDatabase(), application.getSettings());
+		int notifications = cleanUpService.sendNotifications();
+		int retired = cleanUpService.executeRetire();
 
 		return "NotificationJob:\n" + notifications + " notifications sent." + "\n\nRetireJob:\n" + retired
 				+ " jobs retired.";
@@ -220,7 +223,7 @@ public class JobAdminController {
 		return object.toString();
 
 	}
-	
+
 	public String[] counters = new String[] { "runningJobs", "waitingJobs", "completeJobs", "users" };
 
 	@Get("/statistics")
@@ -273,6 +276,5 @@ public class JobAdminController {
 		}
 		return true;
 	}
-
 
 }

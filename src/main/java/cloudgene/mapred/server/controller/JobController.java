@@ -19,7 +19,6 @@ import cloudgene.mapred.util.FormUtil.Parameter;
 import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Page;
 import cloudgene.mapred.util.PageUtil;
-import cloudgene.mapred.util.Settings;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -30,7 +29,6 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.server.multipart.MultipartBody;
 import io.micronaut.security.annotation.Secured;
@@ -213,63 +211,6 @@ public class JobController {
 		return MessageResponse.success(MESSAGE_JOB_RESTARTED);
 	}
 
-	@Get("/{id}/reset")
-	@Secured(User.ROLE_ADMIN)
-	public MessageResponse reset(String id, @Nullable @QueryValue("max") Integer max) {
-
-		int maxDownloads = application.getSettings().getMaxDownloads();
-		if (max != null) {
-			maxDownloads = max;
-		}
-
-		AbstractJob job = jobService.getById(id);
-		int count = jobService.reset(job, maxDownloads);
-
-		return MessageResponse.success(id + ": counter of " + count + " downloads reset to " + maxDownloads);
-	}
-
-	@Get("/{id}/retire")
-	@Secured(User.ROLE_ADMIN)
-	public MessageResponse retire(String id) {
-
-		Settings settings = application.getSettings();
-		int days = settings.getRetireAfter() - settings.getNotificationAfter();
-		AbstractJob job = jobService.getById(id);
-		String message = jobService.retire(job, days);
-		return MessageResponse.success(message);
-
-	}
-
-	@Get("/{id}/priority")
-	@Secured(User.ROLE_ADMIN)
-	public MessageResponse changePriority(String id) {
-
-		AbstractJob job = jobService.getById(id);
-		jobService.changePriority(job, HIGH_PRIORITY);
-		return MessageResponse.success("Update priority for job " + job.getId() + ".");
-
-	}
-
-	@Get("/{id}/archive")
-	@Secured(User.ROLE_ADMIN)
-	public MessageResponse archive(String id) {
-
-		AbstractJob job = jobService.getById(id);
-		String message = jobService.archive(job);
-		return MessageResponse.success(message);
-
-	}
-
-	@Get("/{id}/change-retire/{days}")
-	@Secured(User.ROLE_ADMIN)
-	@Produces(MediaType.TEXT_PLAIN)
-	public MessageResponse increaseRetireDate(String id, Integer days) {
-
-		AbstractJob job = jobService.getById(id);
-		String message = jobService.increaseRetireDate(job, days);
-		return MessageResponse.success(message);
-
-	}
 
 	private void blockInMaintenanceMode(User user) {
 		if (application.getSettings().isMaintenance() && !user.isAdmin()) {
