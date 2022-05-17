@@ -1,4 +1,4 @@
-package cloudgene.mapred.cron;
+package cloudgene.mapred.server.tasks;
 
 import java.util.List;
 import java.util.Map;
@@ -9,19 +9,62 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.server.Application;
+import cloudgene.mapred.util.MailUtil;
 import genepi.db.Database;
+import genepi.hadoop.HadoopUtil;
 import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class StatisticsJob {
+public class ServerTasks {
 
 	@Inject
 	protected Application application;
-	
+
+	@Scheduled(fixedDelay = "1m")
+	public void checkHadoopCluster() {
+
+		// check namenode state
+
+		try {
+			boolean safemode = HadoopUtil.getInstance().isInSafeMode();
+
+			if (safemode) {
+
+				if (application.getWorkflowEngine().isRunning()) {
+
+					try {
+
+						MailUtil.notifyAdmin(application.getSettings(),
+								"[" + application.getSettings().getName() + "] Problems with your Hadoop cluster",
+								"Hi,\n\n" + "This is a notification sent by Cloudgene.\n\n"
+										+ "Your Hadoop cluster is in Safemode. "
+										+ "Don't worry, we blocked the queue for you!");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+					application.getWorkflowEngine().block();
+
+				}
+
+			}
+		} catch (NoClassDefFoundError e) {
+			// TODO: handle exception
+		}
+
+		// if (cluster.getJobTrackerStatus() == )
+
+		// block queue if tasktracker is in safemode
+
+		// send notification to admins
+
+	}
+
 	@Scheduled(fixedDelay = "5m") 
-	public void execute() {
+	public void writeStatistics() {
 
 		if (!application.getSettings().isWriteStatistics()) {
 			return;
@@ -72,4 +115,5 @@ public class StatisticsJob {
 				.get("runs") == null ? 0 : countersComplete.get("runs")));
 
 	}
+	
 }
