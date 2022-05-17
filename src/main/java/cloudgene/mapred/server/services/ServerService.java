@@ -2,10 +2,21 @@ package cloudgene.mapred.server.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import cloudgene.mapred.plugins.IPlugin;
+import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.server.Application;
+import cloudgene.mapred.server.controller.ServerAdminController;
 import cloudgene.mapred.util.Settings;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -49,6 +60,74 @@ public class ServerService {
 
 		application.getSettings().save();
 		
+	}
+	
+	public String getClusterDetails() {
+		
+		ObjectMapper mapper = new ObjectMapper();
+		
+	    ObjectNode object = mapper.createObjectNode();
+
+		// general settings
+		object.put("maintenance", application.getSettings().isMaintenance());
+		object.put("blocked", !application.getWorkflowEngine().isRunning());
+		object.put("version", Application.VERSION);
+		object.put("maintenance", application.getSettings().isMaintenance());
+		object.put("blocked", !application.getWorkflowEngine().isRunning());
+		object.put("threads_setup", application.getSettings().getThreadsSetupQueue());
+		object.put("threads", application.getSettings().getThreadsQueue());
+		object.put("max_jobs_user", application.getSettings().getMaxRunningJobsPerUser());
+		try {
+			URL url = ServerAdminController.class.getClassLoader().getResource("META-INF/MANIFEST.MF");
+			Manifest manifest = new Manifest(url.openStream());
+			Attributes attr = manifest.getMainAttributes();
+			String buildVesion = attr.getValue("Version");
+			String buildTime = attr.getValue("Build-Time");
+			String builtBy = attr.getValue("Built-By");
+			object.put("built_by", builtBy);
+			object.put("built_time", buildTime);
+
+		} catch (IOException E) {
+			object.put("built_by", "Development");
+			object.put("built_time", new Date().toGMTString());
+		}
+
+		// workspace and hdd
+		File workspace = new File(application.getSettings().getLocalWorkspace());
+		object.put("workspace_path", workspace.getAbsolutePath());
+		object.put("free_disc_space", workspace.getUsableSpace() / 1024 / 1024 / 1024);
+		object.put("total_disc_space", workspace.getTotalSpace() / 1024 / 1024 / 1024);
+		object.put("used_disc_space",
+				(workspace.getTotalSpace() / 1024 / 1024 / 1024) - (workspace.getUsableSpace() / 1024 / 1024 / 1024));
+		
+		// plugins
+		PluginManager manager = PluginManager.getInstance();
+		
+		ArrayNode plugins = object.putArray("plugins");
+		
+		for (IPlugin plugin : manager.getPlugins()) {
+			ObjectNode pluginObject = mapper.createObjectNode();
+			pluginObject.put("name", plugin.getName());
+
+			if (plugin.isInstalled()) {
+				pluginObject.put("enabled", true);
+				pluginObject.put("details", plugin.getDetails());
+			} else {
+				pluginObject.put("enabled", false);
+				pluginObject.put("error", plugin.getStatus());
+			}
+			plugins.add(pluginObject);
+		}
+	
+		// database
+		object.put("db_max_active", application.getDatabase().getDataSource().getMaxActive());
+		object.put("db_active", application.getDatabase().getDataSource().getNumActive());
+		object.put("db_max_idle", application.getDatabase().getDataSource().getMaxIdle());
+		object.put("db_idle", application.getDatabase().getDataSource().getNumIdle());
+		object.put("db_max_open_prep_statements",
+				application.getDatabase().getDataSource().getMaxOpenPreparedStatements());
+
+		return object.toString();
 	}
 	
 	
