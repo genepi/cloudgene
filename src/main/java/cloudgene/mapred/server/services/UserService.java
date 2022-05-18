@@ -264,7 +264,7 @@ public class UserService {
 				dao.update(user);
 			}
 
-			String hostname = application.getSettings().getHostname();
+			String hostname = application.getSettings().getServerUrl();
 			hostname += application.getSettings().getUrlPrefix();
 					
 			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
@@ -336,7 +336,7 @@ public class UserService {
 
 		try {
 
-			String hostname = application.getSettings().getHostname();
+			String hostname = application.getSettings().getServerUrl();
 			hostname += application.getSettings().getUrlPrefix();
 
 			// if email server configured, send mails with activation link. Else

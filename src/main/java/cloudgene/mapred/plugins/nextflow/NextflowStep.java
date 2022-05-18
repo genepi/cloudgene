@@ -121,7 +121,7 @@ public class NextflowStep extends CloudgeneStep {
 		nextflowCommand.add("false");
 
 		nextflowCommand.add("-with-weblog");
-		nextflowCommand.add(context.getSettings().getHostname() + context.getSettings().getUrlPrefix()
+		nextflowCommand.add(context.getSettings().getServerUrl() + context.getSettings().getUrlPrefix()
 				+ "/api/v2/collect/" + makeSecretJobId(context.getJobId()));
 
 		StringBuilder output = new StringBuilder();

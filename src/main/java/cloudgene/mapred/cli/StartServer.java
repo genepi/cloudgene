@@ -22,6 +22,8 @@ import io.micronaut.runtime.Micronaut;
 public class StartServer extends Tool {
 
 	public static final String DEFAULT_HADOOP_USER = "cloudgene";
+	
+	public static final String SECURITY_FILENAME = "config/security.yaml";
 
 	private String[] args;
 
@@ -76,7 +78,7 @@ public class StartServer extends Tool {
 			if (Application.settings.getUploadLimit() != -1) {
 				properties.put("micronaut.server.multipart.maxFileSize", Application.settings.getUploadLimit() + "MB");
 			}
-			
+
 			String secretKey = Application.settings.getSecretKey();
 			if (secretKey == null || secretKey.isEmpty() || secretKey.equals(Settings.DEFAULT_SECURITY_KEY)) {
 				secretKey = RandomStringUtils.randomAlphabetic(64);
@@ -84,11 +86,18 @@ public class StartServer extends Tool {
 				Application.settings.save();
 			}
 
-			
 			properties.put("micronaut.security.token.jwt.signatures.secret.generator.secret",
 					Application.settings.getSecretKey());
 			properties.put("micronaut.autoRetireInterval", Application.settings.getAutoRetireInterval() + "h");
 
+			
+			if (new File(SECURITY_FILENAME).exists()) {
+				System.out.println("Use config file " + SECURITY_FILENAME);
+				System.setProperty("micronaut.config.files", SECURITY_FILENAME);
+			} else {
+				
+			}
+			
 			// TODO: urlPrefix
 
 			if (new File("webapp").exists()) {
@@ -138,8 +147,8 @@ public class StartServer extends Tool {
 			System.exit(1);
 		}
 
-		if (settings.getHostname() == null || settings.getHostname().trim().isEmpty()) {
-			System.out.println("Hostname not set. Please set hostname in file '" + settingsFilename + "'");
+		if (settings.getServerUrl() == null || settings.getServerUrl().trim().isEmpty()) {
+			System.out.println("serverUrl not set. Please set serverUrl in file '" + settingsFilename + "'");
 			System.exit(1);
 		}
 

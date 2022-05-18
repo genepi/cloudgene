@@ -110,7 +110,7 @@ public class DownloadController {
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		List<Download> downloads = dao.findAllByParameter(param);
 
-		String hostname = application.getSettings().getHostname();
+		String hostname = application.getSettings().getServerUrl();
 		hostname += application.getSettings().getUrlPrefix();
 
 		StringBuffer script = new StringBuffer();

@@ -24,8 +24,8 @@ import genepi.io.FileUtil;
 
 public class Settings {
 
-	private String hostname = "http://localhost:8080";
-	
+	private String serverUrl = "http://localhost:8080";
+
 	private String hadoopPath = "/usr/";
 
 	private String pigPath = "/usr/";
@@ -110,8 +110,8 @@ public class Settings {
 
 	private String port = "8082";
 
-	public static final String DEFAULT_SECURITY_KEY= "default-key-change-me-immediately";
-	
+	public static final String DEFAULT_SECURITY_KEY = "default-key-change-me-immediately";
+
 	// fake!
 	private List<Application> apps = new Vector<Application>();
 
@@ -708,14 +708,13 @@ public class Settings {
 		return externalWorkspace.get("type");
 
 	}
-	
-	public void setHostname(String hostname) {
-		this.hostname = hostname;
+
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
 	}
-	
-	
-	public String getHostname() {
-		return hostname;
+
+	public String getServerUrl() {
+		return serverUrl;
 	}
 
 }
