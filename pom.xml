@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>2.5.1</version>
+	<version>3.0.0-beta1</version>
 	<packaging>${packaging}</packaging>
 
 	<parent>
@@ -610,9 +610,10 @@
 							<goal>single</goal>
 						</goals>
 						<configuration>
+							<appendAssemblyId>false</appendAssemblyId>
 							<descriptors>
 								<descriptor>src/main/assembly/assembly.xml</descriptor>
-							</descriptors>
+							</descriptors> 
 						</configuration>
 					</execution>
 				</executions>
@@ -625,7 +626,7 @@
 				<artifactId>makeself-maven-plugin</artifactId>
 				<version>1.0.0.beta3</version>
 				<configuration>
-					<archiveDir>cloudgene-${project.version}-assembly</archiveDir>
+					<archiveDir>cloudgene-${project.version}</archiveDir>
 					<fileName>cloudgene-installer.sh</fileName>
 					<label>Install Cloudgene ${project.version}</label>
 					<notemp>true</notemp>
