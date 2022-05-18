@@ -15,7 +15,7 @@ public class JobTasks {
 	@Inject
 	protected JobCleanUpService cleanUpService;
 
-	@Scheduled(fixedDelay = "${micronaut.autoRetireInterval}")
+	@Scheduled(fixedDelay = "${micronaut.autoRetireInterval:1m}")
 	public void executeRetire() {
 
 		if (application.getSettings().isAutoRetire()) {
@@ -24,7 +24,7 @@ public class JobTasks {
 
 	}
 
-	@Scheduled(fixedDelay = "${micronaut.autoRetireInterval}")
+	@Scheduled(fixedDelay = "${micronaut.autoRetireInterval:1m}")
 	public void sendNotifications() {
 
 		if (application.getSettings().isAutoRetire()) {
