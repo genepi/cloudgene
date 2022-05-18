@@ -23,7 +23,7 @@
 
 <hr>
 
-</p>or sign in with: </p>
+<p>or sign in with: </p>
 
 <ul>
   {{#oauth}}

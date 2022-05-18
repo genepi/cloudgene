@@ -110,6 +110,6 @@
     <p class="float-right">
       <small><a href="#">Back to top</a></small>
     </p>
-    <p><small>{{{footer}}}</p></small>
+    <p><small>{{{footer}}}</small></p>
   </div>
 </footer>

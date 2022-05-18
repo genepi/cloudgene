@@ -3,7 +3,7 @@
   <div class="list-group-item bg-light  flex-column align-items-start">
     <div class="d-flex w-100 justify-content-between" {{data 'param'}}>
       <span>Logs</span>
-      <a title="Download log file" a href="/logs/{{job.id}}"><i class="fas fa-download"></i></a></span>
+      <a title="Download log file" a href="/logs/{{job.id}}"><i class="fas fa-download"></i></a>
     </div>
   </div>
 
