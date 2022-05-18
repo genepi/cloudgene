@@ -265,7 +265,8 @@ public class UserService {
 			}
 
 			String hostname = application.getSettings().getHostname();
-
+			hostname += application.getSettings().getUrlPrefix();
+					
 			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
 
 			// send email with activation code
@@ -336,6 +337,7 @@ public class UserService {
 		try {
 
 			String hostname = application.getSettings().getHostname();
+			hostname += application.getSettings().getUrlPrefix();
 
 			// if email server configured, send mails with activation link. Else
 			// activate user immediately.

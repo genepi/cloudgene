@@ -111,6 +111,7 @@ public class DownloadController {
 		List<Download> downloads = dao.findAllByParameter(param);
 
 		String hostname = application.getSettings().getHostname();
+		hostname += application.getSettings().getUrlPrefix();
 
 		StringBuffer script = new StringBuffer();
 		script.append("#!/bin/bash\n");

@@ -97,7 +97,7 @@ public class NextflowStep extends CloudgeneStep {
 		// add all inputs
 		for (String param : context.getInputs()) {
 			String value = context.getInput(param);
-			//resolve app links: use all properties as input parameters
+			// resolve app links: use all properties as input parameters
 			if (value.startsWith("apps@")) {
 				Map<String, Object> linkedApp = (Map<String, Object>) context.getData(param);
 				for (String paramLinkedApp : linkedApp.keySet()) {
@@ -121,7 +121,8 @@ public class NextflowStep extends CloudgeneStep {
 		nextflowCommand.add("false");
 
 		nextflowCommand.add("-with-weblog");
-		nextflowCommand.add("http://localhost:8082/api/v2/collect/" + makeSecretJobId(context.getJobId()));
+		nextflowCommand.add(context.getSettings().getHostname() + context.getSettings().getUrlPrefix()
+				+ "/api/v2/collect/" + makeSecretJobId(context.getJobId()));
 
 		StringBuilder output = new StringBuilder();
 
