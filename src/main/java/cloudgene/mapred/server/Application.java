@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -28,7 +27,7 @@ import io.micronaut.context.annotation.Context;
 @Context
 public class Application {
 
-	public static final String VERSION = "2.5.1";
+	public static final String VERSION = "3.0.0-beta1";
 
 	private Database database;
 
@@ -48,13 +47,6 @@ public class Application {
 		pluginManager.initPlugins(settings);
 
 		database = new Database();
-
-		String secretKey = settings.getSecretKey();
-		if (secretKey == null || secretKey.isEmpty() || secretKey.equals(Settings.DEFAULT_SECURITY_KEY)) {
-			secretKey = RandomStringUtils.randomAlphabetic(64);
-			settings.setSecretKey(secretKey);
-			settings.save();
-		}
 
 		// create h2 or mysql connector
 		DatabaseConnector connector = DatabaseConnectorFactory.createConnector(settings.getDatabase());

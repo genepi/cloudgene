@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
@@ -74,6 +76,15 @@ public class StartServer extends Tool {
 			if (Application.settings.getUploadLimit() != -1) {
 				properties.put("micronaut.server.multipart.maxFileSize", Application.settings.getUploadLimit() + "MB");
 			}
+			
+			String secretKey = Application.settings.getSecretKey();
+			if (secretKey == null || secretKey.isEmpty() || secretKey.equals(Settings.DEFAULT_SECURITY_KEY)) {
+				secretKey = RandomStringUtils.randomAlphabetic(64);
+				Application.settings.setSecretKey(secretKey);
+				Application.settings.save();
+			}
+
+			
 			properties.put("micronaut.security.token.jwt.signatures.secret.generator.secret",
 					Application.settings.getSecretKey());
 			properties.put("micronaut.autoRetireInterval", Application.settings.getAutoRetireInterval() + "h");
