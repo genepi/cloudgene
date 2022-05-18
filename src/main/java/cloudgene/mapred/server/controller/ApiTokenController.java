@@ -1,7 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import org.json.JSONObject;
-
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -68,16 +66,16 @@ public class ApiTokenController {
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public String get(String username, Authentication authentication) {
 
-		User user = authenticationService.getUserByAuthentication(authentication);
+		//User user = authenticationService.getUserByAuthentication(authentication);
 
 		// TODO: remove this resource. it is unnecessary, because we never store api
 		// token!
 		// return token
-		JSONObject answer = new JSONObject();
-		answer.put("success", true);
-		answer.put("token", user.getApiToken());
-		answer.put("type", "plain");
-		return answer.toString();
+		//JSONObject answer = new JSONObject();
+		//answer.put("success", true);
+		//answer.put("token", user.getApiToken());
+		//answer.put("type", "plain");
+		return "";
 
 	}
 

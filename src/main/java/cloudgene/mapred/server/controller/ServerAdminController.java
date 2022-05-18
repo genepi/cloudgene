@@ -2,16 +2,15 @@ package cloudgene.mapred.server.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
-
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.responses.ServerResponse;
 import cloudgene.mapred.server.services.ServerService;
+import genepi.io.FileUtil;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
@@ -25,6 +24,8 @@ import jakarta.inject.Inject;
 @Secured(User.ROLE_ADMIN)
 
 public class ServerAdminController {
+
+	public static String CLOUDGENE_APPS_ENDPOINT = "http://apps.cloudgene.io/api/apps.json";
 
 	@Inject
 	protected Application application;
@@ -103,11 +104,10 @@ public class ServerAdminController {
 	}
 
 	@Get("/cloudgene-apps")
-	public String list() throws ResourceException, IOException {
-
-		ClientResource clientResource = new ClientResource("http://apps.cloudgene.io/api/apps.json");
-		return clientResource.get().getText();
-
+	public String list() throws IOException {
+		URL url = new URL(CLOUDGENE_APPS_ENDPOINT);
+		String content = FileUtil.readFileAsString(url.openStream());
+		return content;
 	}
 
 }

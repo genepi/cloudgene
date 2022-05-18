@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Vector;
 import java.util.function.Function;
 
-import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
+import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.CompletedPart;
@@ -27,7 +27,8 @@ public class FormUtil {
 	@Inject
 	protected cloudgene.mapred.server.Application application;
 
-	public Publisher<HttpResponse<Object>> processMultipartBody(MultipartBody body, Function<List<Parameter>, HttpResponse<Object>> callback) {
+	public Publisher<HttpResponse<Object>> processMultipartBody(MultipartBody body,
+			Function<List<Parameter>, HttpResponse<Object>> callback) {
 
 		return Mono.<HttpResponse<Object>>create(emitter -> {
 
@@ -89,7 +90,7 @@ public class FormUtil {
 		} else {
 
 			try {
-				String value = Streams.asString(completedPart.getInputStream());
+				String value = FileUtil.readFileAsString(completedPart.getInputStream());
 				return new Parameter(partName, value);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -110,18 +111,19 @@ public class FormUtil {
 			this.name = name;
 			this.value = value;
 		}
-		
+
 		public String getName() {
 			return name;
 		}
+
 		public void setName(String name) {
 			this.name = name;
 		}
-		
+
 		public Object getValue() {
 			return value;
 		}
-		
+
 		public void setValue(Object value) {
 			this.value = value;
 		}

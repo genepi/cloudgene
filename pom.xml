@@ -160,30 +160,35 @@
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet</artifactId>
 			<version>${restlet.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.jetty</artifactId>
 			<version>${restlet.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.restlet.jse</groupId>
 			<artifactId>org.restlet.ext.json</artifactId>
 			<version>${restlet.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.html</artifactId>
 			<version>${restlet.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.fileupload</artifactId>
 			<version>${restlet.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -196,12 +201,14 @@
 					<artifactId>slf4j-api</artifactId>
 				</exclusion>
 			</exclusions>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.freemarker</artifactId>
 			<version>${restlet.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
