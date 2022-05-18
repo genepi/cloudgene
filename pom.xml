@@ -458,6 +458,10 @@
 			<scope>runtime</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>io.micronaut.views</groupId>
+			<artifactId>micronaut-views-velocity</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>io.netty</groupId>

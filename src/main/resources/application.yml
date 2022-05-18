@@ -44,6 +44,10 @@ micronaut:
         mapping: "/static/**"
         paths:
           - file:sample/pages
+  views:
+    folder: webapp
+
+
 netty:
   default:
     allocator:
