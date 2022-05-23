@@ -99,11 +99,13 @@ export default Control.extend({
         callback: function(result) {
           if (result) {
 
+            var token_expiration = $('#token_expiration').val();
 
             var user = that.options.user;
 
             var userToken = new UserToken();
             userToken.attr('user', user.attr('username'));
+            userToken.attr('expiration', token_expiration);
 
             userToken.save(function(responseText) {
               user.attr('hasApiToken', true);

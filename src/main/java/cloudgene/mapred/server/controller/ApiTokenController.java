@@ -34,7 +34,7 @@ public class ApiTokenController {
 	@Inject
 	protected AuthenticationService authenticationService;
 
-	public static int TOKEN_LIFETIME_API_SEC = 30 * 24 * 60 * 60;
+	public static int DEFAULT_TOKEN_LIFETIME_API_SEC = 30 * 24 * 60 * 60;
 
 	@Post("/api/v2/users/{username}/api-token")
 	@Consumes(MediaType.ALL)
@@ -43,13 +43,15 @@ public class ApiTokenController {
 			@QueryValue @Nullable Integer expiration) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
-
+		
 		if (expiration == null) {
-			expiration = TOKEN_LIFETIME_API_SEC;
+			expiration = DEFAULT_TOKEN_LIFETIME_API_SEC;
+		} else if (expiration == -1) {
+			expiration = Integer.MAX_VALUE;
 		} else {
 			expiration = expiration * 24 * 60 * 60;
 		}
-
+		
 		ApiToken apiToken = authenticationService.createApiToken(user, expiration);
 
 		// store random hash (not access token) in database to validate token
