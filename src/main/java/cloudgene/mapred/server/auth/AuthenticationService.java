@@ -1,5 +1,6 @@
 package cloudgene.mapred.server.auth;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -107,6 +108,7 @@ public class AuthenticationService {
 		attribtues.put("mail", user.getMail());
 		attribtues.put("api", true);
 
+		
 		Authentication authentication2 = Authentication.build(user.getUsername(), attribtues);
 		Optional<String> token = generator.generateToken(authentication2, lifetime);
 
@@ -140,7 +142,9 @@ public class AuthenticationService {
 						if (user == null) {
 							emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
 						} else {
-							emitter.success(ValidatedApiTokenResponse.valid(MESSAGE_VALID_API_TOKEN));
+							ValidatedApiTokenResponse response = ValidatedApiTokenResponse.valid(MESSAGE_VALID_API_TOKEN, user);
+							response.setExpire((Date)authentication.getAttributes().get("exp"));
+							emitter.success(response);
 						}
 					} catch (Exception e) {
 						emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
