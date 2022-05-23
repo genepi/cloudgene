@@ -264,7 +264,7 @@ public class ApiTokensTest {
 	}
 
 	@Test
-	public void testSubmitTokenWithWtongApiToken() throws JSONException, IOException, InterruptedException {
+	public void testSubmitTokenWithWrongApiToken() throws JSONException, IOException, InterruptedException {
 
 		// submit job
 		String id = null;
@@ -274,6 +274,51 @@ public class ApiTokensTest {
 		} catch (Exception e) {
 			assertEquals(null, id);
 		}
+
+	}
+
+	@Test
+	public void testSubmitJobWithExpiredApiToken() throws JSONException, IOException, InterruptedException {
+
+		int expiration = 0;
+		LoginToken token = client.login("testUserToken", "Test1Password");
+
+		// create token
+		ClientResource resource = client.createClientResource(
+				"/api/v2/users/" + "testUserToken2" + "/api-token?expiration=" + expiration, token);
+		try {
+			resource.post(new Form());
+		} catch (Exception e) {
+
+		}
+
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertFalse(object.get("token").equals(""));
+
+		String apiToken = object.getString("token");
+
+		// submit job
+		String id = null;
+		try {
+			id = submitTestJob(apiToken);
+			assertTrue(false);
+		} catch (Exception e) {
+			assertEquals(null, id);
+		}
+
+		// revoke token
+		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		try {
+			resource.delete();
+		} catch (Exception e) {
+
+		}
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		resource.release();
 
 	}
 

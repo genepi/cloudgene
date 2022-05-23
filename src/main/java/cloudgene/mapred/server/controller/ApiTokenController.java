@@ -14,10 +14,12 @@ import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import io.micronaut.core.annotation.Nullable;
 
 @Controller
 public class ApiTokenController {
@@ -37,11 +39,18 @@ public class ApiTokenController {
 	@Post("/api/v2/users/{username}/api-token")
 	@Consumes(MediaType.ALL)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> create(String username, Authentication authentication) {
+	public HttpResponse<MessageResponse> create(String username, Authentication authentication,
+			@QueryValue @Nullable Integer expiration) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
-		ApiToken apiToken = authenticationService.createApiToken(user, TOKEN_LIFETIME_API_SEC);
+		if (expiration == null) {
+			expiration = TOKEN_LIFETIME_API_SEC;
+		} else {
+			expiration = expiration * 24 * 60 * 60;
+		}
+
+		ApiToken apiToken = authenticationService.createApiToken(user, expiration);
 
 		// store random hash (not access token) in database to validate token
 		user.setApiToken(apiToken.getHash());
