@@ -24,7 +24,7 @@ import genepi.io.FileUtil;
 
 public class Settings {
 
-	private String serverUrl = "http://localhost:8080";
+	private String serverUrl = "http://localhost:8082";
 
 	private String hadoopPath = "/usr/";
 
@@ -100,7 +100,7 @@ public class Settings {
 
 	private Map<String, String> externalWorkspace = null;
 
-	private int uploadLimit = -1;
+	private int uploadLimit = 500;
 
 	private String googleAnalytics = "";
 
