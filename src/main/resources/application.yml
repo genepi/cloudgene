@@ -46,7 +46,8 @@ micronaut:
           - file:sample/pages
   views:
     folder: webapp
-
+jackson:
+  serialization-inclusion: ALWAYS
 
 netty:
   default:
