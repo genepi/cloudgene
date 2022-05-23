@@ -2,13 +2,11 @@ package cloudgene.mapred.server.controller;
 
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -222,59 +220,6 @@ public class JobAdminController {
 
 		return object.toString();
 
-	}
-
-	public String[] counters = new String[] { "runningJobs", "waitingJobs", "completeJobs", "users" };
-
-	@Get("/statistics")
-	@Secured(User.ROLE_ADMIN)
-	public String getStatistics(@Nullable @QueryValue("days") Integer days) {
-
-		if (days == null) {
-			days = 1;
-		}
-
-		CounterHistoryDao dao = new CounterHistoryDao(application.getDatabase());
-
-		List<Map<String, String>> stats = dao.getAllBeetween(
-				System.currentTimeMillis() - (1000L * 60L * 60L * 24L * days), System.currentTimeMillis());
-
-		// minimize points
-		List<Map<String, String>> toRemove = new Vector<Map<String, String>>();
-		for (int i = 1; i < stats.size() - 1; i++) {
-			Map<String, String> prev = stats.get(i - 1);
-			Map<String, String> current = stats.get(i);
-			Map<String, String> next = stats.get(i + 1);
-
-			if (equals(prev, current, counters) && equals(current, next, counters)) {
-				toRemove.add(current);
-			}
-
-		}
-		stats.removeAll(toRemove);
-		JSONArray jsonArray = JSONArray.fromObject(stats);
-
-		return jsonArray.toString();
-
-	}
-
-	private boolean equals(Map<String, String> a, Map<String, String> b, String[] counters) {
-
-		for (String key : counters) {
-
-			if (a.get(key) == null) {
-				return false;
-			}
-
-			if (b.get(key) == null) {
-				return false;
-			}
-
-			if (!a.get(key).equals(b.get(key))) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 }
