@@ -76,7 +76,8 @@ public class ApiTokensTest {
 		LoginToken token = client.login("testUserToken", "Test1Password");
 
 		// check if token is empty
-		ClientResource resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		ClientResource resource = client.createClientResource("/api/v2/users/testUserToken/profile", token);
+
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -84,8 +85,7 @@ public class ApiTokensTest {
 		}
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertEquals(object.get("token"), "");
+		assertEquals(object.get("hasApiToken"), false);
 		resource.release();
 
 		// create token
@@ -123,16 +123,16 @@ public class ApiTokensTest {
 		object = client.validateToken(apiToken, token);
 		assertFalse(object.getBoolean("valid"));
 
-		
 	}
-	
+
 	@Test
 	public void testCreateTokenWithCorrectCredentials() throws JSONException, IOException, InterruptedException {
 
 		LoginToken token = client.login("testUserToken", "Test1Password");
 
 		// check if token is empty
-		ClientResource resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
+		ClientResource resource = client.createClientResource("/api/v2/users/testUserToken/profile", token);
+
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -140,8 +140,7 @@ public class ApiTokensTest {
 		}
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertEquals(object.get("token"), "");
+		assertEquals(object.get("hasApiToken"), false);
 		resource.release();
 
 		// create token
@@ -164,7 +163,7 @@ public class ApiTokensTest {
 		// check feedback
 		client.waitForJobWithApiToken(id, apiToken);
 
-		JSONObject result =client. getJobDetailsWithApiToken(id, apiToken);
+		JSONObject result = client.getJobDetailsWithApiToken(id, apiToken);
 
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
@@ -201,7 +200,8 @@ public class ApiTokensTest {
 		LoginToken token = client.login("testUserToken2", "Test2Password");
 
 		// check if token is empty
-		ClientResource resource = client.createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
+		ClientResource resource = client.createClientResource("/api/v2/users/testUserToken2/profile", token);
+
 		try {
 			resource.get();
 		} catch (Exception e) {
@@ -209,8 +209,7 @@ public class ApiTokensTest {
 		}
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertEquals(object.get("token"), "");
+		assertEquals(object.get("hasApiToken"), false);
 		resource.release();
 
 		// create token

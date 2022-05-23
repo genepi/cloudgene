@@ -13,13 +13,11 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
-import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONObject;
 
 @Controller
 public class ApiTokenController {
@@ -60,22 +58,6 @@ public class ApiTokenController {
 			return HttpResponse.ok(MessageResponse.error(MESSAGE_APT_TOKEN_ERROR));
 
 		}
-
-	}
-
-	@Get("/api/v2/users/{username}/api-token")
-	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(String username, Authentication authentication) {
-
-		User user = authenticationService.getUserByAuthentication(authentication);
-
-		// TODO: remove this resource. it is unnecessary, because we never store api
-		// token!
-		JSONObject answer = new JSONObject();
-		answer.put("success", true);
-		answer.put("token", user.getApiToken());
-		answer.put("type", "plain");
-		return answer.toString();
 
 	}
 

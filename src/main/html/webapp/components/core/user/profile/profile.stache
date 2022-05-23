@@ -53,7 +53,6 @@ Please fill out the form below to change your account settings or your password.
 
 	<div class="control-group">
 		<div class="controls">
-			<button class="btn btn-primary" id="show_token">Show API Token</button>
 			<button class="btn btn-danger" id="revoke_token">Revoke API Token</button>
 		</div>
 	</div>

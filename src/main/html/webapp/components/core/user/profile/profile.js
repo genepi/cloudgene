@@ -109,7 +109,7 @@ export default Control.extend({
               user.attr('hasApiToken', true);
               user.attr('apiTokenValid', true);
               user.attr('apiTokenMessage', "");
-              bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
+              bootbox.alert('<h4>API Token</h4>Make sure to copy your personal access token now. You won’t be able to see it again:<br> <textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
             }, function(message) {
               bootbox.alert('<h4>API Token</h4>Error: ' + message);
             });
@@ -139,20 +139,6 @@ export default Control.extend({
         });
       }
     });
-  },
-
-  '#show_token click': function() {
-    var user = this.options.user;
-
-    UserToken.findOne({
-      user: user.attr('username')
-    }, function(responseText) {
-      user.attr('hasApiToken', true);
-      bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
-    }, function(message) {
-      bootbox.alert('<h4>API Token</h4>Error: ' + message);
-    });
-
   },
 
   updateControl: function(control, error) {
