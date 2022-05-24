@@ -11,7 +11,7 @@ import UserProfile from 'models/user-profile';
 
 import template from './profile.stache';
 import templateDeleteDialog from './dialogs/delete.stache';
-
+import templateNewTokenDialog from './dialogs/new.stache'
 
 export default Control.extend({
 
@@ -111,7 +111,14 @@ export default Control.extend({
               user.attr('hasApiToken', true);
               user.attr('apiTokenValid', true);
               user.attr('apiTokenMessage', "");
-              bootbox.alert('<h4>API Token</h4>Make sure to copy your personal access token now. You won’t be able to see it again:<br> <textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
+              console.log(templateNewTokenDialog({
+                token: responseText.token
+              }));
+              bootbox.alert({
+                message: templateNewTokenDialog({
+                  token: responseText.token
+                })
+              });
             }, function(message) {
               bootbox.alert('<h4>API Token</h4>Error: ' + message);
             });
@@ -158,41 +165,45 @@ export default Control.extend({
   '#delete_account click': function() {
 
 
-    var deleteAcountDialog = bootbox.dialog(templateDeleteDialog(), [
+    var deleteAcountDialog = bootbox.dialog({
+      message: templateDeleteDialog(),
+      buttons: [
 
-      {
-        label: "Cancel",
-        class: "btn-default",
-        callback: function() {}
-      },
+        {
+          label: "Cancel",
+          class: "btn-default",
+          callback: function() {}
+        },
 
-      {
-        label: "Delete Account",
-        class: "btn-danger",
-        callback: function() {
+        {
+          label: "Delete Account",
+          class: "btn-danger",
+          callback: function() {
 
-          // get form parameters
-          var form = deleteAcountDialog.find("form");
-          var values = deparam(form.serialize());
+            // get form parameters
+            var form = deleteAcountDialog.find("form");
+            var values = deparam(form.serialize());
 
-          // create delete request
-          var userProfile = new UserProfile();
-          userProfile.attr('user', 'me');
-          userProfile.attr('username', values['username']);
-          userProfile.attr('password', values['password']);
-          userProfile.attr('id', 'id');
-          userProfile.destroy(function() {
-            bootbox.alert('<h4>Account deleted</h4>Your account is now deleted.');
-            window.location.href = 'logout';
-            return true;
-          }, function(message) {
-            var response = JSON.parse(message.responseText);
-            bootbox.alert('<h4>Account not deleted</h4>Error: ' + response.message);
-            return false;
-          });
+            console.log(values.username);
+
+            // create delete request
+            var userProfile = new UserProfile();
+            userProfile.attr('username', values.username);
+            userProfile.attr('password', values.password);
+            userProfile.attr('id', 'id');
+            userProfile.destroy(function() {
+              bootbox.alert('<h4>Account deleted</h4>Your account is now deleted.');
+              window.location.href = 'logout';
+              return true;
+            }, function(message) {
+              var response = JSON.parse(message.responseText);
+              bootbox.alert('<h4>Account not deleted</h4>Error: ' + response.message);
+              return false;
+            });
+          }
         }
-      }
-    ]);
+      ]
+    });
   }
 
 });

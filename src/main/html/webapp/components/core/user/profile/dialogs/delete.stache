@@ -6,12 +6,12 @@
 
 <label for="username" class="control-label">Enter your username:</label>
 <div class="controls">
-<input name="username" type="text" data-required="true">
+<input class="form-control" name="username" type="text" data-required="true">
 </div>
 <br>
 <label for="password" class="control-label">Enter your password:</label>
 <div class="controls">
-<input name="password" type="password">
+<input class="form-control" name="password" type="password">
 </div>
 
 </form>

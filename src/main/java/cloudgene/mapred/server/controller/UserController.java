@@ -97,10 +97,11 @@ public class UserController {
 
 	}
 
-	@Delete("/api/v2/users/{user2}/profile")
+	@Delete("/api/v2/users/{username}/profile")
+	@Consumes(MediaType.ALL)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> delete(Authentication authentication, String user2, String username,
-			String password) {
+	public HttpResponse<MessageResponse> delete(Authentication authentication, String username,
+			@QueryValue String password) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
