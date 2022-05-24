@@ -83,8 +83,6 @@ public class Application {
 			System.exit(-1);
 		}
 
-		reloadTemplates();
-
 		// create directories
 		FileUtil.createDirectory(settings.getTempPath());
 		FileUtil.createDirectory(settings.getLocalWorkspace());
@@ -92,6 +90,8 @@ public class Application {
 		// insert fixtures
 		Fixtures.insert(database);
 
+		reloadTemplates();
+		
 		afterDatabaseConnection(database);
 
 		// start workflow engine
