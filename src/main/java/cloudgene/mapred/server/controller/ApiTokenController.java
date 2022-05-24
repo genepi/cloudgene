@@ -51,7 +51,6 @@ public class ApiTokenController {
 		} else {
 			expiration = expiration * 24 * 60 * 60;
 		}
-		
 		ApiToken apiToken = authenticationService.createApiToken(user, expiration);
 		
 		// store random hash (not access token) in database to validate token

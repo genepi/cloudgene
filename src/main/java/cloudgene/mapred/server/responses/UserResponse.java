@@ -30,6 +30,14 @@ public class UserResponse {
 
 	private boolean hasApiToken = false;
 
+	private String apiTokenMessage = "";
+
+	private boolean apiTokenValid = true;
+
+	public static final String MESSAGE_VALID_TOKEN = "API Token was created by %s and is valid until %s.";
+
+	public static final String MESSAGE_EXPIRED_TOKEN = "API Token was created by %s and expired on %s.";
+
 	public static UserResponse build(User user) {
 		UserResponse response = new UserResponse();
 		response.setId(user.getId());
@@ -43,15 +51,28 @@ public class UserResponse {
 		response.setMail(user.getMail());
 		response.setAdmin(user.isAdmin());
 		response.setHasApiToken(user.getApiToken() != null && !user.getApiToken().isEmpty());
+
+		if (response.isHasApiToken() && user.getApiTokenExpiresOn() != null) {
+			if (user.getApiTokenExpiresOn().getTime() > System.currentTimeMillis()) {
+				response.setApiTokenValid(true);
+				response.setApiTokenMessage(
+						String.format(MESSAGE_VALID_TOKEN, user.getUsername(), user.getApiTokenExpiresOn()));
+			} else {
+				response.setApiTokenValid(false);
+				response.setApiTokenMessage(
+						String.format(MESSAGE_EXPIRED_TOKEN, user.getUsername(), user.getApiTokenExpiresOn()));
+			}
+		}
+
 		return response;
 	}
-	
+
 	public static List<UserResponse> build(List<User> users) {
-		 List<UserResponse> response = new Vector<UserResponse>();
-		 for (User user: users) {
-			 response.add(UserResponse.build(user));
-		 }
-		 return response;		
+		List<UserResponse> response = new Vector<UserResponse>();
+		for (User user : users) {
+			response.add(UserResponse.build(user));
+		}
+		return response;
 	}
 
 	public static String lockedUntilToString(Date date) {
@@ -156,6 +177,22 @@ public class UserResponse {
 
 	public boolean isHasApiToken() {
 		return hasApiToken;
+	}
+
+	public void setApiTokenMessage(String apiTokenMessage) {
+		this.apiTokenMessage = apiTokenMessage;
+	}
+
+	public String getApiTokenMessage() {
+		return apiTokenMessage;
+	}
+
+	public void setApiTokenValid(boolean apiTokenValid) {
+		this.apiTokenValid = apiTokenValid;
+	}
+
+	public boolean isApiTokenValid() {
+		return apiTokenValid;
 	}
 
 }

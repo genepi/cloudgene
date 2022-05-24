@@ -111,7 +111,10 @@ public class AuthenticationService {
 		
 		Authentication authentication2 = Authentication.build(user.getUsername(), attributes);
 		Optional<String> token = generator.generateToken(authentication2, lifetime);
-		return new ApiToken(token.get(), hash, new Date(System.currentTimeMillis() + (lifetime + 1000)));
+		
+		Date expiresOn = new Date(System.currentTimeMillis()+ (lifetime * 1000L));
+		
+		return new ApiToken(token.get(), hash, expiresOn);
 
 	}
 
