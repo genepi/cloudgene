@@ -43,6 +43,7 @@ micronaut:
         enabled: true
         mapping: "/static/**"
         paths:
+          - file:pages
           - file:sample/pages
   views:
     folder: webapp
