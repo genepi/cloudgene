@@ -11,6 +11,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
+import ch.qos.logback.classic.util.ContextInitializer;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
@@ -22,7 +23,7 @@ import io.micronaut.runtime.Micronaut;
 public class StartServer extends Tool {
 
 	public static final String DEFAULT_HADOOP_USER = "cloudgene";
-	
+
 	public static final String SECURITY_FILENAME = "config/security.yaml";
 
 	private String[] args;
@@ -42,6 +43,13 @@ public class StartServer extends Tool {
 	@Override
 	public int run() {
 
+		if (new File("webapp").exists()) {
+			System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback.xml");
+		} else {
+			System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-dev.xml");
+		}
+
+		
 		if (getValue("conf") != null) {
 
 			String conf = getValue("conf").toString();
@@ -90,14 +98,13 @@ public class StartServer extends Tool {
 					Application.settings.getSecretKey());
 			properties.put("micronaut.autoRetireInterval", Application.settings.getAutoRetireInterval() + "h");
 
-			
 			if (new File(SECURITY_FILENAME).exists()) {
 				System.out.println("Use config file " + SECURITY_FILENAME);
 				System.setProperty("micronaut.config.files", SECURITY_FILENAME);
 			} else {
-				
+
 			}
-			
+
 			// TODO: urlPrefix
 
 			if (new File("webapp").exists()) {
@@ -107,6 +114,7 @@ public class StartServer extends Tool {
 			} else {
 
 				System.out.println("Start in DEVELOPMENT mode");
+
 				Micronaut.build(args).mainClass(Application.class).properties(properties)
 						.defaultEnvironments(Environment.DEVELOPMENT).start();
 
