@@ -1,16 +1,21 @@
 package cloudgene.mapred.core;
 
+import java.util.Date;
+
 public class ApiToken {
 
 	private String accessToken;
-	
+
 	private String hash;
 
-	public ApiToken(String accessToken, String hash) {
+	private Date expiresOn;
+
+	public ApiToken(String accessToken, String hash, Date expiresOn) {
 		this.accessToken = accessToken;
 		this.hash = hash;
+		this.expiresOn = expiresOn;
 	}
-	
+
 	public String getAccessToken() {
 		return accessToken;
 	}
@@ -26,7 +31,13 @@ public class ApiToken {
 	public void setHash(String hash) {
 		this.hash = hash;
 	}
-	
-	
-	
+
+	public void setExpiresOn(Date expiresOn) {
+		this.expiresOn = expiresOn;
+	}
+
+	public Date getExpiresOn() {
+		return expiresOn;
+	}
+
 }

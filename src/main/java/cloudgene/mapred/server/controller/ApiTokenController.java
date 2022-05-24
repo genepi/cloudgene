@@ -53,10 +53,11 @@ public class ApiTokenController {
 		}
 		
 		ApiToken apiToken = authenticationService.createApiToken(user, expiration);
-
+		
 		// store random hash (not access token) in database to validate token
 		user.setApiToken(apiToken.getHash());
-
+		user.setApiTokenExpiresOn(apiToken.getExpiresOn());
+		
 		UserDao userDao = new UserDao(application.getDatabase());
 		boolean successful = userDao.update(user);
 
@@ -80,6 +81,7 @@ public class ApiTokenController {
 
 		// remove token
 		user.setApiToken("");
+		user.setApiTokenExpiresOn(null);
 
 		UserDao userDao = new UserDao(application.getDatabase());
 		boolean successful = userDao.update(user);

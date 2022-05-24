@@ -97,22 +97,21 @@ public class AuthenticationService {
 
 	public ApiToken createApiToken(User user, int lifetime) {
 
-		String hash = RandomStringUtils.random(30);
+		String hash = RandomStringUtils.randomAlphanumeric(30);
 
-		Map<String, Object> attribtues = new HashMap<String, Object>();
-		attribtues.put(ATTRIBUTE_TOKEN_TYPE, AuthenticationType.API_TOKEN.toString());
-		attribtues.put(ATTRIBUTE_API_HASH, hash);
+		Map<String, Object> attributes = new HashMap<String, Object>();
+		attributes.put(ATTRIBUTE_TOKEN_TYPE, AuthenticationType.API_TOKEN.toString());
+		attributes.put(ATTRIBUTE_API_HASH, hash);
 		// addition attributes that are needed by imputationbot
-		attribtues.put("username", user.getUsername());
-		attribtues.put("name", user.getFullName());
-		attribtues.put("mail", user.getMail());
-		attribtues.put("api", true);
+		attributes.put("username", user.getUsername());
+		attributes.put("name", user.getFullName());
+		attributes.put("mail", user.getMail());
+		attributes.put("api", true);
 
 		
-		Authentication authentication2 = Authentication.build(user.getUsername(), attribtues);
+		Authentication authentication2 = Authentication.build(user.getUsername(), attributes);
 		Optional<String> token = generator.generateToken(authentication2, lifetime);
-
-		return new ApiToken(token.get(), hash);
+		return new ApiToken(token.get(), hash, new Date(System.currentTimeMillis() + (lifetime + 1000)));
 
 	}
 
