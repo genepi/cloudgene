@@ -341,6 +341,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.hadoop</groupId>
+			<artifactId>hadoop-core</artifactId>
+			<version>2.6.0-mr1-cdh5.16.1</version>
+			<type>jar</type>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
