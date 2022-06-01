@@ -1,11 +1,11 @@
 package cloudgene.mapred.jobs;
 
-import java.util.List;
-import java.util.Vector;
-
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
+
+import java.util.List;
+import java.util.Vector;
 
 public class CloudgeneParameterOutput {
 

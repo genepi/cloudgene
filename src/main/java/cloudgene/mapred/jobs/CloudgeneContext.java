@@ -1,14 +1,5 @@
 package cloudgene.mapred.jobs;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
@@ -16,6 +7,11 @@ import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.*;
 
 public class CloudgeneContext extends WorkflowContext {
 

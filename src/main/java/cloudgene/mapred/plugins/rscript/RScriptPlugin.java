@@ -1,11 +1,11 @@
 package cloudgene.mapred.plugins.rscript;
 
-import java.util.Map;
-
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.docker.DockerBinary;
 import cloudgene.mapred.steps.RMarkdownDockerStep;
 import cloudgene.mapred.util.Settings;
+
+import java.util.Map;
 
 public class RScriptPlugin implements IPlugin {
 

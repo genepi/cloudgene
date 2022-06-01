@@ -1,7 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.List;
-
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
@@ -15,6 +13,8 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+
+import java.util.List;
 
 @Controller("/api/v2/admin/server/templates")
 public class TemplateController {

@@ -1,20 +1,5 @@
 package cloudgene.mapred.server.services;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
@@ -24,9 +9,19 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.controller.ServerAdminController;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 @Singleton
 public class ServerService {

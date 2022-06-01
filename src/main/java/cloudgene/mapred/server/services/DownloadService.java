@@ -1,9 +1,5 @@
 package cloudgene.mapred.server.services;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
@@ -14,6 +10,10 @@ import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class DownloadService {
 

@@ -2,7 +2,6 @@ package cloudgene.mapred.plugins.nextflow;
 
 import cloudgene.mapred.jobs.CloudgeneStepFactory;
 import cloudgene.mapred.plugins.IPlugin;
-import cloudgene.mapred.plugins.docker.DockerBinary;
 import cloudgene.mapred.util.Settings;
 
 public class NextflowPlugin implements IPlugin {

@@ -1,18 +1,12 @@
 package cloudgene.mapred.jobs;
 
-import java.util.List;
-import java.util.Map;
-
+import cloudgene.mapred.database.*;
+import genepi.db.Database;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.database.CounterDao;
-import cloudgene.mapred.database.DownloadDao;
-import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.database.MessageDao;
-import cloudgene.mapred.database.ParameterDao;
-import cloudgene.mapred.database.StepDao;
-import genepi.db.Database;
+import java.util.List;
+import java.util.Map;
 
 public class PersistentWorkflowEngine extends WorkflowEngine {
 

@@ -1,9 +1,9 @@
 package cloudgene.mapred.plugins.nextflow;
 
+import net.sf.json.JSONObject;
+
 import java.util.List;
 import java.util.Vector;
-
-import net.sf.json.JSONObject;
 
 public class NextflowProcess {
 

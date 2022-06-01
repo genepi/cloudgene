@@ -1,23 +1,18 @@
 package cloudgene.mapred.database;
 
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao.UserMapper;
+import cloudgene.mapred.jobs.*;
+import genepi.db.Database;
+import genepi.db.IRowMapper;
+import genepi.db.JdbcDataAccessObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import cloudgene.mapred.core.User;
-import cloudgene.mapred.database.UserDao.UserMapper;
-import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameterInput;
-import cloudgene.mapred.jobs.CloudgeneParameterOutput;
-import cloudgene.mapred.jobs.CloudgeneStep;
-import genepi.db.Database;
-import genepi.db.IRowMapper;
-import genepi.db.JdbcDataAccessObject;
 
 public class JobDao extends JdbcDataAccessObject {
 

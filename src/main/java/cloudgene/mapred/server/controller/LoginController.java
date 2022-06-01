@@ -1,17 +1,9 @@
 package cloudgene.mapred.server.controller;
 
-import javax.validation.Valid;
-
-import org.reactivestreams.Publisher;
-
 import cloudgene.mapred.server.auth.DatabaseAuthenticationProvider;
 import io.micronaut.context.event.ApplicationEventPublisher;
 import io.micronaut.core.async.annotation.SingleResult;
-import io.micronaut.http.HttpRequest;
-import io.micronaut.http.HttpResponse;
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.MediaType;
-import io.micronaut.http.MutableHttpResponse;
+import io.micronaut.http.*;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
@@ -22,7 +14,10 @@ import io.micronaut.security.event.LoginFailedEvent;
 import io.micronaut.security.event.LoginSuccessfulEvent;
 import io.micronaut.security.token.jwt.bearer.AccessRefreshTokenLoginHandler;
 import jakarta.inject.Inject;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
+
+import javax.validation.Valid;
 
 @Controller
 public class LoginController {

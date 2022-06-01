@@ -1,13 +1,5 @@
 package cloudgene.mapred.database;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
@@ -15,6 +7,13 @@ import cloudgene.mapred.steps.EmptyStep;
 import genepi.db.Database;
 import genepi.db.IRowMapper;
 import genepi.db.JdbcDataAccessObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Vector;
 
 public class StepDao extends JdbcDataAccessObject {
 

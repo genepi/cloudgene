@@ -1,17 +1,16 @@
 package cloudgene.mapred.steps;
 
-import java.io.File;
-import java.util.List;
-import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.util.List;
+import java.util.Vector;
 
 public class JavaExternalStep extends CloudgeneStep {
 

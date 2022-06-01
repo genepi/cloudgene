@@ -1,11 +1,11 @@
 package cloudgene.mapred.util;
 
+import cloudgene.mapred.jobs.Download;
+import cloudgene.mapred.jobs.JobResultsTreeItem;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
-
-import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.jobs.JobResultsTreeItem;
 
 public class JobResultsTreeUtil {
 

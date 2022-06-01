@@ -1,10 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.plugins.nextflow.NextflowInfo;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
@@ -14,6 +9,10 @@ import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Post;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.Map;
 
 public class NextflowController {
 

@@ -1,10 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.List;
-import java.util.Vector;
-
-import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
@@ -12,7 +7,6 @@ import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.responses.CounterResponse;
 import cloudgene.mapred.server.services.ServerService;
-import cloudgene.mapred.wdl.WdlApp;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -24,7 +18,8 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONObject;
+
+import java.util.List;
 
 @Controller("/api/v2/server")
 public class ServerController {

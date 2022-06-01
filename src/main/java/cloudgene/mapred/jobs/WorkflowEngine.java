@@ -1,16 +1,15 @@
 package cloudgene.mapred.jobs;
 
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.jobs.queue.PriorityRunnable;
+import cloudgene.mapred.jobs.queue.Queue;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.queue.PriorityRunnable;
-import cloudgene.mapred.jobs.queue.Queue;
 
 public class WorkflowEngine implements Runnable {
 

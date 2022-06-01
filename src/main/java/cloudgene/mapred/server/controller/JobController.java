@@ -1,11 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.List;
-import java.util.Vector;
-import java.util.function.Function;
-
-import org.reactivestreams.Publisher;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
@@ -23,13 +17,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Consumes;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Delete;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.annotation.*;
 import io.micronaut.http.server.multipart.MultipartBody;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
@@ -38,6 +26,11 @@ import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
+import org.reactivestreams.Publisher;
+
+import java.util.List;
+import java.util.Vector;
+import java.util.function.Function;
 
 @Controller("/api/v2/jobs")
 public class JobController {

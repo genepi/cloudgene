@@ -1,22 +1,10 @@
 package cloudgene.mapred.server.services;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.JobDao;
-import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameterOutput;
-import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.jobs.*;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
@@ -32,6 +20,10 @@ import genepi.io.FileUtil;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Singleton
 public class JobService {

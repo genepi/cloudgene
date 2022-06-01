@@ -1,15 +1,14 @@
 package cloudgene.mapred.database.updates;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.security.crypto.bcrypt.BCrypt;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import genepi.db.Database;
 import genepi.db.IUpdateListener;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+
+import java.util.List;
 
 public class BcryptHashUpdate implements IUpdateListener {
 

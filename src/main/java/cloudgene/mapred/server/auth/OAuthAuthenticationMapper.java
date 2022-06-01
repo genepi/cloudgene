@@ -1,17 +1,10 @@
 package cloudgene.mapred.server.auth;
 
-import java.util.Arrays;
-import java.util.Date;
-
-import org.apache.commons.lang.RandomStringUtils;
-
-import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.services.UserService;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.MailUtil;
 import io.micronaut.context.annotation.Replaces;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
@@ -24,6 +17,10 @@ import io.micronaut.security.oauth2.endpoint.token.response.OpenIdClaims;
 import io.micronaut.security.oauth2.endpoint.token.response.OpenIdTokenResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.commons.lang.RandomStringUtils;
+
+import java.util.Arrays;
+import java.util.Date;
 
 @Singleton
 @Replaces(DefaultOpenIdAuthenticationMapper.class)

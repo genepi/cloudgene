@@ -1,5 +1,16 @@
 package cloudgene.mapred.jobs.engine.graph;
 
+import cloudgene.mapred.jobs.*;
+import cloudgene.mapred.plugins.PluginManager;
+import cloudgene.mapred.steps.ErrorStep;
+import cloudgene.mapred.steps.JavaInternalStep;
+import cloudgene.mapred.steps.JavaInternalStepDeprecrated;
+import cloudgene.mapred.wdl.WdlStep;
+import cloudgene.sdk.internal.WorkflowStep;
+import genepi.io.FileUtil;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -9,22 +20,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneContext;
-import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneStep;
-import cloudgene.mapred.jobs.CloudgeneStepFactory;
-import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.steps.ErrorStep;
-import cloudgene.mapred.steps.JavaInternalStep;
-import cloudgene.mapred.steps.JavaInternalStepDeprecrated;
-import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.sdk.internal.WorkflowStep;
-import genepi.io.FileUtil;
 
 public class GraphNode implements Runnable {
 	private WdlStep step;

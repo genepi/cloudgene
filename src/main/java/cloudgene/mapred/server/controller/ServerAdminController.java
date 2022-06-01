@@ -1,12 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.server.Application;
@@ -16,15 +9,18 @@ import cloudgene.mapred.server.services.ServerService;
 import genepi.io.FileUtil;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Produces;
-import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.annotation.*;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 @Controller("/api/v2/admin/server")
 @Secured(User.ROLE_ADMIN)

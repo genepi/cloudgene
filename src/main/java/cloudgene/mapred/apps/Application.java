@@ -1,10 +1,10 @@
 package cloudgene.mapred.apps;
 
-import java.io.IOException;
-
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 import genepi.io.FileUtil;
+
+import java.io.IOException;
 
 public class Application implements Comparable<Application> {
 

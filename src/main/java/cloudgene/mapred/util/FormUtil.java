@@ -1,17 +1,5 @@
 package cloudgene.mapred.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Vector;
-import java.util.function.Function;
-
-import org.apache.commons.io.FileUtils;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.multipart.CompletedFileUpload;
@@ -19,7 +7,18 @@ import io.micronaut.http.multipart.CompletedPart;
 import io.micronaut.http.server.multipart.MultipartBody;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.commons.io.FileUtils;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.core.publisher.Mono;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Vector;
+import java.util.function.Function;
 
 @Singleton
 public class FormUtil {

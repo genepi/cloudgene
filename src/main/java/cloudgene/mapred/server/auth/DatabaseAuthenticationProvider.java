@@ -1,10 +1,5 @@
 package cloudgene.mapred.server.auth;
 
-import java.util.Arrays;
-import java.util.Date;
-
-import org.reactivestreams.Publisher;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
@@ -15,7 +10,11 @@ import io.micronaut.security.authentication.AuthenticationRequest;
 import io.micronaut.security.authentication.AuthenticationResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.Date;
 
 @Singleton
 public class DatabaseAuthenticationProvider implements AuthenticationProvider {

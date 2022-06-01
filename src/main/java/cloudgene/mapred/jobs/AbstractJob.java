@@ -1,25 +1,18 @@
 package cloudgene.mapred.jobs;
 
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
-
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Vector;
 
 abstract public class AbstractJob extends PriorityRunnable {
 

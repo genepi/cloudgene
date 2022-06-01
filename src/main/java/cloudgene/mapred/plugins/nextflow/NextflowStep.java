@@ -1,11 +1,5 @@
 package cloudgene.mapred.plugins.nextflow;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -13,6 +7,12 @@ import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 public class NextflowStep extends CloudgeneStep {
 

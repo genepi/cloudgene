@@ -1,24 +1,22 @@
 package cloudgene.mapred.cli;
 
+import ch.qos.logback.classic.util.ContextInitializer;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.util.Config;
+import cloudgene.mapred.util.Settings;
+import com.esotericsoftware.yamlbeans.YamlException;
+import com.esotericsoftware.yamlbeans.YamlReader;
+import genepi.base.Tool;
+import genepi.hadoop.HadoopCluster;
+import io.micronaut.context.env.Environment;
+import io.micronaut.runtime.Micronaut;
+import org.apache.commons.lang.RandomStringUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.commons.lang.RandomStringUtils;
-
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlReader;
-
-import ch.qos.logback.classic.util.ContextInitializer;
-import cloudgene.mapred.server.Application;
-import cloudgene.mapred.util.Config;
-import cloudgene.mapred.util.Settings;
-import genepi.base.Tool;
-import genepi.hadoop.HadoopCluster;
-import io.micronaut.context.env.Environment;
-import io.micronaut.runtime.Micronaut;
 
 public class StartServer extends Tool {
 

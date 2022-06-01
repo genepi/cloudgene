@@ -1,16 +1,6 @@
 package cloudgene.mapred;
 
-import cloudgene.mapred.cli.CloneApplications;
-import cloudgene.mapred.cli.InstallApplication;
-import cloudgene.mapred.cli.InstallGitHubApplication;
-import cloudgene.mapred.cli.ListApplications;
-import cloudgene.mapred.cli.RemoveApplication;
-import cloudgene.mapred.cli.RunApplication;
-import cloudgene.mapred.cli.ShowPlugins;
-import cloudgene.mapred.cli.ShowVersion;
-import cloudgene.mapred.cli.StartServer;
-import cloudgene.mapred.cli.ValidateApplication;
-import cloudgene.mapred.cli.VerifyCluster;
+import cloudgene.mapred.cli.*;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.BuildUtil;
 import genepi.base.Toolbox;

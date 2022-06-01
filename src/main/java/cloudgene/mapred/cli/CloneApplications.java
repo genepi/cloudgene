@@ -1,16 +1,14 @@
 package cloudgene.mapred.cli;
 
+import cloudgene.mapred.apps.Application;
+import com.esotericsoftware.yamlbeans.YamlReader;
+import genepi.hadoop.S3Util;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.FileReader;
 import java.net.URL;
 import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-
-import com.esotericsoftware.yamlbeans.YamlReader;
-
-import cloudgene.mapred.apps.Application;
-import genepi.hadoop.S3Util;
 
 public class CloneApplications extends BaseTool {
 

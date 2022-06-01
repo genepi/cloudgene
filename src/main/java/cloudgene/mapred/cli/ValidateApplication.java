@@ -1,13 +1,12 @@
 package cloudgene.mapred.cli;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-
-import com.esotericsoftware.yamlbeans.YamlException;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
+import com.esotericsoftware.yamlbeans.YamlException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 
 public class ValidateApplication extends BaseTool {
 

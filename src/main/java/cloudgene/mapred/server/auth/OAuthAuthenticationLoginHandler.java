@@ -1,7 +1,5 @@
 package cloudgene.mapred.server.auth;
 
-import java.util.Optional;
-
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -12,6 +10,8 @@ import io.micronaut.security.handlers.RedirectingLoginHandler;
 import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import java.util.Optional;
 
 @Singleton
 public class OAuthAuthenticationLoginHandler implements RedirectingLoginHandler {

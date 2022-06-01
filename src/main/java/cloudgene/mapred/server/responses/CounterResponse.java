@@ -1,10 +1,10 @@
 package cloudgene.mapred.server.responses;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CounterResponse {
 

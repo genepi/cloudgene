@@ -1,16 +1,16 @@
 package cloudgene.mapred.steps;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Vector;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Vector;
 
 public class BashCommandStep extends CloudgeneStep {
 

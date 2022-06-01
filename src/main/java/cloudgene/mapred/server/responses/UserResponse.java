@@ -1,10 +1,10 @@
 package cloudgene.mapred.server.responses;
 
+import cloudgene.mapred.core.User;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Vector;
-
-import cloudgene.mapred.core.User;
 
 public class UserResponse {
 

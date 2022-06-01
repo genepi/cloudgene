@@ -1,14 +1,13 @@
 package cloudgene.mapred.cli;
 
-import java.io.File;
-import java.io.FileReader;
-
-import com.esotericsoftware.yamlbeans.YamlReader;
-
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
+import com.esotericsoftware.yamlbeans.YamlReader;
 import genepi.base.Tool;
+
+import java.io.File;
+import java.io.FileReader;
 
 public abstract class BaseTool extends Tool {
 

@@ -1,12 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.io.File;
-import java.net.URISyntaxException;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.database.ParameterDao;
@@ -28,6 +21,12 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.util.List;
 
 @Controller
 public class DownloadController {

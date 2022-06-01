@@ -1,11 +1,11 @@
 package cloudgene.mapred.plugins.docker;
 
-import java.io.File;
-
 import cloudgene.mapred.util.BinaryFinder;
 import cloudgene.mapred.util.Settings;
 import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
+
+import java.io.File;
 
 public class DockerBinary {
 

@@ -1,16 +1,5 @@
 package cloudgene.mapred.jobs;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
@@ -22,15 +11,20 @@ import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameterInput;
-import cloudgene.mapred.wdl.WdlParameterInputType;
-import cloudgene.mapred.wdl.WdlParameterOutput;
-import cloudgene.mapred.wdl.WdlParameterOutputType;
-import cloudgene.mapred.wdl.WdlStep;
+import cloudgene.mapred.wdl.*;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 public class CloudgeneJob extends AbstractJob {
 

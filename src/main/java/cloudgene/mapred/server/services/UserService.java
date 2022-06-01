@@ -1,7 +1,5 @@
 package cloudgene.mapred.server.services;
 
-import java.util.List;
-
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -14,6 +12,8 @@ import cloudgene.mapred.util.Page;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import java.util.List;
 
 @Singleton
 public class UserService {

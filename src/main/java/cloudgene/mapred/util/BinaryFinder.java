@@ -1,9 +1,9 @@
 package cloudgene.mapred.util;
 
+import genepi.io.FileUtil;
+
 import java.io.File;
 import java.util.Map;
-
-import genepi.io.FileUtil;
 
 public class BinaryFinder {
 

@@ -1,10 +1,5 @@
 package cloudgene.mapred.server.services;
 
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -18,6 +13,10 @@ import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.List;
 
 @Singleton
 public class JobCleanUpService {

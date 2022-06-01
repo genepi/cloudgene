@@ -1,9 +1,9 @@
 package cloudgene.mapred.wdl;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class WdlApp implements Comparable<WdlApp> {

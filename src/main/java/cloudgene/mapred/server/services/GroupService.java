@@ -1,14 +1,14 @@
 package cloudgene.mapred.server.services;
 
-import java.util.List;
-import java.util.Vector;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Group;
 import cloudgene.mapred.core.User;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import java.util.List;
+import java.util.Vector;
 
 @Singleton
 public class GroupService {

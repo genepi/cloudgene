@@ -1,8 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.List;
-import java.util.Map;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Template;
@@ -15,18 +12,16 @@ import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Delete;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.Put;
-import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.annotation.*;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import java.util.List;
+import java.util.Map;
 
 @Controller
 public class AppController {

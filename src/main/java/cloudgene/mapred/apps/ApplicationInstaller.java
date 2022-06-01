@@ -1,13 +1,5 @@
 package cloudgene.mapred.apps;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
-
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -15,6 +7,13 @@ import genepi.hadoop.HdfsUtil;
 import genepi.hadoop.S3Util;
 import genepi.hadoop.io.HdfsLineWriter;
 import genepi.io.FileUtil;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 public class ApplicationInstaller {
 

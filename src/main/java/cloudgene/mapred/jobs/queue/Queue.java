@@ -1,17 +1,12 @@
 package cloudgene.mapred.jobs.queue;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
-import java.util.concurrent.Future;
-
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.jobs.AbstractJob;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.AbstractJob;
+import java.util.*;
+import java.util.concurrent.Future;
 
 public abstract class Queue implements Runnable {
 

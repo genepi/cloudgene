@@ -1,16 +1,16 @@
 package cloudgene.mapred.plugins;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import cloudgene.mapred.plugins.docker.DockerPlugin;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.plugins.nextflow.NextflowPlugin;
 import cloudgene.mapred.plugins.rscript.RMarkdownPlugin;
 import cloudgene.mapred.plugins.rscript.RScriptPlugin;
 import cloudgene.mapred.util.Settings;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 public class PluginManager {
 

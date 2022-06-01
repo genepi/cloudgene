@@ -1,13 +1,5 @@
 package cloudgene.mapred.database;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterInput;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
@@ -17,6 +9,13 @@ import cloudgene.mapred.wdl.WdlParameterOutputType;
 import genepi.db.Database;
 import genepi.db.IRowMapper;
 import genepi.db.JdbcDataAccessObject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Vector;
 
 public class ParameterDao extends JdbcDataAccessObject {
 

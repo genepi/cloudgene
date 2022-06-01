@@ -1,19 +1,10 @@
 package cloudgene.mapred.jobs;
 
+import cloudgene.mapred.steps.*;
+import cloudgene.mapred.wdl.WdlStep;
+
 import java.util.HashMap;
 import java.util.Map;
-
-import cloudgene.mapred.steps.BashCommandStep;
-import cloudgene.mapred.steps.GroovyStep;
-import cloudgene.mapred.steps.HadoopMapReduceStep;
-import cloudgene.mapred.steps.HadoopPigStep;
-import cloudgene.mapred.steps.HadoopSparkStep;
-import cloudgene.mapred.steps.HtmlWidgetStep;
-import cloudgene.mapred.steps.JavaExternalStep;
-import cloudgene.mapred.steps.RMarkdownDockerStep;
-import cloudgene.mapred.steps.RMarkdownLocalStep;
-import cloudgene.mapred.steps.RMarkdownStep;
-import cloudgene.mapred.wdl.WdlStep;
 
 public class CloudgeneStepFactory {
 

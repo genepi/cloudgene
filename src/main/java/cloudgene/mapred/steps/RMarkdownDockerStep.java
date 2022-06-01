@@ -1,13 +1,13 @@
 package cloudgene.mapred.steps;
 
-import java.io.File;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.plugins.docker.DockerPlugin;
 import cloudgene.mapred.plugins.docker.DockerStep;
 import cloudgene.mapred.plugins.rscript.RScriptFile;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
+
+import java.io.File;
 
 public class RMarkdownDockerStep extends DockerStep {
 

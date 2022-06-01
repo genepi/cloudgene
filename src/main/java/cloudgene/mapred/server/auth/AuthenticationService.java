@@ -1,15 +1,5 @@
 package cloudgene.mapred.server.auth;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import org.apache.commons.lang.RandomStringUtils;
-import org.reactivestreams.Publisher;
-import org.reactivestreams.Subscriber;
-import org.reactivestreams.Subscription;
-
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -22,7 +12,16 @@ import io.micronaut.security.token.jwt.generator.JwtTokenGenerator;
 import io.micronaut.security.token.jwt.validator.JwtTokenValidator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.commons.lang.RandomStringUtils;
+import org.reactivestreams.Publisher;
+import org.reactivestreams.Subscriber;
+import org.reactivestreams.Subscription;
 import reactor.core.publisher.Mono;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Singleton
 public class AuthenticationService {

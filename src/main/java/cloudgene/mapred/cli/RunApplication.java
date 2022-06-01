@@ -1,20 +1,5 @@
 package cloudgene.mapred.cli;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-
-import com.esotericsoftware.yamlbeans.YamlException;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -22,14 +7,18 @@ import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameterInput;
-import cloudgene.mapred.wdl.WdlParameterInputType;
-import cloudgene.mapred.wdl.WdlParameterOutput;
-import cloudgene.mapred.wdl.WdlReader;
+import cloudgene.mapred.wdl.*;
+import com.esotericsoftware.yamlbeans.YamlException;
 import genepi.hadoop.HadoopCluster;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
+import org.apache.commons.cli.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
 
 public class RunApplication extends BaseTool {
 

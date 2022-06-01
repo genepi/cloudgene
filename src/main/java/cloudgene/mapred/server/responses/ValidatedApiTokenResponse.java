@@ -1,8 +1,8 @@
 package cloudgene.mapred.server.responses;
 
-import java.util.Date;
-
 import cloudgene.mapred.core.User;
+
+import java.util.Date;
 
 public class ValidatedApiTokenResponse {
 

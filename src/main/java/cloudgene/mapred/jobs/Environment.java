@@ -1,14 +1,14 @@
 package cloudgene.mapred.jobs;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Environment {
 

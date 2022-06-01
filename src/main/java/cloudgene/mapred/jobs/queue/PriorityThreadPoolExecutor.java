@@ -1,13 +1,9 @@
 package cloudgene.mapred.jobs.queue;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.concurrent.*;
 
 public class PriorityThreadPoolExecutor {
 	private PausableThreadPoolExecutor executor;

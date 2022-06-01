@@ -1,15 +1,5 @@
 package cloudgene.mapred.steps;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
@@ -18,6 +8,12 @@ import cloudgene.mapred.wdl.WdlStep;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.hadoop.HadoopUtil;
 import genepi.io.FileUtil;
+
+import java.io.*;
+import java.util.List;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HadoopMapReduceStep extends CloudgeneStep {
 

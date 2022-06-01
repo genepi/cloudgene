@@ -1,8 +1,8 @@
 package cloudgene.mapred.cli;
 
-import java.util.List;
-
 import cloudgene.mapred.apps.Application;
+
+import java.util.List;
 
 public class ListApplications extends BaseTool {
 

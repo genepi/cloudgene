@@ -1,14 +1,14 @@
 package cloudgene.mapred.jobs.engine.plugins;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import genepi.io.WildCardFileFilter;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 public class ParameterValueOutput {
 

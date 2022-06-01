@@ -1,8 +1,5 @@
 package cloudgene.mapred.server.controller;
 
-import java.util.List;
-import java.util.Vector;
-
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import genepi.hadoop.importer.FileItem;
 import genepi.hadoop.importer.IImporter;
@@ -13,6 +10,9 @@ import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
 import net.sf.json.JSONArray;
+
+import java.util.List;
+import java.util.Vector;
 
 @Controller
 public class ImportController {

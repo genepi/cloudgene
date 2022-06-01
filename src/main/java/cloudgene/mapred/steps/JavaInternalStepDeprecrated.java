@@ -1,13 +1,13 @@
 package cloudgene.mapred.steps;
 
-import java.util.Map;
-import java.util.Set;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.hadoop.common.WorkflowContext;
 import genepi.hadoop.common.WorkflowStep;
+
+import java.util.Map;
+import java.util.Set;
 
 public class JavaInternalStepDeprecrated extends CloudgeneStep {
 

@@ -1,10 +1,5 @@
 package cloudgene.mapred.server.responses;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
@@ -12,6 +7,11 @@ import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
+
+import java.io.File;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 public class ApplicationResponse {
 

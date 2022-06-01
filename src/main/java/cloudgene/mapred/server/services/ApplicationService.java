@@ -1,14 +1,5 @@
 package cloudgene.mapred.server.services;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
@@ -20,6 +11,14 @@ import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 
 public class ApplicationService {
 

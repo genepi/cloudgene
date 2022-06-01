@@ -1,14 +1,14 @@
 package cloudgene.mapred.steps;
 
-import java.util.List;
-import java.util.Vector;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
+
+import java.util.List;
+import java.util.Vector;
 
 public class HadoopPigStep extends CloudgeneStep {
 

@@ -8,18 +8,14 @@ import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.responses.ApiTokenResponse;
 import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.server.responses.ValidatedApiTokenResponse;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Consumes;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Delete;
-import io.micronaut.http.annotation.Post;
-import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.annotation.*;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import io.micronaut.core.annotation.Nullable;
 
 @Controller
 public class ApiTokenController {

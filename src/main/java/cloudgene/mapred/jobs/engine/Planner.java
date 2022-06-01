@@ -1,15 +1,5 @@
 package cloudgene.mapred.jobs.engine;
 
-import java.io.File;
-import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.Velocity;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.jobs.engine.graph.Graph;
@@ -18,13 +8,16 @@ import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValueInput;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValueOutput;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
-import cloudgene.mapred.wdl.WdlParameterInput;
-import cloudgene.mapred.wdl.WdlParameterOutput;
-import cloudgene.mapred.wdl.WdlReader;
-import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.mapred.wdl.WdlWorkflow;
+import cloudgene.mapred.wdl.*;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
+
+import java.io.File;
+import java.io.StringWriter;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Map;
 
 public class Planner {
 

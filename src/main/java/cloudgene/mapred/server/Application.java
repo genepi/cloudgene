@@ -1,14 +1,5 @@
 package cloudgene.mapred.server;
 
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
@@ -23,6 +14,14 @@ import genepi.db.DatabaseConnector;
 import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 import io.micronaut.context.annotation.Context;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Context
 public class Application {

@@ -1,8 +1,5 @@
 package cloudgene.mapred.server.tasks;
 
-import java.util.List;
-import java.util.Map;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.database.UserDao;
@@ -15,6 +12,9 @@ import genepi.hadoop.HadoopUtil;
 import io.micronaut.scheduling.annotation.Scheduled;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+
+import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class ServerTasks {

@@ -1,10 +1,10 @@
 package cloudgene.mapred.jobs.engine.graph;
 
-import java.util.List;
-import java.util.Vector;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.wdl.WdlParameter;
+
+import java.util.List;
+import java.util.Vector;
 
 public class Graph {
 

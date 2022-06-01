@@ -1,14 +1,13 @@
 package cloudgene.mapred.database.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.HashUtil;
 import genepi.db.Database;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class Fixtures {
 

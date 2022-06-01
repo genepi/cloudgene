@@ -1,10 +1,10 @@
 package cloudgene.mapred.steps;
 
-import java.util.Map;
-
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.wdl.WdlStep;
+
+import java.util.Map;
 
 public class RMarkdownStep extends CloudgeneStep {
 
