@@ -197,12 +197,17 @@ public class SubmitJob extends BaseResource {
 								inputParam = input;
 							}
 						}
+						
+						if (inputParam == null) {
+							throw new Exception("Parameter '" + fieldName + "' not found.");
+						}
 
 						if (inputParam.isHdfs()) {
 
 							String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
 
-							String target = HdfsUtil.path(targetPath, entryName);
+							String cleandEntryName = new File(entryName).getName();							
+							String target = HdfsUtil.path(targetPath, cleandEntryName);
 
 							HdfsUtil.put(tmpFile, target);
 
@@ -212,7 +217,7 @@ public class SubmitJob extends BaseResource {
 							} else {
 								// file
 								props.put(fieldName,
-										HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, entryName)));
+										HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, cleandEntryName)));
 							}
 
 						} else {
@@ -222,7 +227,8 @@ public class SubmitJob extends BaseResource {
 
 							FileUtil.createDirectory(targetPath);
 
-							String target = FileUtil.path(targetPath, entryName);
+							String cleandEntryName = new File(entryName).getName();							
+							String target = FileUtil.path(targetPath, cleandEntryName);
 
 							FileUtil.copy(tmpFile, target);
 
