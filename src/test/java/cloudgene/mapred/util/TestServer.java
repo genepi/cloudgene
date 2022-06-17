@@ -56,7 +56,8 @@ public class TestServer {
 		mail.put("password", "");
 		mail.put("name", "noreply@cloudgene");
 		settings.setMail(mail);
-		
+	
+		settings.setServerUrl(HOSTNAME);
 		settings.setSecretKey(Settings.DEFAULT_SECURITY_KEY);
 	}
 

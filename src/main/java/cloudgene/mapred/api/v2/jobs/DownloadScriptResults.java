@@ -41,12 +41,7 @@ public class DownloadScriptResults extends BaseResource {
 		DownloadDao dao = new DownloadDao(getDatabase());
 		List<Download> downloads = dao.findAllByParameter(param);
 
-		String hostname = "";
-		if (getRequest().getReferrerRef() != null) {
-			hostname = getRequest().getReferrerRef().getHostIdentifier();
-		} else {
-			hostname = getRequest().getHostRef().getHostIdentifier();
-		}
+		String hostname = getSettings().getServerUrl();
 
 		StringBuffer script = new StringBuffer();
 		script.append("#!/bin/bash\n");
