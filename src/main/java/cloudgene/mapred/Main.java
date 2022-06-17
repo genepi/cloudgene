@@ -72,6 +72,11 @@ public class Main {
 				settings = new Settings(config);
 			}
 
+			if (settings.getServerUrl() == null) {
+				System.out.println("Error: serverUrl not set in settings.yaml");
+				System.exit(1);
+			}
+			
 			if (!settings.testPaths()) {
 				System.exit(1);
 			}

@@ -96,21 +96,8 @@ public class GetClusterDetails extends BaseResource {
 		object.put("db_max_open_prep_statements", getDatabase().getDataSource().getMaxOpenPreparedStatements());
 
 		JSONObject hostnames = new JSONObject();
-		if (getRequest().getHostRef() != null) {
-			hostnames.put("host_ref", getRequest().getHostRef().getHostIdentifier());
-		}
-		if (getRequest().getOriginalRef() != null) {
-			hostnames.put("original_ref", getRequest().getOriginalRef().getHostIdentifier());
-		}
-		if (getRequest().getResourceRef() != null) {
-			hostnames.put("resource_ref", getRequest().getResourceRef().getHostIdentifier());
-		}
-		if (getRequest().getRootRef() != null) {
-			hostnames.put("root_ref", getRequest().getRootRef().getHostIdentifier());
-		}
-		if (getRequest().getReferrerRef() != null) {
-			hostnames.put("referrer_ref", getRequest().getReferrerRef().getHostIdentifier());
-		}
+		String hostname = getSettings().getServerUrl();
+		hostnames.put("hostname", hostname);
 
 		object.put("hostnames", hostnames);
 
