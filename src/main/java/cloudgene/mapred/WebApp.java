@@ -1,6 +1,10 @@
 package cloudgene.mapred;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +12,10 @@ import java.util.Map;
 import org.restlet.Application;
 import org.restlet.Restlet;
 import org.restlet.data.LocalReference;
+import org.restlet.data.Status;
+import org.restlet.engine.local.DirectoryServerResource;
 import org.restlet.resource.Directory;
+import org.restlet.resource.ResourceException;
 import org.restlet.routing.Redirector;
 import org.restlet.routing.Router;
 import org.restlet.routing.Template;
@@ -229,12 +236,14 @@ public class WebApp extends Application {
 		setStatusService(new CustomStatusService());
 
 		Directory dir = new Directory(getContext(), webRoot2);
+		dir.setTargetClass(FixedDirectoryServerResource.class);
 		dir.setListingAllowed(false);
 
 		route = router.attach(prefix + "/static", dir);
 		route.setMatchingMode(Template.MODE_STARTS_WITH);
 
 		dir = new Directory(getContext(), webRoot);
+		dir.setTargetClass(FixedDirectoryServerResource.class);
 		dir.setListingAllowed(false);
 
 		route = router.attach(prefix + "/", dir);
@@ -301,6 +310,26 @@ public class WebApp extends Application {
 			return String.format(template, strings);
 		} else {
 			return "!" + key;
+		}
+
+	}
+	
+	public static class FixedDirectoryServerResource extends DirectoryServerResource {
+
+		@Override
+		public void preventUpperDirectoryAccess() {
+						
+			try {
+				URI targetUri = new URI(getTargetUri());
+				Path targetPath = Paths.get(targetUri).normalize();
+				URI baseUri = new URI(getDirectory().getRootRef().toString());
+				Path basePath = Paths.get(baseUri).normalize();
+				if (!targetPath.startsWith(basePath)) {
+					throw new ResourceException(Status.CLIENT_ERROR_FORBIDDEN);
+				}
+			} catch (URISyntaxException e) {
+				throw new ResourceException(e);
+			}
 		}
 
 	}
