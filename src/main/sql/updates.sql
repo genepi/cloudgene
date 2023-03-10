@@ -156,7 +156,7 @@ create index idx_log_messages_step_id on log_messages(step_id);
 create index idx_job_user_id on job(user_id,state);
 
 -- 2.0.0
-ALTER TABLE log_messages MODIFY COLUMN message VARCHAR (20000);
+ALTER TABLE log_messages MODIFY COLUMN message TEXT;
 
 -- 2.3.0
 
