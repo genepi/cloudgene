@@ -17,6 +17,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.util.Streams;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.ext.fileupload.RestletFileUpload;
@@ -168,23 +169,21 @@ public class SubmitJob extends BaseResource {
 
 				FileItemStream item = iterator.next();
 
-				String name = item.getName();
+				String entryName = StringEscapeUtils.escapeHtml(item.getName());
 
-				if (name != null) {
+				if (entryName != null) {
 
 					File file = null;
 
 					try {
 						// file parameter
 						// write local file
-						String tmpFile = getSettings().getTempFilename(item.getName());
+						String tmpFile = getSettings().getTempFilename(entryName);
 						file = new File(tmpFile);
 
 						FileUtils.copyInputStreamToFile(item.openStream(), file);
 
-						// import into hdfs
-						String entryName = item.getName();
-
+	
 						// remove upload indentification!
 						String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
 
@@ -260,11 +259,11 @@ public class SubmitJob extends BaseResource {
 
 				} else {
 
-					String key = item.getFieldName();
+					String key = StringEscapeUtils.escapeHtml(item.getFieldName());
 					if (key.startsWith("input-")) {
 						key = key.replace("input-", "");
 					}
-					String value = Streams.asString(item.openStream());
+					String value = StringEscapeUtils.escapeHtml(Streams.asString(item.openStream()));
 					if (!props.containsKey(key)) {
 						// don't override uploaded files
 						props.put(key, value);
