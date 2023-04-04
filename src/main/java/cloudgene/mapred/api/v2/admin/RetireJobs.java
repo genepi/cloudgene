@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.admin;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -10,6 +12,7 @@ import cloudgene.mapred.cron.CleanUpTasks;
 import cloudgene.mapred.util.BaseResource;
 
 public class RetireJobs extends BaseResource {
+	private static final Log log = LogFactory.getLog(RetireJobs.class);
 
 	@Get
 	public Representation get() {
@@ -32,6 +35,8 @@ public class RetireJobs extends BaseResource {
 
 		int notifications = CleanUpTasks.sendNotifications(getWebApp());
 		int retired = CleanUpTasks.executeRetire(getDatabase(), getSettings());
+
+		log.info(String.format("Job: Manually triggered retiring of all eligible jobs (by ADMIN user ID %s - email %s)", user.getId(), user.getMail()));
 
 		return new StringRepresentation("NotificationJob:\n" + notifications
 				+ " notifications sent." + "\n\nRetireJob:\n" + retired

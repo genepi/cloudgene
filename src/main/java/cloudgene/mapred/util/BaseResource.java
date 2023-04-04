@@ -4,6 +4,8 @@ import java.net.URLDecoder;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Status;
@@ -21,6 +23,7 @@ import cloudgene.mapred.jobs.WorkflowEngine;
 import genepi.db.Database;
 
 public class BaseResource extends ServerResource {
+	private static final Log log = LogFactory.getLog(BaseResource.class);
 
 	private WebApp application;
 
@@ -61,12 +64,18 @@ public class BaseResource extends ServerResource {
 		User user = JWTUtil.getUserByRequest(getDatabase(), getRequest(), getSettings().getSecretKey(), checkCsrf);
 		if (user == null) {
 			user = JWTUtil.getUserByApiToken(getDatabase(), getRequest(), getSettings().getSecretKey());
+
+			if (user != null) {
+				log.info(String.format("User: API Token Authentication for user: %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
+			}
+
 			accessedByApi = true;
 		}
 		return user;
 	}
 	
 	public boolean isAccessedByApi() {
+		// TODO: Is this threadsafe?
 		return accessedByApi;
 	}
 

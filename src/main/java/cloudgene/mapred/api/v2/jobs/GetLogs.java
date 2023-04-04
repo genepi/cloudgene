@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -13,6 +15,8 @@ import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
 
 public class GetLogs extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(GetLogs.class);
 
 	@Get
 	public Representation get() {
@@ -67,6 +71,12 @@ public class GetLogs extends BaseResource {
 			buffer.append(outputContent);
 
 		}
+
+		String message = String.format("Job: viewing logs for job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
 		//buffer.append("</code></pre>");
 		return new StringRepresentation(buffer.toString());
 

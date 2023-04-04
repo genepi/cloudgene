@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.admin;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -16,6 +18,8 @@ import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 public class ArchiveJob extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(ArchiveJob.class);
 
 	@Get
 	public Representation get() {
@@ -84,6 +88,9 @@ public class ArchiveJob extends BaseResource {
 						e.printStackTrace();
 					}
 				}
+
+				log.info(String.format("Job: Immediately retired job %s (by ADMIN user ID %s - email %s)",
+						job.getId(), user.getId(), user.getMail()));
 
 				return new StringRepresentation("Retired job " + jobId);
 

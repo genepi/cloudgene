@@ -146,6 +146,13 @@ public class SubmitJob extends BaseResource {
 
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("id", id);
+
+		String message = String.format("Job: Created job ID %s for user %s (ID %s - email %s)", id, user.getUsername(), user.getId(), user.getMail());
+		if (this.isAccessedByApi()) {
+			message += " (via API token)";
+		}
+		log.info(message);
+
 		return ok("Your job was successfully added to the job queue.", params);
 
 	}

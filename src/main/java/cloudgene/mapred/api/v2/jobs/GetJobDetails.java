@@ -3,6 +3,8 @@ package cloudgene.mapred.api.v2.jobs;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -25,6 +27,8 @@ import genepi.io.FileUtil;
 import net.sf.json.JSONObject;
 
 public class GetJobDetails extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(GetJobDetails.class);
 
 	private boolean publicMode = false;
 
@@ -158,6 +162,12 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		JSONObject object = JSONConverter.convert(job);
+
+		String message = String.format("Job: Deleted job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
 
 		return new StringRepresentation(object.toString());
 
