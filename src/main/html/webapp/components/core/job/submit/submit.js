@@ -9,9 +9,6 @@ import ErrorPage from 'helpers/error-page';
 import Application from 'models/application';
 
 import template from './submit.stache';
-import templateS3Dialog from './dialogs/s3.stache';
-import templateHttpDialog from './dialogs/http.stache';
-import templateSftpDialog from './dialogs/sftp.stache';
 import templateUploadingDialog from './dialogs/uploading.stache';
 import templateLabel from './controls/label.stache';
 import templateSelect from './controls/select.stache';
@@ -143,9 +140,9 @@ export default Control.extend({
 
   // custom file upload controls for single files
 
-'.select-control change': function(){
-  this.application.updateBinding();
-},
+  '.select-control change': function(){
+    this.application.updateBinding();
+  },
 
   '#select-single-file-btn click': function(button) {
     // trigger click to open file dialog
@@ -207,204 +204,6 @@ export default Control.extend({
     fileUpload.parent().find("#select-files").show();
     fileUpload.parent().find("#change-files").hide();
     fileUpload.parent().find("#remove-all-files").hide();
-  },
-
-  // custom handler for import urls
-
-  '.folder-source change': function(source) {
-
-    //delete filelist
-    var parent = $(source).parent();
-
-    var fileList = $(parent).find(".file-list");
-    fileList.empty();
-
-    //update parameter source
-    var param = domData.get.call($(parent)[0], 'param');
-    param.attr('source', $(source).val());
-  },
-
-  '#add-urls-btn click': function(button) {
-
-    var parent = $(button).parent();
-
-    var fileList = $(parent).find(".file-list");
-    //fileList.empty();
-
-    var paramInputField = $(parent).find(".hidden-parameter");
-
-
-    var urlDialog = bootbox.confirm(
-      templateHttpDialog({
-        value: paramInputField.val()
-      }),
-      function(result) {
-        if (result) {
-          var urls = $('#urls').val();
-          $.ajax({
-            url: "api/v2/importer/files",
-            type: "POST",
-            data: {
-              input: urls
-            },
-            success: function(data) {
-
-              var arr = $.parseJSON(data);
-              fileList.empty();
-              $.each(arr, function(index, value) {
-                fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
-              });
-
-              //update value
-              if (arr.length > 0) {
-                paramInputField.val(urls);
-                urlDialog.modal('hide');
-              } else {
-                paramInputField.val("");
-                bootbox.alert("Error: No valid files found on the provided urls.");
-              }
-
-            },
-            error: function(message) {
-              bootbox.alert("Error: " + message.responseText);
-            }
-          });
-
-          return false;
-        }
-      });
-  },
-
-  '#add-s3-btn click': function(button) {
-
-    var parent = $(button).parent();
-
-    var fileList = $(parent).find(".file-list");
-    //fileList.empty();
-
-    var paramInputField = $(parent).find(".hidden-parameter");
-
-    var urlDialog = bootbox.confirm(
-      templateS3Dialog(),
-      function(result) {
-        if (result) {
-          var buckets = $('#buckets').val();
-
-          var waitingDialog = bootbox.dialog({
-            close: false,
-            message: '<p><i class="fa fa-spin fa-spinner"></i> Connecting...</p>',
-            show: false
-          });
-
-          waitingDialog.on('shown.bs.modal', function() {
-
-            $.ajax({
-              url: "api/v2/importer/files",
-              type: "POST",
-              data: {
-                input: buckets
-              },
-
-              success: function(data) {
-
-                waitingDialog.modal('hide');
-
-                var arr = $.parseJSON(data);
-                fileList.empty();
-                $.each(arr, function(index, value) {
-                  fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
-                });
-
-                //update value
-                if (arr.length > 0) {
-                  paramInputField.val(buckets);
-                  urlDialog.modal('hide');
-                } else {
-                  paramInputField.val("");
-                  bootbox.alert('<p class="text-danger">Error: No valid files found on the provided urls. Please check your credentials and your file path.');
-                }
-
-              },
-              error: function(message) {
-                waitingDialog.modal('hide');
-                bootbox.alert('<p class="text-danger">Error: ' + message.responseText + '</p>');
-              }
-            });
-
-          });
-
-          waitingDialog.modal('show');
-
-          return false;
-        }
-      });
-  },
-
-  '#add-sftp-files-btn click': function(button) {
-
-    var parent = $(button).parent();
-
-    var fileList = $(parent).find(".file-list");
-    //fileList.empty();
-
-    var paramInputField = $(parent).find(".hidden-parameter");
-
-    var urlDialog = bootbox.confirm(
-      templateSftpDialog(),
-      function(result) {
-        if (result) {
-          var path = $('#path').val();
-          var username = $('#username').val();
-          var password = $('#password').val();
-
-          var waitingDialog = bootbox.dialog({
-            close: false,
-            message: '<p><i class="fa fa-spin fa-spinner"></i> Connecting...</p>',
-            show: false
-          });
-
-          waitingDialog.on('shown.bs.modal', function() {
-
-            $.ajax({
-              url: "api/v2/importer/files",
-              type: "POST",
-              data: {
-                input: path + ';' + username + ';' + password
-              },
-
-              success: function(data) {
-
-                waitingDialog.modal('hide');
-
-                var arr = $.parseJSON(data);
-                fileList.empty();
-                $.each(arr, function(index, value) {
-                  fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + value["text"].toString() + '</li>');
-                });
-
-                //update value
-                if (arr.length > 0) {
-                  paramInputField.val(path + ';' + username + ';' + password);
-                  urlDialog.modal('hide');
-                } else {
-                  paramInputField.val("");
-                  bootbox.alert('<p class="text-danger">Error: No valid files found on the provided urls. Please check your credentials and your file path.');
-                }
-
-              },
-              error: function(message) {
-                waitingDialog.modal('hide');
-                bootbox.alert('<p class="text-danger">Error: ' + message.responseText + '</p>');
-              }
-            });
-
-          });
-
-          waitingDialog.modal('show');
-
-          return false;
-        }
-      });
   }
 
 });
