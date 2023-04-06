@@ -50,9 +50,10 @@ public class ShareResults extends BaseResource {
 
 		IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
 		if (externalWorkspace != null) {
-			// external workspace found, use link method and create redirect response
+			// Example scenario: files are stored on an S3 bucket, and this is redirecting the user to a presigned download URL
 			String publicUrl = externalWorkspace.createPublicLink(download.getPath());
 			redirectTemporary(publicUrl);
+			log.info(String.format("Job: Anonymously downloading file '%s' (hash %s) associated with user %s", download.getName(), hash, download.getUsername()));
 			return new StringRepresentation(publicUrl);
 		} else {
 			// no external workspace found, use local workspace
