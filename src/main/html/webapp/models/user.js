@@ -22,8 +22,8 @@ export default Model.extend({
       return "Please check your passwords.";
     }
 
-    if (password.length < 6) {
-      return "Password must contain at least six characters!";
+    if (password.length < 15) {
+      return "Password must contain at least 15 characters!";
     }
 
     var re = /[0-9]/;
