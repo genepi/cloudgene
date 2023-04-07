@@ -108,7 +108,6 @@ public class JSONConverter {
 			String category = input.getValues().get("category");
 			String property = input.getValues().get("property");
 			String bind = input.getValues().get("bind");
-			System.out.println(property);
 			for (WdlApp app : apps) {
 				if (category != null && !category.isEmpty()) {
 					// filter by category
