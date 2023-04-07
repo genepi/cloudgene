@@ -104,7 +104,7 @@ public class SubmitJob extends BaseResource {
 		try {
 			hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
 		} catch (NoClassDefFoundError e) {
-			log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
+			log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.");
 		}
 
 		String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
