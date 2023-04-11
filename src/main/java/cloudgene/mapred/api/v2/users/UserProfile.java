@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
@@ -19,6 +21,7 @@ import cloudgene.mapred.util.JSONConverter;
 import net.sf.json.JSONObject;
 
 public class UserProfile extends BaseResource {
+	private static final Log log = LogFactory.getLog(UserProfile.class);
 
 	@Get
 	public Representation get() {
@@ -75,6 +78,8 @@ public class UserProfile extends BaseResource {
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
+			log.error(String.format("User: ID %s ('%s') attempted to change profile of a different user '%s'",
+					user.getId(), user.getUsername(), username));
 			return new JSONAnswer("You are not allowed to change this user profile.", false);
 		}
 
@@ -93,6 +98,11 @@ public class UserProfile extends BaseResource {
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
 
+		if (!user.getMail().equals(newUser.getMail())) {
+			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
+					newUser.getId()));
+		}
+
 		// update password only when it's not empty
 		if (newPassword != null && !newPassword.isEmpty()) {
 
@@ -103,6 +113,8 @@ public class UserProfile extends BaseResource {
 			}
 			newUser.setPassword(HashUtil.hashPassword(newPassword));
 
+			log.info(String.format("User: changed password for user %s (ID %s - email %s)", newUser.getUsername(),
+					newUser.getId(), newUser.getMail()));
 		}
 
 		dao.update(newUser);
@@ -126,13 +138,15 @@ public class UserProfile extends BaseResource {
 		String password = form.getFirstValue("password");
 
 		// check if user is admin or it is his username
-		if (!user.getUsername().equals(username) && !user.isAdmin()) {
+		if (!user.getUsername().equals(username)) {
 			return error401("You are not allowed to delete this user profile.");
 		}
 
 		if (HashUtil.checkPassword(password, user.getPassword())) {
 
 			UserDao dao = new UserDao(getDatabase());
+			log.info(String.format("User: requested deletion of account %s (ID %s - email %s)", user.getUsername(),
+					user.getId(), user.getMail()));
 			boolean deleted = dao.delete(user);
 			if (deleted) {
 				return new JSONAnswer("User profile sucessfully delete.", true);

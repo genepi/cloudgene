@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -15,6 +17,7 @@ import cloudgene.mapred.representations.JSONAnswer;
 import cloudgene.mapred.util.BaseResource;
 
 public class ApiTokens extends BaseResource {
+	private static final Log log = LogFactory.getLog(ApiTokens.class);
 
 	@Post
 	public Representation createApiKey(Representation entity) {
@@ -45,6 +48,8 @@ public class ApiTokens extends BaseResource {
 			answer.put("message", "Creation successfull.");
 			answer.put("token", token);
 			answer.put("type", "plain");
+
+			log.info(String.format("User: generated API token for user %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
 			return new StringRepresentation(answer.toString());
 
 		} else {
@@ -102,6 +107,8 @@ public class ApiTokens extends BaseResource {
 			answer.put("message", "Creation successfull.");
 			answer.put("token", "");
 			answer.put("type", "plain");
+
+			log.info(String.format("User: revoked API token for user %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
 			return new StringRepresentation(answer.toString());
 
 		} else {

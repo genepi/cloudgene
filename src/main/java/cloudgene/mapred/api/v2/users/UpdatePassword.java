@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
@@ -11,6 +13,7 @@ import cloudgene.mapred.util.BaseResource;
 import cloudgene.mapred.util.HashUtil;
 
 public class UpdatePassword extends BaseResource {
+	private static final Log log = LogFactory.getLog(UpdatePassword.class);
 
 	@Post
 	public Representation post(Representation entity) {
@@ -50,6 +53,8 @@ public class UpdatePassword extends BaseResource {
 		user.setPassword(HashUtil.hashPassword(newPassword));
 		user.setActivationCode("");
 		dao.update(user);
+
+		log.info(String.format("User: changed password via account recovery mechanism for user %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
 
 		return new JSONAnswer("Password sucessfully updated.", true);
 

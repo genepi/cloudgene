@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
@@ -13,6 +15,7 @@ import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
 
 public class RegisterUser extends BaseResource {
+	private static final Log log = LogFactory.getLog(RegisterUser.class);
 
 	public static final String DEFAULT_ROLE = "User";
 
@@ -92,6 +95,7 @@ public class RegisterUser extends BaseResource {
 
 			}
 
+			log.info(String.format("Registration: New user %s (ID %s - email %s)", newUser.getUsername(), newUser.getId(), newUser.getMail()));
 			MailUtil.notifySlack(getSettings(), "Hi! say hello to " + username + " (" + mail + ") :hugging_face:");
 
 			dao.insert(newUser);

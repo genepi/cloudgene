@@ -102,7 +102,7 @@ public class LoginUserTest extends JobsApiTestCase {
 		int oldLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
 		// login should work xx times
-		for (int i = 1; i < LoginUser.MAX_LOGIN_ATTEMMPTS + 10; i++) {
+		for (int i = 1; i < LoginUser.MAX_LOGIN_ATTEMPTS + 10; i++) {
 			ClientResource resource = createClientResource("/login");
 			Form form = new Form();
 			form.set("loginUsername", "lockeduser");
@@ -114,7 +114,7 @@ public class LoginUserTest extends JobsApiTestCase {
 
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
-			if (i <= LoginUser.MAX_LOGIN_ATTEMMPTS) {
+			if (i <= LoginUser.MAX_LOGIN_ATTEMPTS) {
 				// check login counter
 				assertEquals(oldLoginAttempts + 1, newLoginAttempts);
 				oldLoginAttempts = newLoginAttempts;
