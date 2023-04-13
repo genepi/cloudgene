@@ -37,6 +37,7 @@ import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.importer.ImporterFactory;
 import genepi.io.FileUtil;
 
 public class SubmitJob extends BaseResource {
@@ -116,6 +117,8 @@ public class SubmitJob extends BaseResource {
 			inputParams = parseAndUpdateInputParams(entity, app, hdfsWorkspace, localWorkspace);
 		} catch (FileUploadIOException e) {
 			return error400("Upload limit reached.");
+		} catch (FileUploadException e) {
+			return error400(e.getMessage());
 		}
 
 		if (inputParams == null) {
@@ -147,7 +150,8 @@ public class SubmitJob extends BaseResource {
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("id", id);
 
-		String message = String.format("Job: Created job ID %s for user %s (ID %s - email %s)", id, user.getUsername(), user.getId(), user.getMail());
+		String message = String.format("Job: Created job ID %s for user %s (ID %s - email %s)", id, user.getUsername(),
+				user.getId(), user.getMail());
 		if (this.isAccessedByApi()) {
 			message += " (via API token)";
 		}
@@ -158,7 +162,7 @@ public class SubmitJob extends BaseResource {
 	}
 
 	private Map<String, String> parseAndUpdateInputParams(Representation entity, WdlApp app, String hdfsWorkspace,
-			String localWorkspace) throws FileUploadIOException {
+			String localWorkspace) throws FileUploadIOException, FileUploadException {
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
 
@@ -190,20 +194,14 @@ public class SubmitJob extends BaseResource {
 
 						FileUtils.copyInputStreamToFile(item.openStream(), file);
 
-	
 						// remove upload indentification!
 						String fieldName = item.getFieldName().replace("-upload", "").replace("input-", "");
 
 						// boolean hdfs = false;
 						// boolean folder = false;
 
-						WdlParameterInput inputParam = null;
-						for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-							if (input.getId().equals(fieldName)) {
-								inputParam = input;
-							}
-						}
-						
+						WdlParameterInput inputParam = getInputParamByName(app, fieldName);
+
 						if (inputParam == null) {
 							throw new Exception("Parameter '" + fieldName + "' not found.");
 						}
@@ -212,7 +210,7 @@ public class SubmitJob extends BaseResource {
 
 							String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
 
-							String cleandEntryName = new File(entryName).getName();							
+							String cleandEntryName = new File(entryName).getName();
 							String target = HdfsUtil.path(targetPath, cleandEntryName);
 
 							HdfsUtil.put(tmpFile, target);
@@ -222,8 +220,8 @@ public class SubmitJob extends BaseResource {
 								props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName)));
 							} else {
 								// file
-								props.put(fieldName,
-										HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, cleandEntryName)));
+								props.put(fieldName, HdfsUtil
+										.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, cleandEntryName)));
 							}
 
 						} else {
@@ -233,7 +231,7 @@ public class SubmitJob extends BaseResource {
 
 							FileUtil.createDirectory(targetPath);
 
-							String cleandEntryName = new File(entryName).getName();							
+							String cleandEntryName = new File(entryName).getName();
 							String target = FileUtil.path(targetPath, cleandEntryName);
 
 							FileUtil.copy(tmpFile, target);
@@ -270,7 +268,20 @@ public class SubmitJob extends BaseResource {
 					if (key.startsWith("input-")) {
 						key = key.replace("input-", "");
 					}
+
+					WdlParameterInput input = getInputParamByName(app, key);
+
+					if (input == null) {
+						throw new Exception("Parameter '" + key + "' not found.");
+					}
+
 					String value = StringEscapeUtils.escapeHtml(Streams.asString(item.openStream()));
+
+					if (input.isFileOrFolder() && ImporterFactory.needsImport(value)) {
+						throw new FileUploadException("Parameter '" + input.getId()
+								+ "': URL-based uploads are no longer supported. Please use direct file uploads instead.");
+					}
+
 					if (!props.containsKey(key)) {
 						// don't override uploaded files
 						props.put(key, value);
@@ -281,47 +292,43 @@ public class SubmitJob extends BaseResource {
 			}
 		} catch (FileUploadIOException e) {
 			throw e;
+		} catch (FileUploadException e) {
+			throw e;
 		} catch (Exception e) {
-			e.printStackTrace();
 			return null;
 
 		}
-		try {
-			for (WdlParameterInput input : app.getWorkflow().getInputs()) {
-				if (!params.containsKey(input.getId())) {
-					if (props.containsKey(input.getId())) {
 
-						if (input.isFolder() && input.getPattern() != null && !input.getPattern().isEmpty()) {
-							String pattern = props.get(input.getId() + "-pattern");
-							String value = props.get(input.getId());
-							if (!value.endsWith("/")) {
-								value = value + "/";
-							}
-							params.put(input.getId(), value + pattern);
-						} else {
+		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
+			if (!params.containsKey(input.getId())) {
+				if (props.containsKey(input.getId())) {
 
-							if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
-								params.put(input.getId(), input.getValues().get("true"));
-							} else {
-								params.put(input.getId(), props.get(input.getId()));
-							}
+					if (input.isFolder() && input.getPattern() != null && !input.getPattern().isEmpty()) {
+						String pattern = props.get(input.getId() + "-pattern");
+						String value = props.get(input.getId());
+						if (!value.endsWith("/")) {
+							value = value + "/";
 						}
+						params.put(input.getId(), value + pattern);
 					} else {
-						// ignore invisible input parameters
-						if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX && input.isVisible()) {
-							params.put(input.getId(), input.getValues().get("false"));
+
+						if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX) {
+							params.put(input.getId(), input.getValues().get("true"));
+						} else {
+							params.put(input.getId(), props.get(input.getId()));
 						}
+					}
+				} else {
+					// ignore invisible input parameters
+					if (input.getTypeAsEnum() == WdlParameterInputType.CHECKBOX && input.isVisible()) {
+						params.put(input.getId(), input.getValues().get("false"));
 					}
 				}
 			}
-
-			params.put("job-name", props.get("job-name"));
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-
 		}
+
+		params.put("job-name", props.get("job-name"));
+
 		return params;
 	}
 
@@ -340,4 +347,15 @@ public class SubmitJob extends BaseResource {
 		return upload.getItemIterator(entity);
 
 	}
+
+	private WdlParameterInput getInputParamByName(WdlApp app, String name) {
+
+		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
+			if (input.getId().equals(name)) {
+				return input;
+			}
+		}
+		return null;
+	}
+
 }
