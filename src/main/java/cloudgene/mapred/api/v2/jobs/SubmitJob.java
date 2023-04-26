@@ -43,6 +43,8 @@ import genepi.io.FileUtil;
 public class SubmitJob extends BaseResource {
 
 	private static final Log log = LogFactory.getLog(SubmitJob.class);
+	
+	private static final String PARAM_JOB_NAME = "job-name";
 
 	@Post
 	public Representation post(Representation entity) {
@@ -127,8 +129,8 @@ public class SubmitJob extends BaseResource {
 
 		String name = id;
 		if (!publicMode) {
-			if (inputParams.get("job-name") != null && !inputParams.get("job-name").trim().isEmpty()) {
-				name = inputParams.get("job-name");
+			if (inputParams.get(PARAM_JOB_NAME) != null && !inputParams.get(PARAM_JOB_NAME).trim().isEmpty()) {
+				name = inputParams.get(PARAM_JOB_NAME);
 			}
 		}
 
@@ -271,13 +273,13 @@ public class SubmitJob extends BaseResource {
 
 					WdlParameterInput input = getInputParamByName(app, key);
 
-					if (input == null) {
-						throw new Exception("Parameter '" + key + "' not found.");
+					if (!key.equals(PARAM_JOB_NAME) && input == null) {
+						throw new FileUploadException("Parameter '" + key + "' not found.");
 					}
 
 					String value = StringEscapeUtils.escapeHtml(Streams.asString(item.openStream()));
 
-					if (input.isFileOrFolder() && ImporterFactory.needsImport(value)) {
+					if (input != null && input.isFileOrFolder() && ImporterFactory.needsImport(value)) {
 						throw new FileUploadException("Parameter '" + input.getId()
 								+ "': URL-based uploads are no longer supported. Please use direct file uploads instead.");
 					}
@@ -327,7 +329,7 @@ public class SubmitJob extends BaseResource {
 			}
 		}
 
-		params.put("job-name", props.get("job-name"));
+		params.put(PARAM_JOB_NAME, props.get(PARAM_JOB_NAME));
 
 		return params;
 	}
