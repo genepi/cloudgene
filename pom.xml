@@ -69,7 +69,7 @@
 		<repository>
 			<id>maven-restlet</id>
 			<name>Restlet Framework repository</name>
-			<url>https://maven.restlet.org</url>
+			<url>https://maven.restlet.talend.com</url>
 		</repository>
 
 		<repository>
