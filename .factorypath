@@ -29,5 +29,5 @@
     <factorypathentry kind="VARJAR" id="M2_REPO/io/micronaut/micronaut-websocket/3.3.4/micronaut-websocket-3.3.4.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/micronaut/micronaut-http/3.3.4/micronaut-http-3.3.4.jar" enabled="true" runInBatchMode="false"/>
     <factorypathentry kind="VARJAR" id="M2_REPO/io/micronaut/micronaut-http-client-core/3.3.4/micronaut-http-client-core-3.3.4.jar" enabled="true" runInBatchMode="false"/>
-    <factorypathentry kind="VARJAR" id="M2_REPO/io/micronaut/security/micronaut-security-annotations/3.3.0/micronaut-security-annotations-3.3.0.jar" enabled="true" runInBatchMode="false"/>
+    <factorypathentry kind="VARJAR" id="M2_REPO/io/micronaut/security/micronaut-security-annotations/3.11.0/micronaut-security-annotations-3.11.0.jar" enabled="true" runInBatchMode="false"/>
 </factorypath>
