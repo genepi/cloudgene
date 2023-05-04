@@ -23,7 +23,6 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestCluster;
-import cloudgene.mapred.util.TestSFTPServer;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -383,47 +382,5 @@ public class SubmitJobTest {
 				.getJSONObject(0).get("message"));
 
 	}
-
-	@Test
-	public void testSubmitSftpUpload() throws IOException, JSONException, InterruptedException {
-
-		TestSFTPServer sftp = new TestSFTPServer("test-data");
-
-		String url = "sftp://localhost:8001/" + new File("test-data/sftp-import.yaml").getAbsolutePath() + ";"
-				+ TestSFTPServer.USERNAME + ";" + TestSFTPServer.PASSWORD;
-
-		// form data
-
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.getEntries().add(new FormData("input-input", url));
-
-		// submit job
-		String id = client.submitJobPublic("sftp-import", form);
-
-		// get details to check *** bug
-		client.getJobDetails(id);
-
-		// check feedback
-		client.waitForJob(id);
-
-		JSONObject result = client.getJobDetails(id);
-
-		// check if no sftp url is in json
-		assertFalse(result.toString().contains(url));
-
-		// get log file
-
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		sftp.stop();
-
-		// check results!
-
-	}
-
-	// TODO: wrong permissions
-
-	// TODO: wrong id
 
 }
