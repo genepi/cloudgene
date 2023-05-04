@@ -1,6 +1,9 @@
 package cloudgene.mapred.plugins.nextflow;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +16,7 @@ import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
+import groovy.json.JsonOutput;
 
 public class NextflowStep extends CloudgeneStep {
 
@@ -80,32 +84,32 @@ public class NextflowStep extends CloudgeneStep {
 			nextflowCommand.add("-w");
 			nextflowCommand.add(work);
 		} else {
-			String workDir = FileUtil.path(context.getLocalTemp(), "nextflow");
+			String workDir = FileUtil.path(context.getLocalOutput(), "nextflow");
 			FileUtil.createDirectory(workDir);
 			nextflowCommand.add("-w");
 			nextflowCommand.add(workDir);
 		}
+
+		Map<String, Object> params = new HashMap<String, Object>();
 
 		// used to defined hard coded params
 		for (String key : step.keySet()) {
 			if (key.startsWith("params.")) {
 				String param = key.replace("params.", "");
 				String value = step.get(key);
-				nextflowCommand.add("--" + param + " \"" + value + "\"");
+				params.put(param, value);
 			}
 		}
+
 		// add all inputs
 		for (String param : context.getInputs()) {
 			String value = context.getInput(param);
 			// resolve app links: use all properties as input parameters
 			if (value.startsWith("apps@")) {
 				Map<String, Object> linkedApp = (Map<String, Object>) context.getData(param);
-				for (String paramLinkedApp : linkedApp.keySet()) {
-					String valueLinkedApp = linkedApp.get(paramLinkedApp).toString();
-					nextflowCommand.add("--" + paramLinkedApp + " \"" + valueLinkedApp + "\"");
-				}
+				params.put(param, linkedApp);
 			} else {
-				nextflowCommand.add("--" + param + " \"" + value + "\"");
+				params.put(param, value);
 			}
 
 		}
@@ -113,9 +117,21 @@ public class NextflowStep extends CloudgeneStep {
 		// add all outputs
 		for (String param : context.getOutputs()) {
 			String value = context.getOutput(param);
-			nextflowCommand.add("--" + param + " " + value);
-
+			params.put(param, value);
 		}
+
+		String paramsJsonFilename = FileUtil.path(context.getLocalOutput(), "params.json");
+		File paramsFile = new File(paramsJsonFilename);
+
+		try {
+			writeParamsJson(params, paramsFile);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			return false;
+		}
+
+		nextflowCommand.add("-params-file");
+		nextflowCommand.add(paramsFile.getAbsolutePath());
 
 		nextflowCommand.add("-ansi-log");
 		nextflowCommand.add("false");
@@ -179,7 +195,8 @@ public class NextflowStep extends CloudgeneStep {
 		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
 
 		for (NextflowProcess process : processes) {
-
+			
+			
 			Message message = messages.get(process.getName());
 			if (message == null) {
 				message = context.createTask("<b>" + process.getName() + "</b>");
@@ -210,6 +227,7 @@ public class NextflowStep extends CloudgeneStep {
 				if (task.getTrace().getString("status").equals("KILLED")
 						|| task.getTrace().getString("status").equals("FAILED")) {
 					text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
+					text += task.getTrace().toString();
 				}
 				text += "</small>";
 			}
@@ -250,6 +268,14 @@ public class NextflowStep extends CloudgeneStep {
 
 	private String makeRed(String text) {
 		return ((char) 27 + "[31m" + text + (char) 27 + "[0m");
+	}
+
+	protected void writeParamsJson(Map<String, Object> params, File paramsFile) throws IOException {
+
+		BufferedWriter writer = new BufferedWriter(new FileWriter(paramsFile));
+		writer.write(JsonOutput.toJson(params));
+		writer.close();
+
 	}
 
 }
