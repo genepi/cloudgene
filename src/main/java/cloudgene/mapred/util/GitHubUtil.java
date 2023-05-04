@@ -5,9 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Map;
 
-import com.google.gson.Gson;
+import net.sf.json.JSONObject;
 
 public class GitHubUtil {
 
@@ -106,8 +105,7 @@ public class GitHubUtil {
 			request.connect();
 
 			String json = readFullyAsString((InputStream) request.getContent(), "UTF-8");
-			Gson gson = new Gson();
-			Map object = gson.fromJson(json, Map.class);
+			JSONObject object = JSONObject.fromObject(json);
 			return object.get("tag_name").toString();
 		} catch (Exception ex) {
 			ex.printStackTrace();
