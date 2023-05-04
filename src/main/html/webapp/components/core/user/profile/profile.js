@@ -11,7 +11,7 @@ import UserProfile from 'models/user-profile';
 
 import template from './profile.stache';
 import templateDeleteDialog from './dialogs/delete.stache';
-import templateNewTokenDialog from './dialogs/new.stache'
+
 
 export default Control.extend({
 
@@ -99,26 +99,17 @@ export default Control.extend({
         callback: function(result) {
           if (result) {
 
-            var token_expiration = $('#token_expiration').val();
 
             var user = that.options.user;
 
             var userToken = new UserToken();
             userToken.attr('user', user.attr('username'));
-            userToken.attr('expiration', token_expiration);
 
             userToken.save(function(responseText) {
               user.attr('hasApiToken', true);
               user.attr('apiTokenValid', true);
               user.attr('apiTokenMessage', "");
-              console.log(templateNewTokenDialog({
-                token: responseText.token
-              }));
-              bootbox.alert({
-                message: templateNewTokenDialog({
-                  token: responseText.token
-                })
-              });
+              bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
             }, function(message) {
               bootbox.alert('<h4>API Token</h4>Error: ' + message);
             });
@@ -150,6 +141,20 @@ export default Control.extend({
     });
   },
 
+  '#show_token click': function() {
+    var user = this.options.user;
+
+    UserToken.findOne({
+      user: user.attr('username')
+    }, function(responseText) {
+      user.attr('hasApiToken', true);
+      bootbox.alert('<h4>API Token</h4>Your token for this service is:<br><textarea style="width:100%;height:100px;">' + responseText.token + '</textarea>');
+    }, function(message) {
+      bootbox.alert('<h4>API Token</h4>Error: ' + message);
+    });
+
+  },
+
   updateControl: function(control, error) {
     if (error) {
       control.removeClass('is-valid');
@@ -166,44 +171,43 @@ export default Control.extend({
 
 
     var deleteAcountDialog = bootbox.dialog({
-      message: templateDeleteDialog(),
-      buttons: [
+           message: templateDeleteDialog(),
+           buttons: {
+            cancel: {
+              label: "Cancel",
+              class: "btn-default",
+              callback: function() {}
+            },
+            ok: {
+               label: "Delete Account",
+               class: "btn-danger",
+               callback: function() {
 
-        {
-          label: "Cancel",
-          class: "btn-default",
-          callback: function() {}
-        },
+                 // get form parameters
+                 var form = deleteAcountDialog.find("form");
+                 var values = deparam(form.serialize());
 
-        {
-          label: "Delete Account",
-          class: "btn-danger",
-          callback: function() {
-
-            // get form parameters
-            var form = deleteAcountDialog.find("form");
-            var values = deparam(form.serialize());
-
-            console.log(values.username);
-
-            // create delete request
-            var userProfile = new UserProfile();
-            userProfile.attr('username', values.username);
-            userProfile.attr('password', values.password);
-            userProfile.attr('id', 'id');
-            userProfile.destroy(function() {
-              bootbox.alert('<h4>Account deleted</h4>Your account is now deleted.');
-              window.location.href = 'logout';
-              return true;
-            }, function(message) {
-              var response = JSON.parse(message.responseText);
-              bootbox.alert('<h4>Account not deleted</h4>Error: ' + response.message);
-              return false;
-            });
+                 // create delete request
+                 var userProfile = new UserProfile();
+                 userProfile.attr('user', values['username']);
+                 userProfile.attr('username', values['username']);
+                 userProfile.attr('password', values['password']);
+                 userProfile.attr('id', 'id');
+                 userProfile.destroy(function() {
+                   bootbox.alert('<h4>Account deleted</h4>Your account is now deleted.');
+                   window.location.href = 'logout';
+                   return true;
+                 }, function(message) {
+                   var response = JSON.parse(message.responseText);
+                   bootbox.alert('<h4>Account not deleted</h4>Error: ' + response.message);
+                   return false;
+                 });
+               }
+             }
           }
-        }
-      ]
-    });
+       });
+
+
   }
 
 });
