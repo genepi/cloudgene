@@ -30,6 +30,7 @@ import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.sdk.internal.IExternalWorkspace;
 import genepi.hadoop.HdfsUtil;
+import genepi.hadoop.importer.ImporterFactory;
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
@@ -41,10 +42,12 @@ public class JobService {
 	@Inject
 	protected Application application;
 
+	private static final String PARAM_JOB_NAME = "job-name";
+
 	public AbstractJob getById(String id) {
 
-		//TODO: better to go via database? only load from engine when running?
-		
+		// TODO: better to go via database? only load from engine when running?
+
 		AbstractJob job = application.getWorkflowEngine().getJobById(id);
 
 		if (job == null) {
@@ -120,7 +123,13 @@ public class JobService {
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
-		Map<String, String> inputParams = parseAndUpdateInputParams(form, app, hdfsWorkspace, localWorkspace);
+		Map<String, String> inputParams = null;
+
+		try {
+			inputParams = parseAndUpdateInputParams(form, app, hdfsWorkspace, localWorkspace);
+		} catch (Exception e) {
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
 
 		String name = id;
 		String jobName = inputParams.get("job-name");
@@ -380,7 +389,7 @@ public class JobService {
 	// TODO: refactore and combine this method with CommandLineUtil.parseArgs...
 
 	private Map<String, String> parseAndUpdateInputParams(List<Parameter> form, WdlApp app, String hdfsWorkspace,
-			String localWorkspace) {
+			String localWorkspace) throws Exception {
 
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
@@ -464,9 +473,23 @@ public class JobService {
 				if (key.startsWith("input-")) {
 					key = key.replace("input-", "");
 				}
+
+				WdlParameterInput input = getInputParamByName(app, key);
+
+				if (!key.equals(PARAM_JOB_NAME) && !key.endsWith("-pattern") && input == null) {
+					throw new Exception("Parameter '" + key + "' not found.");
+				}
+
+				String cleanedValue = StringEscapeUtils.escapeHtml(value.toString());
+
+				if (input != null && input.isFileOrFolder() && ImporterFactory.needsImport(cleanedValue)) {
+					throw new Exception("Parameter '" + input.getId()
+							+ "': URL-based uploads are no longer supported. Please use direct file uploads instead.");
+				}
+
 				if (!props.containsKey(key)) {
 					// don't override uploaded files
-					props.put(key, StringEscapeUtils.escapeHtml(value.toString()));
+					props.put(key, cleanedValue);
 				}
 
 			}
@@ -501,9 +524,19 @@ public class JobService {
 			}
 		}
 
-		params.put("job-name", props.get("job-name"));
+		params.put(PARAM_JOB_NAME, props.get(PARAM_JOB_NAME));
 
 		return params;
+	}
+
+	private WdlParameterInput getInputParamByName(WdlApp app, String name) {
+
+		for (WdlParameterInput input : app.getWorkflow().getInputs()) {
+			if (input.getId().equals(name)) {
+				return input;
+			}
+		}
+		return null;
 	}
 
 }
