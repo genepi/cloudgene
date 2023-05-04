@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
@@ -458,13 +460,13 @@ public class JobService {
 
 			} else {
 
-				String key = name;
+				String key = StringEscapeUtils.escapeHtml(name);
 				if (key.startsWith("input-")) {
 					key = key.replace("input-", "");
 				}
 				if (!props.containsKey(key)) {
 					// don't override uploaded files
-					props.put(key, value.toString());
+					props.put(key, StringEscapeUtils.escapeHtml(value.toString()));
 				}
 
 			}

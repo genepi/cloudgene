@@ -383,4 +383,30 @@ public class SubmitJobTest {
 
 	}
 
+	@Test
+	public void testSubmitHtmlInParams() throws IOException, JSONException, InterruptedException {
+
+		// form data
+
+		String html = "<script>console.log('Hey')<script>";
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		// add visible checkbox
+		form.getEntries().add(new FormData("text1", "value " + html));
+
+		// submit job
+		String id = client.submitJobPublic("print-hidden-inputs", form);
+
+		// check feedback
+		client.waitForJob(id);
+
+		JSONObject result = client.getJobDetails(id);
+		String message = result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages").getJSONObject(0)
+				.get("message").toString();
+		System.out.println(message);
+		assertFalse(message.contains(html));
+
+	}
+	
 }
