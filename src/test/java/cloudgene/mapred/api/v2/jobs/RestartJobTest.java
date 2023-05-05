@@ -3,21 +3,16 @@ package cloudgene.mapred.api.v2.jobs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.restlet.ext.html.FormDataSet;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
-import cloudgene.mapred.util.TestCluster;
-import io.micronaut.runtime.Micronaut;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
 @MicronautTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RestartJobTest {
 
 	@Inject
@@ -25,11 +20,6 @@ public class RestartJobTest {
 
 	@Inject
 	CloudgeneClient client;
-
-	@BeforeAll
-	protected void setUp() throws Exception {
-		TestCluster.getInstance().start();
-	}
 
 	@Test
 	public void testRestartWriteTextToFileJob() throws Exception {
@@ -45,6 +35,12 @@ public class RestartJobTest {
 
 		Thread.sleep(5);
 
+		//application.getWorkflowEngine().stop();
+		//new Thread(application.getWorkflowEngine()).start();
+		
+		this.application.stop();
+		this.application = new TestApplication();
+				
 		// stop engine
 		// TODO: how to restart micronaut application?
 		// TestServer.getInstance().reStartWebServer();

@@ -3,15 +3,12 @@ package cloudgene.mapred.api.v2.jobs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.MediaType;
 import org.restlet.ext.html.FormData;
 import org.restlet.ext.html.FormDataSet;
@@ -22,14 +19,12 @@ import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.LoginToken;
-import cloudgene.mapred.util.TestCluster;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
 @MicronautTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SubmitJobTest {
 
 	@Inject
@@ -37,11 +32,6 @@ public class SubmitJobTest {
 
 	@Inject
 	CloudgeneClient client;
-
-	@BeforeAll
-	protected void setUp() throws Exception {
-		TestCluster.getInstance().start();
-	}
 
 	@Test
 	public void testSubmitWithoutLogin() throws IOException, JSONException, InterruptedException {
