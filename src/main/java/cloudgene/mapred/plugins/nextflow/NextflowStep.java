@@ -169,7 +169,7 @@ public class NextflowStep extends CloudgeneStep {
 				updateProgress();
 
 				// Write nextflow output into step
-				context.beginTask("Running Nextflow pipeline...");
+				/*context.beginTask("Running Nextflow pipeline...");
 				String text = "";
 
 				if (killed) {
@@ -178,7 +178,7 @@ public class NextflowStep extends CloudgeneStep {
 					text = output + "\n\n\n" + makeRed("Pipeline execution failed.");
 				}
 				context.endTask(text, Message.ERROR_ANSI);
-
+*/
 				return false;
 			}
 		} catch (Exception e) {
@@ -227,8 +227,12 @@ public class NextflowStep extends CloudgeneStep {
 				if (task.getTrace().getString("status").equals("KILLED")
 						|| task.getTrace().getString("status").equals("FAILED")) {
 					text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
-					text += task.getTrace().toString();
 				}
+				
+				if (task.getLog() != null) {
+					text += "<br>" + task.getLog();
+				}
+				
 				text += "</small>";
 			}
 			message.setMessage(text);
