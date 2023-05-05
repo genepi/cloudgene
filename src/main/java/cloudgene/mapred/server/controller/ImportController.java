@@ -16,7 +16,7 @@ public class ImportController {
 
 	public JSONArray validateImport(String input) {
 
-		throw new JsonHttpStatusException(HttpStatus.BAD_GATEWAY,
+		throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
 				"URL-based uploads are no longer supported. Please use direct file uploads instead.");
 
 	}
