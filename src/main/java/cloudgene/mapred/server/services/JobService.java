@@ -502,6 +502,9 @@ public class JobService {
 
 					if (input.isFolder() && input.getPattern() != null && !input.getPattern().isEmpty()) {
 						String pattern = props.get(input.getId() + "-pattern");
+						if (pattern == null) {
+							pattern = input.getPattern();
+						}
 						String value = props.get(input.getId());
 						if (!value.endsWith("/")) {
 							value = value + "/";
