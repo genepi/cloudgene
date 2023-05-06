@@ -3,6 +3,9 @@ package cloudgene.mapred.server.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Template;
@@ -25,8 +28,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Controller
 public class AppController {
@@ -52,20 +53,20 @@ public class AppController {
 		List<WdlApp> apps = repository.getAllByUser(user,
 				ApplicationRepository.APPS_AND_DATASETS);
 
-		JSONObject jsonObject = JSONConverter.convert(app.getWdlApp());
+		ObjectNode objectNode = JSONConverter.convert(app.getWdlApp());
 		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
 
-		JSONArray jsonArray = JSONConverter.convert(params, apps);
+		ArrayNode jsonArray = JSONConverter.convert(params, apps);
 
-		jsonObject.put("params", jsonArray);
-		jsonObject.put("s3Workspace", application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
+		objectNode.putPOJO("params", jsonArray);
+		objectNode.put("s3Workspace", application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& application.getSettings().getExternalWorkspaceLocation().isEmpty());
 		String footer = this.application.getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
-			jsonObject.put("footer", footer);
+			objectNode.put("footer", footer);
 		}
 
-		return jsonObject.toString();
+		return objectNode.toString();
 
 	}
 
