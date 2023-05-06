@@ -44,7 +44,7 @@
          <li class="nav-item">
            <a class="nav-link" href="#!pages/jobs">Jobs</a>
          </li>
-        {{/is}}
+        {{/if}}
 
        {{#navigation}}
         {{#if(link)}}
