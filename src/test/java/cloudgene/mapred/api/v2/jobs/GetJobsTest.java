@@ -3,10 +3,8 @@ package cloudgene.mapred.api.v2.jobs;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 
 import cloudgene.mapred.TestApplication;
@@ -28,14 +26,14 @@ public class GetJobsTest {
 	CloudgeneClientRestAssured client;
 
 	@Test
-	public void testGetJobsWithoutLogin() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsWithoutLogin() {
 
 		RestAssured.when().get("/api/v2/jobs").then().statusCode(401);
 
 	}
 
 	@Test
-	public void testGetJobsAsAdminUser() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsAsAdminUser() {
 
 		Header accessToken = client.login("admin", "admin1978");
 
@@ -44,7 +42,7 @@ public class GetJobsTest {
 	}
 
 	@Test
-	public void testGetJobsAsAdminUserAndSubmit() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsAsAdminUserAndSubmit() {
 
 		Header accessToken = client.login("admin", "admin1978");
 

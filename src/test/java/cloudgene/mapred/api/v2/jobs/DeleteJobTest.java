@@ -4,9 +4,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 
 import cloudgene.mapred.TestApplication;
@@ -29,7 +27,7 @@ public class DeleteJobTest {
 	CloudgeneClientRestAssured client;
 
 	@Test
-	public void testIfDeleteJobCleansUpWorkspace() throws IOException, JSONException, InterruptedException {
+	public void testIfDeleteJobCleansUpWorkspace() throws InterruptedException {
 
 		Header accessToken = client.loginAsPublicUser();
 

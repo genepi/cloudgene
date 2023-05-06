@@ -5,9 +5,7 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.StringContains.containsString;
 
 import java.io.File;
-import java.io.IOException;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 
 import cloudgene.mapred.TestApplication;
@@ -31,7 +29,7 @@ public class SubmitJobTest {
 	CloudgeneClientRestAssured client;
 
 	@Test
-	public void testSubmitWithoutLogin() throws IOException, JSONException, InterruptedException {
+	public void testSubmitWithoutLogin() {
 
 		RestAssured.given().multiPart("input", "input-file").when().post("/api/v2/jobs/submit/all-possible-inputs")
 				.then().statusCode(401);
@@ -39,7 +37,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitBlockedInMaintenance() throws IOException, JSONException, InterruptedException {
+	public void testSubmitBlockedInMaintenance() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -57,7 +55,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitWrongApplication() throws IOException, JSONException, InterruptedException {
+	public void testSubmitWrongApplication() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -67,7 +65,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitAllPossibleInputs() throws IOException, JSONException, InterruptedException {
+	public void testSubmitAllPossibleInputs() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -96,7 +94,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitAllPossibleInputsHdfs() throws IOException, JSONException, InterruptedException {
+	public void testSubmitAllPossibleInputsHdfs() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -124,7 +122,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitReturnTrueStepPublic() throws IOException, JSONException, InterruptedException {
+	public void testSubmitReturnTrueStepPublic() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -145,7 +143,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitReturnFalseStepPublic() throws IOException, JSONException, InterruptedException {
+	public void testSubmitReturnFalseStepPublic() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -166,7 +164,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitReturnExceptionStepPublic() throws IOException, JSONException, InterruptedException {
+	public void testSubmitReturnExceptionStepPublic() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -187,7 +185,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitWriteTextToFilePublic() throws IOException, JSONException, InterruptedException {
+	public void testSubmitWriteTextToFilePublic() throws InterruptedException {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -218,7 +216,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitWriteTextToHdfsFilePublic() throws IOException, JSONException, InterruptedException {
+	public void testSubmitWriteTextToHdfsFilePublic() throws InterruptedException {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -249,7 +247,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitThreeTasksStepPublic() throws IOException, JSONException, InterruptedException {
+	public void testSubmitThreeTasksStepPublic() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -276,7 +274,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitWithHiddenInputs() throws IOException, JSONException, InterruptedException {
+	public void testSubmitWithHiddenInputs() {
 
 		Header accessToken = client.loginAsPublicUser();
 
@@ -303,7 +301,7 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitHtmlInParams() throws IOException, JSONException, InterruptedException {
+	public void testSubmitHtmlInParams() {
 
 		// form data
 
