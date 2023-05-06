@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,26 +13,26 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
+import cloudgene.mapred.server.responses.AbstractJobResponse;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
 
 public class JSONConverter {
 
-	public static JSONObject convert(AbstractJob job) {
+	public static ObjectNode convert(AbstractJob job) {
 
-		JsonConfig config = new JsonConfig();
-		//TODO change to new library
-		//ObjectMapper mapper = new ObjectMapper();
-		config.setExcludes(new String[] { "user", "inputParams", "output", "error", "s3Url", "task", "config",
-				"mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
-				"removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "workingDirectory", "parameter",
-				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId", "count",
-				"username" });
+		/*
+		 * JsonConfig config = new JsonConfig(); config.setExcludes(new String[] {
+		 * "user", "inputParams", "output", "error", "s3Url", "task", "config",
+		 * "mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace",
+		 * "logOutFiles", "removeHdfsWorkspace", "settings", "setupComplete",
+		 * "stdOutFile", "workingDirectory", "parameter", "logOutFile", "map", "reduce",
+		 * "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
+		 * "removeHeader", "value", "autoExport", "download", "tip", "apiToken",
+		 * "parameterId", "count", "username" });
+		 */
 
 		// create tree
 		for (CloudgeneParameterOutput param : job.getOutputParams()) {
@@ -41,10 +40,11 @@ public class JSONConverter {
 			param.setHash(hash);
 			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
 		}
-		//TODO create response
-        //ObjectNode node = mapper.valueToTree(job);
-        
-		return JSONObject.fromObject(job, config);
+		ObjectMapper mapper = new ObjectMapper();
+		AbstractJobResponse back = AbstractJobResponse.build(job);
+		ObjectNode node = mapper.valueToTree(back);
+		return node;
+		//return JSONObject.fromObject(job, config);
 	}
 
 	public static ObjectNode convert(WdlApp app) {

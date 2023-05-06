@@ -6,6 +6,8 @@ import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
@@ -94,7 +96,7 @@ public class JobController {
 			job.setLogs("logs/" + job.getId());
 		}
 
-		JSONObject object = JSONConverter.convert(job);
+		ObjectNode object = JSONConverter.convert(job);
 		object.put("username", job.getUser().getUsername());
 
 		return object.toString();
@@ -162,7 +164,7 @@ public class JobController {
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.delete(job);
-		JSONObject object = JSONConverter.convert(job);
+		ObjectNode object = JSONConverter.convert(job);
 
 		return object.toString();
 
@@ -176,7 +178,7 @@ public class JobController {
 		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
-		JSONObject object = JSONConverter.convert(job);
+		ObjectNode object = JSONConverter.convert(job);
 
 		return object.toString();
 
@@ -192,7 +194,7 @@ public class JobController {
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.cancel(job);
 
-		JSONObject object = JSONConverter.convert(job);
+		ObjectNode object = JSONConverter.convert(job);
 
 		return object.toString();
 
