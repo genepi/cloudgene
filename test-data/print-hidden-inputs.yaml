@@ -5,7 +5,7 @@ workflow:
 
   steps:
     - name: text1
-      cmd: "/bin/echo text1: ${text1}"
+      cmd: "/bin/echo \"text1: ${text1}\""
       bash: true
       stdout: true
     - name: checkbox1

@@ -27,7 +27,7 @@ public class WorkflowEngineTest {
 
 	@Inject
 	TestApplication application;
-
+	
 	@Test
 	public void testReturnTrueStep() throws Exception {
 

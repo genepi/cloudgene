@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import cloudgene.mapred.plugins.docker.DockerPlugin;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.plugins.nextflow.NextflowPlugin;
@@ -19,6 +22,8 @@ public class PluginManager {
 	private Map<String, IPlugin> pluginsIndex;
 
 	private static PluginManager instance = null;
+
+	private static final Log log = LogFactory.getLog(PluginManager.class);
 
 	public static PluginManager getInstance() {
 		if (instance == null) {
@@ -41,8 +46,10 @@ public class PluginManager {
 		for (IPlugin plugin : plugins) {
 			plugin.configure(settings);
 			pluginsIndex.put(plugin.getId(), plugin);
-		}
+			log.info("Plugin " + plugin.getName() + " (" + plugin.getId() + "): "
+					+ (plugin.isInstalled() ? "Enabled" : "Disabled"));
 
+		}
 		return true;
 	}
 

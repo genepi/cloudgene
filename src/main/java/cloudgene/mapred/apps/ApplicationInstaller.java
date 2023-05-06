@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 
 import cloudgene.mapred.jobs.Environment;
+import cloudgene.mapred.plugins.PluginManager;
+import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.hadoop.HdfsUtil;
@@ -19,6 +21,13 @@ import genepi.io.FileUtil;
 public class ApplicationInstaller {
 
 	public static boolean isInstalled(WdlApp app, Settings settings) {
+		
+		PluginManager manager = PluginManager.getInstance();
+		//skip hdfs installation when Hadoop plugin is not activated
+		if (!manager.isEnabled(HadoopPlugin.ID)) {
+			return true;
+		}
+		
 		Map<String, String> environment = Environment.getApplicationVariables(app, settings);
 		String target = environment.get("hdfs_app_folder");
 		String installationFile = HdfsUtil.path(target, "installed");
@@ -26,12 +35,24 @@ public class ApplicationInstaller {
 	}
 
 	public static void uninstall(WdlApp app, Settings settings) throws IOException {
+		
+		PluginManager manager = PluginManager.getInstance();
+		if (!manager.isEnabled(HadoopPlugin.ID)) {
+			return;
+		}
+		
 		Map<String, String> environment = Environment.getApplicationVariables(app, settings);
 		String target = environment.get("hdfs_app_folder");
 		HdfsUtil.delete(target);
 	}
 
 	public static void install(WdlApp app, Settings settings) throws IOException {
+		
+		PluginManager manager = PluginManager.getInstance();
+		if (!manager.isEnabled(HadoopPlugin.ID)) {
+			return;
+		}
+		
 		Map<String, String> environment = Environment.getApplicationVariables(app, settings);
 		String target = environment.get("hdfs_app_folder");
 		String installationFile = HdfsUtil.path(target, "installed");
@@ -42,7 +63,7 @@ public class ApplicationInstaller {
 		lineWriter.close();
 	}
 
-	public static void runCommands(List<Map<String, Object>> commands, Map<String, String> environment)
+	private static void runCommands(List<Map<String, Object>> commands, Map<String, String> environment)
 			throws IOException {
 
 		for (Map<String, Object> commandObject : commands) {
@@ -50,7 +71,7 @@ public class ApplicationInstaller {
 		}
 	}
 
-	public static void runCommand(Map<String, Object> commandObject, Map<String, String> environment)
+	private static void runCommand(Map<String, Object> commandObject, Map<String, String> environment)
 			throws IOException {
 		if (commandObject.keySet().size() == 1) {
 			for (String command : commandObject.keySet()) {
@@ -63,7 +84,7 @@ public class ApplicationInstaller {
 		}
 	}
 
-	public static void runCommand(String command, Map<String, Object> parameters, Map<String, String> environment)
+	private static void runCommand(String command, Map<String, Object> parameters, Map<String, String> environment)
 			throws IOException {
 		switch (command) {
 		case "import":
@@ -77,7 +98,7 @@ public class ApplicationInstaller {
 		}
 	}
 
-	public static void runImportCommand(String source, String target) throws IOException {
+	private static void runImportCommand(String source, String target) throws IOException {
 		String tempFilename = FileUtil.path("temp", "hdfs_import.tempfile");
 		if (source.startsWith("http://") || source.startsWith("https://")) {
 			// download

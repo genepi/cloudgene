@@ -7,8 +7,11 @@ import java.io.IOException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.restlet.Client;
+import org.restlet.Context;
 import org.restlet.data.Form;
 import org.restlet.data.Header;
+import org.restlet.data.Protocol;
 import org.restlet.engine.header.HeaderConstants;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
@@ -19,10 +22,27 @@ import io.micronaut.context.annotation.Prototype;
 @Prototype
 public class CloudgeneClient {
 
+	private Client client = new Client(new Context(), Protocol.HTTP);
+
+	private ClientResource resource;
+	
+	public CloudgeneClient() {
+		Context context = new Context();
+		context.getParameters().add("idleTimeout", "1000000");
+		client = new Client(context, Protocol.HTTP);
+	}
+
 	public ClientResource createClientResource(String path) {
 
-		ClientResource l = new ClientResource("http://localhost:8080" + path);
-		return l;
+		if (resource != null) {
+			resource.release();
+		}
+		
+		resource = new ClientResource("http://localhost:8080" + path);
+		resource.setRetryAttempts(4);
+		resource.setRetryDelay(3000);
+		resource.setNext(client);		
+		return resource;
 	}
 
 	public ClientResource createClientResource(String path, LoginToken loginToken) {
@@ -157,7 +177,6 @@ public class CloudgeneClient {
 		resourceStatus.release();
 
 		boolean running = object.getInt("state") == 1 || object.getInt("state") == 2 || object.getInt("state") == 3;
-		System.out.println(running);
 		if (running) {
 			Thread.sleep(500);
 			waitForJob(id, loginCookie);

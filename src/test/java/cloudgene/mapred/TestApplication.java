@@ -1,6 +1,7 @@
 package cloudgene.mapred;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -13,6 +14,7 @@ import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.util.TestCluster;
 import cloudgene.mapred.util.TestMailServer;
 import genepi.db.Database;
 import genepi.io.FileUtil;
@@ -35,6 +37,16 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 	}
 
 	protected static Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
+		
+		System.out.println("Starting test Hadoop cluster...");
+		try {
+			TestCluster.getInstance().start();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("Test Hadoop cluster started.");
+		
 		Settings settings = new Settings(new Config());
 
 		HashMap<String, String> mail = new HashMap<String, String>();

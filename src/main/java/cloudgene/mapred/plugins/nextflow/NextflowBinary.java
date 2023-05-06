@@ -12,8 +12,8 @@ public class NextflowBinary {
 	private String binary = "";
 
 	public static NextflowBinary build(Settings settings) {
-		String binary = new BinaryFinder("nextflow").settings(settings, "nextflow", "home").env("R_HOME")
-				.envPath().find();
+		String binary = new BinaryFinder("nextflow").settings(settings, "nextflow", "home").env("NEXTFLOW_HOME")
+				.envPath().path("/usr/local/bin").find();
 		return new NextflowBinary(binary);
 	}
 

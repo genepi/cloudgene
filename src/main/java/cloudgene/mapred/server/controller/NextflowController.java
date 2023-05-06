@@ -11,10 +11,15 @@ import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.services.DownloadService;
 import cloudgene.mapred.server.services.JobService;
 import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
 import net.sf.json.JSONObject;
 
+
+@Controller
 public class NextflowController {
 
 	protected static final Log log = LogFactory.getLog(DownloadController.class);
@@ -32,6 +37,7 @@ public class NextflowController {
 	protected JobService jobService;
 	
 	@Post("/api/v2/collect/{job}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
 	public String post(String job, @Body Map<Object, Object> event) {
 
 		try {

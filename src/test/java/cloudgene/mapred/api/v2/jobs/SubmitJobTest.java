@@ -3,15 +3,12 @@ package cloudgene.mapred.api.v2.jobs;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.MediaType;
 import org.restlet.ext.html.FormData;
 import org.restlet.ext.html.FormDataSet;
@@ -22,15 +19,12 @@ import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.LoginToken;
-import cloudgene.mapred.util.TestCluster;
-import cloudgene.mapred.util.TestSFTPServer;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
 @MicronautTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SubmitJobTest {
 
 	@Inject
@@ -38,11 +32,6 @@ public class SubmitJobTest {
 
 	@Inject
 	CloudgeneClient client;
-
-	@BeforeAll
-	protected void setUp() throws Exception {
-		TestCluster.getInstance().start();
-	}
 
 	@Test
 	public void testSubmitWithoutLogin() throws IOException, JSONException, InterruptedException {
@@ -385,45 +374,29 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitSftpUpload() throws IOException, JSONException, InterruptedException {
-
-		TestSFTPServer sftp = new TestSFTPServer("test-data");
-
-		String url = "sftp://localhost:8001/" + new File("test-data/sftp-import.yaml").getAbsolutePath() + ";"
-				+ TestSFTPServer.USERNAME + ";" + TestSFTPServer.PASSWORD;
+	public void testSubmitHtmlInParams() throws IOException, JSONException, InterruptedException {
 
 		// form data
 
+		String html = "<script>console.log('Hey')<script>";
+
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);
-		form.getEntries().add(new FormData("input-input", url));
+		// add visible checkbox
+		form.getEntries().add(new FormData("text1", "value " + html));
 
 		// submit job
-		String id = client.submitJobPublic("sftp-import", form);
-
-		// get details to check *** bug
-		client.getJobDetails(id);
+		String id = client.submitJobPublic("print-hidden-inputs", form);
 
 		// check feedback
 		client.waitForJob(id);
 
 		JSONObject result = client.getJobDetails(id);
-
-		// check if no sftp url is in json
-		assertFalse(result.toString().contains(url));
-
-		// get log file
-
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		sftp.stop();
-
-		// check results!
+		String message = result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages").getJSONObject(0)
+				.get("message").toString();
+		System.out.println(message);
+		assertFalse(message.contains(html));
 
 	}
-
-	// TODO: wrong permissions
-
-	// TODO: wrong id
-
+	
 }

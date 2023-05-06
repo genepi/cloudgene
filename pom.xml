@@ -11,7 +11,7 @@
 		<relativePath>io.micronaut:micronaut-parent</relativePath>
 		<groupId>io.micronaut</groupId>
 		<artifactId>micronaut-parent</artifactId>
-		<version>3.4.3</version>
+		<version>3.9.1</version>
 	</parent>
 
 	<name>Cloudgene</name>
@@ -69,7 +69,7 @@
 		<repository>
 			<id>maven-restlet</id>
 			<name>Restlet Framework repository</name>
-			<url>https://maven.restlet.org</url>
+			<url>https://maven.restlet.talend.com</url>
 		</repository>
 
 		<repository>
@@ -214,7 +214,7 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>3.0.9</version>
+			<version>3.0.17</version>
 			<type>pom</type>
 			<exclusions>
 				<exclusion>
@@ -227,7 +227,7 @@
 		<dependency>
 			<groupId>org.apache.ivy</groupId>
 			<artifactId>ivy</artifactId>
-			<version>2.5.0</version>
+			<version>2.5.1</version>
 		</dependency>
 
 		<!-- Logging -->
@@ -271,16 +271,11 @@
 		</dependency>
 
 
-		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jsch</artifactId>
-			<version>0.1.55</version>
-		</dependency>
 
 		<dependency>
 			<groupId>net.lingala.zip4j</groupId>
 			<artifactId>zip4j</artifactId>
-			<version>2.9.1</version>
+			<version>2.11.5</version>
 		</dependency>
 
 		<dependency>
@@ -302,7 +297,7 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-crypto</artifactId>
-			<version>5.6.3</version>
+			<version>5.8.3</version>
 		</dependency>
 
 		<!-- Test Dependencies -->
@@ -380,12 +375,6 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.sshd</groupId>
-			<artifactId>sshd-sftp</artifactId>
-			<version>0.9.0</version>
-			<scope>test</scope>
-		</dependency>
 
 
 		<!-- Micronaut -->

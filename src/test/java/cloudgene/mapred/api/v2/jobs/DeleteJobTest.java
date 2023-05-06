@@ -8,9 +8,7 @@ import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.restlet.data.Form;
 import org.restlet.ext.html.FormDataSet;
 import org.restlet.resource.ClientResource;
@@ -18,13 +16,11 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.CloudgeneClient;
-import cloudgene.mapred.util.TestCluster;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
 @MicronautTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class DeleteJobTest {
 
 	@Inject
@@ -32,11 +28,6 @@ public class DeleteJobTest {
 
 	@Inject
 	CloudgeneClient client;
-
-	@BeforeAll
-	protected void setUp() throws Exception {
-		TestCluster.getInstance().start();
-	}
 
 	@Test
 	public void testSubmitWriteTextToFilePublic() throws IOException, JSONException, InterruptedException {

@@ -6,6 +6,7 @@ import java.util.Map;
 
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
+import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import genepi.io.FileUtil;
@@ -14,11 +15,19 @@ public class Environment {
 
 	public static Map<String, String> getApplicationVariables(WdlApp application, Settings settings) {
 
-		String hdfsAppFolder = settings.getHdfsAppWorkspace();
+		String localFolder = application.getPath();
+		String hdfsFolder = "";
+
+		// set hdfsFolder to localFolder when hadoop plugin is not activated
+		PluginManager manager = PluginManager.getInstance();
+		if (manager.isEnabled(HadoopPlugin.ID)) {
+			String hdfsAppFolder = settings.getHdfsAppWorkspace();
+			hdfsFolder = FileUtil.path(hdfsAppFolder, application.getId().split(":")[0], application.getVersion());
+		} else {
+			hdfsFolder = localFolder;
+		}
 
 		HashMap<String, String> environment = new HashMap<String, String>();
-		String hdfsFolder = FileUtil.path(hdfsAppFolder, application.getId().split(":")[0], application.getVersion());
-		String localFolder = application.getPath();
 		environment.put("app_id", application.getId());
 		environment.put("app_name", application.getName());
 		environment.put("app_version", application.getVersion());
@@ -28,7 +37,7 @@ public class Environment {
 		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
 		// Technologies
-		PluginManager manager = PluginManager.getInstance();
+
 		for (IPlugin plugin : manager.getPlugins()) {
 			environment.put(plugin.getId() + "_installed", manager.isEnabled(plugin) ? "true" : "false");
 		}
