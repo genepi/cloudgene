@@ -212,9 +212,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.codehaus.groovy</groupId>
+			<groupId>org.apache.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>3.0.17</version>
+			<version>4.0.11</version>
 			<type>pom</type>
 			<exclusions>
 				<exclusion>
@@ -405,6 +405,11 @@
 			<artifactId>micronaut-test-junit5</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+		    <groupId>io.micronaut.test</groupId>
+		    <artifactId>micronaut-test-rest-assured</artifactId>
+		    <scope>test</scope>
+		</dependency>	
 		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-http-client</artifactId>
