@@ -24,6 +24,8 @@ public class CloudgeneClient {
 
 	private Client client = new Client(new Context(), Protocol.HTTP);
 
+	private ClientResource resource;
+	
 	public CloudgeneClient() {
 		Context context = new Context();
 		context.getParameters().add("idleTimeout", "1000000");
@@ -32,9 +34,15 @@ public class CloudgeneClient {
 
 	public ClientResource createClientResource(String path) {
 
-		ClientResource l = new ClientResource("http://localhost:8080" + path);
-		l.setNext(client);		
-		return l;
+		if (resource != null) {
+			resource.release();
+		}
+		
+		resource = new ClientResource("http://localhost:8080" + path);
+		resource.setRetryAttempts(4);
+		resource.setRetryDelay(3000);
+		resource.setNext(client);		
+		return resource;
 	}
 
 	public ClientResource createClientResource(String path, LoginToken loginToken) {
