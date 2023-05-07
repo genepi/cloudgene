@@ -38,7 +38,6 @@
 	</developers>
 
 	<properties>
-		<restlet.version>2.3.12</restlet.version>
 		<hadoop.version>2.6.0-cdh5.16.1</hadoop.version>
 		<node.version>v8.11.4</node.version>
 		<npm.version>6.4.1</npm.version>
@@ -66,11 +65,6 @@
 	</dependencyManagement>
 
 	<repositories>
-		<repository>
-			<id>maven-restlet</id>
-			<name>Restlet Framework repository</name>
-			<url>https://maven.restlet.talend.com</url>
-		</repository>
 
 		<repository>
 			<id>jfrog-genepi-maven</id>
@@ -154,61 +148,6 @@
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<version>2.1.210</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jse</groupId>
-			<artifactId>org.restlet</artifactId>
-			<version>${restlet.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jse</groupId>
-			<artifactId>org.restlet.ext.jetty</artifactId>
-			<version>${restlet.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jse</groupId>
-			<artifactId>org.restlet.ext.json</artifactId>
-			<version>${restlet.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jee</groupId>
-			<artifactId>org.restlet.ext.html</artifactId>
-			<version>${restlet.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jee</groupId>
-			<artifactId>org.restlet.ext.fileupload</artifactId>
-			<version>${restlet.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jee</groupId>
-			<artifactId>org.restlet.ext.slf4j</artifactId>
-			<version>${restlet.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-api</artifactId>
-				</exclusion>
-			</exclusions>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.restlet.jee</groupId>
-			<artifactId>org.restlet.ext.freemarker</artifactId>
-			<version>${restlet.version}</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>

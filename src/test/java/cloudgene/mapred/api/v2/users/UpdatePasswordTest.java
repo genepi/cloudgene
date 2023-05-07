@@ -1,26 +1,23 @@
 package cloudgene.mapred.api.v2.users;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.notNullValue;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.restlet.data.Form;
-import org.restlet.resource.ClientResource;
-import org.restlet.resource.ResourceException;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.util.CloudgeneClient;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.TestMailServer;
 import genepi.db.Database;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -29,9 +26,6 @@ public class UpdatePasswordTest {
 
 	@Inject
 	TestApplication application;
-
-	@Inject
-	CloudgeneClient client;
 
 	@BeforeAll
 	protected void setUp() throws Exception {
@@ -74,140 +68,100 @@ public class UpdatePasswordTest {
 	}
 
 	@Test
-	public void testWithCorrectActivationCode() throws JSONException, IOException {
+	public void testWithCorrectActivationCode() {
 
 		// try to update invalid password
-		ClientResource resource = client.createClientResource("/api/v2/users/update-password");
-		Form form = new Form();
-		form.set("token", "ACTIVATION-CODE-FROM-MAIL-3");
-		form.set("username", "testupdate3");
-		form.set("new-password", "new-password9");
-		form.set("confirm-new-password", "new-password9");
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", "ACTIVATION-CODE-FROM-MAIL-3");
+		form.put("username", "testupdate3");
+		form.put("new-password", "new-password9");
+		form.put("confirm-new-password", "new-password9");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(false, object.get("success"));
-		assertEquals("Password must contain at least one uppercase letter (A-Z)!", object.get("message").toString());
-		resource.release();
+		RestAssured.given().formParams(form).when().post("/api/v2/users/update-password").then().statusCode(200).and()
+				.body("success", equalTo(false)).and()
+				.body("message", equalTo("Password must contain at least one uppercase letter (A-Z)!"));
 
 		// try to update password
-		resource = client.createClientResource("/api/v2/users/update-password");
-		form = new Form();
-		form.set("token", "ACTIVATION-CODE-FROM-MAIL-3");
-		form.set("username", "testupdate3");
-		form.set("new-password", "New-password9");
-		form.set("confirm-new-password", "New-password9");
+		form = new HashMap<String, String>();
+		form.put("token", "ACTIVATION-CODE-FROM-MAIL-3");
+		form.put("username", "testupdate3");
+		form.put("new-password", "New-password9");
+		form.put("confirm-new-password", "New-password9");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(true, object.get("success"));
-		assertEquals("Password sucessfully updated.", object.get("message").toString());
-		resource.release();
+		RestAssured.given().formParams(form).when().post("/api/v2/users/update-password").then().statusCode(200).and()
+				.body("success", equalTo(true)).and().body("message", equalTo("Password sucessfully updated."));
 
 		// try login with old password
-		resource = client.createClientResource("/login");
-		form = new Form();
-		form.set("username", "testupdate3");
-		form.set("password", "old-password");
-		
-		try {
-			resource.post(form);
-		} catch (ResourceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		assertEquals(401, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-		resource.release();
+		form = new HashMap<String, String>();
+		form.put("username", "testupdate3");
+		form.put("password", "old-password");
+		RestAssured.given().formParams(form).when().post("/login").then().statusCode(401).and()
+				.body("message", equalTo("Login Failed! Wrong Username or Password."));
 
 		// try login with new password
-		resource = client.createClientResource("/login");
-		form = new Form();
-		form.set("username", "testupdate3");
-		form.set("password", "New-password9");
-		resource.post(form);
-		
-		assertEquals(200, resource.getStatus().getCode());
-		
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("testupdate3", object.get("username"));
-		resource.release();
-	}
-
-	@Test
-	public void testWithWrongActivationCode() throws JSONException, IOException {
-
-		// try to update password for test2
-		ClientResource resource = client.createClientResource("/api/v2/users/update-password");
-		Form form = new Form();
-		form.set("token", "WRONG TOKEN");
-		form.set("username", "testupdate");
-		form.set("new-password", "Password27");
-		form.set("confirm-new-password", "Password27");
-
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals("Your recovery request is invalid or expired.", object.get("message").toString());
+		form = new HashMap<String, String>();
+		form.put("username", "testupdate3");
+		form.put("password", "New-password9");
+		RestAssured.given().formParams(form).when().post("/login").then().statusCode(200).and()
+				.body("username", equalTo("testupdate3")).and().body("access_token", notNullValue());
 
 	}
 
 	@Test
-	public void testWithEmptyUsername() throws JSONException, IOException {
+	public void testWithWrongActivationCode() {
 
-		// try to update password for test2
-		ClientResource resource = client.createClientResource("/api/v2/users/update-password");
-		Form form = new Form();
-		form.set("token", "ACTIVATION-CODE-FROM-MAIL");
-		form.set("new-password", "Password27");
-		form.set("confirm-new-password", "Password27");
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", "WRONG TOKEN");
+		form.put("username", "testupdate");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals("No username set.", object.get("message").toString());
+		RestAssured.given().formParams(form).when().post("/api/v2/users/update-password").then().statusCode(200).and()
+				.body("success", equalTo(false)).and()
+				.body("message", equalTo("Your recovery request is invalid or expired."));
+
 	}
 
 	@Test
-	public void testWithWrongUsername() throws JSONException, IOException {
+	public void testWithEmptyUsername() {
 
-		// try to update password for test2
-		ClientResource resource = client.createClientResource("/api/v2/users/update-password");
-		Form form = new Form();
-		form.set("token", "ACTIVATION-CODE-FROM-MAIL");
-		form.set("username", "wrong-username");
-		form.set("new-password", "Password27");
-		form.set("confirm-new-password", "Password27");
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", "ACTIVATION-CODE-FROM-MAIL");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals("We couldn't find an account with that username or email.", object.get("message").toString());
+		RestAssured.given().formParams(form).when().post("/api/v2/users/update-password").then().statusCode(200).and()
+				.body("success", equalTo(false)).and().body("message", equalTo("No username set."));
+
 	}
 
 	@Test
-	public void testWithInActiveUser() throws JSONException, IOException {
+	public void testWithWrongUsername() {
 
-		// try to update password for test2
-		ClientResource resource = client.createClientResource("/api/v2/users/update-password");
-		Form form = new Form();
-		form.set("token", "ACTIVATION-CODE-FROM-MAIL");
-		form.set("username", "testupdate2");
-		form.set("new-password", "Password27");
-		form.set("confirm-new-password", "Password27");
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", "ACTIVATION-CODE-FROM-MAIL");
+		form.put("username", "wrong-username");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals("Account is not activated.", object.get("message").toString());
+		RestAssured.given().formParams(form).when().post("/api/v2/users/update-password").then().statusCode(200).and()
+				.body("success", equalTo(false)).and()
+				.body("message", equalTo("We couldn't find an account with that username or email."));
+
+	}
+
+	@Test
+	public void testWithInActiveUser() {
+
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", "ACTIVATION-CODE-FROM-MAIL");
+		form.put("username", "testupdate2");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
+
+		RestAssured.given().formParams(form).when().post("/api/v2/users/update-password").then().statusCode(200).and()
+				.body("success", equalTo(false)).and().body("message", equalTo("Account is not activated."));
+
 	}
 
 }

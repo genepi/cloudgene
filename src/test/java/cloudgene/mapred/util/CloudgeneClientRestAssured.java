@@ -42,4 +42,11 @@ public class CloudgeneClientRestAssured {
 			}
 		}
 	}
+
+	public void waitForJobWithApiToken(String id, String apiToken) {
+		
+		Header header = new Header("X-Auth-Token", apiToken);
+		waitForJob(id, header);
+		
+	}
 }
