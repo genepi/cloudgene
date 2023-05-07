@@ -1,8 +1,8 @@
 package cloudgene.mapred.steps;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Method;
-
-import com.google.common.base.Throwables;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -10,7 +10,6 @@ import cloudgene.mapred.wdl.WdlStep;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import groovy.util.GroovyScriptEngine;
-
 public class GroovyStep extends CloudgeneStep {
 
 	@Override
@@ -52,13 +51,19 @@ public class GroovyStep extends CloudgeneStep {
 
 		} catch (Exception e) {
 			if (e.getCause() != null) {
-				context.error("Error in script " + script + ":\n" + Throwables.getStackTraceAsString(e.getCause()));
+				context.error("Error in script " + script + ":\n" + getStackTraceAsString(e.getCause()));
 			} else {
-				context.error("Error in script " + script + ":\n" + Throwables.getStackTraceAsString(e));
+				context.error("Error in script " + script + ":\n" + getStackTraceAsString(e));
 			}
 			return false;
 		}
 
 	}
 
+	public static String getStackTraceAsString(Throwable throwable) {
+	    StringWriter stringWriter = new StringWriter();
+	    throwable.printStackTrace(new PrintWriter(stringWriter));
+	    return stringWriter.toString();
+	  }
+	
 }
