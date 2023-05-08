@@ -1,34 +1,32 @@
 package cloudgene.mapred.api.v2.users;
 
+import static org.hamcrest.Matchers.emptyString;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
+import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.restlet.data.Form;
-import org.restlet.data.MediaType;
-import org.restlet.ext.html.FormData;
-import org.restlet.ext.html.FormDataSet;
-import org.restlet.representation.FileRepresentation;
-import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.CloudgeneClient;
+import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.LoginToken;
 import genepi.db.Database;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -39,7 +37,7 @@ public class ApiTokensTest {
 	TestApplication application;
 
 	@Inject
-	CloudgeneClient client;
+	CloudgeneClientRestAssured client;
 
 	@BeforeAll
 	protected void setUp() throws Exception {
@@ -49,7 +47,7 @@ public class ApiTokensTest {
 		UserDao userDao = new UserDao(database);
 
 		User testUser1 = new User();
-		testUser1.setUsername("testUserToken");
+		testUser1.setUsername("testusertoken");
 		testUser1.setFullName("test1");
 		testUser1.setMail("test1@test.com");
 		testUser1.setRoles(new String[] { "private" });
@@ -59,7 +57,7 @@ public class ApiTokensTest {
 		userDao.insert(testUser1);
 
 		User testUser2 = new User();
-		testUser2.setUsername("testUserToken2");
+		testUser2.setUsername("testusertoken2");
 		testUser2.setFullName("test2");
 		testUser2.setMail("test1@test.com");
 		testUser2.setRoles(new String[] { "private" });
@@ -71,300 +69,210 @@ public class ApiTokensTest {
 	}
 
 	@Test
-	public void testValidateToken() throws JSONException, IOException, InterruptedException {
+	public void testValidateToken() throws InterruptedException {
 
-		LoginToken token = client.login("testUserToken", "Test1Password");
+		Header accessToken = client.login("testusertoken", "Test1Password");
 
 		// check if token is empty
-		ClientResource resource = client.createClientResource("/api/v2/users/testUserToken/profile", token);
+		RestAssured.given().header(accessToken).when().get("/api/v2/users/testusertoken/profile").then().statusCode(200)
+				.and().body("username", equalTo("testusertoken")).and().body("hasApiToken", equalTo(false))
+				.body("password", nullValue());
 
-		try {
-			resource.get();
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("hasApiToken"), false);
-		resource.release();
+		// create token without authentification
+		RestAssured.when().post("/api/v2/users/testusertoken/api-token").then().statusCode(401);
 
 		// create token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
-		try {
-			resource.post(new Form());
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertFalse(object.get("token").equals(""));
-		resource.release();
-
-		String apiToken = object.getString("token");
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
 
 		// validate token
-		object = client.validateToken(apiToken, token);
-		assertTrue(object.getBoolean("valid"));
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", apiToken);
+		RestAssured.given().formParams(form).when().post("/api/v2/tokens/verify").then().statusCode(200).and()
+				.body("valid", equalTo(true));
+
+		// try to revoke token with API token not loginToken. should fail.
+		Header headerApiToken = new Header("X-Auth-Token", apiToken);
+		RestAssured.given().header(headerApiToken).when().delete("/api/v2/users/testusertoken/api-token").then()
+				.statusCode(403);
+
+		// try to update user profile (e.g. email) wit apiToken. should fail.
+		Map<String, String> formProfile = new HashMap<String, String>();
+		formProfile.put("username", "testusertoken");
+		formProfile.put("full-name", "new full-name");
+		formProfile.put("mail", "new@email.com");
+		formProfile.put("new-password", "new-Password27");
+		formProfile.put("confirm-new-password", "new-Password27");
+
+		RestAssured.given().header(headerApiToken).and().formParams(formProfile).when()
+				.post("/api/v2/users/testusertoken/profile").then().statusCode(403);
 
 		// revoke token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
-		try {
-			resource.delete();
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		resource.release();
+		RestAssured.given().header(accessToken).when().delete("/api/v2/users/testusertoken/api-token").then()
+				.statusCode(200).and().body("success", equalTo(true));
 
 		// validate token
-		object = client.validateToken(apiToken, token);
-		assertFalse(object.getBoolean("valid"));
+		RestAssured.given().formParams(form).when().post("/api/v2/tokens/verify").then().statusCode(200).and()
+				.body("valid", equalTo(false));
 
 	}
 
 	@Test
-	public void testCreateTokenWithCorrectCredentials() throws JSONException, IOException, InterruptedException {
+	public void testCreateTokenWithCorrectCredentials() throws InterruptedException {
 
-		LoginToken token = client.login("testUserToken", "Test1Password");
+		Header accessToken = client.login("testusertoken", "Test1Password");
 
 		// check if token is empty
-		ClientResource resource = client.createClientResource("/api/v2/users/testUserToken/profile", token);
-
-		try {
-			resource.get();
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("hasApiToken"), false);
-		resource.release();
+		RestAssured.given().header(accessToken).when().get("/api/v2/users/testusertoken/profile").then().statusCode(200)
+				.and().body("username", equalTo("testusertoken")).and().body("hasApiToken", equalTo(false))
+				.body("password", nullValue());
 
 		// create token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
-		try {
-			resource.post(new Form());
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertFalse(object.get("token").equals(""));
-
-		String apiToken = object.getString("token");
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
 
 		// submit job
-		String id = submitTestJob(apiToken);
+		Response job = submitTestJob(apiToken);
+		String id = job.body().jsonPath().getString("id");
 
 		// check feedback
 		client.waitForJobWithApiToken(id, apiToken);
 
-		JSONObject result = client.getJobDetailsWithApiToken(id, apiToken);
+		// check state with apiToken
 
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		resource.release();
+		Header apiTokenHeader = new Header("X-Auth-Token", apiToken);
+		RestAssured.given().header(apiTokenHeader).when().get("/api/v2/jobs/" + id).then().statusCode(200).and()
+				.body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
 		// check if job list contains one job
-		JSONArray jobs = client.getJobsWithApiToken(apiToken);
-		assertEquals(1, jobs.length());
+		Response response = RestAssured.given().when().header(apiTokenHeader).get("/api/v2/jobs").thenReturn();
+		List<Object> jobs = response.body().jsonPath().getList("data");
+		assertEquals(1, jobs.size());
 
 		// revoke token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
-		try {
-			resource.delete();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().delete("/api/v2/users/testusertoken/api-token").then()
+				.statusCode(200).and().body("success", equalTo(true));
 
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		resource.release();
+		// validate token
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", apiToken);
+		RestAssured.given().formParams(form).when().post("/api/v2/tokens/verify").then().statusCode(200).and()
+				.body("valid", equalTo(false));
 
-		// check if token is invalid now
-		try {
-			id = submitTestJob(apiToken);
-			assertTrue(false);
-		} catch (Exception e) {
-
-		}
+		// rerun job, should fail
 	}
 
 	@Test
-	public void testSubmitWithoutVersion() throws JSONException, IOException, InterruptedException {
+	public void testSubmitWithoutVersion() throws InterruptedException {
 
-		LoginToken token = client.login("testUserToken2", "Test2Password");
+		Header accessToken = client.login("testusertoken2", "Test2Password");
 
 		// check if token is empty
-		ClientResource resource = client.createClientResource("/api/v2/users/testUserToken2/profile", token);
-
-		try {
-			resource.get();
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("hasApiToken"), false);
-		resource.release();
+		RestAssured.given().header(accessToken).when().get("/api/v2/users/testusertoken2/profile").then()
+				.statusCode(200).and().body("username", equalTo("testusertoken2")).and()
+				.body("hasApiToken", equalTo(false)).body("password", nullValue());
 
 		// create token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
-		try {
-			resource.post(new Form());
-		} catch (Exception e) {
-
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertFalse(object.get("token").equals(""));
-
-		String apiToken = object.getString("token");
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
 
 		// submit job
-		String id = submitTestJobWithoutVersion(apiToken);
+		Response job = submitTestJobWithoutVersion(apiToken);
+		String id = job.body().jsonPath().getString("id");
 
 		// check feedback
 		client.waitForJobWithApiToken(id, apiToken);
 
-		JSONObject result = client.getJobDetailsWithApiToken(id, apiToken);
-
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		resource.release();
+		// check state with apiToken
+		Header apiTokenHeader = new Header("X-Auth-Token", apiToken);
+		RestAssured.given().header(apiTokenHeader).when().get("/api/v2/jobs/" + id).then().statusCode(200).and()
+				.body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
 		// check if job list contains one job
-		JSONArray jobs = client.getJobsWithApiToken(apiToken);
-		assertEquals(1, jobs.length());
+		Response response = RestAssured.given().when().header(apiTokenHeader).get("/api/v2/jobs").thenReturn();
+		List<Object> jobs = response.body().jsonPath().getList("data");
+		assertEquals(1, jobs.size());
 
 		// revoke token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken2" + "/api-token", token);
-		try {
-			resource.delete();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().delete("/api/v2/users/testusertoken/api-token").then()
+				.statusCode(200).and().body("success", equalTo(true));
 
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		resource.release();
-
-		// check if token is invalid now
-		try {
-			id = submitTestJob(apiToken);
-			assertTrue(false);
-		} catch (Exception e) {
-
-		}
+		// validate token
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", apiToken);
+		RestAssured.given().formParams(form).when().post("/api/v2/tokens/verify").then().statusCode(200).and()
+				.body("valid", equalTo(false));
 	}
 
 	@Test
-	public void testSubmitTokenWithWrongApiToken() throws JSONException, IOException, InterruptedException {
+	public void testSubmitTokenWithWrongApiToken() throws InterruptedException {
 
-		// submit job
-		String id = null;
-		try {
-			id = submitTestJob("Wrong Token");
-			assertTrue(false);
-		} catch (Exception e) {
-			assertEquals(null, id);
-		}
+		submitTestJob("Wrong Token").then().statusCode(401);
 
 	}
 
 	@Test
-	public void testSubmitJobWithExpiredApiToken() throws JSONException, IOException, InterruptedException {
+	public void testSubmitJobWithExpiredApiToken() throws InterruptedException {
 
 		int expiration = 0;
-		LoginToken token = client.login("testUserToken", "Test1Password");
+		Header accessToken = client.login("testusertoken", "Test1Password");
 
 		// create token
-		ClientResource resource = client.createClientResource(
-				"/api/v2/users/" + "testUserToken2" + "/api-token?expiration=" + expiration, token);
-		try {
-			resource.post(new Form());
-		} catch (Exception e) {
-
-		}
-
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertFalse(object.get("token").equals(""));
-
-		String apiToken = object.getString("token");
-
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token?expiration=" + expiration)
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
+		
 		// submit job
-		String id = null;
-		try {
-			id = submitTestJob(apiToken);
-			assertTrue(false);
-		} catch (Exception e) {
-			assertEquals(null, id);
-		}
+		submitTestJob(apiToken).then().statusCode(401);
 
 		// revoke token
-		resource = client.createClientResource("/api/v2/users/" + "testUserToken" + "/api-token", token);
-		try {
-			resource.delete();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().delete("/api/v2/users/testusertoken/api-token").then()
+				.statusCode(200).and().body("success", equalTo(true));
 
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		resource.release();
+		// validate token
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("token", apiToken);
+		RestAssured.given().formParams(form).post("/api/v2/tokens/verify").then().statusCode(200).and().body("valid",
+				equalTo(false));
 
 	}
 
-	private String submitTestJob(String apiToken) throws JSONException, IOException {
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.getEntries().add(new FormData("input-text", "my-text"));
-		form.getEntries().add(new FormData("input-number", "27"));
-		// ignore checkbox
-		form.getEntries().add(new FormData("input-list", "keya"));
+	private Response submitTestJob(String apiToken) {
+
+		Header accessToken = new Header("X-Auth-Token", apiToken);
+
 		// local-file
 		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
-		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
-
-		// local-folder
 		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
 		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
-		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
-		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
-
-		// submit job
-		return client.submitJobWithApiToken("all-possible-inputs-private", form, apiToken);
+		// submit job with different inputs and file uploads
+		return RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
+				.multiPart("input-text", "my-text").and().multiPart("input-number", "27").and()
+				.multiPart("input-list", "keya").and().multiPart("input-file", new File("test.txt")).and()
+				.multiPart("input-folder", new File("test1.txt")).and().multiPart("input-folder", new File("test2.txt"))
+				.when().post("/api/v2/jobs/submit/all-possible-inputs-private").thenReturn();
 
 	}
 
-	private String submitTestJobWithoutVersion(String apiToken) throws JSONException, IOException {
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.getEntries().add(new FormData("input-text", "my-text"));
-		form.getEntries().add(new FormData("input-number", "27"));
-		// ignore checkbox
-		form.getEntries().add(new FormData("input-list", "keya"));
+	private Response submitTestJobWithoutVersion(String apiToken) {
+
+		Header accessToken = new Header("X-Auth-Token", apiToken);
+
 		// local-file
 		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
-		form.getEntries().add(new FormData("input-file", new FileRepresentation("test.txt", MediaType.TEXT_PLAIN)));
-
-		// local-folder
 		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
 		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
-		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test1.txt", MediaType.TEXT_PLAIN)));
-		form.getEntries().add(new FormData("input-folder", new FileRepresentation("test2.txt", MediaType.TEXT_PLAIN)));
-
-		// submit job
-		return client.submitJobWithApiToken("app-version-test", form, apiToken);
+		// submit job with different inputs and file uploads
+		return RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
+				.multiPart("input-text", "my-text").and().multiPart("input-number", "27").and()
+				.multiPart("input-list", "keya").and().multiPart("input-file", new File("test.txt")).and()
+				.multiPart("input-folder", new File("test1.txt")).and().multiPart("input-folder", new File("test2.txt"))
+				.when().post("/api/v2/jobs/submit/app-version-test").thenReturn();
 
 	}
 

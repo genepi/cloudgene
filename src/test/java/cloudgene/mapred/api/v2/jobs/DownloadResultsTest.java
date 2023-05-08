@@ -1,20 +1,17 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.restlet.ext.html.FormDataSet;
-import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.CloudgeneClient;
-import cloudgene.mapred.util.LoginToken;
+import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -24,254 +21,163 @@ public class DownloadResultsTest {
 	TestApplication application;
 
 	@Inject
-	CloudgeneClient client;
+	CloudgeneClientRestAssured client;
 
 	@Test
-	public void testDownloadSingleFile() throws IOException, JSONException, InterruptedException {
+	public void testDownloadSingleFile() throws InterruptedException {
 
-		LoginToken token = client.loginAsPublicUser();
-
-		// form data
-
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.add("input-inputtext", "lukas_text");
+		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		String id = client.submitJobPublic("write-text-to-file", form);
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-text-to-file").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
-		// check feedback
-		client.waitForJob(id);
+		// wait until submitted job is complete
+		client.waitForJob(id, accessToken);
 
-		// TODO: change!
+		// TODO: check why file is not available without this sleep
 		Thread.sleep(5000);
 
 		// get details
-		JSONObject result = client.getJobDetails(id);
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
+				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(1));
 
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+		String path = response.body().jsonPath().getString("outputParams[0].files[0].path");
+		String name = response.jsonPath().getString("outputParams[0].files[0].name");
+		String hash = response.jsonPath().getString("outputParams[0].files[0].hash");
 
-		// get path and download file
-		JSONObject ouput = result.getJSONArray("outputParams").getJSONObject(0);
-		assertEquals("output", ouput.get("name"));
-		assertEquals(1, ouput.getJSONArray("files").length());
+		assertEquals(id + "/output/output", path);
 
-		JSONObject file1 = ouput.getJSONArray("files").getJSONObject(0);
-		String path1 = file1.getString("path");
-		assertEquals(id + "/output/output", path1);
-		String content1 = client.download(id, file1);
-		assertEquals("lukas_text", content1);
+		// download file and check content
+		RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
+				.statusCode(200).and().body(equalTo("lukas_text"));
 
 		// check if it returns 404
 		String randomPath = id + "/hash/lukas.txt";
-		ClientResource resource = client.createClientResource("/downloads/" + randomPath, token);
-		try {
-			resource.get();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().get("/downloads/" + randomPath).then().statusCode(404)
+				.body("success", equalTo(false)).and().body("message", equalTo("download not found."));
+	}
 
+	@Test
+	public void testDownloadSingleFolder() throws InterruptedException {
+
+		Header accessToken = client.loginAsPublicUser();
+
+		// submit job
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-files-to-folder").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
+
+		// wait until submitted job is complete
+		client.waitForJob(id, accessToken);
+
+		// TODO: check why file is not available without this sleep
+		Thread.sleep(5000);
+
+		// get details
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
+				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(5));
+
+		// get path and download all 5 files
+		for (int i = 0; i < 5; i++) {
+			String path = response.body().jsonPath().getString("outputParams[0].files[" + i + "].path");
+			String name = response.jsonPath().getString("outputParams[0].files[" + i + "].name");
+			String hash = response.jsonPath().getString("outputParams[0].files[" + i + "].hash");
+
+			assertEquals(id + "/output/file" + (i + 1) + ".txt", path);
+			RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
+					.statusCode(200).and().body(equalTo("lukas_text"));
 		}
-		assertEquals(404, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals(object.get("message"), "download not found.");
-		resource.release();
-	}
-
-	@Test
-	public void testDownloadSingleFolder() throws IOException, JSONException, InterruptedException {
-
-		// form data
-
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.add("input-inputtext", "lukas_text");
-
-		// submit job
-		String id = client.submitJobPublic("write-files-to-folder", form);
-
-		// check feedback
-		client.waitForJob(id);
-
-		// TODO: change!
-		Thread.sleep(5000);
-
-		// get details
-		JSONObject result = client.getJobDetails(id);
-
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		// get path and download file
-
-		JSONObject ouput = result.getJSONArray("outputParams").getJSONObject(0);
-		assertEquals("output", ouput.get("name"));
-		assertEquals(5, ouput.getJSONArray("files").length());
-
-		JSONObject file1 = ouput.getJSONArray("files").getJSONObject(0);
-		String path1 = file1.getString("path");
-		assertEquals(id + "/output/file1.txt", path1);
-		String content1 = client.download(id, file1);
-		assertEquals("lukas_text", content1);
-
-		JSONObject file2 = ouput.getJSONArray("files").getJSONObject(1);
-		String path2 = file2.getString("path");
-		assertEquals(id + "/output/file2.txt", path2);
-		String content2 = client.download(id, file2);
-		assertEquals("lukas_text", content2);
-
-		JSONObject file3 = ouput.getJSONArray("files").getJSONObject(2);
-		String path3 = file3.getString("path");
-		assertEquals(id + "/output/file3.txt", path3);
-		String content3 = client.download(id, file3);
-		assertEquals("lukas_text", content3);
-
-		JSONObject file4 = ouput.getJSONArray("files").getJSONObject(3);
-		String path4 = file4.getString("path");
-		assertEquals(id + "/output/file4.txt", path4);
-		String content4 = client.download(id, file4);
-		assertEquals("lukas_text", content4);
-
-		JSONObject file5 = ouput.getJSONArray("files").getJSONObject(4);
-		String path5 = file5.getString("path");
-		assertEquals(id + "/output/file5.txt", path5);
-		String content5 = client.download(id, file5);
-		assertEquals("lukas_text", content5);
 
 	}
 
 	@Test
-	public void testDownloadSingleHdfsFolder() throws IOException, JSONException, InterruptedException {
+	public void testDownloadSingleHdfsFolder() throws InterruptedException {
 
-		// form data
-
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.add("input-inputtext", "lukas_text");
+		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		String id = client.submitJobPublic("write-files-to-hdfs-folder", form);
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-files-to-hdfs-folder").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
-		// check feedback
-		client.waitForJob(id);
+		// wait until submitted job is complete
+		client.waitForJob(id, accessToken);
 
-		// TODO: change!
+		// TODO: check why file is not available without this sleep
 		Thread.sleep(5000);
 
 		// get details
-		JSONObject result = client.getJobDetails(id);
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
+				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(5));
 
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+		// get path and download all 5 files
+		for (int i = 0; i < 5; i++) {
+			String path = response.body().jsonPath().getString("outputParams[0].files[" + i + "].path");
+			String name = response.jsonPath().getString("outputParams[0].files[" + i + "].name");
+			String hash = response.jsonPath().getString("outputParams[0].files[" + i + "].hash");
 
-		// get path and download file
-
-		JSONObject ouput = result.getJSONArray("outputParams").getJSONObject(0);
-		assertEquals("output", ouput.get("name"));
-		assertEquals(5, ouput.getJSONArray("files").length());
-
-		JSONObject file1 = ouput.getJSONArray("files").getJSONObject(0);
-		String path1 = file1.getString("path");
-		assertEquals(id + "/output/file1.txt", path1);
-		String content1 = client.download(id, file1);
-		assertEquals("lukas_text", content1);
-
-		JSONObject file2 = ouput.getJSONArray("files").getJSONObject(1);
-		String path2 = file2.getString("path");
-		assertEquals(id + "/output/file2.txt", path2);
-		String content2 = client.download(id, file2);
-		assertEquals("lukas_text", content2);
-
-		JSONObject file3 = ouput.getJSONArray("files").getJSONObject(2);
-		String path3 = file3.getString("path");
-		assertEquals(id + "/output/file3.txt", path3);
-		String content3 = client.download(id, file3);
-		assertEquals("lukas_text", content3);
-
-		JSONObject file4 = ouput.getJSONArray("files").getJSONObject(3);
-		String path4 = file4.getString("path");
-		assertEquals(id + "/output/file4.txt", path4);
-		String content4 = client.download(id, file4);
-		assertEquals("lukas_text", content4);
-
-		JSONObject file5 = ouput.getJSONArray("files").getJSONObject(4);
-		String path5 = file5.getString("path");
-		assertEquals(id + "/output/file5.txt", path5);
-		String content5 = client.download(id, file5);
-		assertEquals("lukas_text", content5);
+			assertEquals(id + "/output/file" + (i + 1) + ".txt", path);
+			RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
+					.statusCode(200).and().body(equalTo("lukas_text"));
+		}
 
 	}
 
 	@Test
-	public void testDownloadCounter() throws IOException, JSONException, InterruptedException {
+	public void testDownloadCounter() throws InterruptedException {
 
-		// form data
-
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.add("input-inputtext", "lukas_text");
+		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		String id = client.submitJobPublic("write-files-to-folder", form);
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-files-to-folder").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
-		// check feedback
-		client.waitForJob(id);
+		// wait until submitted job is complete
+		client.waitForJob(id, accessToken);
 
-		// TODO: change!
+		// TODO: check why file is not available without this sleep
 		Thread.sleep(5000);
 
 		// get details
-		JSONObject result = client.getJobDetails(id);
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
+				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(5));
 
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
+		String path = response.body().jsonPath().getString("outputParams[0].files[0].path");
+		String name = response.jsonPath().getString("outputParams[0].files[0].name");
+		String hash = response.jsonPath().getString("outputParams[0].files[0].hash");
 
-		// get path and download file
-
-		JSONObject ouput = result.getJSONArray("outputParams").getJSONObject(0);
-		assertEquals("output", ouput.get("name"));
-		assertEquals(5, ouput.getJSONArray("files").length());
-
-		JSONObject file1 =  ouput.getJSONArray("files").getJSONObject(0);
-		String path1 = file1.getString("path");
-		assertEquals(id + "/output/file1.txt", path1);
+		assertEquals(id + "/output/file1.txt", path);
 
 		int maxDownloads = application.getSettings().getMaxDownloads();
 		// download file max_download
 		for (int i = 0; i < maxDownloads; i++) {
-			String content1 = client.download(id, file1);
-			assertEquals("lukas_text", content1);
+			// download file and check content
+			RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
+					.statusCode(200).and().body(equalTo("lukas_text"));
 		}
 
-		// check if download is blocked
-		ClientResource resource = client.createClientResource("/downloads/" + id + "/" + file1.getString("hash") + "/" + file1.getString("name"));
-		try {
-			resource.get();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
+				.statusCode(400).and().body("success", equalTo(false)).and()
+				.body("message", equalTo("number of max downloads exceeded."));
 
-		}
-		assertEquals(400, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals(object.get("message"), "number of max downloads exceeded.");
-		resource.release();
 	}
 
-
 	@Test
-	public void testJobNotFound() throws IOException, JSONException, InterruptedException {
+	public void testJobNotFound() throws InterruptedException {
 
-		String path = "job-lukas277/HASH/file1.txt";
+		Header accessToken = client.login("admin", "admin1978");
 
-		// check if download is blocked
-		LoginToken login = client.login("admin", "admin1978");
-		ClientResource resource = client.createClientResource("/downloads/" + path, login);
-		try {
-			resource.get();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().get("/downloads/job-lukas277/HASH/file1.txt").then()
+				.statusCode(404).body("success", equalTo(false)).and()
+				.body("message", equalTo("Job job-lukas277 not found."));
 
-		}
-		assertEquals(404, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals(object.get("message"), "Job job-lukas277 not found.");
-		resource.release();
 	}
 
 }

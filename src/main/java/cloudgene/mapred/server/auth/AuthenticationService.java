@@ -123,13 +123,17 @@ public class AuthenticationService {
 		Publisher<Authentication> authentication = validator.validateToken(token, null);
 
 		return Mono.<ValidatedApiTokenResponse>create(emitter -> {
+			
 			authentication.subscribe(new Subscriber<Authentication>() {
 
 				private Subscription subscription;
 
+				
+				
 				@Override
 				public void onComplete() {
-
+					//handle empty publisher. e.g. when token is invalid
+					emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
 				}
 
 				@Override

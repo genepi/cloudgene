@@ -2,13 +2,10 @@ package cloudgene.mapred.api.v2.jobs;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.restlet.ext.html.FormDataSet;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.CloudgeneClient;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 
@@ -18,8 +15,8 @@ public class RestartJobTest {
 	@Inject
 	TestApplication application;
 
-	@Inject
-	CloudgeneClient client;
+	//@Inject
+	//CloudgeneClient client;
 
 	@Test
 	public void testRestartWriteTextToFileJob() throws Exception {

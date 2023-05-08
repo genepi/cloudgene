@@ -1,17 +1,15 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.core.IsEqual.equalTo;
 
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.restlet.ext.html.FormDataSet;
-import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.CloudgeneClient;
-import cloudgene.mapred.util.LoginToken;
+import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -21,64 +19,49 @@ public class CancelJobTest {
 	TestApplication application;
 
 	@Inject
-	CloudgeneClient client;
+	CloudgeneClientRestAssured client;
 
 	@Test
-	public void testCancelSleepJob() throws Exception {
+	public void testCancelSleepJob() throws InterruptedException {
 
-		// form data
+		String app = "long-sleep";
 
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.add("input", "dummy");
+		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		String id = client.submitJobPublic("long-sleep", form);
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "dummy").when()
+				.post("/api/v2/jobs/submit/{app}", app).then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		Thread.sleep(8000);
 
-		// Handle answer!
-		client.cancelJob(id);
-		// get details
-		JSONObject result = client.getJobDetails(id);
-		assertEquals(AbstractJob.STATE_CANCELED, result.get("state"));
+		// cancel job after 8 secs
+		RestAssured.given().header(accessToken).when().get("/api/v2/jobs/{id}/cancel", id).then().statusCode(200);
+
+		// get details and check state
+		RestAssured.given().header(accessToken).when().get("/api/v2/jobs/{id}", id).then().statusCode(200).and()
+				.body("state", equalTo(AbstractJob.STATE_CANCELED));
 
 	}
 
 	@Test
-	public void testCancelWrongJobId() throws Exception {
+	public void testCancelWithWrongJobId() {
 
 		String id = "some-random-id";
 
-		LoginToken token = client.loginAsPublicUser();
-		ClientResource resource = client.createClientResource("/api/v2/jobs/" + id + "/cancel", token);
+		Header accessToken = client.loginAsPublicUser();
 
-		try {
-			resource.get();
-		} catch (Exception e) {
+		RestAssured.given().header(accessToken).when().get("/api/v2/jobs/{id}/cancel", id).then().statusCode(404).and()
+				.body("success", equalTo(false)).and().body("message", equalTo("Job " + id + " not found."));
 
-		}
-		assertEquals(404, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertEquals(object.get("message"), "Job " + id + " not found.");
-		resource.release();
 	}
 
 	@Test
-	public void testCancelWithoutLogin() throws Exception {
+	public void testCancelWithoutLogin() {
 
 		String id = "some-random-id";
+		RestAssured.when().get("/api/v2/jobs/{id}/cancel", id).then().statusCode(401);
 
-		ClientResource resource = client.createClientResource("/api/v2/jobs/" + id + "/cancel");
-
-		try {
-			resource.get();
-		} catch (Exception e) {
-
-		}
-		assertEquals(401, resource.getStatus().getCode());
-		resource.release();
 	}
 
 }
