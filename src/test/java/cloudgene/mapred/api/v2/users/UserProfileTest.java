@@ -1,28 +1,26 @@
 package cloudgene.mapred.api.v2.users;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.hamcrest.core.IsNull.nullValue;
+import static org.hamcrest.core.StringContains.containsString;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.restlet.data.Form;
-import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.util.CloudgeneClient;
+import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.LoginToken;
 import genepi.db.Database;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -33,7 +31,7 @@ public class UserProfileTest {
 	TestApplication application;
 
 	@Inject
-	CloudgeneClient client;
+	CloudgeneClientRestAssured client;
 
 	@BeforeAll
 	protected void setUp() throws Exception {
@@ -65,205 +63,147 @@ public class UserProfileTest {
 	}
 
 	@Test
-	public void testGetWithWrongCredentials() throws JSONException, IOException {
-		LoginToken token = new LoginToken();
-		token.setCsrfToken("wrong-token");
-		ClientResource resource = client.createClientResource("/api/v2/users/test1/profile", token);
-		try {
-			resource.get();
-		} catch (Exception e) {
+	public void testGetWithWrongCredentials() {
 
-		}
-		assertNotSame(200, resource.getStatus().getCode());
-		resource.release();
+		RestAssured.when().get("/api/v2/users/test1/profile").then().statusCode(401);
+
 	}
 
 	@Test
-	public void testGetWithCorrectCredentials() throws JSONException, IOException {
+	public void testGetWithCorrectCredentials() {
 		// login as user test1 and get profile. username is ignored, returns
-		// allways auth user's profile. just for better urls
-		LoginToken token = client.login("test1", "Test1Password");
-		ClientResource resource = client.createClientResource("/api/v2/users/test1/profile", token);
-		try {
-			resource.get();
-		} catch (Exception e) {
+		// always auth user's profile. just for better urls
 
-		}
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertFalse(object.has("password"));
-		assertEquals(object.get("username"), "test1");
-		assertEquals(object.get("mail"), "test1@test.com");
-		resource.release();
+		Header accessToken = client.login("test1", "Test1Password");
+
+		RestAssured.given().header(accessToken).when().get("/api/v2/users/test1/profile").then().statusCode(200).and()
+				.body("username", equalTo("test1")).and().body("mail", equalTo("test1@test.com"))
+				.body("password", nullValue());
+
 	}
 
 	@Test
-	public void testUpdateWithCorrectCredentials() throws JSONException, IOException {
+	public void testUpdateWithCorrectCredentials() {
 
 		// login as user test1
-		LoginToken token = client.login("test2", "Test2Password");
+		Header accessToken = client.login("test2", "Test2Password");
 
 		// try to update password for test2
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-		form.set("username", "test2");
-		form.set("full-name", "new full-name");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "new-Password27");
-		form.set("confirm-new-password", "new-Password27");
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test2");
+		form.put("full-name", "new full-name");
+		form.put("mail", "test1@test.com");
+		form.put("new-password", "new-Password27");
+		form.put("confirm-new-password", "new-Password27");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), true);
-		assertTrue(object.get("message").toString().contains("User profile sucessfully updated"));
-		resource.release();
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(true)).and()
+				.body("message", equalTo("User profile sucessfully updated."));
 
 		// try login with old password
-		resource = client.createClientResource("/login");
-		form = new Form();
-		form.set("username", "test2");
-		form.set("password", "Test2Password");
-		try {
-			resource.post(form);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
-		assertEquals(401, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("Login Failed! Wrong Username or Password.", object.getString("message"));
-		resource.release();
+		form = new HashMap<String, String>();
+		form.put("username", "test2");
+		form.put("password", "old-Test2Password");
+		RestAssured.given().formParams(form).when().post("/login").then().statusCode(401).and()
+				.body("message", equalTo("Login Failed! Wrong Username or Password."));
 
 		// try login with new password
-		resource = client.createClientResource("/login");
-		form = new Form();
-		form.set("username", "test2");
-		form.set("password", "new-Password27");
-		resource.post(form);
-
-		assertEquals(200, resource.getStatus().getCode());
-		object = new JSONObject(resource.getResponseEntity().getText());
-		resource.release();
+		form = new HashMap<String, String>();
+		form.put("username", "test2");
+		form.put("password", "new-Password27");
+		RestAssured.given().formParams(form).when().post("/login").then().statusCode(200).and()
+				.body("username", equalTo("test2")).and().body("access_token", notNullValue());
 	}
 
 	@Test
-	public void testUpdateWithWrongCredentials() throws JSONException, IOException {
+	public void testUpdateWithWrongCredentials() {
 
 		// login as user test1
-		LoginToken token = client.login("test1", "Test1Password");
+		Header accessToken = client.login("test1", "Test1Password");
 
 		// try to update password for test2
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-		form.set("username", "test2");
-		form.set("full-name", "test2 test1");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "Password27");
-		form.set("confirm-new-password", "Password27");
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test2");
+		form.put("full-name", "test2 test1");
+		form.put("mail", "test1@test.com");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertTrue(object.get("message").toString().contains("not allowed to change"));
-		resource.release();
-	}
-
-	@Test
-	public void testUpdateWithWrongConfirmPassword() throws JSONException, IOException {
-
-		// login as user test1
-		LoginToken token = client.login("test1", "Test1Password");
-
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-
-		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "aaa");
-		form.set("confirm-new-password", "abbb");
-
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertTrue(object.get("message").toString().contains("check your passwords"));
-		resource.release();
-	}
-
-	@Test
-	public void testUpdatePasswordWithMissingLowercase() throws JSONException, IOException {
-
-		// login as user test1
-		LoginToken token = client.login("test1", "Test1Password");
-
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
-		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "PASSWORD2727");
-		form.set("confirm-new-password", "PASSWORD2727");
-
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertTrue(object.get("message").toString().contains("least one lowercase"));
-		resource.release();
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(false)).and()
+				.body("message", containsString("not allowed to change"));
 
 	}
 
 	@Test
-	public void testUpdatePasswordWithMissingNumber() throws JSONException, IOException {
+	public void testUpdateWithWrongConfirmPassword() {
 
-		// login as user test1
-		LoginToken token = client.login("test1", "Test1Password");
+		Header accessToken = client.login("test1", "Test1Password");
 
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "test1@test.com");
+		form.put("new-password", "aaa");
+		form.put("confirm-new-password", "abbb");
 
-		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "PASSWORDpassword");
-		form.set("confirm-new-password", "PASSWORDpassword");
-
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertTrue(object.get("message").toString().contains("least one number"));
-		resource.release();
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(false)).and()
+				.body("message", containsString("check your passwords"));
 	}
 
 	@Test
-	public void testUpdatePasswordWithMissingUppercase() throws JSONException, IOException {
+	public void testUpdatePasswordWithMissingLowercase() {
 
-		// login as user test1
-		LoginToken token = client.login("test1", "Test1Password");
+		Header accessToken = client.login("test1", "Test1Password");
 
-		ClientResource resource = client.createClientResource("/api/v2/users/me/profile", token);
-		Form form = new Form();
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "test1@test.com");
+		form.put("new-password", "PASSWORD2727");
+		form.put("confirm-new-password", "PASSWORD2727");
 
-		// try to update with wrong password
-		form.set("username", "test1");
-		form.set("full-name", "test1 new");
-		form.set("mail", "test1@test.com");
-		form.set("new-password", "passwordword27");
-		form.set("confirm-new-password", "passwordword27");
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(false)).and()
+				.body("message", containsString("least one lowercase"));
 
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals(object.get("success"), false);
-		assertTrue(object.get("message").toString().contains("least one uppercase"));
-		resource.release();
+	}
+
+	@Test
+	public void testUpdatePasswordWithMissingNumber() {
+
+		Header accessToken = client.login("test1", "Test1Password");
+
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "test1@test.com");
+		form.put("new-password", "PASSWORDpassword");
+		form.put("confirm-new-password", "PASSWORDpassword");
+
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(false)).and()
+				.body("message", containsString("least one number"));
+
+	}
+
+	@Test
+	public void testUpdatePasswordWithMissingUppercase() {
+
+		Header accessToken = client.login("test1", "Test1Password");
+
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "test1@test.com");
+		form.put("new-password", "passwordword27");
+		form.put("confirm-new-password", "passwordword27");
+
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(false)).and()
+				.body("message", containsString("least one uppercase"));
+
 	}
 
 }

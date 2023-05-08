@@ -1,23 +1,19 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 
-import java.io.IOException;
+import java.util.List;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.restlet.ext.html.FormData;
-import org.restlet.ext.html.FormDataSet;
-import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.util.CloudgeneClient;
-import cloudgene.mapred.util.LoginToken;
+import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
+import io.restassured.response.Response;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -25,70 +21,53 @@ public class GetJobsTest {
 
 	@Inject
 	TestApplication application;
-	
+
 	@Inject
-	CloudgeneClient client;
+	CloudgeneClientRestAssured client;
 
 	@Test
-	public void testGetJobsWithoutLogin() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsWithoutLogin() {
 
-		ClientResource resourceJobs = client.createClientResource("/api/v2/jobs");
-
-		try {
-			resourceJobs.get();
-		} catch (Exception e) {
-		}
-		assertNotSame(401, resourceJobs.getStatus().getCode());
-		resourceJobs.release();
+		RestAssured.when().get("/api/v2/jobs").then().statusCode(401);
 
 	}
 
 	@Test
-	public void testGetJobsAsAdminUser() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsAsAdminUser() {
 
-		LoginToken token = client.login("admin", "admin1978");
+		Header accessToken = client.login("admin", "admin1978");
 
-		ClientResource resourceJobs = client.createClientResource("/api/v2/jobs", token);
-
-		try {
-			resourceJobs.get();
-		} catch (Exception e) {
-		}
-
-		assertEquals(200, resourceJobs.getStatus().getCode());
-		resourceJobs.release();
+		RestAssured.given().header(accessToken).when().get("/api/v2/jobs").then().statusCode(200);
 
 	}
 
 	@Test
-	public void testGetJobsAsAdminUserAndSubmit() throws IOException, JSONException, InterruptedException {
+	public void testGetJobsAsAdminUserAndSubmit() {
 
-		LoginToken token = client.login("admin", "admin1978");
+		Header accessToken = client.login("admin", "admin1978");
 
-		JSONArray jobsBefore = client.getJobs(token);
+		// get list of jobs before submit
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs").thenReturn();
+		List<Object> jobsBefore = response.body().jsonPath().getList("data");
 
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.getEntries().add(new FormData("input-input", "input-file"));
+		// submit new job
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "input-file")
+				.post("/api/v2/jobs/submit/return-true-step-public").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
-		// submit job
-		String id = client.submitJob("return-true-step-public", form, token);
+		// wait until job is complete
+		client.waitForJob(id, accessToken);
 
-		// check feedback
-		client.waitForJob(id, token);
+		// check job state
+		RestAssured.given().when().header(accessToken).get("/api/v2/jobs/" + id).then().statusCode(200).and()
+				.body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
-		JSONObject result = client.getJobDetails(id, token);
+		// get list of jobs after submit
+		response = RestAssured.given().when().header(accessToken).get("/api/v2/jobs").thenReturn();
+		List<Object> jobsAfter = response.body().jsonPath().getList("data");
 
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		JSONArray jobsAfter = client.getJobs(token);
-
-		assertEquals(jobsBefore.length() + 1, jobsAfter.length());
+		assertEquals(jobsBefore.size() + 1, jobsAfter.size());
 
 	}
-
-	// TODO: wrong permissions
-
-	// TODO: wrong id
 
 }

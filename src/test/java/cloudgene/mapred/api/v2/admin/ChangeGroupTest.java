@@ -1,31 +1,27 @@
 package cloudgene.mapred.api.v2.admin;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.restlet.data.Form;
-import org.restlet.resource.ClientResource;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.util.CloudgeneClient;
+import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.LoginToken;
 import cloudgene.mapred.util.TestMailServer;
 import genepi.db.Database;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import io.restassured.RestAssured;
+import io.restassured.http.Header;
 import jakarta.inject.Inject;
 
-@MicronautTest
+@MicronautTest()
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ChangeGroupTest {
 
@@ -33,7 +29,7 @@ public class ChangeGroupTest {
 	TestApplication application;
 
 	@Inject
-	CloudgeneClient client;
+	CloudgeneClientRestAssured client;
 
 	@BeforeAll
 	protected void setUp() throws Exception {
@@ -55,28 +51,18 @@ public class ChangeGroupTest {
 	}
 
 	@Test
-	public void testWithWrongCredentials() throws JSONException, IOException {
+	public void testWithWrongCredentials() {
 
-		LoginToken token = client.login("username-group-test", "oldpassword");
+		Header accessToken = client.login("username-group-test", "oldpassword");
 
 		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
 
 		User oldUser = userDao.findByUsername("username-group-test");
 
-		// try to update with no credentials
-		ClientResource resource = client.createClientResource("/api/v2/admin/users/changegroup", token);
-		Form form = new Form();
-		form.set("username", "username-group-test");
-		form.set("role", "user,newgroup,test");
-
-		try {
-			resource.post(form);
-		} catch (Exception e) {
-
-		}
-		assertEquals(403, resource.getStatus().getCode());
-		resource.release();
+		RestAssured.given().header(accessToken).and().formParam("username", "username-group-test").and()
+				.formParam("role", "user,newgroup,test").when().post("/api/v2/admin/users/changegroup").then()
+				.statusCode(403);
 
 		User newUser = userDao.findByUsername("username-group-test");
 		// check if user in database is still the same
@@ -86,7 +72,7 @@ public class ChangeGroupTest {
 	}
 
 	@Test
-	public void testWithAdminCredentials() throws JSONException, IOException {
+	public void testWithAdminCredentials() {
 
 		Database database = application.getDatabase();
 		UserDao userDao = new UserDao(database);
@@ -102,20 +88,13 @@ public class ChangeGroupTest {
 		assertFalse(oldUser.hasRole("secret-group"));
 		assertFalse(oldUser.isAdmin());
 
-		LoginToken token = client.login("admin", "admin1978");
+		Header accessToken = client.login("admin", "admin1978");
 
-		// try to update invalid password
-		ClientResource resource = client.createClientResource("/api/v2/admin/users/changegroup", token);
-		Form form = new Form();
-		form.set("username", "username-group-test");
-		form.set("role", "user,newgroup,test");
-
-		resource.post(form);
-		assertEquals(200, resource.getStatus().getCode());
-		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
-		assertEquals("username-group-test", object.get("username"));
-		assertEquals("user,newgroup,test", object.get("role"));
-		resource.release();
+		// update group
+		RestAssured.given().header(accessToken).and().formParam("username", "username-group-test").and()
+				.formParam("role", "user,newgroup,test").when().post("/api/v2/admin/users/changegroup").then()
+				.statusCode(200).body("username", equalTo("username-group-test")).and()
+				.body("role", equalTo("user,newgroup,test"));
 
 		User newUser = userDao.findByUsername("username-group-test");
 		// check update
