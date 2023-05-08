@@ -2,8 +2,8 @@ package cloudgene.mapred.server.controller;
 
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.plugins.nextflow.NextflowInfo;
 import cloudgene.mapred.server.Application;
@@ -22,7 +22,7 @@ import net.sf.json.JSONObject;
 @Controller
 public class NextflowController {
 
-	protected static final Log log = LogFactory.getLog(DownloadController.class);
+	protected static final Logger log = LoggerFactory.getLogger(DownloadController.class);
 
 	@Inject
 	protected Application application;

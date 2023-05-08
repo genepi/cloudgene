@@ -2,8 +2,8 @@ package cloudgene.mapred.database.updates;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import cloudgene.mapred.core.User;
@@ -13,7 +13,7 @@ import genepi.db.IUpdateListener;
 
 public class BcryptHashUpdate implements IUpdateListener {
 
-	private static final Log log = LogFactory.getLog(BcryptHashUpdate.class);
+	private static final Logger log = LoggerFactory.getLogger(BcryptHashUpdate.class);
 
 	
 	@Override

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Future;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -29,7 +29,7 @@ public abstract class Queue implements Runnable {
 
 	private boolean priority = false;
 
-	private static final Log log = LogFactory.getLog(Queue.class);
+	private static final Logger log = LoggerFactory.getLogger(Queue.class);
 
 	public Queue(String name, int threads, boolean updatePositions, boolean priority) {
 		this.name = name;

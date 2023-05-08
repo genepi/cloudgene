@@ -10,11 +10,12 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MailUtil {
 
-	private static final org.apache.commons.logging.Log log = LogFactory.getLog(MailUtil.class);
+	private static final Logger log = LoggerFactory.getLogger(MailUtil.class);
 
 	public static void notifyAdmin(Settings settings, String subject, String text) throws Exception {
 

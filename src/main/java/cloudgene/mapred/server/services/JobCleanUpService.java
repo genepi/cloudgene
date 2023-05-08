@@ -2,8 +2,8 @@ package cloudgene.mapred.server.services;
 
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.database.JobDao;
@@ -22,7 +22,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class JobCleanUpService {
 
-	private static final Log log = LogFactory.getLog(JobCleanUpService.class);
+	private static final Logger log = LoggerFactory.getLogger(JobCleanUpService.class);
 
 	@Inject
 	protected Application application;

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
@@ -76,7 +76,7 @@ public class Settings {
 
 	private boolean removeHdfsWorkspace = true;
 
-	private static final Log log = LogFactory.getLog(Settings.class);
+	private static final Logger log = LoggerFactory.getLogger(Settings.class);
 
 	private boolean writeStatistics = true;
 
