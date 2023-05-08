@@ -51,9 +51,9 @@ public class GetJobsTest {
 		List<Object> jobsBefore = response.body().jsonPath().getList("data");
 
 		// submit new job
-		response = RestAssured.given().header(accessToken).and().multiPart("input", "input-file")
-				.post("/api/v2/jobs/submit/return-true-step-public").thenReturn();
-		String id = response.getBody().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "input-file")
+				.post("/api/v2/jobs/submit/return-true-step-public").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);

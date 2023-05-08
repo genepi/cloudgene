@@ -38,20 +38,17 @@ public class GetLogsTest {
 		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
 		// submit job with different inputs and file uploads
-		Response response = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
+		String id = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
 				.multiPart("input-text", "my-text").and().multiPart("input-number", "27").and()
 				.multiPart("input-list", "keya").and().multiPart("input-file", new File("test.txt")).and()
 				.multiPart("input-folder", new File("test1.txt")).and().multiPart("input-folder", new File("test2.txt"))
-				.when().post("/api/v2/jobs/submit/all-possible-inputs").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
-
+				.when().post("/api/v2/jobs/submit/all-possible-inputs").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
 
 		// get details and check state. logs should be empty (used for links etc..)
-		response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
 		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
 				.body("name", equalTo("my-job-name")).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
 				.body("logs", emptyString());
@@ -84,11 +81,9 @@ public class GetLogsTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit job with different inputs and file uploads
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input-input", "input-file").when()
-				.post("/api/v2/jobs/submit/write-text-to-std-out").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input-input", "input-file").when()
+				.post("/api/v2/jobs/submit/write-text-to-std-out").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -98,7 +93,7 @@ public class GetLogsTest {
 				.body("state", equalTo(AbstractJob.STATE_SUCCESS)).and().body("logs", emptyString());
 
 		// direct link should work
-		response = RestAssured.given().header(accessToken).when().get("/logs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/logs/" + id).thenReturn();
 		response.then().statusCode(200);
 		String content = response.body().asString();
 

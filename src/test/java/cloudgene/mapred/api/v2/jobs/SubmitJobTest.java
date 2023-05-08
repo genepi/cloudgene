@@ -75,14 +75,12 @@ public class SubmitJobTest {
 		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
 		// submit job with different inputs and file uploads
-		Response response = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
+		String id = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
 				.multiPart("input-text", "my-text").and().multiPart("input-number", "27").and()
 				.multiPart("input-list", "keya").and().multiPart("input-file", new File("test.txt")).and()
 				.multiPart("input-folder", new File("test1.txt")).and().multiPart("input-folder", new File("test2.txt"))
-				.when().post("/api/v2/jobs/submit/all-possible-inputs").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+				.when().post("/api/v2/jobs/submit/all-possible-inputs").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -104,13 +102,11 @@ public class SubmitJobTest {
 		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
 
 		// submit job with different inputs and file uploads
-		Response response = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
+		String id = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
 				.multiPart("input-file", new File("test.txt")).and().multiPart("input-folder", new File("test1.txt"))
 				.and().multiPart("input-folder", new File("test2.txt")).when()
-				.post("/api/v2/jobs/submit/all-possible-inputs-hdfs").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+				.post("/api/v2/jobs/submit/all-possible-inputs-hdfs").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -127,11 +123,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input", "input-file").when()
-				.post("/api/v2/jobs/submit/return-true-step-public").thenReturn();
-
-		response.then().log().all().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "input-file").when()
+				.post("/api/v2/jobs/submit/return-true-step-public").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -148,11 +142,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input", "input-file").when()
-				.post("/api/v2/jobs/submit/return-false-step-public").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "input-file").when()
+				.post("/api/v2/jobs/submit/return-false-step-public").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -169,11 +161,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input", "input-file").when()
-				.post("/api/v2/jobs/submit/return-exception-step-public").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "input-file").when()
+				.post("/api/v2/jobs/submit/return-exception-step-public").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -190,11 +180,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input-inputtext", "lukas_text")
-				.when().post("/api/v2/jobs/submit/write-text-to-file").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input-inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-text-to-file").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -202,7 +190,7 @@ public class SubmitJobTest {
 		// TODO: change!
 		Thread.sleep(5000);
 
-		response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
 		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
 		// get file details
@@ -221,11 +209,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input-inputtext", "lukas_text")
-				.when().post("/api/v2/jobs/submit/write-text-to-hdfs-file").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input-inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-text-to-hdfs-file").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -233,7 +219,7 @@ public class SubmitJobTest {
 		// TODO: change!
 		Thread.sleep(5000);
 
-		response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
 		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
 		// get file details
@@ -252,11 +238,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input-input", "input-file").when()
-				.post("/api/v2/jobs/submit/three-tasks").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input-input", "input-file").when()
+				.post("/api/v2/jobs/submit/three-tasks").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -279,11 +263,9 @@ public class SubmitJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input-checkbox1", "true").when()
-				.post("/api/v2/jobs/submit/print-hidden-inputs").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input-checkbox1", "true").when()
+				.post("/api/v2/jobs/submit/print-hidden-inputs").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);
@@ -303,18 +285,14 @@ public class SubmitJobTest {
 	@Test
 	public void testSubmitHtmlInParams() {
 
-		// form data
-
 		String html = "<script>console.log('Hey')<script>";
 
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit jobs
-		Response response = RestAssured.given().header(accessToken).and().multiPart("text1", "value " + html).when()
-				.post("/api/v2/jobs/submit/print-hidden-inputs").thenReturn();
-
-		response.then().statusCode(200);
-		String id = response.body().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("text1", "value " + html).when()
+				.post("/api/v2/jobs/submit/print-hidden-inputs").then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		// wait until job is complete
 		client.waitForJob(id, accessToken);

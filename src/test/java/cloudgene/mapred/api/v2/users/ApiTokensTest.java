@@ -82,11 +82,9 @@ public class ApiTokensTest {
 		RestAssured.when().post("/api/v2/users/testusertoken/api-token").then().statusCode(401);
 
 		// create token
-		Response response = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
-				.thenReturn();
-		response.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()));
-
-		String apiToken = response.body().jsonPath().getString("token");
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
 
 		// validate token
 		Map<String, String> form = new HashMap<String, String>();
@@ -131,11 +129,9 @@ public class ApiTokensTest {
 				.body("password", nullValue());
 
 		// create token
-		Response response = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
-				.thenReturn();
-		response.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()));
-
-		String apiToken = response.body().jsonPath().getString("token");
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
 
 		// submit job
 		Response job = submitTestJob(apiToken);
@@ -151,7 +147,7 @@ public class ApiTokensTest {
 				.body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
 		// check if job list contains one job
-		response = RestAssured.given().when().header(apiTokenHeader).get("/api/v2/jobs").thenReturn();
+		Response response = RestAssured.given().when().header(apiTokenHeader).get("/api/v2/jobs").thenReturn();
 		List<Object> jobs = response.body().jsonPath().getList("data");
 		assertEquals(1, jobs.size());
 
@@ -179,11 +175,9 @@ public class ApiTokensTest {
 				.body("hasApiToken", equalTo(false)).body("password", nullValue());
 
 		// create token
-		Response response = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
-				.thenReturn();
-		response.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()));
-
-		String apiToken = response.body().jsonPath().getString("token");
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token")
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
 
 		// submit job
 		Response job = submitTestJobWithoutVersion(apiToken);
@@ -198,7 +192,7 @@ public class ApiTokensTest {
 				.body("state", equalTo(AbstractJob.STATE_SUCCESS));
 
 		// check if job list contains one job
-		response = RestAssured.given().when().header(apiTokenHeader).get("/api/v2/jobs").thenReturn();
+		Response response = RestAssured.given().when().header(apiTokenHeader).get("/api/v2/jobs").thenReturn();
 		List<Object> jobs = response.body().jsonPath().getList("data");
 		assertEquals(1, jobs.size());
 
@@ -227,12 +221,10 @@ public class ApiTokensTest {
 		Header accessToken = client.login("testusertoken", "Test1Password");
 
 		// create token
-		Response response = RestAssured.given().header(accessToken).when()
-				.post("/api/v2/users/testusertoken/api-token?expiration=" + expiration).thenReturn();
-		response.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()));
-
-		String apiToken = response.body().jsonPath().getString("token");
-
+		String apiToken = RestAssured.given().header(accessToken).when().post("/api/v2/users/testusertoken/api-token?expiration=" + expiration)
+				.then().statusCode(200).and().body("success", equalTo(true)).and().body("token", not(emptyString()))
+				.and().extract().jsonPath().getString("token");
+		
 		// submit job
 		submitTestJob(apiToken).then().statusCode(401);
 

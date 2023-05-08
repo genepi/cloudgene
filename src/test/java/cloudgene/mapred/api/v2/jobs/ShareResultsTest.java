@@ -30,10 +30,9 @@ public class ShareResultsTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		Response response = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
-				.post("/api/v2/jobs/submit/write-text-to-file").thenReturn();
-
-		String id = response.getBody().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-text-to-file").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
 		// wait until submitted job is complete
 		client.waitForJob(id, accessToken);
@@ -42,7 +41,7 @@ public class ShareResultsTest {
 		Thread.sleep(5000);
 
 		// get details
-		response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
 		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
 				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(1));
 
@@ -69,10 +68,9 @@ public class ShareResultsTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		Response response = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
-				.post("/api/v2/jobs/submit/write-files-to-folder").thenReturn();
-
-		String id = response.getBody().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-files-to-folder").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");;
 
 		// wait until submitted job is complete
 		client.waitForJob(id, accessToken);
@@ -81,7 +79,7 @@ public class ShareResultsTest {
 		Thread.sleep(5000);
 
 		// get details
-		response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
 		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
 				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(5));
 
@@ -104,10 +102,9 @@ public class ShareResultsTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		Response response = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
-				.post("/api/v2/jobs/submit/write-files-to-folder").thenReturn();
-
-		String id = response.getBody().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
+				.post("/api/v2/jobs/submit/write-files-to-folder").then().statusCode(200).and().extract()
+				.jsonPath().getString("id");
 
 		// wait until submitted job is complete
 		client.waitForJob(id, accessToken);
@@ -116,7 +113,7 @@ public class ShareResultsTest {
 		Thread.sleep(5000);
 
 		// get details
-		response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
+		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
 		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
 				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(5));
 

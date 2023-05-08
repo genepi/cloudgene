@@ -10,7 +10,6 @@ import cloudgene.mapred.util.CloudgeneClientRestAssured;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;
 import io.restassured.http.Header;
-import io.restassured.response.Response;
 import jakarta.inject.Inject;
 
 @MicronautTest
@@ -30,11 +29,9 @@ public class CancelJobTest {
 		Header accessToken = client.loginAsPublicUser();
 
 		// submit job
-		Response response = RestAssured.given().header(accessToken).and().multiPart("input", "dummy").when()
-				.post("/api/v2/jobs/submit/{app}", app).thenReturn();
-		response.then().statusCode(200);
-
-		String id = response.getBody().jsonPath().getString("id");
+		String id = RestAssured.given().header(accessToken).and().multiPart("input", "dummy").when()
+				.post("/api/v2/jobs/submit/{app}", app).then().statusCode(200).and().extract().jsonPath()
+				.getString("id");
 
 		Thread.sleep(8000);
 
