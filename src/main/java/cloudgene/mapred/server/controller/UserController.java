@@ -2,6 +2,9 @@ package cloudgene.mapred.server.controller;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.server.Application;
@@ -30,6 +33,8 @@ import net.sf.json.JSONObject;
 @Controller
 public class UserController {
 
+	private static Logger log = LoggerFactory.getLogger(UserController.class);
+
 	public static final int DEFAULT_PAGE_SIZE = 100;
 
 	@Inject
@@ -54,18 +59,32 @@ public class UserController {
 
 	@Post("/api/v2/admin/users/{username}/delete")
 	@Secured(User.ROLE_ADMIN)
-	public UserResponse delete(String username) {
+	public UserResponse delete(Authentication authentication, String username) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
+
 		User user = userService.getByUsername(username);
 		user = userService.deleteUser(user);
+
+		log.info(String.format("User: Deleted user %s (ID %s) (by ADMIN user ID %s - email %s)", user.getUsername(),
+				user.getId(), admin.getId(), admin.getMail()));
+
 		return UserResponse.build(user);
 	}
 
 	@Post("/api/v2/admin/users/changegroup")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(User.ROLE_ADMIN)
-	public UserResponse changeGroup(String username, String role) {
+	public UserResponse changeGroup(Authentication authentication, String username, String role) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
+
 		User user = userService.getByUsername(username);
 		user = userService.changeRoles(user, role);
+
+		log.info(String.format("User: Changed group membership for %s (ID %s) to %s (by ADMIN user ID %s - email %s)",
+				user.getUsername(), user.getId(), String.join(",", user.getRoles()), admin.getId(), admin.getMail()));
+
 		return UserResponse.build(user);
 	}
 
@@ -128,6 +147,7 @@ public class UserController {
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public HttpResponse<MessageResponse> resetPassword(@Nullable String username) {
 		MessageResponse response = userService.resetPassword(username);
+
 		return HttpResponse.ok(response);
 
 	}

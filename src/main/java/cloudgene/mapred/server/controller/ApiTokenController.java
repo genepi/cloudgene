@@ -1,5 +1,8 @@
 package cloudgene.mapred.server.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.core.ApiToken;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -8,6 +11,7 @@ import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.responses.ApiTokenResponse;
 import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.server.responses.ValidatedApiTokenResponse;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Consumes;
@@ -19,11 +23,12 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import io.micronaut.core.annotation.Nullable;
 
 @Controller
 public class ApiTokenController {
 
+	private static Logger log = LoggerFactory.getLogger(ApiTokenController.class);
+	
 	private static final String MESSAGE_API_TOKEN_CREATED = "Creation successfull.";
 
 	private static final String MESSAGE_APT_TOKEN_ERROR = "Error during API token generation.";
@@ -62,6 +67,8 @@ public class ApiTokenController {
 
 		if (successful) {
 
+			log.info(String.format("User: generated API token for user %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
+			
 			return HttpResponse.ok(new ApiTokenResponse(apiToken));
 
 		} else {
@@ -87,6 +94,8 @@ public class ApiTokenController {
 
 		if (successful) {
 
+			log.info(String.format("User: revoked API token for user %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
+			
 			return HttpResponse.ok(MessageResponse.success(MESSAGE_API_TOKEN_CREATED));
 
 		} else {
