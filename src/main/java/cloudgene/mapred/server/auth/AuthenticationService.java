@@ -65,6 +65,7 @@ public class AuthenticationService {
 					if (authenticationType == AuthenticationType.API_TOKEN
 							|| authenticationType == AuthenticationType.ALL_TOKENS) {
 						if (user.getApiToken().equals(attributes.get(ATTRIBUTE_API_HASH))) {
+							user.setAccessedByApi(true);
 							return user;
 						}
 					}
@@ -108,12 +109,11 @@ public class AuthenticationService {
 		attributes.put("mail", user.getMail());
 		attributes.put("api", true);
 
-		
 		Authentication authentication2 = Authentication.build(user.getUsername(), attributes);
 		Optional<String> token = generator.generateToken(authentication2, lifetime);
-		
-		Date expiresOn = new Date(System.currentTimeMillis()+ (lifetime * 1000L));
-		
+
+		Date expiresOn = new Date(System.currentTimeMillis() + (lifetime * 1000L));
+
 		return new ApiToken(token.get(), hash, expiresOn);
 
 	}
@@ -123,16 +123,14 @@ public class AuthenticationService {
 		Publisher<Authentication> authentication = validator.validateToken(token, null);
 
 		return Mono.<ValidatedApiTokenResponse>create(emitter -> {
-			
+
 			authentication.subscribe(new Subscriber<Authentication>() {
 
 				private Subscription subscription;
 
-				
-				
 				@Override
 				public void onComplete() {
-					//handle empty publisher. e.g. when token is invalid
+					// handle empty publisher. e.g. when token is invalid
 					emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
 				}
 
@@ -148,8 +146,9 @@ public class AuthenticationService {
 						if (user == null) {
 							emitter.success(ValidatedApiTokenResponse.error(MESSAGE_INVALID_API_TOKEN));
 						} else {
-							ValidatedApiTokenResponse response = ValidatedApiTokenResponse.valid(MESSAGE_VALID_API_TOKEN, user);
-							response.setExpire((Date)authentication.getAttributes().get("exp"));
+							ValidatedApiTokenResponse response = ValidatedApiTokenResponse
+									.valid(MESSAGE_VALID_API_TOKEN, user);
+							response.setExpire((Date) authentication.getAttributes().get("exp"));
 							emitter.success(response);
 						}
 					} catch (Exception e) {

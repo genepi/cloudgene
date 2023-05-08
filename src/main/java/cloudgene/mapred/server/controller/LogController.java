@@ -1,5 +1,8 @@
 package cloudgene.mapred.server.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.server.Application;
@@ -20,6 +23,8 @@ import jakarta.inject.Inject;
 @Controller
 public class LogController {
 
+	private static Logger log = LoggerFactory.getLogger(LogController.class);
+	
 	@Inject
 	protected Application application;
 
@@ -57,6 +62,14 @@ public class LogController {
 			buffer.append("\n\nstd.out:\n\n");
 			buffer.append(outputContent);
 		}
+		
+		
+		String message = String.format("Job: viewing logs for job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
+		
 		return buffer.toString();
 
 	}

@@ -203,7 +203,7 @@ public class JobCleanUpService {
 
 		}
 
-		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email notfication.");
+		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email notification.");
 
 		return send;
 
