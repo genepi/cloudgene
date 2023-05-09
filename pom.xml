@@ -390,12 +390,6 @@
 			<artifactId>netty-resolver-dns-native-macos</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-
-		<dependency>
-			<groupId>jakarta.annotation</groupId>
-			<artifactId>jakarta.annotation-api</artifactId>
-			<scope>compile</scope>
-		</dependency>
 		
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
