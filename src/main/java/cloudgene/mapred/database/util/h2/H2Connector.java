@@ -32,15 +32,15 @@ import java.sql.SQLException;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.database.util.DatabaseConnector;
 import genepi.io.FileUtil;
 
 public class H2Connector implements DatabaseConnector {
 
-	protected static final Log log = LogFactory.getLog(H2Connector.class);
+	protected static final Logger log = LoggerFactory.getLogger(H2Connector.class);
 
 	private BasicDataSource dataSource;
 
@@ -74,7 +74,7 @@ public class H2Connector implements DatabaseConnector {
 		return true;
 
 	}
-	
+
 	public void connect() throws SQLException {
 
 		log.debug("Establishing connection to " + user + "@" + path);
@@ -91,7 +91,7 @@ public class H2Connector implements DatabaseConnector {
 				} else {
 					newPath = path;
 				}
- 
+
 				if (multiuser) {
 					dataSource.setUrl("jdbc:h2:" + newPath + ";AUTO_SERVER=TRUE;MODE=MySQL");
 				} else {
@@ -170,7 +170,4 @@ public class H2Connector implements DatabaseConnector {
 		return exists;
 	}
 
-
-
-	
 }

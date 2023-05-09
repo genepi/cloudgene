@@ -31,14 +31,14 @@ import java.sql.SQLException;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.DbUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.database.util.AbstractDatabaseConnector;
 
 public class MySqlConnector extends AbstractDatabaseConnector {
 
-	private static final Log log = LogFactory.getLog(MySqlConnector.class);
+	private static final Logger log = LoggerFactory.getLogger(MySqlConnector.class);
 
 	private BasicDataSource dataSource;
 

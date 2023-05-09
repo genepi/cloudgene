@@ -63,11 +63,11 @@ public class Application {
 
 			database.connect(connector);
 
-			log.info("Establish connection successful");
+			log.info("Establish connection to database successful");
 
 		} catch (SQLException e) {
 
-			log.error("Establish connection failed", e);
+			log.error("Establish connection to database failed", e);
 			System.exit(1);
 
 		}
