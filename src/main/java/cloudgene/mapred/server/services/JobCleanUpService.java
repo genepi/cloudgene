@@ -7,13 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import jakarta.inject.Inject;

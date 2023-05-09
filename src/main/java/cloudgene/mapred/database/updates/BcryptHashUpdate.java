@@ -8,8 +8,8 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import genepi.db.Database;
-import genepi.db.IUpdateListener;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IUpdateListener;
 
 public class BcryptHashUpdate implements IUpdateListener {
 
