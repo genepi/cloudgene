@@ -182,13 +182,6 @@ public class JobAdminController {
 			case "current":
 
 				jobs = dao.findAllNotRetiredJobs();
-				List<AbstractJob> toRemove = new Vector<AbstractJob>();
-				for (AbstractJob job : jobs) {
-					if (engine.isInQueue(job)) {
-						toRemove.add(job);
-					}
-				}
-				jobs.removeAll(toRemove);
 				break;
 
 			case "retired":
