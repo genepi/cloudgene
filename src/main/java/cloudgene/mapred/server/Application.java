@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
@@ -39,7 +39,7 @@ public class Application {
 
 	private Map<String, String> cacheTemplates;
 
-	protected Log log = LogFactory.getLog(Application.class);
+	protected Logger log = LoggerFactory.getLogger(Application.class);
 
 	public Application() throws Exception {
 

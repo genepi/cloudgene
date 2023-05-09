@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
@@ -24,7 +24,7 @@ public class S3Workspace implements IExternalWorkspace {
 
 	public static long EXPIRATION_MS = 1000 * 60 * 60;
 
-	private static final Log log = LogFactory.getLog(S3Workspace.class);
+	private static final Logger log = LoggerFactory.getLogger(S3Workspace.class);
 
 	private String location;
 

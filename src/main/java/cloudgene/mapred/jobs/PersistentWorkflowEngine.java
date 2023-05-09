@@ -3,8 +3,8 @@ package cloudgene.mapred.jobs;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.database.CounterDao;
 import cloudgene.mapred.database.DownloadDao;
@@ -16,7 +16,7 @@ import genepi.db.Database;
 
 public class PersistentWorkflowEngine extends WorkflowEngine {
 
-	private static final Log log = LogFactory.getLog(PersistentWorkflowEngine.class);
+	private static final Logger log = LoggerFactory.getLogger(PersistentWorkflowEngine.class);
 
 	private Database database;
 
@@ -51,11 +51,13 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 	@Override
 	protected void statusUpdated(AbstractJob job) {
+		super.statusUpdated(job);
 		dao.update(job);
 	}
 
 	@Override
 	protected void jobCompleted(AbstractJob job) {
+		super.jobCompleted(job);
 
 		DownloadDao downloadDao = new DownloadDao(database);
 
@@ -118,6 +120,7 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 	@Override
 	protected void jobSubmitted(AbstractJob job) {
+		super.jobSubmitted(job);
 		dao.insert(job);
 
 		ParameterDao dao = new ParameterDao(database);

@@ -1,7 +1,7 @@
 package cloudgene.mapred.database.util;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
@@ -12,7 +12,7 @@ import genepi.db.Database;
 
 public class Fixtures {
 
-	private static final Log log = LogFactory.getLog(Fixtures.class);
+	private static final Logger log = LoggerFactory.getLogger(Fixtures.class);
 
 	public static String USERNAME = "admin";
 

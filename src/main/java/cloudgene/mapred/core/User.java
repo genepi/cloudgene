@@ -30,6 +30,8 @@ public class User {
 	private int loginAttempts;
 
 	private Date apiTokenExpiresOn = null;
+	
+	private boolean accessedByApi = false;
 
 	public static final String ROLE_SEPARATOR = ",";
 
@@ -178,6 +180,14 @@ public class User {
 
 		return null;
 
+	}
+	
+	public void setAccessedByApi(boolean accessedByApi) {
+		this.accessedByApi = accessedByApi;
+	}
+	
+	public boolean isAccessedByApi() {
+		return accessedByApi;
 	}
 
 	public static String checkPassword(String password, String confirmPassword) {

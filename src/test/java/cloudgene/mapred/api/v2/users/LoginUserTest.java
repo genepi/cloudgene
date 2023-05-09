@@ -107,7 +107,7 @@ public class LoginUserTest {
 		int oldLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
 		// login should work xx times
-		for (int i = 1; i < DatabaseAuthenticationProvider.MAX_LOGIN_ATTEMMPTS + 10; i++) {
+		for (int i = 1; i < DatabaseAuthenticationProvider.MAX_LOGIN_ATTEMPTS + 10; i++) {
 
 			Map<String, String> form = new HashMap<String, String>();
 			form.put("username", "lockeduser");
@@ -118,7 +118,7 @@ public class LoginUserTest {
 
 			int newLoginAttempts = dao.findByUsername("lockeduser").getLoginAttempts();
 
-			if (i <= DatabaseAuthenticationProvider.MAX_LOGIN_ATTEMMPTS) {
+			if (i <= DatabaseAuthenticationProvider.MAX_LOGIN_ATTEMPTS) {
 				// check login counter
 				assertEquals(oldLoginAttempts + 1, newLoginAttempts);
 				oldLoginAttempts = newLoginAttempts;

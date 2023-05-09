@@ -5,6 +5,8 @@ import java.util.Vector;
 import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
@@ -42,6 +44,8 @@ import net.sf.json.JsonConfig;
 @Controller("/api/v2/jobs")
 public class JobController {
 
+	private static Logger log = LoggerFactory.getLogger(JobController.class);
+	
 	private static final String MESSAGE_JOB_RESTARTED = "Your job was successfully added to the job queue.";
 
 	public static final int DEFAULT_PAGE_SIZE = 15;
@@ -96,7 +100,13 @@ public class JobController {
 
 		JSONObject object = JSONConverter.convert(job);
 		object.put("username", job.getUser().getUsername());
-
+		
+		String message = String.format("Job: Get details for job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
+		
 		return object.toString();
 	}
 
@@ -113,7 +123,7 @@ public class JobController {
 				User user = authenticationService.getUserByAuthentication(authentication,
 						AuthenticationType.ALL_TOKENS);
 				blockInMaintenanceMode(user);
-
+				
 				AbstractJob job = jobService.submitJob(app, form, user);
 
 				// TODO: create response object or add custom properties to MessageResponse?
@@ -122,6 +132,12 @@ public class JobController {
 				jsonObject.put("message", "Your job was successfully added to the job queue.");
 				jsonObject.put("id", job.getId());
 
+				String message = String.format("Job: Created job ID %s for user %s (ID %s - email %s)", user.getId(), user.getUsername(), user.getId(), user.getMail());
+				if (user.isAccessedByApi()) {
+					message += " (via API token)";
+				}
+				log.info(message);
+				
 				return HttpResponse.ok(jsonObject.toString());
 
 			}
@@ -163,7 +179,13 @@ public class JobController {
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.delete(job);
 		JSONObject object = JSONConverter.convert(job);
-
+		
+		String message = String.format("Job: Deleted job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
+		
 		return object.toString();
 
 	}
@@ -194,6 +216,12 @@ public class JobController {
 
 		JSONObject object = JSONConverter.convert(job);
 
+		String message = String.format("Job: Canceled job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
+		
 		return object.toString();
 
 	}
@@ -208,6 +236,12 @@ public class JobController {
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.restart(job);
 
+		String message = String.format("Job: Restarted job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
+		
 		return MessageResponse.success(MESSAGE_JOB_RESTARTED);
 	}
 

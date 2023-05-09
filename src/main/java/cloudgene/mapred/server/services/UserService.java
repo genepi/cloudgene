@@ -2,6 +2,9 @@ package cloudgene.mapred.server.services;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
@@ -17,6 +20,8 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class UserService {
+	
+	private static Logger log = LoggerFactory.getLogger(UserService.class);
 
 	public static final String MESSAGE_USER_NOT_FOUND = "User %s not found.";
 
@@ -139,6 +144,10 @@ public class UserService {
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
+			
+			log.error(String.format("User: ID %s ('%s') attempted to change profile of a different user '%s'",
+					user.getId(), user.getUsername(), username));
+			
 			return MessageResponse.error(MESSAGE_NOT_ALLOWED);
 		}
 
@@ -157,6 +166,11 @@ public class UserService {
 		newUser.setFullName(full_name);
 		newUser.setMail(mail);
 
+		if (!user.getMail().equals(newUser.getMail())) {
+			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
+					newUser.getId()));
+		}
+		
 		// update password only when it's not empty
 		if (new_password != null && !new_password.isEmpty()) {
 
@@ -167,6 +181,9 @@ public class UserService {
 			}
 			newUser.setPassword(HashUtil.hashPassword(new_password));
 
+			log.info(String.format("User: changed password for user %s (ID %s - email %s)", newUser.getUsername(),
+					newUser.getId(), newUser.getMail()));
+			
 		}
 
 		dao.update(newUser);
@@ -184,6 +201,10 @@ public class UserService {
 		if (HashUtil.checkPassword(password, user.getPassword())) {
 
 			UserDao dao = new UserDao(application.getDatabase());
+			
+			log.info(String.format("User: requested deletion of account %s (ID %s - email %s)", user.getUsername(),
+					user.getId(), user.getMail()));
+			
 			boolean deleted = dao.delete(user);
 			if (deleted) {
 				return MessageResponse.success(MESSAGE_USER_PROFILE_DELETE);
@@ -228,6 +249,9 @@ public class UserService {
 		user.setActivationCode("");
 		dao.update(user);
 
+		log.info(String.format("User: changed password via account recovery mechanism for user %s (ID %s - email %s)",
+				user.getUsername(), user.getId(), user.getMail()));
+
 		return MessageResponse.success(MESSAGE_PASSWORD_UPDATED);
 	}
 
@@ -266,7 +290,7 @@ public class UserService {
 
 			String hostname = application.getSettings().getServerUrl();
 			hostname += application.getSettings().getUrlPrefix();
-					
+
 			String link = hostname + "/#!recovery/" + user.getUsername() + "/" + key;
 
 			// send email with activation code
@@ -275,6 +299,7 @@ public class UserService {
 			String body = application.getTemplate(Template.RECOVERY_MAIL, user.getFullName(), application, link);
 
 			try {
+				log.info(String.format("Password reset link requested for user '%s'", username));
 
 				MailUtil.send(application.getSettings(), user.getMail(), subject, body);
 
@@ -363,6 +388,9 @@ public class UserService {
 
 			}
 
+			log.info(String.format("Registration: New user %s (ID %s - email %s)", username, newUser.getId(),
+					newUser.getMail()));
+
 			dao.insert(newUser);
 
 			return MessageResponse.success(MESSAGE_USER_CREATED);
@@ -386,15 +414,24 @@ public class UserService {
 				user.setActivationCode("");
 				dao.update(user);
 
+				log.info(String.format("User: activated user %s (ID %s - email %s)", user.getUsername(), user.getId(),
+						user.getMail()));
+
 				return MessageResponse.success(MESSAGE_USER_ACTIVATED);
 
 			} else {
+
+				log.warn(String.format(
+						"User: code is either incorrect or has already been used for user %s (ID %s - email %s)",
+						user.getUsername(), user.getId(), user.getMail()));
 
 				return MessageResponse.error(MESSAGE_WRONG_ACTIVATION_CODE);
 
 			}
 
 		} else {
+
+			log.warn(String.format("User: used activation code for missing or unknown username '%s'", username));
 
 			return MessageResponse.error(MESSAGE_WRONG_USERNAME);
 

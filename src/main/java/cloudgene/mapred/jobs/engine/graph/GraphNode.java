@@ -10,8 +10,8 @@ import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
@@ -35,7 +35,7 @@ public class GraphNode implements Runnable {
 
 	private CloudgeneStep instance;
 
-	private static final Log log = LogFactory.getLog(CloudgeneJob.class);
+	private static final Logger log = LoggerFactory.getLogger(CloudgeneJob.class);
 
 	private boolean successful = false;
 
