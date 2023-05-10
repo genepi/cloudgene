@@ -32,29 +32,25 @@ public class ParameterOutputResponse {
 
 	private boolean autoExport;
 
-	private boolean makeAbsolute;
+	private String hash;
 
-	private boolean zip;
-
-	private boolean mergeOutput;
-
-	private boolean removeHeader;
-
-	private boolean adminOnly;
-
-	private String hash = "";
-	
 	@JsonProperty("files")
 	private List<DownloadResponse> downloadResponses;
 
 	public static ParameterOutputResponse build(CloudgeneParameterOutput paramsOut) {
 		ParameterOutputResponse response = new ParameterOutputResponse();
 		response.setId(paramsOut.getId());
+		response.setDescription(paramsOut.getDescription());
+		response.setValue(paramsOut.getValue());
+		response.setDownload(paramsOut.isDownload());
 		response.setName(paramsOut.getName());
-		
+		response.setTree(paramsOut.getTree());
+		response.setJobId(paramsOut.getJobId());
+		response.setHash(paramsOut.getHash());
+
 		List<DownloadResponse> responses = DownloadResponse.build(paramsOut.getFiles());
 		response.setDownloadResponses(responses);
-		
+
 		return response;
 	}
 
@@ -88,6 +84,78 @@ public class ParameterOutputResponse {
 
 	public void setDownloadResponses(List<DownloadResponse> downloadResponses) {
 		this.downloadResponses = downloadResponses;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public WdlParameterOutputType getType() {
+		return type;
+	}
+
+	public void setType(WdlParameterOutputType type) {
+		this.type = type;
+	}
+
+	public boolean isDownload() {
+		return download;
+	}
+
+	public void setDownload(boolean download) {
+		this.download = download;
+	}
+
+	public List<JobResultsTreeItem> getTree() {
+		return tree;
+	}
+
+	public void setTree(List<JobResultsTreeItem> tree) {
+		this.tree = tree;
+	}
+
+	public CloudgeneJob getJob() {
+		return job;
+	}
+
+	public void setJob(CloudgeneJob job) {
+		this.job = job;
+	}
+
+	public String getJobId() {
+		return jobId;
+	}
+
+	public void setJobId(String jobId) {
+		this.jobId = jobId;
+	}
+
+	public boolean isAutoExport() {
+		return autoExport;
+	}
+
+	public void setAutoExport(boolean autoExport) {
+		this.autoExport = autoExport;
+	}
+
+	public String getHash() {
+		return hash;
+	}
+
+	public void setHash(String hash) {
+		this.hash = hash;
 	}
 
 }
