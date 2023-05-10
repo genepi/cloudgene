@@ -65,8 +65,11 @@ public class MessageResponse {
 
 	public static List<MessageResponse> build(List<Message> messages) {
 		List<MessageResponse> response = new Vector<MessageResponse>();
-		for (Message message : messages) {
-			response.add(MessageResponse.build(message));
+
+		if (messages != null) {
+			for (Message message : messages) {
+				response.add(MessageResponse.build(message));
+			}
 		}
 		return response;
 	}

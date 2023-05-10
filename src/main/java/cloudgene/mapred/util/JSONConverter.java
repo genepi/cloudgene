@@ -11,41 +11,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneParameterOutput;
-import cloudgene.mapred.server.responses.AbstractJobResponse;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
 
 public class JSONConverter {
-
-	public static ObjectNode convert(AbstractJob job) {
-
-		/*
-		 * JsonConfig config = new JsonConfig(); config.setExcludes(new String[] {
-		 * "user", "inputParams", "output", "error", "s3Url", "task", "config",
-		 * "mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace",
-		 * "logOutFiles", "removeHdfsWorkspace", "settings", "setupComplete",
-		 * "stdOutFile", "workingDirectory", "parameter", "logOutFile", "map", "reduce",
-		 * "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
-		 * "removeHeader", "value", "autoExport", "download", "tip", "apiToken",
-		 * "parameterId", "count", "username" });
-		 */
-
-		// create tree
-		for (CloudgeneParameterOutput param : job.getOutputParams()) {
-			String hash = param.createHash();
-			param.setHash(hash);
-			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
-		}
-		ObjectMapper mapper = new ObjectMapper();
-		AbstractJobResponse back = AbstractJobResponse.build(job);
-		ObjectNode node = mapper.valueToTree(back);
-		return node;
-		//return JSONObject.fromObject(job, config);
-	}
 
 	public static ObjectNode convert(WdlApp app) {
 

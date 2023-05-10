@@ -1,26 +1,22 @@
 package cloudgene.mapred.server.controller;
 
 import java.util.List;
-import java.util.Vector;
 import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
+import cloudgene.mapred.server.responses.JobResponse;
 import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.server.services.JobService;
 import cloudgene.mapred.util.FormUtil;
 import cloudgene.mapred.util.FormUtil.Parameter;
-import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.util.Page;
 import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;
@@ -68,7 +64,7 @@ public class JobController {
 
 	@Get("/{id}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String get(Authentication authentication, String id) {
+	public JobResponse get(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 
@@ -76,40 +72,14 @@ public class JobController {
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 
-		// TODO: move this logic to JobResponse
-		// removes outputs that are for admin only
-		List<CloudgeneParameterOutput> adminParams = new Vector<>();
-		if (!user.isAdmin()) {
-			for (CloudgeneParameterOutput param : job.getOutputParams()) {
-				if (param.isAdminOnly()) {
-					adminParams.add(param);
-				}
-			}
-		}
-
-		// remove all outputs that are not downloadable
-		for (CloudgeneParameterOutput param : job.getOutputParams()) {
-			if (!param.isDownload()) {
-				adminParams.add(param);
-			}
-		}
-		job.getOutputParams().removeAll(adminParams);
-
-		// set log if user is admin
-		if (user.isAdmin()) {
-			job.setLogs("logs/" + job.getId());
-		}
-
-		ObjectNode object = JSONConverter.convert(job);
-		object.put("username", job.getUser().getUsername());
-		
 		String message = String.format("Job: Get details for job ID %s", job.getId());
 		if (user.isAdmin()) {
 			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
 		}
 		log.info(message);
 		
-		return object.toString();
+		JobResponse response = JobResponse.build(job, user);
+		return response;
 	}
 
 	@Post("/submit/{app}")
@@ -173,7 +143,7 @@ public class JobController {
 
 	@Delete("/{id}")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String delete(Authentication authentication, String id) {
+	public JobResponse delete(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 		blockInMaintenanceMode(user);
@@ -181,35 +151,34 @@ public class JobController {
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.delete(job);
 
-		ObjectNode object = JSONConverter.convert(job);
-
 		String message = String.format("Job: Deleted job ID %s", job.getId());
 		if (user.isAdmin()) {
 			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
 		}
 		log.info(message);
 
-		return object.toString();
+		JobResponse response = JobResponse.build(job, user);
+		
+		return response;
 
 	}
 
 	@Get("/{id}/status")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String status(Authentication authentication, String id) {
+	public JobResponse status(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 		blockInMaintenanceMode(user);
 
 		AbstractJob job = jobService.getByIdAndUser(id, user);
-		ObjectNode object = JSONConverter.convert(job);
-
-		return object.toString();
+		JobResponse response = JobResponse.build(job, user);
+		return response;
 
 	}
 
 	@Get("/{id}/cancel")
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public String cancel(Authentication authentication, String id) {
+	public JobResponse cancel(Authentication authentication, String id) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 		blockInMaintenanceMode(user);
@@ -217,15 +186,14 @@ public class JobController {
 		AbstractJob job = jobService.getByIdAndUser(id, user);
 		jobService.cancel(job);
 
-		ObjectNode object = JSONConverter.convert(job);
-
 		String message = String.format("Job: Canceled job ID %s", job.getId());
 		if (user.isAdmin()) {
 			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
 		}
 		log.info(message);
 		
-		return object.toString();
+		JobResponse response = JobResponse.build(job, user);
+		return response;
 
 	}
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import cloudgene.mapred.jobs.CloudgeneStep;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public class CloudgeneStepResponse {
+public class StepResponse {
 
 	private int id;
 	private String name;
@@ -43,8 +43,8 @@ public class CloudgeneStepResponse {
 	}
 
 
-	public static CloudgeneStepResponse build(CloudgeneStep step) {
-		CloudgeneStepResponse response = new CloudgeneStepResponse();
+	public static StepResponse build(CloudgeneStep step) {
+		StepResponse response = new StepResponse();
 		response.setId(step.getId());
 		response.setName(step.getName());
 		response.setProgress(step.getProgress());
@@ -53,10 +53,10 @@ public class CloudgeneStepResponse {
 		return response;
 	}
 
-	public static List<CloudgeneStepResponse> build(List<CloudgeneStep> steps) {
-		List<CloudgeneStepResponse> response = new Vector<CloudgeneStepResponse>();
+	public static List<StepResponse> build(List<CloudgeneStep> steps) {
+		List<StepResponse> response = new Vector<StepResponse>();
 		for (CloudgeneStep step : steps) {
-			response.add(CloudgeneStepResponse.build(step));
+			response.add(StepResponse.build(step));
 		}
 		return response;
 	}

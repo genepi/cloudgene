@@ -1,15 +1,19 @@
 package cloudgene.mapred.server.responses;
 
 import java.util.List;
+import java.util.Vector;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
+import cloudgene.mapred.util.JobResultsTreeUtil;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public class AbstractJobResponse {
+public class JobResponse {
 
-	private String app;
 	private String application;
 	private String applicationId;
 	private boolean canceld;
@@ -19,7 +23,7 @@ public class AbstractJobResponse {
 	private long finishedOn;
 	private String id;
 	private String name;
-	private String logs;
+	private String logs = "";
 	private int state;
 	private int positionInQueue;
 	private String userAgent;
@@ -30,28 +34,13 @@ public class AbstractJobResponse {
 	private long submittedOn;
 	private boolean setupComplete;
 	private boolean setupRunning;
+	private String username;
 
 	@JsonProperty("steps")
-	private List<CloudgeneStepResponse> stepResponses;
+	private List<StepResponse> stepResponses;
 
-	//TODO add responses
-	protected List<CloudgeneParameterOutput> outputParams;
-	
-	public List<CloudgeneParameterOutput> getOutputParams() {
-		return outputParams;
-	}
-
-	public void setOutputParams(List<CloudgeneParameterOutput> outputParams) {
-		this.outputParams = outputParams;
-	}
-
-	public String getApp() {
-		return app;
-	}
-
-	public void setApp(String app) {
-		this.app = app;
-	}
+	@JsonProperty("outputParams")
+	private List<ParameterOutputResponse> parameterOutputResponse;
 
 	public String getApplication() {
 		return application;
@@ -125,19 +114,12 @@ public class AbstractJobResponse {
 		this.name = name;
 	}
 
-	public String getLogs() {
-		return logs;
-	}
 
-	public void setLogs(String logs) {
-		this.logs = logs;
-	}
-
-	public List<CloudgeneStepResponse> getStepResponses() {
+	public List<StepResponse> getStepResponses() {
 		return stepResponses;
 	}
 
-	public void setStepResponses(List<CloudgeneStepResponse> stepResponses) {
+	public void setStepResponses(List<StepResponse> stepResponses) {
 		this.stepResponses = stepResponses;
 	}
 
@@ -148,7 +130,7 @@ public class AbstractJobResponse {
 	public void setState(int state) {
 		this.state = state;
 	}
-	
+
 	public int getPositionInQueue() {
 		return positionInQueue;
 	}
@@ -171,40 +153,6 @@ public class AbstractJobResponse {
 
 	public void setProgress(int progress) {
 		this.progress = progress;
-	}
-
-	public static AbstractJobResponse build(AbstractJob job) {
-		
-		AbstractJobResponse response = new AbstractJobResponse();
-		response.setApplication(job.getApplication());
-		response.setApplicationId(job.getApplicationId());
-		response.setCanceld(job.isCanceld());
-		response.setComplete(job.isComplete());
-		response.setName(job.getName());
-		response.setId(job.getId());
-		
-		response.setState(job.getState());
-		response.setLogs(job.getLogs());
-		response.setOutputParams(job.getOutputParams());
-		response.setPositionInQueue(job.getPositionInQueue());
-		response.setProgress(job.getProgress());
-		response.setUserAgent(job.getUserAgent());
-
-		response.setSetupComplete(job.isSetupComplete());
-		response.setSetupRunning(job.isRunning());
-		response.setDeletedOn(job.getDeletedOn());
-		
-		response.setStartTime(job.getStartTime());
-		response.setEndTime(job.getEndTime());
-		response.setFinishedOn(job.getFinishedOn());
-		response.setSubmittedOn(job.getSubmittedOn());
-		response.setSetupStartTime(job.getSetupStartTime());
-		response.setSetupEndTime(job.getSetupEndTime());
-
-		List<CloudgeneStepResponse> responses = CloudgeneStepResponse.build(job.getSteps());
-		response.setStepResponses(responses);
-
-		return response;
 	}
 
 	public long getStartTime() {
@@ -253,6 +201,103 @@ public class AbstractJobResponse {
 
 	public void setSetupRunning(boolean setupRunning) {
 		this.setupRunning = setupRunning;
+	}
+
+	public List<ParameterOutputResponse> getParameterOutputResponse() {
+		return parameterOutputResponse;
+	}
+
+	public void setParameterOutputResponse(List<ParameterOutputResponse> parameterOutputResponse) {
+		this.parameterOutputResponse = parameterOutputResponse;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getLogs() {
+		return logs;
+	}
+
+	public void setLogs(String logs) {
+		this.logs = logs;
+	}
+	
+
+	public static JobResponse build(AbstractJob job, User user) {
+
+		// create tree
+		for (CloudgeneParameterOutput param : job.getOutputParams()) {
+			String hash = param.createHash();
+			param.setHash(hash);
+			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
+		}
+		
+		// removes outputs that are for admin only
+		List<CloudgeneParameterOutput> adminParams = new Vector<>();
+		if (!user.isAdmin()) {
+			for (CloudgeneParameterOutput param : job.getOutputParams()) {
+				if (param.isAdminOnly()) {
+					adminParams.add(param);
+				}
+			}
+		}
+
+		// remove all outputs that are not downloadable
+		for (CloudgeneParameterOutput param : job.getOutputParams()) {
+			if (!param.isDownload()) {
+				adminParams.add(param);
+			}
+		}
+		job.getOutputParams().removeAll(adminParams);
+
+		JobResponse response = new JobResponse();
+		response.setApplication(job.getApplication());
+		response.setApplicationId(job.getApplicationId());
+		response.setCanceld(job.isCanceld());
+		response.setComplete(job.isComplete());
+		response.setName(job.getName());
+		response.setId(job.getId());
+
+		response.setState(job.getState());
+		response.setLogs(job.getLogs());
+
+		response.setPositionInQueue(job.getPositionInQueue());
+		response.setProgress(job.getProgress());
+		response.setUserAgent(job.getUserAgent());
+
+		response.setSetupComplete(job.isSetupComplete());
+		response.setSetupRunning(job.isRunning());
+		response.setDeletedOn(job.getDeletedOn());
+
+		response.setStartTime(job.getStartTime());
+		response.setEndTime(job.getEndTime());
+		response.setFinishedOn(job.getFinishedOn());
+		response.setSubmittedOn(job.getSubmittedOn());
+		response.setSetupStartTime(job.getSetupStartTime());
+		response.setSetupEndTime(job.getSetupEndTime());
+		List<StepResponse> responses = StepResponse.build(job.getSteps());
+		response.setStepResponses(responses);
+
+		List<ParameterOutputResponse> responsesParamsOut = ParameterOutputResponse.build(job.getOutputParams());
+		response.setParameterOutputResponse(responsesParamsOut);
+
+
+		// set log if user is admin
+		if (user.isAdmin()) {
+			// job.setLogs("logs/" + job.getId());
+			response.setLogs("logs/" + job.getId());
+		} else {
+			response.setLogs("");
+		}
+
+		response.setUsername(job.getUser().getUsername());
+
+		return response;
 	}
 
 }
