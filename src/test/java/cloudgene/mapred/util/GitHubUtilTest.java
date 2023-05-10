@@ -1,8 +1,11 @@
 package cloudgene.mapred.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+
+import cloudgene.mapred.util.GitHubUtil.Repository;
 
 public class GitHubUtilTest {
 
@@ -11,8 +14,8 @@ public class GitHubUtilTest {
 		assertTrue(true);
 	}
 	
-	
-/*	public void testParseShorthand() {
+	@Test
+	public void testParseShorthand() {
 		// username/repo[/subdir][@ref]
 
 		Repository repo = GitHubUtil.parseShorthand("genepi");
@@ -52,6 +55,7 @@ public class GitHubUtilTest {
 		assertEquals("1.1.0", repo.getTag());
 	}
 
+	@Test
 	public void testBuildUrlFromRepository() {
 		Repository repository = new Repository();
 		repository.setUser("genepi");
@@ -74,7 +78,8 @@ public class GitHubUtilTest {
 		assertEquals("https://api.github.com/repos/genepi/imputationserver/zipball/1.0.2",
 				GitHubUtil.buildUrlFromRepository(repository));
 	}
-
+	
+	@Test
 	public void testGetLatestReleaseFromRepository() {
 		Repository repository = new Repository();
 		repository.setUser("lukfor");
@@ -87,5 +92,5 @@ public class GitHubUtilTest {
 		assertEquals("https://api.github.com/repos/lukfor/hello-cloudgene/zipball/1.2.0",
 				GitHubUtil.buildUrlFromRepository(repository));
 	}
-*/
+
 }

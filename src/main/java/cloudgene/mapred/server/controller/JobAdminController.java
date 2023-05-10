@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
@@ -24,6 +26,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.security.annotation.Secured;
+import io.micronaut.security.authentication.Authentication;
 import jakarta.inject.Inject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -33,6 +36,8 @@ import net.sf.json.JsonConfig;
 @Secured(User.ROLE_ADMIN)
 
 public class JobAdminController {
+
+	private static Logger log = LoggerFactory.getLogger(JobAdminController.class);
 
 	public static final int DEFAULT_PAGE_SIZE = 15;
 
@@ -54,7 +59,9 @@ public class JobAdminController {
 	protected FormUtil formUtil;
 
 	@Get("/{id}/reset")
-	public MessageResponse reset(String id, @Nullable @QueryValue("max") Integer max) {
+	public MessageResponse reset(Authentication authentication, String id, @Nullable @QueryValue("max") Integer max) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
 
 		int maxDownloads = application.getSettings().getMaxDownloads();
 		if (max != null) {
@@ -64,54 +71,86 @@ public class JobAdminController {
 		AbstractJob job = jobService.getById(id);
 		int count = jobService.reset(job, maxDownloads);
 
+		log.info(String.format("Job: Resetting download counters for job %s (by ADMIN user ID %s - email %s)",
+				job.getId(), admin.getId(), admin.getMail()));
+
 		return MessageResponse.success(id + ": counter of " + count + " downloads reset to " + maxDownloads);
 	}
 
 	@Get("/{id}/retire")
-	public MessageResponse retire(String id) {
+	public MessageResponse retire(Authentication authentication, String id) {
 
+		User admin = authenticationService.getUserByAuthentication(authentication);
+		
 		Settings settings = application.getSettings();
 		int days = settings.getRetireAfter() - settings.getNotificationAfter();
 		AbstractJob job = jobService.getById(id);
 		String message = cleanUpService.sendNotification(job, days);
+		
+		log.info(String.format("Job: Set retire date for job %s (by ADMIN user ID %s - email %s)", job.getId(),
+				admin.getId(), admin.getMail()));
+		
 		return MessageResponse.success(message);
 
 	}
 
 	@Get("/{id}/priority")
-	public MessageResponse changePriority(String id) {
+	public MessageResponse changePriority(Authentication authentication, String id) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
 
 		AbstractJob job = jobService.getById(id);
 		jobService.changePriority(job, HIGH_PRIORITY);
+
+		log.info(String.format("Job: Update priority for job %s (by ADMIN user ID %s - email %s)", job.getId(),
+				admin.getId(), admin.getMail()));
+
 		return MessageResponse.success("Update priority for job " + job.getId() + ".");
 
 	}
 
 	@Get("/{id}/archive")
-	public MessageResponse archive(String id) {
+	public MessageResponse archive(Authentication authentication, String id) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
 
 		AbstractJob job = jobService.getById(id);
 		String message = jobService.archive(job);
+
+		log.info(String.format("Job: Immediately retired job %s (by ADMIN user ID %s - email %s)", job.getId(),
+				admin.getId(), admin.getMail()));
+
 		return MessageResponse.success(message);
 
 	}
 
 	@Get("/{id}/change-retire/{days}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public MessageResponse increaseRetireDate(String id, Integer days) {
+	public MessageResponse increaseRetireDate(Authentication authentication, String id, Integer days) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
 
 		AbstractJob job = jobService.getById(id);
 		String message = jobService.increaseRetireDate(job, days);
+
+		log.info(String.format("Job: Extended retire date for job %s (by ADMIN user ID %s - email %s)", job.getId(),
+				admin.getId(), admin.getMail()));
+
 		return MessageResponse.success(message);
 
 	}
 
 	@Get("/retire")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String retireJobs() {
+	public String retireJobs(Authentication authentication) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
 
 		int notifications = cleanUpService.sendNotifications();
 		int retired = cleanUpService.executeRetire();
+
+		log.info(String.format("Job: Manually triggered retiring of all eligible jobs (by ADMIN user ID %s - email %s)",
+				admin.getId(), admin.getMail()));
 
 		return "NotificationJob:\n" + notifications + " notifications sent." + "\n\nRetireJob:\n" + retired
 				+ " jobs retired.";
@@ -119,7 +158,9 @@ public class JobAdminController {
 	}
 
 	@Get("/")
-	public String getJobs(@Nullable @QueryValue("state") String state) {
+	public String getJobs(Authentication authentication, @Nullable @QueryValue("state") String state) {
+
+		User admin = authenticationService.getUserByAuthentication(authentication);
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 		JobDao dao = new JobDao(application.getDatabase());
@@ -217,6 +258,9 @@ public class JobAdminController {
 
 		JSONArray jsonArray = JSONArray.fromObject(jobs, config);
 		object.put("data", jsonArray);
+
+		log.info(String.format("Job: list all jobs of of all users (by ADMIN user ID %s - email %s)", admin.getId(),
+				admin.getMail()));
 
 		return object.toString();
 

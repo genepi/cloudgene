@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.plugins.docker.DockerPlugin;
 import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
@@ -23,7 +23,7 @@ public class PluginManager {
 
 	private static PluginManager instance = null;
 
-	private static final Log log = LogFactory.getLog(PluginManager.class);
+	private static Logger log = LoggerFactory.getLogger(PluginManager.class);
 
 	public static PluginManager getInstance() {
 		if (instance == null) {

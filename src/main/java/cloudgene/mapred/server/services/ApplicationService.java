@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationInstaller;
@@ -33,7 +33,7 @@ public class ApplicationService {
 	private static final String NO_URL = "No url or file location set.";
 	private static final String APPLICATION_NOT_INSTALLED_NO_WORKFLOW = "Application not installed: No workflow file found.";
 
-	private static final Log log = LogFactory.getLog(ApplicationService.class);
+	private static final Logger log = LoggerFactory.getLogger(ApplicationService.class);
 
 	@Inject
 	protected cloudgene.mapred.server.Application application;

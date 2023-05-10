@@ -4,8 +4,8 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.DownloadDao;
@@ -32,7 +32,7 @@ import jakarta.inject.Inject;
 @Controller
 public class DownloadController {
 
-	protected static final Log log = LogFactory.getLog(DownloadController.class);
+	protected static final Logger log = LoggerFactory.getLogger(DownloadController.class);
 
 	@Inject
 	protected Application application;
