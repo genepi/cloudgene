@@ -1,32 +1,32 @@
 package cloudgene.mapred.plugins.nextflow;
 
 import java.io.File;
+import java.util.Map;
 
 import genepi.io.FileUtil;
-import net.sf.json.JSONObject;
 
 public class NextflowTask {
 
 	private int id;
 
-	private JSONObject trace;
+	private Map<String, Object> trace;
 
 	private String log = null;
 
-	public NextflowTask(JSONObject trace) {
-		id = trace.getInt("task_id");
+	public NextflowTask(Map<String, Object> trace) {
+		id = (Integer) trace.get("task_id");
 		this.trace = trace;
 	}
 
-	public void update(JSONObject trace) {
+	public void update(Map<String, Object> trace) {
 		this.trace = trace;
 
 		// if task is completed or failed check if a cloudgene.log is in workdir and
 		// load its content
 
-		String status = trace.getString("status");
+		String status = (String) trace.get("status");
 		if (status.equals("COMPLETED") || status.equals("FAILED")) {
-			String workDir = trace.getString("workdir");
+			String workDir = (String) trace.get("workdir");
 			String logFilename = FileUtil.path(workDir, "cloudgene.log");
 
 			// TODO: implement s3 support. How to handle other cloud providers?
@@ -42,7 +42,7 @@ public class NextflowTask {
 		return id;
 	}
 
-	public JSONObject getTrace() {
+	public Map<String, Object> getTrace() {
 		return trace;
 	}
 

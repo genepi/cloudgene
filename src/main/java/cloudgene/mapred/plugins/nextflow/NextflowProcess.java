@@ -1,9 +1,8 @@
 package cloudgene.mapred.plugins.nextflow;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
-
-import net.sf.json.JSONObject;
 
 public class NextflowProcess {
 
@@ -11,8 +10,8 @@ public class NextflowProcess {
 
 	private List<NextflowTask> tasks = new Vector<NextflowTask>();
 
-	public NextflowProcess(JSONObject trace) {
-		this.name = trace.getString("process");
+	public NextflowProcess(Map<String, Object> trace) {
+		this.name = (String)trace.get("process");
 		addTrace(trace);
 	}
 
@@ -24,8 +23,8 @@ public class NextflowProcess {
 		return tasks;
 	}
 
-	public void addTrace(JSONObject trace) {
-		int taskId = trace.getInt("task_id");
+	public void addTrace(Map<String, Object> trace) {
+		int taskId = (Integer)trace.get("task_id");
 		for (NextflowTask task : tasks) {
 			if (task.getId() == taskId) {
 				task.update(trace);
