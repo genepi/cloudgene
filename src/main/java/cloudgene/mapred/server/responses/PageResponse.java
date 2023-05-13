@@ -10,8 +10,8 @@ public class PageResponse {
 	private int count;
 	private int page;
 	private int pageSize;
-	private int prev;
-	private int next;
+	private Integer prev = null;
+	private Integer next = null;
 	private ArrayList<Integer> pages;
 	private List<?> data;
 
@@ -39,19 +39,19 @@ public class PageResponse {
 		this.pageSize = pageSize;
 	}
 
-	public int getPrev() {
+	public Integer getPrev() {
 		return prev;
 	}
 
-	public void setPrev(int prev) {
+	public void setPrev(Integer prev) {
 		this.prev = prev;
 	}
 
-	public int getNext() {
+	public Integer getNext() {
 		return next;
 	}
 
-	public void setNext(int next) {
+	public void setNext(Integer next) {
 		this.next = next;
 	}
 
@@ -78,6 +78,7 @@ public class PageResponse {
 	public static PageResponse build(int page, int pageSize, int count, List<?> responses) {
 
 		PageResponse response = new PageResponse();
+		response.setPageSize(pageSize);
 		response.setData(responses);
 
 		response.setCount(count);
