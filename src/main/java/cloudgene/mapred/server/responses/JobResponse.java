@@ -299,8 +299,8 @@ public class JobResponse {
 
 	public static List<JobResponse> build(List<AbstractJob> data, User user) {
 		List<JobResponse> responses = new Vector<JobResponse>();
-		for (AbstractJob a : data) {
-			responses.add(JobResponse.build(a, user));
+		for (AbstractJob job : data) {
+			responses.add(JobResponse.build(job, user));
 		}
 		return responses;
 	}
