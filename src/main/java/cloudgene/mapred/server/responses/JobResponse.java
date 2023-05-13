@@ -114,7 +114,6 @@ public class JobResponse {
 		this.name = name;
 	}
 
-
 	public List<StepResponse> getStepResponses() {
 		return stepResponses;
 	}
@@ -226,7 +225,6 @@ public class JobResponse {
 	public void setLogs(String logs) {
 		this.logs = logs;
 	}
-	
 
 	public static JobResponse build(AbstractJob job, User user) {
 
@@ -236,7 +234,7 @@ public class JobResponse {
 			param.setHash(hash);
 			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
 		}
-		
+
 		// removes outputs that are for admin only
 		List<CloudgeneParameterOutput> adminParams = new Vector<>();
 		if (!user.isAdmin()) {
@@ -286,7 +284,6 @@ public class JobResponse {
 		List<ParameterOutputResponse> responsesParamsOut = ParameterOutputResponse.build(job.getOutputParams());
 		response.setParameterOutputResponse(responsesParamsOut);
 
-
 		// set log if user is admin
 		if (user.isAdmin()) {
 			// job.setLogs("logs/" + job.getId());
@@ -295,9 +292,17 @@ public class JobResponse {
 			response.setLogs("");
 		}
 
-		response.setUsername(job.getUser().getUsername());
+		response.setUsername(user.getUsername());
 
 		return response;
+	}
+
+	public static List<JobResponse> build(List<AbstractJob> data, User user) {
+		List<JobResponse> responses = new Vector<JobResponse>();
+		for (AbstractJob a : data) {
+			responses.add(JobResponse.build(a, user));
+		}
+		return responses;
 	}
 
 }
