@@ -1,20 +1,15 @@
 package cloudgene.mapred.util;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
-import genepi.io.FileUtil;
 
 public class JSONConverter {
 
@@ -162,33 +157,6 @@ public class JSONConverter {
 
 		return object;
 
-	}
-
-	public static ArrayNode convertApplications(List<Application> applications) {
-		ObjectMapper mapper = new ObjectMapper();
-		ArrayNode array = mapper.createArrayNode();
-		for (Application application : applications) {
-			array.add(convert(application));
-		}
-		return array;
-	}
-
-	public static ObjectNode convert(Application application) {
-		ObjectMapper mapper = new ObjectMapper();
-		ObjectNode object = mapper.createObjectNode();
-		object.put("id", application.getId());
-		object.put("enabled", application.isEnabled());
-		object.put("filename", application.getFilename());
-		object.put("loaded", application.isLoaded());
-		object.put("errorMessage", application.getErrorMessage());
-		object.put("changed", application.isChanged());
-		object.put("permission", application.getPermission());
-		WdlApp wdlApp = application.getWdlApp();
-		object.putPOJO("wdlApp", wdlApp);
-		if (new File(application.getFilename()).exists()) {
-			object.put("source", FileUtil.readFileAsString(application.getFilename()));
-		}
-		return object;
 	}
 
 }
