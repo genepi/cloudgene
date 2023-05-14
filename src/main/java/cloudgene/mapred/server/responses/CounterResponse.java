@@ -50,7 +50,7 @@ public class CounterResponse {
 	
 	public static CounterResponse build(WorkflowEngine workflowEngine) {
 		CounterResponse response = new CounterResponse();
-		response.complete = workflowEngine.getCounters(AbstractJob.STATE_CANCELED);
+		response.complete = workflowEngine.getCounters(AbstractJob.STATE_SUCCESS);
 		response.running = workflowEngine.getCounters(AbstractJob.STATE_RUNNING);
 		response.waiting = workflowEngine.getCounters(AbstractJob.STATE_WAITING);
 		return response;

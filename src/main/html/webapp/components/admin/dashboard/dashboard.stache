@@ -42,11 +42,11 @@
 
 <table class="table table-bordered">
 
-{{#counter.complete}}
+{{#each counter.complete}}
 
 	<tr>
-		<td><b>{{key}}</b></td>
-		<td style="width: 150px;">{{value}}</td>
+		<td><b>{{@key}}</b></td>
+		<td style="width: 150px;">{{.}}</td>
 	</tr>
 
 {{/counter.complete}}
