@@ -147,6 +147,8 @@ public class NextflowStep extends CloudgeneStep {
 		command.add("-c");
 		command.add(join(nextflowCommand));
 
+		NextflowCollector.getInstance().addContext(makeSecretJobId(context.getJobId()), context);
+
 		try {
 			// context.beginTask("Running Nextflow pipeline...");
 			boolean successful = executeCommand(command, context, output);
@@ -156,7 +158,7 @@ public class NextflowStep extends CloudgeneStep {
 			} else {
 
 				// set all running processes to failed
-				List<NextflowProcess> processes = NextflowInfo.getInstance()
+				List<NextflowProcess> processes = NextflowCollector.getInstance()
 						.getProcesses(makeSecretJobId(context.getJobId()));
 				for (NextflowProcess process : processes) {
 					for (NextflowTask task : process.getTasks()) {
@@ -191,7 +193,7 @@ public class NextflowStep extends CloudgeneStep {
 	public void updateProgress() {
 		String job = makeSecretJobId(context.getJobId());
 
-		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
+		List<NextflowProcess> processes = NextflowCollector.getInstance().getProcesses(job);
 
 		for (NextflowProcess process : processes) {
 

@@ -5,7 +5,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cloudgene.mapred.plugins.nextflow.NextflowInfo;
+import cloudgene.mapred.plugins.nextflow.NextflowCollector;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.services.DownloadService;
@@ -41,7 +41,7 @@ public class NextflowController {
 
 		try {
 
-			NextflowInfo info = NextflowInfo.getInstance();
+			NextflowCollector info = NextflowCollector.getInstance();
 			if (event.containsKey("trace")) {
 				info.addEvent(job, event);
 			} else {

@@ -1,9 +1,12 @@
 package cloudgene.mapred.plugins.nextflow;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import cloudgene.mapred.jobs.CloudgeneContext;
 import genepi.io.FileUtil;
+import genepi.io.text.LineReader;
 
 public class NextflowTask {
 
@@ -13,12 +16,15 @@ public class NextflowTask {
 
 	private String log = null;
 
-	public NextflowTask(Map<String, Object> trace) {
+	private CloudgeneContext context;
+	
+	public NextflowTask( CloudgeneContext context, Map<String, Object> trace) {
 		id = (Integer) trace.get("task_id");
 		this.trace = trace;
+		this.context = context;
 	}
 
-	public void update(Map<String, Object> trace) {
+	public void update(Map<String, Object> trace) throws IOException {
 		this.trace = trace;
 
 		// if task is completed or failed check if a cloudgene.log is in workdir and
@@ -33,9 +39,30 @@ public class NextflowTask {
 
 			if (new File(logFilename).exists()) {
 				log = FileUtil.readFileAsString(logFilename);
+				parseFile(logFilename);
 			}
+			
 		}
 
+	}
+
+	private void parseFile(String logFilename) throws IOException {
+		LineReader reader = new LineReader(logFilename);
+		while(reader.next()) {
+			String line = reader.get();
+			if (line.startsWith("[INC]")) {
+				String[] tiles = line.split(" ", 3);
+				String name = tiles[1];
+				int value = Integer.parseInt(tiles[2]);
+				context.incCounter(name, value);
+			}
+			if (line.startsWith("[SUBMIT]")) {
+				String[] tiles = line.split(" ", 2);
+				String name = tiles[1];
+				context.submitCounter(name);
+			}			
+		}
+		reader.close();		
 	}
 
 	public int getId() {
