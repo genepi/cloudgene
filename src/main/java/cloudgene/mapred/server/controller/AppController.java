@@ -3,9 +3,6 @@ package cloudgene.mapred.server.controller;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.Template;
@@ -13,10 +10,9 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.responses.ApplicationResponse;
+import cloudgene.mapred.server.responses.WdlAppResponse;
 import cloudgene.mapred.server.services.ApplicationService;
-import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameterInput;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
@@ -43,7 +39,7 @@ public class AppController {
 
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String getApp(@Nullable Authentication authentication, String appId) {
+	public WdlAppResponse getApp(@Nullable Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 		Application app = applicationService.getByIdAndUser(user, appId);
@@ -52,20 +48,17 @@ public class AppController {
 		ApplicationRepository repository = applicationService.getRepository();
 		List<WdlApp> apps = repository.getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
 
-		ObjectNode objectNode = JSONConverter.convert(app.getWdlApp());
-		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
+		WdlAppResponse response = WdlAppResponse.build(app.getWdlApp(), apps);
 
-		ArrayNode jsonArray = JSONConverter.convert(params, apps);
-
-		objectNode.putPOJO("params", jsonArray);
-		objectNode.put("s3Workspace", application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
+		response.setS3Workspace(application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& application.getSettings().getExternalWorkspaceLocation().isEmpty());
+
 		String footer = this.application.getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
-			objectNode.put("footer", footer);
+			response.setFooter(footer);
 		}
 
-		return objectNode.toString();
+		return response;
 
 	}
 
