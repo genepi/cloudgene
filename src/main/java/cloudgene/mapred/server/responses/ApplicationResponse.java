@@ -39,7 +39,7 @@ public class ApplicationResponse {
 
 	private Map<String, String> config;
 
-	public static ApplicationResponse build(Application app, Settings settings) {
+	public static ApplicationResponse build(Application app) {
 
 		ApplicationResponse appResponse = new ApplicationResponse();
 		appResponse.setId(app.getId());
@@ -62,7 +62,7 @@ public class ApplicationResponse {
 	public static ApplicationResponse buildWithDetails(Application app, Settings settings,
 			ApplicationRepository repository) {
 
-		ApplicationResponse appResponse = build(app, settings);
+		ApplicationResponse appResponse = build(app);
 
 		appResponse.setState(updateState(app, settings));
 

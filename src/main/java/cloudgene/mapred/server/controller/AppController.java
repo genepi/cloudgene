@@ -50,8 +50,7 @@ public class AppController {
 
 		applicationService.checkRequirements(app);
 		ApplicationRepository repository = applicationService.getRepository();
-		List<WdlApp> apps = repository.getAllByUser(user,
-				ApplicationRepository.APPS_AND_DATASETS);
+		List<WdlApp> apps = repository.getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
 
 		ObjectNode objectNode = JSONConverter.convert(app.getWdlApp());
 		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
@@ -74,24 +73,28 @@ public class AppController {
 	@Secured(User.ROLE_ADMIN)
 	public ApplicationResponse removeApp(String appId) {
 		Application app = applicationService.removeApp(appId);
-		return ApplicationResponse.build(app, this.application.getSettings());
+		return ApplicationResponse.build(app);
 	}
 
 	@Put("/api/v2/server/apps/{appId}")
 	@Secured(User.ROLE_ADMIN)
-	public ApplicationResponse updateApp(String appId, @Nullable String enabled, @Nullable String permission,
-			@Nullable String reinstall, @Nullable Map<String, String> config) {
+	public ApplicationResponse updateApp(String appId, @Nullable Boolean enabled, @Nullable String permission,
+			@Nullable Boolean reinstall, @Nullable Map<String, String> config) {
 
 		Application app = applicationService.getById(appId);
 
 		// enable or disable
-		applicationService.enableApp(app, enabled);
+		if (enabled != null) {
+			applicationService.enableApp(app, enabled);
+		}
 		// update permissions
 		applicationService.updatePermissions(app, permission);
 		// update config
 		applicationService.updateConfig(app, config);
 		// reinstall application
-		applicationService.reinstallApp(app, reinstall);
+		if (reinstall != null) {
+			applicationService.reinstallApp(app, reinstall);
+		}
 
 		app.checkForChanges();
 
@@ -113,7 +116,10 @@ public class AppController {
 
 	@Get("/api/v2/server/apps")
 	@Secured(User.ROLE_ADMIN)
-	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") String reload) {
+	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") Boolean reload) {
+		if (reload == null) {
+			reload = false;
+		}
 		List<Application> apps = applicationService.listApps(reload);
 		ApplicationRepository repository = applicationService.getRepository();
 		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);
