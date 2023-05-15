@@ -208,7 +208,6 @@ public class WdlParameterInputResponse {
 
 			for (WdlApp app : apps) {
 				if (category != null && !category.isEmpty()) {
-
 					if (app.getCategory() != null && app.getCategory().equals(category)) {
 						Map values = (Map) app.getProperties().get(property);
 						PropertyResponse propertyResponse = PropertyResponse.build("apps@" + app.getId(), app.getName(),
@@ -271,7 +270,9 @@ public class WdlParameterInputResponse {
 		List<WdlParameterInputResponse> response = new Vector<WdlParameterInputResponse>();
 
 		for (WdlParameterInput input : inputs) {
+			if (input.isVisible()) {
 			response.add(WdlParameterInputResponse.build(input, apps));
+			}
 		}
 		return response;
 	}
