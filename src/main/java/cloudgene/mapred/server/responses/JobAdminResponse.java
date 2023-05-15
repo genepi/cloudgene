@@ -8,7 +8,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import genepi.io.FileUtil;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
-public class AdminJobResponse {
+public class JobAdminResponse {
 
 	private List<JobResponse> data;
 	private int count;
@@ -67,7 +67,7 @@ public class AdminJobResponse {
 		this.canceld = canceld;
 	}
 	
-	public static AdminJobResponse build(List<AbstractJob> jobs, List<JobResponse> responses, String workspace) {
+	public static JobAdminResponse build(List<AbstractJob> jobs, List<JobResponse> responses, String workspace) {
 		
 		int success = 0;
 		int failed = 0;
@@ -76,7 +76,7 @@ public class AdminJobResponse {
 		int canceld = 0;
 		int running = 0;
 		
-		AdminJobResponse response = new AdminJobResponse();
+		JobAdminResponse response = new JobAdminResponse();
 		response.setData(responses);
 		response.setCount(jobs.size());
 		

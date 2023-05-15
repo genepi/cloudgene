@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.server.auth.AuthenticationService;
-import cloudgene.mapred.server.responses.AdminJobResponse;
+import cloudgene.mapred.server.responses.JobAdminResponse;
 import cloudgene.mapred.server.responses.JobResponse;
 import cloudgene.mapred.server.responses.MessageResponse;
 import cloudgene.mapred.server.services.JobCleanUpService;
@@ -151,7 +151,7 @@ public class JobAdminController {
 	}
 
 	@Get("/")
-	public AdminJobResponse getJobs(Authentication authentication, @Nullable @QueryValue("state") String state) {
+	public JobAdminResponse getJobs(Authentication authentication, @Nullable @QueryValue("state") String state) {
 
 		User admin = authenticationService.getUserByAuthentication(authentication);
 
@@ -162,7 +162,7 @@ public class JobAdminController {
 		log.info(String.format("Job: list all jobs of of all users (by ADMIN user ID %s - email %s)", admin.getId(),
 				admin.getMail()));
 		
-		return AdminJobResponse.build(jobs, responses, workspace);
+		return JobAdminResponse.build(jobs, responses, workspace);
 
 	}
 
