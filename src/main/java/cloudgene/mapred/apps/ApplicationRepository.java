@@ -18,11 +18,11 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.util.DatabaseUpdater;
 import cloudgene.mapred.util.GitHubException;
 import cloudgene.mapred.util.GitHubUtil;
 import cloudgene.mapred.util.GitHubUtil.Repository;
 import cloudgene.mapred.wdl.WdlApp;
-import genepi.db.DatabaseUpdater;
 import genepi.hadoop.S3Util;
 import genepi.io.FileUtil;
 import net.lingala.zip4j.ZipFile;

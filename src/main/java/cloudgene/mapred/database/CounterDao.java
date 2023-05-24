@@ -8,10 +8,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.IRowMapMapper;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 import cloudgene.mapred.jobs.AbstractJob;
-import genepi.db.Database;
-import genepi.db.IRowMapMapper;
-import genepi.db.JdbcDataAccessObject;
 
 public class CounterDao extends JdbcDataAccessObject {
 

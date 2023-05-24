@@ -14,8 +14,8 @@ import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import genepi.db.Database;
-import genepi.db.JdbcDataAccessObject;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.JdbcDataAccessObject;
 
 public class CounterHistoryDao extends JdbcDataAccessObject {
 

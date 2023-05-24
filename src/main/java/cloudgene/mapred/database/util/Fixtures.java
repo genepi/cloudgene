@@ -8,7 +8,6 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.util.HashUtil;
-import genepi.db.Database;
 
 public class Fixtures {
 

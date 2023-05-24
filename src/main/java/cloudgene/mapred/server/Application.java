@@ -11,16 +11,16 @@ import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.DatabaseConnector;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
+import cloudgene.mapred.database.util.DatabaseUpdater;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
-import genepi.db.Database;
-import genepi.db.DatabaseConnector;
-import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 import io.micronaut.context.annotation.Context;
 
@@ -63,11 +63,11 @@ public class Application {
 
 			database.connect(connector);
 
-			log.info("Establish connection successful");
+			log.info("Establish connection to database successful");
 
 		} catch (SQLException e) {
 
-			log.error("Establish connection failed", e);
+			log.error("Establish connection to database failed", e);
 			System.exit(1);
 
 		}
