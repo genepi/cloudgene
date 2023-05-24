@@ -83,6 +83,8 @@ public class ApplicationRepository {
 			indexApps.put(app.getId(), app);
 
 		}
+		
+		Collections.sort(apps);		
 		log.info("Loaded " + apps.size() + " applications.");
 	}
 

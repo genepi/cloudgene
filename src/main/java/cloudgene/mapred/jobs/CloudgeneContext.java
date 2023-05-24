@@ -368,12 +368,13 @@ public class CloudgeneContext extends WorkflowContext {
 		if (oldvalue == null) {
 			oldvalue = 0;
 		}
+		log("Increment counter " + name + " by " + value);
 		counters.put(name, oldvalue + value);
 
 	}
 
 	public void submitCounter(String name) {
-
+		log("Submit counter " + name);
 		submitCounters.put(name, true);
 	}
 

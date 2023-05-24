@@ -23,6 +23,7 @@ import jakarta.inject.Inject;
 @MicronautTest
 public class PriorityThreadPoolExecutorTest {
 
+	private static final int WAIT_FOR_CANCEL = 8000;
 	@Inject
 	TestApplication application;
 
@@ -181,7 +182,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(3, jobs.indexOf(job4));
 
 		engine.cancel(job1);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(3, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -192,7 +193,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(1, job4.getPositionInQueue());
 
 		engine.cancel(job2);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(2, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -202,7 +203,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(0, job4.getPositionInQueue());
 
 		engine.cancel(job3);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(1, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -211,7 +212,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_RUNNING, job4.getState());
 
 		engine.cancel(job4);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(0, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -286,7 +287,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(1, jobs.indexOf(job4));
 
 		engine.cancel(job1);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(3, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -297,7 +298,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_RUNNING, job4.getState());
 
 		engine.cancel(job4);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(2, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -307,7 +308,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(0, job3.getPositionInQueue());
 
 		engine.cancel(job2);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(1, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -316,7 +317,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
 		engine.cancel(job3);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(0, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -417,7 +418,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(1, jobs.indexOf(job4));
 
 		engine.cancel(job1);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(3, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -428,7 +429,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_RUNNING, job4.getState());
 
 		engine.cancel(job4);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(2, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -438,7 +439,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(0, job3.getPositionInQueue());
 
 		engine.cancel(job2);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(1, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
@@ -447,7 +448,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
 		engine.cancel(job3);
-		Thread.sleep(5000);
+		Thread.sleep(WAIT_FOR_CANCEL);
 
 		assertEquals(0, engine.getAllJobsInLongTimeQueue().size());
 		assertEquals(AbstractJob.STATE_CANCELED, job1.getState());
