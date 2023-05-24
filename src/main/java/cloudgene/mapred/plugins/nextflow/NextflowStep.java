@@ -147,6 +147,8 @@ public class NextflowStep extends CloudgeneStep {
 		command.add("-c");
 		command.add(join(nextflowCommand));
 
+		NextflowCollector.getInstance().addContext(makeSecretJobId(context.getJobId()), context);
+
 		try {
 			// context.beginTask("Running Nextflow pipeline...");
 			boolean successful = executeCommand(command, context, output);
@@ -156,12 +158,13 @@ public class NextflowStep extends CloudgeneStep {
 			} else {
 
 				// set all running processes to failed
-				List<NextflowProcess> processes = NextflowInfo.getInstance()
+				List<NextflowProcess> processes = NextflowCollector.getInstance()
 						.getProcesses(makeSecretJobId(context.getJobId()));
 				for (NextflowProcess process : processes) {
 					for (NextflowTask task : process.getTasks()) {
-						if (task.getTrace().getString("status").equals("RUNNING")
-								|| task.getTrace().getString("status").equals("SUBMITTED")) {
+						String status = (String) task.getTrace().get("status");
+
+						if (status.equals("RUNNING") || status.equals("SUBMITTED")) {
 							task.getTrace().put("status", "KILLED");
 						}
 					}
@@ -169,16 +172,14 @@ public class NextflowStep extends CloudgeneStep {
 				updateProgress();
 
 				// Write nextflow output into step
-				/*context.beginTask("Running Nextflow pipeline...");
-				String text = "";
-
-				if (killed) {
-					text = output + "\n\n\n" + makeRed("Pipeline execution canceled.");
-				} else {
-					text = output + "\n\n\n" + makeRed("Pipeline execution failed.");
-				}
-				context.endTask(text, Message.ERROR_ANSI);
-*/
+				/*
+				 * context.beginTask("Running Nextflow pipeline..."); String text = "";
+				 * 
+				 * if (killed) { text = output + "\n\n\n" +
+				 * makeRed("Pipeline execution canceled."); } else { text = output + "\n\n\n" +
+				 * makeRed("Pipeline execution failed."); } context.endTask(text,
+				 * Message.ERROR_ANSI);
+				 */
 				return false;
 			}
 		} catch (Exception e) {
@@ -192,11 +193,10 @@ public class NextflowStep extends CloudgeneStep {
 	public void updateProgress() {
 		String job = makeSecretJobId(context.getJobId());
 
-		List<NextflowProcess> processes = NextflowInfo.getInstance().getProcesses(job);
+		List<NextflowProcess> processes = NextflowCollector.getInstance().getProcesses(job);
 
 		for (NextflowProcess process : processes) {
-			
-			
+
 			Message message = messages.get(process.getName());
 			if (message == null) {
 				message = context.createTask("<b>" + process.getName() + "</b>");
@@ -207,32 +207,33 @@ public class NextflowStep extends CloudgeneStep {
 			boolean running = false;
 			boolean ok = true;
 			for (NextflowTask task : process.getTasks()) {
-				if (task.getTrace().getString("status").equals("RUNNING")
-						|| task.getTrace().getString("status").equals("SUBMITTED")) {
+
+				String status = (String) task.getTrace().get("status");
+
+				if (status.equals("RUNNING") || status.equals("SUBMITTED")) {
 					running = true;
 				}
-				if (!task.getTrace().getString("status").equals("COMPLETED")) {
+				if (!status.equals("COMPLETED")) {
 					ok = false;
 
 				}
 				text += "<br><small>";
 
-				text += task.getTrace().getString("name");
-				if (task.getTrace().getString("status").equals("RUNNING")) {
+				text += (String) task.getTrace().get("name");
+				if (status.equals("RUNNING")) {
 					text += "...";
 				}
-				if (task.getTrace().getString("status").equals("COMPLETED")) {
+				if (status.equals("COMPLETED")) {
 					text += "&nbsp;<i class=\"fas fa-check text-success\"></i>";
 				}
-				if (task.getTrace().getString("status").equals("KILLED")
-						|| task.getTrace().getString("status").equals("FAILED")) {
+				if (status.equals("KILLED") || status.equals("FAILED")) {
 					text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
 				}
-				
+
 				if (task.getLog() != null) {
 					text += "<br>" + task.getLog();
 				}
-				
+
 				text += "</small>";
 			}
 			message.setMessage(text);

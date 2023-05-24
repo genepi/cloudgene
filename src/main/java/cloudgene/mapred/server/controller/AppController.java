@@ -10,10 +10,9 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.responses.ApplicationResponse;
+import cloudgene.mapred.server.responses.WdlAppResponse;
 import cloudgene.mapred.server.services.ApplicationService;
-import cloudgene.mapred.util.JSONConverter;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameterInput;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
@@ -25,8 +24,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 @Controller
 public class AppController {
@@ -42,30 +39,26 @@ public class AppController {
 
 	@Get("/api/v2/server/apps/{appId}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String getApp(@Nullable Authentication authentication, String appId) {
+	public WdlAppResponse getApp(@Nullable Authentication authentication, String appId) {
 
 		User user = authenticationService.getUserByAuthentication(authentication, AuthenticationType.ALL_TOKENS);
 		Application app = applicationService.getByIdAndUser(user, appId);
 
 		applicationService.checkRequirements(app);
 		ApplicationRepository repository = applicationService.getRepository();
-		List<WdlApp> apps = repository.getAllByUser(user,
-				ApplicationRepository.APPS_AND_DATASETS);
+		List<WdlApp> apps = repository.getAllByUser(user, ApplicationRepository.APPS_AND_DATASETS);
 
-		JSONObject jsonObject = JSONConverter.convert(app.getWdlApp());
-		List<WdlParameterInput> params = app.getWdlApp().getWorkflow().getInputs();
+		WdlAppResponse response = WdlAppResponse.build(app.getWdlApp(), apps);
 
-		JSONArray jsonArray = JSONConverter.convert(params, apps);
-
-		jsonObject.put("params", jsonArray);
-		jsonObject.put("s3Workspace", application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
+		response.setS3Workspace(application.getSettings().getExternalWorkspaceType().equalsIgnoreCase("S3")
 				&& application.getSettings().getExternalWorkspaceLocation().isEmpty());
+
 		String footer = this.application.getTemplate(Template.FOOTER_SUBMIT_JOB);
 		if (footer != null && !footer.trim().isEmpty()) {
-			jsonObject.put("footer", footer);
+			response.setFooter(footer);
 		}
 
-		return jsonObject.toString();
+		return response;
 
 	}
 
@@ -73,24 +66,28 @@ public class AppController {
 	@Secured(User.ROLE_ADMIN)
 	public ApplicationResponse removeApp(String appId) {
 		Application app = applicationService.removeApp(appId);
-		return ApplicationResponse.build(app, this.application.getSettings());
+		return ApplicationResponse.build(app);
 	}
 
 	@Put("/api/v2/server/apps/{appId}")
 	@Secured(User.ROLE_ADMIN)
-	public ApplicationResponse updateApp(String appId, @Nullable String enabled, @Nullable String permission,
-			@Nullable String reinstall, @Nullable Map<String, String> config) {
+	public ApplicationResponse updateApp(String appId, @Nullable Boolean enabled, @Nullable String permission,
+			@Nullable Boolean reinstall, @Nullable Map<String, String> config) {
 
 		Application app = applicationService.getById(appId);
 
 		// enable or disable
-		applicationService.enableApp(app, enabled);
+		if (enabled != null) {
+			applicationService.enableApp(app, enabled);
+		}
 		// update permissions
 		applicationService.updatePermissions(app, permission);
 		// update config
 		applicationService.updateConfig(app, config);
 		// reinstall application
-		applicationService.reinstallApp(app, reinstall);
+		if (reinstall != null) {
+			applicationService.reinstallApp(app, reinstall);
+		}
 
 		app.checkForChanges();
 
@@ -112,7 +109,10 @@ public class AppController {
 
 	@Get("/api/v2/server/apps")
 	@Secured(User.ROLE_ADMIN)
-	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") String reload) {
+	public List<ApplicationResponse> list(@Nullable @QueryValue("reload") Boolean reload) {
+		if (reload == null) {
+			reload = false;
+		}
 		List<Application> apps = applicationService.listApps(reload);
 		ApplicationRepository repository = applicationService.getRepository();
 		return ApplicationResponse.buildWithDetails(apps, application.getSettings(), repository);

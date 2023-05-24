@@ -11,10 +11,10 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.auth.AuthenticationType;
 import cloudgene.mapred.server.responses.MessageResponse;
+import cloudgene.mapred.server.responses.PageResponse;
 import cloudgene.mapred.server.responses.UserResponse;
 import cloudgene.mapred.server.services.UserService;
 import cloudgene.mapred.util.Page;
-import cloudgene.mapred.util.PageUtil;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -28,7 +28,6 @@ import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONObject;
 
 @Controller
 public class UserController {
@@ -48,12 +47,11 @@ public class UserController {
 
 	@Get("/api/v2/admin/users")
 	@Secured(User.ROLE_ADMIN)
-	public String get(@Nullable @QueryValue("page") String page, @Nullable @QueryValue("query") String query) {
+	public PageResponse get(@Nullable @QueryValue("page") String page, @Nullable @QueryValue("query") String query) {
+
 		Page<User> users = userService.getAll(query, page, DEFAULT_PAGE_SIZE);
 		List<UserResponse> userResponses = UserResponse.build(users.getData());
-		JSONObject object = PageUtil.createPageObject(users);
-		object.put("data", userResponses);
-		return object.toString();
+		return PageResponse.build(users, userResponses);
 
 	}
 

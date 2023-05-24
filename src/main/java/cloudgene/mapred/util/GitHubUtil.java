@@ -1,12 +1,19 @@
 package cloudgene.mapred.util;
 
+import static io.micronaut.http.HttpHeaders.ACCEPT;
+import static io.micronaut.http.HttpHeaders.USER_AGENT;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
 
-import net.sf.json.JSONObject;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.client.netty.DefaultHttpClient;
+import reactor.core.publisher.Mono;;
 
 public class GitHubUtil {
 
@@ -97,18 +104,23 @@ public class GitHubUtil {
 	public static String getLatestReleaseFromRepository(Repository repo) {
 
 		String urlString = "https://api.github.com/repos/" + repo.getUser() + "/" + repo.getRepo() + "/releases/latest";
-		try {
 
+		HttpClient httpClient = new DefaultHttpClient();
+
+		try {
 			URL url = new URL(urlString);
 			URLConnection request = url.openConnection();
 			request.setRequestProperty("content-type", "application/json");
 			request.connect();
 
-			String json = readFullyAsString((InputStream) request.getContent(), "UTF-8");
-			JSONObject object = JSONObject.fromObject(json);
-			return object.get("tag_name").toString();
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			HttpRequest<?> req = HttpRequest.GET(url.toURI()).header(USER_AGENT, "Cloudgene").header(ACCEPT,
+					"application/vnd.github.v3+json, application/json");
+			String tag = Mono.from(httpClient.retrieve(req, Map.class)).block().get("tag_name").toString();
+			httpClient.close();
+
+			return tag;
+		} catch (Exception e) {
+			httpClient.close();
 			return null;
 		}
 

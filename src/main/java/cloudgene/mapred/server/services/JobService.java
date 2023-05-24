@@ -542,4 +542,46 @@ public class JobService {
 		return null;
 	}
 
+	public List<AbstractJob> getJobs(String state) {
+
+		List<AbstractJob> jobs = new Vector<AbstractJob>();
+
+		WorkflowEngine engine = application.getWorkflowEngine();
+		JobDao dao = new JobDao(application.getDatabase());
+
+		if (state != null) {
+			switch (state) {
+
+			case "running-ltq":
+
+				jobs = engine.getAllJobsInLongTimeQueue();
+				break;
+
+			case "running-stq":
+
+				jobs = engine.getAllJobsInShortTimeQueue();
+				break;
+
+			case "current":
+
+				jobs = dao.findAllNotRetiredJobs();
+				List<AbstractJob> toRemove = new Vector<AbstractJob>();
+				for (AbstractJob job : jobs) {
+					if (engine.isInQueue(job)) {
+						toRemove.add(job);
+					}
+				}
+				jobs.removeAll(toRemove);
+				break;
+
+			case "retired":
+
+				jobs = dao.findAllByState(AbstractJob.STATE_RETIRED);
+				break;
+
+			}
+		}
+		return jobs;
+	}
+
 }

@@ -111,36 +111,27 @@ public class ApplicationService {
 
 	}
 
-	public void enableApp(Application app, String enabled) {
+	public void enableApp(Application app, boolean enabled) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-
-		if (enabled != null) {
-			if (app.isEnabled() && enabled.equals("false")) {
-				app.setEnabled(false);
-				repository.reload();
-				this.application.getSettings().save();
-			} else if (!app.isEnabled() && enabled.equals("true")) {
-				app.setEnabled(true);
-				repository.reload();
-				this.application.getSettings().save();
-			}
-		}
+		app.setEnabled(enabled);
+		repository.reload();
+		this.application.getSettings().save();
 
 	}
 
 	public void updatePermissions(Application app, String permission) {
 
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
-		if (app != null) {
-			if (permission != null) {
-				if (!app.getPermission().equals(permission)) {
-					app.setPermission(permission);
-					repository.reload();
-					this.application.getSettings().save();
-				}
-			}
+		if (app == null || permission == null) {
+			return;
 		}
+		if (!app.getPermission().equals(permission)) {
+			app.setPermission(permission);
+			repository.reload();
+			this.application.getSettings().save();
+		}
+
 	}
 
 	public void updateConfig(Application app, Map<String, String> config) {
@@ -148,49 +139,51 @@ public class ApplicationService {
 		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
 		WdlApp wdlApp = app.getWdlApp();
 
-		if (config != null) {
-
-			Map<String, String> updatedConfig = repository.getConfig(wdlApp);
-			updatedConfig.put("nextflow.config", config.get("nextflow.config"));
-			updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
-			updatedConfig.put("nextflow.work", config.get("nextflow.work"));
-			repository.updateConfig(wdlApp, updatedConfig);
+		if (config == null) {
+			return;
 		}
+
+		Map<String, String> updatedConfig = repository.getConfig(wdlApp);
+		updatedConfig.put("nextflow.config", config.get("nextflow.config"));
+		updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
+		updatedConfig.put("nextflow.work", config.get("nextflow.work"));
+		repository.updateConfig(wdlApp, updatedConfig);
+
 	}
 
-	public void reinstallApp(Application app, String reinstall) {
+	public void reinstallApp(Application app, boolean reinstall) {
 
-		ApplicationRepository repository = this.application.getSettings().getApplicationRepository();
 		WdlApp wdlApp = app.getWdlApp();
 
-		if (reinstall != null) {
-			if (reinstall.equals("true")) {
-				boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
-				if (installed) {
-					try {
-						ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
-					} catch (IOException e) {
-						e.printStackTrace();
-						throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-								String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
-					}
-				}
-			}
+		if (!reinstall) {
+			return;
+		}
+		
+		boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
+		if (!installed) {
+			return;
+		}
+		
+		try {
+			ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+					String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
 		}
 
 	}
 
-	public List<Application> listApps(String reload) {
+	public List<Application> listApps(boolean reload) {
 
 		ApplicationRepository repository = application.getSettings().getApplicationRepository();
 
-		if (reload != null && reload.equals("true")) {
+		if (reload) {
 			repository.reload();
 		}
 
 		List<Application> apps = new Vector<Application>(repository.getAll());
 		Collections.sort(apps);
-
 		for (Application app : apps) {
 			app.checkForChanges();
 
@@ -200,30 +193,27 @@ public class ApplicationService {
 
 	public Application installApp(String url) {
 
+		if (url == null) {
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, NO_URL);
+		}
+
+		ApplicationRepository repository = application.getSettings().getApplicationRepository();
+
 		try {
 
-			if (url == null) {
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, NO_URL);
+			Application app = repository.install(url);
+			application.getSettings().save();
+
+			if (app != null) {
+				return app;
+			} else {
+				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, APPLICATION_NOT_INSTALLED_NO_WORKFLOW);
 			}
-
-			ApplicationRepository repository = application.getSettings().getApplicationRepository();
-
-			try {
-
-				Application app = repository.install(url);
-				application.getSettings().save();
-
-				if (app != null) {
-					return app;
-				} else {
-					throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, APPLICATION_NOT_INSTALLED_NO_WORKFLOW);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				log.error(APPLICATION_NOT_INSTALLED, e);
-				throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-						String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error(APPLICATION_NOT_INSTALLED, e);
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
+					String.format(APPLICATION_NOT_INSTALLED, e.getMessage()));
 
 		} catch (Error e) {
 			e.printStackTrace();

@@ -5,7 +5,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cloudgene.mapred.plugins.nextflow.NextflowInfo;
+import cloudgene.mapred.plugins.nextflow.NextflowCollector;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
 import cloudgene.mapred.server.services.DownloadService;
@@ -16,7 +16,6 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.security.annotation.Secured;
 import io.micronaut.security.rules.SecurityRule;
 import jakarta.inject.Inject;
-import net.sf.json.JSONObject;
 
 
 @Controller
@@ -38,15 +37,13 @@ public class NextflowController {
 	
 	@Post("/api/v2/collect/{job}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String post(String job, @Body Map<Object, Object> event) {
+	public String post(String job, @Body Map<String, Object> event) {
 
 		try {
 
-			NextflowInfo info = NextflowInfo.getInstance();
-			JSONObject eventObject = new JSONObject();
-			eventObject.putAll(event);
-			if (eventObject.has("trace")) {
-				info.addEvent(job, eventObject);
+			NextflowCollector info = NextflowCollector.getInstance();
+			if (event.containsKey("trace")) {
+				info.addEvent(job, event);
 			} else {
 				// System.out.println(event.toString());
 			}
