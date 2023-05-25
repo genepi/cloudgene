@@ -20,7 +20,7 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class UserService {
-	
+
 	private static Logger log = LoggerFactory.getLogger(UserService.class);
 
 	public static final String MESSAGE_USER_NOT_FOUND = "User %s not found.";
@@ -144,10 +144,10 @@ public class UserService {
 
 		// check if user is admin or it is his username
 		if (!user.getUsername().equals(username) && !user.isAdmin()) {
-			
+
 			log.error(String.format("User: ID %s ('%s') attempted to change profile of a different user '%s'",
 					user.getId(), user.getUsername(), username));
-			
+
 			return MessageResponse.error(MESSAGE_NOT_ALLOWED);
 		}
 
@@ -170,7 +170,7 @@ public class UserService {
 			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
 					newUser.getId()));
 		}
-		
+
 		// update password only when it's not empty
 		if (new_password != null && !new_password.isEmpty()) {
 
@@ -183,7 +183,7 @@ public class UserService {
 
 			log.info(String.format("User: changed password for user %s (ID %s - email %s)", newUser.getUsername(),
 					newUser.getId(), newUser.getMail()));
-			
+
 		}
 
 		dao.update(newUser);
@@ -201,10 +201,10 @@ public class UserService {
 		if (HashUtil.checkPassword(password, user.getPassword())) {
 
 			UserDao dao = new UserDao(application.getDatabase());
-			
+
 			log.info(String.format("User: requested deletion of account %s (ID %s - email %s)", user.getUsername(),
 					user.getId(), user.getMail()));
-			
+
 			boolean deleted = dao.delete(user);
 			if (deleted) {
 				return MessageResponse.success(MESSAGE_USER_PROFILE_DELETE);
@@ -377,7 +377,8 @@ public class UserService {
 				String appName = application.getSettings().getName();
 				String subject = "[" + appName + "] Signup activation";
 				String activationLink = hostname + "/#!activate/" + username + "/" + activationKey;
-				String body = application.getTemplate(Template.REGISTER_MAIL, full_name, application, activationLink);
+				String body = application.getTemplate(Template.REGISTER_MAIL, full_name,
+						application.getSettings().getName(), activationLink);
 
 				MailUtil.send(application.getSettings(), mail, subject, body);
 
