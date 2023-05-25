@@ -5,10 +5,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class WdlParameterInputResponse {
 
 	private String id;
