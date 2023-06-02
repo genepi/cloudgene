@@ -1,0 +1,3 @@
+<h4>API Token</h4>
+Make sure to copy your personal access token now. <b>You won’t be able to see it again</b>:<br><br>
+<textarea style="width:100%;height:100px;">{{token}}</textarea>

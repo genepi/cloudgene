@@ -165,3 +165,7 @@ ALTER TABLE html_snippets MODIFY COLUMN text VARCHAR (8000);
 
 -- 2.3.7
 alter table job add column user_agent VARCHAR (400);
+
+
+-- 2.6.0
+alter table `user` add column api_token_expires_on timestamp null default null;
