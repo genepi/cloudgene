@@ -50,18 +50,19 @@ Please fill out the form below to change your account settings or your password.
 <p>You need a access token to use the API. <a href="https://imputationbot.readthedocs.io/en/latest/getting-started/">Learn more</a>.</p>
 
 {{#user.hasApiToken}}
-
 	<div class="control-group">
 		<div class="controls">
-			<button class="btn btn-primary" id="show_token">Show API Token</button>
 			<button class="btn btn-danger" id="revoke_token">Revoke API Token</button>
 		</div>
 	</div>
   <small class="{{#is(../user.apiTokenValid, false)}}text-danger{{#is}}">{{../user.apiTokenMessage}}</small>
 	{{else}}
-		<button class="btn btn-primary" id="create_token">Create API Token
-	</button>
-
+		<button class="btn btn-primary" id="create_token">Create API Token</button>
+		Expires in 
+		<select  id="token_expiration">
+			<option value="30">30 days</option>
+			<option value="60">60 days</option>
+		</select>
 
 
 {{/user.hasApiToken}}

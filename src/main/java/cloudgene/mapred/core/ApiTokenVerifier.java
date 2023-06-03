@@ -13,12 +13,13 @@ import cloudgene.mapred.database.UserDao;
 import genepi.db.Database;
 
 public class ApiTokenVerifier {
-
+	
 	public static JSONObject verify(String token, String secretKey, Database database) {
 
 		if (token.isEmpty()) {
 			JSONObject result = new JSONObject();
 			result.put("valid", false);
+			result.put("message", "No token provided");
 			return result;
 		}
 
@@ -34,7 +35,7 @@ public class ApiTokenVerifier {
 				User user = getUser(database, payload);
 				if (user == null) {
 					payload.put("valid", false);
-					payload.put("message", "Invalid Usern mae in API Token.");
+					payload.put("message", "Invalid Username in API Token.");
 				} else {
 
 					Date expire = new Date((Long) payload.get("expire"));
@@ -42,7 +43,7 @@ public class ApiTokenVerifier {
 					if (((Long) payload.get("expire")) > System.currentTimeMillis()) {
 
 						// check if api key is on users whitelist
-						if (user.getApiToken().equals(token)) {
+						if (user.getApiToken().equals(payload.get(JWTUtil.ATTRIBUTE_API_HASH))) {
 							payload.put("valid", true);
 							payload.put("message", "API Token was created by " + user.getUsername()
 									+ " and is valid until " + expire + ".");
