@@ -37,16 +37,7 @@ public class UserProfile extends BaseResource {
 		User updatedUser = dao.findByUsername(user.getUsername());
 
 		JSONObject object = JSONConverter.convert(updatedUser);
-		try {
-			if (object.getBoolean("hasApiToken")) {
-				org.json.JSONObject result = ApiTokenVerifier.verify(user.getApiToken(), getSettings().getSecretKey(),
-						getDatabase());
-				object.put("apiTokenValid", result.get("valid"));
-				object.put("apiTokenMessage", result.get("message"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
 		StringRepresentation representation = new StringRepresentation(object.toString(), MediaType.APPLICATION_JSON);
 
 		return representation;
