@@ -267,14 +267,19 @@ public class JobDao extends JdbcDataAccessObject {
 		sql.append("select * ");
 		sql.append("from job ");
 		sql.append("join `user` on job.user_id = `user`.id ");
-		sql.append("where state != ? AND state != ? ");
+		sql.append("where state  not in (?,?,?,?,?,?,?) ");
 		sql.append("order by job.id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[2];
-		params[0] = AbstractJob.STATE_RETIRED;
-		params[1] = AbstractJob.STATE_DELETED;
+		Object[] params = new Object[7];
+		params[0] = AbstractJob.STATE_WAITING;
+		params[1] = AbstractJob.STATE_RUNNING;
+		params[2] = AbstractJob.STATE_EXPORTING;
+		params[3] = AbstractJob.STATE_RETIRED;
+		params[4] = AbstractJob.STATE_DELETED;
+		params[5] = AbstractJob.STATE_RETIRED;
+		params[6] = AbstractJob.STATE_DELETED;
 
 		try {
 
