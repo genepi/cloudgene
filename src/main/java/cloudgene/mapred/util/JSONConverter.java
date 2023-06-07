@@ -25,6 +25,8 @@ public class JSONConverter {
 
 	public static final String MESSAGE_EXPIRED_TOKEN = "API Token was created by %s and expired on %s.";
 
+	public static final String MESSAGE_INVALID_TOKEN = "API Token was created with a previous version and is therefore invalid. Please recreate.";
+
 	public static JSONObject convert(AbstractJob job) {
 
 		JsonConfig config = new JsonConfig();
@@ -233,7 +235,10 @@ public class JSONConverter {
 		boolean hasApiToken = user.getApiToken() != null && !user.getApiToken().isEmpty();
 		object.put("hasApiToken", hasApiToken);
 		if (hasApiToken) {
-			if (user.getApiTokenExpiresOn().getTime() > System.currentTimeMillis()) {
+			if (user.getApiTokenExpiresOn() == null) {
+				object.put("apiTokenValid", false);
+				object.put("apiTokenMessage", MESSAGE_INVALID_TOKEN);
+			} else if (user.getApiTokenExpiresOn().getTime() > System.currentTimeMillis()) {
 				object.put("apiTokenValid", true);
 				object.put("apiTokenMessage",
 						String.format(MESSAGE_VALID_TOKEN, user.getUsername(), user.getApiTokenExpiresOn()));
