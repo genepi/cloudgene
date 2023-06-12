@@ -166,7 +166,9 @@ public class UserService {
 		newUser.setFullName(full_name);
 		newUser.setMail(mail);
 
-		if (!user.getMail().equals(newUser.getMail())) {
+		if (user.getMail() == null || !user.getMail().equals(newUser.getMail())) {
+			System.out.println(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
+					newUser.getId()));
 			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
 					newUser.getId()));
 		}
