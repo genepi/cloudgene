@@ -71,12 +71,11 @@ public class UserController {
 	}
 
 	@Post("/api/v2/admin/users/changegroup")
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(User.ROLE_ADMIN)
 	public UserResponse changeGroup(Authentication authentication, String username, String role) {
-
+		
 		User admin = authenticationService.getUserByAuthentication(authentication);
-
+		
 		User user = userService.getByUsername(username);
 		user = userService.changeRoles(user, role);
 
