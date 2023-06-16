@@ -41,7 +41,7 @@
 <div class="form-group row">
 	<label for="job-name" class="col-sm-2 col-form-label">Name</label>
 	<div class="col-sm-3">
-		<input name="job-name" type="text" value="" class="form-control" placeholder="optional job name" autocomplete="off">
+		<input name="job-name" id="job-name" type="text" value="" class="form-control" placeholder="optional job name" autocomplete="off">
 	</div>
 </div>
 

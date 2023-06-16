@@ -178,16 +178,16 @@ export default Control.extend({
       fileList.append('<li><span class="fa-li"><i class="fas fa-file"></i></span>' + fileUpload.files[i].name + '</li>');
     }
 
-    fileUpload.parent().find("#change-files");
+    var files = $(fileUpload).prop('files');
 
-    if (fileUpload.files.length > 0) {
-      fileUpload.parent().find("#select-files").hide();
-      fileUpload.parent().find("#change-files").show();
-      fileUpload.parent().find("#remove-all-files").show();
+    if (files.length > 0) {
+      $(fileUpload).parent().find("#select-files-btn").hide();
+      $(fileUpload).parent().find("#change-files-btn").show();
+      $(fileUpload).parent().find("#remove-all-files-btn").show();
     } else {
-      fileUpload.parent().find("#select-files").show();
-      fileUpload.parent().find("#change-files").hide();
-      fileUpload.parent().find("#remove-all-files").hide();
+      $(fileUpload).parent().find("#select-files-btn").show();
+      $(fileUpload).parent().find("#change-files-btn").hide();
+      $(fileUpload).parent().find("#remove-all-files-btn").hide();
     }
   },
 
