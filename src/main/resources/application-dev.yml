@@ -1,4 +1,8 @@
 micronaut:
+  server:
+    netty:
+      access-logger:
+        enabled: false
   router:
     static-resources:
       webapp:

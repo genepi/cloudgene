@@ -13,7 +13,5 @@ export default Control.extend({
     $(element).html(template());
     $(element).fadeIn();
     $("#log-cloudgene").load("/api/v2/admin/server/logs/cloudgene.log");
-    $("#log-access").load("/api/v2/admin/server/logs/access.log");
-    $("#log-jobs").load("/api/v2/admin/server/logs/jobs.log");
   }
 });
