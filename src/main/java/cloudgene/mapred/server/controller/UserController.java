@@ -71,7 +71,7 @@ public class UserController {
 	}
 
 	@Post("/api/v2/admin/users/changegroup")
-	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	@Consumes(value = { MediaType.APPLICATION_FORM_URLENCODED, MediaType.APPLICATION_JSON })
 	@Secured(User.ROLE_ADMIN)
 	public UserResponse changeGroup(Authentication authentication, String username, String role) {
 
