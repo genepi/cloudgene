@@ -47,7 +47,7 @@ public class JWTUtil {
 		playload.put("mail", user.getMail());
 		playload.put(ATTRIBUTE_API_HASH, hash);
 		playload.put("api", true);
-		String token = JWT.generate(playload, secretKey, lifetime);
+		String token = JWT.generate(playload, secretKey, lifetime * 1000L);
 
 		Date expiresOn = new Date(System.currentTimeMillis() + (lifetime * 1000L));
 
