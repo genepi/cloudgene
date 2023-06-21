@@ -33,7 +33,7 @@
 	    </encoder>
 	    <immediateFlush>true</immediateFlush>
 	    <encoder>
-	        <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
 	    </encoder>
 	</appender>
 
