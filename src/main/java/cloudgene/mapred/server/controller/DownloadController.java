@@ -69,7 +69,8 @@ public class DownloadController {
 				}
 			}
 		}
-
+		String message = String.format("Job: Downloading file '%s' for job %s", filename, job.getId());
+		log.info(message);
 		return downloadService.download(download);
 
 	}
@@ -80,6 +81,9 @@ public class DownloadController {
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
+
+		String message = String.format("Job: Anonymously downloading file '%s' (hash %s)", download.getName(), hash);
+		log.info(message);
 
 		return downloadService.download(download);
 
