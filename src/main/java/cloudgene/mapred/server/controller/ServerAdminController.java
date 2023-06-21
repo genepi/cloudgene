@@ -30,6 +30,8 @@ import jakarta.inject.Inject;
 
 public class ServerAdminController {
 
+	private static final String LOG_FILENAME = "logs/cloudgene.log";
+
 	public static String CLOUDGENE_APPS_ENDPOINT = "http://apps.cloudgene.io/api/apps.json";
 
 	@Inject
@@ -81,11 +83,15 @@ public class ServerAdminController {
 
 	}
 
-	@Get("/logs/{logfile}")
-	public String getLogs(String logfile) {
-
-		String content = serverService.tail(new File(logfile), 1000);
-		return content;
+	@Get("/logs/cloudgene.log")
+	public String getLogs() {
+		File file = new File(LOG_FILENAME);
+		if (file.exists()) {
+			String content = serverService.tail(file, 1000);
+			return content;
+		} else {
+			return "No log file available.";
+		}
 
 	}
 

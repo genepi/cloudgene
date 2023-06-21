@@ -3,6 +3,14 @@ micronaut:
     name: cloudgene
   server:
     port: 8080
+    netty:
+      default:
+        allocator:
+          max-order: 3
+      access-logger:
+        enabled: true
+        logger-name: my-access-logger
+        log-format: common    
   security:
       authentication: bearer
       intercept-url-map:
@@ -52,8 +60,3 @@ micronaut:
     folder: webapp
 jackson:
   serialization-inclusion: ALWAYS
-
-netty:
-  default:
-    allocator:
-      max-order: 3

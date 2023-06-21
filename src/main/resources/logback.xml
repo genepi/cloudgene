@@ -1,16 +1,48 @@
 <configuration>
 
 
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-	    <file>cloudgene.log</file>
+	<appender
+	    name="httpAccessLogAppender"
+	    class="ch.qos.logback.core.rolling.RollingFileAppender">
 	    <append>true</append>
+	    <file>logs/access.log</file>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	        <!-- daily rollover -->
+	        <fileNamePattern>logs/access-%d{yyyy-MM-dd}.log
+	        </fileNamePattern>
+	        <maxHistory>7</maxHistory>
+	    </rollingPolicy>
 	    <encoder>
-	        <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{35} - %msg%n</pattern>
+	        <charset>UTF-8</charset>
+	        <pattern>%msg%n</pattern>
+	    </encoder>
+	    <immediateFlush>true</immediateFlush>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>logs/cloudgene.log</file>
+	    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+	        <!-- daily rollover -->
+	        <fileNamePattern>logs/cloudgene-%d{yyyy-MM-dd}.log
+	        </fileNamePattern>
+        <maxHistory>7</maxHistory>
+	    </rollingPolicy>
+	    <encoder>
+	        <charset>UTF-8</charset>
+	        <pattern>%msg%n</pattern>
+	    </encoder>
+	    <immediateFlush>true</immediateFlush>
+	    <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
 	    </encoder>
 	</appender>
-   
 
     <root level="info">
         <appender-ref ref="FILE" />
     </root>
+    
+	<logger name="my-access-logger" additivity="false" level="info">
+	    <appender-ref ref="httpAccessLogAppender" />
+	</logger>    
+    
 </configuration>
