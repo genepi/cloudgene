@@ -231,32 +231,12 @@ public class WorkflowEngine implements Runnable {
 
 		List<AbstractJob> jobs = shortTimeQueue.getAllJobs();
 
-		for (AbstractJob job : jobs) {
-
-			if (job instanceof CloudgeneJob) {
-
-				((CloudgeneJob) job).updateProgress();
-
-			}
-
-		}
-
-		return shortTimeQueue.getAllJobs();
+		return jobs;
 	}
 
 	public List<AbstractJob> getAllJobsInLongTimeQueue() {
 
 		List<AbstractJob> jobs = longTimeQueue.getAllJobs();
-
-		for (AbstractJob job : jobs) {
-
-			if (job instanceof CloudgeneJob) {
-
-				((CloudgeneJob) job).updateProgress();
-
-			}
-
-		}
 
 		return jobs;
 	}
