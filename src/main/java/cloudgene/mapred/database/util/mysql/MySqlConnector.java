@@ -128,12 +128,12 @@ public class MySqlConnector extends AbstractDatabaseConnector {
 	public boolean existsTable(String table) throws SQLException {
 		Connection connection = dataSource.getConnection();
 		DatabaseMetaData meta = connection.getMetaData();
-		ResultSet res = meta.getTables(null, null, table, new String[] { "TABLE" });
+		ResultSet res = meta.getTables(database, null, table, new String[] { "TABLE" });
 		boolean exists = res.next();
 		res.close();
 		connection.close();
 		if (!exists) {
-			log.warn("Table '" + table + "' not found'");
+			log.warn("Table '" + table + "' not found in schema '" + database + "'");
 		}
 		return exists;
 	}
