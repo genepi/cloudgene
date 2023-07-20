@@ -283,9 +283,7 @@ public class DatabaseUpdater {
 					}
 				}
 
-			}
-
-			if (reading) {
+			} else if (reading && !strLine.trim().isEmpty()) {
 				builder.append("\n");
 				builder.append(strLine);
 			}
