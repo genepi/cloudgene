@@ -21,7 +21,10 @@ import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.database.updates.BcryptHashUpdate;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.DatabaseConnector;
 import cloudgene.mapred.database.util.DatabaseConnectorFactory;
+import cloudgene.mapred.database.util.DatabaseUpdater;
 import cloudgene.mapred.database.util.Fixtures;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
@@ -29,9 +32,6 @@ import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.BuildUtil;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
-import genepi.db.Database;
-import genepi.db.DatabaseConnector;
-import genepi.db.DatabaseUpdater;
 import genepi.io.FileUtil;
 
 public class Main {

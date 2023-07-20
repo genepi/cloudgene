@@ -17,11 +17,11 @@ import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.database.util.Database;
+import cloudgene.mapred.database.util.DatabaseUpdater;
+import cloudgene.mapred.database.util.h2.H2Connector;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import genepi.db.Database;
-import genepi.db.DatabaseUpdater;
-import genepi.db.h2.H2Connector;
 import genepi.io.FileUtil;
 
 public class TestServer {

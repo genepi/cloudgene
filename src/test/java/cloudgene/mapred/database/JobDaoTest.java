@@ -1,12 +1,11 @@
 package cloudgene.mapred.database;
 
-import genepi.db.Database;
-
 import java.util.List;
 
 import org.junit.Test;
 
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.util.JobsApiTestCase;

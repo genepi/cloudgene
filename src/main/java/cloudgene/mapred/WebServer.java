@@ -8,11 +8,10 @@ import org.restlet.Component;
 import org.restlet.data.Protocol;
 import org.restlet.routing.VirtualHost;
 
-import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.cron.CronJobScheduler;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.util.Settings;
-import genepi.db.Database;
 
 public class WebServer extends Component {
 

@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import genepi.io.FileUtil;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -14,6 +12,7 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.TestServer;
+import genepi.io.FileUtil;
 
 public class DeleteJobTest extends JobsApiTestCase {
 

@@ -1,7 +1,5 @@
 package cloudgene.mapred.util;
 
-import genepi.hadoop.HdfsUtil;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -13,6 +11,8 @@ import org.apache.hadoop.mapred.ClusterStatus;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MiniMRCluster;
+
+import genepi.hadoop.HdfsUtil;
 
 public class TestCluster {
 

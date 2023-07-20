@@ -1,6 +1,5 @@
 package cloudgene.mapred.util;
 
-import cloudgene.mapred.util.GitHubUtil.Repository;
 import junit.framework.TestCase;
 
 public class GitHubUtilTest extends TestCase {

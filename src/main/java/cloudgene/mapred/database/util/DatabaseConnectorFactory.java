@@ -2,9 +2,8 @@ package cloudgene.mapred.database.util;
 
 import java.util.Map;
 
-import genepi.db.DatabaseConnector;
-import genepi.db.h2.H2Connector;
-import genepi.db.mysql.MySqlConnector;
+import cloudgene.mapred.database.util.h2.H2Connector;
+import cloudgene.mapred.database.util.mysql.MySqlConnector;
 
 public class DatabaseConnectorFactory {
 

@@ -2,7 +2,7 @@ package cloudgene.mapred.util;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import genepi.db.Database;
+import cloudgene.mapred.database.util.Database;
 
 public class PublicUser {
 
