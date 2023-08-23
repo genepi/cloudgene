@@ -11,19 +11,23 @@ import java.util.Vector;
 
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 import groovy.json.JsonOutput;
+import jakarta.inject.Inject;
 
 public class NextflowStep extends CloudgeneStep {
 
 	private CloudgeneContext context;
 
 	private Map<String, Message> messages = new HashMap<String, Message>();
-
+	
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
@@ -84,7 +88,8 @@ public class NextflowStep extends CloudgeneStep {
 			nextflowCommand.add("-w");
 			nextflowCommand.add(work);
 		} else {
-			String workDir = FileUtil.path(context.getLocalOutput(), "nextflow");
+			IExternalWorkspace externalWorkspace = job.getExternalWorkspace();
+			String workDir = externalWorkspace.createTempFolder("nextflow");
 			FileUtil.createDirectory(workDir);
 			nextflowCommand.add("-w");
 			nextflowCommand.add(workDir);

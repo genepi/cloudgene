@@ -11,15 +11,20 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
-import cloudgene.mapred.steps.ErrorStep;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.wdl.WdlApp;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
 
 abstract public class AbstractJob extends PriorityRunnable {
@@ -110,15 +115,11 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private String logs;
 
-	private boolean removeHdfsWorkspace;
-
 	private String localWorkspace;
-
-	private String hdfsWorkspace;
 
 	private boolean canceld = false;
 
-	private boolean forceInstallation = false;
+	protected IExternalWorkspace externalWorkspace;
 
 	private String workspaceSize = null;
 
@@ -229,7 +230,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
 	}
-	
+
 	public String getUserAgent() {
 		return userAgent;
 	}
@@ -291,22 +292,47 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void runSetupSteps() {
 
-		log.info("Job " + getId() + ": executing installation...");
-		writeLog("Executing Job installation....");
+		Settings settings = getSettings();
+		ApplicationRepository repository = settings.getApplicationRepository();
 
-		// execute installation
+		// resolve application links
+		for (CloudgeneParameterInput input : getInputParams()) {
+			if (input.getType() == WdlParameterInputType.APP_LIST) {
+				String value = input.getValue();
+				String linkedAppId = value;
+				if (value.startsWith("apps@")) {
+					linkedAppId = value.replaceAll("apps@", "");
+				}
 
-		boolean result = executeInstallation(forceInstallation);
+				if (!value.isEmpty()) {
+					Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
+					if (linkedApp != null) {
+						// update environment variables
+						Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(),
+								settings);
+						Map<String, String> envJob = Environment.getJobVariables(context);
+						Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
+						for (String property : properties.keySet()) {
+							Object propertyValue = properties.get(property);
+							if (propertyValue instanceof String) {
+								propertyValue = Environment.env(propertyValue.toString(), envApp);
+								propertyValue = Environment.env(propertyValue.toString(), envJob);
+							}
+							properties.put(property, propertyValue);
+						}
 
-		if (result == false || state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
-			ErrorStep errorStep = new ErrorStep(getError() != null ? getError() : "Error");
-			errorStep.setJob(this);
-			errorStep.setName("Job Setup failed: " + getError());
-			getSteps().add(errorStep);
-			setState(AbstractJob.STATE_FAILED);
-			onFailure();
-			setSetupComplete(false);
-			return;
+						getContext().setData(input.getName(), properties);
+					} else {
+						String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
+						log.info(error);
+						writeOutput(error);
+						setError(error);
+						setSetupComplete(false);
+						setState(AbstractJob.STATE_FAILED);
+						return;
+					}
+				}
+			}
 		}
 
 		// execute setup steps
@@ -709,14 +735,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.settings = settings;
 	}
 
-	public boolean isRemoveHdfsWorkspace() {
-		return removeHdfsWorkspace;
-	}
-
-	public void setRemoveHdfsWorkspace(boolean removeHdfsWorkspace) {
-		this.removeHdfsWorkspace = removeHdfsWorkspace;
-	}
-
 	public String getLocalWorkspace() {
 		return localWorkspace;
 	}
@@ -725,12 +743,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.localWorkspace = localWorkspace;
 	}
 
-	public String getHdfsWorkspace() {
-		return hdfsWorkspace;
+	public void setExternalWorkspace(IExternalWorkspace externalWorkspace) {
+		this.externalWorkspace = externalWorkspace;
 	}
 
-	public void setHdfsWorkspace(String hdfsWorkspace) {
-		this.hdfsWorkspace = hdfsWorkspace;
+	public IExternalWorkspace getExternalWorkspace() {
+		return externalWorkspace;
 	}
 
 	public void setApplication(String application) {
@@ -769,8 +787,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	abstract public boolean executeSetupSteps();
 
-	abstract public boolean executeInstallation(boolean forceInstallation);
-
 	abstract public boolean setup();
 
 	abstract public boolean before();
@@ -791,10 +807,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void kill() {
 
-	}
-
-	public void forceInstallation(boolean forceInstallation) {
-		this.forceInstallation = forceInstallation;
 	}
 
 	public long getCurrentTime() {

@@ -84,10 +84,6 @@ public class AppController {
 		applicationService.updatePermissions(app, permission);
 		// update config
 		applicationService.updateConfig(app, config);
-		// reinstall application
-		if (reinstall != null) {
-			applicationService.reinstallApp(app, reinstall);
-		}
 
 		app.checkForChanges();
 

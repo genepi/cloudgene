@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
@@ -20,6 +22,8 @@ import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
+import cloudgene.mapred.jobs.workspace.LocalWorkspace;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.FormUtil.Parameter;
@@ -28,9 +32,6 @@ import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
-import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.importer.ImporterFactory;
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpStatus;
 import jakarta.inject.Inject;
@@ -39,8 +40,13 @@ import jakarta.inject.Singleton;
 @Singleton
 public class JobService {
 
+	private static final Logger log = LoggerFactory.getLogger(JobService.class);
+
 	@Inject
 	protected Application application;
+
+	@Inject
+	protected ExternalWorkspaceFactory workspaceFactory;
 
 	private static final String PARAM_JOB_NAME = "job-name";
 
@@ -113,20 +119,18 @@ public class JobService {
 
 		String id = createId();
 
-		String hdfsWorkspace = "";
-		try {
-			hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
-		} catch (NoClassDefFoundError e) {
-			// Ignore HDFS exceptions to work also without Hadoop;
-		}
-
-		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
-		FileUtil.createDirectory(localWorkspace);
-
 		Map<String, String> inputParams = null;
 
+		IExternalWorkspace externalWorkspace = workspaceFactory.getDefault();
+
 		try {
-			inputParams = parseAndUpdateInputParams(form, app, hdfsWorkspace, localWorkspace);
+
+			// setup workspace
+			externalWorkspace.setup(id);
+
+			// parse input params
+			inputParams = parseAndUpdateInputParams(form, app, externalWorkspace);
+
 		} catch (Exception e) {
 			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
@@ -137,13 +141,15 @@ public class JobService {
 			name = jobName;
 		}
 
+		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
+		FileUtil.createDirectory(localWorkspace);
+
 		CloudgeneJob job = new CloudgeneJob(user, id, app, inputParams);
 		job.setId(id);
 		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
+		job.setExternalWorkspace(externalWorkspace);
 		job.setSettings(settings);
-		job.setRemoveHdfsWorkspace(settings.isRemoveHdfsWorkspace());
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(appId);
 
@@ -211,16 +217,9 @@ public class JobService {
 	public AbstractJob delete(AbstractJob job) {
 		Settings settings = application.getSettings();
 
-		// delete local directory and hdfs directory
+		// delete local directory
 		String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 		FileUtil.deleteDirectory(localOutput);
-
-		try {
-			String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
-			HdfsUtil.delete(hdfsOutput);
-		} catch (NoClassDefFoundError e) {
-			// ignore HDFS exception to work also without hadoop.
-		}
 
 		// delete job from database
 		job.setState(AbstractJob.STATE_DELETED);
@@ -229,16 +228,14 @@ public class JobService {
 		dao.update(job);
 
 		// delete all results that are stored on external workspaces
-		IExternalWorkspace externalWorkspace = null;
-		if (!settings.getExternalWorkspaceLocation().isEmpty()) {
-			String externalOutput = settings.getExternalWorkspaceLocation();
-			externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
-			try {
-				externalWorkspace.delete(job.getId());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+
+		IExternalWorkspace externalWorkspace = workspaceFactory.getByJob(job);
+		try {
+			externalWorkspace.delete(job.getId());
+		} catch (Exception e) {
+			log.error("Deleteting " + job.getId() + " form workspace failed.", e);
 		}
+
 		return job;
 	}
 
@@ -255,18 +252,10 @@ public class JobService {
 			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Job " + job.getId() + " is not pending.");
 		}
 
-		String hdfsWorkspace = "";
-		try {
-			hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), job.getId());
-		} catch (NoClassDefFoundError e) {
-			// ignore HDFS exception to work also without hadoop.
-		}
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 
 		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(settings);
-		job.setRemoveHdfsWorkspace(settings.isRemoveHdfsWorkspace());
 
 		String appId = job.getApplicationId();
 
@@ -323,29 +312,19 @@ public class JobService {
 
 		try {
 
-			IExternalWorkspace externalWorkspace = null;
-			if (!settings.getExternalWorkspaceLocation().isEmpty()) {
-				String externalOutput = settings.getExternalWorkspaceLocation();
-				externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
-			}
-
 			// delete local directory and hdfs directory
 			String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 			FileUtil.deleteDirectory(localOutput);
-			try {
-				String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
-				HdfsUtil.delete(hdfsOutput);
-			} catch (NoClassDefFoundError e) {
-			}
+
 			job.setState(AbstractJob.STATE_RETIRED);
 			dao.update(job);
 
-			if (externalWorkspace != null) {
-				try {
-					externalWorkspace.delete(job.getId());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+			IExternalWorkspace externalWorkspace = workspaceFactory.getByJob(job);
+
+			try {
+				externalWorkspace.delete(job.getId());
+			} catch (Exception e) {
+				log.error("Deleteting " + job.getId() + " from workspace failed.", e);
 			}
 
 			return "Retired job " + job.getId();
@@ -388,8 +367,8 @@ public class JobService {
 
 	// TODO: refactore and combine this method with CommandLineUtil.parseArgs...
 
-	private Map<String, String> parseAndUpdateInputParams(List<Parameter> form, WdlApp app, String hdfsWorkspace,
-			String localWorkspace) throws Exception {
+	private Map<String, String> parseAndUpdateInputParams(List<Parameter> form, WdlApp app,
+			IExternalWorkspace externalWorkspace) throws Exception {
 
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
@@ -406,8 +385,6 @@ public class JobService {
 
 				try {
 
-					String entryName = inputFile.getName();
-
 					// remove upload indentification!
 					String fieldName = name.replace("-upload", "").replace("input-", "");
 
@@ -420,43 +397,18 @@ public class JobService {
 
 					if (inputParam.isHdfs()) {
 
-						String targetPath = HdfsUtil.path(hdfsWorkspace, fieldName);
+						throw new Exception("HDFS support was removed in Cloudgene 3");
 
-						String target = HdfsUtil.path(targetPath, entryName);
+					}
 
-						HdfsUtil.put(inputFile.getAbsolutePath(), target);
+					// copy to workspace in input directory
+					String target = externalWorkspace.uploadInput(fieldName, inputFile);
 
-						if (inputParam.isFolder()) {
-							// folder
-							props.put(fieldName, HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName)));
-						} else {
-							// file
-							props.put(fieldName,
-									HdfsUtil.makeAbsolute(HdfsUtil.path(hdfsWorkspace, fieldName, entryName)));
-						}
-
+					if (inputParam.isFolder()) {
+						props.put(fieldName, externalWorkspace.getParent(target));
 					} else {
-
-						// copy to workspace in input directory
-						String targetPath = FileUtil.path(localWorkspace, "input", fieldName);
-						FileUtil.createDirectory(targetPath);
-
-						String target = FileUtil.path(targetPath, entryName);
-
-						FileUtil.copy(inputFile.getAbsolutePath(), target);
-
-						if (inputParam.isFolder()) {
-							// folder
-							if (inputParam.getPattern() != null && !inputParam.getPattern().isEmpty()) {
-								props.put(fieldName, new File(targetPath).getAbsolutePath());
-							} else {
-								props.put(fieldName, new File(targetPath).getAbsolutePath());
-							}
-						} else {
-							// file
-							props.put(fieldName, new File(target).getAbsolutePath());
-						}
-
+						// file
+						props.put(fieldName, target);
 					}
 
 					// deletes temporary file
@@ -482,7 +434,7 @@ public class JobService {
 
 				String cleanedValue = StringEscapeUtils.escapeHtml(value.toString());
 
-				if (input != null && input.isFileOrFolder() && ImporterFactory.needsImport(cleanedValue)) {
+				if (input != null && input.isFileOrFolder() && needsImport(cleanedValue)) {
 					throw new Exception("Parameter '" + input.getId()
 							+ "': URL-based uploads are no longer supported. Please use direct file uploads instead.");
 				}
@@ -582,6 +534,11 @@ public class JobService {
 			}
 		}
 		return jobs;
+	}
+
+	public boolean needsImport(String url) {
+		return url.startsWith("sftp://") || url.startsWith("http://") || url.startsWith("https://")
+				|| url.startsWith("ftp://") || url.startsWith("s3://");
 	}
 
 }

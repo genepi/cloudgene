@@ -1,33 +1,55 @@
 package cloudgene.mapred.jobs.workspace;
 
-import cloudgene.sdk.internal.IExternalWorkspace;
+import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.server.Application;
+import cloudgene.mapred.util.Settings;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
+@Singleton
 public class ExternalWorkspaceFactory {
 
-	public static IExternalWorkspace get(String type, String location) {
+	@Inject
+	protected Application application;
+
+	public IExternalWorkspace getDefault() {
+
+		Settings settings = application.getSettings();
+
+		String type = settings.getExternalWorkspaceType();
 
 		if (type == null) {
-			return null;
+			return new LocalWorkspace(settings.getLocalWorkspace());
 		}
 
 		if (type.equalsIgnoreCase("S3")) {
-			return new S3Workspace(location);
+			String bucket = settings.getExternalWorkspaceLocation();
+			return new S3Workspace(bucket);
 		}
 
-		return null;
+		return new LocalWorkspace(settings.getLocalWorkspace());
+
 	}
 
-	public static IExternalWorkspace get(String url) {
+	public IExternalWorkspace getByUrl(String url) {
 
-		if (url == null) {
-			return null;
+		Settings settings = application.getSettings();
+
+		if (url == null || url.isEmpty()) {
+			throw new RuntimeException("Workspace type could not determined for empty url.");
 		}
 
 		if (url.startsWith("s3://")) {
-			return new S3Workspace("");
+			String bucket = settings.getExternalWorkspaceLocation();
+			return new S3Workspace(bucket);
 		}
 
-		return null;
+		return new LocalWorkspace(settings.getLocalWorkspace());
+
+	}
+
+	public IExternalWorkspace getByJob(AbstractJob job) {
+		return getDefault();
 	}
 
 }

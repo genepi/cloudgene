@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Vector;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Settings;
@@ -86,24 +85,8 @@ public class ApplicationResponse {
 	}
 
 	private static String updateState(Application app, Settings settings) {
-		WdlApp wdlApp = app.getWdlApp();
-		if (wdlApp != null) {
-			if (wdlApp.needsInstallation()) {
-				try {
-					boolean installed = ApplicationInstaller.isInstalled(wdlApp, settings);
-					if (installed) {
-						return "completed";
-					} else {
-						return "on demand";
-					}
-				} catch (NoClassDefFoundError e) {
-					// TODO: handle exception
-				}
-			} else {
-				return "n/a";
-			}
-		}
-		return "";
+		//TODO: remove
+		return "completed";
 	}
 
 	public String getId() {

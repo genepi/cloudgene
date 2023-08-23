@@ -16,7 +16,6 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.Settings;
 import genepi.base.Tool;
-import genepi.hadoop.HadoopCluster;
 import io.micronaut.context.env.Environment;
 import io.micronaut.runtime.Micronaut;
 
@@ -35,9 +34,7 @@ public class StartServer extends Tool {
 
 	@Override
 	public void createParameters() {
-		addOptionalParameter("user", "Hadoop username [default: " + DEFAULT_HADOOP_USER + "]", Tool.STRING);
 		addOptionalParameter("port", "running webinterface on this port [default: 8082]", Tool.STRING);
-		addOptionalParameter("conf", "Hadoop configuration folder", Tool.STRING);
 	}
 
 	@Override
@@ -49,24 +46,6 @@ public class StartServer extends Tool {
 			System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, "logback-dev.xml");
 		}
 
-		
-		if (getValue("conf") != null) {
-
-			String conf = getValue("conf").toString();
-
-			String username = null;
-			if (getValue("user") != null) {
-				username = getValue("user").toString();
-			}
-			System.out.println(
-					"Use Haddop configuration folder " + conf + (username != null ? " with username " + username : ""));
-			HadoopCluster.setConfPath("Unknown", conf, username);
-
-		} else {
-			// if (settings.getCluster() == null) {
-			// System.out.println("No external Haddop cluster set.");
-			// }
-		}
 
 		try {
 

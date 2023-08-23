@@ -4,7 +4,7 @@ import java.io.File;
 
 import cloudgene.mapred.util.BinaryFinder;
 import cloudgene.mapred.util.Settings;
-import genepi.hadoop.command.Command;
+import cloudgene.mapred.util.command.Command;
 import genepi.io.FileUtil;
 
 public class NextflowBinary {

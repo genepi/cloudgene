@@ -92,32 +92,6 @@ public class SubmitJobTest {
 	}
 
 	@Test
-	public void testSubmitAllPossibleInputsHdfs() {
-
-		Header accessToken = client.loginAsPublicUser();
-
-		// local-file
-		FileUtil.writeStringBufferToFile("test.txt", new StringBuffer("content-of-my-file"));
-		FileUtil.writeStringBufferToFile("test1.txt", new StringBuffer("content-of-my-file-in-folder1"));
-		FileUtil.writeStringBufferToFile("test2.txt", new StringBuffer("content-of-my-file-in-folder2"));
-
-		// submit job with different inputs and file uploads
-		String id = RestAssured.given().header(accessToken).and().multiPart("job-name", "my-job-name").and()
-				.multiPart("input-file", new File("test.txt")).and().multiPart("input-folder", new File("test1.txt"))
-				.and().multiPart("input-folder", new File("test2.txt")).when()
-				.post("/api/v2/jobs/submit/all-possible-inputs-hdfs").then().statusCode(200).and().extract().jsonPath()
-				.getString("id");
-
-		// wait until job is complete
-		client.waitForJob(id, accessToken);
-
-		// get details and check state
-		RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).then().statusCode(200).and()
-				.body("state", equalTo(AbstractJob.STATE_SUCCESS)).and().body("name", equalTo("my-job-name"));
-
-	}
-
-	@Test
 	public void testSubmitReturnTrueStepPublic() {
 
 		Header accessToken = client.loginAsPublicUser();
@@ -182,35 +156,6 @@ public class SubmitJobTest {
 		// submit jobs
 		String id = RestAssured.given().header(accessToken).and().multiPart("input-inputtext", "lukas_text").when()
 				.post("/api/v2/jobs/submit/write-text-to-file").then().statusCode(200).and().extract().jsonPath()
-				.getString("id");
-
-		// wait until job is complete
-		client.waitForJob(id, accessToken);
-
-		// TODO: change!
-		Thread.sleep(5000);
-
-		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
-		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS));
-
-		// get file details
-		String name = response.jsonPath().getString("outputParams[0].files[0].name");
-		String hash = response.jsonPath().getString("outputParams[0].files[0].hash");
-
-		// download file and check content
-		RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
-				.statusCode(200).and().body(equalTo("lukas_text"));
-
-	}
-
-	@Test
-	public void testSubmitWriteTextToHdfsFilePublic() throws InterruptedException {
-
-		Header accessToken = client.loginAsPublicUser();
-
-		// submit jobs
-		String id = RestAssured.given().header(accessToken).and().multiPart("input-inputtext", "lukas_text").when()
-				.post("/api/v2/jobs/submit/write-text-to-hdfs-file").then().statusCode(200).and().extract().jsonPath()
 				.getString("id");
 
 		// wait until job is complete

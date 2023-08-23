@@ -19,7 +19,6 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
-import genepi.hadoop.HadoopCluster;
 import genepi.io.FileUtil;
 
 public class Settings {
@@ -197,22 +196,6 @@ public class Settings {
 			log.info("Retire jobs after " + settings.retireAfter + " days.");
 			log.info("Notify user after " + settings.notificationAfter + " days.");
 			log.info("Write statistics: " + settings.writeStatistics);
-
-			if (settings.cluster != null) {
-				String conf = settings.cluster.get("conf");
-				String username = settings.cluster.get("user");
-				String name = settings.cluster.get("name");
-				if (conf != null) {
-					log.info("Use Haddop configuration folder '" + conf + "'"
-							+ (username != null ? " with username " + username : ""));
-					try {
-						HadoopCluster.setConfPath(name, conf, username);
-					} catch (NoClassDefFoundError e) {
-					}
-				}
-			}
-
-			settings.config = config;
 
 			// workspace in config has higher priority
 			if (config.getWorkspace() != null) {

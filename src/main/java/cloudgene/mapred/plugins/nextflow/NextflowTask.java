@@ -34,7 +34,6 @@ public class NextflowTask {
 		if (status.equals("COMPLETED") || status.equals("FAILED")) {
 			String workDir = (String) trace.get("workdir");
 			String logFilename = FileUtil.path(workDir, "cloudgene.log");
-
 			// TODO: implement s3 support. How to handle other cloud providers?
 
 			if (new File(logFilename).exists()) {

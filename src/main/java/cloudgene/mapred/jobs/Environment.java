@@ -6,38 +6,25 @@ import java.util.Map;
 
 import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
-import genepi.io.FileUtil;
 
 public class Environment {
 
 	public static Map<String, String> getApplicationVariables(WdlApp application, Settings settings) {
 
 		String localFolder = application.getPath();
-		String hdfsFolder = "";
-
-		// set hdfsFolder to localFolder when hadoop plugin is not activated
-		PluginManager manager = PluginManager.getInstance();
-		if (manager.isEnabled(HadoopPlugin.ID)) {
-			String hdfsAppFolder = settings.getHdfsAppWorkspace();
-			hdfsFolder = FileUtil.path(hdfsAppFolder, application.getId().split(":")[0], application.getVersion());
-		} else {
-			hdfsFolder = localFolder;
-		}
 
 		HashMap<String, String> environment = new HashMap<String, String>();
 		environment.put("app_id", application.getId());
 		environment.put("app_name", application.getName());
 		environment.put("app_version", application.getVersion());
-		environment.put("app_hdfs_folder", hdfsFolder);
 		environment.put("app_local_folder", localFolder);
 		// Deprecated
-		environment.put("hdfs_app_folder", hdfsFolder);
 		environment.put("local_app_folder", localFolder);
+		environment.put("app_hdfs_folder", localFolder);
 		// Technologies
-
+		PluginManager manager = PluginManager.getInstance();
 		for (IPlugin plugin : manager.getPlugins()) {
 			environment.put(plugin.getId() + "_installed", manager.isEnabled(plugin) ? "true" : "false");
 		}
@@ -49,9 +36,7 @@ public class Environment {
 		Map<String, String> environment = new HashMap<String, String>();
 		environment.put("job_id", context.getJobId());
 		environment.put("job_local_temp", context.getLocalTemp());
-		environment.put("job_hdfs_temp", context.getHdfsTemp());
 		environment.put("job_local_output", context.getLocalOutput());
-		environment.put("job_hdfs_output", context.getHdfsOutput());
 		environment.put("user_username", context.getUser().getUsername());
 		environment.put("user_mail", context.getUser().getMail());
 		// Deprecated

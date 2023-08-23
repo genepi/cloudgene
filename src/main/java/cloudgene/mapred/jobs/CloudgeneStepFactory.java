@@ -5,13 +5,9 @@ import java.util.Map;
 
 import cloudgene.mapred.steps.BashCommandStep;
 import cloudgene.mapred.steps.GroovyStep;
-import cloudgene.mapred.steps.HadoopMapReduceStep;
-import cloudgene.mapred.steps.HadoopPigStep;
-import cloudgene.mapred.steps.HadoopSparkStep;
 import cloudgene.mapred.steps.HtmlWidgetStep;
 import cloudgene.mapred.steps.JavaExternalStep;
 import cloudgene.mapred.steps.RMarkdownDockerStep;
-import cloudgene.mapred.steps.RMarkdownLocalStep;
 import cloudgene.mapred.steps.RMarkdownStep;
 import cloudgene.mapred.wdl.WdlStep;
 
@@ -60,16 +56,10 @@ public class CloudgeneStepFactory {
 		}
 
 		if (step.get("pig") != null) {
-
-			// pig script
-			return HadoopPigStep.class.getName();
-
+			throw new RuntimeException("Hadoop support was removed in Cloudgene 3");
 		}
 		if (step.get("spark") != null) {
-
-			// spark
-			return HadoopSparkStep.class.getName();
-
+			throw new RuntimeException("Hadoop support was removed in Cloudgene 3");
 		} else if (step.get("rmd") != null) {
 
 			// rscript
@@ -93,8 +83,7 @@ public class CloudgeneStepFactory {
 		} else {
 			String runtime = step.get("runtime");
 			if (runtime == null || runtime.isEmpty() || runtime.toLowerCase().equals("hadoop")) {
-				// mapreduce
-				return HadoopMapReduceStep.class.getName();
+				throw new RuntimeException("Hadoop support was removed in Cloudgene 3");
 			} else if (runtime != null && runtime.toLowerCase().equals("java")) {
 				// normal java when no Hadoop suppport
 				return JavaExternalStep.class.getName();

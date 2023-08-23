@@ -1,6 +1,5 @@
 package cloudgene.mapred.server.services;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationInstaller;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.plugins.PluginManager;
-import cloudgene.mapred.plugins.hadoop.HadoopPlugin;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
@@ -79,14 +75,6 @@ public class ApplicationService {
 					String.format(APPLICATION_IS_DATA_PACKAGE, app.getId()));
 		}
 
-		if (wdlApp.getWorkflow().hasHdfsInputs()) {
-
-			PluginManager manager = PluginManager.getInstance();
-			if (!manager.isEnabled(HadoopPlugin.ID)) {
-				throw new JsonHttpStatusException(HttpStatus.SERVICE_UNAVAILABLE, HADOOP_CLUSTER_UNREACHABLE);
-			}
-		}
-
 	}
 
 	public Application removeApp(String appId) {
@@ -148,29 +136,6 @@ public class ApplicationService {
 		updatedConfig.put("nextflow.profile", config.get("nextflow.profile"));
 		updatedConfig.put("nextflow.work", config.get("nextflow.work"));
 		repository.updateConfig(wdlApp, updatedConfig);
-
-	}
-
-	public void reinstallApp(Application app, boolean reinstall) {
-
-		WdlApp wdlApp = app.getWdlApp();
-
-		if (!reinstall) {
-			return;
-		}
-		
-		boolean installed = ApplicationInstaller.isInstalled(wdlApp, this.application.getSettings());
-		if (!installed) {
-			return;
-		}
-		
-		try {
-			ApplicationInstaller.uninstall(wdlApp, this.application.getSettings());
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST,
-					String.format(APPLICATION_NOT_UPDATED, e.getMessage()));
-		}
 
 	}
 

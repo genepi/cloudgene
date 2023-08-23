@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -24,9 +24,13 @@ import jakarta.inject.Inject;
 public class PriorityThreadPoolExecutorTest {
 
 	private static final int WAIT_FOR_CANCEL = 8000;
+
 	@Inject
 	TestApplication application;
 
+	@Inject
+	ExternalWorkspaceFactory workspaceFactory;
+	
 	@Test
 	public void testCancelRunningJob() throws Exception {
 
@@ -469,17 +473,15 @@ public class PriorityThreadPoolExecutorTest {
 		
 		Settings settings = application.getSettings();
 
-		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
 		CloudgeneJob job = new CloudgeneJob(user, id,app, inputs);
 		job.setId(id);
 		job.setName(id);
+		job.setExternalWorkspace(workspaceFactory.getDefault());
 		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(settings);
-		job.setRemoveHdfsWorkspace(true);
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(app.getId());
 

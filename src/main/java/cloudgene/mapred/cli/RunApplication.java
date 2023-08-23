@@ -27,8 +27,6 @@ import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
-import genepi.hadoop.HadoopCluster;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 public class RunApplication extends BaseTool {
@@ -40,8 +38,6 @@ public class RunApplication extends BaseTool {
 	private boolean output = false;
 
 	private boolean logging = false;
-
-	private boolean force = false;
 
 	public RunApplication(String[] args) {
 		super(args);
@@ -138,27 +134,10 @@ public class RunApplication extends BaseTool {
 		noOutputOption.setRequired(false);
 		options.addOption(noOutputOption);
 
-		// add general options: run on docker
-		Option forceOption = new Option(null, "force", false,
-				"Force Cloudgene to reinstall application in HDFS even if it already installed.");
-		forceOption.setRequired(false);
-		options.addOption(forceOption);
-
-		// add general options: hadoop configuration
-		Option confOption = new Option(null, "conf", true, "Hadoop configuration folder");
-		confOption.setRequired(false);
-		options.addOption(confOption);
-
 		// add general options: output folder
 		Option outputFolderOption = new Option(null, "output", true, "Output folder");
 		outputFolderOption.setRequired(false);
 		options.addOption(outputFolderOption);
-
-		// add general options: hadoop user
-		Option usernameOption = new Option(null, "user", true,
-				"Hadoop username [default: " + DEFAULT_HADOOP_USER + "]");
-		usernameOption.setRequired(false);
-		options.addOption(usernameOption);
 
 		// parse the command line arguments
 		CommandLine line = null;
@@ -182,24 +161,6 @@ public class RunApplication extends BaseTool {
 			output = true;
 		}
 
-		if (line.hasOption("force")) {
-			force = true;
-		}
-
-		if (line.hasOption("conf")) {
-
-			String conf = line.getOptionValue("conf");
-			String username = line.getOptionValue("user", null);
-			printText(0, spaces("[INFO]", 8) + "Use Haddop configuration folder " + conf
-					+ (username != null ? " with username " + username : ""));
-			HadoopCluster.setConfPath("Unknown", conf, username);
-
-		} else {
-			if (settings.getCluster() == null) {
-				// printText(0, spaces("[INFO]", 8) + "No external Haddop cluster set.");
-			}
-		}
-
 		// show supported plugins
 		PluginManager manager = PluginManager.getInstance();
 		manager.initPlugins(settings);
@@ -221,12 +182,6 @@ public class RunApplication extends BaseTool {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd-HHmmss");
 		String id = "job-" + sdf.format(new Date());
-		String hdfs = "";
-		try {
-			hdfs = HdfsUtil.path("cloudgene-cli", id);
-		} catch (NoClassDefFoundError e) {
-
-		}
 		String local = FileUtil.path(id);
 
 		if (line.hasOption("output")) {
@@ -237,7 +192,7 @@ public class RunApplication extends BaseTool {
 
 		// file params with values from cmdline
 		try {
-			Map<String, String> params = CommandLineUtil.createParams(app, line, local, hdfs);
+			Map<String, String> params = CommandLineUtil.createParams(app, line, local, "");
 
 			// dummy user
 			User user = new User();
@@ -308,16 +263,11 @@ public class RunApplication extends BaseTool {
 			job.setId(id);
 			job.setName(id);
 			job.setLocalWorkspace(local);
-			job.setHdfsWorkspace(hdfs);
+			//job.setHdfsWorkspace(hdfs);
 			job.setSettings(settings);
-			job.setRemoveHdfsWorkspace(true);
 			job.setApplication(app.getName() + " " + app.getVersion());
 			job.setApplicationId(app.getId());
-			job.forceInstallation(force);
 
-			if (force) {
-				printText(0, spaces("[INFO]", 8) + "Force Cloudgene to reinstall application in HDFS");
-			}
 
 			printText(0, spaces("[INFO]", 8) + "Submit job " + id + "...");
 

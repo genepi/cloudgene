@@ -10,7 +10,7 @@ import org.apache.commons.io.FileUtils;
 import com.esotericsoftware.yamlbeans.YamlReader;
 
 import cloudgene.mapred.apps.Application;
-import genepi.hadoop.S3Util;
+import cloudgene.mapred.util.S3Util;
 
 public class CloneApplications extends BaseTool {
 

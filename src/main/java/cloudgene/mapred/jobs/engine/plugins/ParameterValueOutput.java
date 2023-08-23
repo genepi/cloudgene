@@ -1,12 +1,9 @@
 package cloudgene.mapred.jobs.engine.plugins;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import genepi.io.WildCardFileFilter;
 
@@ -26,25 +23,6 @@ public class ParameterValueOutput {
 	}
 
 	public String[] listFiles(String ext) {
-
-		if (parameter.getTypeAsEnum() == WdlParameterOutputType.HDFS_FOLDER) {
-			List<String> files = null;
-			try {
-
-				files = HdfsUtil.getFiles(value, ext);
-				String[] result = new String[files.size()];
-				for (int i = 0; i < files.size(); i++) {
-					result[i] = FileUtil.getFilename(files.get(i));
-				}
-				return result;
-			} catch (IOException e) {
-				e.printStackTrace();
-				String[] result = new String[1];
-				result[0] = FileUtil.getFilename(value);
-				;
-				return result;
-			}
-		}
 
 		if (parameter.getTypeAsEnum() == WdlParameterOutputType.LOCAL_FOLDER) {
 			return getFiles(value, ext);

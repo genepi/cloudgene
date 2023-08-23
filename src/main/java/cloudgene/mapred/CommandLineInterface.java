@@ -10,7 +10,6 @@ import cloudgene.mapred.cli.ShowPlugins;
 import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import cloudgene.mapred.cli.ValidateApplication;
-import cloudgene.mapred.cli.VerifyCluster;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.BuildUtil;
 import genepi.base.Toolbox;
@@ -42,7 +41,6 @@ public class CommandLineInterface extends Toolbox {
 		toolbox.addTool("remove", RemoveApplication.class);
 		toolbox.addTool("server", StartServer.class);
 		toolbox.addTool("validate", ValidateApplication.class);
-		toolbox.addTool("verify-cluster", VerifyCluster.class);
 		toolbox.addTool("plugins", ShowPlugins.class);
 		toolbox.addTool("version", ShowVersion.class);
 		toolbox.start();

@@ -12,8 +12,6 @@ import org.apache.commons.cli.Options;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterInputType;
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
 
 public class CommandLineUtil {
 
@@ -79,29 +77,7 @@ public class CommandLineUtil {
 					String entryName = tmpFile.getName();
 
 					if (input.isHdfs()) {
-						String targetPath = HdfsUtil.path(hdfs, "input", input.getId());
-						if (tmpFile.isDirectory()) {
-							String[] files = FileUtil.getFiles(value, "");
-							for (String sourceFile : files) {
-								if (!new File(sourceFile).isDirectory()) {
-									String name = FileUtil.getFilename(sourceFile);
-									String target = HdfsUtil.path(targetPath, name);
-									HdfsUtil.put(sourceFile, target);
-								}
-
-							}
-						} else {
-							String target = HdfsUtil.path(targetPath, entryName);
-							HdfsUtil.put(value, target);
-						}
-
-						if (input.isFolder()) {
-							// folder
-							props.put(input.getId(), HdfsUtil.path(hdfs, "input", input.getId()));
-						} else {
-							// file
-							props.put(input.getId(), HdfsUtil.path(hdfs, "input", input.getId(), entryName));
-						}
+						throw new RuntimeException("HDFS not supported in CG3");
 
 					} else {
 						props.put(input.getId(), value);

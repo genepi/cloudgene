@@ -1,6 +1,8 @@
 package cloudgene.mapred.server.controller;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -22,6 +24,7 @@ import cloudgene.mapred.server.services.JobService;
 import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
@@ -46,10 +49,10 @@ public class DownloadController {
 	@Inject
 	protected JobService jobService;
 
-	@Get("/downloads/{jobId}/{hash}/{filename}")
+	@Get("/downloads/{jobId}/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> downloadExternalResults(String jobId, String hash, String filename)
-			throws URISyntaxException {
+	public MutableHttpResponse<InputStream> downloadExternalResults(String jobId, String hash, String filename)
+			throws URISyntaxException, IOException {
 
 		AbstractJob job = jobService.getById(jobId);
 
@@ -75,10 +78,10 @@ public class DownloadController {
 
 	}
 
-	@Get("/share/results/{hash}/{filename}")
+	@Get("/share/results/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> downloadPublicLink(String hash, String filename) throws URISyntaxException {
-
+	public MutableHttpResponse<InputStream> downloadPublicLink(String hash, String filename) throws URISyntaxException, IOException {
+System.out.println("------> " + filename);
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 

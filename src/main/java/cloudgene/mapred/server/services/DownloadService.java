@@ -1,18 +1,19 @@
 package cloudgene.mapred.server.services;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
-import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.io.FileUtil;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpResponse;
 import jakarta.inject.Inject;
 
 public class DownloadService {
@@ -20,7 +21,10 @@ public class DownloadService {
 	@Inject
 	protected Application application;
 
-	public HttpResponse<File> download(Download download) throws URISyntaxException {
+	@Inject
+	protected ExternalWorkspaceFactory workspaceFactory;
+
+	public MutableHttpResponse<InputStream> download(Download download) throws URISyntaxException, IOException {
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 
@@ -37,20 +41,17 @@ public class DownloadService {
 			download.decCount();
 			dao.update(download);
 		}
-		
-		IExternalWorkspace externalWorkspace = ExternalWorkspaceFactory.get(download.getPath());
-		if (externalWorkspace != null) {
-			// external workspace found, use link method and create redirect response
-			String publicUrl = externalWorkspace.createPublicLink(download.getPath());
+
+		IExternalWorkspace externalWorkspace = workspaceFactory.getByUrl(download.getPath());
+
+		// external workspace found, use link method and create redirect response
+		String publicUrl = externalWorkspace.createPublicLink(download.getPath());
+		if (publicUrl != null) {
 			URI location = new URI(publicUrl);
 			return HttpResponse.redirect(location);
 		} else {
-			// no external workspace found, use local workspace
-			String localWorkspace = application.getSettings().getLocalWorkspace();
-			String resultFile = FileUtil.path(localWorkspace, download.getPath());
-			return HttpResponse.ok(new File(resultFile));
+			return HttpResponse.ok(externalWorkspace.download(download.getPath()));
 		}
-
 	}
 
 }

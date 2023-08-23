@@ -16,11 +16,11 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
 import cloudgene.sdk.internal.WorkflowContext;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -32,6 +32,9 @@ public class TestCommand {
 	@Inject
 	TestApplication application;
 
+	@Inject
+	ExternalWorkspaceFactory workspaceFactory;
+	
 	@Test
 	public void testValidCommand() throws Exception {
 		
@@ -137,17 +140,15 @@ public class TestCommand {
 
 		String id = "test_" + System.currentTimeMillis();
 
-		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
 		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
+		job.setExternalWorkspace(workspaceFactory.getDefault());
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(settings);
-		job.setRemoveHdfsWorkspace(true);
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(app.getId());
 

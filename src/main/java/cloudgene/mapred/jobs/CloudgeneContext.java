@@ -14,26 +14,15 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.sdk.internal.WorkflowContext;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
 public class CloudgeneContext extends WorkflowContext {
 
-	private String hdfsTemp;
-
 	private String localTemp;
-
-	private String localInput;
-
-	private String hdfsOutput;
-
-	private String hdfsInput;
 
 	private String localOutput;
 
 	private String workingDirectory;
-
-	private String workspace;
 
 	private Settings settings;
 
@@ -69,21 +58,8 @@ public class CloudgeneContext extends WorkflowContext {
 		setData("cloudgene.user.mail", user.getMail());
 		setData("cloudgene.user.name", user.getFullName());
 
-		workspace = job.getHdfsWorkspace();
-
-		try {
-			hdfsTemp = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace, "temp"));
-			hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
-			hdfsInput = HdfsUtil.makeAbsolute(HdfsUtil.path(workspace));
-		} catch (Error e) {
-			log("No hdfs folders created.");
-		}
-
 		localOutput = new File(job.getLocalWorkspace()).getAbsolutePath();
-
 		localTemp = new File(FileUtil.path(job.getLocalWorkspace(), "temp")).getAbsolutePath();
-
-		localInput = new File(FileUtil.path(job.getLocalWorkspace(), "input")).getAbsolutePath();
 
 		inputParameters = new HashMap<String, CloudgeneParameterInput>();
 		for (CloudgeneParameterInput param : job.getInputParams()) {
@@ -109,18 +85,7 @@ public class CloudgeneContext extends WorkflowContext {
 		return step;
 	}
 
-	public void setupOutputParameters(boolean hasHdfsOutputs) {
-
-		// cleanup temp directories
-		if (hasHdfsOutputs) {
-			try {
-				HdfsUtil.delete(getHdfsTemp());
-			} catch (Exception e) {
-				System.out.println("Warning: problems during hdfs init.");
-			} catch (Error e) {
-				System.out.println("Warning: problems during hdfs init.");
-			}
-		}
+	/*public void setupOutputParameters() throws Exception  {
 
 		FileUtil.deleteDirectory(getLocalTemp());
 
@@ -135,25 +100,7 @@ public class CloudgeneContext extends WorkflowContext {
 			case HDFS_FILE:
 			case HDFS_FOLDER:
 
-				String value = "";
-
-				if (param.isDownload()) {
-					value = HdfsUtil.path(getHdfsOutput(), param.getName());
-				} else {
-					value = HdfsUtil.path(getHdfsTemp(), param.getName());
-				}
-
-				if (!HdfsUtil.isAbsolute(value)) {
-					value = HdfsUtil.makeAbsolute(value);
-				}
-				// delete (needed for restart)
-				try {
-					HdfsUtil.delete(value);
-				} catch (Exception e) {
-					System.out.println("Warning: problems during hdfs init.");
-				}
-				param.setValue(value);
-				break;
+				throw new Exception("HDFS support was removed in Cloudgene 3");
 
 			case LOCAL_FILE:
 				String parent = getLocalOutput();
@@ -184,7 +131,7 @@ public class CloudgeneContext extends WorkflowContext {
 
 		}
 
-	}
+	}*/
 
 	public String getInput(String param) {
 
@@ -250,24 +197,8 @@ public class CloudgeneContext extends WorkflowContext {
 		return settings;
 	}
 
-	public String getHdfsTemp() {
-		return hdfsTemp;
-	}
-
 	public String getLocalTemp() {
 		return localTemp;
-	}
-
-	public String getLocalInput() {
-		return localInput;
-	}
-
-	public String getHdfsOutput() {
-		return hdfsOutput;
-	}
-
-	public String getHdfsInput() {
-		return hdfsInput;
 	}
 
 	public String getLocalOutput() {
@@ -514,6 +445,11 @@ public class CloudgeneContext extends WorkflowContext {
 
 		FileUtil.copy(filename, FileUtil.path(chunkFolder, chunkFilename));
 		message(chunkFilename, 27);
+	}
+
+	@Override
+	public String getHdfsTemp() {
+		throw new RuntimeException("Not support in cg3");
 	}
 
 }
