@@ -21,9 +21,8 @@ import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
 
@@ -119,7 +118,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private boolean canceld = false;
 
-	protected IExternalWorkspace externalWorkspace;
+	protected IWorkspace workspace;
 
 	private String workspaceSize = null;
 
@@ -743,12 +742,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.localWorkspace = localWorkspace;
 	}
 
-	public void setExternalWorkspace(IExternalWorkspace externalWorkspace) {
-		this.externalWorkspace = externalWorkspace;
+	public void setWorkspace(IWorkspace workspace) {
+		this.workspace = workspace;
 	}
 
-	public IExternalWorkspace getExternalWorkspace() {
-		return externalWorkspace;
+	public IWorkspace getWorkspace() {
+		return workspace;
 	}
 
 	public void setApplication(String application) {

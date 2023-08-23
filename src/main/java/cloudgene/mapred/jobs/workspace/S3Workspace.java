@@ -24,7 +24,7 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.S3Util;
 import genepi.io.FileUtil;
 
-public class S3Workspace implements IExternalWorkspace {
+public class S3Workspace implements IWorkspace {
 
 	private static final String OUTPUT_DIRECTORY = "outputs";
 

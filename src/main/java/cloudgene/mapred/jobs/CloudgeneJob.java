@@ -14,7 +14,6 @@ import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
 import cloudgene.mapred.jobs.engine.graph.Graph;
 import cloudgene.mapred.jobs.engine.graph.GraphNode;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
 import cloudgene.mapred.jobs.workspace.WorkspaceWrapper;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
@@ -104,9 +103,9 @@ public class CloudgeneJob extends AbstractJob {
 		FileUtil.createDirectory(context.getLocalTemp());
 
 		try {
-			context.log("Setup External Workspace on " + externalWorkspace.getName());
-			externalWorkspace.setup(this.getId());
-			context.setExternalWorkspace(new WorkspaceWrapper(externalWorkspace));
+			context.log("Setup External Workspace on " + workspace.getName());
+			workspace.setup(this.getId());
+			context.setExternalWorkspace(new WorkspaceWrapper(workspace));
 		} catch (Exception e) {
 			writeLog(e.toString());
 			log.info("Error setup external workspace", e);
@@ -124,12 +123,12 @@ public class CloudgeneJob extends AbstractJob {
 				throw new RuntimeException("HDFS support was removed in Cloudgene 3");
 
 			case LOCAL_FILE:
-				String filename = externalWorkspace.createFile(param.getName(), param.getName());
+				String filename = workspace.createFile(param.getName(), param.getName());
 				param.setValue(filename);
 				break;
 
 			case LOCAL_FOLDER:
-				String folder = externalWorkspace.createFolder(param.getName());
+				String folder = workspace.createFolder(param.getName());
 				param.setValue(folder);
 				break;
 			}
@@ -293,7 +292,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean cleanUp() {
 
 		try {
-			externalWorkspace.cleanup(getId());
+			workspace.cleanup(getId());
 		} catch (IOException e) {
 			writeLog("Cleanup failed.");
 			writeLog(e.getMessage());
@@ -333,7 +332,7 @@ public class CloudgeneJob extends AbstractJob {
 
 		out.setJobId(getId());
 
-		List<Download> downloads = externalWorkspace.getDownloads(out.getValue());
+		List<Download> downloads = workspace.getDownloads(out.getValue());
 		for (Download download : downloads) {
 			download.setParameter(out);
 			download.setCount(MAX_DOWNLOAD);
@@ -382,10 +381,6 @@ public class CloudgeneJob extends AbstractJob {
 			setProgress(-1);
 		}
 
-	}
-
-	public IExternalWorkspace getExternalWorkspace() {
-		return externalWorkspace;
 	}
 
 }

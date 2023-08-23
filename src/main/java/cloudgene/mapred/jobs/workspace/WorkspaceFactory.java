@@ -7,12 +7,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class ExternalWorkspaceFactory {
+public class WorkspaceFactory {
 
 	@Inject
 	protected Application application;
 
-	public IExternalWorkspace getDefault() {
+	public IWorkspace getDefault() {
 
 		Settings settings = application.getSettings();
 
@@ -31,7 +31,7 @@ public class ExternalWorkspaceFactory {
 
 	}
 
-	public IExternalWorkspace getByUrl(String url) {
+	public IWorkspace getByUrl(String url) {
 
 		Settings settings = application.getSettings();
 
@@ -48,7 +48,7 @@ public class ExternalWorkspaceFactory {
 
 	}
 
-	public IExternalWorkspace getByJob(AbstractJob job) {
+	public IWorkspace getByJob(AbstractJob job) {
 		return getDefault();
 	}
 

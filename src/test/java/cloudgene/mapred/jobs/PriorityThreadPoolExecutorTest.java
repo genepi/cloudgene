@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
@@ -29,7 +29,7 @@ public class PriorityThreadPoolExecutorTest {
 	TestApplication application;
 
 	@Inject
-	ExternalWorkspaceFactory workspaceFactory;
+	WorkspaceFactory workspaceFactory;
 	
 	@Test
 	public void testCancelRunningJob() throws Exception {
@@ -479,7 +479,7 @@ public class PriorityThreadPoolExecutorTest {
 		CloudgeneJob job = new CloudgeneJob(user, id,app, inputs);
 		job.setId(id);
 		job.setName(id);
-		job.setExternalWorkspace(workspaceFactory.getDefault());
+		job.setWorkspace(workspaceFactory.getDefault());
 		job.setLocalWorkspace(localWorkspace);
 		job.setSettings(settings);
 		job.setApplication(app.getName() + " " + app.getVersion());

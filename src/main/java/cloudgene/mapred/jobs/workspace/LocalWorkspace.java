@@ -17,7 +17,7 @@ import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.HashUtil;
 import genepi.io.FileUtil;
 
-public class LocalWorkspace implements IExternalWorkspace {
+public class LocalWorkspace implements IWorkspace {
 
 	private static final String INPUT_DIRECTORY = "input";
 

@@ -7,8 +7,8 @@ import java.net.URISyntaxException;
 
 import cloudgene.mapred.database.DownloadDao;
 import cloudgene.mapred.jobs.Download;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import io.micronaut.http.HttpResponse;
@@ -22,7 +22,7 @@ public class DownloadService {
 	protected Application application;
 
 	@Inject
-	protected ExternalWorkspaceFactory workspaceFactory;
+	protected WorkspaceFactory workspaceFactory;
 
 	public MutableHttpResponse<InputStream> download(Download download) throws URISyntaxException, IOException {
 
@@ -42,15 +42,15 @@ public class DownloadService {
 			dao.update(download);
 		}
 
-		IExternalWorkspace externalWorkspace = workspaceFactory.getByUrl(download.getPath());
+		IWorkspace workspace = workspaceFactory.getByUrl(download.getPath());
 
 		// external workspace found, use link method and create redirect response
-		String publicUrl = externalWorkspace.createPublicLink(download.getPath());
+		String publicUrl = workspace.createPublicLink(download.getPath());
 		if (publicUrl != null) {
 			URI location = new URI(publicUrl);
 			return HttpResponse.redirect(location);
 		} else {
-			return HttpResponse.ok(externalWorkspace.download(download.getPath()));
+			return HttpResponse.ok(workspace.download(download.getPath()));
 		}
 	}
 

@@ -7,7 +7,7 @@ import java.util.List;
 
 import cloudgene.mapred.jobs.Download;
 
-public interface IExternalWorkspace {
+public interface IWorkspace {
 
 	public void setup(String job) throws IOException;
 

@@ -14,8 +14,8 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
@@ -88,8 +88,8 @@ public class NextflowStep extends CloudgeneStep {
 			nextflowCommand.add("-w");
 			nextflowCommand.add(work);
 		} else {
-			IExternalWorkspace externalWorkspace = job.getExternalWorkspace();
-			String workDir = externalWorkspace.createTempFolder("nextflow");
+			IWorkspace workspace = job.getWorkspace();
+			String workDir = workspace.createTempFolder("nextflow");
 			FileUtil.createDirectory(workDir);
 			nextflowCommand.add("-w");
 			nextflowCommand.add(workDir);

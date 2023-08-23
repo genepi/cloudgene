@@ -22,7 +22,6 @@ import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.server.services.DownloadService;
 import cloudgene.mapred.server.services.JobService;
 import genepi.io.FileUtil;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
@@ -81,7 +80,7 @@ public class DownloadController {
 	@Get("/share/results/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
 	public MutableHttpResponse<InputStream> downloadPublicLink(String hash, String filename) throws URISyntaxException, IOException {
-System.out.println("------> " + filename);
+
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 

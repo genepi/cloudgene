@@ -21,9 +21,8 @@ import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
-import cloudgene.mapred.jobs.workspace.LocalWorkspace;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.util.FormUtil.Parameter;
@@ -46,7 +45,7 @@ public class JobService {
 	protected Application application;
 
 	@Inject
-	protected ExternalWorkspaceFactory workspaceFactory;
+	protected WorkspaceFactory workspaceFactory;
 
 	private static final String PARAM_JOB_NAME = "job-name";
 
@@ -121,15 +120,15 @@ public class JobService {
 
 		Map<String, String> inputParams = null;
 
-		IExternalWorkspace externalWorkspace = workspaceFactory.getDefault();
+		IWorkspace workspace = workspaceFactory.getDefault();
 
 		try {
 
 			// setup workspace
-			externalWorkspace.setup(id);
+			workspace.setup(id);
 
 			// parse input params
-			inputParams = parseAndUpdateInputParams(form, app, externalWorkspace);
+			inputParams = parseAndUpdateInputParams(form, app, workspace);
 
 		} catch (Exception e) {
 			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -148,7 +147,7 @@ public class JobService {
 		job.setId(id);
 		job.setName(name);
 		job.setLocalWorkspace(localWorkspace);
-		job.setExternalWorkspace(externalWorkspace);
+		job.setWorkspace(workspace);
 		job.setSettings(settings);
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(appId);
@@ -229,9 +228,9 @@ public class JobService {
 
 		// delete all results that are stored on external workspaces
 
-		IExternalWorkspace externalWorkspace = workspaceFactory.getByJob(job);
+		IWorkspace workspace = workspaceFactory.getByJob(job);
 		try {
-			externalWorkspace.delete(job.getId());
+			workspace.delete(job.getId());
 		} catch (Exception e) {
 			log.error("Deleteting " + job.getId() + " form workspace failed.", e);
 		}
@@ -319,10 +318,10 @@ public class JobService {
 			job.setState(AbstractJob.STATE_RETIRED);
 			dao.update(job);
 
-			IExternalWorkspace externalWorkspace = workspaceFactory.getByJob(job);
+			IWorkspace workspace = workspaceFactory.getByJob(job);
 
 			try {
-				externalWorkspace.delete(job.getId());
+				workspace.delete(job.getId());
 			} catch (Exception e) {
 				log.error("Deleteting " + job.getId() + " from workspace failed.", e);
 			}
@@ -367,8 +366,8 @@ public class JobService {
 
 	// TODO: refactore and combine this method with CommandLineUtil.parseArgs...
 
-	private Map<String, String> parseAndUpdateInputParams(List<Parameter> form, WdlApp app,
-			IExternalWorkspace externalWorkspace) throws Exception {
+	private Map<String, String> parseAndUpdateInputParams(List<Parameter> form, WdlApp app, IWorkspace workspace)
+			throws Exception {
 
 		Map<String, String> props = new HashMap<String, String>();
 		Map<String, String> params = new HashMap<String, String>();
@@ -402,10 +401,10 @@ public class JobService {
 					}
 
 					// copy to workspace in input directory
-					String target = externalWorkspace.uploadInput(fieldName, inputFile);
+					String target = workspace.uploadInput(fieldName, inputFile);
 
 					if (inputParam.isFolder()) {
-						props.put(fieldName, externalWorkspace.getParent(target));
+						props.put(fieldName, workspace.getParent(target));
 					} else {
 						// file
 						props.put(fieldName, target);

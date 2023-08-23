@@ -16,7 +16,7 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
@@ -33,7 +33,7 @@ public class TestCommand {
 	TestApplication application;
 
 	@Inject
-	ExternalWorkspaceFactory workspaceFactory;
+	WorkspaceFactory workspaceFactory;
 	
 	@Test
 	public void testValidCommand() throws Exception {
@@ -145,7 +145,7 @@ public class TestCommand {
 
 		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
-		job.setExternalWorkspace(workspaceFactory.getDefault());
+		job.setWorkspace(workspaceFactory.getDefault());
 		job.setName(id);
 		job.setLocalWorkspace(localWorkspace);
 		job.setSettings(settings);

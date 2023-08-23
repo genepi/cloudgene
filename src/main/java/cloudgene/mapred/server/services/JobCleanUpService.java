@@ -9,8 +9,8 @@ import cloudgene.mapred.core.Template;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
-import cloudgene.mapred.jobs.workspace.IExternalWorkspace;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
@@ -27,7 +27,7 @@ public class JobCleanUpService {
 	protected Application application;
 
 	@Inject
-	protected ExternalWorkspaceFactory workspaceFactory;
+	protected WorkspaceFactory workspaceFactory;
 
 	public int executeRetire() {
 
@@ -54,7 +54,7 @@ public class JobCleanUpService {
 				log.info("Job " + job.getId() + " retired.");
 				deleted++;
 
-				IExternalWorkspace externalWorkspace = workspaceFactory.getByJob(job);
+				IWorkspace externalWorkspace = workspaceFactory.getByJob(job);
 
 				try {
 					externalWorkspace.delete(job.getId());

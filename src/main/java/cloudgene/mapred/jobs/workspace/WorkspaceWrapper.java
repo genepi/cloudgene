@@ -8,9 +8,9 @@ import cloudgene.sdk.internal.IExternalWorkspace;
 
 public class WorkspaceWrapper implements IExternalWorkspace {
 
-	private cloudgene.mapred.jobs.workspace.IExternalWorkspace newWorkspace;
+	private cloudgene.mapred.jobs.workspace.IWorkspace newWorkspace;
 
-	public WorkspaceWrapper(cloudgene.mapred.jobs.workspace.IExternalWorkspace newWorkspace) {
+	public WorkspaceWrapper(cloudgene.mapred.jobs.workspace.IWorkspace newWorkspace) {
 		this.newWorkspace = newWorkspace;
 	}
 
