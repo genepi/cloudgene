@@ -63,6 +63,7 @@ public class StartServer extends Tool {
 			Map<String, Object> properties = new HashMap<String, Object>();
 			properties.put("micronaut.server.port", port);
 			if (Application.settings.getUploadLimit() != -1) {
+				properties.put("micronaut.server.maxRequestSize", Application.settings.getUploadLimit() + "MB");
 				properties.put("micronaut.server.multipart.maxFileSize", Application.settings.getUploadLimit() + "MB");
 			}
 
