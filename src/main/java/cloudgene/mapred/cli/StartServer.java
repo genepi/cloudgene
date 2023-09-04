@@ -130,10 +130,6 @@ public class StartServer extends Tool {
 			settings = new Settings(config);
 		}
 
-		if (!settings.testPaths()) {
-			System.exit(1);
-		}
-
 		if (settings.getServerUrl() == null || settings.getServerUrl().trim().isEmpty()) {
 			System.out.println("serverUrl not set. Please set serverUrl in file '" + settingsFilename + "'");
 			System.exit(1);
