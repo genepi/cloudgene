@@ -90,7 +90,6 @@ public class NextflowStep extends CloudgeneStep {
 		} else {
 			IWorkspace workspace = job.getWorkspace();
 			String workDir = workspace.createTempFolder("nextflow");
-			FileUtil.createDirectory(workDir);
 			nextflowCommand.add("-w");
 			nextflowCommand.add(workDir);
 		}
@@ -135,16 +134,30 @@ public class NextflowStep extends CloudgeneStep {
 			return false;
 		}
 
+		IWorkspace workspace = job.getWorkspace();
+				
 		nextflowCommand.add("-params-file");
 		nextflowCommand.add(paramsFile.getAbsolutePath());
 
 		nextflowCommand.add("-ansi-log");
 		nextflowCommand.add("false");
-
+		
 		nextflowCommand.add("-with-weblog");
 		nextflowCommand.add(context.getSettings().getServerUrl() + context.getSettings().getUrlPrefix()
 				+ "/api/v2/collect/" + makeSecretJobId(context.getJobId()));
-
+		
+		//nextflowCommand.add("-log");
+		//nextflowCommand.add(workspace.createLogFile("nextflow.log"));
+		
+		nextflowCommand.add("-with-trace");
+		nextflowCommand.add(workspace.createLogFile("trace.csv"));
+		
+		nextflowCommand.add("-with-report");
+		nextflowCommand.add(workspace.createLogFile("report.html"));
+		
+		nextflowCommand.add("-with-timeline");
+		nextflowCommand.add(workspace.createLogFile("timeline.html"));
+		
 		StringBuilder output = new StringBuilder();
 
 		List<String> command = new Vector<String>();
@@ -260,7 +273,7 @@ public class NextflowStep extends CloudgeneStep {
 		String result = "";
 		for (int i = 0; i < array.size(); i++) {
 			if (i > 0) {
-				result += " \\\n";
+				result += " ";
 			}
 			result += array.get(i);
 		}

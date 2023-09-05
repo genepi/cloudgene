@@ -28,11 +28,13 @@ public class S3Workspace implements IWorkspace {
 
 	private static final String OUTPUT_DIRECTORY = "outputs";
 
-	public static long EXPIRATION_MS = 1000 * 60 * 60;
-
 	private static final String INPUT_DIRECTORY = "input";
 
+	private static final String LOGS_DIRECTORY = "logs";
+
 	private static final String TEMP_DIRECTORY = "temp";
+
+	public static long EXPIRATION_MS = 1000 * 60 * 60;
 
 	private static final Logger log = LoggerFactory.getLogger(S3Workspace.class);
 
@@ -96,6 +98,13 @@ public class S3Workspace implements IWorkspace {
 		S3ObjectInputStream s3is = o.getObjectContent();
 
 		return s3is;
+	}
+
+	public boolean exists(String url) {
+		String bucket = S3Util.getBucket(url);
+		String key = S3Util.getKey(url);
+		AmazonS3 s3 = S3Util.getAmazonS3();
+		return s3.doesObjectExist(bucket, key);
 	}
 
 	@Override
@@ -190,6 +199,11 @@ public class S3Workspace implements IWorkspace {
 	@Override
 	public String createFile(String folder, String id) {
 		return location + "/" + job + "/" + OUTPUT_DIRECTORY + "/" + folder + "/" + id;
+	}
+
+	@Override
+	public String createLogFile(String id) {
+		return location + "/" + job + "/" + LOGS_DIRECTORY + "/" + id;
 	}
 
 	@Override

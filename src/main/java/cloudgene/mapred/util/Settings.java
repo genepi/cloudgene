@@ -75,7 +75,7 @@ public class Settings {
 
 	private Map<String, String> externalWorkspace = null;
 
-	private int uploadLimit = 500;
+	private int uploadLimit = 5000;
 
 	private String googleAnalytics = "";
 

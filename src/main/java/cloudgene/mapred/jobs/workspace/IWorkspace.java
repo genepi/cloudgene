@@ -29,10 +29,14 @@ public interface IWorkspace {
 
 	public String createFile(String name, String name2);
 
+	public String createLogFile(String name);
+
 	public String createTempFolder(String string);
 
 	public List<Download> getDownloads(String url);
 	
 	public void cleanup(String job) throws IOException;
+	
+	public boolean exists(String path) throws IOException;
 	
 }

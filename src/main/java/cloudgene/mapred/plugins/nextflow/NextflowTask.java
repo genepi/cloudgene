@@ -1,13 +1,12 @@
 package cloudgene.mapred.plugins.nextflow;
 
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
-import cloudgene.sdk.internal.IExternalWorkspace;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import genepi.io.FileUtil;
 import genepi.io.text.LineReader;
 
@@ -39,10 +38,13 @@ public class NextflowTask {
 		if (status.equals("COMPLETED") || status.equals("FAILED")) {
 			String workDir = (String) trace.get("workdir");
 			String logFilename = FileUtil.path(workDir, CLOUDGENE_LOG);
-			IExternalWorkspace workspace = context.getExternalWorkspace();
-			InputStream stream = workspace.download(logFilename);
-			log = FileUtil.readFileAsString(stream);
-			parseFile(logFilename);
+			IWorkspace workspace = context.getJob().getWorkspace();
+			if (workspace.exists(logFilename)) {
+				context.log("Load log file from '" + logFilename + "'");
+				InputStream stream = workspace.download(logFilename);
+				log = FileUtil.readFileAsString(stream);
+				parseFile(logFilename);
+			}
 		}
 
 	}

@@ -19,9 +19,13 @@ import genepi.io.FileUtil;
 
 public class LocalWorkspace implements IWorkspace {
 
+	private static final String OUTPUT_DIRECTORY = "outputs";
+
 	private static final String INPUT_DIRECTORY = "input";
 
 	private static final String TEMP_DIRECTORY = "temp";
+
+	private static final String LOGS_DIRECTORY = "logs";
 
 	private static final Logger log = LoggerFactory.getLogger(LocalWorkspace.class);
 
@@ -54,7 +58,7 @@ public class LocalWorkspace implements IWorkspace {
 		FileUtil.copy(file.getAbsolutePath(), target);
 		return target;
 	}
-	
+
 	@Override
 	public String uploadInput(String id, File file) throws IOException {
 		return upload(FileUtil.path(INPUT_DIRECTORY, id), file);
@@ -64,7 +68,7 @@ public class LocalWorkspace implements IWorkspace {
 	public InputStream download(String path) throws IOException {
 		String absolutePath = path;
 		if (!absolutePath.startsWith("/")) {
-			 absolutePath = FileUtil.path(location, path);
+			absolutePath = FileUtil.path(location, path);
 		}
 		File file = new File(absolutePath);
 		if (file.exists()) {
@@ -72,6 +76,16 @@ public class LocalWorkspace implements IWorkspace {
 		} else {
 			throw new IOException("File '" + path + "' not found in workspace.");
 		}
+	}
+
+	@Override
+	public boolean exists(String path) throws IOException {
+		String absolutePath = path;
+		if (!absolutePath.startsWith("/")) {
+			absolutePath = FileUtil.path(location, path);
+		}
+		File file = new File(absolutePath);
+		return file.exists();
 	}
 
 	@Override
@@ -90,12 +104,12 @@ public class LocalWorkspace implements IWorkspace {
 		}
 
 	}
-	
+
 	@Override
 	public void cleanup(String job) throws IOException {
-		
-		//TODO: add flag to disable cleanup (e.g. debugging)
-		
+
+		// TODO: add flag to disable cleanup (e.g. debugging)
+
 		try {
 			log.debug("Cleanup " + job + " on local workspace...");
 			String temp = FileUtil.path(location, job, TEMP_DIRECTORY);
@@ -125,14 +139,21 @@ public class LocalWorkspace implements IWorkspace {
 
 	@Override
 	public String createFolder(String id) {
-		String folder = FileUtil.path(workspace, id);
+		String folder = FileUtil.path(workspace, OUTPUT_DIRECTORY, id);
 		FileUtil.createDirectory(folder);
 		return folder;
 	}
 
 	@Override
 	public String createFile(String parent, String id) {
-		String folder = FileUtil.path(workspace, parent);
+		String folder = FileUtil.path(workspace, OUTPUT_DIRECTORY, parent);
+		FileUtil.createDirectory(folder);
+		return FileUtil.path(folder, id);
+	}
+
+	@Override
+	public String createLogFile(String id) {
+		String folder = FileUtil.path(workspace, LOGS_DIRECTORY);
 		FileUtil.createDirectory(folder);
 		return FileUtil.path(folder, id);
 	}
