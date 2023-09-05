@@ -62,7 +62,10 @@ public class LocalWorkspace implements IWorkspace {
 
 	@Override
 	public InputStream download(String path) throws IOException {
-		String absolutePath = FileUtil.path(location, path);
+		String absolutePath = path;
+		if (!absolutePath.startsWith("/")) {
+			 absolutePath = FileUtil.path(location, path);
+		}
 		File file = new File(absolutePath);
 		if (file.exists()) {
 			return new FileInputStream(file);
