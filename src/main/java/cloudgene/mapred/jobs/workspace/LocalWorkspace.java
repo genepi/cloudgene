@@ -139,14 +139,14 @@ public class LocalWorkspace implements IWorkspace {
 
 	@Override
 	public String createFolder(String id) {
-		String folder = FileUtil.path(workspace, OUTPUT_DIRECTORY, id);
+		String folder = FileUtil.path(workspace, id);
 		FileUtil.createDirectory(folder);
 		return folder;
 	}
 
 	@Override
 	public String createFile(String parent, String id) {
-		String folder = FileUtil.path(workspace, OUTPUT_DIRECTORY, parent);
+		String folder = FileUtil.path(workspace, parent);
 		FileUtil.createDirectory(folder);
 		return FileUtil.path(folder, id);
 	}
