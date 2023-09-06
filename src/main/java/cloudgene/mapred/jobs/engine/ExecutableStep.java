@@ -1,4 +1,4 @@
-package cloudgene.mapred.jobs.engine.graph;
+package cloudgene.mapred.jobs.engine;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -7,8 +7,6 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.List;
-import java.util.Vector;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +23,8 @@ import cloudgene.mapred.wdl.WdlStep;
 import cloudgene.sdk.internal.WorkflowStep;
 import genepi.io.FileUtil;
 
-public class GraphNode implements Runnable {
+public class ExecutableStep implements Runnable {
+
 	private WdlStep step;
 
 	private CloudgeneContext context;
@@ -38,23 +37,14 @@ public class GraphNode implements Runnable {
 
 	private boolean successful = false;
 
-	private boolean finish = false;
-
-	private List<String> inputs;
-
-	private List<String> outputs;
-
 	private long time;
 
 	private String id = "";
 
-	public GraphNode(WdlStep step, CloudgeneContext context)
-			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+	public ExecutableStep(WdlStep step, CloudgeneContext context) throws Exception {
 		this.step = step;
 		this.context = context;
 		this.job = context.getJob();
-		inputs = new Vector<String>();
-		outputs = new Vector<String>();
 		instance();
 	}
 
@@ -98,7 +88,7 @@ public class GraphNode implements Runnable {
 				if (object instanceof CloudgeneStep) {
 					instance = (CloudgeneStep) object;
 				} else if (object instanceof WorkflowStep) {
-					instance = new JavaInternalStep((WorkflowStep) object);				
+					instance = new JavaInternalStep((WorkflowStep) object);
 				} else {
 					instance = new ErrorStep("Error during initialization: class " + step.getClassname() + " ( "
 							+ object.getClass().getSuperclass().getCanonicalName() + ") "
@@ -108,7 +98,7 @@ public class GraphNode implements Runnable {
 
 				// check requirements
 				PluginManager pluginManager = PluginManager.getInstance();
-				for (String plugin : instance.getRequirements()) {					
+				for (String plugin : instance.getRequirements()) {
 					if (!pluginManager.isEnabled(plugin)) {
 						instance = new ErrorStep(
 								"Requirements not fullfilled. This steps needs plugin '" + plugin + "'");
@@ -140,8 +130,6 @@ public class GraphNode implements Runnable {
 		context.setCurrentStep(instance);
 		job.getSteps().add(instance);
 
-		job.onStepStarted(instance);
-
 		job.writeLog("------------------------------------------------------");
 		job.writeLog(step.getName());
 		job.writeLog("------------------------------------------------------");
@@ -156,11 +144,9 @@ public class GraphNode implements Runnable {
 			if (!successful) {
 				job.writeLog("  " + step.getName() + " [ERROR]");
 				successful = false;
-				finish = true;
 
 				context.incCounter("steps.failure." + id, 1);
 				context.submitCounter("steps.failure." + id);
-				job.onStepFinished(instance);
 
 				return;
 			} else {
@@ -184,17 +170,13 @@ public class GraphNode implements Runnable {
 			context.submitCounter("steps.failure." + id);
 
 			successful = false;
-			finish = true;
-			job.onStepFinished(instance);
 			return;
 		}
 
 		context.incCounter("steps.success." + id, 1);
 		context.submitCounter("steps.success." + id);
 
-		finish = true;
 		successful = true;
-		job.onStepFinished(instance);
 
 	}
 
@@ -204,6 +186,7 @@ public class GraphNode implements Runnable {
 
 	public void kill() {
 		if (instance != null) {
+			log.info("Get kill signal for job " + job.getId());
 			instance.kill();
 		}
 	}
@@ -220,26 +203,6 @@ public class GraphNode implements Runnable {
 		} else {
 			return 0;
 		}
-	}
-
-	public boolean isFinish() {
-		return finish;
-	}
-
-	public void addInput(String input) {
-		inputs.add(input);
-	}
-
-	public void addOutput(String output) {
-		outputs.add(output);
-	}
-
-	public List<String> getInputs() {
-		return inputs;
-	}
-
-	public List<String> getOutputs() {
-		return outputs;
 	}
 
 	public void setTime(long time) {

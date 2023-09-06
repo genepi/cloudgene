@@ -85,5 +85,11 @@ public class Download implements Comparable<Download> {
 		return name.compareTo(o.getName());
 
 	}
+	
+	@Override
+	public boolean equals(Object object) {
+		Download download = (Download) object;
+		return name.equals(download.getName());
+	}
 
 }

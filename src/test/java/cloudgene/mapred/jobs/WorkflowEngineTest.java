@@ -27,16 +27,15 @@ public class WorkflowEngineTest {
 
 	@Inject
 	TestApplication application;
-	
+
 	@Inject
 	WorkspaceFactory workspaceFactory;
-	
-	
+
 	@Test
 	public void testReturnTrueStep() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true.yaml");
 
 		Map<String, String> inputs = new HashMap<String, String>();
@@ -61,7 +60,6 @@ public class WorkflowEngineTest {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 
-		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-false.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -107,7 +105,7 @@ public class WorkflowEngineTest {
 
 	@Test
 	public void testReturnTrueInSetupStep() throws Exception {
-		
+
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true-in-setup.yaml");
@@ -126,8 +124,8 @@ public class WorkflowEngineTest {
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
 		// no steps
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
 
@@ -136,7 +134,6 @@ public class WorkflowEngineTest {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 
-		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-false-in-setup.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -152,8 +149,8 @@ public class WorkflowEngineTest {
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
 		// no steps
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
 
@@ -162,7 +159,6 @@ public class WorkflowEngineTest {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 
-		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true-in-setup2.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -179,8 +175,8 @@ public class WorkflowEngineTest {
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
 		// no steps
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
 
@@ -189,7 +185,6 @@ public class WorkflowEngineTest {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 
-		
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-true-in-setup3.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -232,24 +227,22 @@ public class WorkflowEngineTest {
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
-		
-		//check step ouputs
-		assertEquals("text1: my-value\n",  job.getSteps().get(0).getLogMessages().get(0).getMessage());
-		assertEquals("checkbox1: true\n",  job.getSteps().get(1).getLogMessages().get(0).getMessage());
-		assertEquals("list1: value1\n",  job.getSteps().get(2).getLogMessages().get(0).getMessage());
-		assertEquals("text2: my-value\n",  job.getSteps().get(3).getLogMessages().get(0).getMessage());
-		assertEquals("checkbox2: true\n",  job.getSteps().get(4).getLogMessages().get(0).getMessage());
-		assertEquals("list2: value1\n",  job.getSteps().get(5).getLogMessages().get(0).getMessage());
-		
-		
+
+		// check step ouputs
+		assertEquals("text1: my-value\n", job.getSteps().get(0).getLogMessages().get(0).getMessage());
+		assertEquals("checkbox1: true\n", job.getSteps().get(1).getLogMessages().get(0).getMessage());
+		assertEquals("list1: value1\n", job.getSteps().get(2).getLogMessages().get(0).getMessage());
+		assertEquals("text2: my-value\n", job.getSteps().get(3).getLogMessages().get(0).getMessage());
+		assertEquals("checkbox2: true\n", job.getSteps().get(4).getLogMessages().get(0).getMessage());
+		assertEquals("list2: value1\n", job.getSteps().get(5).getLogMessages().get(0).getMessage());
+
 	}
-	
+
 	@Test
 	public void testReturnWriteFileInSecondSetupStep() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 
-		
 		String myContent = "test-test-test-test-text";
 
 		WdlApp app = WdlReader.loadAppFromFile("test-data/write-file-in-setup.yaml");
@@ -303,7 +296,7 @@ public class WorkflowEngineTest {
 	public void testEmptyStepList() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/no-steps.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -318,8 +311,8 @@ public class WorkflowEngineTest {
 		assertTrue(job.getFinishedOn() > 0);
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 	}
 
@@ -327,7 +320,7 @@ public class WorkflowEngineTest {
 	public void testReturnFalseInSecondSetupStep() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/return-false-in-setup2.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -343,8 +336,8 @@ public class WorkflowEngineTest {
 		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	}
 
@@ -352,7 +345,7 @@ public class WorkflowEngineTest {
 	public void testWriteTextToFileJob() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -383,7 +376,7 @@ public class WorkflowEngineTest {
 	public void testWriteTextToFileOnFailureInStepJob() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/write-text-to-file-on-failure.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -435,9 +428,8 @@ public class WorkflowEngineTest {
 		assertTrue(job.getFinishedOn() > 0);
 		assertTrue(job.getSetupStartTime() > 0);
 		assertTrue(job.getSetupEndTime() > 0);
-		// steps not executed
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
@@ -469,8 +461,8 @@ public class WorkflowEngineTest {
 		// no steps executed
 		assertTrue(job.getSubmittedOn() > 0);
 		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
 		assertEquals(job.getState(), AbstractJob.STATE_FAILED);
 	}
@@ -479,7 +471,7 @@ public class WorkflowEngineTest {
 	public void testThreeTasksStep() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/three-tasks.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -528,8 +520,7 @@ public class WorkflowEngineTest {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 
-		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(),
-				"std.out");
+		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "std.out");
 		String contentStdOut = FileUtil.readFileAsString(stdout);
 
 		String log = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "job.txt");
@@ -580,7 +571,7 @@ public class WorkflowEngineTest {
 		assertTrue(message.getMessage().contains("property3:hey3!"));
 
 	}
-	
+
 	@Test
 	public void testApplicationLinksWithoutAppsPrefix() throws Exception {
 
@@ -611,12 +602,12 @@ public class WorkflowEngineTest {
 		assertTrue(message.getMessage().contains("property3:hey3!"));
 
 	}
-	
+
 	@Test
 	public void testApplicationLinksWithoutVersion() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -642,12 +633,12 @@ public class WorkflowEngineTest {
 		assertTrue(message.getMessage().contains("property3:hey3!"));
 
 	}
-	
+
 	@Test
 	public void testOptionalApplicationLinks() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links-optional.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -672,12 +663,12 @@ public class WorkflowEngineTest {
 		assertFalse(message.getMessage().contains("property3:hey3!"));
 
 	}
-	
+
 	@Test
 	public void testApplicationLinksWrongApplication() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -702,7 +693,7 @@ public class WorkflowEngineTest {
 	public void testApplicationLinksWrongPermissions() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/app-links.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -727,7 +718,7 @@ public class WorkflowEngineTest {
 
 	public CloudgeneJob createJobFromWdl(WdlApp app, Map<String, String> inputs) throws Exception {
 
-		UserDao userDao = new UserDao(application.getDatabase());				
+		UserDao userDao = new UserDao(application.getDatabase());
 		User user = userDao.findByUsername("admin");
 
 		return createJobFromWdl(app, inputs, user);
@@ -735,9 +726,9 @@ public class WorkflowEngineTest {
 
 	public CloudgeneJob createJobFromWdlAsUser(WdlApp app, Map<String, String> inputs) throws Exception {
 
-		UserDao userDao = new UserDao(application.getDatabase());				
+		UserDao userDao = new UserDao(application.getDatabase());
 		User user = userDao.findByUsername("user");
-		
+
 		return createJobFromWdl(app, inputs, user);
 	}
 

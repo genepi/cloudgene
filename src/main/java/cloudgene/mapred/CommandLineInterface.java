@@ -5,7 +5,6 @@ import cloudgene.mapred.cli.InstallApplication;
 import cloudgene.mapred.cli.InstallGitHubApplication;
 import cloudgene.mapred.cli.ListApplications;
 import cloudgene.mapred.cli.RemoveApplication;
-import cloudgene.mapred.cli.RunApplication;
 import cloudgene.mapred.cli.ShowPlugins;
 import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
@@ -32,7 +31,6 @@ public class CommandLineInterface extends Toolbox {
 
 	public static void main(String[] args) throws Exception {
 		CommandLineInterface toolbox = new CommandLineInterface("cloudgene", args);
-		toolbox.addTool("run", RunApplication.class);
 		toolbox.addTool("install", InstallApplication.class);
 		toolbox.addTool("gh", InstallGitHubApplication.class);
 		toolbox.addTool("github-install", InstallGitHubApplication.class);

@@ -510,7 +510,8 @@ public class JobService {
 
 			case "running-stq":
 
-				jobs = engine.getAllJobsInShortTimeQueue();
+				//TODO: remove!
+				jobs = new Vector<AbstractJob>();
 				break;
 
 			case "current":

@@ -2,8 +2,6 @@ package cloudgene.mapred.jobs.engine;
 
 import java.io.File;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.velocity.Template;
@@ -12,19 +10,13 @@ import org.apache.velocity.app.Velocity;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Environment;
-import cloudgene.mapred.jobs.engine.graph.Graph;
-import cloudgene.mapred.jobs.engine.graph.GraphEdge;
-import cloudgene.mapred.jobs.engine.graph.GraphNode;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValueInput;
 import cloudgene.mapred.jobs.engine.plugins.ParameterValueOutput;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
-import cloudgene.mapred.wdl.WdlParameter;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlReader;
-import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.mapred.wdl.WdlWorkflow;
 
 public class Planner {
 
@@ -76,100 +68,6 @@ public class Planner {
 		context.log("Planner: WDL evaluated.");
 
 		return app2;
-	}
-
-	public Graph buildDAG(List<WdlStep> steps, WdlWorkflow config, CloudgeneContext context)
-			throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-
-		Graph graph = new Graph(context);
-
-		// build nodes
-		GraphNode lastNode = null;
-		for (WdlStep step : steps) {
-			GraphNode node = new GraphNode(step, context);
-			graph.addNode(node);
-			if (lastNode != null) {
-				graph.connect(lastNode, node, null);
-			}
-			lastNode = node;
-		}
-
-		// add output parameters
-		for (GraphNode node : graph.getNodes()) {
-
-			for (WdlParameter param : config.getOutputs()) {
-				if (stepConsumesParameter(node.getStep(), param, context)
-						&& !stepProducesParameter(node.getStep(), param, context)) {
-					node.addInput(param.getId());
-				}
-
-				if (stepProducesParameter(node.getStep(), param, context)) {
-					node.addOutput(param.getId());
-				}
-			}
-
-			for (WdlParameter param : config.getInputs()) {
-				if (stepConsumesParameter(node.getStep(), param, context)) {
-					node.addInput(param.getId());
-				}
-			}
-		}
-
-		context.log("Planner: DAG created.");
-		context.log("  Nodes: " + graph.getSize());
-		for (GraphNode node : graph.getNodes()) {
-			context.log("    " + node.getStep().getName());
-			String inputs = "";
-			for (String input : node.getInputs()) {
-				inputs += input + " ";
-			}
-			context.log("      Inputs: " + inputs);
-			String outputs = "";
-			for (String output : node.getOutputs()) {
-				outputs += output + " ";
-			}
-			context.log("      Outputs: " + outputs);
-		}
-
-		context.log("  Dependencies: " + graph.getEdges().size());
-		for (GraphEdge edge : graph.getEdges()) {
-			context.log("    " + edge.getSource().getStep().getName() + "->" + edge.getTarget().getStep().getName());
-		}
-
-		return graph;
-
-	}
-
-	private boolean stepConsumesParameter(WdlStep step, WdlParameter param, CloudgeneContext context) {
-
-		if (step.get("params") != null) {
-			if (step.get("params").contains(context.get(param.getId()))) {
-				return true;
-			}
-		}
-
-		if (step.get("mapper") != null) {
-			if (step.get("mapper").contains(context.get(param.getId()))) {
-				return true;
-			}
-		}
-
-		if (step.get("reducer") != null) {
-			if (step.get("reducer").contains(context.get(param.getId()))) {
-				return true;
-			}
-		}
-
-		return false;
-
-	}
-
-	private boolean stepProducesParameter(WdlStep step, WdlParameter param, CloudgeneContext context) {
-		if (step.getGenerates() != null) {
-			return (step.getGenerates().contains(context.get(param.getId())));
-		} else {
-			return false;
-		}
 	}
 
 }

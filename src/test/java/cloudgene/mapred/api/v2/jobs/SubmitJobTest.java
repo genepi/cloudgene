@@ -184,7 +184,7 @@ public class SubmitJobTest {
 
 		// submit jobs
 		String id = RestAssured.given().header(accessToken).and().multiPart("input-input", "input-file").when()
-				.post("/api/v2/jobs/submit/three-tasks").then().statusCode(200).and().extract().jsonPath()
+				.post("/api/v2/jobs/submit/three-tasks").then().log().all().statusCode(200).and().extract().jsonPath()
 				.getString("id");
 
 		// wait until job is complete

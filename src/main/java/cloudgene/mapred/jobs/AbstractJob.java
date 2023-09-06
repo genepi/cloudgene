@@ -289,7 +289,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 		}
 	}
 
-	public void runSetupSteps() {
+	public void runInstallationAndResolveAppLinks() {
 
 		Settings settings = getSettings();
 		ApplicationRepository repository = settings.getApplicationRepository();
@@ -303,163 +303,67 @@ abstract public class AbstractJob extends PriorityRunnable {
 					linkedAppId = value.replaceAll("apps@", "");
 				}
 
-				if (!value.isEmpty()) {
-					Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
-					if (linkedApp != null) {
-						// update environment variables
-						Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(),
-								settings);
-						Map<String, String> envJob = Environment.getJobVariables(context);
-						Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
-						for (String property : properties.keySet()) {
-							Object propertyValue = properties.get(property);
-							if (propertyValue instanceof String) {
-								propertyValue = Environment.env(propertyValue.toString(), envApp);
-								propertyValue = Environment.env(propertyValue.toString(), envJob);
-							}
-							properties.put(property, propertyValue);
-						}
-
-						getContext().setData(input.getName(), properties);
-					} else {
-						String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
-						log.info(error);
-						writeOutput(error);
-						setError(error);
-						setSetupComplete(false);
-						setState(AbstractJob.STATE_FAILED);
-						return;
-					}
+				if (value.isEmpty()) {
+					continue;
 				}
-			}
-		}
-
-		// execute setup steps
-
-		try {
-
-			log.info("Job " + getId() + ": executing setups...");
-			writeLog("Executing Job setups....");
-
-			boolean succesfull = executeSetupSteps();
-
-			if (succesfull && hasSteps()) {
-				// all okey
-
-				log.info("Job " + getId() + ":  executed successful. job has steps.");
-				setSetupComplete(true);
-				return;
-
-			} else if (succesfull && !hasSteps()) {
-				// all okey and no more steps
-
-				log.info("Job " + getId() + ":  executed successful. job has no more steps.");
-
-				writeLog("Job execution successful.");
-				writeLog("Exporting Data...");
-
-				setState(AbstractJob.STATE_EXPORTING);
-
-				try {
-
-					boolean successfulAfter = after();
-
-					if (successfulAfter) {
-
-						setState(AbstractJob.STATE_SUCCESS);
-						setSetupComplete(true);
-						log.info("Job " + getId() + ": data export successful.");
-						writeLog("Data export successful.");
-
-					} else {
-
-						setSetupComplete(false);
-						setState(AbstractJob.STATE_FAILED);
-						log.error("Job " + getId() + ": data export failed.");
-						writeLog("Data export failed.");
-
-					}
-
-				} catch (Error | Exception e) {
-
-					Writer writer = new StringWriter();
-					PrintWriter printWriter = new PrintWriter(writer);
-					e.printStackTrace(printWriter);
-					String s = writer.toString();
-
-					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": data export failed.", e);
-					writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
-
+				Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
+				if (linkedApp == null) {
+					String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
+					log.info(error);
+					writeOutput(error);
+					setError(error);
 					setSetupComplete(false);
-
+					setState(AbstractJob.STATE_FAILED);
+					return;
+				}
+				// update environment variables
+				Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(), settings);
+				Map<String, String> envJob = Environment.getJobVariables(context);
+				Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
+				for (String property : properties.keySet()) {
+					Object propertyValue = properties.get(property);
+					if (propertyValue instanceof String) {
+						propertyValue = Environment.env(propertyValue.toString(), envApp);
+						propertyValue = Environment.env(propertyValue.toString(), envJob);
+					}
+					properties.put(property, propertyValue);
 				}
 
-				writeLog("Cleaning up...");
-				cleanUp();
-				log.info("Job " + getId() + ": cleanup successful.");
-				writeLog("Cleanup successful.");
-
-				closeStdOutFiles();
-
-			} else if (!succesfull) {
-
-				setState(AbstractJob.STATE_FAILED);
-				log.error("Job " + getId() + ": execution failed. " + getError());
-				writeLog("Job execution failed: " + getError());
-				writeLog("Cleaning up...");
-				onFailure();
-				log.info("Job " + getId() + ": cleanup successful.");
-				writeLog("Cleanup successful.");
-
-				if (canceld) {
-					setState(AbstractJob.STATE_CANCELED);
-				}
-				setSetupComplete(false);
-
-				closeStdOutFiles();
+				getContext().setData(input.getName(), properties);
 
 			}
-
-		} catch (Exception | Error e) {
-
-			setState(AbstractJob.STATE_FAILED);
-			log.error("Job " + getId() + ": initialization failed.", e);
-
-			Writer writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			e.printStackTrace(printWriter);
-			String s = writer.toString();
-
-			writeLog("Initialization failed: " + e.getLocalizedMessage() + "\n" + s);
-
-			writeLog("Cleaning up...");
-			onFailure();
-			log.info("Job " + getId() + ": cleanup successful.");
-			writeLog("Cleanup successful.");
-			setSetupComplete(false);
-
-			closeStdOutFiles();
-
-			setSetupRunning(false);
-
 		}
+
+		setSetupComplete(true);
+
 	}
 
 	@Override
 	public void run() {
-
-		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
-			onFailure();
-			setError("Job Execution failed.");
+		
+		if (isCanceld()) {
 			return;
 		}
+		
+		log.info("Setup job " + getId() + "...");
+		setState(AbstractJob.STATE_RUNNING);
 
-		log.info("Job " + getId() + ": running.");
+		setSetupStartTime(System.currentTimeMillis());
+		setSetupRunning(true);
+		runInstallationAndResolveAppLinks();
+		setSetupEndTime(System.currentTimeMillis());
+		setSetupRunning(false);
+		if (!isSetupComplete()) {
+			log.info("Setup failed for job " + getId() + ". Not added to Long Time Queue.");
+			setFinishedOn(System.currentTimeMillis());
+			setComplete(true);
+			return;
+		}
+		
+		log.info("Run job " + getId() + "...");
 		setStartTime(System.currentTimeMillis());
 
 		try {
-			setState(AbstractJob.STATE_RUNNING);
 			writeLog("Details:");
 			writeLog("  Name: " + getName());
 			writeLog("  Job-Id: " + getId());
@@ -478,69 +382,56 @@ abstract public class AbstractJob extends PriorityRunnable {
 				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
 			}
 
-			writeLog("Preparing Job....");
-			boolean successfulBefore = before();
+			writeLog("Executing Job....");
 
-			if (!successfulBefore) {
+			boolean succesfull = execute();
 
-				setState(AbstractJob.STATE_FAILED);
-				log.error("Job " + getId() + ": job preparation failed.");
-				writeLog("Job Preparation failed.");
+			if (succesfull) {
 
-			} else {
+				log.info("Job " + getId() + ":  executed successful.");
 
-				log.info("Job " + getId() + ": executing.");
-				writeLog("Executing Job....");
+				writeLog("Job Execution successful.");
+				writeLog("Exporting Data...");
 
-				boolean succesfull = execute();
+				setState(AbstractJob.STATE_EXPORTING);
 
-				if (succesfull) {
+				try {
 
-					log.info("Job " + getId() + ":  executed successful.");
+					boolean successfulAfter = after();
 
-					writeLog("Job Execution successful.");
-					writeLog("Exporting Data...");
+					if (successfulAfter) {
 
-					setState(AbstractJob.STATE_EXPORTING);
+						setState(AbstractJob.STATE_SUCCESS);
+						log.info("Job " + getId() + ": data export successful.");
+						writeLog("Data Export successful.");
 
-					try {
-
-						boolean successfulAfter = after();
-
-						if (successfulAfter) {
-
-							setState(AbstractJob.STATE_SUCCESS);
-							log.info("Job " + getId() + ": data export successful.");
-							writeLog("Data Export successful.");
-
-						} else {
-
-							setState(AbstractJob.STATE_FAILED);
-							log.error("Job " + getId() + ": data export failed.");
-							writeLog("Data Export failed.");
-
-						}
-
-					} catch (Error | Exception e) {
-
-						Writer writer = new StringWriter();
-						PrintWriter printWriter = new PrintWriter(writer);
-						e.printStackTrace(printWriter);
-						String s = writer.toString();
+					} else {
 
 						setState(AbstractJob.STATE_FAILED);
-						log.error("Job " + getId() + ": data export failed.", e);
-						writeLog("Data Export failed: " + e.getLocalizedMessage() + "\n" + s);
+						log.error("Job " + getId() + ": data export failed.");
+						writeLog("Data Export failed.");
 
 					}
 
-				} else {
+				} catch (Error | Exception e) {
+
+					Writer writer = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(writer);
+					e.printStackTrace(printWriter);
+					String s = writer.toString();
 
 					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": execution failed. " + getError());
-					writeLog("Job Execution failed: " + getError());
+					log.error("Job " + getId() + ": data export failed.", e);
+					writeLog("Data Export failed: " + e.getLocalizedMessage() + "\n" + s);
 
 				}
+
+			} else {
+
+				setState(AbstractJob.STATE_FAILED);
+				log.error("Job " + getId() + ": execution failed. " + getError());
+				writeLog("Job Execution failed: " + getError());
+
 			}
 
 			if (getState() == AbstractJob.STATE_FAILED || getState() == AbstractJob.STATE_CANCELED) {
@@ -699,10 +590,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return setupRunning;
 	}
 
-	public boolean hasSteps() {
-		return true;
-	}
-
 	public CloudgeneContext getContext() {
 		return context;
 	}
@@ -784,25 +671,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	abstract public boolean execute();
 
-	abstract public boolean executeSetupSteps();
-
 	abstract public boolean setup();
-
-	abstract public boolean before();
 
 	abstract public boolean after();
 
 	abstract public boolean onFailure();
 
 	abstract public boolean cleanUp();
-
-	public void onStepFinished(CloudgeneStep step) {
-
-	}
-
-	public void onStepStarted(CloudgeneStep step) {
-
-	}
 
 	public void kill() {
 

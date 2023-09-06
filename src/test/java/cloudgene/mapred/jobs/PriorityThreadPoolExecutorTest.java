@@ -36,7 +36,7 @@ public class PriorityThreadPoolExecutorTest {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -67,7 +67,7 @@ public class PriorityThreadPoolExecutorTest {
 		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
 		assertEquals(jobsBeforeSubmit.size(), jobsAfterCancel.size());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 
@@ -79,7 +79,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -119,7 +119,7 @@ public class PriorityThreadPoolExecutorTest {
 		// clear queue
 		engine.cancel(job1);
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -136,7 +136,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -224,7 +224,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -241,7 +241,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -329,7 +329,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -346,7 +346,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -460,7 +460,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
