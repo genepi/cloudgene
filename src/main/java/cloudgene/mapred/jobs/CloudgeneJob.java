@@ -10,10 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.core.User;
-import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.ExecutableStep;
+import cloudgene.mapred.jobs.engine.Executor;
 import cloudgene.mapred.jobs.engine.Planner;
-import cloudgene.mapred.jobs.workspace.WorkspaceWrapper;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
@@ -102,12 +101,13 @@ public class CloudgeneJob extends AbstractJob {
 		FileUtil.createDirectory(context.getLocalTemp());
 
 		try {
+			log.info("[Job {}] Setup workspace {}'", getId(), workspace.getName());
 			context.log("Setup External Workspace on " + workspace.getName());
 			workspace.setup(this.getId());
-			context.setExternalWorkspace(new WorkspaceWrapper(workspace));
+			context.setWorkspace(workspace);
 		} catch (Exception e) {
 			writeLog(e.toString());
-			log.info("Error setup external workspace", e);
+			log.error("[Job {}] Error setup external workspace failed.", getId(), e);
 			setError(e.toString());
 			return false;
 		}
@@ -118,16 +118,18 @@ public class CloudgeneJob extends AbstractJob {
 			switch (param.getType()) {
 			case HDFS_FILE:
 			case HDFS_FOLDER:
-
+				log.info("[Job {}] Setting output param '{}' failed. HDFS support was removed in Cloudgene 3'", getId(), param.getName());
 				throw new RuntimeException("HDFS support was removed in Cloudgene 3");
 
-			case LOCAL_FILE:
+			case LOCAL_FILE:				
 				String filename = workspace.createFile(param.getName(), param.getName());
 				param.setValue(filename);
+				log.info("[Job {}] Set output file '{}' to '{}'", getId(), param.getName(), param.getValue());
 				break;
 
 			case LOCAL_FOLDER:
 				String folder = workspace.createFolder(param.getName());
+				log.info("[Job {}] Set output folder '{}' to '{}'", getId(), param.getName(), param.getValue());
 				param.setValue(folder);
 				break;
 			}
@@ -150,7 +152,7 @@ public class CloudgeneJob extends AbstractJob {
 			// merge setup steps and normal steps
 			List<WdlStep> steps = new Vector<WdlStep>(app.getWorkflow().getSetups());
 			steps.addAll(app.getWorkflow().getSteps());
-			log.info("Job " + getId() + " execute  " + steps.size() + " steps");
+			log.info("[Job {}] execute {} steps", getId(), steps.size());
 
 			// execute steps
 			executor = new Executor();
@@ -221,12 +223,15 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean cleanUp() {
 
+		log.info("[Job {}] Cleaning up...", getId());
+		
 		try {
 			workspace.cleanup(getId());
 		} catch (IOException e) {
 			writeLog("Cleanup failed.");
 			writeLog(e.getMessage());
 			setError(e.getMessage());
+			log.error("[Job {}] Clean up failed.", getId(), e);
 			return false;
 		}
 
@@ -236,7 +241,7 @@ public class CloudgeneJob extends AbstractJob {
 	@Override
 	public boolean after() {
 
-		log.info("Execute after and export params...");
+		log.info("[Job {}] Export parameters...", getId());
 
 		for (CloudgeneParameterOutput out : getOutputParams()) {
 			if (out.isDownload()) {

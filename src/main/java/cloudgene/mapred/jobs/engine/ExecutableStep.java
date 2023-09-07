@@ -16,11 +16,11 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.CloudgeneStepFactory;
+import cloudgene.mapred.jobs.sdk.WorkflowStep;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
 import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.sdk.internal.WorkflowStep;
 import genepi.io.FileUtil;
 
 public class ExecutableStep implements Runnable {

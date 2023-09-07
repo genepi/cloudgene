@@ -18,7 +18,7 @@ public class DockerStep extends CloudgeneStep {
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String cmd = step.get("cmd");
+		String cmd = step.getString("cmd");
 
 		if (cmd == null) {
 			context.error("No 'exec' or 'cmd' parameter found.");
@@ -28,12 +28,12 @@ public class DockerStep extends CloudgeneStep {
 			context.error("'exec' or 'cmd' parameter cannot be an empty string.");
 		}
 
-		String stdout = step.get("stdout", "false");
+		String stdout = step.getString("stdout", "false");
 		boolean streamStdout = stdout.equals("true");
 
 		String[] params = cmd.split(" ");
 
-		String image = step.get("image");
+		String image = step.getString("image");
 
 		if (image == null) {
 			context.error("No 'image' parameter found.");

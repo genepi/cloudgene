@@ -49,7 +49,7 @@ public class JavaExternalStep extends CloudgeneStep {
 			return false;
 		}
 
-		String stdout = step.get("stdout", "false");
+		String stdout = step.getString("stdout", "false");
 		boolean streamStdout = stdout.equals("true");
 
 		StringBuilder output = null;
@@ -59,7 +59,7 @@ public class JavaExternalStep extends CloudgeneStep {
 
 		String jar = step.getJar();
 		// params
-		String paramsString = step.get("params");
+		String paramsString = step.getString("params");
 		String[] params = new String[] {};
 		if (paramsString != null) {
 			params = paramsString.split(" ");

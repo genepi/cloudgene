@@ -2,14 +2,14 @@ package cloudgene.mapred.wdl;
 
 import java.util.HashMap;
 
-public class WdlStep extends HashMap<String, String>{
+public class WdlStep extends HashMap<String, Object>{
 
 	public String getName() {
-		return get("name");
+		return getString("name");
 	}
 
 	public String getClassname() {
-		return get("classname");
+		return getString("classname");
 	}
 	
 	public void setClassname(String classname){
@@ -18,20 +18,20 @@ public class WdlStep extends HashMap<String, String>{
 
 
 	public String getJar() {
-		return get("jar");
+		return getString("jar");
 	}
 
 	public String getGenerates() {
-		return get("generates");
+		return getString("generates");
 	}
 	
-	public String get(String key, String defaultValue){
-		String value = get(key);
-		if (value == null){
-			return defaultValue;
-		}else{
-			return value;
-		}
+	public String getString(String key){
+		return getString(key, null);
+	}
+
+	public String getString(String key, String defaultValue){
+		Object value = get(key);
+		return value != null ? value.toString() : defaultValue;
 	}
 	
 }

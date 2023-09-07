@@ -1,18 +1,17 @@
 package cloudgene.mapred.plugins.nextflow;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.plugins.nextflow.report.Report;
+import cloudgene.mapred.plugins.nextflow.report.ReportEvent;
+import cloudgene.mapred.plugins.nextflow.report.ReportEventExecutor;
 import genepi.io.FileUtil;
-import genepi.io.text.LineReader;
 
 public class NextflowTask {
-
-	private static final String CLOUDGENE_LOG = "cloudgene.log";
 
 	private int id;
 
@@ -34,39 +33,35 @@ public class NextflowTask {
 		// if task is completed or failed check if a cloudgene.log is in workdir and
 		// load its content
 
+		// TODO: check if CHACHED os also needed!
 		String status = (String) trace.get("status");
-		if (status.equals("COMPLETED") || status.equals("FAILED")) {
-			String workDir = (String) trace.get("workdir");
-			String logFilename = FileUtil.path(workDir, CLOUDGENE_LOG);
-			IWorkspace workspace = context.getJob().getWorkspace();
-			if (workspace.exists(logFilename)) {
-				context.log("Load log file from '" + logFilename + "'");
-				InputStream stream = workspace.download(logFilename);
-				log = FileUtil.readFileAsString(stream);
-				parseFile(logFilename);
-			}
+		if (!status.equals("COMPLETED") && !status.equals("FAILED")) {
+			return;
+		}
+
+		String workDir = (String) trace.get("workdir");
+		String reportFilename = FileUtil.path(workDir, Report.DEFAULT_FILENAME);
+		IWorkspace workspace = context.getJob().getWorkspace();
+		if (!workspace.exists(reportFilename)) {
+			return;
+		}
+
+		context.log("Load report file from '" + reportFilename + "'");
+		InputStream stream = workspace.download(reportFilename);
+		try {
+			parseReport(reportFilename);
+		} catch (Exception e) {
+			log = "Invalid report file: \n" + FileUtil.readFileAsString(stream);
 		}
 
 	}
 
-	private void parseFile(String logFilename) throws IOException {
-
-		LineReader reader = new LineReader(new DataInputStream(context.getExternalWorkspace().download(logFilename)));
-		while (reader.next()) {
-			String line = reader.get();
-			if (line.startsWith("[INC]")) {
-				String[] tiles = line.split(" ", 3);
-				String name = tiles[1];
-				int value = Integer.parseInt(tiles[2]);
-				context.incCounter(name, value);
-			}
-			if (line.startsWith("[SUBMIT]")) {
-				String[] tiles = line.split(" ", 2);
-				String name = tiles[1];
-				context.submitCounter(name);
-			}
+	private void parseReport(String reportFilename) throws IOException {
+		InputStream stream = context.getWorkspace().download(reportFilename);
+		Report report = new Report(stream);
+		for (ReportEvent event : report.getEvents()) {
+			ReportEventExecutor.execute(event, context);
 		}
-		reader.close();
 	}
 
 	public int getId() {

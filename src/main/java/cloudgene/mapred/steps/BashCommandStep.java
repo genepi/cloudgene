@@ -14,9 +14,9 @@ public class BashCommandStep extends CloudgeneStep {
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String cmd = step.get("exec");
+		String cmd = step.getString("exec");
 		if (cmd == null) {
-			cmd = step.get("cmd");
+			cmd = step.getString("cmd");
 		}
 
 		if (cmd == null) {
@@ -27,8 +27,8 @@ public class BashCommandStep extends CloudgeneStep {
 			context.error("'exec' or 'cmd' parameter cannot be an empty string.");
 		}
 
-		String bash = step.get("bash", "false");
-		String stdout = step.get("stdout", "false");
+		String bash = step.getString("bash", "false");
+		String stdout = step.getString("stdout", "false");
 
 		boolean useBash = bash.equals("true");
 		boolean streamStdout = stdout.equals("true");

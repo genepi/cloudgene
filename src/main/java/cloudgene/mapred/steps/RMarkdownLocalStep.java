@@ -22,21 +22,21 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 
 		String workingDirectory = context.getWorkingDirectory();
 
-		String rmd = step.get("rmd");
+		String rmd = step.getString("rmd");
 		if (rmd == null || rmd.isEmpty()) {
-			rmd = step.get("rmd2");
+			rmd = step.getString("rmd2");
 		}
 		if (rmd == null || rmd.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
 			return false;
 		}
-		String output = step.get("output");
+		String output = step.getString("output");
 		if (output == null || output.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'output' parameter.", Message.ERROR);
 			return false;
 		}
 
-		String paramsString = step.get("params");
+		String paramsString = step.getString("params");
 		String[] params = new String[] {};
 		if (paramsString != null) {
 			params = paramsString.split(" ");
@@ -55,7 +55,7 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 
 		if (result == 0) {
 			context.endTask("Execution successful.", Message.OK);
-			String include = step.get("include");
+			String include = step.getString("include");
 			if (include != null && include.equals("true")) {
 				context.addFile(output);
 			}

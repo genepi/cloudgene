@@ -10,8 +10,8 @@ import org.junit.jupiter.api.Test;
 
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.jobs.AbstractJob;
+import cloudgene.mapred.jobs.sdk.WorkflowContext;
 import cloudgene.mapred.util.CloudgeneClientRestAssured;
-import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import io.restassured.RestAssured;

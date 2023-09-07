@@ -2,8 +2,8 @@ package cloudgene.mapred.jobs.steps;
 
 import java.util.Map;
 
-import cloudgene.sdk.internal.WorkflowContext;
-import cloudgene.sdk.internal.WorkflowStep;
+import cloudgene.mapred.jobs.sdk.WorkflowContext;
+import cloudgene.mapred.jobs.sdk.WorkflowStep;
 
 public class PrintDataset extends WorkflowStep {
 

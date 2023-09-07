@@ -140,6 +140,7 @@ public class JobService {
 			name = jobName;
 		}
 
+		//TODO: remove and solve via workspace!
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 

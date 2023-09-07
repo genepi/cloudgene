@@ -23,7 +23,7 @@ public class HtmlWidgetStep extends CloudgeneStep {
 
 		String workingDirectory = context.getWorkingDirectory();
 
-		String template = step.get("template");
+		String template = step.getString("template");
 		if (template == null || template.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'template' parameter.", Message.ERROR);
 			return false;
@@ -51,7 +51,7 @@ public class HtmlWidgetStep extends CloudgeneStep {
 
 		// add step values to context
 		for (String variable : step.keySet()) {
-			String value = step.get(variable);
+			String value = step.getString(variable);
 			if (value.endsWith(".json")) {
 				// replace json files with content.
 				String jsonFilename = "";
@@ -88,8 +88,8 @@ public class HtmlWidgetStep extends CloudgeneStep {
 			writer.write("<head>");
 			writer.write("<meta charset=\"utf-8\">");
 			writer.write("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-			if (step.get("stylesheet") != null) {
-				for (String css : step.get("stylesheet").split(",")) {
+			if (step.getString("stylesheet") != null) {
+				for (String css : step.getString("stylesheet").split(",")) {
 					css = css.trim();
 					String data = "";
 					if (!css.startsWith("http://") && !css.startsWith("https://")) {
@@ -101,8 +101,8 @@ public class HtmlWidgetStep extends CloudgeneStep {
 					writer.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + data + "\"/>");
 				}
 			}
-			if (step.get("scripts") != null) {
-				for (String script : step.get("scripts").split(",")) {
+			if (step.getString("scripts") != null) {
+				for (String script : step.getString("scripts").split(",")) {
 					script = script.trim();
 					String data = "";
 					if (!script.startsWith("http://") && !script.startsWith("https://")) {
@@ -122,7 +122,7 @@ public class HtmlWidgetStep extends CloudgeneStep {
 			writer.write("</html>");
 			writer.close();
 
-			String output = step.get("output");
+			String output = step.getString("output");
 			
 			if (output == null || output.isEmpty()) {
 				context.addFile(htmlFile);	
@@ -131,7 +131,7 @@ public class HtmlWidgetStep extends CloudgeneStep {
 				new File(htmlFile).renameTo(file);
 
 				//copy assets folder if set
-				String assets = step.get("assets");
+				String assets = step.getString("assets");
 				if (assets != null && !assets.isEmpty()) {
 					File parent = file.getParentFile();
 					String assetsSource = FileUtil.path(workingDirectory, assets);

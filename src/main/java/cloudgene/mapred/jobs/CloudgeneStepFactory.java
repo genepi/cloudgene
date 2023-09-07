@@ -34,7 +34,7 @@ public class CloudgeneStepFactory {
 	
 	public String getClassname(WdlStep step) {
 
-		String type = step.get("type");
+		String type = step.getString("type");
 
 		if (type != null) {
 			
@@ -55,17 +55,17 @@ public class CloudgeneStepFactory {
 			}
 		}
 
-		if (step.get("pig") != null) {
+		if (step.getString("pig") != null) {
 			throw new RuntimeException("Hadoop support was removed in Cloudgene 3");
 		}
-		if (step.get("spark") != null) {
+		if (step.getString("spark") != null) {
 			throw new RuntimeException("Hadoop support was removed in Cloudgene 3");
-		} else if (step.get("rmd") != null) {
+		} else if (step.getString("rmd") != null) {
 
 			// rscript
 			return RMarkdownStep.class.getName();
 
-		} else if (step.get("rmd2") != null) {
+		} else if (step.getString("rmd2") != null) {
 
 			// rscript
 			return RMarkdownStep.class.getName();
@@ -75,13 +75,13 @@ public class CloudgeneStepFactory {
 			// custom class
 			return step.getClassname();
 
-		} else if (step.get("exec") != null || step.get("cmd") != null) {
+		} else if (step.getString("exec") != null || step.getString("cmd") != null) {
 
 			// command
 			return BashCommandStep.class.getName();
 
 		} else {
-			String runtime = step.get("runtime");
+			String runtime = step.getString("runtime");
 			if (runtime == null || runtime.isEmpty() || runtime.toLowerCase().equals("hadoop")) {
 				throw new RuntimeException("Hadoop support was removed in Cloudgene 3");
 			} else if (runtime != null && runtime.toLowerCase().equals("java")) {

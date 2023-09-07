@@ -11,29 +11,30 @@ import java.util.Vector;
 
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
-import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
-import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 import groovy.json.JsonOutput;
-import jakarta.inject.Inject;
 
 public class NextflowStep extends CloudgeneStep {
+
+	private static final String PROPERTY_PROCESS_CONFIG = "processes";
 
 	private CloudgeneContext context;
 
 	private Map<String, Message> messages = new HashMap<String, Message>();
-	
+
+	private Map<String, NextflowProcessConfig> configs = new HashMap<String, NextflowProcessConfig>();
+
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
 		this.context = context;
 
-		String script = step.get("script");
+		String script = step.getString("script");
 
 		if (script == null) {
 			// no script set. try to find a main.nf. IS the default convention of nf-core.
@@ -46,8 +47,11 @@ public class NextflowStep extends CloudgeneStep {
 					"Nextflow script '" + scriptPath + "' not found. Please use 'script' to define your nf file.");
 		}
 
-		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
+		// load process styling
+		loadProcessConfigs(step.get(PROPERTY_PROCESS_CONFIG));
 
+		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
+		// TODO: move to bextflow binary. see nftest implementation
 		List<String> nextflowCommand = new Vector<String>();
 		nextflowCommand.add("PATH=$PATH:/usr/local/bin");
 		nextflowCommand.add(nextflow.getBinary());
@@ -100,9 +104,13 @@ public class NextflowStep extends CloudgeneStep {
 		for (String key : step.keySet()) {
 			if (key.startsWith("params.")) {
 				String param = key.replace("params.", "");
-				String value = step.get(key);
+				Object value = step.get(key);
 				params.put(param, value);
 			}
+		}
+		if (step.get("params") != null) {
+			Map<String, Object> paramsMap = (Map<String, Object>) step.get("params");
+			params.putAll(paramsMap);
 		}
 
 		// add all inputs
@@ -135,29 +143,29 @@ public class NextflowStep extends CloudgeneStep {
 		}
 
 		IWorkspace workspace = job.getWorkspace();
-				
+
 		nextflowCommand.add("-params-file");
 		nextflowCommand.add(paramsFile.getAbsolutePath());
 
 		nextflowCommand.add("-ansi-log");
 		nextflowCommand.add("false");
-		
+
 		nextflowCommand.add("-with-weblog");
 		nextflowCommand.add(context.getSettings().getServerUrl() + context.getSettings().getUrlPrefix()
 				+ "/api/v2/collect/" + makeSecretJobId(context.getJobId()));
-		
-		//nextflowCommand.add("-log");
-		//nextflowCommand.add(workspace.createLogFile("nextflow.log"));
-		
+
+		// nextflowCommand.add("-log");
+		// nextflowCommand.add(workspace.createLogFile("nextflow.log"));
+
 		nextflowCommand.add("-with-trace");
 		nextflowCommand.add(workspace.createLogFile("trace.csv"));
-		
+
 		nextflowCommand.add("-with-report");
 		nextflowCommand.add(workspace.createLogFile("report.html"));
-		
+
 		nextflowCommand.add("-with-timeline");
 		nextflowCommand.add(workspace.createLogFile("timeline.html"));
-		
+
 		StringBuilder output = new StringBuilder();
 
 		List<String> command = new Vector<String>();
@@ -168,8 +176,9 @@ public class NextflowStep extends CloudgeneStep {
 		NextflowCollector.getInstance().addContext(makeSecretJobId(context.getJobId()), context);
 
 		try {
-			// context.beginTask("Running Nextflow pipeline...");
+
 			boolean successful = executeCommand(command, context, output);
+
 			if (successful) {
 				updateProgress();
 				return true;
@@ -189,15 +198,10 @@ public class NextflowStep extends CloudgeneStep {
 				}
 				updateProgress();
 
-				// Write nextflow output into step
-				/*
-				 * context.beginTask("Running Nextflow pipeline..."); String text = "";
-				 * 
-				 * if (killed) { text = output + "\n\n\n" +
-				 * makeRed("Pipeline execution canceled."); } else { text = output + "\n\n\n" +
-				 * makeRed("Pipeline execution failed."); } context.endTask(text,
-				 * Message.ERROR_ANSI);
-				 */
+				if (killed) {
+					context.error("Pipeline execution canceled.");
+				}
+
 				return false;
 			}
 		} catch (Exception e) {
@@ -209,11 +213,14 @@ public class NextflowStep extends CloudgeneStep {
 
 	@Override
 	public void updateProgress() {
+
 		String job = makeSecretJobId(context.getJobId());
 
 		List<NextflowProcess> processes = NextflowCollector.getInstance().getProcesses(job);
 
 		for (NextflowProcess process : processes) {
+
+			NextflowProcessConfig config = getNextflowProcessConfig(process);
 
 			Message message = messages.get(process.getName());
 			if (message == null) {
@@ -221,52 +228,29 @@ public class NextflowStep extends CloudgeneStep {
 				messages.put(process.getName(), message);
 			}
 
-			String text = "<b>" + process.getName() + "</b>";
-			boolean running = false;
-			boolean ok = true;
-			for (NextflowTask task : process.getTasks()) {
-
-				String status = (String) task.getTrace().get("status");
-
-				if (status.equals("RUNNING") || status.equals("SUBMITTED")) {
-					running = true;
-				}
-				if (!status.equals("COMPLETED")) {
-					ok = false;
-
-				}
-				text += "<br><small>";
-
-				text += (String) task.getTrace().get("name");
-				if (status.equals("RUNNING")) {
-					text += "...";
-				}
-				if (status.equals("COMPLETED")) {
-					text += "&nbsp;<i class=\"fas fa-check text-success\"></i>";
-				}
-				if (status.equals("KILLED") || status.equals("FAILED")) {
-					text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
-				}
-
-				if (task.getLog() != null) {
-					text += "<br>" + task.getLog();
-				}
-
-				text += "</small>";
-			}
-			message.setMessage(text);
-
-			if (running) {
-				message.setType(Message.RUNNING);
-			} else {
-				if (ok) {
-					message.setType(Message.OK);
-				} else {
-					message.setType(Message.ERROR);
-				}
-			}
+			NextflowProcessRenderer.render(config, process, message);
 
 		}
+
+	}
+
+	private void loadProcessConfigs(Object map) {
+		if (map != null) {
+			List<Map<String, Object>> processConfigs = (List<Map<String, Object>>) map;
+			for (Map<String, Object> processConfig : processConfigs) {
+				String process = processConfig.get("process").toString();
+				NextflowProcessConfig config = new NextflowProcessConfig();
+				if (processConfig.get("view") != null) {
+					config.setView(processConfig.get("view").toString());
+				}
+				configs.put(process, config);
+			}
+		}
+	}
+
+	private NextflowProcessConfig getNextflowProcessConfig(NextflowProcess process) {
+		NextflowProcessConfig config = configs.get(process.getName());
+		return config != null ? config : new NextflowProcessConfig();
 	}
 
 	private String join(List<String> array) {

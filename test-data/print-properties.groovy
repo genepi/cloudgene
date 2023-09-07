@@ -1,4 +1,4 @@
-import cloudgene.sdk.internal.WorkflowContext
+import cloudgene.mapred.jobs.sdk.WorkflowContext
 
 def run(WorkflowContext context) {
 

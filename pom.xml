@@ -79,12 +79,6 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>cloudgene</groupId>
-			<artifactId>cloudgene-java-sdk</artifactId>
-			<version>1.0.2</version>
-		</dependency>
-
-		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-io</artifactId>
 			<version>1.2.0</version>

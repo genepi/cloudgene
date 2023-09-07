@@ -345,7 +345,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 			return;
 		}
 		
-		log.info("Setup job " + getId() + "...");
+		log.info("[Job {}] Setup job...", getId());
 		setState(AbstractJob.STATE_RUNNING);
 
 		setSetupStartTime(System.currentTimeMillis());
@@ -354,13 +354,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 		setSetupEndTime(System.currentTimeMillis());
 		setSetupRunning(false);
 		if (!isSetupComplete()) {
-			log.info("Setup failed for job " + getId() + ". Not added to Long Time Queue.");
+			log.info("[Job {}] Setup failed." , getId());
 			setFinishedOn(System.currentTimeMillis());
 			setComplete(true);
 			return;
 		}
 		
-		log.info("Run job " + getId() + "...");
+		log.info("[Job {}] Running job...", getId());
 		setStartTime(System.currentTimeMillis());
 
 		try {
@@ -388,7 +388,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			if (succesfull) {
 
-				log.info("Job " + getId() + ":  executed successful.");
+				log.info("[Job {}] Execution successful.", getId());
 
 				writeLog("Job Execution successful.");
 				writeLog("Exporting Data...");
@@ -402,13 +402,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 					if (successfulAfter) {
 
 						setState(AbstractJob.STATE_SUCCESS);
-						log.info("Job " + getId() + ": data export successful.");
+						log.info("[Job {}]  data export successful.", getId());
 						writeLog("Data Export successful.");
 
 					} else {
 
 						setState(AbstractJob.STATE_FAILED);
-						log.error("Job " + getId() + ": data export failed.");
+						log.error("[Job {}]  data export failed.", getId());
 						writeLog("Data Export failed.");
 
 					}
@@ -421,7 +421,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 					String s = writer.toString();
 
 					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": data export failed.", e);
+					log.error("[Job {}]  data export failed.", getId(), e);
 					writeLog("Data Export failed: " + e.getLocalizedMessage() + "\n" + s);
 
 				}
@@ -429,7 +429,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 			} else {
 
 				setState(AbstractJob.STATE_FAILED);
-				log.error("Job " + getId() + ": execution failed. " + getError());
+				log.error("[Job {}] Execution failed. {}", getId(), getError());
 				writeLog("Job Execution failed: " + getError());
 
 			}
@@ -438,13 +438,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 				writeLog("Cleaning up...");
 				onFailure();
-				log.info("Job " + getId() + ": cleanup successful.");
+				log.info("[Job {}]cleanup successful.", getId());
 				writeLog("Cleanup successful.");
 
 			} else {
 				writeLog("Cleaning up...");
 				cleanUp();
-				log.info("Job " + getId() + ": cleanup successful.");
+				log.info("[Job {}] cleanup successful.", getId());
 				writeLog("Cleanup successful.");
 
 			}
@@ -460,7 +460,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 		} catch (Exception | Error e) {
 
 			setState(AbstractJob.STATE_FAILED);
-			log.error("Job " + getId() + ": initialization failed.", e);
+			log.error("[Job {}]: initialization failed.", getId(), e);
 
 			Writer writer = new StringWriter();
 			PrintWriter printWriter = new PrintWriter(writer);
@@ -471,7 +471,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			writeLog("Cleaning up...");
 			onFailure();
-			log.info("Job " + getId() + ": cleanup successful.");
+			log.info("[Job {}]: cleanup successful.", getId());
 			writeLog("Cleanup successful.");
 
 			closeStdOutFiles();
@@ -484,7 +484,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public void cancel() {
 
 		writeLog("Canceled by user.");
-		log.info("Job " + getId() + ": canceld by user.");
+		log.info("[Job {}]: canceld by user.", getId());
 
 		/*
 		 * if (state == STATE_RUNNING) { closeStdOutFiles(); }
