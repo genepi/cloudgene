@@ -56,7 +56,7 @@ public class NextflowStep extends CloudgeneStep {
 		loadProcessConfigs(step.get(PROPERTY_PROCESS_CONFIG));
 
 		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
-		nextflow.setScript(script);
+		nextflow.setScript(scriptPath);
 
 		AbstractJob job = context.getJob();
 		String appFolder = context.getSettings().getApplicationRepository().getConfigDirectory(job.getApplicationId());
@@ -116,8 +116,10 @@ public class NextflowStep extends CloudgeneStep {
 
 		try {
 
+			File executionDir = new File(context.getLocalOutput());
+			
 			StringBuilder output = new StringBuilder();
-			boolean successful = executeCommand(nextflow.buildCommand(), context, output);
+			boolean successful = executeCommand(nextflow.buildCommand(), context, output, executionDir);
 
 			if (!successful) {
 
