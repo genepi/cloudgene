@@ -7,14 +7,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
-import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 import groovy.json.JsonOutput;
@@ -28,6 +29,10 @@ public class NextflowStep extends CloudgeneStep {
 	private Map<String, Message> messages = new HashMap<String, Message>();
 
 	private Map<String, NextflowProcessConfig> configs = new HashMap<String, NextflowProcessConfig>();
+
+	private NextflowCollector collector = NextflowCollector.getInstance();
+
+	private static final Logger log = LoggerFactory.getLogger(NextflowStep.class);
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
@@ -51,142 +56,73 @@ public class NextflowStep extends CloudgeneStep {
 		loadProcessConfigs(step.get(PROPERTY_PROCESS_CONFIG));
 
 		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
-		// TODO: move to bextflow binary. see nftest implementation
-		List<String> nextflowCommand = new Vector<String>();
-		nextflowCommand.add("PATH=$PATH:/usr/local/bin");
-		nextflowCommand.add(nextflow.getBinary());
-		nextflowCommand.add("run");
-		nextflowCommand.add(script);
+		nextflow.setScript(script);
 
 		AbstractJob job = context.getJob();
 		String appFolder = context.getSettings().getApplicationRepository().getConfigDirectory(job.getApplicationId());
 
+		// set profile
 		String profile = "";
 		String nextflowProfile = FileUtil.path(appFolder, "nextflow.profile");
 		if (new File(nextflowProfile).exists()) {
 			profile = FileUtil.readFileAsString(nextflowProfile);
 		}
+		nextflow.setProfile(profile);
 
-		// set profile
-		if (!profile.isEmpty()) {
-			nextflowCommand.add("-profile");
-			nextflowCommand.add(profile);
-		}
-
+		// set custom configuration
 		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
 		File nextflowConfigFile = new File(nextflowConfig);
-		if (nextflowConfigFile.exists()) {
-			// set custom configuration
-			nextflowCommand.add("-c");
-			nextflowCommand.add(nextflowConfigFile.getAbsolutePath());
-		}
+		nextflow.setNextflowConfigFile(nextflowConfigFile);
 
+		// set work directory
 		String work = "";
 		String nextflowWork = FileUtil.path(appFolder, "nextflow.work");
 		if (new File(nextflowWork).exists()) {
 			work = FileUtil.readFileAsString(nextflowWork);
 		}
 
-		// use workdir if set in settings
-		if (!work.trim().isEmpty()) {
-			nextflowCommand.add("-w");
-			nextflowCommand.add(work);
-		} else {
-			IWorkspace workspace = job.getWorkspace();
-			String workDir = workspace.createTempFolder("nextflow");
-			nextflowCommand.add("-w");
-			nextflowCommand.add(workDir);
-		}
-
-		Map<String, Object> params = new HashMap<String, Object>();
-
-		// used to defined hard coded params
-		for (String key : step.keySet()) {
-			if (key.startsWith("params.")) {
-				String param = key.replace("params.", "");
-				Object value = step.get(key);
-				params.put(param, value);
-			}
-		}
-		if (step.get("params") != null) {
-			Map<String, Object> paramsMap = (Map<String, Object>) step.get("params");
-			params.putAll(paramsMap);
-		}
-
-		// add all inputs
-		for (String param : context.getInputs()) {
-			String value = context.getInput(param);
-			// resolve app links: use all properties as input parameters
-			if (value.startsWith("apps@")) {
-				Map<String, Object> linkedApp = (Map<String, Object>) context.getData(param);
-				params.put(param, linkedApp);
-			} else {
-				params.put(param, value);
-			}
-
-		}
-
-		// add all outputs
-		for (String param : context.getOutputs()) {
-			String value = context.getOutput(param);
-			params.put(param, value);
-		}
-
-		String paramsJsonFilename = FileUtil.path(context.getLocalOutput(), "params.json");
-		File paramsFile = new File(paramsJsonFilename);
-
-		try {
-			writeParamsJson(params, paramsFile);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-			return false;
-		}
-
 		IWorkspace workspace = job.getWorkspace();
 
-		nextflowCommand.add("-params-file");
-		nextflowCommand.add(paramsFile.getAbsolutePath());
+		// use workdir if set in settings
+		if (!work.trim().isEmpty()) {
+			nextflow.setWork(work);
+		} else {
+			String workDir = workspace.createTempFolder("nextflow");
+			nextflow.setWork(workDir);
+		}
 
-		nextflowCommand.add("-ansi-log");
-		nextflowCommand.add("false");
+		//params json file		
+		String paramsJsonFilename = FileUtil.path(context.getLocalOutput(), "params.json");
+		File paramsFile = new File(paramsJsonFilename);
+		try {
+			Map<String, Object> params = createParamsMap(step);
+			// TODO: workspace?
+			writeParamsJson(params, paramsFile);
+		} catch (IOException e) {
+			log.error("[Job {}] Writing params.json file failed.", context.getJobId(), e);
+			return false;
+		}
+		nextflow.setParamsFile(paramsFile);
+		
+		//register job in webcollector and set created url
+		String collectorUrl = collector.addContext(context);
+		nextflow.setWeblog(collectorUrl);
 
-		nextflowCommand.add("-with-weblog");
-		nextflowCommand.add(context.getSettings().getServerUrl() + context.getSettings().getUrlPrefix()
-				+ "/api/v2/collect/" + makeSecretJobId(context.getJobId()));
-
-		// nextflowCommand.add("-log");
-		// nextflowCommand.add(workspace.createLogFile("nextflow.log"));
-
-		nextflowCommand.add("-with-trace");
-		nextflowCommand.add(workspace.createLogFile("trace.csv"));
-
-		nextflowCommand.add("-with-report");
-		nextflowCommand.add(workspace.createLogFile("report.html"));
-
-		nextflowCommand.add("-with-timeline");
-		nextflowCommand.add(workspace.createLogFile("timeline.html"));
-
-		StringBuilder output = new StringBuilder();
-
-		List<String> command = new Vector<String>();
-		command.add("/bin/bash");
-		command.add("-c");
-		command.add(join(nextflowCommand));
-
-		NextflowCollector.getInstance().addContext(makeSecretJobId(context.getJobId()), context);
+		//log files and reports
+		nextflow.setTrace(workspace.createLogFile("trace.csv"));
+		nextflow.setReport(workspace.createLogFile("report.html"));
+		nextflow.setTimeline(workspace.createLogFile("timeline.html"));
+		nextflow.setLog(workspace.createLogFile("nextflow.log"));
 
 		try {
 
-			boolean successful = executeCommand(command, context, output);
+			StringBuilder output = new StringBuilder();
+			boolean successful = executeCommand(nextflow.buildCommand(), context, output);
 
-			if (successful) {
-				updateProgress();
-				return true;
-			} else {
+			if (!successful) {
 
 				// set all running processes to failed
-				List<NextflowProcess> processes = NextflowCollector.getInstance()
-						.getProcesses(makeSecretJobId(context.getJobId()));
+				List<NextflowProcess> processes = collector.getProcesses(context);
 				for (NextflowProcess process : processes) {
 					for (NextflowTask task : process.getTasks()) {
 						String status = (String) task.getTrace().get("status");
@@ -202,10 +138,16 @@ public class NextflowStep extends CloudgeneStep {
 					context.error("Pipeline execution canceled.");
 				}
 
-				return false;
 			}
+
+			updateProgress();
+
+			collector.cleanProcesses(context);
+
+			return successful;
+
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("[Job {}] Running nextflow script failed.", context.getJobId(), e);
 			return false;
 		}
 
@@ -214,9 +156,7 @@ public class NextflowStep extends CloudgeneStep {
 	@Override
 	public void updateProgress() {
 
-		String job = makeSecretJobId(context.getJobId());
-
-		List<NextflowProcess> processes = NextflowCollector.getInstance().getProcesses(job);
+		List<NextflowProcess> processes = collector.getProcesses(context);
 
 		for (NextflowProcess process : processes) {
 
@@ -253,36 +193,54 @@ public class NextflowStep extends CloudgeneStep {
 		return config != null ? config : new NextflowProcessConfig();
 	}
 
-	private String join(List<String> array) {
-		String result = "";
-		for (int i = 0; i < array.size(); i++) {
-			if (i > 0) {
-				result += " ";
-			}
-			result += array.get(i);
-		}
-		return result;
-	}
-
 	@Override
 	public String[] getRequirements() {
 		return new String[] { NextflowPlugin.ID };
 	}
+	
+	private Map<String, Object> createParamsMap(WdlStep step) {
+		Map<String, Object> params = new HashMap<String, Object>();
 
-	public String makeSecretJobId(String job) {
-		return HashUtil.getSha256(job);
-	}
+		// used to defined hard coded params
+		for (String key : step.keySet()) {
+			if (key.startsWith("params.")) {
+				String param = key.replace("params.", "");
+				Object value = step.get(key);
+				params.put(param, value);
+			}
+		}
+		if (step.get("params") != null) {
+			Map<String, Object> paramsMap = (Map<String, Object>) step.get("params");
+			params.putAll(paramsMap);
+		}
 
-	private String makeRed(String text) {
-		return ((char) 27 + "[31m" + text + (char) 27 + "[0m");
+		// add all inputs
+		for (String param : context.getInputs()) {
+			String value = context.getInput(param);
+			// resolve app links: use all properties as input parameters
+			if (value.startsWith("apps@")) {
+				Map<String, Object> linkedApp = (Map<String, Object>) context.getData(param);
+				params.put(param, linkedApp);
+			} else {
+				params.put(param, value);
+			}
+
+		}
+
+		// add all outputs
+		for (String param : context.getOutputs()) {
+			String value = context.getOutput(param);
+			params.put(param, value);
+		}
+
+		return params;
+
 	}
 
 	protected void writeParamsJson(Map<String, Object> params, File paramsFile) throws IOException {
-
 		BufferedWriter writer = new BufferedWriter(new FileWriter(paramsFile));
 		writer.write(JsonOutput.toJson(params));
 		writer.close();
-
 	}
 
 }

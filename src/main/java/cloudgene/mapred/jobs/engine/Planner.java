@@ -6,8 +6,6 @@ import java.util.Map;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.Environment;
-import cloudgene.mapred.jobs.engine.plugins.ParameterValueInput;
-import cloudgene.mapred.jobs.engine.plugins.ParameterValueOutput;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
@@ -47,7 +45,12 @@ public class Planner {
 		context2.put("user_email", context.getUser().getMail());
 		context2.put("user_name", context.getUser().getUsername());
 		context2.put("user_full_name", context.getUser().getFullName());
-
+		
+		// add service specific variables
+		context2.put("service_name", settings.getName());
+		context2.put("service_email", settings.getAdminMail());
+		context2.put("service_url", settings.getServerUrl());
+		
 		File manifest = new File(app.getManifestFile());
 
 		SimpleTemplateEngine engine = new SimpleTemplateEngine();

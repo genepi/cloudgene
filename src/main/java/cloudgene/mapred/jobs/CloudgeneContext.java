@@ -95,6 +95,10 @@ public class CloudgeneContext extends WorkflowContext {
 		return job.getId();
 	}
 
+	public String getPublicJobId() {
+		return job.getPublicJobId();
+	}
+
 	public String getOutput(String param) {
 
 		if (outputParameters.get(param) != null) {

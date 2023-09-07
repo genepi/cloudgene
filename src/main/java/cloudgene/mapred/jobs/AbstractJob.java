@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,7 @@ import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
@@ -122,12 +124,15 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private String workspaceSize = null;
 
+	private String publicJobId;
+
 	public String getId() {
 		return id;
 	}
 
 	public void setId(String id) {
 		this.id = id;
+		this.publicJobId = HashUtil.getSha256(id + RandomStringUtils.random(500));
 	}
 
 	public int getState() {
@@ -340,11 +345,11 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	@Override
 	public void run() {
-		
+
 		if (isCanceld()) {
 			return;
 		}
-		
+
 		log.info("[Job {}] Setup job...", getId());
 		setState(AbstractJob.STATE_RUNNING);
 
@@ -354,12 +359,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		setSetupEndTime(System.currentTimeMillis());
 		setSetupRunning(false);
 		if (!isSetupComplete()) {
-			log.info("[Job {}] Setup failed." , getId());
+			log.info("[Job {}] Setup failed.", getId());
 			setFinishedOn(System.currentTimeMillis());
 			setComplete(true);
 			return;
 		}
-		
+
 		log.info("[Job {}] Running job...", getId());
 		setStartTime(System.currentTimeMillis());
 
@@ -689,6 +694,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void setCurrentTime(long time) {
 
+	}
+
+	public String getPublicJobId() {
+		return publicJobId;
 	}
 
 }
