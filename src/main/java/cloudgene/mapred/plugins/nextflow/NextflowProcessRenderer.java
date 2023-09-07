@@ -45,8 +45,8 @@ public class NextflowProcessRenderer {
 				text += "&nbsp;<i class=\"fas fa-times text-danger\"></i>";
 			}
 
-			if (task.getLog() != null) {
-				text += "<br>" + task.getLog();
+			if (task.getLogText() != null) {
+				text += "<br>" + task.getLogText();
 			}
 
 			text += "</small>";

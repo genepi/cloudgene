@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.plugins.nextflow.report.Report;
@@ -17,10 +20,12 @@ public class NextflowTask {
 
 	private Map<String, Object> trace;
 
-	private String log = null;
+	private String logText = null;
 
 	private CloudgeneContext context;
 
+	private static final Logger log = LoggerFactory.getLogger(NextflowTask.class);
+	
 	public NextflowTask(CloudgeneContext context, Map<String, Object> trace) {
 		id = (Integer) trace.get("task_id");
 		this.trace = trace;
@@ -51,7 +56,8 @@ public class NextflowTask {
 		try {
 			parseReport(reportFilename);
 		} catch (Exception e) {
-			log = "Invalid report file: \n" + FileUtil.readFileAsString(stream);
+			log.error("[Job {}] Invalid report file.", e);
+			logText = "Invalid report file: \n" + FileUtil.readFileAsString(stream);
 		}
 
 	}
@@ -72,8 +78,8 @@ public class NextflowTask {
 		return trace;
 	}
 
-	public String getLog() {
-		return log;
+	public String getLogText() {
+		return logText;
 	}
 
 }

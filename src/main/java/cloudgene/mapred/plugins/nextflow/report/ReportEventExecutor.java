@@ -48,6 +48,11 @@ public class ReportEventExecutor {
 			context.incCounter(name, count);
 			break;
 		}
+		case PRINTLN: {
+			String line = (String) event.getParams()[0];
+			context.println(line);
+			break;
+		}
 		default:
 			throw new IOException("Command " + event.getCommand() + " not yet supported.");
 		}
