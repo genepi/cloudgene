@@ -41,16 +41,13 @@ public class Planner {
 			context2.put(key, envApp.get(key));
 		}
 
-		// add user specific variables
-		context2.put("user_email", context.getUser().getMail());
-		context2.put("user_name", context.getUser().getUsername());
-		context2.put("user_full_name", context.getUser().getFullName());
-		
-		// add service specific variables
-		context2.put("service_name", settings.getName());
-		context2.put("service_email", settings.getAdminMail());
-		context2.put("service_url", settings.getServerUrl());
-		
+		context2.putAll(settings.getEnvironment());
+		context2.put("CLOUDGENE_JOB_ID", context.getJobId());
+		context2.put("CLOUDGENE_USER_NAME", context.getUser().getUsername());
+		context2.put("CLOUDGENE_USER_EMAIL", context.getUser().getMail());
+		context2.put("CLOUDGENE_USER_FULL_NAME", context.getUser().getFullName());
+
+
 		File manifest = new File(app.getManifestFile());
 
 		SimpleTemplateEngine engine = new SimpleTemplateEngine();

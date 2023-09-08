@@ -91,18 +91,18 @@ public abstract class CloudgeneStep {
 		return null;
 	}
 
-	protected boolean executeCommand(List<String> command, WorkflowContext context)
+	protected boolean executeCommand(List<String> command, CloudgeneContext context)
 			throws IOException, InterruptedException {
 		return executeCommand(command, context, null);
 	}
 
-	protected boolean executeCommand(List<String> command, WorkflowContext context, StringBuilder output)
+	protected boolean executeCommand(List<String> command, CloudgeneContext context, StringBuilder output)
 			throws IOException, InterruptedException {
 		File workDir = new File(context.getWorkingDirectory());
 		return executeCommand(command, context, output, workDir);
 	}
 
-	protected boolean executeCommand(List<String> command, WorkflowContext context, StringBuilder output, File workDir)
+	protected boolean executeCommand(List<String> command, CloudgeneContext context, StringBuilder output, File workDir)
 			throws IOException, InterruptedException {
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
@@ -115,6 +115,7 @@ public abstract class CloudgeneStep {
 		context.log("Working Directory: " + workDir.getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
+		builder.environment().putAll(context.getSettings().getEnvironment());
 		builder.directory(workDir);
 		builder.redirectErrorStream(true);
 		builder.redirectOutput();

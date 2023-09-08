@@ -69,6 +69,8 @@ public class Settings {
 
 	private String adminMail = null;
 
+	private String adminName = null;
+
 	private String urlPrefix = "";
 
 	private List<MenuItem> navigation = new Vector<MenuItem>();
@@ -387,6 +389,14 @@ public class Settings {
 		return adminMail;
 	}
 
+	public void setAdminName(String adminName) {
+		this.adminName = adminName;
+	}
+
+	public String getAdminName() {
+		return adminName;
+	}
+
 	public void setThreadsQueue(int threadsQueue) {
 		this.threadsQueue = threadsQueue;
 	}
@@ -555,6 +565,22 @@ public class Settings {
 
 	public String getServerUrl() {
 		return serverUrl;
+	}
+
+	public Map<String, String> getEnvironment() {
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("CLOUDGENE_SERVICE_NAME", name != null ? name : "");
+		map.put("CLOUDGENE_SERVICE_URL", serverUrl != null ? serverUrl : "");
+		map.put("CLOUDGENE_CONTACT_EMAIL", adminMail != null ? adminMail : "");
+		map.put("CLOUDGENE_CONTACT_NAME", adminName != null ? adminName : "");
+		if (mail != null) {
+			map.put("CLOUDGENE_SMTP_HOST", mail.get("smtp") != null ? mail.get("smtp") : "");
+			map.put("CLOUDGENE_SMTP_PORT", mail.get("port") != null ? mail.get("port") : "");
+			map.put("CLOUDGENE_SMTP_USER", mail.get("user") != null ? mail.get("user") : "");
+			map.put("CLOUDGENE_SMTP_PASSWORD", mail.get("password") != null ? mail.get("password") : "");
+			map.put("CLOUDGENE_SMTP_NAME", mail.get("name") != null ? mail.get("name") : "");
+		}
+		return map;
 	}
 
 }

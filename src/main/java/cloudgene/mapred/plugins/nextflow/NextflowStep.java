@@ -54,7 +54,7 @@ public class NextflowStep extends CloudgeneStep {
 
 		// load process styling
 		loadProcessConfigs(step.get(PROPERTY_PROCESS_CONFIG));
-
+		
 		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
 		nextflow.setScript(scriptPath);
 
