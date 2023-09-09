@@ -15,6 +15,8 @@ import UserListControl from 'components/admin/user/list/';
 import JobListControl from 'components/admin/job/list/';
 import JobDetailControl from 'components/core/job/detail/';
 import AppListControl from 'components/admin/app/list/';
+import AppSettingsControl from 'components/admin/app/settings/';
+
 import AppRepositoryControl from 'components/admin/app/repository/';
 import SettingsGeneralControl from 'components/admin/settings/general/';
 import SettingsNextflowControl from 'components/admin/settings/nextflow/';
@@ -64,6 +66,10 @@ var routes = [{
 }, {
   path: 'pages/admin-apps',
   control: AppListControl,
+  guard: adminGuard
+}, {
+  path: 'pages/admin-apps/{app}',
+  control: AppSettingsControl,
   guard: adminGuard
 }, {
   path: 'pages/admin-apps-repository',

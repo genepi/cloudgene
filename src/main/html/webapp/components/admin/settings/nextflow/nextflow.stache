@@ -1,4 +1,4 @@
-<h2>Nextflow Configuration</h2>
+<h2>Nextflow Global Configuration</h2>
 
 <p>To configure your Nextflow settings, you can access the configuration file and fine-tune it according to your specific needs. Additionally, Nextflow offers robust support for environment variables, allowing you to easily integrate Cloudgene variables into your configuration. This <code>nextflow.config</code> file applies to <b>all</b> applications.</p>
 

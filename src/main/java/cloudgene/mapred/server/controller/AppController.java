@@ -82,7 +82,31 @@ public class AppController {
 		}
 		// update permissions
 		applicationService.updatePermissions(app, permission);
-		// update config
+
+		app.checkForChanges();
+
+		ApplicationResponse appResponse = ApplicationResponse.build(app);
+
+		return appResponse;
+	}
+
+	@Get("/api/v2/server/apps/{appId}/settings")
+	@Secured(User.ROLE_ADMIN)
+	public ApplicationResponse getAppSettings(String appId) {
+		Application app = applicationService.getById(appId);
+		ApplicationRepository repository = applicationService.getRepository();
+		ApplicationResponse appResponse = ApplicationResponse.buildWithDetails(app, this.application.getSettings(),
+				repository);
+
+		return appResponse;
+	}
+
+	@Put("/api/v2/server/apps/{appId}/settings")
+	@Secured(User.ROLE_ADMIN)
+	public ApplicationResponse updateAppSettings(String appId, @Nullable Boolean enabled, @Nullable String permission,
+			@Nullable Boolean reinstall, @Nullable Map<String, String> config) {
+
+		Application app = applicationService.getById(appId);
 		applicationService.updateConfig(app, config);
 
 		app.checkForChanges();
@@ -99,8 +123,7 @@ public class AppController {
 	@Secured(User.ROLE_ADMIN)
 	public ApplicationResponse install(@Nullable String url) {
 		Application app = applicationService.installApp(url);
-		ApplicationRepository repository = applicationService.getRepository();
-		return ApplicationResponse.buildWithDetails(app, application.getSettings(), repository);
+		return ApplicationResponse.build(app);
 	}
 
 	@Get("/api/v2/server/apps")

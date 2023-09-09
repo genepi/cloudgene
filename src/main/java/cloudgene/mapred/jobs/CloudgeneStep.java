@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
+import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlStep;
 
 public abstract class CloudgeneStep {
@@ -104,10 +105,13 @@ public abstract class CloudgeneStep {
 
 	protected boolean executeCommand(List<String> command, CloudgeneContext context, StringBuilder output, File workDir)
 			throws IOException, InterruptedException {
+
+		WdlApp app = context.getSettings().getApplicationRepository().getById(job.getApplicationId()).getWdlApp();
+		Environment environment = context.getSettings().buildEnvironment().addContext(context).addApplication(app);
+
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
-
-			String cmd = command.get(j).replaceAll("\\$job_id", context.getJobId());
+			String cmd = environment.resolve(command.get(j));
 			command.set(j, cmd);
 		}
 
@@ -115,8 +119,7 @@ public abstract class CloudgeneStep {
 		context.log("Working Directory: " + workDir.getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
-		Map<String, String> env = context.getSettings().buildEnvironment().toMap();
-		builder.environment().putAll(env);
+		builder.environment().putAll(environment.toMap());
 		builder.directory(workDir);
 		builder.redirectErrorStream(true);
 		builder.redirectOutput();

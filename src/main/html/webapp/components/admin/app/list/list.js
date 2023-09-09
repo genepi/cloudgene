@@ -15,14 +15,13 @@ import template from './list.stache';
 import templateInstallGithub from './install-github/install-github.stache';
 import templateInstallUrl from './install-url/install-url.stache';
 import templatePermission from './permission/permission.stache';
-import templateSettings from './settings/settings.stache';
 
 export default Control.extend({
 
-  "init": function(element, options) {
+  "init": function (element, options) {
     var that = this;
 
-    Application.findAll({}, function(applications) {
+    Application.findAll({}, function (applications) {
       that.options.installedApplications = applications;
       $(element).html(template({
         applications: applications
@@ -33,10 +32,10 @@ export default Control.extend({
 
   },
 
-  '#install-app-url-btn click': function(el, ev) {
+  '#install-app-url-btn click': function (el, ev) {
 
     bootbox.confirm(templateInstallUrl(),
-      function(result) {
+      function (result) {
         if (result) {
           var url = $('#url').val();
           var app = new Application();
@@ -50,15 +49,15 @@ export default Control.extend({
               '</div>',
             show: false
           });
-          waitingDialog.on('shown.bs.modal', function() {
-            app.save(function(application) {
+          waitingDialog.on('shown.bs.modal', function () {
+            app.save(function (application) {
               waitingDialog.modal('hide');
-              bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
+              bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function () {
                 var router = canRoute.router;
                 router.reload();
               });
 
-            }, function(response) {
+            }, function (response) {
               waitingDialog.modal('hide');
               showErrorDialog("Operation failed", response);
             });
@@ -69,10 +68,10 @@ export default Control.extend({
       });
   },
 
-  '#install-app-github-btn click': function(el, ev) {
+  '#install-app-github-btn click': function (el, ev) {
 
     bootbox.confirm(templateInstallGithub(),
-      function(result) {
+      function (result) {
         if (result) {
 
           var url = 'github://' + $('#url').val();
@@ -88,16 +87,16 @@ export default Control.extend({
             show: false
           });
 
-          waitingDialog.on('shown.bs.modal', function() {
+          waitingDialog.on('shown.bs.modal', function () {
 
-            app.save(function(application) {
+            app.save(function (application) {
               waitingDialog.modal('hide');
-              bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function() {
+              bootbox.alert('<h4>Congratulations</h4><p>The application installation was successful.</p>', function () {
                 var router = canRoute.router;
                 router.reload();
               });
 
-            }, function(response) {
+            }, function (response) {
               waitingDialog.modal('hide');
               showErrorDialog("Operation failed", response);
             });
@@ -108,12 +107,12 @@ export default Control.extend({
       });
   },
 
-  '#reload-apps-btn click': function(el, ev) {
+  '#reload-apps-btn click': function (el, ev) {
     var element = this.element;
 
     Application.findAll({
       reload: 'true'
-    }, function(applications) {
+    }, function (applications) {
 
       $(element).html(template({
         applications: applications
@@ -123,12 +122,12 @@ export default Control.extend({
     });
   },
 
-  '.enable-disable-btn click': function(el, ev) {
+  '.enable-disable-btn click': function (el, ev) {
     var card = $(el).closest('.card');
     var application = domData.get.call(card[0], 'application');
 
     var enabled = !application.attr('enabled')
-    bootbox.confirm("Are you sure you want to " + (enabled ? "enable" : "disable") + " application <b>" + application.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to " + (enabled ? "enable" : "disable") + " application <b>" + application.attr('id') + "</b>?", function (result) {
       if (result) {
         application.attr('enabled', enabled);
 
@@ -140,13 +139,13 @@ export default Control.extend({
             '</div>',
           show: false
         });
-        waitingDialog.on('shown.bs.modal', function() {
+        waitingDialog.on('shown.bs.modal', function () {
 
-          application.save(function(application) {
+          application.save(function (application) {
             waitingDialog.modal('hide');
             bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully ' + (enabled ? 'enabled' : 'disabled') + '.</p>');
 
-          }, function(response) {
+          }, function (response) {
             waitingDialog.modal('hide');
             showErrorDialog("Operation failed", response);
           });
@@ -157,12 +156,12 @@ export default Control.extend({
     });
   },
 
-  '.delete-app-btn click': function(el, ev) {
+  '.delete-app-btn click': function (el, ev) {
 
     var card = $(el).closest('.card');
     var application = domData.get.call(card[0], 'application');
 
-    bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to delete <b>" + application.attr('id') + "</b>?", function (result) {
       if (result) {
 
         var waitingDialog = bootbox.dialog({
@@ -174,13 +173,13 @@ export default Control.extend({
           show: false
         });
 
-        waitingDialog.on('shown.bs.modal', function() {
+        waitingDialog.on('shown.bs.modal', function () {
 
-          application.destroy(function(application) {
+          application.destroy(function (application) {
             waitingDialog.modal('hide');
             bootbox.alert('<h4>Congratulations</h4><p>The application has been successfully removed.</p>');
 
-          }, function(response) {
+          }, function (response) {
             waitingDialog.modal('hide');
             showErrorDialog("Operation failed", response);
           });
@@ -193,65 +192,37 @@ export default Control.extend({
 
   },
 
-  '.edit-settings-btn click': function(el, ev) {
-
-    var card = $(el).closest('.card');
-    var application = domData.get.call(card[0], 'application');
-
-
-    bootbox.confirm(templateSettings({
-        application: application
-      }),
-      function(result) {
-        if (result) {
-          var nextflowProfile = $('#nextflow-profile').val();
-          var nextflowConfig = $('#nextflow-config').val();
-          var nextflowWork = $('#nextflow-work').val();
-
-          application.attr('config').attr('nextflow.profile', nextflowProfile);
-          application.attr('config').attr('nextflow.config', nextflowConfig);
-          application.attr('config').attr('nextflow.work', nextflowWork);
-          application.save(function(data) {},
-            function(response) {
-              showErrorDialog("Operation failed", response);
-            });
-        }
-      }).find("div.modal-dialog").css({ "width": "80%" });
-
-  },
-
-
-  '.edit-permission-btn click': function(el, ev) {
+  '.edit-permission-btn click': function (el, ev) {
 
     var card = $(el).closest('.card');
     var application = domData.get.call(card[0], 'application');
 
     Group.findAll({},
-      function(groups) {
+      function (groups) {
         var selection = new canMap();
         selection.attr('group', application.attr('permission'));
         selection.attr('name', '');
 
         bootbox.confirm(templatePermission({
-            selection: selection,
-            application: application,
-            groups: groups
-          }),
-          function(result) {
+          selection: selection,
+          application: application,
+          groups: groups
+        }),
+          function (result) {
             if (result) {
               var group = selection.attr('group');
               if (group !== '') {
                 application.attr('permission', group);
-                application.save(function(data) {},
-                  function(response) {
+                application.save(function (data) { },
+                  function (response) {
                     showErrorDialog("Operation failed", response);
                   });
               } else {
                 var name = selection.attr('name');
                 if (name !== '') {
                   application.attr('permission', name);
-                  application.save(function(data) {},
-                    function(response) {
+                  application.save(function (data) { },
+                    function (response) {
                       showErrorDialog("Operation failed", response);
                     });
 
@@ -264,35 +235,5 @@ export default Control.extend({
           });
       });
 
-  },
-
-  '.reinstall-btn click': function(el, ev) {
-
-    var card = $(el).closest('.card');
-    var application = domData.get.call(card[0], 'application');
-    bootbox.confirm('<h4>' + application.attr('id') + '</h4><p>Force reinstallation of application? <br>All metafiles in HDFS are deleted and reimported on next job run.</p>',
-      function(result) {
-        if (result) {
-          application.attr('reinstall', 'true');
-          application.save(function(data) {},
-            function(response) {
-              showErrorDialog("Operation failed", response);
-            });
-        }
-      });
-
-
-  },
-
-  '.view-source-btn click': function(el, ev) {
-
-    var card = $(el).closest('.card');
-    var application = domData.get.call(card[0], 'application');
-    var env = '';
-    for (var property in application.attr('environment').attr()) {
-      env += property + '=' + application.attr('environment').attr(property) + '\n';
-    }
-
-    bootbox.alert('<h5>File</h5><p>' + application.attr('filename') + '</p><h5>Status</h5><p>' + application.attr('state') + '</p>' + '<h5>Environment Variables</h5><p><pre><code>' + env + '</pre></code></p>' + '<h5>Source</h5><p><pre><code>' + application.attr('source') + '</code></pre></p>');
   }
 });

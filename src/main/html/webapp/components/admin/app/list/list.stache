@@ -25,11 +25,11 @@
 					{{#if(wdlApp)}}
 						{{#if(wdlApp.workflow)}}
 							<div class="card-header app-header">
-								Application <i class="text-muted float-sm-right far fa-question-circle view-source-btn" style="cursor: pointer;"></i>
+								Application
 							</div>
 						{{else}}
 							<div class="card-header category-header">
-								{{wdlApp.category}} <i class="text-muted float-sm-right far fa-question-circle view-source-btn" style="cursor: pointer;"></i>
+								{{wdlApp.category}}
 							</div>
 						{{/if}}
 					{{else}}
@@ -53,20 +53,7 @@
 								{{else}}
 									<p class="card-text">
 										{{{truncate(wdlApp.description, 200)}}}<br>
-										<small><a href="{{wdlApp.website}}" target="_blank">{{wdlApp.website}}</a></small>
-										{{#is(state, 'completed')}}
-											<br>
-											<small>
-												Installation: <span class="badge badge-success">{{state}}</span>
-												<i class="fas fa-undo reinstall-btn" style="cursor: pointer;"></i>
-											</small>
-										{{/is}}
-										{{#is(state, 'on demand')}}
-											<br>
-											<small>
-												Installation:  <span class="badge badge-info">{{state}}</span>
-											</small>
-										{{/is}}
+										<small><a href="{{wdlApp.website}}" target="_blank">{{wdlApp.website}}</a></small>										
 									</p>
 							{{/errorMessage}}
 						</div>
@@ -76,7 +63,9 @@
 							<div>
 							</div>
 							<div class="btn-group">
-								<button type="button" class="edit-settings-btn btn btn-sm btn-outline-secondary"><i class="fas fa-cog"></i> Settings</button>
+								{{#if(wdlApp.workflow)}}
+									<a class="btn edit-settings-btn btn btn-sm btn-outline-secondary" href="#!pages/admin-apps/{{id}}" ><i class="fas fa-cog"></i> Settings</a>
+								{{/if}}
 								<button type="button" class="edit-permission-btn btn btn-sm btn-outline-secondary"><i class="fas fa-users"></i> {{permission}}</button>
 								<button type="button" class="delete-app-btn btn btn-sm btn-outline-secondary"><i class="fas fa-trash-alt"></i> Uninstall</button>
 								{{#enabled}}

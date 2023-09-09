@@ -32,9 +32,7 @@ public class ApplicationResponse {
 
 	private String source = "";
 
-	private String state = "";
-
-	private Map<String, String> environment;
+	private List<Environment.Variable> environment;
 
 	private Map<String, String> config;
 
@@ -48,6 +46,7 @@ public class ApplicationResponse {
 		appResponse.setErrorMessage(app.getErrorMessage());
 		appResponse.setChanged(app.isChanged());
 		appResponse.setPermission(app.getPermission());
+		// TODO: check if we need wdl app and file? only in details?
 		appResponse.setWdlApp(app.getWdlApp());
 
 		if (new File(app.getFilename()).exists()) {
@@ -63,9 +62,7 @@ public class ApplicationResponse {
 
 		ApplicationResponse appResponse = build(app);
 
-		appResponse.setState(updateState(app, settings));
-
-		Map<String, String> environment = settings.buildEnvironment().addApplication(app.getWdlApp()).toMap();
+		List<Environment.Variable> environment = settings.buildEnvironment().addApplication(app.getWdlApp()).toList();
 		appResponse.setEnvironment(environment);
 
 		Map<String, String> updatedConfig = repository.getConfig(app.getWdlApp());
@@ -79,14 +76,9 @@ public class ApplicationResponse {
 			ApplicationRepository repository) {
 		List<ApplicationResponse> response = new Vector<ApplicationResponse>();
 		for (Application app : applications) {
-			response.add(ApplicationResponse.buildWithDetails(app, settings, repository));
+			response.add(ApplicationResponse.build(app));
 		}
 		return response;
-	}
-
-	private static String updateState(Application app, Settings settings) {
-		// TODO: remove
-		return "completed";
 	}
 
 	public String getId() {
@@ -153,14 +145,6 @@ public class ApplicationResponse {
 		this.source = source;
 	}
 
-	public String getState() {
-		return state;
-	}
-
-	public void setState(String state) {
-		this.state = state;
-	}
-
 	public WdlApp getWdlApp() {
 		return wdlApp;
 	}
@@ -169,11 +153,11 @@ public class ApplicationResponse {
 		this.wdlApp = wdlApp;
 	}
 
-	public Map<String, String> getEnvironment() {
+	public List<Environment.Variable> getEnvironment() {
 		return environment;
 	}
 
-	public void setEnvironment(Map<String, String> environment) {
+	public void setEnvironment(List<Environment.Variable> environment) {
 		this.environment = environment;
 	}
 

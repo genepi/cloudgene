@@ -1,5 +1,6 @@
+<p><a href="#!pages/admin-apps">Applications</a> / {{application.id}}</p>
+<h2>{{application.id}}</h2>
 
-<h4>Settings</h4>
 <p>Change settings for application <b>{{application.wdlApp.name}}</b>.</p>
 
 <h5>Nextflow</h5>
@@ -14,7 +15,31 @@
 
   <br><p>Custom Configuration:<br>
   <small class="text-muted">All hardware specific parameters can be set here. If you use the AWSBatch profile this is the place to set your credentials</small></p>
-  <textarea class="form-control" id="nextflow-config" name="nextflow-config" style="height: 150px">{{application.config.attr('nextflow.config')}}</textarea>
+
+<div style=" display: flex; 
+   justify-content: center;
+   align-items: center;
+   flex-direction: row;">
+
+<div style="    width: 75%; align-self: stretch;">
+  <textarea class="form-control" id="nextflow-config" name="nextflow-config" style="height: 550px; font-size: 14px; font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;">{{application.config.attr('nextflow.config')}}</textarea>
+<br>
+	<div class="form-group">
+		<button id="save" class="btn btn-primary" data-loading-text="please wait..."><i class="far fa-save"></i> Save changes</button>
+	</div>
+
+
+</div>
+
+<div style="flex:1">
+<ul>
+{{#application.environment}}
+<li><b><code>$&#123;{{{name}}&#125;</code></b><small><br>Value: {{value}}</small></li>
+{{/application.environment}}
+</ul>
+</div>
+</div>
+
 
 
 </form>
