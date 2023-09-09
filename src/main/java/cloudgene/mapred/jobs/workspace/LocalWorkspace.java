@@ -188,7 +188,7 @@ public class LocalWorkspace implements IWorkspace {
 		File[] files = folder.listFiles();
 
 		for (File file : files) {
-			if (folder.isFile()) {
+			if (file.isFile()) {
 				Download download = createDownload(prefix, file);
 				downloads.add(download);
 			} else {
