@@ -65,7 +65,7 @@ public class ApplicationResponse {
 
 		appResponse.setState(updateState(app, settings));
 
-		Map<String, String> environment = Environment.getApplicationVariables(app.getWdlApp(), settings);
+		Map<String, String> environment = settings.buildEnvironment().addApplication(app.getWdlApp()).toMap();
 		appResponse.setEnvironment(environment);
 
 		Map<String, String> updatedConfig = repository.getConfig(app.getWdlApp());
@@ -85,7 +85,7 @@ public class ApplicationResponse {
 	}
 
 	private static String updateState(Application app, Settings settings) {
-		//TODO: remove
+		// TODO: remove
 		return "completed";
 	}
 

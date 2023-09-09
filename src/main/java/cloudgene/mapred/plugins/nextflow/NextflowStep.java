@@ -16,6 +16,7 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 import groovy.json.JsonOutput;
@@ -38,6 +39,8 @@ public class NextflowStep extends CloudgeneStep {
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
 		this.context = context;
+		
+		Settings settings = context.getSettings();
 
 		String script = step.getString("script");
 
@@ -54,12 +57,12 @@ public class NextflowStep extends CloudgeneStep {
 
 		// load process styling
 		loadProcessConfigs(step.get(PROPERTY_PROCESS_CONFIG));
-		
-		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
+
+		NextflowBinary nextflow = NextflowBinary.build(settings);
 		nextflow.setScript(scriptPath);
 
 		AbstractJob job = context.getJob();
-		String appFolder = context.getSettings().getApplicationRepository().getConfigDirectory(job.getApplicationId());
+		String appFolder = settings.getApplicationRepository().getConfigDirectory(job.getApplicationId());
 
 		// set profile
 		String profile = "";
@@ -69,10 +72,13 @@ public class NextflowStep extends CloudgeneStep {
 		}
 		nextflow.setProfile(profile);
 
-		// set custom configuration
-		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
-		File nextflowConfigFile = new File(nextflowConfig);
-		nextflow.setNextflowConfigFile(nextflowConfigFile);
+		// set global configuration
+		String globalConfig = settings.getNextflowConfig();
+		nextflow.addConfig(globalConfig);
+
+		// set application specific configuration
+		String appConfig = FileUtil.path(appFolder, "nextflow.config");
+		nextflow.addConfig(appConfig);
 
 		// set work directory
 		String work = "";
@@ -91,7 +97,7 @@ public class NextflowStep extends CloudgeneStep {
 			nextflow.setWork(workDir);
 		}
 
-		//params json file		
+		// params json file
 		String paramsJsonFilename = FileUtil.path(context.getLocalOutput(), "params.json");
 		File paramsFile = new File(paramsJsonFilename);
 		try {
@@ -103,12 +109,12 @@ public class NextflowStep extends CloudgeneStep {
 			return false;
 		}
 		nextflow.setParamsFile(paramsFile);
-		
-		//register job in webcollector and set created url
+
+		// register job in webcollector and set created url
 		String collectorUrl = collector.addContext(context);
 		nextflow.setWeblog(collectorUrl);
 
-		//log files and reports
+		// log files and reports
 		nextflow.setTrace(workspace.createLogFile("trace.csv"));
 		nextflow.setReport(workspace.createLogFile("report.html"));
 		nextflow.setTimeline(workspace.createLogFile("timeline.html"));
@@ -117,7 +123,7 @@ public class NextflowStep extends CloudgeneStep {
 		try {
 
 			File executionDir = new File(context.getLocalOutput());
-			
+
 			StringBuilder output = new StringBuilder();
 			boolean successful = executeCommand(nextflow.buildCommand(), context, output, executionDir);
 
@@ -199,7 +205,7 @@ public class NextflowStep extends CloudgeneStep {
 	public String[] getRequirements() {
 		return new String[] { NextflowPlugin.ID };
 	}
-	
+
 	private Map<String, Object> createParamsMap(WdlStep step) {
 		Map<String, Object> params = new HashMap<String, Object>();
 

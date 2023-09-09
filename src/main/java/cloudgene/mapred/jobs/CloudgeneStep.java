@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+import java.util.Map;
 
-import cloudgene.mapred.jobs.sdk.WorkflowContext;
 import cloudgene.mapred.wdl.WdlStep;
 
 public abstract class CloudgeneStep {
@@ -115,7 +115,8 @@ public abstract class CloudgeneStep {
 		context.log("Working Directory: " + workDir.getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.environment().putAll(context.getSettings().getEnvironment());
+		Map<String, String> env = context.getSettings().buildEnvironment().toMap();
+		builder.environment().putAll(env);
 		builder.directory(workDir);
 		builder.redirectErrorStream(true);
 		builder.redirectOutput();

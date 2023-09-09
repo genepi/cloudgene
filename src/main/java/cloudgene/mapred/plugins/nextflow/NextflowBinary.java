@@ -17,7 +17,7 @@ public class NextflowBinary {
 
 	private String profile;
 
-	private File nextflowConfigFile;
+	private List<File> configFiles = new Vector<File>();
 
 	private String work;
 
@@ -82,10 +82,14 @@ public class NextflowBinary {
 		this.profile = profile;
 	}
 
-	public void setNextflowConfigFile(File nextflowConfigFile) {
-		this.nextflowConfigFile = nextflowConfigFile;
+	public void addConfig(File configFile) {
+		this.configFiles.add(configFile);
 	}
 
+	public void addConfig(String configFilename) {
+		this.configFiles.add(new File(configFilename));
+	}
+	
 	public void setWork(String work) {
 		this.work = work;
 	}
@@ -119,6 +123,11 @@ public class NextflowBinary {
 		List<String> nextflow = new Vector<String>();
 		nextflow.add("PATH=$PATH:/usr/local/bin");
 		nextflow.add(getBinary());
+		
+		nextflow.add("-log");
+		nextflow.add(log);
+
+		
 		nextflow.add("run");
 		nextflow.add(script);
 
@@ -128,10 +137,11 @@ public class NextflowBinary {
 			nextflow.add(profile);
 		}
 
-		if (nextflowConfigFile.exists()) {
-			// set custom configuration
-			nextflow.add("-c");
-			nextflow.add(nextflowConfigFile.getAbsolutePath());
+		for (File configFile : configFiles) {
+			if (configFile.exists()) {
+				nextflow.add("-c");
+				nextflow.add(configFile.getAbsolutePath());
+			}
 		}
 
 		nextflow.add("-w");
@@ -145,9 +155,6 @@ public class NextflowBinary {
 
 		nextflow.add("-with-weblog");
 		nextflow.add(weblog);
-
-		// nextflowCommand.add("-log");
-		// nextflowCommand.add(log);
 
 		nextflow.add("-with-trace");
 		nextflow.add(trace);

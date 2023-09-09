@@ -10,6 +10,7 @@ import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.CounterHistoryDao;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.auth.AuthenticationService;
+import cloudgene.mapred.server.responses.NextflowConfigResponse;
 import cloudgene.mapred.server.responses.ServerResponse;
 import cloudgene.mapred.server.responses.StatisticsResponse;
 import cloudgene.mapred.server.services.ServerService;
@@ -113,6 +114,23 @@ public class ServerAdminController {
 		return ServerResponse.build(application.getSettings());
 
 	}
+	
+	@Get("/nextflow/config")
+	public NextflowConfigResponse getNextflowConfig() {
+
+		return NextflowConfigResponse.build(application.getSettings());
+
+	}
+
+	@Post("/nextflow/config/update")
+	public NextflowConfigResponse updateNextflowConfig(String content) {
+
+		serverService.updateNextflowConfig(content);
+
+		return NextflowConfigResponse.build(application.getSettings());
+
+	}
+
 
 	@Get("/cloudgene-apps")
 	public String list() throws IOException {

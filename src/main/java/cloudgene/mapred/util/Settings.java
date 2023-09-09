@@ -19,6 +19,7 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
+import cloudgene.mapred.jobs.Environment;
 import genepi.io.FileUtil;
 
 public class Settings {
@@ -86,6 +87,8 @@ public class Settings {
 	protected Config config;
 
 	private String port = "8082";
+
+	private String nextflowConfig = FileUtil.path("config", "nextflow.config");
 
 	public static final String DEFAULT_SECURITY_KEY = "default-key-change-me-immediately";
 
@@ -567,20 +570,16 @@ public class Settings {
 		return serverUrl;
 	}
 
-	public Map<String, String> getEnvironment() {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("CLOUDGENE_SERVICE_NAME", name != null ? name : "");
-		map.put("CLOUDGENE_SERVICE_URL", serverUrl != null ? serverUrl : "");
-		map.put("CLOUDGENE_CONTACT_EMAIL", adminMail != null ? adminMail : "");
-		map.put("CLOUDGENE_CONTACT_NAME", adminName != null ? adminName : "");
-		if (mail != null) {
-			map.put("CLOUDGENE_SMTP_HOST", mail.get("smtp") != null ? mail.get("smtp") : "");
-			map.put("CLOUDGENE_SMTP_PORT", mail.get("port") != null ? mail.get("port") : "");
-			map.put("CLOUDGENE_SMTP_USER", mail.get("user") != null ? mail.get("user") : "");
-			map.put("CLOUDGENE_SMTP_PASSWORD", mail.get("password") != null ? mail.get("password") : "");
-			map.put("CLOUDGENE_SMTP_NAME", mail.get("name") != null ? mail.get("name") : "");
-		}
-		return map;
+	public void setNextflowConfig(String nextflowConfig) {
+		this.nextflowConfig = nextflowConfig;
+	}
+
+	public String getNextflowConfig() {
+		return nextflowConfig;
+	}
+
+	public Environment buildEnvironment() {
+		return new Environment(this);
 	}
 
 }

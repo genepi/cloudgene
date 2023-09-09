@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
-import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlParameterInput;
@@ -29,24 +28,7 @@ public class Planner {
 			context2.put(param.getId(), context.getOutput(param.getId()));
 		}
 
-		// add job variables
-		Map<String, String> envJob = Environment.getJobVariables(context);
-		for (String key : envJob.keySet()) {
-			context2.put(key, envJob.get(key));
-		}
-
-		// add app variables
-		Map<String, String> envApp = Environment.getApplicationVariables(app, settings);
-		for (String key : envApp.keySet()) {
-			context2.put(key, envApp.get(key));
-		}
-
-		context2.putAll(settings.getEnvironment());
-		context2.put("CLOUDGENE_JOB_ID", context.getJobId());
-		context2.put("CLOUDGENE_USER_NAME", context.getUser().getUsername());
-		context2.put("CLOUDGENE_USER_EMAIL", context.getUser().getMail());
-		context2.put("CLOUDGENE_USER_FULL_NAME", context.getUser().getFullName());
-
+		context2.putAll(settings.buildEnvironment().addApplication(app).addContext(context).toMap());
 
 		File manifest = new File(app.getManifestFile());
 

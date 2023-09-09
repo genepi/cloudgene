@@ -24,6 +24,7 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.controller.ServerAdminController;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.io.FileUtil;
 import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -255,6 +256,12 @@ public class ServerService {
 				} catch (IOException e) {
 				}
 		}
+	}
+
+	public void updateNextflowConfig(String content) {
+		Settings settings = application.getSettings();
+		String filename = settings.getNextflowConfig();
+		FileUtil.writeStringBufferToFile(filename, new StringBuffer(content));
 	}
 
 }

@@ -322,14 +322,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 					return;
 				}
 				// update environment variables
-				Map<String, String> envApp = Environment.getApplicationVariables(linkedApp.getWdlApp(), settings);
-				Map<String, String> envJob = Environment.getJobVariables(context);
+				Environment environment = settings.buildEnvironment().addApplication(linkedApp.getWdlApp())
+						.addContext(context);
 				Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
 				for (String property : properties.keySet()) {
 					Object propertyValue = properties.get(property);
 					if (propertyValue instanceof String) {
-						propertyValue = Environment.env(propertyValue.toString(), envApp);
-						propertyValue = Environment.env(propertyValue.toString(), envJob);
+						propertyValue = environment.resolve(propertyValue.toString());
 					}
 					properties.put(property, propertyValue);
 				}
