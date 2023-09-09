@@ -292,7 +292,9 @@ public class JobResponse {
 			response.setLogs("");
 		}
 
-		response.setUsername(user.getUsername());
+		if (job.getUser() != null) {
+			response.setUsername(job.getUser().getUsername());
+		}
 
 		return response;
 	}
