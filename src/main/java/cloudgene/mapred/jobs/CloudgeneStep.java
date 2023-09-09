@@ -6,9 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
-import java.util.Map;
 
-import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlStep;
 
 public abstract class CloudgeneStep {
@@ -17,7 +15,7 @@ public abstract class CloudgeneStep {
 
 	private String name;
 
-	private AbstractJob job;
+	private CloudgeneJob job;
 
 	private List<Message> logMessages;
 
@@ -51,11 +49,11 @@ public abstract class CloudgeneStep {
 		return name;
 	}
 
-	public AbstractJob getJob() {
+	public CloudgeneJob getJob() {
 		return job;
 	}
 
-	public void setJob(AbstractJob job) {
+	public void setJob(CloudgeneJob job) {
 		this.job = job;
 	}
 
@@ -106,8 +104,8 @@ public abstract class CloudgeneStep {
 	protected boolean executeCommand(List<String> command, CloudgeneContext context, StringBuilder output, File workDir)
 			throws IOException, InterruptedException {
 
-		WdlApp app = context.getSettings().getApplicationRepository().getById(job.getApplicationId()).getWdlApp();
-		Environment environment = context.getSettings().buildEnvironment().addContext(context).addApplication(app);
+		Environment environment = context.getSettings().buildEnvironment().addContext(context)
+				.addApplication(job.getApp());
 
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {

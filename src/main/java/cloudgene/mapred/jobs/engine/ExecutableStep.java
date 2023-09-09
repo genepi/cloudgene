@@ -11,7 +11,6 @@ import java.net.URLClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -29,7 +28,7 @@ public class ExecutableStep implements Runnable {
 
 	private CloudgeneContext context;
 
-	private AbstractJob job;
+	private CloudgeneJob job;
 
 	private CloudgeneStep instance;
 

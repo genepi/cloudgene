@@ -37,7 +37,7 @@ public class CloudgeneContext extends WorkflowContext {
 
 	private Map<String, Boolean> submitCounters = new HashMap<String, Boolean>();
 
-	private AbstractJob job;
+	private CloudgeneJob job;
 
 	private Map<String, Object> data = new HashMap<String, Object>();
 
@@ -150,7 +150,7 @@ public class CloudgeneContext extends WorkflowContext {
 		job.writeLog(line);
 	}
 
-	public AbstractJob getJob() {
+	public CloudgeneJob getJob() {
 		return job;
 	}
 
