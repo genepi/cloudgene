@@ -30,6 +30,8 @@ public class Environment {
 			add("SMTP_NAME", settings.getMail().get("name"));
 			add("SMTP_SENDER", settings.getMail().get("name"));
 		}
+		add("WORKSPACE_TYPE", settings.getExternalWorkspaceType());
+		add("WORKSPACE_HOME", settings.getExternalWorkspaceLocation());
 	}
 
 	public Environment addContext(CloudgeneContext context) {

@@ -20,6 +20,7 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.jobs.Environment;
+import cloudgene.mapred.jobs.workspace.LocalWorkspace;
 import genepi.io.FileUtil;
 
 public class Settings {
@@ -538,7 +539,9 @@ public class Settings {
 
 	public String getExternalWorkspaceLocation() {
 		if (externalWorkspace == null) {
-			return "";
+			externalWorkspace = new HashMap<>();
+			externalWorkspace.put("type", "local");
+			externalWorkspace.put("location", getLocalWorkspace());
 		}
 
 		if (externalWorkspace.get("location") == null) {
@@ -551,7 +554,9 @@ public class Settings {
 
 	public String getExternalWorkspaceType() {
 		if (externalWorkspace == null) {
-			return "";
+			externalWorkspace = new HashMap<>();
+			externalWorkspace.put("type", "local");
+			externalWorkspace.put("location", getLocalWorkspace());
 		}
 
 		if (externalWorkspace.get("type") == null) {

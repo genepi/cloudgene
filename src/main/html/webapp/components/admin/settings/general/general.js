@@ -33,6 +33,8 @@ export default Control.extend({
     this.settings.attr('backgroundColor', $(form).find("[name='background-color']").val());
     this.settings.attr('foregroundColor', $(form).find("[name='foreground-color']").val());
     this.settings.attr('googleAnalytics', $(form).find("[name='google-analytics']").val());
+    this.settings.attr('workspaceType', $(form).find("[name='workspaceType']").val());
+    this.settings.attr('workspaceLocation', $(form).find("[name='workspaceLocation']").val());
     this.settings.save(function (data) {
       bootbox.alert("Settings updated.");
     }, function (response) {

@@ -22,6 +22,8 @@ public class ServerResponse {
 	private String adminName;
 	private String adminMail;
 	private String serverUrl;
+	private String workspaceType;
+	private String workspaceLocation;
 
 	public static ServerResponse build(Settings settings) {
 		ServerResponse response = new ServerResponse();
@@ -32,6 +34,8 @@ public class ServerResponse {
 		response.setBackgroundColor(settings.getColors().get("background"));
 		response.setForegroundColor(settings.getColors().get("foreground"));
 		response.setGoogleAnalytics(settings.getGoogleAnalytics());
+		response.setWorkspaceType(settings.getExternalWorkspaceType());
+		response.setWorkspaceLocation(settings.getExternalWorkspaceLocation());
 
 		Map<String, String> mail = settings.getMail();
 		if (mail != null) {
@@ -158,6 +162,22 @@ public class ServerResponse {
 
 	public void setMail(boolean mail) {
 		this.mail = mail;
+	}
+
+	public void setWorkspaceLocation(String workspaceLocation) {
+		this.workspaceLocation = workspaceLocation;
+	}
+
+	public String getWorkspaceLocation() {
+		return workspaceLocation;
+	}
+
+	public void setWorkspaceType(String workspaceType) {
+		this.workspaceType = workspaceType;
+	}
+
+	public String getWorkspaceType() {
+		return workspaceType;
 	}
 
 }

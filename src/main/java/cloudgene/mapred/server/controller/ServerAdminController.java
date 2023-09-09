@@ -106,10 +106,12 @@ public class ServerAdminController {
 	@Post("/settings/update")
 	public ServerResponse updateSettings(String name, String adminName, String adminMail, String serverUrl,
 			String backgroundColor, String foregroundColor, String googleAnalytics, boolean mail, String mailSmtp,
-			String mailUser, String mailPassword, String mailPort, String mailName) {
+			String mailUser, String mailPassword, String mailPort, String mailName, String workspaceType,
+			String workspaceLocation) {
 
 		serverService.updateSettings(name, adminName, adminMail, serverUrl, backgroundColor, foregroundColor,
-				googleAnalytics, String.valueOf(mail), mailSmtp, mailPort, mailUser, mailPassword, mailName);
+				googleAnalytics, String.valueOf(mail), mailSmtp, mailPort, mailUser, mailPassword, mailName,
+				workspaceType, workspaceLocation);
 
 		return ServerResponse.build(application.getSettings());
 

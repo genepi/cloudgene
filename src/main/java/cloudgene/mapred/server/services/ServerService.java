@@ -117,7 +117,7 @@ public class ServerService {
 	}
 
 	public void updateSettings(String name, String adminName, String adminMail, String serverUrl, String background_color, String foreground_color, String google_analytics,
-			String mail, String mail_smtp, String mail_port, String mail_user, String mail_password, String mail_name) {
+			String mail, String mail_smtp, String mail_port, String mail_user, String mail_password, String mail_name, String workspaceType, String workspaceLocation) {
 
 		Settings settings = application.getSettings();
 		settings.setName(name);
@@ -127,7 +127,9 @@ public class ServerService {
 		settings.getColors().put("background", background_color);
 		settings.getColors().put("foreground", foreground_color);
 		settings.setGoogleAnalytics(google_analytics);
-
+		settings.getExternalWorkspace().put("type", workspaceType);
+		settings.getExternalWorkspace().put("location", workspaceLocation);
+		
 		if (mail != null && mail.equals("true")) {
 			Map<String, String> mailConfig = new HashMap<String, String>();
 			mailConfig.put("smtp", mail_smtp);
