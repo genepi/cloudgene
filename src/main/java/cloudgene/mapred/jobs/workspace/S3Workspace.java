@@ -245,5 +245,11 @@ public class S3Workspace implements IWorkspace {
 
 		return downloads;
 	}
+	
+	@Override
+	public List<Download> getLogs() {
+		String url = location + "/" + job + "/" + LOGS_DIRECTORY;
+		return getDownloads(url);
+	}
 
 }

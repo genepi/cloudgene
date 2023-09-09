@@ -88,6 +88,13 @@ public class CloudgeneJob extends AbstractJob {
 			outputParams.add(newOutput);
 		}
 
+		logParam = new CloudgeneParameterOutput();
+		logParam.setAdminOnly(true);
+		logParam.setDownload(true);
+		logParam.setDescription("Logs");
+		logParam.setType(WdlParameterOutputType.LOCAL_FOLDER);
+		logParam.setJob(this);
+
 	}
 
 	@Override
@@ -118,10 +125,11 @@ public class CloudgeneJob extends AbstractJob {
 			switch (param.getType()) {
 			case HDFS_FILE:
 			case HDFS_FOLDER:
-				log.info("[Job {}] Setting output param '{}' failed. HDFS support was removed in Cloudgene 3'", getId(), param.getName());
+				log.info("[Job {}] Setting output param '{}' failed. HDFS support was removed in Cloudgene 3'", getId(),
+						param.getName());
 				throw new RuntimeException("HDFS support was removed in Cloudgene 3");
 
-			case LOCAL_FILE:				
+			case LOCAL_FILE:
 				String filename = workspace.createFile(param.getName(), param.getName());
 				param.setValue(filename);
 				log.info("[Job {}] Set output file '{}' to '{}'", getId(), param.getName(), param.getValue());
@@ -129,8 +137,8 @@ public class CloudgeneJob extends AbstractJob {
 
 			case LOCAL_FOLDER:
 				String folder = workspace.createFolder(param.getName());
-				log.info("[Job {}] Set output folder '{}' to '{}'", getId(), param.getName(), param.getValue());
 				param.setValue(folder);
+				log.info("[Job {}] Set output folder '{}' to '{}'", getId(), param.getName(), param.getValue());
 				break;
 			}
 
@@ -142,7 +150,7 @@ public class CloudgeneJob extends AbstractJob {
 
 	@Override
 	public boolean execute() {
-		
+
 		try {
 
 			// evaluate WDL and replace all variables (e.g. ${job_id})
@@ -224,7 +232,7 @@ public class CloudgeneJob extends AbstractJob {
 	public boolean cleanUp() {
 
 		log.info("[Job {}] Cleaning up...", getId());
-		
+
 		try {
 			workspace.cleanup(getId());
 		} catch (IOException e) {
@@ -248,6 +256,13 @@ public class CloudgeneJob extends AbstractJob {
 				exportParameter(out);
 			}
 		}
+
+		log.info("[Job {}] Export logs...", getId());
+		List<Download> logs = workspace.getLogs();
+		for (Download log: logs){
+			log.setCount(-1);
+		}
+		logParam.setFiles(logs);
 
 		return true;
 	}

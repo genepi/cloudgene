@@ -35,6 +35,8 @@ public interface IWorkspace {
 
 	public List<Download> getDownloads(String url);
 	
+	public List<Download> getLogs();
+	
 	public void cleanup(String job) throws IOException;
 	
 	public boolean exists(String path) throws IOException;

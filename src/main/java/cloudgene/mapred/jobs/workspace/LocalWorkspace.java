@@ -221,4 +221,10 @@ public class LocalWorkspace implements IWorkspace {
 		return new File(path).getAbsolutePath();
 	}
 
+	@Override
+	public List<Download> getLogs() {
+		String location = FileUtil.path(workspace, LOGS_DIRECTORY);
+		return getDownloads(location);
+	}
+
 }

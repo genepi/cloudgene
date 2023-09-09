@@ -104,6 +104,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	protected List<CloudgeneParameterOutput> outputParams = new Vector<CloudgeneParameterOutput>();
 
+	protected CloudgeneParameterOutput logParam = new CloudgeneParameterOutput();
+
 	protected List<CloudgeneStep> steps = new Vector<CloudgeneStep>();
 
 	protected BufferedOutputStream stdOutStream;
@@ -253,6 +255,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void setOutputParams(List<CloudgeneParameterOutput> outputParams) {
 		this.outputParams = outputParams;
+	}
+
+	public CloudgeneParameterOutput getLogParam() {
+		return logParam;
 	}
 
 	public void setPositionInQueue(int positionInQueue) {

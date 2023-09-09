@@ -79,6 +79,16 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 		}
 
+		if (job.getLogParam().getFiles() != null) {
+
+			for (Download download : job.getLogParam().getFiles()) {
+				download.setParameterId(job.getLogParam().getId());
+				download.setParameter(job.getLogParam());
+				downloadDao.insert(download);
+			}
+
+		}
+		
 		if (job.getSteps() != null) {
 			StepDao dao2 = new StepDao(database);
 			for (CloudgeneStep step : job.getSteps()) {
@@ -142,6 +152,9 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 			parameter.setJobId(job.getId());
 			dao.insert(parameter);
 		}
+		
+		
+		dao.insert(job.getLogParam());
 	}
 
 	@Override
