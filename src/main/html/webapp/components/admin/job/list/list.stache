@@ -2,21 +2,14 @@
 
 <p>This page lists all submitted and running jobs.<br><br></p>
 
-<h4>Preprocessing Queue</h4>
-
-<div id="job-list-running-stq">
-</div>
-
-<hr>
-
-<h4>Long Running Queue</h4>
+<h4>Running Jobs</h4>
 
 <div id="job-list-running-ltq">
 </div>
 
 <hr>
 
-<h4>Active Jobs</h4>
+<h4>Completed Jobs</h4>
 
 <div id="job-list-current">
 </div>
