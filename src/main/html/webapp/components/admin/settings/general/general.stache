@@ -12,6 +12,25 @@
 	</div>
 
 	<div class="form-group">
+		<label for="serverUrl" class="control-label">Service Url:</label>
+		<input id="serverUrl" name="serverUrl" type="text" class="form-control col-md-4" value="{{settings.serverUrl}}" autocomplete="off">
+	</div>
+
+
+	<div class="form-group">
+		<label for="adminName" class="control-label">Contact Name:</label>
+		<input id="adminName" name="adminName" type="text" class="form-control col-md-4" value="{{settings.adminName}}" autocomplete="off">
+	</div>
+
+
+	<div class="form-group">
+		<label for="adminMail" class="control-label">Contact E-Mail:</label>
+		<input id="adminMail" name="adminMail" type="text" class="form-control col-md-4" value="{{settings.adminMail}}" autocomplete="off">
+	</div>
+
+	<hr/>
+
+	<div class="form-group">
 		<label for="background-color" class="control-label">Background Color:</label>
 		<input id="background-color" name="background-color" type="text" class="form-control col-md-4" value="{{settings.backgroundColor}}" autocomplete="off">
 	</div>

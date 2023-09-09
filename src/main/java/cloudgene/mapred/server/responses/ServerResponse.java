@@ -19,10 +19,16 @@ public class ServerResponse {
 	private String mailPassword;
 	private String mailName;
 	private boolean mail;
+	private String adminName;
+	private String adminMail;
+	private String serverUrl;
 
 	public static ServerResponse build(Settings settings) {
 		ServerResponse response = new ServerResponse();
 		response.setName(settings.getName());
+		response.setAdminName(settings.getAdminName());
+		response.setAdminMail(settings.getAdminMail());
+		response.setServerUrl(settings.getServerUrl());
 		response.setBackgroundColor(settings.getColors().get("background"));
 		response.setForegroundColor(settings.getColors().get("foreground"));
 		response.setGoogleAnalytics(settings.getGoogleAnalytics());
@@ -57,6 +63,30 @@ public class ServerResponse {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getAdminName() {
+		return adminName;
+	}
+
+	public void setAdminName(String adminName) {
+		this.adminName = adminName;
+	}
+
+	public String getAdminMail() {
+		return adminMail;
+	}
+
+	public void setAdminMail(String adminMail) {
+		this.adminMail = adminMail;
+	}
+
+	public String getServerUrl() {
+		return serverUrl;
+	}
+
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
 	}
 
 	public String getBackgroundColor() {

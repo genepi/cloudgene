@@ -104,17 +104,17 @@ public class ServerAdminController {
 	}
 
 	@Post("/settings/update")
-	public ServerResponse updateSettings(String name, String backgroundColor, String foregroundColor,
-			String googleAnalytics, boolean mail, String mailSmtp, String mailUser, String mailPassword,
-			String mailPort, String mailName) {
+	public ServerResponse updateSettings(String name, String adminName, String adminMail, String serverUrl,
+			String backgroundColor, String foregroundColor, String googleAnalytics, boolean mail, String mailSmtp,
+			String mailUser, String mailPassword, String mailPort, String mailName) {
 
-		serverService.updateSettings(name, backgroundColor, foregroundColor, googleAnalytics, String.valueOf(mail),
-				mailSmtp, mailPort, mailUser, mailPassword, mailName);
+		serverService.updateSettings(name, adminName, adminMail, serverUrl, backgroundColor, foregroundColor,
+				googleAnalytics, String.valueOf(mail), mailSmtp, mailPort, mailUser, mailPassword, mailName);
 
 		return ServerResponse.build(application.getSettings());
 
 	}
-	
+
 	@Get("/nextflow/config")
 	public NextflowConfigResponse getNextflowConfig() {
 
@@ -130,7 +130,6 @@ public class ServerAdminController {
 		return NextflowConfigResponse.build(application.getSettings());
 
 	}
-
 
 	@Get("/cloudgene-apps")
 	public String list() throws IOException {
