@@ -40,8 +40,7 @@ public class ServerResponse {
 			response.setMailPort(mail.get("port"));
 			response.setMailUser(mail.get("user"));
 			response.setMailPassword(mail.get("password"));
-			response.setMailUser("");
-			response.setMailPassword("");
+			response.setMailUser(mail.get("user"));
 			response.setMailName(mail.get("name"));
 
 		} else {
