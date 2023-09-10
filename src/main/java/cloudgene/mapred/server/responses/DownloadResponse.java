@@ -73,10 +73,8 @@ public class DownloadResponse {
 	
 	public static DownloadResponse build(Download param) {
 		DownloadResponse response = new DownloadResponse();
-		response.setParameterId(param.getParameterId());
 		response.setName(param.getName());
 		response.setHash(param.getHash());
-		response.setUser(param.getUsername());
 		response.setSize(param.getSize());
 		response.setCount(param.getCount());
 		response.setPath(param.getPath());

@@ -58,18 +58,9 @@ public class DownloadController {
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 
-		// job is running and not in database --> download possible of
-		// autoexport params
+		// job is running and not in database
 		if (download == null) {
-			for (CloudgeneParameterOutput param : job.getOutputParams()) {
-				if (param.isAutoExport() && param.getFiles() != null) {
-					for (Download download2 : param.getFiles()) {
-						if (download2.getHash().equals(hash)) {
-							download = download2;
-						}
-					}
-				}
-			}
+			download = job.findDownloadByHash(hash);
 		}
 		String message = String.format("Job: Downloading file '%s' for job %s", filename, job.getId());
 		log.info(message);
@@ -79,17 +70,14 @@ public class DownloadController {
 
 	@Get("/share/results/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public MutableHttpResponse<InputStream> downloadPublicLink(String hash, String filename) throws URISyntaxException, IOException {
+	public MutableHttpResponse<InputStream> downloadPublicLink(String hash, String filename)
+			throws URISyntaxException, IOException {
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 
-		if (download != null) {
-			String message = String.format("Job: Anonymously downloading file '%s' (hash %s)", download.getName(),
-					hash);
-			log.info(message);
-		}
-
+		String message = String.format("Job: Anonymously downloading file '%s' (hash %s)", filename, hash);
+		log.info(message);
 		return downloadService.download(download);
 
 	}

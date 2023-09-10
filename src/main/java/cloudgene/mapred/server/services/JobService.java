@@ -266,7 +266,18 @@ public class JobService {
 
 		}
 
-		((CloudgeneJob) job).loadConfig(application.getWdlApp());
+		
+		IWorkspace workspace = workspaceFactory.getDefault();
+
+		try {
+			// setup workspace
+			workspace.setup(job.getId());
+		} catch (Exception e) {
+			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+		job.setWorkspace(workspace);
+		
+		((CloudgeneJob) job).loadApp(application.getWdlApp());
 
 		this.application.getWorkflowEngine().restart(job);
 

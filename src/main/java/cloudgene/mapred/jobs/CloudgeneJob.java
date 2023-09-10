@@ -22,6 +22,8 @@ import genepi.io.FileUtil;
 
 public class CloudgeneJob extends AbstractJob {
 
+	private static final String CLOUDGENE_LOGS_PARAM = "cloudgene_logs";
+
 	private WdlApp app;
 
 	private String workingDirectory;
@@ -34,31 +36,6 @@ public class CloudgeneJob extends AbstractJob {
 
 	public CloudgeneJob() {
 		super();
-	}
-
-	public void loadConfig(WdlApp app) {
-
-		this.app = app;
-		workingDirectory = app.getPath();
-
-		// set parameter properties that are not stored in database.
-		// needed for restart
-		for (CloudgeneParameterOutput outputParam : outputParams) {
-
-			for (WdlParameterOutput output : app.getWorkflow().getOutputs()) {
-
-				if (outputParam.getName().equals(output.getId())) {
-					outputParam.setMakeAbsolute(output.isMakeAbsolute());
-					outputParam.setAutoExport(output.isAutoExport());
-					outputParam.setZip(output.isZip());
-					outputParam.setMergeOutput(output.isMergeOutput());
-					outputParam.setRemoveHeader(output.isRemoveHeader());
-				}
-
-			}
-
-		}
-
 	}
 
 	public CloudgeneJob(User user, String id, WdlApp app, Map<String, String> params) {
@@ -88,13 +65,36 @@ public class CloudgeneJob extends AbstractJob {
 			outputParams.add(newOutput);
 		}
 
-		logParam = new CloudgeneParameterOutput();
-		logParam.setAdminOnly(true);
-		logParam.setDownload(true);
-		logParam.setDescription("Logs");
-		logParam.setType(WdlParameterOutputType.LOCAL_FOLDER);
-		logParam.setJob(this);
+		initLogOutput();
 
+	}
+
+	public void loadApp(WdlApp app) {
+
+		this.app = app;
+		workingDirectory = app.getPath();
+
+		// find logOutput and remove from outputs
+		for (CloudgeneParameterOutput param : getOutputParams()) {
+			if (!param.getName().equals(CLOUDGENE_LOGS_PARAM)) {
+				continue;
+			}
+			logOutput = param;
+		}
+		if (logOutput != null) {
+			getOutputParams().remove(logOutput);
+		}
+
+	}
+
+	protected void initLogOutput() {
+		logOutput = new CloudgeneParameterOutput();
+		logOutput.setAdminOnly(true);
+		logOutput.setDownload(true);
+		logOutput.setDescription("Logs");
+		logOutput.setName(CLOUDGENE_LOGS_PARAM);
+		logOutput.setType(WdlParameterOutputType.LOCAL_FOLDER);
+		logOutput.setJob(this);
 	}
 
 	@Override
@@ -259,10 +259,10 @@ public class CloudgeneJob extends AbstractJob {
 
 		log.info("[Job {}] Export logs...", getId());
 		List<Download> logs = workspace.getLogs();
-		for (Download log: logs){
+		for (Download log : logs) {
 			log.setCount(-1);
 		}
-		logParam.setFiles(logs);
+		logOutput.setFiles(logs);
 
 		return true;
 	}

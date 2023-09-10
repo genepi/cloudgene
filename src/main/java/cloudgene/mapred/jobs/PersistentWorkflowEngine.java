@@ -68,7 +68,6 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 				if (parameter.getFiles() != null) {
 
 					for (Download download : parameter.getFiles()) {
-						download.setParameterId(parameter.getId());
 						download.setParameter(parameter);
 						downloadDao.insert(download);
 					}
@@ -79,16 +78,15 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 		}
 
-		if (job.getLogParam().getFiles() != null) {
+		if (job.getLogOutput().getFiles() != null) {
 
-			for (Download download : job.getLogParam().getFiles()) {
-				download.setParameterId(job.getLogParam().getId());
-				download.setParameter(job.getLogParam());
+			for (Download download : job.getLogOutput().getFiles()) {
+				download.setParameter(job.getLogOutput());
 				downloadDao.insert(download);
 			}
 
 		}
-		
+
 		if (job.getSteps() != null) {
 			StepDao dao2 = new StepDao(database);
 			for (CloudgeneStep step : job.getSteps()) {
@@ -111,7 +109,7 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 				submittedCounters.put("runs", 1);
 			}
 		}
-		
+
 		// write all submitted counters into database
 		for (String name : submittedCounters.keySet()) {
 			Integer value = submittedCounters.get(name);
@@ -130,8 +128,8 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 
 			}
 		}
-		
-		//update job updates (state, endtime, ....)
+
+		// update job updates (state, endtime, ....)
 		dao.update(job);
 
 	}
@@ -152,9 +150,8 @@ public class PersistentWorkflowEngine extends WorkflowEngine {
 			parameter.setJobId(job.getId());
 			dao.insert(parameter);
 		}
-		
-		
-		dao.insert(job.getLogParam());
+
+		dao.insert(job.getLogOutput());
 	}
 
 	@Override

@@ -158,13 +158,22 @@ public class NextflowBinary {
 
 		nextflow.add("-with-trace");
 		nextflow.add(trace);
+		if (new File(trace).exists()){
+			new File(trace).delete();
+		}
 
 		nextflow.add("-with-report");
 		nextflow.add(report);
-
+		if (new File(report).exists()){
+			new File(report).delete();
+		}
+		
 		nextflow.add("-with-timeline");
 		nextflow.add(timeline);
-
+		if (new File(timeline).exists()){
+			new File(timeline).delete();
+		}
+		
 		List<String> command = new Vector<String>();
 		command.add("/bin/bash");
 		command.add("-c");

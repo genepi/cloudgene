@@ -9,8 +9,6 @@ public class Download implements Comparable<Download> {
 	private int count = 0;
 	private String size;
 	private CloudgeneParameterOutput parameter;
-	private int parameterId;
-	private String user;
 
 	public String getName() {
 		return name;
@@ -60,24 +58,8 @@ public class Download implements Comparable<Download> {
 		return parameter;
 	}
 
-	public void setParameterId(int parameterId) {
-		this.parameterId = parameterId;
-	}
-
-	public int getParameterId() {
-		return parameterId;
-	}
-
 	public void decCount() {
 		count--;
-	}
-
-	public void setUsername(String user) {
-		this.user = user;
-	}
-
-	public String getUsername() {
-		return user;
 	}
 
 	@Override

@@ -104,7 +104,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	protected List<CloudgeneParameterOutput> outputParams = new Vector<CloudgeneParameterOutput>();
 
-	protected CloudgeneParameterOutput logParam = new CloudgeneParameterOutput();
+	protected CloudgeneParameterOutput logOutput = null;
 
 	protected List<CloudgeneStep> steps = new Vector<CloudgeneStep>();
 
@@ -257,8 +257,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.outputParams = outputParams;
 	}
 
-	public CloudgeneParameterOutput getLogParam() {
-		return logParam;
+	public CloudgeneParameterOutput getLogOutput() {
+		return logOutput;
 	}
 
 	public void setPositionInQueue(int positionInQueue) {
@@ -677,6 +677,20 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public boolean isRunning() {
 		return !complete;
+	}
+
+	public Download findDownloadByHash(String hash) {
+		for (CloudgeneParameterOutput param : getOutputParams()) {
+			if (param.getFiles() == null) {
+				continue;
+			}
+			for (Download download : param.getFiles()) {
+				if (download.getHash().equals(hash)) {
+					return download;
+				}
+			}
+		}
+		return null;
 	}
 
 	abstract public boolean execute();
