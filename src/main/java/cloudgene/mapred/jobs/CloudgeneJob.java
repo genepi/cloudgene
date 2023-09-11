@@ -102,11 +102,6 @@ public class CloudgeneJob extends AbstractJob {
 
 		context = new CloudgeneContext(this);
 
-		FileUtil.deleteDirectory(context.getLocalTemp());
-
-		// create output directories
-		FileUtil.createDirectory(context.getLocalTemp());
-
 		try {
 			log.info("[Job {}] Setup workspace {}'", getId(), workspace.getName());
 			context.log("Setup External Workspace on " + workspace.getName());
