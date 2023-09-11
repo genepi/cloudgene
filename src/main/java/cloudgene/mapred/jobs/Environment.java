@@ -36,6 +36,7 @@ public class Environment {
 
 	public Environment addContext(CloudgeneContext context) {
 		add("JOB_ID", context.getJobId());
+		add("JOB_NAME", context.getJobName());
 		add("USER_NAME", context.getUser().getUsername());
 		add("USER_EMAIL", context.getUser().getMail());
 		add("USER_FULL_NAME", context.getUser().getFullName());
