@@ -1,0 +1,6 @@
+<b>${label} (${completed}/${total})</b><br>
+<div class="progress" style="width: 100%; margin-top: 15px;">
+	<div class="progress-bar bg-success" style="width: ${(completed/(double)total)*100}%;"></div>
+	<div class="progress-bar bg-danger" style="width: ${(failed/(double)total)*100}%;"></div>	
+	<div class="progress-bar bg-light" style="width: ${(running/(double)total)*100}%;"></div>
+</div>

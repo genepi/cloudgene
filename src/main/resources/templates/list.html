@@ -1,0 +1,15 @@
+<b>${label} (${completed}/${total})</b><br>
+<% for (task in tasks) { %>
+	<small>
+		<%= task.getTrace().get("name") %>
+		<% if (task.getTrace().get("status").equals("COMPLETED")) { %>
+			&nbsp;<i class="fas fa-check text-success"></i>
+		<% } %>
+		<% if (task.getTrace().get("status").equals("RUNNING")) { %>
+			...
+		<% } %>
+		<% if (task.getTrace().get("status").equals("KILLED")) { %>
+			&nbsp;<i class="fas fa-times text-danger"></i>
+		<% } %>	
+	</small><br>    
+<% } %>
