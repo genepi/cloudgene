@@ -191,6 +191,9 @@ public class NextflowStep extends CloudgeneStep {
 				if (processConfig.get("view") != null) {
 					config.setView(processConfig.get("view").toString());
 				}
+				if (processConfig.get("label") != null) {
+					config.setLabel(processConfig.get("label").toString());
+				}
 				configs.put(process, config);
 			}
 		}

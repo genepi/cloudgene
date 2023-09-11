@@ -5,18 +5,21 @@ import cloudgene.mapred.jobs.Message;
 public class NextflowProcessRenderer {
 
 	public static void render(NextflowProcessConfig config, NextflowProcess process, Message message) {
+
+		String label = (config.getLabel() != null ? config.getLabel() : process.getName());
+
 		switch (config.getView()) {
 		case "progressbar":
-			NextflowProcessRenderer.renderProgressbar(process, message);
+			NextflowProcessRenderer.renderProgressbar(label, process, message);
 			break;
 		default:
-			NextflowProcessRenderer.renderList(process, message);
+			NextflowProcessRenderer.renderList(label, process, message);
 		}
 	}
 
-	public static void renderList(NextflowProcess process, Message message) {
+	public static void renderList(String label, NextflowProcess process, Message message) {
 
-		String text = "<b>" + process.getName() + "</b>";
+		String text = "<b>" + label + "</b>";
 		boolean running = false;
 		boolean ok = true;
 		for (NextflowTask task : process.getTasks()) {
@@ -66,9 +69,9 @@ public class NextflowProcessRenderer {
 
 	}
 
-	public static void renderProgressbar(NextflowProcess process, Message message) {
+	public static void renderProgressbar(String label, NextflowProcess process, Message message) {
 
-		String text = "<b>" + process.getName() + "</b><br><br>";
+		String text = "<b>" + label + "</b><br><br>";
 		int running = 0;
 		boolean ok = true;
 		for (NextflowTask task : process.getTasks()) {
