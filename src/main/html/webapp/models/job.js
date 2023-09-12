@@ -9,33 +9,27 @@ export default Model.extend({
   destroy: 'DELETE /api/v2/jobs/{id}',
 }, {
 
-  'syncTime': function() {
+  'syncTime': function () {
     if (this.attr('startTime') > 0 && this.attr('endTime') === 0) {
       this.attr('endTime', this.attr('currentTime'));
     } else {
       this.attr('endTime', this.attr('endTime'));
     }
-    if (this.attr('setupStartTime') > 0 && this.attr('setupEndTime') === 0) {
-      this.attr('setupEndTime', this.attr('currentTime'));
-    } else {
-      this.attr('setupEndTime', this.attr('setupEndTime'));
-    }
-
   },
 
 
   define: {
 
     'longName': {
-      get: function() {
+      get: function () {
         return this.attr('id') != this.attr('name') ? this.attr('name') : this.attr('id');
       }
     },
 
     'executionTime': {
-      get: function() {
-        var start = this.attr('setupStartTime') + this.attr('startTime');
-        var end = this.attr('setupEndTime') + this.attr('endTime');
+      get: function () {
+        var start = this.attr('startTime');
+        var end = this.attr('endTime');
         var current = this.attr('currentTime');
 
         if (start === 0 && end === 0) {
@@ -61,7 +55,7 @@ export default Model.extend({
     },
 
     'stateAsText': {
-      get: function() {
+      get: function () {
         if (this.attr('state') == 1) {
           return 'Waiting';
         } else if (this.attr('state') == 2) {
@@ -85,7 +79,7 @@ export default Model.extend({
     },
 
     'stateAsClass': {
-      get: function() {
+      get: function () {
 
         if (this.attr('state') == '-1') {
           return 'dark';
@@ -119,7 +113,7 @@ export default Model.extend({
     },
 
     'stateAsImage': {
-      get: function() {
+      get: function () {
 
         if (this.attr('state') == '-1') {
           return "fas fa-moon";
@@ -155,67 +149,67 @@ export default Model.extend({
     },
 
     'isInQueue': {
-      get: function() {
+      get: function () {
         return this.attr('state') == 1 && this.attr('positionInQueue') != -1;
       }
     },
 
     'isPending': {
-      get: function() {
+      get: function () {
         return this.attr('state') == '-1';
       }
     },
 
     'isRetired': {
-      get: function() {
+      get: function () {
         return this.attr('state') == '7';
       }
     },
 
     'willBeRetired': {
-      get: function() {
+      get: function () {
         return this.attr('state') == 8 || this.attr('state') == 9;
       }
     },
 
     'canResetCounters': {
-      get: function() {
+      get: function () {
         return this.attr('state') > 3;
       }
     },
 
     'canSendRetireNotification': {
-      get: function() {
+      get: function () {
         return this.attr('state') > 3 && this.attr('state') != '8' && this.attr('state') != '9';
       }
     },
 
     'canIncreaseRetireDate': {
-      get: function() {
+      get: function () {
         return this.attr('state') == '8' || this.attr('state') == '9';
       }
     },
 
     'canShowLog': {
-      get: function() {
+      get: function () {
         return this.attr('logs') != undefined && this.attr('logs') != '';
       }
     },
 
     'canCancel': {
-      get: function() {
+      get: function () {
         return this.attr('state') <= '3' && this.attr('state') != '-1';
       }
     },
 
     'canRetireJob': {
-      get: function() {
+      get: function () {
         return this.attr('state') > '3' && (this.attr('state') == '4' || this.attr('state') != '5' || this.attr('state') != '6');
       }
     },
 
     'canDelete': {
-      get: function() {
+      get: function () {
         return this.attr('state') > '3' || this.attr('state') == '-1';
       }
     }

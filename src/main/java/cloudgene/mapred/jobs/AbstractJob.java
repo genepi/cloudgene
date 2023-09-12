@@ -68,13 +68,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private long endTime = 0;
 
-	private long setupStartTime = 0;
-
-	private long setupEndTime = 0;
-
 	private long submittedOn = 0;
-
-	private long finishedOn = 0;
 
 	private String name;
 
@@ -89,14 +83,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 	private String applicationId;
 
 	private String error = "";
-
-	private int progress = -1;
-
-	private boolean setupComplete = false;
-
-	private boolean setupRunning = false;
-
-	private boolean complete = true;
 
 	private int positionInQueue = -1;
 
@@ -161,36 +147,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.endTime = endTime;
 	}
 
-	public void setSetupStartTime(long setupStartTime) {
-		this.setupStartTime = setupStartTime;
-	}
-
-	public long getSetupStartTime() {
-		return setupStartTime;
-	}
-
-	public void setSetupEndTime(long setupEndTime) {
-		this.setupEndTime = setupEndTime;
-	}
-
-	public long getSetupEndTime() {
-		return setupEndTime;
-	}
-
 	public void setSubmittedOn(long submitedOn) {
 		this.submittedOn = submitedOn;
 	}
 
 	public long getSubmittedOn() {
 		return submittedOn;
-	}
-
-	public void setFinishedOn(long finishedOn) {
-		this.finishedOn = finishedOn;
-	}
-
-	public long getFinishedOn() {
-		return finishedOn;
 	}
 
 	public String getName() {
@@ -215,14 +177,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void setError(String error) {
 		this.error = error;
-	}
-
-	public void setProgress(int progress) {
-		this.progress = progress;
-	}
-
-	public int getProgress() {
-		return progress;
 	}
 
 	public void setDeletedOn(long deletedOn) {
@@ -288,63 +242,58 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 		} catch (Exception e1) {
 
-			// setEndTime(System.currentTimeMillis());
-
-			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
-			setSetupComplete(false);
-			state = AbstractJob.STATE_FAILED;
+			setState(STATE_FAILED);
 			return false;
 
 		}
 	}
 
-	public void runInstallationAndResolveAppLinks() {
+	public boolean runInstallationAndResolveAppLinks() {
 
 		Settings settings = getSettings();
 		ApplicationRepository repository = settings.getApplicationRepository();
 
 		// resolve application links
 		for (CloudgeneParameterInput input : getInputParams()) {
-			if (input.getType() == WdlParameterInputType.APP_LIST) {
-				String value = input.getValue();
-				String linkedAppId = value;
-				if (value.startsWith("apps@")) {
-					linkedAppId = value.replaceAll("apps@", "");
-				}
-
-				if (value.isEmpty()) {
-					continue;
-				}
-				Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
-				if (linkedApp == null) {
-					String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
-					log.info(error);
-					writeOutput(error);
-					setError(error);
-					setSetupComplete(false);
-					setState(AbstractJob.STATE_FAILED);
-					return;
-				}
-				// update environment variables
-				Environment environment = settings.buildEnvironment().addApplication(linkedApp.getWdlApp())
-						.addContext(context);
-				Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
-				for (String property : properties.keySet()) {
-					Object propertyValue = properties.get(property);
-					if (propertyValue instanceof String) {
-						propertyValue = environment.resolve(propertyValue.toString());
-					}
-					properties.put(property, propertyValue);
-				}
-
-				getContext().setData(input.getName(), properties);
-
+			if (input.getType() != WdlParameterInputType.APP_LIST) {
+				continue;
 			}
+			String value = input.getValue();
+			String linkedAppId = value;
+			if (value.startsWith("apps@")) {
+				linkedAppId = value.replaceAll("apps@", "");
+			}
+
+			if (value.isEmpty()) {
+				continue;
+			}
+			Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
+			if (linkedApp == null) {
+				String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
+				log.info(error);
+				writeOutput(error);
+				setError(error);
+				return false;
+			}
+			// update environment variables
+			Environment environment = settings.buildEnvironment().addApplication(linkedApp.getWdlApp())
+					.addContext(context);
+			Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
+			for (String property : properties.keySet()) {
+				Object propertyValue = properties.get(property);
+				if (propertyValue instanceof String) {
+					propertyValue = environment.resolve(propertyValue.toString());
+				}
+				properties.put(property, propertyValue);
+			}
+
+			getContext().setData(input.getName(), properties);
+
 		}
 
-		setSetupComplete(true);
+		return true;
 
 	}
 
@@ -357,16 +306,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 		log.info("[Job {}] Setup job...", getId());
 		setState(AbstractJob.STATE_RUNNING);
+		setStartTime(System.currentTimeMillis());
 
-		setSetupStartTime(System.currentTimeMillis());
-		setSetupRunning(true);
-		runInstallationAndResolveAppLinks();
-		setSetupEndTime(System.currentTimeMillis());
-		setSetupRunning(false);
-		if (!isSetupComplete()) {
+		if (!runInstallationAndResolveAppLinks()) {
 			log.info("[Job {}] Setup failed.", getId());
-			setFinishedOn(System.currentTimeMillis());
-			setComplete(true);
+			setEndTime(System.currentTimeMillis());
+			setState(AbstractJob.STATE_FAILED);
 			return;
 		}
 
@@ -496,10 +441,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 		writeLog("Canceled by user.");
 		log.info("[Job {}]: canceld by user.", getId());
 
-		/*
-		 * if (state == STATE_RUNNING) { closeStdOutFiles(); }
-		 */
 		canceld = true;
+		setEndTime(System.currentTimeMillis());
 		setState(AbstractJob.STATE_CANCELED);
 
 	}
@@ -584,22 +527,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.steps = steps;
 	}
 
-	public void setSetupComplete(boolean setupComplete) {
-		this.setupComplete = setupComplete;
-	}
-
-	public boolean isSetupComplete() {
-		return setupComplete;
-	}
-
-	public void setSetupRunning(boolean setupRunning) {
-		this.setupRunning = setupRunning;
-	}
-
-	public boolean isSetupRunning() {
-		return setupRunning;
-	}
-
 	public CloudgeneContext getContext() {
 		return context;
 	}
@@ -663,20 +590,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return applicationId;
 	}
 
-	public void setComplete(boolean complete) {
-		this.complete = complete;
-	}
-
-	public boolean isComplete() {
-		return this.complete;
-	}
-
 	public boolean isCanceld() {
 		return canceld;
 	}
 
 	public boolean isRunning() {
-		return !complete;
+		return state == STATE_EXPORTING || state == STATE_RUNNING || state == STATE_WAITING;
 	}
 
 	public Download findDownloadByHash(String hash) {

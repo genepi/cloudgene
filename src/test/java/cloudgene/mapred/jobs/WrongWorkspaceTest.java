@@ -40,7 +40,7 @@ public class WrongWorkspaceTest {
 
 		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(1000);
 		}
 		Thread.sleep(10000);

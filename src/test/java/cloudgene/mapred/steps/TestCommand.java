@@ -28,18 +28,17 @@ import jakarta.inject.Inject;
 @MicronautTest
 public class TestCommand {
 
-
 	@Inject
 	TestApplication application;
 
 	@Inject
 	WorkspaceFactory workspaceFactory;
-	
+
 	@Test
 	public void testValidCommand() throws Exception {
-		
+
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/valid-command.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -47,7 +46,7 @@ public class TestCommand {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(1000);
 		}
 
@@ -58,15 +57,13 @@ public class TestCommand {
 		assertEquals(messages.get(0).getType(), WorkflowContext.OK);
 		assertTrue(messages.get(0).getMessage().contains("Execution successful."));
 
-		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(),
-				"std.out");
+		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "std.out");
 		String contentStdOut = FileUtil.readFileAsString(stdout);
 
 		// simple ls result check
 		assertTrue(contentStdOut.contains("invalid-command.yaml"));
 
-		String jobLog = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(),
-				"job.txt");
+		String jobLog = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "job.txt");
 		String contentjobLog = FileUtil.readFileAsString(jobLog);
 
 		// simple check if exit code = 0
@@ -76,9 +73,9 @@ public class TestCommand {
 
 	@Test
 	public void testInvalidCommand() throws Exception {
-		
+
 		WorkflowEngine engine = application.getWorkflowEngine();
-		
+
 		WdlApp app = WdlReader.loadAppFromFile("test-data/command/invalid-command.yaml");
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -86,7 +83,7 @@ public class TestCommand {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(1000);
 		}
 
@@ -105,8 +102,8 @@ public class TestCommand {
 	 * Map<String, String> params = new HashMap<String, String>();
 	 * params.put("input", "input-file");
 	 * 
-	 * AbstractJob job = createJobFromWdl(app, params); engine.submit(job);
-	 * while (job.isRunning()) { Thread.sleep(1000); }
+	 * AbstractJob job = createJobFromWdl(app, params); engine.submit(job); while
+	 * (job.isRunning()) { Thread.sleep(1000); }
 	 * 
 	 * assertEquals(AbstractJob.STATE_FAILED, job.getState());
 	 * 
@@ -116,9 +113,8 @@ public class TestCommand {
 	 * assertTrue(messages.get(0).getMessage().contains("Execution failed."));
 	 * 
 	 * String stdout = FileUtil.path(TestServer.getInstance().getSettings()
-	 * .getLocalWorkspace(), job.getId(), "std.out");
-	 * System.out.println(stdout); String contentStdOut =
-	 * FileUtil.readFileAsString(stdout);
+	 * .getLocalWorkspace(), job.getId(), "std.out"); System.out.println(stdout);
+	 * String contentStdOut = FileUtil.readFileAsString(stdout);
 	 * 
 	 * //simple check for unrecognized option
 	 * assertTrue(contentStdOut.contains("unrecognized option"));
@@ -135,7 +131,7 @@ public class TestCommand {
 
 		UserDao userDao = new UserDao(application.getDatabase());
 		User user = userDao.findByUsername("user");
-		
+
 		Settings settings = application.getSettings();
 
 		String id = "test_" + System.currentTimeMillis();

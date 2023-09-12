@@ -47,9 +47,9 @@ public class JobDao extends JdbcDataAccessObject {
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
 			params[10] = job.getSubmittedOn();
-			params[11] = job.getFinishedOn();
-			params[12] = job.getSetupStartTime();
-			params[13] = job.getSetupEndTime();
+			params[11] = job.getEndTime();
+			params[12] = -1;
+			params[13] = -1;
 			params[14] = trimToLength(job.getUserAgent(), 350);
 
 			update(sql.toString(), params);
@@ -86,9 +86,9 @@ public class JobDao extends JdbcDataAccessObject {
 			params[8] = job.getApplication();
 			params[9] = job.getApplicationId();
 			params[10] = job.getSubmittedOn();
-			params[11] = job.getFinishedOn();
-			params[12] = job.getSetupStartTime();
-			params[13] = job.getSetupEndTime();
+			params[11] = job.getEndTime();
+			params[12] = -1;
+			params[13] = -1;
 			params[14] = job.getId();
 
 			update(sql.toString(), params);
@@ -485,9 +485,6 @@ public class JobDao extends JdbcDataAccessObject {
 			job.setApplication(rs.getString("job.application"));
 			job.setApplicationId(rs.getString("job.application_id"));
 			job.setSubmittedOn(rs.getLong("job.submitted_on"));
-			job.setFinishedOn(rs.getLong("job.finished_on"));
-			job.setSetupStartTime(rs.getLong("job.setup_start_time"));
-			job.setSetupEndTime(rs.getLong("job.setup_end_time"));
 			job.setUserAgent(rs.getString("job.user_agent"));
 
 			return job;

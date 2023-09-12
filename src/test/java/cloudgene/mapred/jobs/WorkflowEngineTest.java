@@ -43,13 +43,11 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
+
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -67,13 +65,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
@@ -91,13 +86,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
@@ -115,14 +107,11 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
 
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		// no steps
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
@@ -141,13 +130,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		// no steps
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
@@ -166,14 +152,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		// no steps
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
@@ -192,14 +174,11 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
 
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		// one steps
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
@@ -217,13 +196,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -252,7 +228,7 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -270,7 +246,7 @@ public class WorkflowEngineTest {
 
 		job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
@@ -282,10 +258,6 @@ public class WorkflowEngineTest {
 		content = FileUtil.readFileAsString(filename);
 		assertEquals(myContent, content);
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		// one steps
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
@@ -304,13 +276,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -328,14 +297,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
@@ -353,7 +318,7 @@ public class WorkflowEngineTest {
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 
@@ -363,9 +328,6 @@ public class WorkflowEngineTest {
 		String content = FileUtil.readFileAsString(filename);
 
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
@@ -384,7 +346,7 @@ public class WorkflowEngineTest {
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		Thread.sleep(4000);
@@ -393,9 +355,6 @@ public class WorkflowEngineTest {
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
@@ -414,7 +373,7 @@ public class WorkflowEngineTest {
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 
@@ -425,9 +384,6 @@ public class WorkflowEngineTest {
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
@@ -446,7 +402,7 @@ public class WorkflowEngineTest {
 
 		CloudgeneJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 
@@ -456,11 +412,8 @@ public class WorkflowEngineTest {
 		String path = job.getOutputParams().get(0).getFiles().get(0).getPath();
 		String filename = FileUtil.path(settings.getLocalWorkspace(), path);
 		String content = FileUtil.readFileAsString(filename);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		// no steps executed
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals("lukas_text", content);
@@ -479,7 +432,7 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 
@@ -495,9 +448,6 @@ public class WorkflowEngineTest {
 		assertEquals("cloudgene-task3", messages.get(2).getMessage());
 		assertEquals(WorkflowContext.OK, messages.get(2).getType());
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 	}
@@ -514,7 +464,7 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 
@@ -534,9 +484,6 @@ public class WorkflowEngineTest {
 		assertTrue(contentlog.contains("taks write to log2"));
 		assertTrue(contentlog.contains("taks write to log3"));
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 	}
@@ -553,13 +500,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -584,13 +528,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -615,13 +556,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -645,13 +583,10 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
 		assertTrue(job.getStartTime() > 0);
 		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
@@ -676,15 +611,12 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdl(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 
 	}
@@ -701,15 +633,12 @@ public class WorkflowEngineTest {
 
 		AbstractJob job = createJobFromWdlAsUser(app, params);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(500);
 		}
 		assertTrue(job.getSubmittedOn() > 0);
-		assertTrue(job.getFinishedOn() > 0);
-		assertTrue(job.getSetupStartTime() > 0);
-		assertTrue(job.getSetupEndTime() > 0);
-		assertTrue(job.getStartTime() == 0);
-		assertTrue(job.getEndTime() == 0);
+		assertTrue(job.getStartTime() > 0);
+		assertTrue(job.getEndTime() > 0);
 		assertEquals(AbstractJob.STATE_FAILED, job.getState());
 
 	}

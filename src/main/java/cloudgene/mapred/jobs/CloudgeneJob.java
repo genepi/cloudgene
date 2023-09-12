@@ -18,7 +18,6 @@ import cloudgene.mapred.wdl.WdlParameterInput;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.io.FileUtil;
 
 public class CloudgeneJob extends AbstractJob {
 
@@ -39,7 +38,6 @@ public class CloudgeneJob extends AbstractJob {
 	}
 
 	public CloudgeneJob(User user, String id, WdlApp app, Map<String, String> params) {
-		setComplete(false);
 		this.app = app;
 		setId(id);
 		setUser(user);
@@ -309,12 +307,7 @@ public class CloudgeneJob extends AbstractJob {
 	public void updateProgress() {
 
 		if (executor != null) {
-
 			executor.updateProgress();
-			setProgress(executor.getProgress());
-
-		} else {
-			setProgress(-1);
 		}
 
 	}

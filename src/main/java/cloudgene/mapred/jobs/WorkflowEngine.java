@@ -35,9 +35,8 @@ public class WorkflowEngine implements Runnable {
 
 			@Override
 			public void onComplete(AbstractJob job) {
-				job.setFinishedOn(System.currentTimeMillis());
+				job.setEndTime(System.currentTimeMillis());
 				jobCompleted(job);
-				job.setComplete(true);
 			}
 
 		};
@@ -58,10 +57,8 @@ public class WorkflowEngine implements Runnable {
 		if (okey) {
 			longTimeQueue.submit(job);
 		} else {
-			job.setFinishedOn(System.currentTimeMillis());
+			job.setEndTime(System.currentTimeMillis());
 			statusUpdated(job);
-			job.setComplete(true);
-
 		}
 	}
 
@@ -75,9 +72,6 @@ public class WorkflowEngine implements Runnable {
 		job.setSubmittedOn(System.currentTimeMillis());
 		job.setStartTime(0);
 		job.setEndTime(0);
-		job.setSetupStartTime(0);
-		job.setSetupEndTime(0);
-		job.setFinishedOn(0);
 		job.setState(AbstractJob.STATE_WAITING);
 		statusUpdated(job);
 
@@ -85,10 +79,8 @@ public class WorkflowEngine implements Runnable {
 		if (okey) {
 			longTimeQueue.submit(job);
 		} else {
-			job.setFinishedOn(System.currentTimeMillis());
+			job.setEndTime(System.currentTimeMillis());
 			statusUpdated(job);
-			job.setComplete(true);
-
 		}
 
 	}
