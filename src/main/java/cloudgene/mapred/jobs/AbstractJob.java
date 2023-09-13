@@ -448,15 +448,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 	}
 
 	private void initStdOutFiles() throws FileNotFoundException {
-
-		// if (stdOutStream == null) {
 		stdOutStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "std.out")));
-
-		// }
-		// if (logStream == null) {
 		logStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "job.txt")));
-		// }
-
 	}
 
 	private void closeStdOutFiles() {

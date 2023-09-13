@@ -39,14 +39,6 @@ public class Executor {
 		}
 	}
 
-	public int getProgress() {
-		if (executableNode != null) {
-			return executableNode.getProgress();
-		} else {
-			return 0;
-		}
-	}
-
 	public ExecutableStep getCurrentNode() {
 		return executableNode;
 	}

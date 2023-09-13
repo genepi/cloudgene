@@ -65,10 +65,6 @@ public abstract class CloudgeneStep {
 		return true;
 	}
 
-	public int getProgress() {
-		return -1;
-	}
-
 	public void updateProgress() {
 
 	}

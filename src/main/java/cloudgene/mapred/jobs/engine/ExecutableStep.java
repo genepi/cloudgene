@@ -19,6 +19,7 @@ import cloudgene.mapred.jobs.sdk.WorkflowStep;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.steps.ErrorStep;
 import cloudgene.mapred.steps.JavaInternalStep;
+import cloudgene.mapred.util.TimeUtil;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
 
@@ -152,13 +153,7 @@ public class ExecutableStep implements Runnable {
 				long end = System.currentTimeMillis();
 				long time = end - start;
 
-				long h = (long) (Math.floor((time / 1000) / 60 / 60));
-				long m = (long) ((Math.floor((time / 1000) / 60)) % 60);
-
-				String t = (h > 0 ? h + " h " : "") + (m > 0 ? m + " min " : "")
-						+ (int) ((Math.floor(time / 1000)) % 60) + " sec";
-
-				job.writeLog("  " + step.getName() + " [" + t + "]");
+				job.writeLog("  " + step.getName() + " [" + TimeUtil.format(time) + "]");
 				setTime(time);
 
 			}
@@ -193,14 +188,6 @@ public class ExecutableStep implements Runnable {
 	public void updateProgress() {
 		if (instance != null) {
 			instance.updateProgress();
-		}
-	}
-
-	public int getProgress() {
-		if (instance != null) {
-			return instance.getProgress();
-		} else {
-			return 0;
 		}
 	}
 
