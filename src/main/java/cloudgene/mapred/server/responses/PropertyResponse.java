@@ -69,12 +69,30 @@ public class PropertyResponse {
 		return response;
 	}
 
-	public static PropertyResponse build(String key, String value, Map values) {
+	public static List<PropertyResponse> buildWithValues(List<Map> values) {
+		List<PropertyResponse> response = new Vector<PropertyResponse>();
+
+		for (Map object : values) {
+			if (object.containsKey("id") && object.containsKey("name")) {
+				System.out.println(object);
+				response.add(PropertyResponse.build(object.get("id").toString(), object.get("name").toString()));
+			}
+		}
+
+		return response;
+	}
+
+	public static PropertyResponse build(String key, String value, Object values) {
 		PropertyResponse response = new PropertyResponse();
 		response.setKey(key);
 		response.setLabel(value);
-		List<PropertyResponse> responseWithValues = buildWithValues(values);
-		response.setValues(responseWithValues);
+		if (values instanceof Map) {
+			List<PropertyResponse> responseWithValues = buildWithValues((Map) values);
+			response.setValues(responseWithValues);
+		} else if (values instanceof List) {
+			List<PropertyResponse> responseWithValues = buildWithValues((List) values);
+			response.setValues(responseWithValues);
+		}
 		return response;
 	}
 

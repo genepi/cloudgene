@@ -136,7 +136,7 @@ public class WdlParameterInputResponse {
 	public void setEmptySelection(String emptySelection) {
 		this.emptySelection = emptySelection;
 	}
-	
+
 	public List<PropertyResponse> getValues() {
 		return values;
 	}
@@ -168,7 +168,6 @@ public class WdlParameterInputResponse {
 	public void setLabel(String label) {
 		this.label = label;
 	}
-
 
 	public static WdlParameterInputResponse build(WdlParameterInput input, List<WdlApp> apps) {
 		WdlParameterInputResponse response = new WdlParameterInputResponse();
@@ -211,17 +210,16 @@ public class WdlParameterInputResponse {
 			List<PropertyResponse> propertyResponses = new ArrayList<PropertyResponse>();
 
 			for (WdlApp app : apps) {
-				if (category != null && !category.isEmpty()) {
-					if (app.getCategory() != null && app.getCategory().equals(category)) {
-						Map values = (Map) app.getProperties().get(property);
-						PropertyResponse propertyResponse = PropertyResponse.build("apps@" + app.getId(), app.getName(),
-								values);
-						propertyResponses.add(propertyResponse);
-					}
-
-				} else {
-					// TODO:!!
+				if (category == null || category.isEmpty()) {
+					continue;
 				}
+				if (app.getCategory() == null || !app.getCategory().equals(category)) {
+					continue;
+				}
+				Object values = app.getProperties().get(property);
+				PropertyResponse propertyResponse = PropertyResponse.build("apps@" + app.getId(), app.getName(),
+						values);
+				propertyResponses.add(propertyResponse);
 
 			}
 			response.setValues(propertyResponses);
@@ -275,7 +273,7 @@ public class WdlParameterInputResponse {
 
 		for (WdlParameterInput input : inputs) {
 			if (input.isVisible()) {
-			response.add(WdlParameterInputResponse.build(input, apps));
+				response.add(WdlParameterInputResponse.build(input, apps));
 			}
 		}
 		return response;
