@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,9 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.plugins.nextflow.report.Report;
+import cloudgene.mapred.plugins.nextflow.report.ReportEvent;
+import cloudgene.mapred.plugins.nextflow.report.ReportEventExecutor;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlStep;
 import genepi.io.FileUtil;
@@ -152,6 +156,18 @@ public class NextflowStep extends CloudgeneStep {
 
 			collector.cleanProcesses(context);
 
+			File report = new File(executionDir, Report.DEFAULT_FILENAME);
+			if (!report.exists()) {
+				return successful;
+			}
+							
+			context.log("Load report file from '" + report.getCanonicalPath() + "'");
+			try {
+				parseReport(report);
+			} catch (Exception e) {
+				log.error("[Job {}] Invalid report file.", e);
+			}
+			
 			return successful;
 
 		} catch (Exception e) {
@@ -161,6 +177,15 @@ public class NextflowStep extends CloudgeneStep {
 
 	}
 
+	private void parseReport(File file) throws IOException {
+		Report report = new Report(file.getAbsolutePath());
+		context.log("Execute " + report.getEvents().size() + " events.");
+		for (ReportEvent event : report.getEvents()) {
+			context.log("Event: " + event);
+			ReportEventExecutor.execute(event, context);
+		}
+	}
+	
 	@Override
 	public void updateProgress() {
 

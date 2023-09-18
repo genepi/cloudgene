@@ -65,7 +65,7 @@ public class ReportEvent {
 			}
 			case MESSAGE: {
 				String message = (String) event.getParams()[0];
-				int type = ((Integer) event.getParams()[1]);
+				int type = asInteger(event.getParams()[1]);
 				return message(message, type);
 			}
 			case BEGIN_TASK: {
@@ -88,12 +88,12 @@ public class ReportEvent {
 			}
 			case END_TASK: {
 				String name = (String) event.getParams()[0];
-				int type = ((Integer) event.getParams()[1]).intValue();
+				int type = asInteger(event.getParams()[1]);
 				return message(name, type);
 			}
 			case INC_COUNTER: {
 				String counter = (String) event.getParams()[0];
-				int value = ((Integer) event.getParams()[1]);
+				int value = asInteger(event.getParams()[1]);
 				return incCounter(counter, value);
 			}
 			default:
@@ -136,6 +136,13 @@ public class ReportEvent {
 			}
 
 		}
+	}
+	
+	public static int asInteger(Object object) {
+		//groovy writes integers also as doubles
+		Double value = Double.parseDouble(object.toString());
+		return value.intValue();
+		
 	}
 
 }
