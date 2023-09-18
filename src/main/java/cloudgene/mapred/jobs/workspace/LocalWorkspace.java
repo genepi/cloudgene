@@ -43,8 +43,17 @@ public class LocalWorkspace implements IWorkspace {
 	}
 
 	@Override
-	public void setup(String job) throws IOException {
+	public void setJob(String job) {
 		workspace = FileUtil.path(location, job);
+	}
+
+	@Override
+	public void setup() throws IOException {
+
+		if (workspace == null) {
+			throw new IOException("No job id provided.");
+		}
+
 		log.info("Init workspace " + workspace);
 		FileUtil.createDirectory(workspace);
 	}
@@ -57,6 +66,11 @@ public class LocalWorkspace implements IWorkspace {
 		log.info("Copy file " + file.getAbsolutePath() + " to " + target);
 		FileUtil.copy(file.getAbsolutePath(), target);
 		return target;
+	}
+
+	@Override
+	public String uploadLog(File file) throws IOException {
+		return upload(LOGS_DIRECTORY, file);
 	}
 
 	@Override
@@ -74,8 +88,18 @@ public class LocalWorkspace implements IWorkspace {
 		if (file.exists()) {
 			return new FileInputStream(file);
 		} else {
-			throw new IOException("File '" + path + "' not found in workspace.");
+			throw new IOException("File '" + absolutePath + "' not found in workspace.");
 		}
+	}
+
+	@Override
+	public String downloadLog(String name) throws IOException {
+		
+		if (workspace == null) {
+			throw new IOException("No job id provided.");
+		}
+		
+		return FileUtil.readFileAsString(download(FileUtil.path(workspace, LOGS_DIRECTORY, name)));
 	}
 
 	@Override

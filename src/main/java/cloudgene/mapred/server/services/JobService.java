@@ -1,6 +1,7 @@
 package cloudgene.mapred.server.services;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -125,7 +126,8 @@ public class JobService {
 		try {
 
 			// setup workspace
-			workspace.setup(id);
+			workspace.setJob(id);
+			workspace.setup();
 
 			// parse input params
 			inputParams = parseAndUpdateInputParams(form, app, workspace);
@@ -140,7 +142,7 @@ public class JobService {
 			name = jobName;
 		}
 
-		//TODO: remove and solve via workspace!
+		// TODO: remove and solve via workspace!
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
@@ -266,17 +268,17 @@ public class JobService {
 
 		}
 
-		
 		IWorkspace workspace = workspaceFactory.getDefault();
 
 		try {
 			// setup workspace
-			workspace.setup(job.getId());
+			workspace.setJob(job.getId());
+			workspace.setup();
 		} catch (Exception e) {
 			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 		job.setWorkspace(workspace);
-		
+
 		((CloudgeneJob) job).loadApp(application.getWdlApp());
 
 		this.application.getWorkflowEngine().restart(job);
@@ -522,7 +524,7 @@ public class JobService {
 
 			case "running-stq":
 
-				//TODO: remove!
+				// TODO: remove!
 				jobs = new Vector<AbstractJob>();
 				break;
 
@@ -546,6 +548,16 @@ public class JobService {
 			}
 		}
 		return jobs;
+	}
+
+	public String getJobLog(AbstractJob job, String name) throws IOException {
+		if (job.isRunning()) {
+			// files are locally when job is running
+			return job.getLog(name);
+		} else {
+			IWorkspace workspace = workspaceFactory.getByJob(job);
+			return workspace.downloadLog(name);
+		}
 	}
 
 	public boolean needsImport(String url) {

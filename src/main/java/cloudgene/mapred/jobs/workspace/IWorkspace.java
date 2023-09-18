@@ -9,11 +9,15 @@ import cloudgene.mapred.jobs.Download;
 
 public interface IWorkspace {
 
-	public void setup(String job) throws IOException;
+	public void setJob(String job);
+	
+	public void setup() throws IOException;
 
 	public String upload(String id, File file) throws IOException;
 	
 	public String uploadInput(String id, File file) throws IOException;
+	
+	public String uploadLog(File file) throws IOException;
 
 	public InputStream download(String url) throws IOException;
 
@@ -40,5 +44,7 @@ public interface IWorkspace {
 	public void cleanup(String job) throws IOException;
 	
 	public boolean exists(String path) throws IOException;
+
+	public String downloadLog(String string) throws IOException;
 	
 }

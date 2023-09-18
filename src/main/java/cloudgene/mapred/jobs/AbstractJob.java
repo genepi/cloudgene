@@ -1,6 +1,7 @@
 package cloudgene.mapred.jobs;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +30,10 @@ import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
 
 abstract public class AbstractJob extends PriorityRunnable {
+
+	public static final String JOB_LOG = "job.txt";
+
+	public static final String JOB_OUT = "std.out";
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractJob.class);
 
@@ -101,8 +106,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 	protected CloudgeneContext context;
 
 	private Settings settings;
-
-	private String logs;
 
 	private String localWorkspace;
 
@@ -300,7 +303,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	@Override
 	public void run() {
 
-		if (isCanceld()) {
+		if (canceld) {
 			return;
 		}
 
@@ -389,28 +392,18 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			}
 
+			writeLog("Cleaning up...");
 			if (getState() == AbstractJob.STATE_FAILED || getState() == AbstractJob.STATE_CANCELED) {
-
-				writeLog("Cleaning up...");
 				onFailure();
-				log.info("[Job {}]cleanup successful.", getId());
-				writeLog("Cleanup successful.");
-
 			} else {
-				writeLog("Cleaning up...");
 				cleanUp();
-				log.info("[Job {}] cleanup successful.", getId());
-				writeLog("Cleanup successful.");
-
 			}
+			log.info("[Job {}]cleanup successful.", getId());
+			writeLog("Cleanup successful.");
 
 			if (canceld) {
 				setState(AbstractJob.STATE_CANCELED);
 			}
-
-			closeStdOutFiles();
-
-			setEndTime(System.currentTimeMillis());
 
 		} catch (Exception | Error e) {
 
@@ -429,11 +422,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 			log.info("[Job {}]: cleanup successful.", getId());
 			writeLog("Cleanup successful.");
 
-			closeStdOutFiles();
-
-			setEndTime(System.currentTimeMillis());
-
 		}
+
+		closeStdOutFiles();
+		setEndTime(System.currentTimeMillis());
 	}
 
 	public void cancel() {
@@ -448,8 +440,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 	}
 
 	private void initStdOutFiles() throws FileNotFoundException {
-		stdOutStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "std.out")));
-		logStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "job.txt")));
+		stdOutStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, JOB_OUT)));
+		logStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, JOB_LOG)));
 	}
 
 	private void closeStdOutFiles() {
@@ -459,8 +451,15 @@ abstract public class AbstractJob extends PriorityRunnable {
 			stdOutStream.close();
 			logStream.close();
 
-		} catch (IOException e) {
+			// stage files to workspace
+			workspace.uploadLog(new File(FileUtil.path(localWorkspace, JOB_OUT)));
+			workspace.uploadLog(new File(FileUtil.path(localWorkspace, JOB_LOG)));
 
+			FileUtil.deleteFile(FileUtil.path(localWorkspace, JOB_OUT));
+			FileUtil.deleteFile(FileUtil.path(localWorkspace, JOB_LOG));
+
+		} catch (IOException e) {
+			log.error("[Job {}]: Staging log files failed.", getId(), e);
 		}
 
 	}
@@ -474,25 +473,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			}
 		} catch (IOException e) {
-
+			log.error("[Job {}]: Write output failed.", getId(), e);
 		}
 
 	}
 
 	public void writeOutputln(String line) {
-
-		try {
-			if (stdOutStream == null) {
-				initStdOutFiles();
-			}
-
-			stdOutStream.write(line.getBytes("UTF-8"));
-			stdOutStream.write("\n".getBytes("UTF-8"));
-			stdOutStream.flush();
-
-		} catch (IOException e) {
-		}
-
+		writeOutput(line + "\n");
 	}
 
 	public void writeLog(String line) {
@@ -508,6 +495,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 			logStream.flush();
 
 		} catch (IOException e) {
+			log.error("[Job {}]: Write output failed.", getId(), e);
 		}
 
 	}
@@ -522,14 +510,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public CloudgeneContext getContext() {
 		return context;
-	}
-
-	public void setLogs(String logs) {
-		this.logs = logs;
-	}
-
-	public String getLogs() {
-		return logs;
 	}
 
 	@Override
@@ -583,10 +563,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return applicationId;
 	}
 
-	public boolean isCanceld() {
-		return canceld;
-	}
-
 	public boolean isRunning() {
 		return state == STATE_EXPORTING || state == STATE_RUNNING || state == STATE_WAITING;
 	}
@@ -619,16 +595,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	}
 
-	public long getCurrentTime() {
-		return System.currentTimeMillis();
-	}
-
-	public void setCurrentTime(long time) {
-
-	}
-
 	public String getPublicJobId() {
 		return publicJobId;
+	}
+
+	public String getLog(String name) {
+		String logFilename = FileUtil.path(settings.getLocalWorkspace(), getId(), name);
+		return FileUtil.readFileAsString(logFilename);
 	}
 
 }

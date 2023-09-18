@@ -49,7 +49,9 @@ public class WorkspaceFactory {
 	}
 
 	public IWorkspace getByJob(AbstractJob job) {
-		return getDefault();
+		IWorkspace workspace = getDefault();
+		workspace.setJob(job.getId());
+		return workspace;
 	}
 
 }

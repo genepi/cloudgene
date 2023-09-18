@@ -52,9 +52,16 @@ public class S3Workspace implements IWorkspace {
 	}
 
 	@Override
-	public void setup(String job) throws IOException {
+	public void setJob(String job) {
+	this.job = job;
+	}
+	
+	@Override
+	public void setup() throws IOException {
 
-		this.job = job;
+		if (job == null) {
+			throw new IOException("No job id provided.");
+		}
 
 		if (location == null) {
 			throw new IOException("No S3 Output Bucket specified.");
@@ -87,6 +94,11 @@ public class S3Workspace implements IWorkspace {
 	}
 
 	@Override
+	public String uploadLog(File file) throws IOException {
+		return upload(LOGS_DIRECTORY, file);
+	}
+
+	@Override
 	public InputStream download(String url) throws IOException {
 
 		String bucket = S3Util.getBucket(url);
@@ -98,6 +110,11 @@ public class S3Workspace implements IWorkspace {
 		S3ObjectInputStream s3is = o.getObjectContent();
 
 		return s3is;
+	}
+	
+	@Override
+	public String downloadLog(String name) throws IOException {
+		return FileUtil.readFileAsString(download(FileUtil.path(LOGS_DIRECTORY, name)));
 	}
 
 	public boolean exists(String url) {
@@ -245,7 +262,7 @@ public class S3Workspace implements IWorkspace {
 
 		return downloads;
 	}
-	
+
 	@Override
 	public List<Download> getLogs() {
 		String url = location + "/" + job + "/" + LOGS_DIRECTORY;

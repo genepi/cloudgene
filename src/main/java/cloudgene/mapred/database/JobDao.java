@@ -66,11 +66,12 @@ public class JobDao extends JdbcDataAccessObject {
 
 	public boolean update(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("update job ");
-		sql.append("  set name = ?, state = ?, ");
+		sql.append("update job set ");
+		sql.append("  name = ?, state = ?, ");
 		sql.append("  start_time = ?, end_time = ?, ");
-		sql.append(
-				"  user_id = ?, s3_url = ?, type = ?, deleted_on = ?, application = ?, application_id = ?, submitted_on = ?, finished_on = ?, setup_start_time = ?, setup_end_time = ? ");
+		sql.append("  user_id = ?, s3_url = ?, type = ?, deleted_on = ?, ");
+		sql.append("  application = ?, application_id = ?, submitted_on = ?, ");
+		sql.append("  finished_on = ?, setup_start_time = ?, setup_end_time = ? ");
 		sql.append("where id = ? ");
 		try {
 
@@ -105,9 +106,8 @@ public class JobDao extends JdbcDataAccessObject {
 
 	public boolean updateUser(User oldUser, User newUser) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("update job ");
-		sql.append("set user_id = ?, name = ? ");
-		sql.append("where  user_id = ?");
+		sql.append("update job set user_id = ?, name = ? ");
+		sql.append("where user_id = ?");
 		try {
 
 			Object[] params = new Object[3];
@@ -132,7 +132,7 @@ public class JobDao extends JdbcDataAccessObject {
 	public boolean delete(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("delete from job ");
-		sql.append("where id = ? ");
+		sql.append("where id = ?");
 		try {
 
 			Object[] params = new Object[1];
@@ -277,7 +277,7 @@ public class JobDao extends JdbcDataAccessObject {
 		params[1] = AbstractJob.STATE_RUNNING;
 		params[2] = AbstractJob.STATE_EXPORTING;
 		params[3] = AbstractJob.STATE_RETIRED;
-		params[4] = AbstractJob.STATE_DELETED;		
+		params[4] = AbstractJob.STATE_DELETED;
 		params[5] = AbstractJob.STATE_RETIRED;
 		params[6] = AbstractJob.STATE_DELETED;
 

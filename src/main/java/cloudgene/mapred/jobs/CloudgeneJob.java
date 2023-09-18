@@ -103,7 +103,7 @@ public class CloudgeneJob extends AbstractJob {
 		try {
 			log.info("[Job {}] Setup workspace {}'", getId(), workspace.getName());
 			context.log("Setup External Workspace on " + workspace.getName());
-			workspace.setup(this.getId());
+			workspace.setup();
 			context.setWorkspace(workspace);
 		} catch (Exception e) {
 			writeLog(e.toString());

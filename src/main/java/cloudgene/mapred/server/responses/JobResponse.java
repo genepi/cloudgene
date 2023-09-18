@@ -16,7 +16,6 @@ public class JobResponse {
 
 	private String application;
 	private String applicationId;
-	private boolean canceld;
 	private long deletedOn;
 	private long endTime;
 	private String id;
@@ -50,14 +49,6 @@ public class JobResponse {
 
 	public void setApplicationId(String applicationId) {
 		this.applicationId = applicationId;
-	}
-
-	public boolean isCanceld() {
-		return canceld;
-	}
-
-	public void setCanceld(boolean canceld) {
-		this.canceld = canceld;
 	}
 
 	public long getDeletedOn() {
@@ -202,12 +193,10 @@ public class JobResponse {
 		JobResponse response = new JobResponse();
 		response.setApplication(job.getApplication());
 		response.setApplicationId(job.getApplicationId());
-		response.setCanceld(job.isCanceld());
 		response.setName(job.getName());
 		response.setId(job.getId());
 
 		response.setState(job.getState());
-		response.setLogs(job.getLogs());
 
 		response.setPositionInQueue(job.getPositionInQueue());
 		response.setUserAgent(job.getUserAgent());
