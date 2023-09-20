@@ -100,7 +100,6 @@ public class StartServer extends Tool {
 
 			}
 
-			// TODO: check why we need this?
 			System.out.println();
 			System.out.println("Server is running");
 			System.out.println();

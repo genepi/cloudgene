@@ -20,7 +20,7 @@ public class InstallApplication extends BaseTool {
 	public int run() {
 
 		if (args.length != 1) {
-			System.out.println("Usage: " + cmd + "install <filename|url|github> ");
+			System.out.println("Usage: " + cmd + " install <filename|url|github> ");
 			System.out.println();
 			System.exit(1);
 		}
@@ -36,9 +36,6 @@ public class InstallApplication extends BaseTool {
 			if (application != null) {
 				settings.save();
 				printlnInGreen("[OK] Application '" + application.getWdlApp().getName() + "' installed.");
-				System.out.println("");
-				System.out.println("The application can be started with:\n");
-				System.out.println("cloudgene run " + application.getId() + "");
 				System.out.println();
 				return 0;
 			} else {

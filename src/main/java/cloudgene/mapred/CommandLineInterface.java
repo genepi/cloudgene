@@ -10,7 +10,6 @@ import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import cloudgene.mapred.cli.ValidateApplication;
 import cloudgene.mapred.server.Application;
-import cloudgene.mapred.util.BuildUtil;
 import genepi.base.Toolbox;
 
 public class CommandLineInterface extends Toolbox {
@@ -24,8 +23,7 @@ public class CommandLineInterface extends Toolbox {
 		System.out.println();
 		System.out.println("Cloudgene " + Application.VERSION);
 		System.out.println("http://www.cloudgene.io");
-		System.out.println("(c) 2009-2022 Lukas Forer and Sebastian Schoenherr");
-		System.out.println(BuildUtil.getBuildInfos());
+		System.out.println("(c) 2009-2032 Lukas Forer and Sebastian Schoenherr");
 		System.out.println();
 	}
 
