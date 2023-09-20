@@ -1,6 +1,7 @@
 package cloudgene.mapred.plugins.nextflow;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -10,8 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.codehaus.groovy.control.CompilationFailedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cloudgene.mapred.jobs.Message;
+import genepi.io.FileUtil;
 import groovy.text.SimpleTemplateEngine;
 import groovy.text.Template;
 
@@ -36,6 +40,8 @@ public class NextflowProcessRenderer {
 	private static final String RUNNING = "RUNNING";
 
 	public static final Map<String, Template> CACHE = new HashMap<String, Template>();
+
+	private static final Logger log = LoggerFactory.getLogger(NextflowProcessRenderer.class);
 
 	public static void render(NextflowProcessConfig config, NextflowProcess process, Message message) {
 
@@ -91,7 +97,8 @@ public class NextflowProcessRenderer {
 			String text = renderTemplate(template, bindings);
 			message.setMessage(text);
 		} catch (Exception e) {
-			message.setMessage("Template could not be renderer: " + e.toString());
+			message.setMessage("Template could not be rendered: " + e.toString());
+			log.error("Template could not be rendered ", e);
 		}
 		if (running > 0) {
 			message.setType(Message.RUNNING);
@@ -126,9 +133,8 @@ public class NextflowProcessRenderer {
 	}
 
 	private static String readTemplate(String path) throws IOException, URISyntaxException {
-		URI uri = NextflowProcess.class.getResource(path).toURI();
-		Path test = Paths.get(uri);
-		return Files.readString(test);
+		InputStream stream = NextflowProcess.class.getResourceAsStream(path);
+		return FileUtil.readFileAsString(stream);
 	}
 
 }
