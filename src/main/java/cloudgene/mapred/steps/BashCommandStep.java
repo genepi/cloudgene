@@ -1,7 +1,6 @@
 package cloudgene.mapred.steps;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
@@ -9,17 +8,15 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
 
 public class BashCommandStep extends CloudgeneStep {
 
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String cmd = step.get("exec");
+		String cmd = step.getString("exec");
 		if (cmd == null) {
-			cmd = step.get("cmd");
+			cmd = step.getString("cmd");
 		}
 
 		if (cmd == null) {
@@ -30,8 +27,8 @@ public class BashCommandStep extends CloudgeneStep {
 			context.error("'exec' or 'cmd' parameter cannot be an empty string.");
 		}
 
-		String bash = step.get("bash", "false");
-		String stdout = step.get("stdout", "false");
+		String bash = step.getString("bash", "false");
+		String stdout = step.getString("stdout", "false");
 
 		boolean useBash = bash.equals("true");
 		boolean streamStdout = stdout.equals("true");
@@ -62,35 +59,10 @@ public class BashCommandStep extends CloudgeneStep {
 		String bashCommand = "";
 		for (String param : params) {
 
-			// checkout hdfs file
-			if (param.startsWith("hdfs://")) {
-				String name = FileUtil.getFilename(param);
-				String localFile = FileUtil.path(((CloudgeneContext) context).getLocalTemp(), "local_" + name);
-				try {
-					HdfsUtil.checkOut(param, localFile);
-					String localFilename = new File(localFile).getAbsolutePath();
-					if (useBash) {
-						bashCommand += localFilename + " ";
-					} else {
-						command.add(localFilename);
-					}
-
-				} catch (IOException e) {
-					context.log(e.getMessage());
-					if (useBash) {
-						bashCommand += param + " ";
-					} else {
-						command.add(param);
-					}
-				}
-
+			if (useBash) {
+				bashCommand += param + " ";
 			} else {
-				if (useBash) {
-					bashCommand += param + " ";
-				} else {
-					command.add(param);
-				}
-
+				command.add(param);
 			}
 
 		}
@@ -117,7 +89,9 @@ public class BashCommandStep extends CloudgeneStep {
 				if (streamStdout) {
 					context.endTask(output.toString(), Message.ERROR);
 				} else {
-					context.endTask("Execution failed. Please contact the server administrators for help if you believe this job should have completed successfully.", Message.ERROR);
+					context.endTask(
+							"Execution failed. Please contact the server administrators for help if you believe this job should have completed successfully.",
+							Message.ERROR);
 				}
 				return false;
 			}

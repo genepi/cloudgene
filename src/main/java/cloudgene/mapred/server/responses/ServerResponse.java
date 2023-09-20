@@ -19,13 +19,23 @@ public class ServerResponse {
 	private String mailPassword;
 	private String mailName;
 	private boolean mail;
+	private String adminName;
+	private String adminMail;
+	private String serverUrl;
+	private String workspaceType;
+	private String workspaceLocation;
 
 	public static ServerResponse build(Settings settings) {
 		ServerResponse response = new ServerResponse();
 		response.setName(settings.getName());
+		response.setAdminName(settings.getAdminName());
+		response.setAdminMail(settings.getAdminMail());
+		response.setServerUrl(settings.getServerUrl());
 		response.setBackgroundColor(settings.getColors().get("background"));
 		response.setForegroundColor(settings.getColors().get("foreground"));
 		response.setGoogleAnalytics(settings.getGoogleAnalytics());
+		response.setWorkspaceType(settings.getExternalWorkspaceType());
+		response.setWorkspaceLocation(settings.getExternalWorkspaceLocation());
 
 		Map<String, String> mail = settings.getMail();
 		if (mail != null) {
@@ -34,8 +44,7 @@ public class ServerResponse {
 			response.setMailPort(mail.get("port"));
 			response.setMailUser(mail.get("user"));
 			response.setMailPassword(mail.get("password"));
-			response.setMailUser("");
-			response.setMailPassword("");
+			response.setMailUser(mail.get("user"));
 			response.setMailName(mail.get("name"));
 
 		} else {
@@ -57,6 +66,30 @@ public class ServerResponse {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getAdminName() {
+		return adminName;
+	}
+
+	public void setAdminName(String adminName) {
+		this.adminName = adminName;
+	}
+
+	public String getAdminMail() {
+		return adminMail;
+	}
+
+	public void setAdminMail(String adminMail) {
+		this.adminMail = adminMail;
+	}
+
+	public String getServerUrl() {
+		return serverUrl;
+	}
+
+	public void setServerUrl(String serverUrl) {
+		this.serverUrl = serverUrl;
 	}
 
 	public String getBackgroundColor() {
@@ -129,6 +162,22 @@ public class ServerResponse {
 
 	public void setMail(boolean mail) {
 		this.mail = mail;
+	}
+
+	public void setWorkspaceLocation(String workspaceLocation) {
+		this.workspaceLocation = workspaceLocation;
+	}
+
+	public String getWorkspaceLocation() {
+		return workspaceLocation;
+	}
+
+	public void setWorkspaceType(String workspaceType) {
+		this.workspaceType = workspaceType;
+	}
+
+	public String getWorkspaceType() {
+		return workspaceType;
 	}
 
 }

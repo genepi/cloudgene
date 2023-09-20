@@ -11,10 +11,10 @@ import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -24,6 +24,9 @@ public class WrongWorkspaceTest {
 
 	@Inject
 	TestApplication application;
+
+	@Inject
+	WorkspaceFactory workspaceFactory;
 
 	@Test
 	public void testReturnTrueStep() throws Exception {
@@ -37,7 +40,7 @@ public class WrongWorkspaceTest {
 
 		AbstractJob job = createJobFromWdl(app, inputs);
 		engine.submit(job);
-		while (!job.isComplete()) {
+		while (job.isRunning()) {
 			Thread.sleep(1000);
 		}
 		Thread.sleep(10000);
@@ -60,17 +63,15 @@ public class WrongWorkspaceTest {
 
 		String id = "test_" + System.currentTimeMillis();
 
-		String hdfsWorkspace = HdfsUtil.path("/gsfgdfgdf/vdadsadwa", id);
 		String localWorkspace = FileUtil.path("/gsfgdfgdf/vdadsadwa", id);
 		FileUtil.createDirectory(localWorkspace);
 
 		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
 		job.setName(id);
+		job.setWorkspace(workspaceFactory.getDefault());
 		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(settings);
-		job.setRemoveHdfsWorkspace(true);
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(app.getId());
 

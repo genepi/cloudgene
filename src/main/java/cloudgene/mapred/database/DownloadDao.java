@@ -30,13 +30,13 @@ public class DownloadDao extends JdbcDataAccessObject {
 		try {
 
 			Object[] params = new Object[7];
-			params[0] = download.getParameterId();
+			params[0] = download.getParameter().getId();
 			params[1] = download.getName();
 			params[2] = download.getPath();
 			params[3] = download.getHash();
 			params[4] = download.getCount();
 			params[5] = download.getSize();
-			params[6] = download.getParameter().getId();
+			params[6] = -1;
 
 			update(sql.toString(), params);
 
@@ -165,7 +165,6 @@ public class DownloadDao extends JdbcDataAccessObject {
 			result.setName(rs.getString("name"));
 			result.setPath(rs.getString("path"));
 			result.setSize(rs.getString("size"));
-			result.setParameterId(rs.getInt("parameter_id"));
 			return result;
 		}
 

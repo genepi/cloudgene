@@ -4,23 +4,35 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.List;
+import java.util.Vector;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
-import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.hadoop.S3Util;
+import cloudgene.mapred.jobs.Download;
+import cloudgene.mapred.util.HashUtil;
+import cloudgene.mapred.util.S3Util;
+import genepi.io.FileUtil;
 
-public class S3Workspace implements IExternalWorkspace {
+public class S3Workspace implements IWorkspace {
+
+	private static final String OUTPUT_DIRECTORY = "outputs";
+
+	private static final String INPUT_DIRECTORY = "input";
+
+	private static final String LOGS_DIRECTORY = "logs";
+
+	private static final String TEMP_DIRECTORY = "temp";
 
 	public static long EXPIRATION_MS = 1000 * 60 * 60;
 
@@ -40,9 +52,16 @@ public class S3Workspace implements IExternalWorkspace {
 	}
 
 	@Override
-	public void setup(String job) throws IOException {
+	public void setJob(String job) {
+	this.job = job;
+	}
+	
+	@Override
+	public void setup() throws IOException {
 
-		this.job = job;
+		if (job == null) {
+			throw new IOException("No job id provided.");
+		}
 
 		if (location == null) {
 			throw new IOException("No S3 Output Bucket specified.");
@@ -55,7 +74,8 @@ public class S3Workspace implements IExternalWorkspace {
 		try {
 			S3Util.copyToS3(job, location + "/" + job + "/version.txt");
 		} catch (Exception e) {
-			throw new IOException("Output Url '" + location + "' is not writable.");
+			log.error("Copy file to '" + location + "/" + job + "/version.txt' failed.", e);
+			throw new IOException("Output Url '" + location + "' is not writable.", e);
 		}
 
 	}
@@ -63,8 +83,19 @@ public class S3Workspace implements IExternalWorkspace {
 	@Override
 	public String upload(String id, File file) throws IOException {
 		String target = location + "/" + job + "/" + id + "/" + file.getName();
+		log.info("Copy file " + file.getAbsolutePath() + " to " + target);
 		S3Util.copyToS3(file, target);
 		return target;
+	}
+
+	@Override
+	public String uploadInput(String id, File file) throws IOException {
+		return upload(FileUtil.path(INPUT_DIRECTORY, id), file);
+	}
+
+	@Override
+	public String uploadLog(File file) throws IOException {
+		return upload(LOGS_DIRECTORY, file);
 	}
 
 	@Override
@@ -80,6 +111,18 @@ public class S3Workspace implements IExternalWorkspace {
 
 		return s3is;
 	}
+	
+	@Override
+	public String downloadLog(String name) throws IOException {
+		return FileUtil.readFileAsString(download(FileUtil.path(LOGS_DIRECTORY, name)));
+	}
+
+	public boolean exists(String url) {
+		String bucket = S3Util.getBucket(url);
+		String key = S3Util.getKey(url);
+		AmazonS3 s3 = S3Util.getAmazonS3();
+		return s3.doesObjectExist(bucket, key);
+	}
 
 	@Override
 	public void delete(String job) throws IOException {
@@ -88,36 +131,44 @@ public class S3Workspace implements IExternalWorkspace {
 			throw new IOException("Output Url '" + location + "' is not a valid S3 bucket.");
 		}
 
+		String url = location + "/" + job;
+
 		try {
-			String url = location + "/" + job;
 
-			String bucket = S3Util.getBucket(url);
-			String key = S3Util.getKey(url);
+			log.info("Deleting " + job + " on S3 workspace: '" + url + "'...");
 
-			AmazonS3 s3 = S3Util.getAmazonS3();
+			S3Util.deleteFolder(url);
 
-			log.debug("Deleting " + job + " on S3 workspace...");
-
-			ListObjectsRequest listObjectsRequest = new ListObjectsRequest().withBucketName(bucket).withPrefix(key);
-
-			ObjectListing objectListing = s3.listObjects(listObjectsRequest);
-
-			while (true) {
-				for (S3ObjectSummary objectSummary : objectListing.getObjectSummaries()) {
-					log.debug("  Deleting file " + bucket + " " + objectSummary.getKey() + " ...");
-					s3.deleteObject(bucket, objectSummary.getKey());
-				}
-				if (objectListing.isTruncated()) {
-					objectListing = s3.listNextBatchOfObjects(objectListing);
-				} else {
-					break;
-				}
-			}
-
-			log.debug("Deleted all files on S3 for job " + job + ".");
+			log.info("Deleted all files on S3 for job " + job + ".");
 
 		} catch (Exception e) {
-			throw new IOException("Output Url '" + location + "' is not writable.");
+			throw new IOException("Folder '" + url + "' could not be deleted.", e);
+		}
+
+	}
+
+	@Override
+	public void cleanup(String job) throws IOException {
+		if (!S3Util.isValidS3Url(location)) {
+			throw new IOException("Output Url '" + location + "' is not a valid S3 bucket.");
+		}
+
+		String temp = location + "/" + job + "/" + TEMP_DIRECTORY;
+		try {
+			log.info("Deleting temp directory for " + job + " on S3 workspace: '" + temp + "'...");
+			S3Util.deleteFolder(temp);
+			log.info("Deleted all files on S3 for job " + job + ".");
+		} catch (Exception e) {
+			throw new IOException("Folder '" + temp + "' could not be deleted.", e);
+		}
+
+		String input = location + "/" + job + "/" + INPUT_DIRECTORY;
+		try {
+			log.info("Deleting input directory for " + input + " on S3 workspace: '" + input + "'...");
+			S3Util.deleteFolder(input);
+			log.info("Deleted all files on S3 for job " + job + ".");
+		} catch (Exception e) {
+			throw new IOException("Folder '" + input + "' could not be deleted.", e);
 		}
 
 	}
@@ -142,6 +193,80 @@ public class S3Workspace implements IExternalWorkspace {
 		URL publicUrl = s3.generatePresignedUrl(generatePresignedUrlRequest);
 		log.debug("Pre-signed URL for " + url + " generated. Link: " + publicUrl.toString());
 		return publicUrl.toString();
+	}
+
+	@Override
+	public String getParent(String url) {
+		if (url.startsWith("s3://")) {
+			int index = url.lastIndexOf('/');
+			if (index > 0) {
+				return url.substring(0, index);
+			}
+			return null;
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String createFolder(String id) {
+		return location + "/" + job + "/" + OUTPUT_DIRECTORY + "/" + id;
+	}
+
+	@Override
+	public String createFile(String folder, String id) {
+		return location + "/" + job + "/" + OUTPUT_DIRECTORY + "/" + folder + "/" + id;
+	}
+
+	@Override
+	public String createLogFile(String id) {
+		return location + "/" + job + "/" + LOGS_DIRECTORY + "/" + id;
+	}
+
+	@Override
+	public String createTempFolder(String id) {
+		return location + "/" + job + "/" + TEMP_DIRECTORY + "/" + id;
+	}
+
+	@Override
+	public List<Download> getDownloads(String url) {
+		List<Download> downloads = new Vector<Download>();
+		ObjectListing listing;
+		try {
+			listing = S3Util.listObjects(url);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return downloads;
+		}
+
+		String baseKey = S3Util.getKey(url);
+
+		for (S3ObjectSummary summary : listing.getObjectSummaries()) {
+
+			if (summary.getKey().endsWith("/")) {
+				continue;
+			}
+
+			String filename = summary.getKey().replaceAll(baseKey + "/", "");
+			String size = FileUtils.byteCountToDisplaySize(summary.getSize());
+			String hash = HashUtil.getSha256(filename + size + (Math.random() * 100000));
+			Download download = new Download();
+			download.setName(filename);
+			download.setPath("s3://" + summary.getBucketName() + "/" + summary.getKey());
+			download.setSize(size);
+			download.setHash(hash);
+			downloads.add(download);
+
+		}
+
+		return downloads;
+	}
+
+	@Override
+	public List<Download> getLogs() {
+		String url = location + "/" + job + "/" + LOGS_DIRECTORY;
+		return getDownloads(url);
 	}
 
 }

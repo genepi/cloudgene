@@ -138,9 +138,6 @@ public class ParameterDao extends JdbcDataAccessObject {
 			DownloadDao downloadDao = new DownloadDao(database);
 			for (CloudgeneParameterOutput parameter : result) {
 				List<Download> downloads = downloadDao.findAllByParameter(parameter);
-				for (Download download : downloads) {
-					download.setUsername(job.getUser().getUsername());
-				}
 				parameter.setFiles(downloads);
 			}
 

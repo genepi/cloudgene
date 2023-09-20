@@ -1,6 +1,8 @@
 package cloudgene.mapred.server.controller;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -20,8 +22,8 @@ import cloudgene.mapred.server.exceptions.JsonHttpStatusException;
 import cloudgene.mapred.server.services.DownloadService;
 import cloudgene.mapred.server.services.JobService;
 import genepi.io.FileUtil;
-import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MutableHttpResponse;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.security.annotation.Secured;
@@ -46,28 +48,19 @@ public class DownloadController {
 	@Inject
 	protected JobService jobService;
 
-	@Get("/downloads/{jobId}/{hash}/{filename}")
+	@Get("/downloads/{jobId}/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> downloadExternalResults(String jobId, String hash, String filename)
-			throws URISyntaxException {
+	public MutableHttpResponse<InputStream> downloadExternalResults(String jobId, String hash, String filename)
+			throws URISyntaxException, IOException {
 
 		AbstractJob job = jobService.getById(jobId);
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 
-		// job is running and not in database --> download possible of
-		// autoexport params
+		// job is running and not in database
 		if (download == null) {
-			for (CloudgeneParameterOutput param : job.getOutputParams()) {
-				if (param.isAutoExport() && param.getFiles() != null) {
-					for (Download download2 : param.getFiles()) {
-						if (download2.getHash().equals(hash)) {
-							download = download2;
-						}
-					}
-				}
-			}
+			download = job.findDownloadByHash(hash);
 		}
 		String message = String.format("Job: Downloading file '%s' for job %s", filename, job.getId());
 		log.info(message);
@@ -75,19 +68,16 @@ public class DownloadController {
 
 	}
 
-	@Get("/share/results/{hash}/{filename}")
+	@Get("/share/results/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<File> downloadPublicLink(String hash, String filename) throws URISyntaxException {
+	public MutableHttpResponse<InputStream> downloadPublicLink(String hash, String filename)
+			throws URISyntaxException, IOException {
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
 		Download download = dao.findByHash(hash);
 
-		if (download != null) {
-			String message = String.format("Job: Anonymously downloading file '%s' (hash %s)", download.getName(),
-					hash);
-			log.info(message);
-		}
-
+		String message = String.format("Job: Anonymously downloading file '%s' (hash %s)", filename, hash);
+		log.info(message);
 		return downloadService.download(download);
 
 	}

@@ -18,26 +18,26 @@ public class RMarkdownDockerStep extends DockerStep {
 
 		String workingDirectory = context.getWorkingDirectory();
 
-		String rmd = step.get("rmd");
+		String rmd = step.getString("rmd");
 		if (rmd == null || rmd.isEmpty()) {
-			rmd = step.get("rmd2");
+			rmd = step.getString("rmd2");
 		}
 		if (rmd == null || rmd.isEmpty()) {
 			context.error("Execution failed. Please set the 'rmd' parameter.");
 			return false;
 		}
-		String output = step.get("output");
+		String output = step.getString("output");
 		if (output == null || output.isEmpty()) {
 			context.error("Execution failed. Please set the 'output' parameter.");
 			return false;
 		}
 
-		String image = step.get("image");
+		String image = step.getString("image");
 		if (image == null || image.isEmpty()) {
 			image = DOCKER_R_BASE_IMAGE;
 		}
 
-		String paramsString = step.get("params");
+		String paramsString = step.getString("params");
 		String[] params = new String[] {};
 		if (paramsString != null) {
 			params = paramsString.split(" ");

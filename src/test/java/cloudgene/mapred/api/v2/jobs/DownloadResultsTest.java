@@ -95,40 +95,6 @@ public class DownloadResultsTest {
 	}
 
 	@Test
-	public void testDownloadSingleHdfsFolder() throws InterruptedException {
-
-		Header accessToken = client.loginAsPublicUser();
-
-		// submit job
-		String id = RestAssured.given().header(accessToken).and().multiPart("inputtext", "lukas_text").when()
-				.post("/api/v2/jobs/submit/write-files-to-hdfs-folder").then().statusCode(200).and().extract()
-				.jsonPath().getString("id");
-
-		// wait until submitted job is complete
-		client.waitForJob(id, accessToken);
-
-		// TODO: check why file is not available without this sleep
-		Thread.sleep(5000);
-
-		// get details
-		Response response = RestAssured.given().header(accessToken).when().get("/api/v2/jobs/" + id).thenReturn();
-		response.then().statusCode(200).and().body("state", equalTo(AbstractJob.STATE_SUCCESS)).and()
-				.body("outputParams[0].name", equalTo("output")).and().body("outputParams[0].files.size()", equalTo(5));
-
-		// get path and download all 5 files
-		for (int i = 0; i < 5; i++) {
-			String path = response.body().jsonPath().getString("outputParams[0].files[" + i + "].path");
-			String name = response.jsonPath().getString("outputParams[0].files[" + i + "].name");
-			String hash = response.jsonPath().getString("outputParams[0].files[" + i + "].hash");
-
-			assertEquals(id + "/output/file" + (i + 1) + ".txt", path);
-			RestAssured.given().header(accessToken).when().get("/downloads/" + id + "/" + hash + "/" + name).then()
-					.statusCode(200).and().body(equalTo("lukas_text"));
-		}
-
-	}
-
-	@Test
 	public void testDownloadCounter() throws InterruptedException {
 
 		Header accessToken = client.loginAsPublicUser();

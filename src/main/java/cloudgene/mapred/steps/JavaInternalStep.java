@@ -2,8 +2,8 @@ package cloudgene.mapred.steps;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
+import cloudgene.mapred.jobs.sdk.WorkflowStep;
 import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.sdk.internal.WorkflowStep;
 
 public class JavaInternalStep extends CloudgeneStep {
 

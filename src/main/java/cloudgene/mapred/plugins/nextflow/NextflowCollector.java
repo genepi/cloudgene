@@ -6,15 +6,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.util.Settings;
 
 public class NextflowCollector {
-	
+
+	private static final String COLLECTOR_ENDPOINT = "/api/v2/collect/";
+
 	private static NextflowCollector instance;
 
 	private Map<String, List<NextflowProcess>> data;
 
 	private Map<String, CloudgeneContext> contexts;
+
+	private static final Logger log = LoggerFactory.getLogger(NextflowCollector.class);
 
 	public static NextflowCollector getInstance() {
 		if (instance == null) {
@@ -29,19 +37,22 @@ public class NextflowCollector {
 		data = new HashMap<String, List<NextflowProcess>>();
 	}
 
-	public void addContext(String job, CloudgeneContext context) {
-		contexts.put(job, context);
+	public String addContext(CloudgeneContext context) {
+		contexts.put(context.getPublicJobId(), context);
+		Settings settings = context.getSettings();
+		log.info("[Job {}] Register collector for public job id '{}'", context.getJobId(), context.getPublicJobId());
+		return settings.getServerUrl() + settings.getUrlPrefix() + COLLECTOR_ENDPOINT + context.getPublicJobId();
 	}
 
 	public void addEvent(String job, Map<String, Object> event) throws IOException {
-		
+
 		CloudgeneContext context = contexts.get(job);
-		
+
 		if (context == null) {
-			System.out.println("Warning! No context found for job " + job);
-			return; 
+			log.info("Warning! No context found for public job id '{}'", job);
+			return;
 		}
-		
+
 		List<NextflowProcess> processes = data.get(job);
 		if (processes == null) {
 			processes = new Vector<NextflowProcess>();
@@ -68,14 +79,19 @@ public class NextflowCollector {
 		processes.add(process);
 	}
 
-	public List<NextflowProcess> getProcesses(String job) {
-		List<NextflowProcess> processes = data.get(job);
+	public List<NextflowProcess> getProcesses(CloudgeneContext context) {
+		List<NextflowProcess> processes = data.get(context.getPublicJobId());
 		if (processes == null) {
 			return new Vector<NextflowProcess>();
 		}
-		{
-			return processes;
-		}
+		return processes;
+
+	}
+
+	public void cleanProcesses(CloudgeneContext context) {
+		data.remove(context.getPublicJobId());
+		contexts.remove(context.getPublicJobId());
+		log.info("[Job {}] Removed collector for public job id '{}'", context.getJobId(), context.getPublicJobId());
 	}
 
 }

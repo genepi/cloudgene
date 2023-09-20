@@ -2,48 +2,28 @@ package cloudgene.mapred.jobs.engine;
 
 import java.util.List;
 
-import cloudgene.mapred.jobs.CloudgeneJob;
-import cloudgene.mapred.jobs.CloudgeneParameterOutput;
-import cloudgene.mapred.jobs.engine.graph.Graph;
-import cloudgene.mapred.jobs.engine.graph.GraphNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.wdl.WdlStep;
 
 public class Executor {
 
-	private GraphNode executableNode;
+	private ExecutableStep executableNode;
 
-	public boolean execute(Graph graph) {
+	private static Logger log = LoggerFactory.getLogger(Executor.class);
 
-		graph.getContext().log("Executor: execute DAG...");
+	public boolean execute(List<WdlStep> steps, CloudgeneContext context) throws Exception {
 
-		while (graph.getSize() > 0) {
-			List<GraphNode> nodes = graph.getSources();
-			boolean successful = false;
-			successful = executeNodesSequential(graph, nodes);
-			if (!successful) {
-				return false;
-			}
-
-		}
-
-		return true;
-	}
-
-	private boolean executeNodesSequential(Graph graph, List<GraphNode> nodes) {
-
-		for (GraphNode node : nodes) {
-
-			executableNode = node;
-
+		context.log("Execute " + steps.size() + " steps...");
+		for (WdlStep step : steps) {
+			executableNode = new ExecutableStep(step, context);
+			log.info("[Job {}] Executor: execute step '{}'...", context.getJobId(), step.getName());
 			executableNode.run();
-			// export results
-			exportResults(graph, node);
-
 			if (!executableNode.isSuccessful()) {
 				return false;
 			}
-			// TODO: cache.addToCache(node, graph.getContext());
-
-			graph.remove(node);
 		}
 
 		return true;
@@ -59,29 +39,7 @@ public class Executor {
 		}
 	}
 
-	public int getProgress() {
-		if (executableNode != null) {
-			return executableNode.getProgress();
-		} else {
-			return 0;
-		}
-	}
-
-	private void exportResults(Graph graph, GraphNode node) {
-
-		CloudgeneJob job = (CloudgeneJob) graph.getContext().getJob();
-
-		for (CloudgeneParameterOutput out : job.getOutputParams()) {
-			if (out.isAutoExport() && node.getOutputs().contains(out.getName())) {
-				graph.getContext().println(
-						"Export parameter '" + out.getName() + "'...");
-				job.exportParameter(out);
-			}
-		}
-
-	}
-
-	public GraphNode getCurrentNode() {
+	public ExecutableStep getCurrentNode() {
 		return executableNode;
 	}
 

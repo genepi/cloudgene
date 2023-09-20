@@ -1,11 +1,11 @@
 package cloudgene.mapred.util;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.dumbster.smtp.SimpleSmtpServer;
 import com.dumbster.smtp.SmtpMessage;
-import com.google.common.collect.Lists;
 
 /**
  * A JUnit Rule which runs a mock SMTP server
@@ -47,7 +47,12 @@ public class TestMailServer {
 	}
 
 	public List<SmtpMessage> getReceivedEmailAsList() {
-		return Lists.newArrayList((Iterator<SmtpMessage>) getReceivedEmail());
+		Iterator<SmtpMessage> iterator = (Iterator<SmtpMessage>) getReceivedEmail();
+		List<SmtpMessage> list = new ArrayList<SmtpMessage>();
+		while (iterator.hasNext()) {
+			list.add(iterator.next());
+		}
+		return list;
 	}
 
 }

@@ -1,12 +1,18 @@
 package cloudgene.mapred.plugins.nextflow;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import cloudgene.mapred.jobs.CloudgeneContext;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.plugins.nextflow.report.Report;
+import cloudgene.mapred.plugins.nextflow.report.ReportEvent;
+import cloudgene.mapred.plugins.nextflow.report.ReportEventExecutor;
 import genepi.io.FileUtil;
-import genepi.io.text.LineReader;
 
 public class NextflowTask {
 
@@ -14,11 +20,13 @@ public class NextflowTask {
 
 	private Map<String, Object> trace;
 
-	private String log = null;
+	private String logText = null;
 
 	private CloudgeneContext context;
+
+	private static final Logger log = LoggerFactory.getLogger(NextflowTask.class);
 	
-	public NextflowTask( CloudgeneContext context, Map<String, Object> trace) {
+	public NextflowTask(CloudgeneContext context, Map<String, Object> trace) {
 		id = (Integer) trace.get("task_id");
 		this.trace = trace;
 		this.context = context;
@@ -30,39 +38,36 @@ public class NextflowTask {
 		// if task is completed or failed check if a cloudgene.log is in workdir and
 		// load its content
 
+		// TODO: check if CHACHED os also needed!
 		String status = (String) trace.get("status");
-		if (status.equals("COMPLETED") || status.equals("FAILED")) {
-			String workDir = (String) trace.get("workdir");
-			String logFilename = FileUtil.path(workDir, "cloudgene.log");
+		if (!status.equals("COMPLETED") && !status.equals("FAILED")) {
+			return;
+		}
 
-			// TODO: implement s3 support. How to handle other cloud providers?
+		String workDir = (String) trace.get("workdir");
+		String reportFilename = FileUtil.path(workDir, Report.DEFAULT_FILENAME);
+		IWorkspace workspace = context.getJob().getWorkspace();
+		if (!workspace.exists(reportFilename)) {
+			return;
+		}
 
-			if (new File(logFilename).exists()) {
-				log = FileUtil.readFileAsString(logFilename);
-				parseFile(logFilename);
-			}
-			
+		context.log("Load report file from '" + reportFilename + "'");
+		InputStream stream = workspace.download(reportFilename);
+		try {
+			parseReport(reportFilename);
+		} catch (Exception e) {
+			log.error("[Job {}] Invalid report file.", e);
+			logText = "Invalid report file: \n" + FileUtil.readFileAsString(stream);
 		}
 
 	}
 
-	private void parseFile(String logFilename) throws IOException {
-		LineReader reader = new LineReader(logFilename);
-		while(reader.next()) {
-			String line = reader.get();
-			if (line.startsWith("[INC]")) {
-				String[] tiles = line.split(" ", 3);
-				String name = tiles[1];
-				int value = Integer.parseInt(tiles[2]);
-				context.incCounter(name, value);
-			}
-			if (line.startsWith("[SUBMIT]")) {
-				String[] tiles = line.split(" ", 2);
-				String name = tiles[1];
-				context.submitCounter(name);
-			}			
+	private void parseReport(String reportFilename) throws IOException {
+		InputStream stream = context.getWorkspace().download(reportFilename);
+		Report report = new Report(stream);
+		for (ReportEvent event : report.getEvents()) {
+			ReportEventExecutor.execute(event, context);
 		}
-		reader.close();		
 	}
 
 	public int getId() {
@@ -73,8 +78,8 @@ public class NextflowTask {
 		return trace;
 	}
 
-	public String getLog() {
-		return log;
+	public String getLogText() {
+		return logText;
 	}
 
 }

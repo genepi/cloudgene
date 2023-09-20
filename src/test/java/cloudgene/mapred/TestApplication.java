@@ -1,7 +1,6 @@
 package cloudgene.mapred;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
@@ -15,7 +14,6 @@ import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.util.Config;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.TestCluster;
 import cloudgene.mapred.util.TestMailServer;
 import genepi.io.FileUtil;
 import io.micronaut.context.annotation.Context;
@@ -37,15 +35,6 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 	}
 
 	protected static Settings loadSettings(Config config) throws FileNotFoundException, YamlException {
-		
-		System.out.println("Starting test Hadoop cluster...");
-		try {
-			TestCluster.getInstance().start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Test Hadoop cluster started.");
 		
 		Settings settings = new Settings(new Config());
 
@@ -155,32 +144,8 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 		app14.setPermission("public");
 		applications.add(app14);
 
-		// hdfs
-
-		Application app10 = new Application();
-		app10.setId("all-possible-inputs-hdfs");
-		app10.setFilename("test-data/all-possible-inputs-hdfs.yaml");
-		app10.setPermission("public");
-		applications.add(app10);
-
-		Application app11 = new Application();
-		app11.setId("write-files-to-hdfs-folder");
-		app11.setFilename("test-data/write-files-to-hdfs-folder.yaml");
-		app11.setPermission("public");
-		applications.add(app11);
-
-		Application app12 = new Application();
-		app12.setId("write-text-to-hdfs-file");
-		app12.setFilename("test-data/write-text-to-hdfs-file.yaml");
-		app12.setPermission("public");
-		applications.add(app12);
-
-		Application app16 = new Application();
-		app16.setId("sftp-import");
-		app16.setFilename("test-data/sftp-import.yaml");
-		app16.setPermission("public");
-		applications.add(app16);
-
+		//app links
+		
 		Application app17 = new Application();
 		app17.setId("app-links");
 		app17.setFilename("test-data/app-links.yaml");
@@ -204,18 +169,6 @@ public class TestApplication extends cloudgene.mapred.server.Application {
 		app19.setFilename("test-data/app-links-child.yaml");
 		app19.setPermission("protected");
 		applications.add(app19);
-
-		Application app20 = new Application();
-		app20.setId("app-installation2");
-		app20.setFilename("test-data/app-installation2.yaml");
-		app20.setPermission("public");
-		applications.add(app20);
-
-		Application app21 = new Application();
-		app21.setId("app-installation-child");
-		app21.setFilename("test-data/app-installation-child.yaml");
-		app21.setPermission("public");
-		applications.add(app21);
 
 		Application app22 = new Application();
 		app22.setId("print-hidden-inputs");

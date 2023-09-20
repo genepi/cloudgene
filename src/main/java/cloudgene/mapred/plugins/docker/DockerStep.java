@@ -1,7 +1,6 @@
 package cloudgene.mapred.plugins.docker;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,8 +8,6 @@ import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
 import cloudgene.mapred.jobs.Message;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
 
 public class DockerStep extends CloudgeneStep {
 
@@ -21,7 +18,7 @@ public class DockerStep extends CloudgeneStep {
 	@Override
 	public boolean run(WdlStep step, CloudgeneContext context) {
 
-		String cmd = step.get("cmd");
+		String cmd = step.getString("cmd");
 
 		if (cmd == null) {
 			context.error("No 'exec' or 'cmd' parameter found.");
@@ -31,12 +28,12 @@ public class DockerStep extends CloudgeneStep {
 			context.error("'exec' or 'cmd' parameter cannot be an empty string.");
 		}
 
-		String stdout = step.get("stdout", "false");
+		String stdout = step.getString("stdout", "false");
 		boolean streamStdout = stdout.equals("true");
 
 		String[] params = cmd.split(" ");
 
-		String image = step.get("image");
+		String image = step.getString("image");
 
 		if (image == null) {
 			context.error("No 'image' parameter found.");
@@ -64,23 +61,7 @@ public class DockerStep extends CloudgeneStep {
 			String[] newParams = new String[cmd.length];
 			for (int i = 0; i < newParams.length; i++) {
 				String param = cmd[i];
-
-				// checkout hdfs file
-				if (param.startsWith("hdfs://")) {
-					String name = FileUtil.getFilename(param);
-					String localFile = FileUtil.path(((CloudgeneContext) context).getLocalTemp(), "local_" + name);
-					try {
-						HdfsUtil.checkOut(param, localFile);
-						String localFilename = new File(localFile).getAbsolutePath();
-						newParams[i] = localFilename;
-					} catch (IOException e) {
-						context.log(e.getMessage());
-						newParams[i] = param.replaceAll(localWorkspace, DOCKER_WORKSPACE);
-					}
-
-				} else {
-					newParams[i] = param.replaceAll(localWorkspace, DOCKER_WORKSPACE);
-				}
+				newParams[i] = param.replaceAll(localWorkspace, DOCKER_WORKSPACE);
 			}
 
 			if (!image.contains(":")) {

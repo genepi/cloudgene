@@ -9,12 +9,11 @@ import cloudgene.mapred.core.Template;
 import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
-import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
-import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -27,6 +26,9 @@ public class JobCleanUpService {
 	@Inject
 	protected Application application;
 
+	@Inject
+	protected WorkspaceFactory workspaceFactory;
+
 	public int executeRetire() {
 
 		Database database = application.getDatabase();
@@ -38,26 +40,13 @@ public class JobCleanUpService {
 
 		int deleted = 0;
 
-		IExternalWorkspace externalWorkspace = null;
-		if (!settings.getExternalWorkspaceLocation().isEmpty()) {
-			String externalOutput = settings.getExternalWorkspaceLocation();
-			externalWorkspace = ExternalWorkspaceFactory.get(settings.getExternalWorkspaceType(), externalOutput);
-		}
-
 		for (AbstractJob job : oldJobs) {
 
 			if (job.getDeletedOn() < System.currentTimeMillis()) {
 
-				// delete local directory and hdfs directory
+				// delete local directory
 				String localOutput = FileUtil.path(settings.getLocalWorkspace(), job.getId());
 				FileUtil.deleteDirectory(localOutput);
-
-				try {
-					String hdfsOutput = HdfsUtil.makeAbsolute(HdfsUtil.path(settings.getHdfsWorkspace(), job.getId()));
-					HdfsUtil.delete(hdfsOutput);
-				} catch (NoClassDefFoundError e) {
-					// TODO: handle exception
-				}
 
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
@@ -65,12 +54,12 @@ public class JobCleanUpService {
 				log.info("Job " + job.getId() + " retired.");
 				deleted++;
 
-				if (externalWorkspace != null) {
-					try {
-						externalWorkspace.delete(job.getId());
-					} catch (Exception e) {
-						log.error("Retire " + job.getId() + " failed.", e);
-					}
+				IWorkspace externalWorkspace = workspaceFactory.getByJob(job);
+
+				try {
+					externalWorkspace.delete(job.getId());
+				} catch (Exception e) {
+					log.error("Retire " + job.getId() + " failed.", e);
 				}
 
 			}

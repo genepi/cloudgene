@@ -59,7 +59,7 @@
 
 			<td>
 				<p style="line-height: 1.15 !important; margin-bottom: 0px !important;">
-					{{user.username}}<br>
+					{{username}}<br>
 				</p>
 				<p style="line-height: 1.15 !important; margin-top: 0px !important;  margin-bottom: 0px !important; padding-top:0px !important;">
 					<small class="text-muted" >

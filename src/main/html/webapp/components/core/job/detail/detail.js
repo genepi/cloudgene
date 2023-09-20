@@ -19,7 +19,7 @@ import template from './detail.stache';
 
 export default Control.extend({
 
-  "init": function(element, options) {
+  "init": function (element, options) {
     var that = this;
     this.active = true;
 
@@ -28,55 +28,55 @@ export default Control.extend({
     }
 
     JobDetails.findOne({
-        id: options.job
-      }, function(job) {
+      id: options.job
+    }, function (job) {
 
-        $(element).html(template({
-          job: job,
-          tab: options.tab,
-          admin: options.appState.attr('user').attr('admin')
-        }));
+      $(element).html(template({
+        job: job,
+        tab: options.tab,
+        admin: options.appState.attr('user').attr('admin')
+      }));
 
-        switch (options.tab) {
-          case 'results':
-            new ResultsControl("#tab-results", {
-              job: job
-            });
-            break;
+      switch (options.tab) {
+        case 'results':
+          new ResultsControl("#tab-results", {
+            job: job
+          });
+          break;
 
-          case 'steps':
-            new StepsControl("#tab-steps", {
-              job: job
-            });
-            break;
+        case 'steps':
+          new StepsControl("#tab-steps", {
+            job: job
+          });
+          break;
 
-          case 'logs':
-            new LogsControl("#tab-logs", {
-              job: job
-            });
-            break;
+        case 'logs':
+          new LogsControl("#tab-logs", {
+            job: job
+          });
+          break;
 
-          default:
-        }
-
-        $('[data-toggle="tooltip"]').tooltip()
-
-        that.job = job;
-        that.refresh();
-
-      }, function(response) {
-        new ErrorPage(that.element, response);
+        default:
       }
+
+      $('[data-toggle="tooltip"]').tooltip()
+
+      that.job = job;
+      that.refresh();
+
+    }, function (response) {
+      new ErrorPage(that.element, response);
+    }
 
     );
   },
 
   // delete job
 
-  '#delete-btn click': function(el, ev) {
+  '#delete-btn click': function (el, ev) {
     var that = this;
 
-    bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function (result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
@@ -85,11 +85,11 @@ export default Control.extend({
         var cancelButton = $("button[data-bb-handler='cancel']");
         cancelButton.hide('hide');
 
-        that.job.destroy(function() {
+        that.job.destroy(function () {
           // go to jobs page
           bootbox.hideAll();
           window.location.hash = "!pages/jobs";
-        }, function(response) {
+        }, function (response) {
           bootbox.hideAll();
           showErrorDialog("Job could not be deleted", response);
         });
@@ -103,10 +103,10 @@ export default Control.extend({
 
   // cancel job
 
-  '#cancel-btn click': function(el, ev) {
+  '#cancel-btn click': function (el, ev) {
     var that = this;
 
-    bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function (result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
@@ -118,10 +118,10 @@ export default Control.extend({
         var operation = new JobOperation();
         operation.attr('id', that.job.attr('id'));
         operation.attr('action', 'cancel');
-        operation.save(function() {
+        operation.save(function () {
           bootbox.hideAll();
           that.refresh();
-        }, function(response) {
+        }, function (response) {
           bootbox.hideAll();
           showErrorDialog("Job could not be canceld", response);
         });
@@ -133,10 +133,10 @@ export default Control.extend({
 
   },
 
-  '#restart-btn click': function(el, ev) {
+  '#restart-btn click': function (el, ev) {
     var that = this;
 
-    bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function (result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
@@ -148,10 +148,10 @@ export default Control.extend({
         var operation = new JobOperation();
         operation.attr('id', that.job.attr('id'));
         operation.attr('action', 'restart');
-        operation.save(function() {
+        operation.save(function () {
           bootbox.hideAll();
           window.location.hash = "#!pages/jobs";
-        }, function(response) {
+        }, function (response) {
           bootbox.hideAll();
           showErrorDialog("Job could not be restarted", response);
         });
@@ -165,40 +165,38 @@ export default Control.extend({
 
   // refresh if job is running
 
-  refresh: function() {
+  refresh: function () {
     var that = this;
     if (!JobRefresher.needsUpdate(that.job)) {
       return;
     }
     Job.findOne({
       id: that.job.id
-    }, function(currentJob) {
+    }, function (currentJob) {
       currentJob.syncTime();
       that.job.attr('state', currentJob.attr('state'));
       that.job.attr('startTime', currentJob.attr('startTime'));
       that.job.attr('endTime', currentJob.attr('endTime'));
-      that.job.attr('setupStartTime', currentJob.attr('setupStartTime'));
-      that.job.attr('setupEndTime', currentJob.attr('setupEndTime'));
       that.job.attr('steps', currentJob.attr('steps'));
       that.job.attr('positionInQueue', currentJob.attr('positionInQueue'));
 
       // needs refresh
       if (JobRefresher.needsUpdate(currentJob) && that.active) {
-        setTimeout(function() {
+        setTimeout(function () {
           that.refresh();
         }, 5000);
       } else {
         // updates details (results, startTime, endTime, ...)
         JobDetails.findOne({
           id: that.job.id
-        }, function(job) {
+        }, function (job) {
 
           if (that.active) {
             var router = canRoute.router;
             router.reload();
           }
 
-        }, function(response) {
+        }, function (response) {
           new ErrorPage(that.element, response);
 
         });
@@ -209,7 +207,7 @@ export default Control.extend({
 
   },
 
-  destroy: function() {
+  destroy: function () {
     this.active = false;
     Control.prototype.destroy.call(this);
   }
@@ -218,6 +216,6 @@ export default Control.extend({
 
 var JobRefresher = {};
 
-JobRefresher.needsUpdate = function(job) {
+JobRefresher.needsUpdate = function (job) {
   return job.attr("state") == 1 || job.attr("state") == 2 || job.attr("state") == 3;
 };

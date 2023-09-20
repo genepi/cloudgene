@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import cloudgene.mapred.TestApplication;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.jobs.workspace.WorkspaceFactory;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
 import cloudgene.mapred.wdl.WdlReader;
-import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
@@ -24,15 +24,19 @@ import jakarta.inject.Inject;
 public class PriorityThreadPoolExecutorTest {
 
 	private static final int WAIT_FOR_CANCEL = 8000;
+
 	@Inject
 	TestApplication application;
 
+	@Inject
+	WorkspaceFactory workspaceFactory;
+	
 	@Test
 	public void testCancelRunningJob() throws Exception {
 
 		WorkflowEngine engine = application.getWorkflowEngine();
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -63,7 +67,7 @@ public class PriorityThreadPoolExecutorTest {
 		List<AbstractJob> jobsAfterCancel = engine.getAllJobsInLongTimeQueue();
 		assertEquals(jobsBeforeSubmit.size(), jobsAfterCancel.size());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 
@@ -75,7 +79,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -115,7 +119,7 @@ public class PriorityThreadPoolExecutorTest {
 		// clear queue
 		engine.cancel(job1);
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -132,7 +136,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -220,7 +224,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -237,7 +241,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -325,7 +329,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -342,7 +346,7 @@ public class PriorityThreadPoolExecutorTest {
 		WorkflowEngine engine = application.getWorkflowEngine();
 
 		
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 		
@@ -456,7 +460,7 @@ public class PriorityThreadPoolExecutorTest {
 		assertEquals(AbstractJob.STATE_CANCELED, job3.getState());
 		assertEquals(AbstractJob.STATE_CANCELED, job4.getState());
 
-		while (engine.getAllJobsInLongTimeQueue().size() > 0 || engine.getAllJobsInShortTimeQueue().size() > 0) {
+		while (engine.getAllJobsInLongTimeQueue().size() > 0) {
 			Thread.sleep(6000);
 		}
 	}
@@ -469,17 +473,15 @@ public class PriorityThreadPoolExecutorTest {
 		
 		Settings settings = application.getSettings();
 
-		String hdfsWorkspace = HdfsUtil.path(settings.getHdfsWorkspace(), id);
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
 		CloudgeneJob job = new CloudgeneJob(user, id,app, inputs);
 		job.setId(id);
 		job.setName(id);
+		job.setWorkspace(workspaceFactory.getDefault());
 		job.setLocalWorkspace(localWorkspace);
-		job.setHdfsWorkspace(hdfsWorkspace);
 		job.setSettings(settings);
-		job.setRemoveHdfsWorkspace(true);
 		job.setApplication(app.getName() + " " + app.getVersion());
 		job.setApplicationId(app.getId());
 

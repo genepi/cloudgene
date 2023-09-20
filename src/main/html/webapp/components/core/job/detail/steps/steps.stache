@@ -33,7 +33,7 @@
     {{#is(type, 3)}}
       <div class="list-group-item flex-column align-items-start step step-primary">
         <div class="d-flex w-100 justify-content-between">
-          <p class="mb-1">{{{replaceNL(message)}}}</p>
+          <p class="mb-1" style="width:100%">{{{replaceNL(message)}}}</p>
           <small><i class="fas fa-circle-notch fa-spin"></i></small>
         </div>
       </div>

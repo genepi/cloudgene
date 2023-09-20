@@ -15,6 +15,8 @@ import cloudgene.mapred.jobs.AbstractJob;
 
 public abstract class Queue implements Runnable {
 
+	private static final int POLL_FRQUENCY_MS = 100;
+
 	private List<AbstractJob> queue;
 
 	private HashMap<AbstractJob, Future<?>> futures;
@@ -56,7 +58,7 @@ public abstract class Queue implements Runnable {
 				log.info(name + ": Submit job" + (priority ? " (P: " + job.getPriority() + ")" : "") + "...");
 
 				if (priority) {
-					// sorty by state and by priority
+					// sort by state and by priority
 					Collections.sort(queue, new PriorityComparator());
 				}
 
@@ -71,42 +73,41 @@ public abstract class Queue implements Runnable {
 	}
 
 	public void cancel(AbstractJob job) {
-
+		
 		if (job.getState() == AbstractJob.STATE_RUNNING || job.getState() == AbstractJob.STATE_EXPORTING) {
 
-			log.info(name + ": Cancel Job " + job.getId() + "...");
-
-			if (job.getSetupStartTime() > 0 && job.getSetupEndTime() == 0){
-				job.setSetupEndTime(System.currentTimeMillis());
-			}
+			log.info(name + ": Cancel running job " + job.getId() + "...");
 			
 			job.kill();
 			job.cancel();
 
+			log.info(name + ": Job " + job.getId() + " canceled.");
+
+			
 			if (updatePositions) {
 				updatePositionInQueue();
 			}
 
-		}
+		} else if (job.getState() == AbstractJob.STATE_WAITING) {
 
-		if (job.getState() == AbstractJob.STATE_WAITING) {
-
+			log.info(name + ": Cancel waiting job " + job.getId() + "...");
+			
 			synchronized (futures) {
 
 				synchronized (queue) {
 					PriorityRunnable runnable = runnables.get(job);
 					if (runnable != null) {
+						System.out.println("Kill runnable");
 						scheduler.kill(runnable);
+						runnables.remove(job);
 					}
-					if (job.getSetupStartTime() > 0 && job.getSetupEndTime() == 0){
-						job.setSetupEndTime(System.currentTimeMillis());
-					}
-					
+
 					job.cancel();
 					queue.remove(job);
 					futures.remove(job);
 					onComplete(job);
-					log.info(name + ": Cancel Job...");
+
+					log.info(name + ": Job " + job.getId() + " canceled.");
 
 					if (updatePositions) {
 						updatePositionInQueue();
@@ -115,6 +116,8 @@ public abstract class Queue implements Runnable {
 				}
 
 			}
+		} else {
+			log.info(name + ": Cancel job " + job.getId() + ". Unkown state: " + job.getState());
 		}
 
 	}
@@ -163,7 +166,7 @@ public abstract class Queue implements Runnable {
 			}
 
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(POLL_FRQUENCY_MS);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

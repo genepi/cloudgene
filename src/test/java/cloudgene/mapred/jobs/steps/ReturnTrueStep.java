@@ -1,7 +1,7 @@
 package cloudgene.mapred.jobs.steps;
 
-import cloudgene.sdk.internal.WorkflowContext;
-import cloudgene.sdk.internal.WorkflowStep;
+import cloudgene.mapred.jobs.sdk.WorkflowContext;
+import cloudgene.mapred.jobs.sdk.WorkflowStep;
 
 public class ReturnTrueStep extends WorkflowStep {
 

@@ -1,7 +1,6 @@
 package cloudgene.mapred.steps;
 
 import java.io.File;
-import java.io.IOException;
 
 import cloudgene.mapred.jobs.CloudgeneContext;
 import cloudgene.mapred.jobs.CloudgeneStep;
@@ -10,9 +9,8 @@ import cloudgene.mapred.plugins.rscript.RMarkdownPlugin;
 import cloudgene.mapred.plugins.rscript.RScriptBinary;
 import cloudgene.mapred.plugins.rscript.RScriptFile;
 import cloudgene.mapred.plugins.rscript.RScriptPlugin;
+import cloudgene.mapred.util.command.Command;
 import cloudgene.mapred.wdl.WdlStep;
-import genepi.hadoop.HdfsUtil;
-import genepi.hadoop.command.Command;
 import genepi.io.FileUtil;
 
 public class RMarkdownLocalStep extends CloudgeneStep {
@@ -24,21 +22,21 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 
 		String workingDirectory = context.getWorkingDirectory();
 
-		String rmd = step.get("rmd");
+		String rmd = step.getString("rmd");
 		if (rmd == null || rmd.isEmpty()) {
-			rmd = step.get("rmd2");
+			rmd = step.getString("rmd2");
 		}
 		if (rmd == null || rmd.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'rmd' parameter.", Message.ERROR);
 			return false;
 		}
-		String output = step.get("output");
+		String output = step.getString("output");
 		if (output == null || output.isEmpty()) {
 			context.endTask("Execution failed. Please set the 'output' parameter.", Message.ERROR);
 			return false;
 		}
 
-		String paramsString = step.get("params");
+		String paramsString = step.getString("params");
 		String[] params = new String[] {};
 		if (paramsString != null) {
 			params = paramsString.split(" ");
@@ -57,13 +55,15 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 
 		if (result == 0) {
 			context.endTask("Execution successful.", Message.OK);
-			String include = step.get("include");
+			String include = step.getString("include");
 			if (include != null && include.equals("true")) {
 				context.addFile(output);
 			}
 			return true;
 		} else {
-			context.endTask("Execution failed. Please contact the server administrators for help if you believe this job should have completed successfully.", Message.ERROR);
+			context.endTask(
+					"Execution failed. Please contact the server administrators for help if you believe this job should have completed successfully.",
+					Message.ERROR);
 			return false;
 		}
 
@@ -96,32 +96,7 @@ public class RMarkdownLocalStep extends CloudgeneStep {
 		argsForScript[0] = scriptFilename;
 		// argsForScript[1] = "--args";
 		for (int i = 0; i < args.length; i++) {
-
-			// checkout hdfs file
-			if (args[i].startsWith("hdfs://")) {
-
-				String localFile = FileUtil.path(folder, "local_file_" + i);
-				context.log("Check out file " + args[i] + "...");
-				try {
-					HdfsUtil.checkOut(args[i], localFile);
-					argsForScript[i + 1] = localFile;
-				} catch (IOException e) {
-					context.log(e.getMessage());
-					argsForScript[i + 1] = args[i];
-				}
-
-				try {
-					context.log("Number of lines: " + FileUtil.getLineCount(localFile));
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			} else {
-
-				argsForScript[i + 1] = args[i];
-
-			}
+			argsForScript[i + 1] = args[i];
 		}
 
 		rScript.setParams(argsForScript);

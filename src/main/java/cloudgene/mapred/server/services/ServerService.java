@@ -24,6 +24,7 @@ import cloudgene.mapred.server.Application;
 import cloudgene.mapred.server.controller.ServerAdminController;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.io.FileUtil;
 import io.micronaut.security.oauth2.configuration.OauthClientConfigurationProperties;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -115,15 +116,20 @@ public class ServerService {
 		return data.toString();
 	}
 
-	public void updateSettings(String name, String background_color, String foreground_color, String google_analytics,
-			String mail, String mail_smtp, String mail_port, String mail_user, String mail_password, String mail_name) {
+	public void updateSettings(String name, String adminName, String adminMail, String serverUrl, String background_color, String foreground_color, String google_analytics,
+			String mail, String mail_smtp, String mail_port, String mail_user, String mail_password, String mail_name, String workspaceType, String workspaceLocation) {
 
 		Settings settings = application.getSettings();
 		settings.setName(name);
+		settings.setAdminName(adminName);
+		settings.setAdminMail(adminMail);
+		settings.setServerUrl(serverUrl);
 		settings.getColors().put("background", background_color);
 		settings.getColors().put("foreground", foreground_color);
 		settings.setGoogleAnalytics(google_analytics);
-
+		settings.getExternalWorkspace().put("type", workspaceType);
+		settings.getExternalWorkspace().put("location", workspaceLocation);
+		
 		if (mail != null && mail.equals("true")) {
 			Map<String, String> mailConfig = new HashMap<String, String>();
 			mailConfig.put("smtp", mail_smtp);
@@ -255,6 +261,12 @@ public class ServerService {
 				} catch (IOException e) {
 				}
 		}
+	}
+
+	public void updateNextflowConfig(String content) {
+		Settings settings = application.getSettings();
+		String filename = settings.getNextflowConfig();
+		FileUtil.writeStringBufferToFile(filename, new StringBuffer(content));
 	}
 
 }

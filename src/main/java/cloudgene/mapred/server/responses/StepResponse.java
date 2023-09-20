@@ -12,11 +12,11 @@ import cloudgene.mapred.jobs.CloudgeneStep;
 public class StepResponse {
 
 	private int id;
-	private String name;
-	private int progress;
 	
-	@JsonProperty("logMessages")    
-	private List <MessageResponse> messageResponse;
+	private String name;
+
+	@JsonProperty("logMessages")
+	private List<MessageResponse> messages;
 
 	public int getId() {
 		return id;
@@ -34,22 +34,12 @@ public class StepResponse {
 		this.name = name;
 	}
 
-	public int getProgress() {
-		return progress;
-	}
-
-	public void setProgress(int progress) {
-		this.progress = progress;
-	}
-
-
 	public static StepResponse build(CloudgeneStep step) {
 		StepResponse response = new StepResponse();
 		response.setId(step.getId());
 		response.setName(step.getName());
-		response.setProgress(step.getProgress());
 		List<MessageResponse> responses = MessageResponse.build(step.getLogMessages());
-		response.setMessageResponse(responses);
+		response.setMessages(responses);
 		return response;
 	}
 
@@ -61,12 +51,12 @@ public class StepResponse {
 		return response;
 	}
 
-	public List <MessageResponse> getMessageResponse() {
-		return messageResponse;
+	public List<MessageResponse> getMessages() {
+		return messages;
 	}
 
-	public void setMessageResponse(List <MessageResponse> messageResponse) {
-		this.messageResponse = messageResponse;
+	public void setMessages(List<MessageResponse> messages) {
+		this.messages = messages;
 	}
 
 }

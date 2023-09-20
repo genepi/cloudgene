@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import cloudgene.mapred.wdl.WdlStep;
-import cloudgene.sdk.internal.WorkflowContext;
 
 public abstract class CloudgeneStep {
 
@@ -16,7 +15,7 @@ public abstract class CloudgeneStep {
 
 	private String name;
 
-	private AbstractJob job;
+	private CloudgeneJob job;
 
 	private List<Message> logMessages;
 
@@ -50,11 +49,11 @@ public abstract class CloudgeneStep {
 		return name;
 	}
 
-	public AbstractJob getJob() {
+	public CloudgeneJob getJob() {
 		return job;
 	}
 
-	public void setJob(AbstractJob job) {
+	public void setJob(CloudgeneJob job) {
 		this.job = job;
 	}
 
@@ -64,10 +63,6 @@ public abstract class CloudgeneStep {
 
 	public boolean run(WdlStep step, CloudgeneContext context) {
 		return true;
-	}
-
-	public int getProgress() {
-		return -1;
 	}
 
 	public void updateProgress() {
@@ -91,25 +86,35 @@ public abstract class CloudgeneStep {
 		return null;
 	}
 
-	protected boolean executeCommand(List<String> command, WorkflowContext context)
+	protected boolean executeCommand(List<String> command, CloudgeneContext context)
 			throws IOException, InterruptedException {
 		return executeCommand(command, context, null);
 	}
 
-	protected boolean executeCommand(List<String> command, WorkflowContext context, StringBuilder output)
+	protected boolean executeCommand(List<String> command, CloudgeneContext context, StringBuilder output)
 			throws IOException, InterruptedException {
+		File workDir = new File(context.getWorkingDirectory());
+		return executeCommand(command, context, output, workDir);
+	}
+
+	protected boolean executeCommand(List<String> command, CloudgeneContext context, StringBuilder output, File workDir)
+			throws IOException, InterruptedException {
+
+		Environment environment = context.getSettings().buildEnvironment().addContext(context)
+				.addApplication(job.getApp());
+
 		// set global variables
 		for (int j = 0; j < command.size(); j++) {
-
-			String cmd = command.get(j).replaceAll("\\$job_id", context.getJobId());
+			String cmd = environment.resolve(command.get(j));
 			command.set(j, cmd);
 		}
 
 		context.log("Command: " + command);
-		context.log("Working Directory: " + new File(context.getWorkingDirectory()).getAbsolutePath());
+		context.log("Working Directory: " + workDir.getAbsolutePath());
 
 		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(new File(context.getWorkingDirectory()));
+		builder.environment().putAll(environment.toMap());
+		builder.directory(workDir);
 		builder.redirectErrorStream(true);
 		builder.redirectOutput();
 		process = builder.start();
@@ -126,7 +131,7 @@ public abstract class CloudgeneStep {
 				}
 			}
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 
 		br.close();

@@ -1,6 +1,7 @@
 package cloudgene.mapred.jobs;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,18 +12,28 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import cloudgene.mapred.apps.Application;
+import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.queue.PriorityRunnable;
-import cloudgene.mapred.steps.ErrorStep;
+import cloudgene.mapred.jobs.workspace.IWorkspace;
+import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.Settings;
+import cloudgene.mapred.wdl.WdlParameterInputType;
 import genepi.io.FileUtil;
 
 abstract public class AbstractJob extends PriorityRunnable {
+
+	public static final String JOB_LOG = "job.txt";
+
+	public static final String JOB_OUT = "std.out";
 
 	private static final Logger log = LoggerFactory.getLogger(AbstractJob.class);
 
@@ -62,13 +73,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private long endTime = 0;
 
-	private long setupStartTime = 0;
-
-	private long setupEndTime = 0;
-
 	private long submittedOn = 0;
-
-	private long finishedOn = 0;
 
 	private String name;
 
@@ -84,19 +89,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private String error = "";
 
-	private int progress = -1;
-
-	private boolean setupComplete = false;
-
-	private boolean setupRunning = false;
-
-	private boolean complete = true;
-
 	private int positionInQueue = -1;
 
 	protected List<CloudgeneParameterInput> inputParams = new Vector<CloudgeneParameterInput>();
 
 	protected List<CloudgeneParameterOutput> outputParams = new Vector<CloudgeneParameterOutput>();
+
+	protected CloudgeneParameterOutput logOutput = null;
 
 	protected List<CloudgeneStep> steps = new Vector<CloudgeneStep>();
 
@@ -108,19 +107,15 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	private Settings settings;
 
-	private String logs;
-
-	private boolean removeHdfsWorkspace;
-
 	private String localWorkspace;
-
-	private String hdfsWorkspace;
 
 	private boolean canceld = false;
 
-	private boolean forceInstallation = false;
+	protected IWorkspace workspace;
 
 	private String workspaceSize = null;
+
+	private String publicJobId;
 
 	public String getId() {
 		return id;
@@ -128,6 +123,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void setId(String id) {
 		this.id = id;
+		this.publicJobId = HashUtil.getSha256(id + RandomStringUtils.random(500));
 	}
 
 	public int getState() {
@@ -154,36 +150,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.endTime = endTime;
 	}
 
-	public void setSetupStartTime(long setupStartTime) {
-		this.setupStartTime = setupStartTime;
-	}
-
-	public long getSetupStartTime() {
-		return setupStartTime;
-	}
-
-	public void setSetupEndTime(long setupEndTime) {
-		this.setupEndTime = setupEndTime;
-	}
-
-	public long getSetupEndTime() {
-		return setupEndTime;
-	}
-
 	public void setSubmittedOn(long submitedOn) {
 		this.submittedOn = submitedOn;
 	}
 
 	public long getSubmittedOn() {
 		return submittedOn;
-	}
-
-	public void setFinishedOn(long finishedOn) {
-		this.finishedOn = finishedOn;
-	}
-
-	public long getFinishedOn() {
-		return finishedOn;
 	}
 
 	public String getName() {
@@ -210,14 +182,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.error = error;
 	}
 
-	public void setProgress(int progress) {
-		this.progress = progress;
-	}
-
-	public int getProgress() {
-		return progress;
-	}
-
 	public void setDeletedOn(long deletedOn) {
 		this.deletedOn = deletedOn;
 	}
@@ -229,7 +193,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
 	}
-	
+
 	public String getUserAgent() {
 		return userAgent;
 	}
@@ -248,6 +212,10 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	public void setOutputParams(List<CloudgeneParameterOutput> outputParams) {
 		this.outputParams = outputParams;
+	}
+
+	public CloudgeneParameterOutput getLogOutput() {
+		return logOutput;
 	}
 
 	public void setPositionInQueue(int positionInQueue) {
@@ -277,164 +245,83 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 		} catch (Exception e1) {
 
-			// setEndTime(System.currentTimeMillis());
-
-			setState(AbstractJob.STATE_FAILED);
 			log.error("Job " + getId() + ": initialization failed.", e1);
 			writeLog("Initialization failed: " + e1.getLocalizedMessage());
-			setSetupComplete(false);
-			state = AbstractJob.STATE_FAILED;
+			setState(STATE_FAILED);
 			return false;
 
 		}
 	}
 
-	public void runSetupSteps() {
+	public boolean runInstallationAndResolveAppLinks() {
 
-		log.info("Job " + getId() + ": executing installation...");
-		writeLog("Executing Job installation....");
+		Settings settings = getSettings();
+		ApplicationRepository repository = settings.getApplicationRepository();
 
-		// execute installation
-
-		boolean result = executeInstallation(forceInstallation);
-
-		if (result == false || state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
-			ErrorStep errorStep = new ErrorStep(getError() != null ? getError() : "Error");
-			errorStep.setJob(this);
-			errorStep.setName("Job Setup failed: " + getError());
-			getSteps().add(errorStep);
-			setState(AbstractJob.STATE_FAILED);
-			onFailure();
-			setSetupComplete(false);
-			return;
-		}
-
-		// execute setup steps
-
-		try {
-
-			log.info("Job " + getId() + ": executing setups...");
-			writeLog("Executing Job setups....");
-
-			boolean succesfull = executeSetupSteps();
-
-			if (succesfull && hasSteps()) {
-				// all okey
-
-				log.info("Job " + getId() + ":  executed successful. job has steps.");
-				setSetupComplete(true);
-				return;
-
-			} else if (succesfull && !hasSteps()) {
-				// all okey and no more steps
-
-				log.info("Job " + getId() + ":  executed successful. job has no more steps.");
-
-				writeLog("Job execution successful.");
-				writeLog("Exporting Data...");
-
-				setState(AbstractJob.STATE_EXPORTING);
-
-				try {
-
-					boolean successfulAfter = after();
-
-					if (successfulAfter) {
-
-						setState(AbstractJob.STATE_SUCCESS);
-						setSetupComplete(true);
-						log.info("Job " + getId() + ": data export successful.");
-						writeLog("Data export successful.");
-
-					} else {
-
-						setSetupComplete(false);
-						setState(AbstractJob.STATE_FAILED);
-						log.error("Job " + getId() + ": data export failed.");
-						writeLog("Data export failed.");
-
-					}
-
-				} catch (Error | Exception e) {
-
-					Writer writer = new StringWriter();
-					PrintWriter printWriter = new PrintWriter(writer);
-					e.printStackTrace(printWriter);
-					String s = writer.toString();
-
-					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": data export failed.", e);
-					writeLog("Data export failed: " + e.getLocalizedMessage() + "\n" + s);
-
-					setSetupComplete(false);
-
-				}
-
-				writeLog("Cleaning up...");
-				cleanUp();
-				log.info("Job " + getId() + ": cleanup successful.");
-				writeLog("Cleanup successful.");
-
-				closeStdOutFiles();
-
-			} else if (!succesfull) {
-
-				setState(AbstractJob.STATE_FAILED);
-				log.error("Job " + getId() + ": execution failed. " + getError());
-				writeLog("Job execution failed: " + getError());
-				writeLog("Cleaning up...");
-				onFailure();
-				log.info("Job " + getId() + ": cleanup successful.");
-				writeLog("Cleanup successful.");
-
-				if (canceld) {
-					setState(AbstractJob.STATE_CANCELED);
-				}
-				setSetupComplete(false);
-
-				closeStdOutFiles();
-
+		// resolve application links
+		for (CloudgeneParameterInput input : getInputParams()) {
+			if (input.getType() != WdlParameterInputType.APP_LIST) {
+				continue;
+			}
+			String value = input.getValue();
+			String linkedAppId = value;
+			if (value.startsWith("apps@")) {
+				linkedAppId = value.replaceAll("apps@", "");
 			}
 
-		} catch (Exception | Error e) {
+			if (value.isEmpty()) {
+				continue;
+			}
+			Application linkedApp = repository.getByIdAndUser(linkedAppId, getUser());
+			if (linkedApp == null) {
+				String error = "Application " + linkedAppId + " is not installed or wrong permissions.";
+				log.info(error);
+				writeOutput(error);
+				setError(error);
+				return false;
+			}
+			// update environment variables
+			Environment environment = settings.buildEnvironment().addApplication(linkedApp.getWdlApp())
+					.addContext(context);
+			Map<String, Object> properties = linkedApp.getWdlApp().getProperties();
+			for (String property : properties.keySet()) {
+				Object propertyValue = properties.get(property);
+				if (propertyValue instanceof String) {
+					propertyValue = environment.resolve(propertyValue.toString());
+				}
+				properties.put(property, propertyValue);
+			}
 
-			setState(AbstractJob.STATE_FAILED);
-			log.error("Job " + getId() + ": initialization failed.", e);
-
-			Writer writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			e.printStackTrace(printWriter);
-			String s = writer.toString();
-
-			writeLog("Initialization failed: " + e.getLocalizedMessage() + "\n" + s);
-
-			writeLog("Cleaning up...");
-			onFailure();
-			log.info("Job " + getId() + ": cleanup successful.");
-			writeLog("Cleanup successful.");
-			setSetupComplete(false);
-
-			closeStdOutFiles();
-
-			setSetupRunning(false);
+			getContext().setData(input.getName(), properties);
 
 		}
+
+		return true;
+
 	}
 
 	@Override
 	public void run() {
 
-		if (state == AbstractJob.STATE_CANCELED || state == AbstractJob.STATE_FAILED) {
-			onFailure();
-			setError("Job Execution failed.");
+		if (canceld) {
 			return;
 		}
 
-		log.info("Job " + getId() + ": running.");
+		log.info("[Job {}] Setup job...", getId());
+		setState(AbstractJob.STATE_RUNNING);
+		setStartTime(System.currentTimeMillis());
+
+		if (!runInstallationAndResolveAppLinks()) {
+			log.info("[Job {}] Setup failed.", getId());
+			setEndTime(System.currentTimeMillis());
+			setState(AbstractJob.STATE_FAILED);
+			return;
+		}
+
+		log.info("[Job {}] Running job...", getId());
 		setStartTime(System.currentTimeMillis());
 
 		try {
-			setState(AbstractJob.STATE_RUNNING);
 			writeLog("Details:");
 			writeLog("  Name: " + getName());
 			writeLog("  Job-Id: " + getId());
@@ -453,98 +340,75 @@ abstract public class AbstractJob extends PriorityRunnable {
 				writeLog("    " + parameter.getDescription() + ": " + context.get(parameter.getName()));
 			}
 
-			writeLog("Preparing Job....");
-			boolean successfulBefore = before();
+			writeLog("Executing Job....");
 
-			if (!successfulBefore) {
+			boolean succesfull = execute();
 
-				setState(AbstractJob.STATE_FAILED);
-				log.error("Job " + getId() + ": job preparation failed.");
-				writeLog("Job Preparation failed.");
+			if (succesfull) {
 
-			} else {
+				log.info("[Job {}] Execution successful.", getId());
 
-				log.info("Job " + getId() + ": executing.");
-				writeLog("Executing Job....");
+				writeLog("Job Execution successful.");
+				writeLog("Exporting Data...");
 
-				boolean succesfull = execute();
+				setState(AbstractJob.STATE_EXPORTING);
 
-				if (succesfull) {
+				try {
 
-					log.info("Job " + getId() + ":  executed successful.");
+					boolean successfulAfter = after();
 
-					writeLog("Job Execution successful.");
-					writeLog("Exporting Data...");
+					if (successfulAfter) {
 
-					setState(AbstractJob.STATE_EXPORTING);
+						setState(AbstractJob.STATE_SUCCESS);
+						log.info("[Job {}]  data export successful.", getId());
+						writeLog("Data Export successful.");
 
-					try {
-
-						boolean successfulAfter = after();
-
-						if (successfulAfter) {
-
-							setState(AbstractJob.STATE_SUCCESS);
-							log.info("Job " + getId() + ": data export successful.");
-							writeLog("Data Export successful.");
-
-						} else {
-
-							setState(AbstractJob.STATE_FAILED);
-							log.error("Job " + getId() + ": data export failed.");
-							writeLog("Data Export failed.");
-
-						}
-
-					} catch (Error | Exception e) {
-
-						Writer writer = new StringWriter();
-						PrintWriter printWriter = new PrintWriter(writer);
-						e.printStackTrace(printWriter);
-						String s = writer.toString();
+					} else {
 
 						setState(AbstractJob.STATE_FAILED);
-						log.error("Job " + getId() + ": data export failed.", e);
-						writeLog("Data Export failed: " + e.getLocalizedMessage() + "\n" + s);
+						log.error("[Job {}]  data export failed.", getId());
+						writeLog("Data Export failed.");
 
 					}
 
-				} else {
+				} catch (Error | Exception e) {
+
+					Writer writer = new StringWriter();
+					PrintWriter printWriter = new PrintWriter(writer);
+					e.printStackTrace(printWriter);
+					String s = writer.toString();
 
 					setState(AbstractJob.STATE_FAILED);
-					log.error("Job " + getId() + ": execution failed. " + getError());
-					writeLog("Job Execution failed: " + getError());
+					log.error("[Job {}]  data export failed.", getId(), e);
+					writeLog("Data Export failed: " + e.getLocalizedMessage() + "\n" + s);
 
 				}
-			}
-
-			if (getState() == AbstractJob.STATE_FAILED || getState() == AbstractJob.STATE_CANCELED) {
-
-				writeLog("Cleaning up...");
-				onFailure();
-				log.info("Job " + getId() + ": cleanup successful.");
-				writeLog("Cleanup successful.");
 
 			} else {
-				writeLog("Cleaning up...");
-				cleanUp();
-				log.info("Job " + getId() + ": cleanup successful.");
-				writeLog("Cleanup successful.");
+
+				setState(AbstractJob.STATE_FAILED);
+				log.error("[Job {}] Execution failed. {}", getId(), getError());
+				writeLog("Job Execution failed: " + getError());
 
 			}
+
+			writeLog("Cleaning up...");
+			if (getState() == AbstractJob.STATE_FAILED || getState() == AbstractJob.STATE_CANCELED) {
+				onFailure();
+			} else {
+				cleanUp();
+			}
+			log.info("[Job {}]cleanup successful.", getId());
+			writeLog("Cleanup successful.");
 
 			if (canceld) {
 				setState(AbstractJob.STATE_CANCELED);
 			}
 
-			closeStdOutFiles();
-
-			setEndTime(System.currentTimeMillis());
-
 		} catch (Exception | Error e) {
 
 			setState(AbstractJob.STATE_FAILED);
-			log.error("Job " + getId() + ": initialization failed.", e);
+			log.error("[Job {}]: initialization failed.", getId(), e);
 
 			Writer writer = new StringWriter();
 			PrintWriter printWriter = new PrintWriter(writer);
@@ -555,39 +419,29 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			writeLog("Cleaning up...");
 			onFailure();
-			log.info("Job " + getId() + ": cleanup successful.");
+			log.info("[Job {}]: cleanup successful.", getId());
 			writeLog("Cleanup successful.");
 
-			closeStdOutFiles();
-
-			setEndTime(System.currentTimeMillis());
-
 		}
+
+		closeStdOutFiles();
+		setEndTime(System.currentTimeMillis());
 	}
 
 	public void cancel() {
 
 		writeLog("Canceled by user.");
-		log.info("Job " + getId() + ": canceld by user.");
+		log.info("[Job {}]: canceld by user.", getId());
 
-		/*
-		 * if (state == STATE_RUNNING) { closeStdOutFiles(); }
-		 */
 		canceld = true;
+		setEndTime(System.currentTimeMillis());
 		setState(AbstractJob.STATE_CANCELED);
 
 	}
 
 	private void initStdOutFiles() throws FileNotFoundException {
-
-		// if (stdOutStream == null) {
-		stdOutStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "std.out")));
-
-		// }
-		// if (logStream == null) {
-		logStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, "job.txt")));
-		// }
-
+		stdOutStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, JOB_OUT)));
+		logStream = new BufferedOutputStream(new FileOutputStream(FileUtil.path(localWorkspace, JOB_LOG)));
 	}
 
 	private void closeStdOutFiles() {
@@ -597,8 +451,15 @@ abstract public class AbstractJob extends PriorityRunnable {
 			stdOutStream.close();
 			logStream.close();
 
-		} catch (IOException e) {
+			// stage files to workspace
+			workspace.uploadLog(new File(FileUtil.path(localWorkspace, JOB_OUT)));
+			workspace.uploadLog(new File(FileUtil.path(localWorkspace, JOB_LOG)));
 
+			FileUtil.deleteFile(FileUtil.path(localWorkspace, JOB_OUT));
+			FileUtil.deleteFile(FileUtil.path(localWorkspace, JOB_LOG));
+
+		} catch (IOException e) {
+			log.error("[Job {}]: Staging log files failed.", getId(), e);
 		}
 
 	}
@@ -612,25 +473,13 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 			}
 		} catch (IOException e) {
-
+			log.error("[Job {}]: Write output failed.", getId(), e);
 		}
 
 	}
 
 	public void writeOutputln(String line) {
-
-		try {
-			if (stdOutStream == null) {
-				initStdOutFiles();
-			}
-
-			stdOutStream.write(line.getBytes("UTF-8"));
-			stdOutStream.write("\n".getBytes("UTF-8"));
-			stdOutStream.flush();
-
-		} catch (IOException e) {
-		}
-
+		writeOutput(line + "\n");
 	}
 
 	public void writeLog(String line) {
@@ -646,6 +495,7 @@ abstract public class AbstractJob extends PriorityRunnable {
 			logStream.flush();
 
 		} catch (IOException e) {
+			log.error("[Job {}]: Write output failed.", getId(), e);
 		}
 
 	}
@@ -658,36 +508,8 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.steps = steps;
 	}
 
-	public void setSetupComplete(boolean setupComplete) {
-		this.setupComplete = setupComplete;
-	}
-
-	public boolean isSetupComplete() {
-		return setupComplete;
-	}
-
-	public void setSetupRunning(boolean setupRunning) {
-		this.setupRunning = setupRunning;
-	}
-
-	public boolean isSetupRunning() {
-		return setupRunning;
-	}
-
-	public boolean hasSteps() {
-		return true;
-	}
-
 	public CloudgeneContext getContext() {
 		return context;
-	}
-
-	public void setLogs(String logs) {
-		this.logs = logs;
-	}
-
-	public String getLogs() {
-		return logs;
 	}
 
 	@Override
@@ -709,14 +531,6 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.settings = settings;
 	}
 
-	public boolean isRemoveHdfsWorkspace() {
-		return removeHdfsWorkspace;
-	}
-
-	public void setRemoveHdfsWorkspace(boolean removeHdfsWorkspace) {
-		this.removeHdfsWorkspace = removeHdfsWorkspace;
-	}
-
 	public String getLocalWorkspace() {
 		return localWorkspace;
 	}
@@ -725,12 +539,12 @@ abstract public class AbstractJob extends PriorityRunnable {
 		this.localWorkspace = localWorkspace;
 	}
 
-	public String getHdfsWorkspace() {
-		return hdfsWorkspace;
+	public void setWorkspace(IWorkspace workspace) {
+		this.workspace = workspace;
 	}
 
-	public void setHdfsWorkspace(String hdfsWorkspace) {
-		this.hdfsWorkspace = hdfsWorkspace;
+	public IWorkspace getWorkspace() {
+		return workspace;
 	}
 
 	public void setApplication(String application) {
@@ -749,31 +563,27 @@ abstract public class AbstractJob extends PriorityRunnable {
 		return applicationId;
 	}
 
-	public void setComplete(boolean complete) {
-		this.complete = complete;
-	}
-
-	public boolean isComplete() {
-		return this.complete;
-	}
-
-	public boolean isCanceld() {
-		return canceld;
-	}
-
 	public boolean isRunning() {
-		return !complete;
+		return state == STATE_EXPORTING || state == STATE_RUNNING || state == STATE_WAITING;
+	}
+
+	public Download findDownloadByHash(String hash) {
+		for (CloudgeneParameterOutput param : getOutputParams()) {
+			if (param.getFiles() == null) {
+				continue;
+			}
+			for (Download download : param.getFiles()) {
+				if (download.getHash().equals(hash)) {
+					return download;
+				}
+			}
+		}
+		return null;
 	}
 
 	abstract public boolean execute();
 
-	abstract public boolean executeSetupSteps();
-
-	abstract public boolean executeInstallation(boolean forceInstallation);
-
 	abstract public boolean setup();
-
-	abstract public boolean before();
 
 	abstract public boolean after();
 
@@ -781,28 +591,17 @@ abstract public class AbstractJob extends PriorityRunnable {
 
 	abstract public boolean cleanUp();
 
-	public void onStepFinished(CloudgeneStep step) {
-
-	}
-
-	public void onStepStarted(CloudgeneStep step) {
-
-	}
-
 	public void kill() {
 
 	}
 
-	public void forceInstallation(boolean forceInstallation) {
-		this.forceInstallation = forceInstallation;
+	public String getPublicJobId() {
+		return publicJobId;
 	}
 
-	public long getCurrentTime() {
-		return System.currentTimeMillis();
-	}
-
-	public void setCurrentTime(long time) {
-
+	public String getLog(String name) {
+		String logFilename = FileUtil.path(settings.getLocalWorkspace(), getId(), name);
+		return FileUtil.readFileAsString(logFilename);
 	}
 
 }

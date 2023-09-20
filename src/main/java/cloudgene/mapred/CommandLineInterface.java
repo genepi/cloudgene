@@ -5,12 +5,10 @@ import cloudgene.mapred.cli.InstallApplication;
 import cloudgene.mapred.cli.InstallGitHubApplication;
 import cloudgene.mapred.cli.ListApplications;
 import cloudgene.mapred.cli.RemoveApplication;
-import cloudgene.mapred.cli.RunApplication;
 import cloudgene.mapred.cli.ShowPlugins;
 import cloudgene.mapred.cli.ShowVersion;
 import cloudgene.mapred.cli.StartServer;
 import cloudgene.mapred.cli.ValidateApplication;
-import cloudgene.mapred.cli.VerifyCluster;
 import cloudgene.mapred.server.Application;
 import cloudgene.mapred.util.BuildUtil;
 import genepi.base.Toolbox;
@@ -33,7 +31,6 @@ public class CommandLineInterface extends Toolbox {
 
 	public static void main(String[] args) throws Exception {
 		CommandLineInterface toolbox = new CommandLineInterface("cloudgene", args);
-		toolbox.addTool("run", RunApplication.class);
 		toolbox.addTool("install", InstallApplication.class);
 		toolbox.addTool("gh", InstallGitHubApplication.class);
 		toolbox.addTool("github-install", InstallGitHubApplication.class);
@@ -42,7 +39,6 @@ public class CommandLineInterface extends Toolbox {
 		toolbox.addTool("remove", RemoveApplication.class);
 		toolbox.addTool("server", StartServer.class);
 		toolbox.addTool("validate", ValidateApplication.class);
-		toolbox.addTool("verify-cluster", VerifyCluster.class);
 		toolbox.addTool("plugins", ShowPlugins.class);
 		toolbox.addTool("version", ShowVersion.class);
 		toolbox.start();

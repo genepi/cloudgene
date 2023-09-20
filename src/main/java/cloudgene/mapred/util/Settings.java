@@ -19,28 +19,19 @@ import com.esotericsoftware.yamlbeans.YamlWriter;
 
 import cloudgene.mapred.apps.Application;
 import cloudgene.mapred.apps.ApplicationRepository;
-import genepi.hadoop.HadoopCluster;
+import cloudgene.mapred.jobs.Environment;
+import cloudgene.mapred.jobs.workspace.LocalWorkspace;
 import genepi.io.FileUtil;
 
 public class Settings {
 
+	private static final Logger log = LoggerFactory.getLogger(Settings.class);
+
 	private String serverUrl = "http://localhost:8082";
-
-	private String hadoopPath = "/usr/";
-
-	private String pigPath = "/usr/";
-
-	private String sparkPath = "/usr/bin/spark-submit";
 
 	private String tempPath = "tmp";
 
 	private String localWorkspace = "workspace";
-
-	private String hdfsWorkspace = "cloudgene/data";
-
-	private String hdfsAppWorkspace = "cloudgene/apps";
-
-	private String streamingJar = "";
 
 	private String version;
 
@@ -53,8 +44,6 @@ public class Settings {
 	private Map<String, String> mail;
 
 	private Map<String, String> database;
-
-	private Map<String, String> cluster;
 
 	private Map<String, Map<String, String>> plugins;
 
@@ -74,33 +63,23 @@ public class Settings {
 
 	private boolean streaming = true;
 
-	private boolean removeHdfsWorkspace = true;
-
-	private static final Logger log = LoggerFactory.getLogger(Settings.class);
-
 	private boolean writeStatistics = true;
 
 	private boolean https = false;
-
-	private String httpsKeystore = "";
-
-	private String httpsPassword = "";
 
 	private boolean maintenance = false;
 
 	private String adminMail = null;
 
-	private String slack = null;
+	private String adminName = null;
 
 	private String urlPrefix = "";
 
 	private List<MenuItem> navigation = new Vector<MenuItem>();
 
-	private boolean secureCookie = false;
-
 	private Map<String, String> externalWorkspace = null;
 
-	private int uploadLimit = 500;
+	private int uploadLimit = 5000;
 
 	private String googleAnalytics = "";
 
@@ -110,6 +89,8 @@ public class Settings {
 
 	private String port = "8082";
 
+	private String nextflowConfig = FileUtil.path("config", "nextflow.config");
+
 	public static final String DEFAULT_SECURITY_KEY = "default-key-change-me-immediately";
 
 	// fake!
@@ -117,7 +98,7 @@ public class Settings {
 
 	private ApplicationRepository repository;
 
-	public Settings() {
+	private Settings() {
 
 		repository = new ApplicationRepository();
 
@@ -197,20 +178,6 @@ public class Settings {
 			log.info("Retire jobs after " + settings.retireAfter + " days.");
 			log.info("Notify user after " + settings.notificationAfter + " days.");
 			log.info("Write statistics: " + settings.writeStatistics);
-
-			if (settings.cluster != null) {
-				String conf = settings.cluster.get("conf");
-				String username = settings.cluster.get("user");
-				String name = settings.cluster.get("name");
-				if (conf != null) {
-					log.info("Use Haddop configuration folder '" + conf + "'"
-							+ (username != null ? " with username " + username : ""));
-					try {
-						HadoopCluster.setConfPath(name, conf, username);
-					} catch (NoClassDefFoundError e) {
-					}
-				}
-			}
 
 			settings.config = config;
 
@@ -308,22 +275,6 @@ public class Settings {
 
 	}
 
-	public String getHadoopPath() {
-		return hadoopPath;
-	}
-
-	public void setHadoopPath(String hadoopPath) {
-		this.hadoopPath = hadoopPath;
-	}
-
-	public void setPigPath(String pigPath) {
-		this.pigPath = pigPath;
-	}
-
-	public String getPigPath() {
-		return pigPath;
-	}
-
 	public String getTempPath() {
 		return tempPath;
 	}
@@ -340,69 +291,12 @@ public class Settings {
 		this.localWorkspace = localWorkspace;
 	}
 
-	public String getHdfsWorkspace() {
-		return hdfsWorkspace;
-	}
-
-	public void setHdfsWorkspace(String hdfsWorkspace) {
-		this.hdfsWorkspace = hdfsWorkspace;
-	}
-
-	public String getHdfsAppWorkspace() {
-		return hdfsAppWorkspace;
-	}
-
-	public void setHdfsAppWorkspace(String hdfsAppWorkspace) {
-		this.hdfsAppWorkspace = hdfsAppWorkspace;
-	}
-
-	public String getStreamingJar() {
-		return streamingJar;
-	}
-
-	public void setStreamingJar(String streamingJar) {
-		this.streamingJar = streamingJar;
-	}
-
 	public boolean isStreaming() {
 		return streaming;
 	}
 
 	public void setStreaming(boolean streaming) {
 		this.streaming = streaming;
-	}
-
-	public boolean isRemoveHdfsWorkspace() {
-		return removeHdfsWorkspace;
-	}
-
-	public void setRemoveHdfsWorkspace(boolean removeHdfsWorkspace) {
-		this.removeHdfsWorkspace = removeHdfsWorkspace;
-	}
-
-	public boolean testPaths() {
-
-		String hadoop = FileUtil.path(hadoopPath, "bin", "hadoop");
-
-		if (!new File(hadoop).exists()) {
-
-			log.warn("hadoop '" + hadoop + "' does not exist. please change it.");
-
-			// return false;
-
-		}
-		/*
-		 * if (!new File(streamingJar).exists()) {
-		 * 
-		 * log.error("streamingJar '" + streamingJar + "' does not exist.");
-		 * 
-		 * return false;
-		 * 
-		 * }
-		 */
-
-		return true;
-
 	}
 
 	public String getVersion() {
@@ -419,22 +313,6 @@ public class Settings {
 
 	public void setMail(Map<String, String> mail) {
 		this.mail = mail;
-	}
-
-	public Map<String, String> getCluster() {
-		return cluster;
-	}
-
-	public void setCluster(Map<String, String> cluster) {
-		this.cluster = cluster;
-	}
-
-	public String getSlack() {
-		return slack;
-	}
-
-	public void setSlack(String slack) {
-		this.slack = slack;
 	}
 
 	public void setName(String name) {
@@ -499,22 +377,6 @@ public class Settings {
 		return https;
 	}
 
-	public void setHttpsKeystore(String httpsKeystore) {
-		this.httpsKeystore = httpsKeystore;
-	}
-
-	public String getHttpsKeystore() {
-		return httpsKeystore;
-	}
-
-	public void setHttpsPassword(String httpsPassword) {
-		this.httpsPassword = httpsPassword;
-	}
-
-	public String getHttpsPassword() {
-		return httpsPassword;
-	}
-
 	public void setMaintenance(boolean maintenance) {
 		this.maintenance = maintenance;
 	}
@@ -531,12 +393,12 @@ public class Settings {
 		return adminMail;
 	}
 
-	public String getSparkPath() {
-		return sparkPath;
+	public void setAdminName(String adminName) {
+		this.adminName = adminName;
 	}
 
-	public void setSparkPath(String sparkPath) {
-		this.sparkPath = sparkPath;
+	public String getAdminName() {
+		return adminName;
 	}
 
 	public void setThreadsQueue(int threadsQueue) {
@@ -585,14 +447,6 @@ public class Settings {
 
 	public List<MenuItem> getNavigation() {
 		return navigation;
-	}
-
-	public boolean isSecureCookie() {
-		return secureCookie;
-	}
-
-	public void setSecureCookie(boolean secureCookie) {
-		this.secureCookie = secureCookie;
 	}
 
 	public int getUploadLimit() {
@@ -685,7 +539,9 @@ public class Settings {
 
 	public String getExternalWorkspaceLocation() {
 		if (externalWorkspace == null) {
-			return "";
+			externalWorkspace = new HashMap<>();
+			externalWorkspace.put("type", "local");
+			externalWorkspace.put("location", getLocalWorkspace());
 		}
 
 		if (externalWorkspace.get("location") == null) {
@@ -698,7 +554,9 @@ public class Settings {
 
 	public String getExternalWorkspaceType() {
 		if (externalWorkspace == null) {
-			return "";
+			externalWorkspace = new HashMap<>();
+			externalWorkspace.put("type", "local");
+			externalWorkspace.put("location", getLocalWorkspace());
 		}
 
 		if (externalWorkspace.get("type") == null) {
@@ -715,6 +573,18 @@ public class Settings {
 
 	public String getServerUrl() {
 		return serverUrl;
+	}
+
+	public void setNextflowConfig(String nextflowConfig) {
+		this.nextflowConfig = nextflowConfig;
+	}
+
+	public String getNextflowConfig() {
+		return nextflowConfig;
+	}
+
+	public Environment buildEnvironment() {
+		return new Environment(this);
 	}
 
 }

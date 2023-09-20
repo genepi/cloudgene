@@ -15,15 +15,18 @@ import UserListControl from 'components/admin/user/list/';
 import JobListControl from 'components/admin/job/list/';
 import JobDetailControl from 'components/core/job/detail/';
 import AppListControl from 'components/admin/app/list/';
+import AppSettingsControl from 'components/admin/app/settings/';
+
 import AppRepositoryControl from 'components/admin/app/repository/';
 import SettingsGeneralControl from 'components/admin/settings/general/';
+import SettingsNextflowControl from 'components/admin/settings/nextflow/';
 import SettingsServerControl from 'components/admin/settings/server/';
 import SettingsMailControl from 'components/admin/settings/mail/';
 import SettingsTemplatesControl from 'components/admin/settings/templates/';
 import SettingsLogsControl from 'components/admin/settings/logs/';
 
 
-$(document.links).filter(function() {
+$(document.links).filter(function () {
   return this.hostname != window.location.hostname;
 }).attr('target', '_blank');
 
@@ -65,6 +68,10 @@ var routes = [{
   control: AppListControl,
   guard: adminGuard
 }, {
+  path: 'pages/admin-apps/{app}',
+  control: AppSettingsControl,
+  guard: adminGuard
+}, {
   path: 'pages/admin-apps-repository',
   control: AppRepositoryControl,
   guard: adminGuard
@@ -75,6 +82,10 @@ var routes = [{
 }, {
   path: 'pages/admin-settings-general',
   control: SettingsGeneralControl,
+  guard: adminGuard
+}, {
+  path: 'pages/admin-settings-nextflow',
+  control: SettingsNextflowControl,
   guard: adminGuard
 }, {
   path: 'pages/admin-settings-mail',
@@ -106,9 +117,9 @@ function adminGuard(appState) {
   }
 }
 
-$.ajaxPrefilter(function(options, orig, xhr) {
+$.ajaxPrefilter(function (options, orig, xhr) {
   if (!options.beforeSend) {
-    options.beforeSend = function(xhr) {
+    options.beforeSend = function (xhr) {
       if (localStorage.getItem("cloudgene")) {
         try {
           // get data
@@ -133,7 +144,7 @@ $.ajaxPrefilter(function(options, orig, xhr) {
 });
 
 
-Server.findOne({}, function(server) {
+Server.findOne({}, function (server) {
 
   new LayoutControl("#main", {
     appState: server

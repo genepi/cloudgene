@@ -45,8 +45,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<packaging>jar</packaging>
-		<jdk.version>1.8</jdk.version>
-		<release.version>8</release.version>
+		<jdk.version>11</jdk.version>
+		<release.version>11</release.version>
+		<java.version>11</java.version>
 		<micronaut.version>3.3.4</micronaut.version>
 		<exec.mainClass>cloudgene.mapred.server.Application</exec.mainClass>
 		<micronaut.runtime>netty</micronaut.runtime>
@@ -67,15 +68,9 @@
 	<repositories>
 
 		<repository>
-			<id>jfrog-genepi-maven</id>
-			<name>jfrog-genepi-maven</name>
-			<url>https://genepi.jfrog.io/artifactory/maven/</url>
-		</repository>
-
-		<repository>
-			<id>cloudera</id>
-			<name>Cloudera repository</name>
-			<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+			<id>genepi-maven</id>
+			<name>genepi-maven</name>
+			<url>https://genepi.i-med.ac.at/maven</url>
 		</repository>
 
 	</repositories>
@@ -83,12 +78,6 @@
 	<!-- **** Dependencies **** -->
 
 	<dependencies>
-
-		<dependency>
-			<groupId>cloudgene</groupId>
-			<artifactId>cloudgene-java-sdk</artifactId>
-			<version>1.0.2</version>
-		</dependency>
 
 		<dependency>
 			<groupId>genepi</groupId>
@@ -102,26 +91,6 @@
 				<exclusion>
 					<groupId>org.apache.logging.log4j</groupId>
 					<artifactId>log4j-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>genepi</groupId>
-			<artifactId>genepi-hadoop</artifactId>
-			<version>mr1-1.4.1</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.hadoop</groupId>
-					<artifactId>hadoop-client</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpcore</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpclient</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -215,62 +184,6 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-crypto</artifactId>
 			<version>5.8.3</version>
-		</dependency>
-
-		<!-- Test Dependencies -->
-
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-hdfs</artifactId>
-			<version>${hadoop.version}</version>
-			<scope>test</scope>
-			<type>test-jar</type>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-hdfs</artifactId>
-			<version>${hadoop.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
-			<version>${hadoop.version}</version>
-			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.httpcomponents</groupId>
-					<artifactId>httpcore</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-reload4j</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
-			<version>${hadoop.version}</version>
-			<scope>test</scope>
-			<type>test-jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>org.slf4j</groupId>
-					<artifactId>slf4j-reload4j</artifactId>
-				</exclusion>
-			</exclusions>			
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-test</artifactId>
-			<version>2.6.0-mr1-cdh5.16.1</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>

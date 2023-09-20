@@ -1,0 +1,32 @@
+<h2>Nextflow Global Configuration</h2>
+
+<p>To configure your Nextflow settings, you can access the configuration file and fine-tune it according to your specific needs. Additionally, Nextflow offers robust support for environment variables, allowing you to easily integrate Cloudgene variables into your configuration. This <code>nextflow.config</code> file applies to <b>all</b> applications.</p>
+
+<hr/>
+<form>
+<div style=" display: flex; 
+   justify-content: center;
+   align-items: center;
+   flex-direction: row;">
+
+<div style="    width: 75%; align-self: stretch;">
+  <textarea class="form-control" id="content" name="content" style="height: 550px; font-size: 14px; font-family: SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;">{{nextflowConfig.attr('content')}}</textarea>
+</div>
+
+<div style="flex:1">
+<ul>
+{{#nextflowConfig.variables}}
+<li><b><code>$&#123;{{{name}}&#125;</code></b><small><br>Value: {{value}}</small></li>
+{{/nextflowConfig.variables}}
+</ul>
+</div>
+</div>
+
+	<hr/>
+	<div class="form-group">
+		<button id="save" class="btn btn-primary" data-loading-text="please wait..."><i class="far fa-save"></i> Save changes</button>
+	</div>
+
+
+</form>
+

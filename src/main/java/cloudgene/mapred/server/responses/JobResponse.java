@@ -16,25 +16,18 @@ public class JobResponse {
 
 	private String application;
 	private String applicationId;
-	private boolean canceld;
-	private boolean complete;
 	private long deletedOn;
 	private long endTime;
-	private long finishedOn;
 	private String id;
 	private String name;
 	private String logs = "";
 	private int state;
 	private int positionInQueue;
 	private String userAgent;
-	private int progress;
 	private long startTime;
-	private long setupStartTime;
-	private long setupEndTime;
 	private long submittedOn;
-	private boolean setupComplete;
-	private boolean setupRunning;
 	private String username;
+	private long currentTime;
 
 	@JsonProperty("steps")
 	private List<StepResponse> stepResponses;
@@ -58,22 +51,6 @@ public class JobResponse {
 		this.applicationId = applicationId;
 	}
 
-	public boolean isCanceld() {
-		return canceld;
-	}
-
-	public void setCanceld(boolean canceld) {
-		this.canceld = canceld;
-	}
-
-	public boolean isComplete() {
-		return complete;
-	}
-
-	public void setComplete(boolean complete) {
-		this.complete = complete;
-	}
-
 	public long getDeletedOn() {
 		return deletedOn;
 	}
@@ -88,14 +65,6 @@ public class JobResponse {
 
 	public void setEndTime(long endTime) {
 		this.endTime = endTime;
-	}
-
-	public long getFinishedOn() {
-		return finishedOn;
-	}
-
-	public void setFinishedOn(long finishedOn) {
-		this.finishedOn = finishedOn;
 	}
 
 	public String getId() {
@@ -145,15 +114,7 @@ public class JobResponse {
 	public void setUserAgent(String userAgent) {
 		this.userAgent = userAgent;
 	}
-
-	public int getProgress() {
-		return progress;
-	}
-
-	public void setProgress(int progress) {
-		this.progress = progress;
-	}
-
+	
 	public long getStartTime() {
 		return startTime;
 	}
@@ -162,44 +123,12 @@ public class JobResponse {
 		this.startTime = startTime;
 	}
 
-	public long getSetupStartTime() {
-		return setupStartTime;
-	}
-
-	public void setSetupStartTime(long setupStartTime) {
-		this.setupStartTime = setupStartTime;
-	}
-
-	public long getSetupEndTime() {
-		return setupEndTime;
-	}
-
-	public void setSetupEndTime(long setupEndTime) {
-		this.setupEndTime = setupEndTime;
-	}
-
 	public long getSubmittedOn() {
 		return submittedOn;
 	}
 
 	public void setSubmittedOn(long submittedOn) {
 		this.submittedOn = submittedOn;
-	}
-
-	public boolean isSetupComplete() {
-		return setupComplete;
-	}
-
-	public void setSetupComplete(boolean setupComplete) {
-		this.setupComplete = setupComplete;
-	}
-
-	public boolean isSetupRunning() {
-		return setupRunning;
-	}
-
-	public void setSetupRunning(boolean setupRunning) {
-		this.setupRunning = setupRunning;
 	}
 
 	public List<ParameterOutputResponse> getParameterOutputResponse() {
@@ -224,6 +153,14 @@ public class JobResponse {
 
 	public void setLogs(String logs) {
 		this.logs = logs;
+	}
+	
+	public void setCurrentTime(long currentTime) {
+		this.currentTime = currentTime;
+	}
+	
+	public long getCurrentTime() {
+		return currentTime;
 	}
 
 	public static JobResponse build(AbstractJob job, User user) {
@@ -256,28 +193,19 @@ public class JobResponse {
 		JobResponse response = new JobResponse();
 		response.setApplication(job.getApplication());
 		response.setApplicationId(job.getApplicationId());
-		response.setCanceld(job.isCanceld());
-		response.setComplete(job.isComplete());
 		response.setName(job.getName());
 		response.setId(job.getId());
 
 		response.setState(job.getState());
-		response.setLogs(job.getLogs());
 
 		response.setPositionInQueue(job.getPositionInQueue());
-		response.setProgress(job.getProgress());
 		response.setUserAgent(job.getUserAgent());
 
-		response.setSetupComplete(job.isSetupComplete());
-		response.setSetupRunning(job.isRunning());
 		response.setDeletedOn(job.getDeletedOn());
 
 		response.setStartTime(job.getStartTime());
 		response.setEndTime(job.getEndTime());
-		response.setFinishedOn(job.getFinishedOn());
 		response.setSubmittedOn(job.getSubmittedOn());
-		response.setSetupStartTime(job.getSetupStartTime());
-		response.setSetupEndTime(job.getSetupEndTime());
 		List<StepResponse> responses = StepResponse.build(job.getSteps());
 		response.setStepResponses(responses);
 
@@ -292,7 +220,11 @@ public class JobResponse {
 			response.setLogs("");
 		}
 
-		response.setUsername(user.getUsername());
+		if (job.getUser() != null) {
+			response.setUsername(job.getUser().getUsername());
+		}
+		
+		response.setCurrentTime(System.currentTimeMillis());
 
 		return response;
 	}

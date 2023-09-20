@@ -29,16 +29,6 @@ public class CloudgeneParameterOutput {
 
 	private String jobId;
 
-	private boolean autoExport = false;
-
-	private boolean makeAbsolute = false;
-
-	private boolean zip = false;
-
-	private boolean mergeOutput = false;
-
-	private boolean removeHeader = true;
-
 	private boolean adminOnly = false;
 
 	private String hash = "";
@@ -52,11 +42,6 @@ public class CloudgeneParameterOutput {
 		setType(parameter.getTypeAsEnum());
 		setDownload(parameter.isDownload());
 		setDescription(parameter.getDescription());
-		setMakeAbsolute(parameter.isMakeAbsolute());
-		setAutoExport(parameter.isAutoExport());
-		setZip(parameter.isZip());
-		setMergeOutput(parameter.isMergeOutput());
-		setRemoveHeader(parameter.isRemoveHeader());
 		setAdminOnly(parameter.isAdminOnly());
 		files = new Vector<Download>();
 	}
@@ -131,46 +116,6 @@ public class CloudgeneParameterOutput {
 
 	public String getJobId() {
 		return jobId;
-	}
-
-	public boolean isMakeAbsolute() {
-		return makeAbsolute;
-	}
-
-	public void setMakeAbsolute(boolean absolute) {
-		this.makeAbsolute = absolute;
-	}
-
-	public void setAutoExport(boolean autoExport) {
-		this.autoExport = autoExport;
-	}
-
-	public boolean isAutoExport() {
-		return autoExport;
-	}
-
-	public void setZip(boolean zip) {
-		this.zip = zip;
-	}
-
-	public void setMergeOutput(boolean mergeOutput) {
-		this.mergeOutput = mergeOutput;
-	}
-
-	public void setRemoveHeader(boolean removeHeader) {
-		this.removeHeader = removeHeader;
-	}
-
-	public boolean isMergeOutput() {
-		return mergeOutput;
-	}
-
-	public boolean isRemoveHeader() {
-		return removeHeader;
-	}
-
-	public boolean isZip() {
-		return zip;
 	}
 
 	public void setAdminOnly(boolean adminOnly) {
