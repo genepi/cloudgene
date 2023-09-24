@@ -21,6 +21,12 @@ import net.sf.json.JsonConfig;
 
 public class JSONConverter {
 
+	public static final String MESSAGE_VALID_TOKEN = "API Token was created by %s and is valid until %s.";
+
+	public static final String MESSAGE_EXPIRED_TOKEN = "API Token was created by %s and expired on %s.";
+
+	public static final String MESSAGE_INVALID_TOKEN = "API Token was created with a previous version and is therefore invalid. Please recreate.";
+
 	public static JSONObject convert(AbstractJob job) {
 
 		JsonConfig config = new JsonConfig();
@@ -30,14 +36,14 @@ public class JSONConverter {
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
 				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId", "count",
 				"username" });
-		
-		//create tree
-		for (CloudgeneParameterOutput param: job.getOutputParams()) {
+
+		// create tree
+		for (CloudgeneParameterOutput param : job.getOutputParams()) {
 			String hash = param.createHash();
 			param.setHash(hash);
 			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
 		}
-		
+
 		return JSONObject.fromObject(job, config);
 	}
 
@@ -97,18 +103,16 @@ public class JSONConverter {
 		if (input.isFolder()) {
 			object.put("source", "upload");
 		}
-		
+
 		if (input.getEmptySelection() != null) {
 			object.put("emptySelection", input.getEmptySelection());
 		}
-
 
 		if (input.getTypeAsEnum() == WdlParameterInputType.LIST && input.hasDataBindung()) {
 			JSONArray array = new JSONArray();
 			String category = input.getValues().get("category");
 			String property = input.getValues().get("property");
 			String bind = input.getValues().get("bind");
-			System.out.println(property);
 			for (WdlApp app : apps) {
 				if (category != null && !category.isEmpty()) {
 					// filter by category
@@ -228,7 +232,23 @@ public class JSONConverter {
 		object.put("role", String.join(User.ROLE_SEPARATOR, user.getRoles()).toLowerCase());
 		object.put("mail", user.getMail());
 		object.put("admin", user.isAdmin());
-		object.put("hasApiToken", user.getApiToken() != null && !user.getApiToken().isEmpty());
+		boolean hasApiToken = user.getApiToken() != null && !user.getApiToken().isEmpty();
+		object.put("hasApiToken", hasApiToken);
+		if (hasApiToken) {
+			if (user.getApiTokenExpiresOn() == null) {
+				object.put("apiTokenValid", false);
+				object.put("apiTokenMessage", MESSAGE_INVALID_TOKEN);
+			} else if (user.getApiTokenExpiresOn().getTime() > System.currentTimeMillis()) {
+				object.put("apiTokenValid", true);
+				object.put("apiTokenMessage",
+						String.format(MESSAGE_VALID_TOKEN, user.getUsername(), user.getApiTokenExpiresOn()));
+			} else {
+				object.put("apiTokenValid", false);
+				object.put("apiTokenMessage",
+						String.format(MESSAGE_EXPIRED_TOKEN, user.getUsername(), user.getApiTokenExpiresOn()));
+			}
+		}
+
 		return object;
 
 	}

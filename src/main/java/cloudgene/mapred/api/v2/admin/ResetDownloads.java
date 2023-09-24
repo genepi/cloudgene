@@ -2,6 +2,8 @@ package cloudgene.mapred.api.v2.admin;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -16,6 +18,8 @@ import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.util.BaseResource;
 
 public class ResetDownloads extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(ResetDownloads.class);
 
 	@Get
 	public Representation get() {
@@ -71,6 +75,8 @@ public class ResetDownloads extends BaseResource {
 
 					}
 				}
+
+				log.info(String.format("Job: Resetting download counters for job %s (by ADMIN user ID %s - email %s)", job.getId(), user.getId(), user.getMail()));
 
 				return new StringRepresentation(
 						jobId + ": counter of " + count + " downloads reset to " + maxDownloads);

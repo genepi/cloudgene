@@ -1,6 +1,7 @@
 package cloudgene.mapred.core;
 
 import java.text.ParseException;
+import java.util.Map;
 
 import org.restlet.Request;
 import org.restlet.data.Parameter;
@@ -16,12 +17,10 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 
-import net.minidev.json.JSONObject;
-
 public class JWT {
 
 	
-	public static String generate(JSONObject jsonObject, String key, long lifetime) {
+	public static String generate( Map<String, Object> jsonObject, String key, long lifetime) {
 
 		// add valid-until to payload
 		jsonObject
@@ -48,7 +47,7 @@ public class JWT {
 
 	}
 
-	public static JSONObject validate(Request request, String key) {
+	public static  Map<String, Object> validate(Request request, String key) {
 
 		Series<Parameter> headers = (Series) request.getAttributes().get(
 				"org.restlet.http.headers");
@@ -77,7 +76,7 @@ public class JWT {
 
 	}
 
-	public static JSONObject validate(String token, String key) {
+	public static  Map<String, Object> validate(String token, String key) {
 
 		try {
 
@@ -86,7 +85,7 @@ public class JWT {
 
 			if (jwsObject.verify(verifier)) {
 				// read valid-until and check
-				JSONObject payload = jwsObject.getPayload().toJSONObject();
+				 Map<String, Object> payload = jwsObject.getPayload().toJSONObject();
 
 				payload.put("request-token", token);
 				

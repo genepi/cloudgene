@@ -23,7 +23,7 @@ public class CounterDao extends JdbcDataAccessObject {
 
 	public boolean insert(String name, int value, AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into counters (name, job_id, value) ");
+		sql.append("insert into counters (name, job_id, `value`) ");
 		sql.append("values (?,?,?)");
 
 		try {
@@ -49,7 +49,7 @@ public class CounterDao extends JdbcDataAccessObject {
 	public Map<String, Long> getAll() {
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("select name, sum(value) ");
+		sql.append("select name, sum(`value`) ");
 		sql.append("from counters ");
 		sql.append("group by name");
 

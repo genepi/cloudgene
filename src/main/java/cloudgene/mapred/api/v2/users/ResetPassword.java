@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.users;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.representation.Representation;
 import org.restlet.resource.Post;
@@ -13,17 +15,12 @@ import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
 
 public class ResetPassword extends BaseResource {
+	private static final Log log = LogFactory.getLog(ResetPassword.class);
 
 	@Post
 	public Representation get(Representation entity) {
 
-		String hostname = "";
-		if (getRequest().getReferrerRef() != null) {
-			hostname = getRequest().getReferrerRef().getHostIdentifier(); 
-		}else {
-			hostname = getRequest().getHostRef().getHostIdentifier();
-		}
-		
+		String hostname = getSettings().getServerUrl();		
 
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");
@@ -69,7 +66,7 @@ public class ResetPassword extends BaseResource {
 			String body = getWebApp().getTemplate(Template.RECOVERY_MAIL, user.getFullName(), application, link);
 
 			try {
-
+				log.info(String.format("Password reset link requested for user '%s'", username));
 				MailUtil.notifySlack(getSettings(), "Hi! " + username + " asked for a new password :key:");
 
 				MailUtil.send(getSettings(), user.getMail(), subject, body);

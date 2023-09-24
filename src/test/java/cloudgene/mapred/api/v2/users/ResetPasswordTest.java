@@ -135,7 +135,6 @@ public class ResetPasswordTest extends JobsApiTestCase {
 
 		// register user
 		ClientResource resource = createClientResource("/api/v2/users/reset");
-		// register user
 
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
@@ -145,6 +144,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
 
 		// try it a second time (nervous user)
+
 		resource.post(form);
 		assertEquals(200, resource.getStatus().getCode());
 		object = new JSONObject(resource.getResponseEntity().getText());
@@ -161,12 +161,15 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertNotNull(user);
 
 		SmtpMessage message1 = mailServer.getReceivedEmailAsList().get(mailsBefore);
+
 		// check if correct key is in mail1
-		assertTrue(message1.getBody().contains(user.getActivationCode()));
+		assertTrue(
+				message1.getBody().contains(TestServer.HOSTNAME + "/#!recovery/testreset/" + user.getActivationCode()));
 
 		SmtpMessage message2 = mailServer.getReceivedEmailAsList().get(mailsBefore + 1);
 		// check if correct key is in mail2
-		assertTrue(message2.getBody().contains(user.getActivationCode()));
+		assertTrue(
+				message2.getBody().contains(TestServer.HOSTNAME + "/#!recovery/testreset/" + user.getActivationCode()));
 		resource.release();
 	}
 

@@ -59,11 +59,6 @@ public class UpdateTemplate extends BaseResource {
 			return new StringRepresentation("The request requires user authentication.");
 		}
 
-		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
-		}
-
 		TemplateDao dao = new TemplateDao(getDatabase());
 
 		String key = getAttribute("id");

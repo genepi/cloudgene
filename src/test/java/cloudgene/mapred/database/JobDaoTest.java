@@ -105,8 +105,8 @@ public class JobDaoTest extends JobsApiTestCase {
 		JobDao jobDao = new JobDao(database);
 
 		CloudgeneJob jobr = new CloudgeneJob();
-		jobr.setId("old-dummy-job-1-" + System.currentTimeMillis());
-		jobr.setName("old-dummy-job-1" + System.currentTimeMillis());
+		jobr.setId("old-dummy-running-job-1-" + System.currentTimeMillis());
+		jobr.setName("old-dummy-running-job-1" + System.currentTimeMillis());
 		jobr.setState(CloudgeneJob.STATE_RUNNING);
 		jobr.setSubmittedOn(System.currentTimeMillis() - (8 * DAYS_MS));
 		jobr.setFinishedOn(0);

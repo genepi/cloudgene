@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.admin;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -11,6 +13,8 @@ import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.BaseResource;
 
 public class ChangeRetireDate extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(ChangeRetireDate.class);
 
 	@Get
 	public Representation get() {
@@ -60,6 +64,8 @@ public class ChangeRetireDate extends BaseResource {
 				job.setDeletedOn(job.getDeletedOn() + (days * 24 * 60 * 60 * 1000));
 
 				dao.update(job);
+
+				log.info(String.format("Job: Extended retire date for job %s (by ADMIN user ID %s - email %s)", job.getId(), user.getId(), user.getMail()));
 
 				return new StringRepresentation("Update delete on date for job " + job.getId() + ".");
 

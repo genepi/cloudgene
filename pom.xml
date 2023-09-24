@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cloudgene</groupId>
 	<artifactId>cloudgene</artifactId>
-	<version>2.3.6</version>
+	<version>2.6.3</version>
 
 	<name>Cloudgene</name>
 	<url>http://www.cloudgene.io</url>
@@ -45,7 +45,7 @@
 			<dependency>
 				<groupId>com.amazonaws</groupId>
 				<artifactId>aws-java-sdk-bom</artifactId>
-				<version>1.11.543</version>
+				<version>1.12.153</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -56,13 +56,13 @@
 		<repository>
 			<id>maven-restlet</id>
 			<name>Restlet Framework repository</name>
-			<url>http://maven.restlet.org</url>
+			<url>https://maven.restlet.talend.com</url>
 		</repository>
 
 		<repository>
-			<id>bintray-genepi-maven</id>
-			<name>bintray</name>
-			<url>https://dl.bintray.com/genepi/maven</url>
+			<id>genepi-maven</id>
+			<name>genepi-maven</name>
+			<url>https://genepi.i-med.ac.at/maven</url>
 		</repository>
 
 		<repository>
@@ -86,13 +86,25 @@
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-io</artifactId>
-			<version>1.0.12</version>
+			<version>1.2.0</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>genepi</groupId>
 			<artifactId>genepi-db</artifactId>
-			<version>1.2.0</version>
+			<version>1.2.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -118,13 +130,13 @@
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
-			<version>5.1.39</version>
+			<version>8.0.32</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
-			<version>1.4.200</version>
+			<version>2.1.210</version>
 		</dependency>
 
 		<dependency>
@@ -161,6 +173,12 @@
 			<groupId>org.restlet.jee</groupId>
 			<artifactId>org.restlet.ext.slf4j</artifactId>
 			<version>${restlet.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -172,58 +190,56 @@
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>2.4.13</version>
+			<version>3.0.17</version>
+			<type>pom</type>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.ivy</groupId>
 			<artifactId>ivy</artifactId>
-			<version>2.4.0</version>
+			<version>2.5.1</version>
+		</dependency>
+
+		<!-- Logging -->
+
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.19.0</version>
 		</dependency>
 
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.19.0</version>
 		</dependency>
 
+		<!-- use slf4j with log4j2 -->
 		<dependency>
-			<groupId>commons-logging</groupId>
-			<artifactId>commons-logging</artifactId>
-			<version>1.2</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.19.0</version>
 		</dependency>
 
+		<!-- use apache commons with log4j2 -->
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>jcl-over-slf4j</artifactId>
-			<version>1.7.30</version>
-			<scope>runtime</scope>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-jcl</artifactId>
+			<version>2.19.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.30</version>
-			<scope>runtime</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.30</version>
-			<scope>runtime</scope>
-		</dependency>
+		<!-- End Logging -->
 
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.6</version>
+			<version>2.11.0</version>
 		</dependency>
 
 		<dependency>
 			<groupId>com.esotericsoftware.yamlbeans</groupId>
 			<artifactId>yamlbeans</artifactId>
-			<version>1.14</version>
+			<version>1.15</version>
 		</dependency>
 
 		<dependency>
@@ -235,7 +251,7 @@
 		<dependency>
 			<groupId>com.nimbusds</groupId>
 			<artifactId>nimbus-jose-jwt</artifactId>
-			<version>8.17</version>
+			<version>9.19</version>
 		</dependency>
 
 		<dependency>
@@ -246,21 +262,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jsch</artifactId>
-			<version>0.1.55</version>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 			<version>2.3.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -272,7 +288,7 @@
 		<dependency>
 			<groupId>net.lingala.zip4j</groupId>
 			<artifactId>zip4j</artifactId>
-			<version>2.5.2</version>
+			<version>2.11.3</version>
 		</dependency>
 
 		<dependency>
@@ -284,7 +300,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>29.0-jre</version>
+			<version>31.0.1-jre</version>
 		</dependency>
 
 		<dependency>
@@ -300,7 +316,7 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-crypto</artifactId>
-			<version>5.2.1.RELEASE</version>
+			<version>5.8.1</version>
 		</dependency>
 
 		<!-- Test Dependencies -->
@@ -325,12 +341,6 @@
 			<artifactId>hadoop-hdfs</artifactId>
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -340,8 +350,8 @@
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpcore</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -352,12 +362,6 @@
 			<version>${hadoop.version}</version>
 			<scope>test</scope>
 			<type>test-jar</type>
-			<exclusions>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -365,16 +369,6 @@
 			<artifactId>hadoop-test</artifactId>
 			<version>2.6.0-mr1-cdh5.16.1</version>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>commons-httpclient</groupId>
-					<artifactId>commons-httpclient</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>net.java.dev.jets3t</groupId>
-					<artifactId>jets3t</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -389,13 +383,16 @@
 			<artifactId>dumbster</artifactId>
 			<version>1.6</version>
 			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.sshd</groupId>
-			<artifactId>sshd-sftp</artifactId>
-			<version>0.9.0</version>
-			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.activation</groupId>
+					<artifactId>activation</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.mail</groupId>
+					<artifactId>mail</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 	</dependencies>
@@ -431,7 +428,7 @@
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
 				<artifactId>frontend-maven-plugin</artifactId>
-				<version>1.6</version>
+				<version>1.11.0</version>
 				<executions>
 					<execution>
 						<id>install node and npm</id>

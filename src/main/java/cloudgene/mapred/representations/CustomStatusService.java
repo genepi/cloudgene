@@ -16,7 +16,7 @@ public class CustomStatusService extends StatusService {
 		if (status.isClientError()) {
 			
 			//setStatus(Status.CLIENT_ERROR_NOT_FOUND );
-			return new StringRepresentation("Oje!!");
+			return new StringRepresentation("Error");
 		} else {
 
 			// TODO Auto-generated method stub

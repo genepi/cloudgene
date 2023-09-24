@@ -30,12 +30,12 @@ public class JobDao extends JdbcDataAccessObject {
 	public boolean insert(AbstractJob job) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id, submitted_on, finished_on, setup_start_time, setup_end_time) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+				"insert into job (id, name, state, start_time, end_time, user_id, s3_url, type, application, application_id, submitted_on, finished_on, setup_start_time, setup_end_time, user_agent) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[14];
+			Object[] params = new Object[15];
 			params[0] = job.getId();
 			params[1] = job.getName();
 			params[2] = job.getState();
@@ -50,6 +50,7 @@ public class JobDao extends JdbcDataAccessObject {
 			params[11] = job.getFinishedOn();
 			params[12] = job.getSetupStartTime();
 			params[13] = job.getSetupEndTime();
+			params[14] = trimToLength(job.getUserAgent(), 350);
 
 			update(sql.toString(), params);
 
@@ -241,7 +242,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("order by job.id asc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
@@ -265,15 +266,20 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
-		sql.append("where state != ? AND state != ? ");
+		sql.append("join `user` on job.user_id = `user`.id ");
+		sql.append("where state  not in (?,?,?,?,?,?,?) ");
 		sql.append("order by job.id desc ");
 
 		List<AbstractJob> result = new Vector<AbstractJob>();
 
-		Object[] params = new Object[2];
-		params[0] = AbstractJob.STATE_RETIRED;
-		params[1] = AbstractJob.STATE_DELETED;
+		Object[] params = new Object[7];
+		params[0] = AbstractJob.STATE_WAITING;
+		params[1] = AbstractJob.STATE_RUNNING;
+		params[2] = AbstractJob.STATE_EXPORTING;
+		params[3] = AbstractJob.STATE_RETIRED;
+		params[4] = AbstractJob.STATE_DELETED;
+		params[5] = AbstractJob.STATE_RETIRED;
+		params[6] = AbstractJob.STATE_DELETED;
 
 		try {
 
@@ -294,7 +300,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where state != ? AND state != ? AND state != ? AND state != ? ");
 		sql.append("order by job.id desc ");
 
@@ -325,7 +331,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where  state = ? or state = ? ");
 		sql.append("order by job.id desc ");
 
@@ -354,7 +360,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where  state = ? AND finished_on != 0 AND finished_on < ? ");
 		sql.append("order by job.id desc ");
 
@@ -383,7 +389,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where state = ? ");
 		sql.append("order by job.id desc ");
 
@@ -416,7 +422,7 @@ public class JobDao extends JdbcDataAccessObject {
 		StringBuilder sql = new StringBuilder();
 		sql.append("select * ");
 		sql.append("from job ");
-		sql.append("join user on job.user_id = user.id ");
+		sql.append("join `user` on job.user_id = `user`.id ");
 		sql.append("where job.id = ? and state != ? ");
 
 		Object[] params = new Object[2];
@@ -482,6 +488,7 @@ public class JobDao extends JdbcDataAccessObject {
 			job.setFinishedOn(rs.getLong("job.finished_on"));
 			job.setSetupStartTime(rs.getLong("job.setup_start_time"));
 			job.setSetupEndTime(rs.getLong("job.setup_end_time"));
+			job.setUserAgent(rs.getString("job.user_agent"));
 
 			return job;
 		}
@@ -505,6 +512,10 @@ public class JobDao extends JdbcDataAccessObject {
 			return job;
 		}
 
+	}
+
+	public String trimToLength(String string, int maxLength) {
+		return string.substring(0, Math.min(string.length(), maxLength));
 	}
 
 }

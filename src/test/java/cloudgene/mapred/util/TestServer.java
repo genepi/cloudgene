@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
@@ -20,15 +19,10 @@ import cloudgene.mapred.database.TemplateDao;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.jobs.PersistentWorkflowEngine;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Config;
-import cloudgene.mapred.util.HashUtil;
-import cloudgene.mapred.util.Settings;
-import cloudgene.mapred.util.Template;
 import genepi.db.Database;
 import genepi.db.DatabaseUpdater;
 import genepi.db.h2.H2Connector;
 import genepi.io.FileUtil;
-import junit.framework.Test;
 
 public class TestServer {
 
@@ -62,7 +56,8 @@ public class TestServer {
 		mail.put("password", "");
 		mail.put("name", "noreply@cloudgene");
 		settings.setMail(mail);
-		
+	
+		settings.setServerUrl(HOSTNAME);
 		settings.setSecretKey(Settings.DEFAULT_SECURITY_KEY);
 	}
 
@@ -355,8 +350,6 @@ public class TestServer {
 
 				// start workflow engine
 				WorkflowEngine engine = startWorkflowEngineWithoutServer();
-
-				PropertyConfigurator.configure("config/log4j.properties");
 
 				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
 				Engine.getInstance().setLoggerFacade(loggerFacade);

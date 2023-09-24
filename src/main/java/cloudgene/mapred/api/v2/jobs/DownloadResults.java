@@ -3,7 +3,6 @@ package cloudgene.mapred.api.v2.jobs;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.FileRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -45,7 +44,7 @@ public class DownloadResults extends BaseResource {
 				job = getWorkflowEngine().getJobById(jobId);
 			}
 
-			User user = getAuthUser(false);
+			User user = getAuthUserAndAllowApiToken(false);
 
 			// public mode
 			if (user == null) {
@@ -102,12 +101,20 @@ public class DownloadResults extends BaseResource {
 				String resultFile = FileUtil.path(localWorkspace, download.getPath());
 				log.debug("Downloading file from local workspace " + resultFile);
 				MediaType mediaType = getMediaType(download.getPath());
+
+				User jobOwner = job.getUser();
+				String message  = String.format("Job: Downloading file '%s' for job %s - owner %s (ID %s - email %s)", filename, job.getId(), jobOwner.getUsername(), jobOwner.getId(), jobOwner.getMail());
+				if (user.isAdmin()) {
+					message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+				}
+				log.info(message);
+
 				return new FileRepresentation(resultFile, mediaType);
 			}
 
 		} catch (Exception e) {
-			log.error("Processing download failed.", e);
-			return error(Status.CLIENT_ERROR_BAD_REQUEST, "Processing download failed.");
+			log.error("Job: Error while downloading file", e);
+			return error400("Processing download failed.");
 		}
 	}
 

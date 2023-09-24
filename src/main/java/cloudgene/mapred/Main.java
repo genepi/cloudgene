@@ -14,8 +14,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
 import org.restlet.engine.Engine;
+//import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 import org.restlet.ext.slf4j.Slf4jLoggerFacade;
 
 import com.esotericsoftware.yamlbeans.YamlReader;
@@ -36,7 +36,7 @@ import genepi.io.FileUtil;
 
 public class Main {
 
-	public static final String VERSION = "2.3.6";
+	public static final String VERSION = "2.6.3";
 
 	private Database database;
 
@@ -45,27 +45,13 @@ public class Main {
 	public void runCloudgene(Settings settings, String[] args) throws Exception {
 
 		// configure logger
-		if (new File("log4j.properties").exists()) {
 
-			PropertyConfigurator.configure("log4j.properties");
+		Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
+		Engine.getInstance().setLoggerFacade(loggerFacade);
 
-			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
-			Engine.getInstance().setLoggerFacade(loggerFacade);
-
-		} else {
-
-			if (new File("config/log4j.properties").exists()) {
-				PropertyConfigurator.configure("config/log4j.properties");
-
-				Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
-				Engine.getInstance().setLoggerFacade(loggerFacade);
-
-			}
-
-		}
 		Log log = LogFactory.getLog(Main.class);
 
-		log.info("Cloudgene " + VERSION);
+		log.debug("Cloudgene " + VERSION);
 		log.info(BuildUtil.getBuildInfos());
 
 		// load cloudgene.conf file. contains path to settings, db, apps, ..
@@ -86,6 +72,11 @@ public class Main {
 				settings = new Settings(config);
 			}
 
+			if (settings.getServerUrl() == null) {
+				System.out.println("Error: serverUrl not set in settings.yaml");
+				System.exit(1);
+			}
+			
 			if (!settings.testPaths()) {
 				System.exit(1);
 			}
@@ -130,7 +121,7 @@ public class Main {
 			settings.setSecretKey(secretKey);
 			settings.save();
 		}
-		
+
 		// create h2 or mysql connector
 		DatabaseConnector connector = DatabaseConnectorFactory.createConnector(settings.getDatabase());
 
@@ -161,7 +152,7 @@ public class Main {
 
 		DatabaseUpdater updater = new DatabaseUpdater(database, config.getVersion(), is, VERSION);
 		updater.addUpdate("2.3.0", new BcryptHashUpdate());
-		
+
 		if (!updater.updateDB()) {
 			System.exit(-1);
 		}
@@ -182,8 +173,8 @@ public class Main {
 
 			int port = Integer.parseInt(line.getOptionValue("port", settings.getPort()));
 
-			Slf4jLoggerFacade loggerFacade = new Slf4jLoggerFacade();
-			Engine.getInstance().setLoggerFacade(loggerFacade);
+			// loggerFacade = new Slf4jLoggerFacade();
+			// Engine.getInstance().setLoggerFacade(loggerFacade);
 
 			log.info("Starting web server at port " + port);
 

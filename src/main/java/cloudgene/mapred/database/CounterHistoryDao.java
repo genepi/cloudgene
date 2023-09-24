@@ -30,7 +30,7 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 
 	public boolean insert(long timestamp, String name, long value) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into counters_history (time_stamp, name, value) ");
+		sql.append("insert into counters_history (time_stamp, name, `value`) ");
 		sql.append("values (?,?,?)");
 
 		try {
@@ -55,7 +55,7 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 	public List<Map<String, String>> getAll(int limit) {
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("select time_stamp, name, value ");
+		sql.append("select time_stamp, name, `value` ");
 		sql.append("from counters_history ");
 		sql.append("order by time_stamp desc, name ");
 		sql.append("limit " + limit);
@@ -98,7 +98,7 @@ public class CounterHistoryDao extends JdbcDataAccessObject {
 	public List<Map<String, String>> getAllBeetween(long start, long end) {
 
 		StringBuilder sql = new StringBuilder();
-		sql.append("select time_stamp, name, value ");
+		sql.append("select time_stamp, name, `value` ");
 		sql.append("from counters_history ");
 		sql.append("where time_stamp > " + start + " and time_stamp < " + end
 				+ " ");

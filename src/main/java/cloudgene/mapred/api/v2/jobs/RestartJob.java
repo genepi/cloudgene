@@ -55,8 +55,8 @@ public class RestartJob extends BaseResource {
 			String hdfsWorkspace = "";			
 			try {
 				hdfsWorkspace = HdfsUtil.path(getSettings().getHdfsWorkspace(), id);
-			}catch (NoClassDefFoundError e) {
-				log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.", e);
+			} catch (NoClassDefFoundError e) {
+				log.warn("Hadoop not found in classpath. Ignore HDFS Workspace.");
 			}
 			String localWorkspace = FileUtil.path(getSettings().getLocalWorkspace(), id);
 
@@ -84,6 +84,13 @@ public class RestartJob extends BaseResource {
 
 			Map<String, Object> params = new HashMap<String, Object>();
 			params.put("id", id);
+
+			String message = String.format("Job: Restarted job ID %s", job.getId());
+			if (user.isAdmin()) {
+				message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+			}
+			log.info(message);
+
 			return ok("Your job was successfully added to the job queue.", params);
 		} else {
 			return error400("Job " + id + " is not pending.");

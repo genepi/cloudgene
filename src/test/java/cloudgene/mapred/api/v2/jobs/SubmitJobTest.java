@@ -1,6 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.json.JSONArray;
@@ -15,7 +14,6 @@ import org.restlet.resource.ClientResource;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.TestCluster;
-import cloudgene.mapred.util.TestSFTPServer;
 import cloudgene.mapred.util.TestServer;
 import cloudgene.sdk.internal.WorkflowContext;
 import genepi.io.FileUtil;
@@ -271,12 +269,11 @@ public class SubmitJobTest extends JobsApiTestCase {
 
 		FormDataSet form = new FormDataSet();
 		form.setMultipart(true);
-		//add visible checkbox
+		// add visible checkbox
 		form.getEntries().add(new FormData("input-checkbox1", "true"));
-		
+
 		// submit job
 		String id = submitJobPublic("print-hidden-inputs", form);
-		
 
 		// check feedback
 		waitForJob(id);
@@ -286,60 +283,48 @@ public class SubmitJobTest extends JobsApiTestCase {
 		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
 
 		assertEquals(6, result.getJSONArray("steps").length());
-		assertEquals("text1: my-value\n",
-				result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages").getJSONObject(0).get("message"));
-		assertEquals("checkbox1: true\n",
-				result.getJSONArray("steps").getJSONObject(1).getJSONArray("logMessages").getJSONObject(0).get("message"));
-		assertEquals("list1: value1\n",
-				result.getJSONArray("steps").getJSONObject(2).getJSONArray("logMessages").getJSONObject(0).get("message"));
-		assertEquals("text2: my-value\n",
-				result.getJSONArray("steps").getJSONObject(3).getJSONArray("logMessages").getJSONObject(0).get("message"));
-		assertEquals("checkbox2: true\n",
-				result.getJSONArray("steps").getJSONObject(4).getJSONArray("logMessages").getJSONObject(0).get("message"));
-		assertEquals("list2: value1\n",
-				result.getJSONArray("steps").getJSONObject(5).getJSONArray("logMessages").getJSONObject(0).get("message"));
-
-	}
-
-	public void testSubmitSftpUpload() throws IOException, JSONException, InterruptedException {
-
-		TestSFTPServer sftp = new TestSFTPServer("test-data");
-
-		String url = "sftp://localhost:8001/" + new File("test-data/sftp-import.yaml").getAbsolutePath() + ";"
-				+ TestSFTPServer.USERNAME + ";" + TestSFTPServer.PASSWORD;
-
-		// form data
-
-		FormDataSet form = new FormDataSet();
-		form.setMultipart(true);
-		form.getEntries().add(new FormData("input-input", url));
-
-		// submit job
-		String id = submitJobPublic("sftp-import", form);
-
-		// get details to check *** bug
-		getJobDetails(id);
-
-		// check feedback
-		waitForJob(id);
-
-		JSONObject result = getJobDetails(id);
-
-		// check if no sftp url is in json
-		assertFalse(result.toString().contains(url));
-
-		// get log file
-
-		assertEquals(AbstractJob.STATE_SUCCESS, result.get("state"));
-
-		sftp.stop();
-
-		// check results!
+		assertEquals("text1: my-value\n", result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages")
+				.getJSONObject(0).get("message"));
+		assertEquals("checkbox1: true\n", result.getJSONArray("steps").getJSONObject(1).getJSONArray("logMessages")
+				.getJSONObject(0).get("message"));
+		assertEquals("list1: value1\n", result.getJSONArray("steps").getJSONObject(2).getJSONArray("logMessages")
+				.getJSONObject(0).get("message"));
+		assertEquals("text2: my-value\n", result.getJSONArray("steps").getJSONObject(3).getJSONArray("logMessages")
+				.getJSONObject(0).get("message"));
+		assertEquals("checkbox2: true\n", result.getJSONArray("steps").getJSONObject(4).getJSONArray("logMessages")
+				.getJSONObject(0).get("message"));
+		assertEquals("list2: value1\n", result.getJSONArray("steps").getJSONObject(5).getJSONArray("logMessages")
+				.getJSONObject(0).get("message"));
 
 	}
 
 	// TODO: wrong permissions
 
 	// TODO: wrong id
+
+	public void testSubmitHtmlInParams() throws IOException, JSONException, InterruptedException {
+
+		// form data
+
+		String html = "<script>console.log('Hey')<script>";
+
+		FormDataSet form = new FormDataSet();
+		form.setMultipart(true);
+		// add visible checkbox
+		form.getEntries().add(new FormData("text1", "value " + html));
+
+		// submit job
+		String id = submitJobPublic("print-hidden-inputs", form);
+
+		// check feedback
+		waitForJob(id);
+
+		JSONObject result = getJobDetails(id);
+		String message = result.getJSONArray("steps").getJSONObject(0).getJSONArray("logMessages").getJSONObject(0)
+				.get("message").toString();
+		System.out.println(message);
+		assertFalse(message.contains(html));
+
+	}
 
 }

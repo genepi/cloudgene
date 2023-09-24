@@ -8,7 +8,6 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
-import org.restlet.data.Status;
 import org.restlet.ext.json.JsonRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -36,23 +35,18 @@ public class Apps extends BaseResource {
 			User user = getAuthUser();
 
 			if (user == null) {
-
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation("The request requires user authentication.");
-
+				return error401("The request requires user authentication.");
 			}
 
 			if (!user.isAdmin()) {
-				setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-				return new StringRepresentation("The request requires administration rights.");
+				return error401("The request requires administration rights.");
 			}
 
 			Form form = new Form(entity);
 			String url = form.getFirstValue("url");
 
 			if (url == null) {
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation("No url or file location set.");
+				return error400("No url or file location set.");
 			}
 
 			ApplicationRepository repository = getApplicationRepository();
@@ -68,20 +62,17 @@ public class Apps extends BaseResource {
 					updateState(application, jsonObject);
 					return new JsonRepresentation(jsonObject.toString());
 				} else {
-					setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-					return new StringRepresentation("Application not installed: No workflow file found.");
+					return error400("Application not installed: No workflow file found.");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				log.error("Application not installed. ", e);
-				setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-				return new StringRepresentation("Application not installed: " + e.getMessage());
+				return error400("Application not installed: " + e.getMessage());
 			}
 		} catch (Error e) {
 			e.printStackTrace();
 			log.error("Application not installed. ", e);
-			setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-			return new StringRepresentation("Application not installed: " + e.getMessage());
+			return error400("Application not installed: " + e.getMessage());
 		}
 
 	}
@@ -92,15 +83,11 @@ public class Apps extends BaseResource {
 		User user = getAuthUser();
 
 		if (user == null) {
-
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires user authentication.");
-
+			return error401("The request requires user authentication.");
 		}
 
 		if (!user.isAdmin()) {
-			setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
-			return new StringRepresentation("The request requires administration rights.");
+			return error401("The request requires administration rights.");
 		}
 
 		ApplicationRepository repository = getApplicationRepository();

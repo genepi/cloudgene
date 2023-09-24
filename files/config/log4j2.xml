@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="MyApp">
+
+	<Appenders>
+
+		<Console name="STDOUT" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
+		</Console>
+
+		<RollingFile name="cloudgene_log" fileName="cloudgene.log" filePattern="cloudgene.%i.log.gz" ignoreExceptions="false">
+		  <PatternLayout>
+		      <Pattern>%d [%t] %-5p %c - %m%n</Pattern>
+		  </PatternLayout>
+		  <Policies>
+		      <SizeBasedTriggeringPolicy size="10MB" />
+		  </Policies>
+		  <DefaultRolloverStrategy max="5" />
+		</RollingFile>
+
+		<RollingFile name="jobs_log" fileName="jobs.log" filePattern="jobs.%i.log.gz" ignoreExceptions="false">
+		  <PatternLayout>
+		      <Pattern>%d [%t] %-5p %c - %m%n</Pattern>
+		  </PatternLayout>
+		  <Policies>
+		      <SizeBasedTriggeringPolicy size="10MB" />
+		  </Policies>
+		  <DefaultRolloverStrategy max="5" />
+		</RollingFile>
+
+		<RollingFile name="access_log" fileName="access.log" filePattern="access.%i.log.gz" ignoreExceptions="false">
+		  <PatternLayout>
+		      <Pattern>%m%n</Pattern>
+		  </PatternLayout>
+		  <Policies>
+		      <SizeBasedTriggeringPolicy size="10MB" />
+		  </Policies>
+		  <DefaultRolloverStrategy max="5" />
+		</RollingFile>
+
+
+	</Appenders>
+
+	<Loggers>
+		<Logger name="LogService" level="info" additivity="false">
+			<AppenderRef ref="access_log" />
+		</Logger>
+		<Logger name="cloudgene" level="info" additivity="false">
+			<AppenderRef ref="cloudgene_log" />
+		</Logger>
+		<Logger name="genepi.db" level="info" additivity="false">
+			<AppenderRef ref="cloudgene_log" />
+		</Logger>
+		<Logger name="genepi.hadoop" level="info" additivity="false">
+			<AppenderRef ref="jobs_log" />
+		</Logger>
+		<Logger name="org.apache.hadoop.mapred.JobClient" level="info"
+			additivity="false">
+			<AppenderRef ref="jobs_log" />
+		</Logger>
+	</Loggers>
+
+</Configuration>

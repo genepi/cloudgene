@@ -3,8 +3,9 @@ package cloudgene.mapred.api.v2.jobs;
 import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -27,15 +28,17 @@ import net.sf.json.JSONObject;
 
 public class GetJobDetails extends BaseResource {
 
+	private static final Log log = LogFactory.getLog(GetJobDetails.class);
+
 	private boolean publicMode = false;
 
 	@Get
 	public Representation get(Representation entity, Variant variant) {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		if (getSettings().isMaintenance() && (user == null || !user.isAdmin())) {
-			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "This functionality is currently under maintenance.");
+			return error503("This functionality is currently under maintenance.");
 		}
 
 		String id = getAttribute("job");
@@ -159,6 +162,12 @@ public class GetJobDetails extends BaseResource {
 		}
 
 		JSONObject object = JSONConverter.convert(job);
+
+		String message = String.format("Job: Deleted job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
 
 		return new StringRepresentation(object.toString());
 

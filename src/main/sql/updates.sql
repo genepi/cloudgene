@@ -1,6 +1,6 @@
 -- 0.0.1
 
-create table user( 
+create table `user`( 
 	id          integer not null auto_increment primary key,
 	username	varchar(100) not null,
 	password	varchar(100) not null,
@@ -25,13 +25,13 @@ create table job(
 	name 		varchar(300),
 	s3_url		varchar(300),
 	type		integer,
-	user_id integer not null references user(id) on delete cascade
+	user_id integer not null references `user`(id) on delete cascade
 );
 
 create table parameter( 
 	id			integer not null auto_increment primary key,
 	name		varchar(100) not null,
-	value		varchar(200) not null,
+	`value`		varchar(200) not null,
 	type		varchar(25) not null,
 	format		varchar(25) null,
 	input		boolean,
@@ -92,7 +92,7 @@ create table counters (
 	id	    	integer not null auto_increment primary key,
 	name		varchar(300),
 	job_id		varchar(100) null,
-	value		bigint not null
+	`value`		bigint not null
 );
 
 
@@ -102,7 +102,7 @@ create table counters_history (
 	id	    	integer not null auto_increment primary key,
 	time_stamp	bigint not null,
 	name		varchar(300),
-	value		bigint not null	
+	`value`		bigint not null	
 );
 
 -- 1.9.1
@@ -131,13 +131,13 @@ alter table job add column application_id varchar(300) null default null;
 
 -- 1.16.0
 
-alter table user add column api_token varchar(300) null default null;
+alter table `user` add column api_token varchar(300) null default null;
 
 -- 1.19.0
 
-alter table user add column login_attempts integer null default 0;
-alter table user add column locked_until timestamp null default null;
-alter table user add column last_login timestamp null default null;
+alter table `user` add column login_attempts integer null default 0;
+alter table `user` add column locked_until timestamp null default null;
+alter table `user` add column last_login timestamp null default null;
 
 -- 1.26.0
 
@@ -162,3 +162,10 @@ ALTER TABLE log_messages MODIFY COLUMN message VARCHAR (20000);
 
 -- 2.3.4
 ALTER TABLE html_snippets MODIFY COLUMN text VARCHAR (8000);
+
+-- 2.3.7
+alter table job add column user_agent VARCHAR (400);
+
+
+-- 2.6.0
+alter table `user` add column api_token_expires_on timestamp null default null;

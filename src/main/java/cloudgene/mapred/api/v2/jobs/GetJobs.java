@@ -3,7 +3,6 @@ package cloudgene.mapred.api.v2.jobs;
 import java.util.List;
 import java.util.Vector;
 
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -28,16 +27,14 @@ public class GetJobs extends BaseResource {
 	@Get
 	public Representation getJobs() {
 
-		User user = getAuthUser();
+		User user = getAuthUserAndAllowApiToken();
 
 		if (user == null) {
 			return error401("The request requires user authentication.");
 		}
 
 		if (getSettings().isMaintenance() && !user.isAdmin()) {
-
-			return error(Status.SERVER_ERROR_SERVICE_UNAVAILABLE, "This functionality is currently under maintenance.");
-
+			return error503("This functionality is currently under maintenance.");
 		}
 
 		String page = getQueryValue("page");

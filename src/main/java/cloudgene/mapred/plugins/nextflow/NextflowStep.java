@@ -40,10 +40,11 @@ public class NextflowStep extends CloudgeneStep {
 
 		NextflowBinary nextflow = NextflowBinary.build(context.getSettings());
 
-		List<String> command = new Vector<String>();
-		command.add(nextflow.getBinary());
-		command.add("run");
-		command.add(script);
+		List<String> nextflowCommand = new Vector<String>();
+		nextflowCommand.add("PATH=$PATH:/usr/local/bin");
+		nextflowCommand.add(nextflow.getBinary());
+		nextflowCommand.add("run");
+		nextflowCommand.add(script);
 
 		AbstractJob job = context.getJob();
 		String appFolder = context.getSettings().getApplicationRepository().getConfigDirectory(job.getApplicationId());
@@ -56,16 +57,16 @@ public class NextflowStep extends CloudgeneStep {
 
 		// set profile
 		if (!profile.isEmpty()) {
-			command.add("-profile");
-			command.add(profile);
+			nextflowCommand.add("-profile");
+			nextflowCommand.add(profile);
 		}
 
 		String nextflowConfig = FileUtil.path(appFolder, "nextflow.config");
 		File nextflowConfigFile = new File(nextflowConfig);
 		if (nextflowConfigFile.exists()) {
 			// set custom configuration
-			command.add("-c");
-			command.add(nextflowConfigFile.getAbsolutePath());
+			nextflowCommand.add("-c");
+			nextflowCommand.add(nextflowConfigFile.getAbsolutePath());
 		}
 
 		String work = "";
@@ -76,13 +77,13 @@ public class NextflowStep extends CloudgeneStep {
 
 		// use workdir if set in settings
 		if (!work.trim().isEmpty()) {
-			command.add("-w");
-			command.add(work);
+			nextflowCommand.add("-w");
+			nextflowCommand.add(work);
 		} else {
 			String workDir = FileUtil.path(context.getLocalTemp(), "nextflow");
 			FileUtil.createDirectory(workDir);
-			command.add("-w");
-			command.add(workDir);
+			nextflowCommand.add("-w");
+			nextflowCommand.add(workDir);
 		}
 
 		// used to defined hard coded params
@@ -90,31 +91,44 @@ public class NextflowStep extends CloudgeneStep {
 			if (key.startsWith("params.")) {
 				String param = key.replace("params.", "");
 				String value = step.get(key);
-				command.add("--" + param + "=" + value);
+				nextflowCommand.add("--" + param + " \"" + value + "\"");
 			}
 		}
-
 		// add all inputs
 		for (String param : context.getInputs()) {
 			String value = context.getInput(param);
-			command.add("--" + param + "=" + value);
+			//resolve app links: use all properties as input parameters
+			if (value.startsWith("apps@")) {
+				Map<String, Object> linkedApp = (Map<String, Object>) context.getData(param);
+				for (String paramLinkedApp : linkedApp.keySet()) {
+					String valueLinkedApp = linkedApp.get(paramLinkedApp).toString();
+					nextflowCommand.add("--" + paramLinkedApp + " \"" + valueLinkedApp + "\"");
+				}
+			} else {
+				nextflowCommand.add("--" + param + " \"" + value + "\"");
+			}
 
 		}
 
 		// add all outputs
 		for (String param : context.getOutputs()) {
 			String value = context.getOutput(param);
-			command.add("--" + param + "=" + value);
+			nextflowCommand.add("--" + param + " " + value);
 
 		}
 
-		command.add("-ansi-log");
-		command.add("false");
+		nextflowCommand.add("-ansi-log");
+		nextflowCommand.add("false");
 
-		command.add("-with-weblog");
-		command.add("http://localhost:8082/api/v2/collect/" + makeSecretJobId(context.getJobId()));
+		nextflowCommand.add("-with-weblog");
+		nextflowCommand.add("http://localhost:8082/api/v2/collect/" + makeSecretJobId(context.getJobId()));
 
 		StringBuilder output = new StringBuilder();
+
+		List<String> command = new Vector<String>();
+		command.add("/bin/bash");
+		command.add("-c");
+		command.add(join(nextflowCommand));
 
 		try {
 			// context.beginTask("Running Nextflow pipeline...");
@@ -211,6 +225,17 @@ public class NextflowStep extends CloudgeneStep {
 			}
 
 		}
+	}
+
+	private String join(List<String> array) {
+		String result = "";
+		for (int i = 0; i < array.size(); i++) {
+			if (i > 0) {
+				result += " \\\n";
+			}
+			result += array.get(i);
+		}
+		return result;
 	}
 
 	@Override
