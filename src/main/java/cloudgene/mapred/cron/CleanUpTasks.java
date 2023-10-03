@@ -153,7 +153,7 @@ public class CleanUpTasks {
 
 		}
 
-		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email ntofication.");
+		log.info(send + " notifications sent. " + otherJobs + " jobs marked without email notification.");
 
 		MailUtil.notifySlack(settings, "Hi! I sent " + send + " notifications :love_letter:");
 

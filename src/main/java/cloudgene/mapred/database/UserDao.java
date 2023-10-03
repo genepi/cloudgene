@@ -25,12 +25,12 @@ public class UserDao extends JdbcDataAccessObject {
 	public boolean insert(User user) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"insert into `user` (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token, last_login, locked_until, login_attempts) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+				"insert into `user` (username, password, full_name, aws_key, aws_secret_key, save_keys, export_to_s3, s3_bucket, mail, role, export_input_to_s3, activation_code, active,api_token, last_login, locked_until, login_attempts, api_token_expires_on) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[17];
+			Object[] params = new Object[18];
 			params[0] = user.getUsername().toLowerCase();
 			params[1] = user.getPassword();
 			params[2] = user.getFullName();
@@ -41,7 +41,6 @@ public class UserDao extends JdbcDataAccessObject {
 			params[7] = null;
 			params[8] = user.getMail();
 			params[9] = String.join(User.ROLE_SEPARATOR, user.getRoles());
-			;
 			params[10] = false;
 			params[11] = user.getActivationCode();
 			params[12] = user.isActive();
@@ -49,6 +48,7 @@ public class UserDao extends JdbcDataAccessObject {
 			params[14] = user.getLastLogin();
 			params[15] = user.getLockedUntil();
 			params[16] = user.getLoginAttempts();
+			params[17] = user.getApiTokenExpiresOn();
 
 			int id = insert(sql.toString(), params);
 
@@ -67,12 +67,12 @@ public class UserDao extends JdbcDataAccessObject {
 	public boolean update(User user) {
 		StringBuilder sql = new StringBuilder();
 		sql.append(
-				"update `user` set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ?, last_login = ?, locked_until = ?, login_attempts = ? ");
+				"update `user` set username = ?, password = ?, full_name = ?, aws_key = ?, aws_secret_key = ?, save_keys = ? , export_to_s3 = ?, s3_bucket = ?, mail = ?, role = ?, export_input_to_s3 = ?, active = ?, activation_code = ?, api_token = ?, last_login = ?, locked_until = ?, login_attempts = ?, api_token_expires_on = ? ");
 		sql.append("where id = ?");
 
 		try {
 
-			Object[] params = new Object[18];
+			Object[] params = new Object[19];
 			params[0] = user.getUsername().toLowerCase();
 			params[1] = user.getPassword();
 			params[2] = user.getFullName();
@@ -90,7 +90,8 @@ public class UserDao extends JdbcDataAccessObject {
 			params[14] = user.getLastLogin();
 			params[15] = user.getLockedUntil();
 			params[16] = user.getLoginAttempts();
-			params[17] = user.getId();
+			params[17] = user.getApiTokenExpiresOn();
+			params[18] = user.getId();
 
 			update(sql.toString(), params);
 
@@ -317,6 +318,7 @@ public class UserDao extends JdbcDataAccessObject {
 			user.setActivationCode(rs.getString("user.activation_code"));
 			user.setActive(rs.getBoolean("user.active"));
 			user.setApiToken(rs.getString("user.api_token"));
+			user.setApiTokenExpiresOn(rs.getTimestamp("user.api_token_expires_on"));
 			user.setLastLogin(rs.getTimestamp("user.last_login"));
 			user.setLockedUntil(rs.getTimestamp("user.locked_until"));
 			user.setLoginAttempts(rs.getInt("user.login_attempts"));

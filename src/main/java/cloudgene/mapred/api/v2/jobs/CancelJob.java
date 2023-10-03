@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.jobs;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -12,6 +14,8 @@ import cloudgene.mapred.util.PublicUser;
 import net.sf.json.JSONObject;
 
 public class CancelJob extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(CancelJob.class);
 
 	@Get
 	public Representation get(Representation entity) {
@@ -39,6 +43,12 @@ public class CancelJob extends BaseResource {
 		}
 
 		getWorkflowEngine().cancel(job);
+
+		String message = String.format("Job: Canceled job ID %s", job.getId());
+		if (user.isAdmin()) {
+			message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+		}
+		log.info(message);
 
 		JSONObject object = JSONConverter.convert(job);
 

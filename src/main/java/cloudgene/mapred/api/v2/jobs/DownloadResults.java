@@ -101,11 +101,19 @@ public class DownloadResults extends BaseResource {
 				String resultFile = FileUtil.path(localWorkspace, download.getPath());
 				log.debug("Downloading file from local workspace " + resultFile);
 				MediaType mediaType = getMediaType(download.getPath());
+
+				User jobOwner = job.getUser();
+				String message  = String.format("Job: Downloading file '%s' for job %s - owner %s (ID %s - email %s)", filename, job.getId(), jobOwner.getUsername(), jobOwner.getId(), jobOwner.getMail());
+				if (user.isAdmin()) {
+					message += String.format(" (by ADMIN user ID %s - email %s)", user.getId(), user.getMail());
+				}
+				log.info(message);
+
 				return new FileRepresentation(resultFile, mediaType);
 			}
 
 		} catch (Exception e) {
-			log.error("Processing download failed.", e);
+			log.error("Job: Error while downloading file", e);
 			return error400("Processing download failed.");
 		}
 	}

@@ -1,8 +1,10 @@
 package cloudgene.mapred.core;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.restlet.Request;
 import org.restlet.data.Parameter;
 import org.restlet.util.Series;
@@ -12,11 +14,11 @@ import cloudgene.mapred.database.util.Database;
 
 public class JWTUtil {
 
+	public static String ATTRIBUTE_API_HASH = "api_hash";
+
 	public static final String COOKIE_NAME = "cloudgene-token";
 
 	public static long TOKEN_LIFETIME_MS = 24 * 60 * 60 * 1000;
-
-	public static long TOKEN_LIFETIME_API_MS = 30L * 24L * 60L * 60L * 1000L;
 
 	public JWTUtil() {
 	}
@@ -35,16 +37,22 @@ public class JWTUtil {
 		return token;
 	}
 
-	public static String createApiToken(User user, String secretKey) {
+	public static ApiToken createApiToken(User user, String secretKey, int lifetime) {
+
+		String hash = RandomStringUtils.randomAlphanumeric(30);
 
 		Map<String, Object> playload = new HashMap<String, Object>();
 		playload.put("username", user.getUsername());
 		playload.put("name", user.getFullName());
 		playload.put("mail", user.getMail());
+		playload.put(ATTRIBUTE_API_HASH, hash);
 		playload.put("api", true);
-		String token = JWT.generate(playload, secretKey, TOKEN_LIFETIME_API_MS);
+		String token = JWT.generate(playload, secretKey, lifetime * 1000L);
 
-		return token;
+		Date expiresOn = new Date(System.currentTimeMillis() + (lifetime * 1000L));
+
+		ApiToken apiToken = new ApiToken(token, hash, expiresOn);
+		return apiToken;
 	}
 
 	public static User getUser(Database database, Map<String, Object> payload) {
@@ -122,7 +130,7 @@ public class JWTUtil {
 			if (isApiToken(payload)) {
 				User user = getUser(database, payload);
 				// check if api key is on users whitelist
-				if (user != null && user.getApiToken().equals(payload.get("request-token").toString())) {
+				if (user != null && user.getApiToken().equals(payload.get(ATTRIBUTE_API_HASH))) {
 					return user;
 				} else {
 					return null;

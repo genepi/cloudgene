@@ -65,13 +65,6 @@ public class GetAllJobs extends BaseResource {
 		case "current":
 
 			jobs = dao.findAllNotRetiredJobs();
-			List<AbstractJob> toRemove = new Vector<AbstractJob>();
-			for (AbstractJob job : jobs) {
-				if (engine.isInQueue(job)) {
-					toRemove.add(job);
-				}
-			}
-			jobs.removeAll(toRemove);
 			break;
 
 		case "retired":
@@ -99,7 +92,7 @@ public class GetAllJobs extends BaseResource {
 		int running = 0;
 
 		for (AbstractJob job : jobs) {
-			
+
 			String workspace = getSettings().getLocalWorkspace();
 			String folder = FileUtil.path(workspace, job.getId());
 			File file = new File(folder);
@@ -107,7 +100,7 @@ public class GetAllJobs extends BaseResource {
 				long size = FileUtils.sizeOfDirectory(file);
 				job.setWorkspaceSize(FileUtils.byteCountToDisplaySize(size));
 			}
-			
+
 			if (job.getState() == AbstractJob.STATE_EXPORTING || job.getState() == AbstractJob.STATE_RUNNING) {
 				running++;
 			}

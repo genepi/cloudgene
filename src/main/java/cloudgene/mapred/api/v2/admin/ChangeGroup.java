@@ -1,5 +1,7 @@
 package cloudgene.mapred.api.v2.admin;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.data.Form;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
@@ -13,6 +15,8 @@ import cloudgene.mapred.util.JSONConverter;
 import net.sf.json.JSONObject;
 
 public class ChangeGroup extends BaseResource {
+
+	private static final Log log = LogFactory.getLog(ChangeGroup.class);
 
 	@Post
 	public Representation post(Representation entity) {
@@ -58,6 +62,10 @@ public class ChangeGroup extends BaseResource {
 		// update user role in database
 		user1.setRoles(role.split(User.ROLE_SEPARATOR));
 		dao.update(user1);
+
+		log.info(String.format("User: Changed group membership for %s (ID %s) to %s (by ADMIN user ID %s - email %s)",
+				user1.getUsername(), user1.getId(), String.join(",", user1.getRoles()),
+				user.getId(), user.getMail()));
 
 		JSONObject object = JSONConverter.convert(user1);
 		return new StringRepresentation(object.toString());
