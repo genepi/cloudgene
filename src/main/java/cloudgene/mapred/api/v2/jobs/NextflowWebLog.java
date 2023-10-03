@@ -1,7 +1,5 @@
 package cloudgene.mapred.api.v2.jobs;
 
-import java.io.IOException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.representation.Representation;

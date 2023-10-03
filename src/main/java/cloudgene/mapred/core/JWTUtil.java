@@ -10,7 +10,7 @@ import org.restlet.data.Parameter;
 import org.restlet.util.Series;
 
 import cloudgene.mapred.database.UserDao;
-import genepi.db.Database;
+import cloudgene.mapred.database.util.Database;
 
 public class JWTUtil {
 

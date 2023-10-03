@@ -10,7 +10,7 @@ import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.MACVerifier;
 
 import cloudgene.mapred.database.UserDao;
-import genepi.db.Database;
+import cloudgene.mapred.database.util.Database;
 
 public class ApiTokenVerifier {
 	

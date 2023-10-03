@@ -1,20 +1,17 @@
 package cloudgene.mapred.util;
 
-import genepi.hadoop.HdfsUtil;
-import genepi.io.FileUtil;
-
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
 
 import org.junit.BeforeClass;
 
-import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.jobs.CloudgeneJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import genepi.hadoop.HdfsUtil;
+import genepi.io.FileUtil;
 
 public class WdlAppTestCase {
 

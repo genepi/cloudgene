@@ -11,11 +11,11 @@ import com.dumbster.smtp.SmtpMessage;
 
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.JobsApiTestCase;
 import cloudgene.mapred.util.TestMailServer;
 import cloudgene.mapred.util.TestServer;
-import genepi.db.Database;
 
 public class ResetPasswordTest extends JobsApiTestCase {
 

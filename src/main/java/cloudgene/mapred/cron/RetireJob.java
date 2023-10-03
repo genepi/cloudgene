@@ -6,8 +6,8 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import cloudgene.mapred.WebApp;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.util.Settings;
-import genepi.db.Database;
 
 public class RetireJob implements Job {
 

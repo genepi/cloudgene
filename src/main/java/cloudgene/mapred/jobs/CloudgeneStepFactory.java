@@ -11,7 +11,6 @@ import cloudgene.mapred.steps.HadoopSparkStep;
 import cloudgene.mapred.steps.HtmlWidgetStep;
 import cloudgene.mapred.steps.JavaExternalStep;
 import cloudgene.mapred.steps.RMarkdownDockerStep;
-import cloudgene.mapred.steps.RMarkdownLocalStep;
 import cloudgene.mapred.steps.RMarkdownStep;
 import cloudgene.mapred.wdl.WdlStep;
 

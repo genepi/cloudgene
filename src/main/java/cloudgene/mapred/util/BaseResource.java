@@ -19,8 +19,8 @@ import cloudgene.mapred.WebApp;
 import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.core.JWTUtil;
 import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.WorkflowEngine;
-import genepi.db.Database;
 
 public class BaseResource extends ServerResource {
 	private static final Log log = LogFactory.getLog(BaseResource.class);

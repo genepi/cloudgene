@@ -1,10 +1,5 @@
 package cloudgene.mapred.cli;
 
-import cloudgene.mapred.apps.Application;
-import cloudgene.mapred.apps.ApplicationRepository;
-import cloudgene.mapred.util.Config;
-import cloudgene.mapred.util.Settings;
-import genepi.io.FileUtil;
 import junit.framework.TestCase;
 
 public class InstallApplicationTest extends TestCase {

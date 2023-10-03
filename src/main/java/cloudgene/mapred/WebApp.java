@@ -73,15 +73,14 @@ import cloudgene.mapred.api.v2.users.ResetPassword;
 import cloudgene.mapred.api.v2.users.UpdatePassword;
 import cloudgene.mapred.api.v2.users.UserProfile;
 import cloudgene.mapred.api.v2.users.VerifyApiToken;
-import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.database.TemplateDao;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.WorkflowEngine;
 import cloudgene.mapred.representations.CustomStatusService;
 import cloudgene.mapred.resources.Admin;
 import cloudgene.mapred.resources.Index;
 import cloudgene.mapred.resources.Start;
 import cloudgene.mapred.util.Settings;
-import genepi.db.Database;
 
 public class WebApp extends Application {
 

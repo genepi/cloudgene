@@ -12,7 +12,7 @@ import cloudgene.mapred.database.JobDao;
 import cloudgene.mapred.database.MessageDao;
 import cloudgene.mapred.database.ParameterDao;
 import cloudgene.mapred.database.StepDao;
-import genepi.db.Database;
+import cloudgene.mapred.database.util.Database;
 
 public class PersistentWorkflowEngine extends WorkflowEngine {
 

@@ -8,13 +8,13 @@ import org.apache.commons.logging.LogFactory;
 
 import cloudgene.mapred.WebApp;
 import cloudgene.mapred.database.JobDao;
+import cloudgene.mapred.database.util.Database;
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.workspace.ExternalWorkspaceFactory;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.util.Template;
 import cloudgene.sdk.internal.IExternalWorkspace;
-import genepi.db.Database;
 import genepi.hadoop.HdfsUtil;
 import genepi.io.FileUtil;
 
