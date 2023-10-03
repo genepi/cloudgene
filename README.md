@@ -1,8 +1,7 @@
 Cloudgene
 =========
 
-[![Build Status](https://travis-ci.org/genepi/cloudgene.svg?branch=master)](https://travis-ci.org/genepi/cloudgene)
-[![codecov](https://codecov.io/gh/genepi/cloudgene/branch/master/graph/badge.svg)](https://codecov.io/gh/genepi/cloudgene)
+[![Build Status](https://github.com/genepi/cloudgene/actions/workflows/maven-test.yml/badge.svg)](https://github.com/genepi/cloudgene/actions/workflows/maven-test.yml)
 [![GitHub release](https://img.shields.io/github/release/genepi/cloudgene.svg)](https://GitHub.com/genepi/cloudgene/releases/)
 
 
