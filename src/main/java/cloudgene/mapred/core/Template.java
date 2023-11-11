@@ -1,5 +1,8 @@
 package cloudgene.mapred.core;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
+@JsonClassDescription
 public class Template {
 
 	public static final String MAINTENANCE_MESSAGE = "MAINTENANCE_MESSAGE";

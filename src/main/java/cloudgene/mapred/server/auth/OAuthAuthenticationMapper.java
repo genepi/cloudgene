@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.reactivestreams.Publisher;
 
 import cloudgene.mapred.core.Template;
 import cloudgene.mapred.core.User;
@@ -24,6 +25,7 @@ import io.micronaut.security.oauth2.endpoint.token.response.OpenIdClaims;
 import io.micronaut.security.oauth2.endpoint.token.response.OpenIdTokenResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import reactor.core.publisher.Mono;
 
 @Singleton
 @Replaces(DefaultOpenIdAuthenticationMapper.class)
@@ -49,9 +51,12 @@ public class OAuthAuthenticationMapper extends DefaultOpenIdAuthenticationMapper
 
 	@Override
 	@NonNull
-	public AuthenticationResponse createAuthenticationResponse(String providerName, OpenIdTokenResponse tokenResponse,
+	public Publisher<AuthenticationResponse> createAuthenticationResponse(String providerName, OpenIdTokenResponse tokenResponse,
 			OpenIdClaims openIdClaims, @Nullable State state) {
 
+		return Mono.<AuthenticationResponse>create(emitter -> {
+		
+		
 		String email = openIdClaims.getEmail();
 
 		UserDao dao = new UserDao(application.getDatabase());
@@ -78,7 +83,8 @@ public class OAuthAuthenticationMapper extends DefaultOpenIdAuthenticationMapper
 			user.setLastLogin(new Date());
 			dao.update(user);
 
-			return AuthenticationResponse.success(user.getUsername(), Arrays.asList(user.getRoles()));
+	
+			emitter.success(AuthenticationResponse.success(user.getUsername(), Arrays.asList(user.getRoles())));
 
 		} else {
 
@@ -90,9 +96,10 @@ public class OAuthAuthenticationMapper extends DefaultOpenIdAuthenticationMapper
 			user.setPassword(HashUtil.hashPassword(RandomStringUtils.randomAlphanumeric(30)));
 			dao.insert(user);
 			
-			return AuthenticationResponse.success(user.getUsername(), Arrays.asList(user.getRoles()));
+			emitter.success(AuthenticationResponse.success(user.getUsername(), Arrays.asList(user.getRoles())));
 
 		}
 
+		});	
 	}
 }

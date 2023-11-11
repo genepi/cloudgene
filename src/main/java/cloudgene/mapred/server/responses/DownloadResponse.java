@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.jobs.Download;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class DownloadResponse {
 
 	private String name;

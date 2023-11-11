@@ -2,10 +2,12 @@ package cloudgene.mapred.server.responses;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import cloudgene.mapred.util.Settings;
 
+@JsonClassDescription
 @JsonInclude(JsonInclude.Include.ALWAYS)
 public class ServerResponse {
 

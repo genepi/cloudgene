@@ -1,8 +1,11 @@
 package cloudgene.mapred.jobs;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
 import java.util.List;
 import java.util.Vector;
 
+@JsonClassDescription
 public class JobResultsTreeItem {
 
 	private String name = "";

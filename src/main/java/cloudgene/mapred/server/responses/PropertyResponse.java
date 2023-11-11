@@ -1,9 +1,12 @@
 package cloudgene.mapred.server.responses;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+@JsonClassDescription
 public class PropertyResponse {
 	String key;
 	String value;

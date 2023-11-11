@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import cloudgene.mapred.jobs.Environment.Variable;
@@ -11,6 +12,7 @@ import cloudgene.mapred.util.Settings;
 import genepi.io.FileUtil;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonClassDescription
 public class NextflowConfigResponse {
 
 	private String content = "";

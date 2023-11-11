@@ -3,6 +3,7 @@ package cloudgene.mapred.server.responses;
 import java.util.List;
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import cloudgene.mapred.jobs.CloudgeneJob;
@@ -10,6 +11,7 @@ import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.JobResultsTreeItem;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
 
+@JsonClassDescription
 public class ParameterOutputResponse {
 
 	private int id;

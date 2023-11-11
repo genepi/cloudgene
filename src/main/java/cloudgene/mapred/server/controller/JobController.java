@@ -92,24 +92,29 @@ public class JobController {
 
 				User user = authenticationService.getUserByAuthentication(authentication,
 						AuthenticationType.ALL_TOKENS);
-				blockInMaintenanceMode(user);
 
-				AbstractJob job = jobService.submitJob(app, form, user);
+				try {
 
-				String message = String.format("Job: Created job ID %s for user %s (ID %s - email %s)", user.getId(),
-						user.getUsername(), user.getId(), user.getMail());
-				if (user.isAccessedByApi()) {
-					message += " (via API token)";
+					blockInMaintenanceMode(user);
+
+					AbstractJob job = jobService.submitJob(app, form, user);
+
+					String message = String.format("Job: Created job ID %s for user %s (ID %s - email %s)", user.getId(),
+							user.getUsername(), user.getId(), user.getMail());
+					if (user.isAccessedByApi()) {
+						message += " (via API token)";
+					}
+					log.info(message);
+
+					message = "Your job was successfully added to the job queue.";
+					return HttpResponse.ok(ResponseObject.build(job.getId(), message, true));
+				} catch (JsonHttpStatusException e) {
+					return HttpResponse.status(e.getStatus()).body(e.getObject());
 				}
-				log.info(message);
-
-				message = "Your job was successfully added to the job queue.";
-				return HttpResponse.ok(ResponseObject.build(job.getId(), message, true));
-
 			}
 		});
-
 	}
+
 
 	@Get("/")
 	@Secured(SecurityRule.IS_AUTHENTICATED)

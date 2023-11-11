@@ -1,5 +1,8 @@
 package cloudgene.mapred.wdl;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
+@JsonClassDescription
 public class WdlParameterOutput implements WdlParameter {
 
 	private String id;

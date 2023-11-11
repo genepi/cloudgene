@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.core.User;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class UserResponse {
 
 	private int id;

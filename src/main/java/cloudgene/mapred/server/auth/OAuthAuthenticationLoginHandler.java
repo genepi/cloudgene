@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class OAuthAuthenticationLoginHandler implements RedirectingLoginHandler {
+public class OAuthAuthenticationLoginHandler implements RedirectingLoginHandler<HttpRequest<?>, MutableHttpResponse<?>> {
 
 	public static int LIFETIME = 60 * 60 * 24;
 

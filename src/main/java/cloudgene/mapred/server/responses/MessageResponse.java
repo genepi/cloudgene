@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Vector;
 
 import cloudgene.mapred.jobs.Message;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class MessageResponse {
 
 	private boolean success = true;

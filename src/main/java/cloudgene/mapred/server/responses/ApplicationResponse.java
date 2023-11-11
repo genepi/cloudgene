@@ -10,7 +10,10 @@ import cloudgene.mapred.apps.ApplicationRepository;
 import cloudgene.mapred.jobs.Environment;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import genepi.io.FileUtil;
+
+@JsonClassDescription
 
 public class ApplicationResponse {
 

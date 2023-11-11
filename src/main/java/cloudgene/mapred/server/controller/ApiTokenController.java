@@ -44,7 +44,7 @@ public class ApiTokenController {
 	@Post("/api/v2/users/{username}/api-token")
 	@Consumes(MediaType.ALL)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
-	public HttpResponse<MessageResponse> create(String username, Authentication authentication,
+	public HttpResponse<ApiTokenResponse> create(String username, Authentication authentication,
 			@QueryValue @Nullable Integer expiration) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
@@ -66,14 +66,12 @@ public class ApiTokenController {
 		boolean successful = userDao.update(user);
 
 		if (successful) {
-
 			log.info(String.format("User: generated API token for user %s (ID %s - email %s)", user.getUsername(), user.getId(), user.getMail()));
-			
 			return HttpResponse.ok(new ApiTokenResponse(apiToken));
 
 		} else {
 
-			return HttpResponse.ok(MessageResponse.error(MESSAGE_APT_TOKEN_ERROR));
+			return HttpResponse.ok(new ApiTokenResponse(MESSAGE_APT_TOKEN_ERROR, false));
 
 		}
 
