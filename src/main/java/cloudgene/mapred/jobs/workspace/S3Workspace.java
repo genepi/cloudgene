@@ -105,7 +105,6 @@ public class S3Workspace implements IWorkspace {
 		String key = S3Util.getKey(url);
 
 		AmazonS3 s3 = S3Util.getAmazonS3();
-
 		S3Object o = s3.getObject(bucket, key);
 		S3ObjectInputStream s3is = o.getObjectContent();
 

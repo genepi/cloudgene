@@ -8,7 +8,7 @@ export default Control.extend({
 
   "init": function(element, options) {
 
-    $.get('/logs/' + options.job.attr('id'),function(data) {
+    $.get('logs/' + options.job.attr('id'),function(data) {
       $(element).html(template({
         content: data,
         job: options.job

@@ -41,7 +41,7 @@ public class NextflowCollector {
 		contexts.put(context.getPublicJobId(), context);
 		Settings settings = context.getSettings();
 		log.info("[Job {}] Register collector for public job id '{}'", context.getJobId(), context.getPublicJobId());
-		return settings.getServerUrl() + settings.getUrlPrefix() + COLLECTOR_ENDPOINT + context.getPublicJobId();
+		return settings.getServerUrl() + settings.getBaseUrl() + COLLECTOR_ENDPOINT + context.getPublicJobId();
 	}
 
 	public void addEvent(String job, Map<String, Object> event) throws IOException {

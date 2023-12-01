@@ -47,12 +47,13 @@ micronaut:
   router:
     static-resources:
       webapp:
+        mapping: "${micronaut.server.context-path:}/**"
         paths:
           - file:webapp
         enabled: true
       pages:
         enabled: true
-        mapping: "/static/**"
+        mapping: "${micronaut.server.context-path:}/static/**"
         paths:
           - file:pages
           - file:sample/pages

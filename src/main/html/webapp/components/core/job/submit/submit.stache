@@ -36,7 +36,7 @@
 <div class="container">
 
 
-<form id="parameters" class="form-horizontal" action="/api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
+<form id="parameters" class="form-horizontal" action="api/v2/jobs/submit/{{application.id}}" method="POST" enctype="multipart/form-data" novalidate autocomplete="off">
 
 <div class="form-group row">
 	<label for="job-name" class="col-sm-2 col-form-label">Name</label>

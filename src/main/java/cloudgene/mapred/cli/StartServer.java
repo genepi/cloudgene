@@ -85,7 +85,16 @@ public class StartServer extends Tool {
 
 			}
 
-			// TODO: urlPrefix
+			String baseUrl = Application.settings.getBaseUrl();
+			if (!baseUrl.trim().isEmpty()) {
+				if (!baseUrl.startsWith("/") || baseUrl.endsWith("/")){
+					System.out.println("Error: baseUrl has wrong format. Example: \"/path\" or \"/path/subpath\".");
+					System.exit(1);
+				}
+				properties.put("micronaut.server.context-path", baseUrl);
+			} else {
+
+			}
 
 			if (new File("webapp").exists()) {
 
@@ -131,7 +140,7 @@ public class StartServer extends Tool {
 		}
 
 		if (settings.getServerUrl() == null || settings.getServerUrl().trim().isEmpty()) {
-			System.out.println("serverUrl not set. Please set serverUrl in file '" + settingsFilename + "'");
+			System.out.println("Error: serverUrl not set. Please set serverUrl in file '" + settingsFilename + "'");
 			System.exit(1);
 		}
 
