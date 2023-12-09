@@ -70,6 +70,8 @@ public class Settings {
 
 	private int maxRunningJobsPerUser = 2;
 
+	private boolean emailRequired = true;
+
 	private boolean autoRetire = false;
 
 	private boolean streaming = true;
@@ -717,4 +719,11 @@ public class Settings {
 		return serverUrl;
 	}
 
+	public boolean isEmailRequired() {
+		return emailRequired;
+	}
+
+	public void setEmailRequired(boolean emailRequired) {
+		this.emailRequired = emailRequired;
+	}
 }
