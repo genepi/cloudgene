@@ -21,6 +21,7 @@
     <div class="invalid-feedback"></div>
   </div>
 
+<p>Email Required: {{emailRequired}} </p>
 
   <div class="form-group">
     <label for="mail" class="control-label">E-Mail:</label>

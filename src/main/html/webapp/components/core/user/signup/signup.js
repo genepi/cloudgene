@@ -9,8 +9,11 @@ import template from './signup.stache';
 export default Control.extend({
 
   "init": function(element, options) {
+    this.emailRequired = options.appState.attr('emailRequired');
     $(element).hide();
-    $(element).html(template());
+    $(element).html(template({
+      emailRequired: options.appState.attr('emailRequired')
+    }));
     $(element).fadeIn();
   },
 
@@ -32,8 +35,10 @@ export default Control.extend({
 
     // mail
     var mail = $(element).find("[name='mail']");
-    var mailError = user.checkMail(mail.val());
-    this.updateControl(mail, mailError);
+    if (this.emailRequired || (mail.val() != "")){
+      var mailError = user.checkMail(mail.val());
+      this.updateControl(mail, mailError);
+    }
 
     // password
     var newPassword = $(element).find("[name='new-password']");
