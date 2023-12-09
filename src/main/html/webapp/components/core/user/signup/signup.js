@@ -12,16 +12,49 @@ export default Control.extend({
     this.emailRequired = options.appState.attr('emailRequired');
     $(element).hide();
     $(element).html(template({
-      emailRequired: options.appState.attr('emailRequired')
+      emailRequired: options.appState.attr('emailRequired'),
+      userEmailDescription: options.appState.attr('userEmailDescription'),
+      userWithoutEmailDescription: options.appState.attr('userWithoutEmailDescription')
     }));
     $(element).fadeIn();
   },
+
+  "#anonymous1 click" : function(){
+    this.updateEmailControl();
+  },
+
+  "#anonymous2 click" : function(){
+    this.updateEmailControl();
+  },
+
+  "updateEmailControl": function() {
+      if (!this.emailRequired){
+        var anonymousControl = $(this.element).find("[name='anonymous']:checked");
+        var anonymous = (anonymousControl.val() == "1");
+        console.log(anonymous);
+        var mail = $(this.element).find("[name='mail']");
+        console.log(mail);
+        if (anonymous){
+          mail.attr('disabled','disabled');
+        } else {
+          mail.removeAttr('disabled');
+        }
+      }
+   },
 
   'submit': function(element, event) {
     event.preventDefault();
 
     var that = this;
     var user = new User();
+
+    // anonymous radiobutton
+    var anonymous = false;
+
+    if (!this.emailRequired){
+      var anonymousControl = $(element).find("[name='anonymous']:checked");
+      anonymous = (anonymousControl.val() == "1");
+    }
 
     // username
     var username = $(element).find("[name='username']");
@@ -35,9 +68,11 @@ export default Control.extend({
 
     // mail
     var mail = $(element).find("[name='mail']");
-    if (this.emailRequired || (mail.val() != "")){
+    if (!anonymous){
       var mailError = user.checkMail(mail.val());
       this.updateControl(mail, mailError);
+    } else {
+      this.updateControl(mail, undefined);
     }
 
     // password

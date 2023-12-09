@@ -15,6 +15,10 @@ public class Template {
 	public static final String FOOTER_SUBMIT_JOB = "FOOTER_SUBMIT_JOB";
 
 	public static final String TERMS = "TERMS";
+
+	public static final String USER_EMAIL_DESCRIPTION = "USER_EMAIL_DESCRIPTION";
+
+	public static final String USER_WITHOUT_EMAIL_DESCRIPTION = "USER_WITHOUT_EMAIL_DESCRIPTION";
 	
 	public static final Template[] SNIPPETS = new Template[] {
 
@@ -39,7 +43,11 @@ public class Template {
 			new Template(FOOTER_SUBMIT_JOB, ""),
 			
 			new Template(TERMS, "I will not attempt to re-identify or contact research participants.<br>" + 
-					"I will report any inadvertent data release, security breach or other data management incident of which I become aware.")
+					"I will report any inadvertent data release, security breach or other data management incident of which I become aware."),
+
+			new Template(USER_EMAIL_DESCRIPTION, "Receive email notifications when jobs are completed."),
+
+			new Template(USER_WITHOUT_EMAIL_DESCRIPTION, "You can enter your email address at any time to upgrade your account.")
 
 	};
 
