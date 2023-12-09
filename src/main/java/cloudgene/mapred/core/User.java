@@ -234,4 +234,12 @@ public class User {
 		return ((User) obj).getUsername().equals(username);
 	}
 
+	public void replaceRole(String oldRole, String newRole) {
+		for (int i = 0; i < roles.length; i++) {
+			if (roles[i].equalsIgnoreCase(oldRole)) {
+				roles[i] = newRole;
+				return;
+			}
+		}
+	}
 }

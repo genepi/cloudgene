@@ -79,9 +79,13 @@ public class UserProfile extends BaseResource {
 			return new JSONAnswer(error, false);
 		}
 
-		error = User.checkMail(mail);
-		if (error != null) {
-			return new JSONAnswer(error, false);
+		boolean mailProvided = (mail != null && !mail.isEmpty());
+
+		if (getSettings().isEmailRequired() || mailProvided) {
+			error = User.checkMail(mail);
+			if (error != null) {
+				return new JSONAnswer(error, false);
+			}
 		}
 
 		UserDao dao = new UserDao(getDatabase());
@@ -89,9 +93,21 @@ public class UserProfile extends BaseResource {
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
 
-		if (!user.getMail().equals(newUser.getMail())) {
+		if (user.getMail() != null && !user.getMail().equals(newUser.getMail())) {
 			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
 					newUser.getId()));
+		}
+
+		if (!getSettings().isEmailRequired()) {
+			if ((newUser.getMail() == null || newUser.getMail().isEmpty()) && user.hasRole(RegisterUser.DEFAULT_ROLE)) {
+				newUser.replaceRole(RegisterUser.DEFAULT_ROLE, RegisterUser.DEFAULT_UNTRUSTED_ROLE);
+				log.info(String.format("User: changed role to %s for user %s (ID %s)", RegisterUser.DEFAULT_UNTRUSTED_ROLE, newUser.getUsername(),
+						newUser.getId()));
+			} else if ((newUser.getMail() != null && !newUser.getMail().isEmpty()) && user.hasRole(RegisterUser.DEFAULT_UNTRUSTED_ROLE)) {
+				newUser.replaceRole(RegisterUser.DEFAULT_UNTRUSTED_ROLE, RegisterUser.DEFAULT_ROLE);
+				log.info(String.format("User: changed role to %s for user %s (ID %s)", RegisterUser.DEFAULT_ROLE, newUser.getUsername(),
+						newUser.getId()));
+			}
 		}
 
 		// update password only when it's not empty

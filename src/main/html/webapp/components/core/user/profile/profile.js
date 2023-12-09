@@ -16,13 +16,14 @@ import templateNewTokenDialog from './dialogs/new.stache'
 export default Control.extend({
 
   "init": function(element, options) {
-
+    this.emailRequired = options.appState.attr('emailRequired');
     $(element).hide();
     User.findOne({
       user: 'me'
     }, function(user) {
       $(element).html(template({
-        user: user
+        user: user,
+        emailRequired: options.appState.attr('emailRequired')
       }));
       options.user = user;
       $(element).fadeIn();
@@ -40,8 +41,12 @@ export default Control.extend({
 
     // mail
     var mail = $(element).find("[name='mail']");
-    var mailError = user.checkMail(mail.val());
-    this.updateControl(mail, mailError);
+    if (!this.emailRequired && mail.val() != ""){
+      var mailError = user.checkMail(mail.val());
+      this.updateControl(mail, mailError);
+    } else {
+      this.updateControl(mail, undefined);
+    }
 
     // password if password is not empty. else no password update on server side
     var newPassword = $(element).find("[name='new-password']");
