@@ -20,5 +20,6 @@ micronaut:
     folder: src/main/html/webapp
 
   autoRetireInterval: 10m
-jackson:
-  serialization-inclusion: ALWAYS
+  serde:
+    serialization:
+      inclusion: ALWAYS

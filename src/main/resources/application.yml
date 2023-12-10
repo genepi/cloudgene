@@ -59,5 +59,6 @@ micronaut:
           - file:sample/pages
   views:
     folder: webapp
-jackson:
-  serialization-inclusion: ALWAYS
+  serde:
+    serialization:
+      inclusion: ALWAYS
