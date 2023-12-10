@@ -16,11 +16,33 @@ Please fill out the form below to change your account settings or your password.
 		<div class="invalid-feedback"></div>
 	</div>
 
+  {{#is(anonymousAccount, false)}}
+
 	<div class="form-group">
 		<label for="mail" class="control-label">E-Mail:</label>
 		<input id="mail" name="mail" type="text" value="{{user.mail}}" class="form-control col-sm-3">
 		<div class="invalid-feedback"></div>
 	</div>
+
+	{{else}}
+	<hr>
+  <div class="form-group">
+   <input type="checkbox" id="anonymous" name="anonymous" value="0" {{#emailProvided}}checked{{/emailProvided}}> <label for="anonymous" class="control-label">E-Mail Address</label>
+    <div class="form-group" style="margin-left: 30px;">
+      <p>
+     {{userEmailDescription}}
+      </p>
+      <label for="mail" class="control-label">E-Mail:</label>
+      <input id="mail" name="mail" type="text" class="form-control col-sm-3" autocomplete="off" {{#is(emailProvided, false)}}disabled{{/is}} value="{{user.mail}}">
+      <div class="invalid-feedback"></div>
+      <p><br>
+        {{userWithoutEmailDescription}}
+      </p>
+    </div>
+     </div>
+       <hr>
+
+	{{/is}}
 
 	<h4>Change password</h4>
 
@@ -58,7 +80,7 @@ Please fill out the form below to change your account settings or your password.
   <small class="{{#is(../user.apiTokenValid, false)}}text-danger{{#is}}">{{../user.apiTokenMessage}}</small>
 	{{else}}
 		<button class="btn btn-primary" id="create_token">Create API Token</button>
-		Expires in 
+		Expires in
 		<select  id="token_expiration">
 			<option value="30">30 days</option>
 			<option value="60">60 days</option>

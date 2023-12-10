@@ -271,7 +271,7 @@ public class RegisterUserTest extends JobsApiTestCase {
 		UserDao dao = new UserDao(TestServer.getInstance().getDatabase());
 		User user = dao.findByUsername("abcdefgh");
 		assertEquals(1, user.getRoles().length);
-		assertEquals(RegisterUser.DEFAULT_UNTRUSTED_ROLE, user.getRoles()[0]);
+		assertEquals(RegisterUser.DEFAULT_ANONYMOUS_ROLE, user.getRoles()[0]);
 	}
 
 	public void testWithMailAndNoMailRequired() throws JSONException, IOException {

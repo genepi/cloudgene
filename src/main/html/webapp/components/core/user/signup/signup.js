@@ -31,9 +31,7 @@ export default Control.extend({
       if (!this.emailRequired){
         var anonymousControl = $(this.element).find("[name='anonymous']:checked");
         var anonymous = (anonymousControl.val() == "1");
-        console.log(anonymous);
         var mail = $(this.element).find("[name='mail']");
-        console.log(mail);
         if (anonymous){
           mail.attr('disabled','disabled');
         } else {

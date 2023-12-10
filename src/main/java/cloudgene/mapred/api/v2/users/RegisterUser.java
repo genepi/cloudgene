@@ -21,7 +21,7 @@ public class RegisterUser extends BaseResource {
 
 	public static final String DEFAULT_ROLE = "User";
 
-	public static final String DEFAULT_UNTRUSTED_ROLE = "User_Untrusted";
+	public static final String DEFAULT_ANONYMOUS_ROLE = "Anonymous_User";
 
 	@Post
 	public Representation post(Representation entity) {
@@ -58,7 +58,7 @@ public class RegisterUser extends BaseResource {
 			}
 		}
 
-		String[] roles = new String[] { mailProvided ? DEFAULT_ROLE : DEFAULT_UNTRUSTED_ROLE};
+		String[] roles = new String[] { mailProvided ? DEFAULT_ROLE : DEFAULT_ANONYMOUS_ROLE};
 
 		// check password
 		error = User.checkPassword(newPassword, confirmNewPassword);
