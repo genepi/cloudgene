@@ -3,6 +3,7 @@ package cloudgene.mapred.server.responses;
 import java.util.List;
 import java.util.Vector;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -12,6 +13,7 @@ import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.util.JobResultsTreeUtil;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonClassDescription
 public class JobResponse {
 
 	private String application;

@@ -8,10 +8,9 @@
 	<packaging>${packaging}</packaging>
 
 	<parent>
-		<relativePath>io.micronaut:micronaut-parent</relativePath>
-		<groupId>io.micronaut</groupId>
+		<groupId>io.micronaut.platform</groupId>
 		<artifactId>micronaut-parent</artifactId>
-		<version>3.9.1</version>
+		<version>4.1.6</version>
 	</parent>
 
 	<name>Cloudgene</name>
@@ -39,18 +38,21 @@
 
 	<properties>
 		<hadoop.version>2.6.0-cdh5.16.1</hadoop.version>
-		<node.version>v8.11.4</node.version>
+		<node.version>v10.4.0</node.version>
 		<npm.version>6.4.1</npm.version>
 		<webapp>${basedir}/src/main/html/webapp</webapp>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<packaging>jar</packaging>
-		<jdk.version>11</jdk.version>
-		<release.version>11</release.version>
-		<java.version>11</java.version>
-		<micronaut.version>3.3.4</micronaut.version>
+		<jdk.version>17</jdk.version>
+		<release.version>17</release.version>
+		<java.version>17</java.version>
+		<micronaut.version>4.1.6</micronaut.version>
+		<micronaut.runtime>netty</micronaut.runtime>
 		<exec.mainClass>cloudgene.mapred.server.Application</exec.mainClass>
 		<micronaut.runtime>netty</micronaut.runtime>
+		<micronaut.aot.enabled>false</micronaut.aot.enabled>
+
 	</properties>
 
 	<dependencyManagement>
@@ -156,11 +158,6 @@
 			<version>1.7</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>javax.mail</artifactId>
-		</dependency>
-
 
 
 		<dependency>
@@ -214,16 +211,11 @@
 		<!-- Micronaut -->
 
 
-		<dependency>
-			<groupId>io.micronaut</groupId>
-			<artifactId>micronaut-inject</artifactId>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.micronaut</groupId>
-			<artifactId>micronaut-validation</artifactId>
-			<scope>compile</scope>
-		</dependency>
+	    <dependency>
+		      <groupId>io.micronaut.validation</groupId>
+		      <artifactId>micronaut-validation</artifactId>
+		      <scope>compile</scope>
+	    </dependency>		
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -240,9 +232,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-		    <groupId>io.micronaut.test</groupId>
-		    <artifactId>micronaut-test-rest-assured</artifactId>
-		    <scope>test</scope>
+			<groupId>io.micronaut.test</groupId>
+			<artifactId>micronaut-test-rest-assured</artifactId>
+			<scope>test</scope>
 		</dependency>	
 		<dependency>
 			<groupId>io.micronaut</groupId>
@@ -260,9 +252,18 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>io.micronaut.serde</groupId>
+			<artifactId>micronaut-serde-jackson</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.micronaut</groupId>
 			<artifactId>micronaut-runtime</artifactId>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.micronaut</groupId>
+			<artifactId>micronaut-websocket</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>io.micronaut.security</groupId>
@@ -296,11 +297,27 @@
 			<artifactId>netty-resolver-dns-native-macos</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 		
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+		    <groupId>io.micronaut.email</groupId>
+		    <artifactId>micronaut-email-javamail</artifactId>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.eclipse.angus</groupId>
+		    <artifactId>angus-mail</artifactId>
+		    <scope>runtime</scope>
 		</dependency>
 
 	</dependencies>
@@ -324,10 +341,24 @@
 		<plugins>
 
 			<plugin>
-				<groupId>io.micronaut.build</groupId>
-				<artifactId>micronaut-maven-plugin</artifactId>
-			</plugin>
-
+		        <groupId>io.micronaut.maven</groupId>
+		        <artifactId>micronaut-maven-plugin</artifactId>
+		          <configuration>
+		              <aotDependencies>
+		                  <dependency>
+		                      <groupId>io.micronaut.security</groupId>
+		                      <artifactId>micronaut-security-aot</artifactId>
+		                      <version>${micronaut.security.version}</version>
+		                  </dependency>
+		              </aotDependencies>
+		            <configFile>aot-${packaging}.properties</configFile>
+		          </configuration>
+		      </plugin>
+		      <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-enforcer-plugin</artifactId>
+		      </plugin>
+      
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -337,41 +368,34 @@
 					<!-- Uncomment to enable incremental compilation -->
 					<!-- <useIncrementalCompilation>false</useIncrementalCompilation> -->
 
-					<annotationProcessorPaths
-						combine.children="append">
-						<path>
-							<groupId>io.micronaut</groupId>
-							<artifactId>micronaut-http-validation</artifactId>
-							<version>${micronaut.version}</version>
-						</path>
-						<path>
-							<groupId>io.micronaut.security</groupId>
-							<artifactId>micronaut-security-annotations</artifactId>
-							<version>${micronaut.security.version}</version>
-						</path>
-					</annotationProcessorPaths>
+			          <annotationProcessorPaths combine.children="append">
+			            <path>
+			              <groupId>io.micronaut</groupId>
+			              <artifactId>micronaut-http-validation</artifactId>
+			              <version>${micronaut.core.version}</version>
+			            </path>
+			            <path>
+			              <groupId>io.micronaut.security</groupId>
+			              <artifactId>micronaut-security-annotations</artifactId>
+			              <version>${micronaut.security.version}</version>
+			            </path>
+						  <path>
+							  <groupId>io.micronaut.serde</groupId>
+							  <artifactId>micronaut-serde-processor</artifactId>
+							  <version>${micronaut.serialization.version}</version>
+							  <exclusions>
+								  <exclusion>
+									  <groupId>io.micronaut</groupId>
+									  <artifactId>micronaut-inject</artifactId>
+								  </exclusion>
+							  </exclusions>
+					  </path>
+			          </annotationProcessorPaths>
 					<compilerArgs>
 						<arg>-Amicronaut.processing.group=cloudgene</arg>
 						<arg>-Amicronaut.processing.module=cloudgene</arg>
 					</compilerArgs>
 				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<dependencies>
-					<dependency>
-						<groupId>org.junit.platform</groupId>
-						<artifactId>junit-platform-surefire-provider</artifactId>
-						<version>1.3.0</version>
-					</dependency>
-					<dependency>
-						<groupId>org.junit.jupiter</groupId>
-						<artifactId>junit-jupiter-engine</artifactId>
-						<version>5.7.2</version>
-					</dependency>
-				</dependencies>
 			</plugin>
 
 			<!-- Create webapp for production -->
@@ -462,28 +486,6 @@
 						<id>makeself</id>
 						<goals>
 							<goal>makeself</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Code Coverage -->
-
-			<plugin>
-				<groupId>org.jacoco</groupId>
-				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.8.5</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>prepare-agent</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>report</id>
-						<phase>test</phase>
-						<goals>
-							<goal>report</goal>
 						</goals>
 					</execution>
 				</executions>

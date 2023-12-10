@@ -2,7 +2,9 @@ package cloudgene.mapred.server.responses;
 
 import java.util.List;
 import cloudgene.mapred.wdl.WdlApp;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class WdlAppResponse {
 
 	private String id;

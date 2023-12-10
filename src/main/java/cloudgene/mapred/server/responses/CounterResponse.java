@@ -5,7 +5,9 @@ import java.util.Map;
 
 import cloudgene.mapred.jobs.AbstractJob;
 import cloudgene.mapred.jobs.WorkflowEngine;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class CounterResponse {
 
 	private Map<String, Long> complete = new HashMap<String, Long>();

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cloudgene.mapred.jobs.workspace.IWorkspace;
 import org.junit.jupiter.api.Test;
 
 import cloudgene.mapred.TestApplication;
@@ -470,10 +471,10 @@ public class WorkflowEngineTest {
 
 		assertEquals(AbstractJob.STATE_SUCCESS, job.getState());
 
-		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "std.out");
+		String stdout = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "logs", "std.out");
 		String contentStdOut = FileUtil.readFileAsString(stdout);
 
-		String log = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "job.txt");
+		String log = FileUtil.path(application.getSettings().getLocalWorkspace(), job.getId(), "logs", "job.txt");
 		String contentlog = FileUtil.readFileAsString(log);
 
 		assertTrue(contentStdOut.contains("taks write to system out"));
@@ -670,10 +671,16 @@ public class WorkflowEngineTest {
 		String localWorkspace = FileUtil.path(settings.getLocalWorkspace(), id);
 		FileUtil.createDirectory(localWorkspace);
 
+
+		// setup workspace
+		IWorkspace workspace = workspaceFactory.getDefault();
+		workspace.setJob(id);
+		workspace.setup();
+
 		CloudgeneJob job = new CloudgeneJob(user, id, app, inputs);
 		job.setId(id);
 		job.setName(id);
-		job.setWorkspace(workspaceFactory.getDefault());
+		job.setWorkspace(workspace);
 		job.setLocalWorkspace(localWorkspace);
 		job.setSettings(settings);
 		job.setApplication(app.getName() + " " + app.getVersion());

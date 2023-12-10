@@ -24,10 +24,10 @@ micronaut:
           access:
             - isAnonymous()
       token:
+        bearer:
+          header-name: "X-Auth-Token"
+          prefix: ""
         jwt:
-          bearer:
-            header-name: "X-Auth-Token"
-            prefix: ""
           generator:
             access-token:
               expiration: 86400

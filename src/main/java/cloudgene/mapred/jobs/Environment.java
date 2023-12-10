@@ -10,6 +10,7 @@ import cloudgene.mapred.plugins.IPlugin;
 import cloudgene.mapred.plugins.PluginManager;
 import cloudgene.mapred.util.Settings;
 import cloudgene.mapred.wdl.WdlApp;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
 public class Environment {
 
@@ -91,7 +92,8 @@ public class Environment {
 		}
 		return value;
 	}
-	
+
+	@JsonClassDescription
 	public static class Variable {
 
 		private String name;

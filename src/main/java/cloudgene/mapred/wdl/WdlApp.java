@@ -3,9 +3,11 @@ package cloudgene.mapred.wdl;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonClassDescription
 public class WdlApp implements Comparable<WdlApp> {
 
 	private String source = "";

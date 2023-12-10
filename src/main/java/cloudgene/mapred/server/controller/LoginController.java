@@ -1,6 +1,6 @@
 package cloudgene.mapred.server.controller;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.reactivestreams.Publisher;
 
@@ -20,7 +20,7 @@ import io.micronaut.security.authentication.Authentication;
 import io.micronaut.security.authentication.UsernamePasswordCredentials;
 import io.micronaut.security.event.LoginFailedEvent;
 import io.micronaut.security.event.LoginSuccessfulEvent;
-import io.micronaut.security.token.jwt.bearer.AccessRefreshTokenLoginHandler;
+import io.micronaut.security.token.bearer.AccessRefreshTokenLoginHandler;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;
 

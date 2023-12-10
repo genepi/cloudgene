@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cloudgene.mapred.util.Page;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class PageResponse {
 
 	private int count;

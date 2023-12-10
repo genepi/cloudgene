@@ -1,8 +1,11 @@
 package cloudgene.mapred.wdl;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
 import java.util.List;
 import java.util.Vector;
 
+@JsonClassDescription
 public class WdlWorkflow {
 
 	private List<WdlStep> steps = new Vector<WdlStep>();

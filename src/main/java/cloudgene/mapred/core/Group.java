@@ -1,8 +1,11 @@
 package cloudgene.mapred.core;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
 import java.util.List;
 import java.util.Vector;
 
+@JsonClassDescription
 public  class Group {
 
 		private String name;

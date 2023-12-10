@@ -1,7 +1,10 @@
 package cloudgene.mapred.wdl;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
 import java.util.HashMap;
 
+@JsonClassDescription
 public class WdlStep extends HashMap<String, Object>{
 
 	public String getName() {

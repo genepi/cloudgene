@@ -2,12 +2,15 @@ package cloudgene.mapred.server.responses;
 
 import java.io.File;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 import org.apache.commons.io.FileUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import cloudgene.mapred.jobs.AbstractJob;
 import genepi.io.FileUtil;
 
 @JsonInclude(JsonInclude.Include.ALWAYS)
+@JsonClassDescription
 public class JobAdminResponse {
 
 	private List<JobResponse> data;

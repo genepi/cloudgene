@@ -1,5 +1,8 @@
 package cloudgene.mapred.server.responses;
 
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+
+@JsonClassDescription
 public class ResponseObject {
 
 	private boolean success;

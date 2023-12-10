@@ -3,7 +3,9 @@ package cloudgene.mapred.server.responses;
 import java.util.Date;
 
 import cloudgene.mapred.core.User;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
 
+@JsonClassDescription
 public class ValidatedApiTokenResponse {
 
 	private boolean valid = false;

@@ -20,7 +20,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DatabaseAuthenticationProvider implements AuthenticationProvider {
+public class DatabaseAuthenticationProvider implements AuthenticationProvider<HttpRequest<?>> {
 
 	private static Logger log = LoggerFactory.getLogger(DatabaseAuthenticationProvider.class);
 	

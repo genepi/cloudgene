@@ -2,6 +2,7 @@ package cloudgene.mapred.server.controller;
 
 import java.util.List;
 
+import io.micronaut.context.annotation.Parameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +104,7 @@ public class UserController {
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_AUTHENTICATED)
 	public HttpResponse<MessageResponse> update(Authentication authentication, String user2, @Nullable String username,
-			String full_name, String mail, String new_password, String confirm_new_password) {
+												@Parameter("full-name") String full_name, String mail, @Parameter("new-password") String new_password, @Parameter("confirm-new-password") String confirm_new_password) {
 
 		User user = authenticationService.getUserByAuthentication(authentication);
 
@@ -131,8 +132,8 @@ public class UserController {
 	@Post("/api/v2/users/update-password")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<MessageResponse> updatePassword(String token, @Nullable String username, String new_password,
-			String confirm_new_password) {
+	public HttpResponse<MessageResponse> updatePassword(String token, @Nullable String username,
+			@Parameter("new-password") String new_password, @Parameter("confirm-new-password") String confirm_new_password) {
 
 		MessageResponse response = userService.updatePassword(username, token, new_password, confirm_new_password);
 
@@ -153,8 +154,8 @@ public class UserController {
 	@Post("/api/v2/users/register")
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public HttpResponse<MessageResponse> register(String username, String full_name, String mail, String new_password,
-			String confirm_new_password) {
+	public HttpResponse<MessageResponse> register(String username, @Parameter("full-name") String full_name, String mail,
+			@Parameter("new-password") String new_password, @Parameter("confirm-new-password") String confirm_new_password) {
 
 		MessageResponse response = userService.registerUser(username, mail, new_password, confirm_new_password,
 				full_name);
