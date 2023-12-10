@@ -7,6 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao;
+import cloudgene.mapred.server.services.UserService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -64,6 +67,11 @@ public class RegisterUserTest {
 
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
+		//check role
+		UserDao dao = new UserDao(application.getDatabase());
+		User user = dao.findByUsername("usernameunique");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(UserService.DEFAULT_ROLE, user.getRoles()[0]);
 	}
 
 	@Test
@@ -296,6 +304,68 @@ public class RegisterUserTest {
 				.body("success", equalTo(false)).and().body("message", containsString("least one number"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 
+	}
+
+	@Test
+	public void testWithEmptyMailAndNoMailRequired() {
+
+		//set email required to false.
+
+		application.getSettings().setEmailRequired(false);
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
+
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "abcdefgh");
+		form.put("full-name", "abcdefgh abcgd");
+		form.put("mail", "");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
+
+		// register user
+		RestAssured.given().formParams(form).when().post("/api/v2/users/register").then().statusCode(200).and()
+				.body("success", equalTo(true)).and().body("message", equalTo("User sucessfully created."));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+
+		application.getSettings().setEmailRequired(true);
+
+		//check role
+		UserDao dao = new UserDao(application.getDatabase());
+		User user = dao.findByUsername("abcdefgh");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(UserService.DEFAULT_ANONYMOUS_ROLE, user.getRoles()[0]);
+	}
+
+	@Test
+	public void testWithMailAndNoMailRequired()  {
+
+		//set email required to false.
+
+		application.getSettings().setEmailRequired(false);
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
+
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "abcdefghi");
+		form.put("full-name", "abcdefgh abcgd");
+		form.put("mail", "test-blabla@test.com");
+		form.put("new-password", "Password27");
+		form.put("confirm-new-password", "Password27");
+
+		// register user
+		RestAssured.given().formParams(form).when().post("/api/v2/users/register").then().statusCode(200).and()
+				.body("success", equalTo(true)).and().body("message", equalTo("User sucessfully created."));
+		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
+
+		application.getSettings().setEmailRequired(true);
+
+		//check role
+		UserDao dao = new UserDao(application.getDatabase());
+		User user = dao.findByUsername("abcdefghi");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(UserService.DEFAULT_ROLE, user.getRoles()[0]);
 	}
 
 }

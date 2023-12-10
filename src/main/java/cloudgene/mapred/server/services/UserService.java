@@ -1,5 +1,6 @@
 package cloudgene.mapred.server.services;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -31,7 +32,7 @@ public class UserService {
 
 	private static final String MESSAGE_WRONG_PASSWORD = "Wrong password.";
 
-	private static final String MESSAGE_PROFILE_UPDATED = "User profile sucessfully updated.";
+	private static final String MESSAGE_PROFILE_UPDATED = "User profile successfully updated.";
 
 	private static final String MESSAGE_NOT_ALLOWED = "You are not allowed to change this user profile.";
 
@@ -45,7 +46,9 @@ public class UserService {
 
 	private static final String MESSAGE_ACCOUNT_NOT_FOUND = "We couldn't find an account with that username or email.";
 
-	private static final String MESSAGE_EMAIL_SENT = "Email sent to %s with instructions on how to reset your password.";
+	private static final String MESSAGE_EMAIL_SENT = "We sent you an email with instructions on how to reset your password.";
+
+	private static final String MESSAGE_EMAIL_NOT_AVAILABLE = "No email address is associated with the provided username. Therefore, password recovery cannot be completed.";
 
 	private static final String MESSAGE_SENDING_EMAIL_FAILED = "Sending recovery email failed. ";
 
@@ -53,7 +56,7 @@ public class UserService {
 
 	private static final String MESSAGE_USER_CREATED = "User sucessfully created.";
 
-	private static final String MESAGE_EMAIL_ALREADY_REGISTERED = "E-Mail is already registered.";
+	private static final String MESSAGE_EMAIL_ALREADY_REGISTERED = "E-Mail is already registered.";
 
 	private static final String MESSAGE_USERNAME_ALREADY_EXISTS = "Username already exists.";
 
@@ -64,6 +67,8 @@ public class UserService {
 	private static final String MESSAGE_USER_ACTIVATED = "User sucessfully activated.";
 
 	public static final String DEFAULT_ROLE = "User";
+
+	public static final String DEFAULT_ANONYMOUS_ROLE = "Anonymous_User";
 
 	@Inject
 	protected Application application;
@@ -156,9 +161,13 @@ public class UserService {
 			return MessageResponse.error(error);
 		}
 
-		error = User.checkMail(mail);
-		if (error != null) {
-			return MessageResponse.error(error);
+		boolean mailProvided = (mail != null && !mail.isEmpty());
+
+		if (application.getSettings().isEmailRequired() || mailProvided) {
+			error = User.checkMail(mail);
+			if (error != null) {
+				return MessageResponse.error(error);
+			}
 		}
 
 		UserDao dao = new UserDao(application.getDatabase());
@@ -166,9 +175,24 @@ public class UserService {
 		newUser.setFullName(full_name);
 		newUser.setMail(mail);
 
-		if (user.getMail() == null || !user.getMail().equals(newUser.getMail())) {
+		if (user.getMail() != null && !user.getMail().equals(newUser.getMail())) {
 			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
 					newUser.getId()));
+		}
+
+		String roleMessage = "";
+		if (!application.getSettings().isEmailRequired()) {
+			if ((newUser.getMail() == null || newUser.getMail().isEmpty()) && user.hasRole(DEFAULT_ROLE)) {
+				newUser.replaceRole(DEFAULT_ROLE, DEFAULT_ANONYMOUS_ROLE);
+				log.info(String.format("User: changed role to %s for user %s (ID %s)", DEFAULT_ANONYMOUS_ROLE, newUser.getUsername(),
+						newUser.getId()));
+				roleMessage += "<br><br>Your account has been <b>downgraded</b>.<br>To apply these changes, please log out and log back in.";
+			} else if ((newUser.getMail() != null && !newUser.getMail().isEmpty()) && user.hasRole(DEFAULT_ANONYMOUS_ROLE)) {
+				newUser.replaceRole(DEFAULT_ANONYMOUS_ROLE, DEFAULT_ROLE);
+				log.info(String.format("User: changed role to %s for user %s (ID %s)", DEFAULT_ROLE, newUser.getUsername(),
+						newUser.getId()));
+				roleMessage += "<br><br>Your account has been <b>upgraded</b>.<br>To apply these changes, please log out and log back in.";
+			}
 		}
 
 		// update password only when it's not empty
@@ -188,7 +212,7 @@ public class UserService {
 
 		dao.update(newUser);
 
-		return MessageResponse.success(MESSAGE_PROFILE_UPDATED);
+		return MessageResponse.success(MESSAGE_PROFILE_UPDATED + roleMessage);
 	}
 
 	public MessageResponse deleteProfile(User user, String username, String password) {
@@ -257,7 +281,7 @@ public class UserService {
 
 	public MessageResponse resetPassword(String username) {
 
-		if (username == null || username.isEmpty()) {
+		if (username == null || username.trim().isEmpty()) {
 			return MessageResponse.error(MESSAGE_INVALID_USERNAME);
 		}
 
@@ -299,11 +323,16 @@ public class UserService {
 			String body = application.getTemplate(Template.RECOVERY_MAIL, user.getFullName(), application, link);
 
 			try {
-				log.info(String.format("Password reset link requested for user '%s'", username));
+				if (user.getMail()!= null && !user.getMail().isEmpty()) {
 
-				MailUtil.send(application.getSettings(), user.getMail(), subject, body);
+					log.info(String.format("Password reset link requested for user '%s'", username));
 
-				return MessageResponse.success(String.format(MESSAGE_EMAIL_SENT, user.getMail()));
+					MailUtil.send(application.getSettings(), user.getMail(), subject, body);
+
+					return MessageResponse.success(MESSAGE_EMAIL_SENT);
+				} else {
+					return MessageResponse.error(MESSAGE_EMAIL_NOT_AVAILABLE);
+				}
 
 			} catch (Exception e) {
 
@@ -332,13 +361,20 @@ public class UserService {
 		}
 
 		// check email
-		error = User.checkMail(mail);
-		if (error != null) {
-			return MessageResponse.error(error);
+		boolean mailProvided = (mail != null && !mail.isEmpty());
+
+		if (application.getSettings().isEmailRequired() || mailProvided) {
+			// check email
+			error = User.checkMail(mail);
+			if (error != null) {
+				return MessageResponse.error(error);
+			}
+			if (dao.findByMail(mail) != null) {
+				return MessageResponse.error(MESSAGE_EMAIL_ALREADY_REGISTERED);
+			}
 		}
-		if (dao.findByMail(mail) != null) {
-			return MessageResponse.error(MESAGE_EMAIL_ALREADY_REGISTERED);
-		}
+
+		String[] roles = new String[] { mailProvided ? DEFAULT_ROLE : DEFAULT_ANONYMOUS_ROLE};
 
 		// check password
 		error = User.checkPassword(new_password, confirm_new_password);
@@ -356,7 +392,7 @@ public class UserService {
 		newUser.setUsername(username);
 		newUser.setFullName(full_name);
 		newUser.setMail(mail);
-		newUser.setRoles(new String[] { UserService.DEFAULT_ROLE });
+		newUser.setRoles(roles);
 		newUser.setPassword(HashUtil.hashPassword(new_password));
 
 		try {
@@ -367,7 +403,7 @@ public class UserService {
 			// if email server configured, send mails with activation link. Else
 			// activate user immediately.
 
-			if (application.getSettings().getMail() != null) {
+			if (application.getSettings().getMail() != null && mailProvided) {
 
 				String activationKey = HashUtil.getActivationHash(newUser);
 				newUser.setActive(false);
@@ -389,8 +425,8 @@ public class UserService {
 
 			}
 
-			log.info(String.format("Registration: New user %s (ID %s - email %s)", username, newUser.getId(),
-					newUser.getMail()));
+			log.info(String.format("Registration: New user %s (ID %s - email %s - roles %s)", newUser.getUsername(),
+					newUser.getId(), newUser.getMail(), Arrays.toString(newUser.getRoles())));
 
 			dao.insert(newUser);
 

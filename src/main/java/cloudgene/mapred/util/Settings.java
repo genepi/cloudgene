@@ -71,6 +71,8 @@ public class Settings {
 
 	private boolean maintenance = false;
 
+	private boolean emailRequired = true;
+
 	private String adminMail = null;
 
 	private String adminName = null;
@@ -585,6 +587,14 @@ public class Settings {
 
 	public Environment buildEnvironment() {
 		return new Environment(this);
+	}
+
+	public boolean isEmailRequired() {
+		return emailRequired;
+	}
+
+	public void setEmailRequired(boolean emailRequired) {
+		this.emailRequired = emailRequired;
 	}
 
 }

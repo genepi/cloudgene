@@ -57,6 +57,9 @@ public class ServerService {
 		data.put("background", application.getSettings().getColors().get("background"));
 		data.put("foreground", application.getSettings().getColors().get("foreground"));
 		data.put("footer", application.getTemplate(Template.FOOTER));
+		data.put("emailRequired", application.getSettings().isEmailRequired());
+		data.put("userEmailDescription", application.getTemplate(Template.USER_EMAIL_DESCRIPTION));
+		data.put("userWithoutEmailDescription", application.getTemplate(Template.USER_WITHOUT_EMAIL_DESCRIPTION));
 
 		List<String> authClients = new Vector<String>();
 		for (OauthClientConfigurationProperties client : clients) {

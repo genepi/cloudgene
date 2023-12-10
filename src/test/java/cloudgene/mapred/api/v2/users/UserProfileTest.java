@@ -4,10 +4,12 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.hamcrest.core.IsNull.nullValue;
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import cloudgene.mapred.server.services.UserService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -98,7 +100,7 @@ public class UserProfileTest {
 
 		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
 				.statusCode(200).and().body("success", equalTo(true)).and()
-				.body("message", equalTo("User profile sucessfully updated."));
+				.body("message", equalTo("User profile successfully updated."));
 
 		// try login with old password
 		form = new HashMap<String, String>();
@@ -203,6 +205,64 @@ public class UserProfileTest {
 		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
 				.statusCode(200).and().body("success", equalTo(false)).and()
 				.body("message", containsString("least one uppercase"));
+
+	}
+
+	@Test
+	public void testUpdateWithEmptyEmail() {
+
+		Header accessToken = client.login("test1", "Test1Password");
+
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "");
+
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then().log().all()
+				.statusCode(200).and().body("success", equalTo(false)).and()
+				.body("message", containsString("E-Mail is required."));
+
+	}
+
+	@Test
+	public void testDowngradeAndUpgradeAccount()  {
+
+		application.getSettings().setEmailRequired(false);
+		Header accessToken = client.login("test1", "Test1Password");
+
+		// downgrade by removing email
+		Map<String, String> form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "");
+
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(true)).and()
+				.body("message", containsString("downgraded"));
+
+		//check role
+		UserDao dao = new UserDao(application.getDatabase());
+		User user = dao.findByUsername("test1");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(UserService.DEFAULT_ANONYMOUS_ROLE, user.getRoles()[0]);
+
+		//upgrade by adding email
+		form = new HashMap<String, String>();
+		form.put("username", "test1");
+		form.put("full-name", "test1 new");
+		form.put("mail", "test1@test.com");
+
+		RestAssured.given().header(accessToken).and().formParams(form).when().post("/api/v2/users/test1/profile").then()
+				.statusCode(200).and().body("success", equalTo(true)).and()
+				.body("message", containsString("upgraded"));
+
+
+		//check role
+		user = dao.findByUsername("test1");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(UserService.DEFAULT_ROLE, user.getRoles()[0]);
+
+		application.getSettings().setEmailRequired(true);
 
 	}
 

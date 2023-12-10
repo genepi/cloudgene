@@ -138,13 +138,13 @@ public class ResetPasswordTest {
 
 		// rest password and check if mail was sent
 		RestAssured.given().formParams(form).when().post("/api/v2/users/reset").then().statusCode(200).and()
-				.body("success", equalTo(true)).and().body("message", containsString("Email sent to"));
+				.body("success", equalTo(true)).and().body("message", containsString("We sent you an email"));
 
 		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
 
 		// try it a second time (nervous user)
 		RestAssured.given().formParams(form).when().post("/api/v2/users/reset").then().statusCode(200).and()
-				.body("success", equalTo(true)).and().body("message", containsString("Email sent to"));
+				.body("success", equalTo(true)).and().body("message", containsString("We sent you an email"));
 
 		assertEquals(mailsBefore + 2, mailServer.getReceivedEmailSize());
 

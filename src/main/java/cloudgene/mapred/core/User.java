@@ -99,6 +99,15 @@ public class User {
 		return false;
 	}
 
+	public void replaceRole(String oldRole, String newRole) {
+		for (int i = 0; i < roles.length; i++) {
+			if (roles[i].equalsIgnoreCase(oldRole)) {
+				roles[i] = newRole;
+				return;
+			}
+		}
+	}
+
 	public boolean isAdmin() {
 		return hasRole(ROLE_ADMIN);
 	}

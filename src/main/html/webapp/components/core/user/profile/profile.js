@@ -18,16 +18,35 @@ export default Control.extend({
 
   "init": function(element, options) {
 
+    this.emailRequired = options.appState.attr('emailRequired');
     $(element).hide();
     User.findOne({
       user: 'me'
     }, function(user) {
       $(element).html(template({
-        user: user
+        user: user,
+        anonymousAccount: (!options.appState.attr('emailRequired')),
+        emailProvided: (user.attr('mail') != "" && user.attr('mail') != undefined),
+        userEmailDescription: options.appState.attr('userEmailDescription'),
+        userWithoutEmailDescription: options.appState.attr('userWithoutEmailDescription')
       }));
       options.user = user;
       $(element).fadeIn();
     });
+  },
+
+  "#anonymous click" : function(){
+    if (!this.emailRequired){
+      var anonymousControl = $(this.element).find("[name='anonymous']");
+      var anonymous = !anonymousControl.is(':checked');
+      var mail = $(this.element).find("[name='mail']");
+      if (anonymous){
+        mail.attr('disabled','disabled');
+      } else {
+        mail.removeAttr('disabled');
+      }
+      mail.val("");
+    }
   },
 
   'submit': function(element, event) {
@@ -39,10 +58,20 @@ export default Control.extend({
     var fullnameError = user.checkName(fullname.val());
     this.updateControl(fullname, fullnameError);
 
+    var anonymous = false;
+    if (!this.emailRequired){
+      var anonymousControl = $(this.element).find("[name='anonymous']");
+      anonymous = !anonymousControl.is(':checked');
+    }
+
     // mail
     var mail = $(element).find("[name='mail']");
-    var mailError = user.checkMail(mail.val());
-    this.updateControl(mail, mailError);
+    if (!anonymous){
+      var mailError = user.checkMail(mail.val());
+      this.updateControl(mail, mailError);
+    } else {
+      this.updateControl(mail, undefined);
+    }
 
     // password if password is not empty. else no password update on server side
     var newPassword = $(element).find("[name='new-password']");
