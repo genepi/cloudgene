@@ -96,7 +96,7 @@ public class UserProfileTest extends JobsApiTestCase {
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
-		assertTrue(object.get("message").toString().contains("User profile sucessfully updated"));
+		assertTrue(object.get("message").toString().contains("User profile successfully updated"));
 		resource.release();
 
 		// try login with old password
