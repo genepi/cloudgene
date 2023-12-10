@@ -63,9 +63,9 @@ Please fill out the form below to change your account settings or your password.
 
 	</div>
 </form>
-
+<br>
 <hr>
-
+<br>
 <h3>API Access</h3>
 
 <p>This service provides a rich RestAPI to submit, monitor and download jobs.</p>
@@ -88,9 +88,9 @@ Please fill out the form below to change your account settings or your password.
 
 
 {{/user.hasApiToken}}
-
+<br>
 <hr>
-
+<br>
 <h3>Delete Account</h3>
 
 <p>Once you delete your user account, there is no going back. Please be certain.</p>
