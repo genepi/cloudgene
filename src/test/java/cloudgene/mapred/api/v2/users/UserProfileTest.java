@@ -270,4 +270,78 @@ public class UserProfileTest extends JobsApiTestCase {
 		resource.release();
 	}
 
+	public void testUpdateWithEmptyEmail() throws JSONException, IOException {
+
+		// login as user test1
+		LoginToken token = login("test1", "Test1Password");
+
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
+		Form form = new Form();
+
+		// try to update with wrong password
+		form.set("username", "test1");
+		form.set("full-name", "test1 new");
+		form.set("mail", "");
+
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), false);
+		assertTrue(object.get("message").toString().contains("E-Mail is required."));
+		resource.release();
+	}
+
+	public void testDowngradeAndUpgradeAccount() throws JSONException, IOException {
+
+		TestServer.getInstance().getSettings().setEmailRequired(false);
+
+		// login as user test1
+		LoginToken token = login("test1", "Test1Password");
+
+		ClientResource resource = createClientResource("/api/v2/users/me/profile", token);
+		Form form = new Form();
+
+		// downgrade by removing email
+		form.set("username", "test1");
+		form.set("full-name", "test1 new");
+		form.set("mail", "");
+
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertTrue(object.get("message").toString().contains("downgraded"));
+		resource.release();
+
+		//check role
+		UserDao dao = new UserDao(TestServer.getInstance().getDatabase());
+		User user = dao.findByUsername("test1");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(RegisterUser.DEFAULT_ANONYMOUS_ROLE, user.getRoles()[0]);
+
+		//upgrade by adding email
+
+		form = new Form();
+
+		// downgrade by removing email
+		form.set("username", "test1");
+		form.set("full-name", "test1 new");
+		form.set("mail", "test1@test.com");
+
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertTrue(object.get("message").toString().contains("upgraded"));
+		resource.release();
+
+		//check role
+		user = dao.findByUsername("test1");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(RegisterUser.DEFAULT_ROLE, user.getRoles()[0]);
+
+		TestServer.getInstance().getSettings().setEmailRequired(true);
+
+	}
+
 }
