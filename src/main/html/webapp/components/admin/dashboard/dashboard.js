@@ -22,7 +22,7 @@ export default Control.extend({
       }));
       $(element).fadeIn();
 
-      $.getJSON("/api/v2/admin/server/statistics", {
+      $.getJSON("api/v2/admin/server/statistics", {
         days: 1
       }, function(mydata) {
 
@@ -55,7 +55,7 @@ export default Control.extend({
 
     var days = $("#day_combo").val();
     var that = this;
-    $.getJSON("/api/v2/admin/server/statistics", {
+    $.getJSON("api/v2/admin/server/statistics", {
       days: days
     }, function(mydata) {
 

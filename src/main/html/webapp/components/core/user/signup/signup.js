@@ -48,7 +48,7 @@ export default Control.extend({
     $('#save').button('loading');
 
     $.ajax({
-      url: "/api/v2/users/register",
+      url: "api/v2/users/register",
       type: "POST",
       data: $(element).find("#signon-form").serialize(),
       dataType: 'json',

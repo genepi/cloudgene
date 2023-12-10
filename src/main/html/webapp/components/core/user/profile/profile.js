@@ -57,7 +57,7 @@ export default Control.extend({
     }
 
     $.ajax({
-      url: "/api/v2/users/me/profile",
+      url: "api/v2/users/me/profile",
       type: "POST",
       data: $(element).find("#account-form").serialize(),
       dataType: 'json',

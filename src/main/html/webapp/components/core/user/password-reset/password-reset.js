@@ -18,7 +18,7 @@ export default Control.extend({
     var username = $(element).find("[name='username']");
 
     $.ajax({
-      url: "/api/v2/users/reset",
+      url: "api/v2/users/reset",
       type: "POST",
       data: $(element).find("#reset-form").serialize(),
       dataType: 'json',

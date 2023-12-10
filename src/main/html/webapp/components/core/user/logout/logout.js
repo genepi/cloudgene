@@ -10,7 +10,7 @@ export default Control.extend({
 
     localStorage.removeItem("cloudgene");
 
-    var redirect = '/';
+    var redirect = './';
     window.location = redirect;
   }
 

@@ -32,7 +32,7 @@ public class ServerResponse {
 		response.setName(settings.getName());
 		response.setAdminName(settings.getAdminName());
 		response.setAdminMail(settings.getAdminMail());
-		response.setServerUrl(settings.getServerUrl());
+		response.setServerUrl(settings.getServerUrl() + settings.getBaseUrl());
 		response.setBackgroundColor(settings.getColors().get("background"));
 		response.setForegroundColor(settings.getColors().get("foreground"));
 		response.setGoogleAnalytics(settings.getGoogleAnalytics());

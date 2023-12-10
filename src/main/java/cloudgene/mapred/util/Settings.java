@@ -29,6 +29,8 @@ public class Settings {
 
 	private String serverUrl = "http://localhost:8082";
 
+	private String baseUrl = "";
+
 	private String tempPath = "tmp";
 
 	private String localWorkspace = "workspace";
@@ -72,8 +74,6 @@ public class Settings {
 	private String adminMail = null;
 
 	private String adminName = null;
-
-	private String urlPrefix = "";
 
 	private List<MenuItem> navigation = new Vector<MenuItem>();
 
@@ -417,14 +417,6 @@ public class Settings {
 		this.maxRunningJobsPerUser = maxRunningJobsPerUser;
 	}
 
-	public void setUrlPrefix(String urlPrefix) {
-		this.urlPrefix = urlPrefix;
-	}
-
-	public String getUrlPrefix() {
-		return urlPrefix;
-	}
-
 	public void setDatabase(Map<String, String> database) {
 		this.database = database;
 	}
@@ -573,6 +565,14 @@ public class Settings {
 
 	public String getServerUrl() {
 		return serverUrl;
+	}
+
+	public String getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(String baseUrl) {
+		this.baseUrl = baseUrl;
 	}
 
 	public void setNextflowConfig(String nextflowConfig) {

@@ -21,7 +21,7 @@ export default Control.extend({
     var password = $(element).find("[name='password']");
 
     $.ajax({
-      url: "/login",
+      url: "login",
       type: "POST",
       data: $(element).find("#signin-form").serialize(),
       dataType: 'json',
@@ -33,7 +33,7 @@ export default Control.extend({
           };
           localStorage.setItem('cloudgene', JSON.stringify(dataToken));
 
-          var redirect = '/';
+          var redirect = './';
           window.location = redirect;
 
       },

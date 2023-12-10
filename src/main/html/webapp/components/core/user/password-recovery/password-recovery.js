@@ -40,7 +40,7 @@ export default Control.extend({
 
 
     $.ajax({
-      url: "/api/v2/users/update-password",
+      url: "api/v2/users/update-password",
       type: "POST",
       data: $(element).find("#update-password-form")
         .serialize(),
