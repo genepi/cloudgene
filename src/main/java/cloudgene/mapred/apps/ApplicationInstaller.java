@@ -69,24 +69,28 @@ public class ApplicationInstaller {
 		case "import":
 			String source = Environment.env((String) parameters.get("source"), environment);
 			String target = Environment.env((String) parameters.get("target"), environment);
+			boolean extract = true;
+			if (parameters.containsKey("extract")){
+				extract = (Boolean) parameters.get("extract");
+			}
 			System.out.println("Import data from " + source + " to " + target + "...");
-			runImportCommand(source, target);
+			runImportCommand(source, target, extract);
 			break;
 		default:
 			throw new IOException("Unknown command '" + command + "'");
 		}
 	}
 
-	public static void runImportCommand(String source, String target) throws IOException {
+	public static void runImportCommand(String source, String target, boolean extract) throws IOException {
 		String tempFilename = FileUtil.path("temp", "hdfs_import.tempfile");
 		if (source.startsWith("http://") || source.startsWith("https://")) {
 			// download
 			FileUtils.copyURLToFile(new URL(source), new File(tempFilename));
 
-			if (source.endsWith(".zip")) {
+			if (source.endsWith(".zip") && extract) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putZip(tempFilename, target);
-			} else if (source.endsWith(".gz")) {
+			} else if (source.endsWith(".gz") && extract) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putTarGz(tempFilename, target);
 			} else {
@@ -97,10 +101,10 @@ public class ApplicationInstaller {
 
 			S3Util.copyToFile(source, new File(tempFilename));
 
-			if (source.endsWith(".zip")) {
+			if (source.endsWith(".zip") && extract) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putZip(tempFilename, target);
-			} else if (source.endsWith(".gz")) {
+			} else if (source.endsWith(".gz") && extract) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putTarGz(tempFilename, target);
 			} else {
@@ -108,10 +112,10 @@ public class ApplicationInstaller {
 			}
 
 		} else {
-			if (source.endsWith(".zip")) {
+			if (source.endsWith(".zip") && extract) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putZip(source, target);
-			} else if (source.endsWith(".gz")) {
+			} else if (source.endsWith(".gz") && extract) {
 				HdfsUtil.createDirectory(target);
 				HdfsUtil.putTarGz(source, target);
 			} else {
