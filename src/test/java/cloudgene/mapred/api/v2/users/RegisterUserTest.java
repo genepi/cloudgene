@@ -2,6 +2,8 @@ package cloudgene.mapred.api.v2.users;
 
 import java.io.IOException;
 
+import cloudgene.mapred.core.User;
+import cloudgene.mapred.database.UserDao;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.restlet.data.Form;
@@ -82,6 +84,12 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertEquals("E-Mail is already registered.", object.get("message"));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 		resource.release();
+
+		//check role
+		UserDao dao = new UserDao(TestServer.getInstance().getDatabase());
+		User user = dao.findByUsername("usernameunique");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(RegisterUser.DEFAULT_ROLE, user.getRoles()[0]);
 	}
 
 	public void testWithEmptyUsername() throws JSONException, IOException {
@@ -228,6 +236,77 @@ public class RegisterUserTest extends JobsApiTestCase {
 		assertTrue(object.get("message").toString().contains("E-Mail is required."));
 		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
 		resource.release();
+
+	}
+
+	public void testWithEmptyMailAndNoMailRequired() throws JSONException, IOException {
+
+		//set email required to false.
+
+		TestServer.getInstance().getSettings().setEmailRequired(false);
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
+
+		Form form = new Form();
+		form.set("username", "abcdefgh");
+		form.set("full-name", "abcdefgh abcgd");
+		form.set("mail", "");
+		form.set("new-password", "Password27");
+		form.set("confirm-new-password", "Password27");
+
+		// register user
+		ClientResource resource = createClientResource("/api/v2/users/register");
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertEquals("User sucessfully created.", object.get("message"));
+		assertEquals(mailsBefore, mailServer.getReceivedEmailSize());
+		resource.release();
+
+		TestServer.getInstance().getSettings().setEmailRequired(true);
+
+		//check role
+		UserDao dao = new UserDao(TestServer.getInstance().getDatabase());
+		User user = dao.findByUsername("abcdefgh");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(RegisterUser.DEFAULT_ANONYMOUS_ROLE, user.getRoles()[0]);
+	}
+
+	public void testWithMailAndNoMailRequired() throws JSONException, IOException {
+
+		//set email required to false.
+
+		TestServer.getInstance().getSettings().setEmailRequired(false);
+
+		TestMailServer mailServer = TestMailServer.getInstance();
+		int mailsBefore = mailServer.getReceivedEmailSize();
+
+		Form form = new Form();
+		form.set("username", "abcdefghi");
+		form.set("full-name", "abcdefgh abcgd");
+		form.set("mail", "test-blabla@test.com");
+		form.set("new-password", "Password27");
+		form.set("confirm-new-password", "Password27");
+
+		// register user
+		ClientResource resource = createClientResource("/api/v2/users/register");
+		resource.post(form);
+		assertEquals(200, resource.getStatus().getCode());
+		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
+		assertEquals(object.get("success"), true);
+		assertEquals("User sucessfully created.", object.get("message"));
+		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
+		resource.release();
+
+		TestServer.getInstance().getSettings().setEmailRequired(true);
+
+		//check role
+		UserDao dao = new UserDao(TestServer.getInstance().getDatabase());
+		User user = dao.findByUsername("abcdefghi");
+		assertEquals(1, user.getRoles().length);
+		assertEquals(RegisterUser.DEFAULT_ROLE, user.getRoles()[0]);
 	}
 
 	public void testWithWrongMail() throws JSONException, IOException {

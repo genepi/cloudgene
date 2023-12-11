@@ -11,7 +11,6 @@ import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
 
-import cloudgene.mapred.core.ApiTokenVerifier;
 import cloudgene.mapred.core.User;
 import cloudgene.mapred.database.UserDao;
 import cloudgene.mapred.representations.JSONAnswer;
@@ -79,9 +78,13 @@ public class UserProfile extends BaseResource {
 			return new JSONAnswer(error, false);
 		}
 
-		error = User.checkMail(mail);
-		if (error != null) {
-			return new JSONAnswer(error, false);
+		boolean mailProvided = (mail != null && !mail.isEmpty());
+
+		if (getSettings().isEmailRequired() || mailProvided) {
+			error = User.checkMail(mail);
+			if (error != null) {
+				return new JSONAnswer(error, false);
+			}
 		}
 
 		UserDao dao = new UserDao(getDatabase());
@@ -89,9 +92,24 @@ public class UserProfile extends BaseResource {
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
 
-		if (!user.getMail().equals(newUser.getMail())) {
+		if (user.getMail() != null && !user.getMail().equals(newUser.getMail())) {
 			log.info(String.format("User: changed email address for user %s (ID %s)", newUser.getUsername(),
 					newUser.getId()));
+		}
+
+		String roleMessage = " ";
+		if (!getSettings().isEmailRequired()) {
+			if ((newUser.getMail() == null || newUser.getMail().isEmpty()) && user.hasRole(RegisterUser.DEFAULT_ROLE)) {
+				newUser.replaceRole(RegisterUser.DEFAULT_ROLE, RegisterUser.DEFAULT_ANONYMOUS_ROLE);
+				log.info(String.format("User: changed role to %s for user %s (ID %s)", RegisterUser.DEFAULT_ANONYMOUS_ROLE, newUser.getUsername(),
+						newUser.getId()));
+				roleMessage += "<br><br>Your account has been <b>downgraded</b>.<br>To apply these changes, please log out and log back in.";
+			} else if ((newUser.getMail() != null && !newUser.getMail().isEmpty()) && user.hasRole(RegisterUser.DEFAULT_ANONYMOUS_ROLE)) {
+				newUser.replaceRole(RegisterUser.DEFAULT_ANONYMOUS_ROLE, RegisterUser.DEFAULT_ROLE);
+				log.info(String.format("User: changed role to %s for user %s (ID %s)", RegisterUser.DEFAULT_ROLE, newUser.getUsername(),
+						newUser.getId()));
+				roleMessage += "<br><br>Your account has been <b>upgraded</b>.<br>To apply these changes, please log out and log back in.";
+			}
 		}
 
 		// update password only when it's not empty
@@ -110,7 +128,7 @@ public class UserProfile extends BaseResource {
 
 		dao.update(newUser);
 
-		return new JSONAnswer("User profile sucessfully updated.", true);
+		return new JSONAnswer("User profile successfully updated." + roleMessage , true);
 
 	}
 
