@@ -2,12 +2,6 @@
 <br>
 
 <div class="alert alert-success" id="success-message" style="display: none;">
-  {{#is(emailRequired, true)}}
-    <b>Well done!</b> An email including the activation code has been sent to your address.
-  {{else}}
-    <b>Well done!</b> Your account is now active. <a href="/">Login now</a>.
-   {{/is}}
-  <br>
 </div>
 
 <form id="signon-form" class="form-horizontal" autocomplete="off">
