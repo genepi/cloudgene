@@ -574,7 +574,7 @@ public class ApplicationRepository {
 		if (application == null || user == null) {
 			return false;
 		}
-		return user.isAdmin() || user.hasRole(application.getPermission());
+		return user.isAdmin() || user.hasRole(application.getPermissions());
 	}
 
 	public boolean isActivated(Application application) {
