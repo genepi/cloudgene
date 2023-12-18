@@ -209,7 +209,11 @@ public class App extends BaseResource {
 				application.checkForChanges();
 
 				JSONObject jsonObject = JSONConverter.convert(application);
-				updateState(application, jsonObject);
+				try {
+					updateState(application, jsonObject);
+				}catch (Error  e ){
+					e.printStackTrace();
+				}
 
 				// read config
 				Map<String, String> config = repository.getConfig(wdlApp);

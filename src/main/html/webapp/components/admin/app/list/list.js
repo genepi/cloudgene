@@ -228,40 +228,48 @@ export default Control.extend({
 
     Group.findAll({},
       function(groups) {
-        var selection = new canMap();
-        selection.attr('group', application.attr('permission'));
-        selection.attr('name', '');
 
-        bootbox.confirm(templatePermission({
-            selection: selection,
-            application: application,
-            groups: groups
-          }),
+        var roles = application.attr('permission').split(',');
+
+        var options = '';
+        groups.forEach(function(group, index) {
+          if ($.inArray(group.attr('name'), roles) >= 0) {
+            options = options + '<label class="checkbox"><input type="checkbox" name="role-select" value="' + group.attr('name') + '" checked />';
+            //options = options + '<option selected>' + group.attr('name') + '</option>';
+          } else {
+            //options = options + '<option>' + group.attr('name') + '</option>';
+            options = options + '<label class="checkbox"><input type="checkbox" name="role-select" value="' + group.attr('name') + '" />';
+          }
+          options = options + ' <b>' + group.attr('name') + '</b></label><br>';
+        });
+
+        bootbox.confirm(
+          '<h4>Edit permission of ' + application.attr('name') + '</h4><hr><form id="role-form">' + options + '</form>',
           function(result) {
             if (result) {
-              var group = selection.attr('group');
-              if (group !== '') {
-                application.attr('permission', group);
-                application.save(function(data) {},
-                  function(response) {
-                    showErrorDialog("Operation failed", response);
-                  });
-              } else {
-                var name = selection.attr('name');
-                if (name !== '') {
-                  application.attr('permission', name);
-                  application.save(function(data) {},
-                    function(response) {
-                      showErrorDialog("Operation failed", response);
-                    });
 
-                } else {
-                  bootbox.alert("Error: Please enter a name for the new group.")
+              var boxes = $('#role-form input:checkbox');
+              var checked = [];
+              for (var i = 0; boxes[i]; ++i) {
+                if (boxes[i].checked) {
+                  checked.push(boxes[i].value);
                 }
               }
 
+              var text = checked.join(',');
+              application.attr('permission', text);
+              application.save(function(data) {},
+                function(response) {
+                  showErrorDialog("Operation failed", response);
+                });
+
             }
-          });
+          }
+        );
+
+      },
+      function(response) {
+        new ErrorPage(element, response);
       });
 
   },

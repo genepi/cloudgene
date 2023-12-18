@@ -3,6 +3,7 @@ package cloudgene.mapred.api.v2.admin;
 import java.util.List;
 import java.util.Vector;
 
+import cloudgene.mapred.api.v2.users.RegisterUser;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -36,18 +37,21 @@ public class GetGroups extends BaseResource {
 		List<Group> groups = new Vector<Group>();
 		groups.add(new Group("admin"));
 		groups.add(new Group("user"));
+		groups.add(new Group(RegisterUser.DEFAULT_ANONYMOUS_ROLE.toLowerCase()));
 		
 		ApplicationRepository repository = getApplicationRepository();
 
 		for (Application application : repository.getAll()) {
-			Group group = new Group(application.getPermission());
-			if (!groups.contains(group)) {
-				group.addApp(application.getId());
-				groups.add(group);
-			} else {
-				int index = groups.indexOf(group);
-				group = groups.get(index);
-				group.addApp(application.getId());
+			for (String permission: application.getPermissions()) {
+				Group group = new Group(permission);
+				if (!groups.contains(group)) {
+					group.addApp(application.getId());
+					groups.add(group);
+				} else {
+					int index = groups.indexOf(group);
+					group = groups.get(index);
+					group.addApp(application.getId());
+				}
 			}
 		}
 
