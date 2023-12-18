@@ -99,6 +99,18 @@ public class User {
 		return false;
 	}
 
+	public boolean hasRole(String[] roles) {
+		if (this.roles == null || roles == null) {
+			return false;
+		}
+		for (int i = 0; i < roles.length; i++) {
+			if (hasRole(roles[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public void replaceRole(String oldRole, String newRole) {
 		for (int i = 0; i < roles.length; i++) {
 			if (roles[i].equalsIgnoreCase(oldRole)) {
