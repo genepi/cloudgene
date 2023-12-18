@@ -87,7 +87,7 @@ public class ApplicationRepository {
 		if (app != null && app.isEnabled() && app.isLoaded() && !app.hasSyntaxError()) {
 
 			if (user == null) {
-				if (app.getPermission().toLowerCase().equals("public")) {
+				if (app.hasPermission(("public"))) {
 					if (app.getWdlApp().getWorkflow() != null) {
 						return app;
 					} else {
@@ -98,8 +98,8 @@ public class ApplicationRepository {
 				}
 			}
 
-			if (user.isAdmin() || user.hasRole(app.getPermission())
-					|| app.getPermission().toLowerCase().equals("public")) {
+			if (user.isAdmin() || user.hasRole(app.getPermissions())
+					|| app.hasPermission("public")) {
 				if (app.getWdlApp().getWorkflow() != null) {
 					return app;
 				} else {
@@ -175,16 +175,16 @@ public class ApplicationRepository {
 			boolean using = true;
 
 			if (user == null) {
-				if (application.getPermission().toLowerCase().equals("public")) {
+				if (application.hasPermission("public")) {
 					using = true;
 				} else {
 					using = false;
 				}
 			} else {
 
-				if (!user.isAdmin() && !application.getPermission().toLowerCase().equals("public")) {
+				if (!user.isAdmin() && !application.hasPermission("public")) {
 
-					if (!user.hasRole(application.getPermission())) {
+					if (!user.hasRole(application.getPermissions())) {
 						using = false;
 					}
 				}
