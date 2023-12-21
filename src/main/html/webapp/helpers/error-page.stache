@@ -1,4 +1,5 @@
 <br><br><br>
+<div style="margin: 40px">
 <h2 class="text-danger text-center">
   {{error.statusText}}
 </h2>
@@ -22,4 +23,5 @@
     &nbsp;
     {{{error.responseText}}}
 </h5>
+</div>
 <br><br><br><br><br><br><br><br><br>
