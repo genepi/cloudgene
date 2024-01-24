@@ -170,7 +170,7 @@ alter table job add column user_agent VARCHAR (400);
 -- 2.6.0
 alter table `user` add column api_token_expires_on timestamp null default null;
 
--- 2.7.1
+-- 2.8.1
 CREATE INDEX idx_downloads_hash ON downloads(hash);
 CREATE INDEX idx_downloads_path ON downloads(path);
 
