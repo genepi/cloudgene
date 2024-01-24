@@ -14,10 +14,14 @@ import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.util.MailUtil;
 import cloudgene.mapred.util.Template;
 
+import java.util.Arrays;
+
 public class RegisterUser extends BaseResource {
 	private static final Log log = LogFactory.getLog(RegisterUser.class);
 
 	public static final String DEFAULT_ROLE = "User";
+
+	public static final String DEFAULT_ANONYMOUS_ROLE = "Anonymous_User";
 
 	@Post
 	public Representation post(Representation entity) {
@@ -27,7 +31,7 @@ public class RegisterUser extends BaseResource {
 		Form form = new Form(entity);
 		String username = form.getFirstValue("username");
 		String fullname = form.getFirstValue("full-name");
-		String mail = form.getFirstValue("mail").toString();
+		String mail = form.getFirstValue("mail");
 		String newPassword = form.getFirstValue("new-password");
 		String confirmNewPassword = form.getFirstValue("confirm-new-password");
 
@@ -41,14 +45,20 @@ public class RegisterUser extends BaseResource {
 			return new JSONAnswer("Username already exists.", false);
 		}
 
-		// check email
-		error = User.checkMail(mail);
-		if (error != null) {
-			return new JSONAnswer(error, false);
+		boolean mailProvided = (mail != null && !mail.isEmpty());
+
+		if (getSettings().isEmailRequired() || mailProvided) {
+			// check email
+			error = User.checkMail(mail);
+			if (error != null) {
+				return new JSONAnswer(error, false);
+			}
+			if (dao.findByMail(mail) != null) {
+				return new JSONAnswer("E-Mail is already registered.", false);
+			}
 		}
-		if (dao.findByMail(mail) != null) {
-			return new JSONAnswer("E-Mail is already registered.", false);
-		}
+
+		String[] roles = new String[] { mailProvided ? DEFAULT_ROLE : DEFAULT_ANONYMOUS_ROLE};
 
 		// check password
 		error = User.checkPassword(newPassword, confirmNewPassword);
@@ -66,7 +76,7 @@ public class RegisterUser extends BaseResource {
 		newUser.setUsername(username);
 		newUser.setFullName(fullname);
 		newUser.setMail(mail);
-		newUser.setRoles(new String[] { DEFAULT_ROLE });
+		newUser.setRoles(roles);
 		newUser.setPassword(HashUtil.hashPassword(newPassword));
 
 		try {
@@ -74,7 +84,7 @@ public class RegisterUser extends BaseResource {
 			// if email server configured, send mails with activation link. Else
 			// activate user immediately.
 
-			if (getSettings().getMail() != null) {
+			if (getSettings().getMail() != null && mailProvided) {
 
 				String activationKey = HashUtil.getActivationHash(newUser);
 				newUser.setActive(false);
@@ -95,7 +105,8 @@ public class RegisterUser extends BaseResource {
 
 			}
 
-			log.info(String.format("Registration: New user %s (ID %s - email %s)", newUser.getUsername(), newUser.getId(), newUser.getMail()));
+			log.info(String.format("Registration: New user %s (ID %s - email %s - roles %s)", newUser.getUsername(),
+					newUser.getId(), newUser.getMail(), Arrays.toString(newUser.getRoles())));
 			MailUtil.notifySlack(getSettings(), "Hi! say hello to " + username + " (" + mail + ") :hugging_face:");
 
 			dao.insert(newUser);

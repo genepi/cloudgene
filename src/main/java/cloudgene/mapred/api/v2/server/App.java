@@ -49,7 +49,7 @@ public class App extends BaseResource {
 		Application application = repository.getByIdAndUser(appId, user);
 
 		if (application == null) {
-			return error404("Application '" + appId + "' not found or the request requires user authentication..");
+			return error404("Authentication Required: Application '" + appId + "' requires user authentication with an email address. To proceed, please upgrade your profile by entering your email address. You can do this by visiting your profile settings and following the steps provided.");
 		}
 
 		WdlApp wdlApp = application.getWdlApp();
@@ -209,7 +209,11 @@ public class App extends BaseResource {
 				application.checkForChanges();
 
 				JSONObject jsonObject = JSONConverter.convert(application);
-				updateState(application, jsonObject);
+				try {
+					updateState(application, jsonObject);
+				}catch (Error  e ){
+					e.printStackTrace();
+				}
 
 				// read config
 				Map<String, String> config = repository.getConfig(wdlApp);

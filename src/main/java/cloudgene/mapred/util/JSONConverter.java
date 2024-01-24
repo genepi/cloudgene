@@ -30,12 +30,12 @@ public class JSONConverter {
 	public static JSONObject convert(AbstractJob job) {
 
 		JsonConfig config = new JsonConfig();
-		config.setExcludes(new String[] { "user", "inputParams", "output", "error", "s3Url", "task", "config",
+		config.setExcludes(new String[]{"user", "inputParams", "output", "error", "s3Url", "task", "config",
 				"mapReduceJob", "job", "step", "context", "hdfsWorkspace", "localWorkspace", "logOutFiles",
 				"removeHdfsWorkspace", "settings", "setupComplete", "stdOutFile", "workingDirectory", "parameter",
 				"logOutFile", "map", "reduce", "mapProgress", "reduceProgress", "jobId", "makeAbsolute", "mergeOutput",
 				"removeHeader", "value", "autoExport", "download", "tip", "apiToken", "parameterId", "count",
-				"username" });
+				"username"});
 
 		// create tree
 		for (CloudgeneParameterOutput param : job.getOutputParams()) {
@@ -122,18 +122,14 @@ public class JSONConverter {
 						valuesObject.put("key", "apps@" + app.getId());
 						valuesObject.put("label", app.getName());
 						// TODO: check null and instance of map
-						Map values = (Map) app.getProperties().get(property);
-						JSONArray array2 = new JSONArray();
-						for (Object key : values.keySet()) {
-							JSONObject valuesObject2 = new JSONObject();
-							String value = values.get(key).toString();
-							valuesObject2.put("key", key.toString());
-							valuesObject2.put("value", value);
-							valuesObject2.put("enabled", false);
-							array2.add(valuesObject2);
+						Object values = app.getProperties().get(property);
+						if (values instanceof Map){
+							JSONArray array2 = buildFromMap((Map)values);
+							valuesObject.put("values", array2);
+						} else if (values instanceof List){
+							JSONArray array2 = buildFromList((List)values);
+							valuesObject.put("values", array2);
 						}
-
-						valuesObject.put("values", array2);
 						array.add(valuesObject);
 
 					}
@@ -268,6 +264,33 @@ public class JSONConverter {
 			object.put("source", FileUtil.readFileAsString(application.getFilename()));
 		}
 		return object;
+	}
+
+	private static JSONArray buildFromMap(Map values){
+		JSONArray array = new JSONArray();
+		for(Object key :values.keySet()){
+			JSONObject valuesObject2 = new JSONObject();
+			String value = values.get(key).toString();
+			valuesObject2.put("key", key.toString());
+			valuesObject2.put("value", value);
+			valuesObject2.put("enabled", false);
+			array.add(valuesObject2);
+		}
+		return array;
+	}
+
+	private static JSONArray buildFromList(List<Map> values){
+		JSONArray array = new JSONArray();
+		for (Map object : values) {
+			if (object.containsKey("id") && object.containsKey("name")) {
+				JSONObject valuesObject2 = new JSONObject();
+				valuesObject2.put("key",object.get("id").toString());
+				valuesObject2.put("value", object.get("name").toString());
+				valuesObject2.put("enabled", false);
+				array.add(valuesObject2);
+			}
+		}
+		return array;
 	}
 
 }

@@ -140,7 +140,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		assertEquals(200, resource.getStatus().getCode());
 		JSONObject object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
-		assertTrue(object.get("message").toString().contains("Email sent to"));
+		assertTrue(object.get("message").toString().contains("We sent you an email"));
 		assertEquals(mailsBefore + 1, mailServer.getReceivedEmailSize());
 
 		// try it a second time (nervous user)
@@ -150,7 +150,7 @@ public class ResetPasswordTest extends JobsApiTestCase {
 		object = new JSONObject(resource.getResponseEntity().getText());
 		assertEquals(object.get("success"), true);
 
-		assertTrue(object.get("message").toString().contains("Email sent to"));
+		assertTrue(object.get("message").toString().contains("We sent you an email"));
 		assertEquals(mailsBefore + 2, mailServer.getReceivedEmailSize());
 
 		// check correct activtion code is in mail

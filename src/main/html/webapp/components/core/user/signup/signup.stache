@@ -2,8 +2,6 @@
 <br>
 
 <div class="alert alert-success" id="success-message" style="display: none;">
-  <b>Well done!</b> An email including the activation code has been sent to your address.
-  <br>
 </div>
 
 <form id="signon-form" class="form-horizontal" autocomplete="off">
@@ -21,12 +19,35 @@
     <div class="invalid-feedback"></div>
   </div>
 
+  {{#is(emailRequired, true)}}
 
   <div class="form-group">
     <label for="mail" class="control-label">E-Mail:</label>
     <input id="mail" name="mail" type="text" class="form-control col-sm-3" autocomplete="off">
     <div class="invalid-feedback"></div>
   </div>
+
+  {{else}}
+    <hr>
+  <div class="form-group">
+   <input type="radio" id="anonymous1" name="anonymous" value="0" checked> <label for="anonymous1" class="control-label">E-Mail Address</label>
+    <div class="form-group" style="margin-left: 30px;">
+      <p>
+     {{{userEmailDescription}}}
+      </p>
+      <label for="mail" class="control-label">E-Mail:</label>
+      <input id="mail" name="mail" type="text" class="form-control col-sm-3" autocomplete="off">
+      <div class="invalid-feedback"></div>
+    </div>
+   <input type="radio" id="anonymous2" name="anonymous" value="1"> <label for="anonymous2" class="control-label">I don't want to provide my email address</label>
+   <div class="form-group" style="margin-left: 30px;">
+     <p>
+      {{{userWithoutEmailDescription}}}
+     </p>
+    </div>
+   </div>
+     <hr>
+  {{/is}}
 
   <div class="form-group">
     <label for="new-password" class="control-label">Password:</label>

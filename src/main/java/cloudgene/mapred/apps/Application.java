@@ -48,6 +48,21 @@ public class Application implements Comparable<Application> {
 		return permission;
 	}
 
+	public String[] getPermissions() {
+		return permission.split(",");
+	}
+
+	public boolean hasPermission(String group) {
+		String[] permissions = getPermissions();
+        for (String permission : permissions) {
+            if (permission.toLowerCase().equals(group.toLowerCase())) {
+                return true;
+            }
+        }
+		return false;
+	}
+
+
 	public void setPermission(String permission) {
 		this.permission = permission;
 	}

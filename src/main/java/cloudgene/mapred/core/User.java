@@ -95,6 +95,18 @@ public class User {
 		return false;
 	}
 
+	public boolean hasRole(String[] roles) {
+		if (this.roles == null || roles == null) {
+			return false;
+		}
+		for (int i = 0; i < roles.length; i++) {
+			if (hasRole(roles[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public boolean isAdmin() {
 		return hasRole(ROLE_ADMIN);
 	}
@@ -234,4 +246,12 @@ public class User {
 		return ((User) obj).getUsername().equals(username);
 	}
 
+	public void replaceRole(String oldRole, String newRole) {
+		for (int i = 0; i < roles.length; i++) {
+			if (roles[i].equalsIgnoreCase(oldRole)) {
+				roles[i] = newRole;
+				return;
+			}
+		}
+	}
 }

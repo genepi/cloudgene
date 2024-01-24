@@ -26,6 +26,9 @@ public class Server extends BaseResource {
 		data.put("background", getSettings().getColors().get("background"));
 		data.put("foreground", getSettings().getColors().get("foreground"));
 		data.put("footer", getWebApp().getTemplate(Template.FOOTER));
+		data.put("emailRequired", getSettings().isEmailRequired());
+		data.put("userEmailDescription", getWebApp().getTemplate(Template.USER_EMAIL_DESCRIPTION));
+		data.put("userWithoutEmailDescription", getWebApp().getTemplate(Template.USER_WITHOUT_EMAIL_DESCRIPTION));
 		if (user != null) {
 			JSONObject userJson = new JSONObject();
 			userJson.put("username", user.getUsername());
