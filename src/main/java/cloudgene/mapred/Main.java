@@ -36,7 +36,7 @@ import genepi.io.FileUtil;
 
 public class Main {
 
-	public static final String VERSION = "2.8.0";
+	public static final String VERSION = "2.8.1";
 
 	private Database database;
 
