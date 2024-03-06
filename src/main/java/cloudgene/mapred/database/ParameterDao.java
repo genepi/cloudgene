@@ -28,12 +28,12 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 	public boolean insert(CloudgeneParameterInput parameter) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into parameter (name, `value`, input, job_id, type, variable, download, format, admin_only) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?)");
+		sql.append("insert into parameter (name, `value`, input, job_id, type, variable, download, format, admin_only, hash) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[9];
+			Object[] params = new Object[10];
 			if (parameter.getDescription() != null) {
 				params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
 			} else {
@@ -47,6 +47,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 			params[6] = false;
 			params[7] = "";
 			params[8] = parameter.isAdminOnly();
+			params[9] = parameter.getHash();
 
 			int paramId = insert(sql.toString(), params);
 			parameter.setId(paramId);
@@ -63,12 +64,12 @@ public class ParameterDao extends JdbcDataAccessObject {
 
 	public boolean insert(CloudgeneParameterOutput parameter) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("insert into parameter (name, `value`, input, job_id, type, variable, download, format, admin_only) ");
-		sql.append("values (?,?,?,?,?,?,?,?,?)");
+		sql.append("insert into parameter (name, `value`, input, job_id, type, variable, download, format, admin_only, hash) ");
+		sql.append("values (?,?,?,?,?,?,?,?,?,?)");
 
 		try {
 
-			Object[] params = new Object[9];
+			Object[] params = new Object[10];
 			params[0] = parameter.getDescription().substring(0, Math.min(parameter.getDescription().length(), 100));
 			params[1] = parameter.getValue();
 			params[2] = false;
@@ -78,6 +79,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 			params[6] = parameter.isDownload();
 			params[7] = "";
 			params[8] = parameter.isAdminOnly();
+			params[9] = parameter.getHash();
 
 			int paramId = insert(sql.toString(), params);
 			parameter.setId(paramId);
@@ -180,6 +182,61 @@ public class ParameterDao extends JdbcDataAccessObject {
 		}
 	}
 
+    public CloudgeneParameterOutput findByHash(String hash) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from parameter ");
+		sql.append("where hash = ?");
+
+		Object[] params = new Object[1];
+		params[0] = hash;
+
+		CloudgeneParameterOutput result = null;
+
+		try {
+
+			result = (CloudgeneParameterOutput) queryForObject(sql.toString(), params, new ParameterOutputMapper());
+
+			DownloadDao downloadDao = new DownloadDao(database);
+			List<Download> downloads = downloadDao.findAllByParameter(result);
+			result.setFiles(downloads);
+
+			log.debug("find parameter by hash '" + hash + "' successful.");
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find parameter by hash '" + hash + "' failed.", e);
+			return null;
+		}
+    }
+
+	public List<CloudgeneParameterOutput> findAllOutput() {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from parameter ");
+		sql.append("where input = false");
+
+		List<CloudgeneParameterOutput> result = new Vector<CloudgeneParameterOutput>();
+
+		try {
+
+			result = query(sql.toString(), new ParameterOutputMapper());
+
+			DownloadDao downloadDao = new DownloadDao(database);
+			for (CloudgeneParameterOutput parameter : result) {
+				List<Download> downloads = downloadDao.findAllByParameter(parameter);
+				parameter.setFiles(downloads);
+			}
+
+			log.debug("find all output parameters  successful. results: " + result.size());
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find all output parameters failed.", e);
+			return null;
+		}
+	}
+
 	class ParameterInputMapper implements IRowMapper {
 
 		@Override
@@ -192,6 +249,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 			parameter.setType(WdlParameterInputType.getEnum(rs.getString("type")));
 			parameter.setId(rs.getInt("id"));
 			parameter.setAdminOnly(rs.getBoolean("admin_only"));
+			parameter.setHash(rs.getString("hash"));
 			return parameter;
 
 		}
@@ -211,6 +269,7 @@ public class ParameterDao extends JdbcDataAccessObject {
 			parameter.setDownload(rs.getBoolean("download"));
 			parameter.setId(rs.getInt("id"));
 			parameter.setAdminOnly(rs.getBoolean("admin_only"));
+			parameter.setHash(rs.getString("hash"));
 			return parameter;
 
 		}

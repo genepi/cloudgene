@@ -169,9 +169,7 @@ public class JobResponse {
 
 		// create tree
 		for (CloudgeneParameterOutput param : job.getOutputParams()) {
-			String hash = param.createHash();
-			param.setHash(hash);
-			param.setTree(JobResultsTreeUtil.createTree(param.getFiles()));
+			param.setTree(JobResultsTreeUtil.createTree(param));
 		}
 
 		// removes outputs that are for admin only

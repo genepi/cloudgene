@@ -155,7 +155,35 @@ public class DownloadDao extends JdbcDataAccessObject {
 		}
 	}
 
-	class DownloadMapper implements IRowMapper {
+    public Download findByParameterAndName(CloudgeneParameterOutput param, String filename) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("select * ");
+		sql.append("from downloads ");
+		sql.append("where name = ? and parameter_id = ? ");
+		sql.append("order by path ");
+
+		Object[] params = new Object[2];
+		params[0] = filename;
+		params[1] = param.getId();
+
+		Download result = null;
+
+		try {
+
+			result = (Download) queryForObject(sql.toString(), params,
+					new DownloadMapper());
+
+			log.debug("find download by param " + param.getId() + " and path " + filename
+					+ " successful. results: " + result);
+
+			return result;
+		} catch (SQLException e) {
+			log.error("find download by job and path failed.", e);
+			return null;
+		}
+    }
+
+    class DownloadMapper implements IRowMapper {
 
 		@Override
 		public Object mapRow(ResultSet rs, int row) throws SQLException {

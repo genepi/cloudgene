@@ -59,6 +59,7 @@ public class CloudgeneJob extends AbstractJob {
 		outputParams = new Vector<CloudgeneParameterOutput>();
 		for (WdlParameterOutput output : app.getWorkflow().getOutputs()) {
 			CloudgeneParameterOutput newOutput = new CloudgeneParameterOutput(output);
+			newOutput.initHash();
 			newOutput.setJob(this);
 			outputParams.add(newOutput);
 		}
@@ -93,6 +94,7 @@ public class CloudgeneJob extends AbstractJob {
 		logOutput.setName(CLOUDGENE_LOGS_PARAM);
 		logOutput.setType(WdlParameterOutputType.LOCAL_FOLDER);
 		logOutput.setJob(this);
+		logOutput.initHash();
 	}
 
 	@Override

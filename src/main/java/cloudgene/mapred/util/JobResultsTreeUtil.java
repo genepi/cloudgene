@@ -4,14 +4,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
+import cloudgene.mapred.jobs.CloudgeneParameterOutput;
 import cloudgene.mapred.jobs.Download;
 import cloudgene.mapred.jobs.JobResultsTreeItem;
 
 public class JobResultsTreeUtil {
 
-	public static List<JobResultsTreeItem> createTree(List<Download> files) {
+	public static List<JobResultsTreeItem> createTree(CloudgeneParameterOutput param) {
 		List<JobResultsTreeItem> items = new Vector<JobResultsTreeItem>();
-		for (Download file : files) {
+		for (Download file : param.getFiles()) {
 			String[] tiles = file.getName().split("/");
 			JobResultsTreeItem root = null;
 			for (int i = 0; i < tiles.length - 1; i++) {
@@ -32,7 +33,11 @@ public class JobResultsTreeUtil {
 			}
 			JobResultsTreeItem item = new JobResultsTreeItem();
 			item.setName(tiles[tiles.length - 1]);
-			item.setPath(file.getPath());
+			if (param.getHash() != null) {
+				item.setPath("/browse/" + param.getHash() + "/" + file.getName());
+			} else {
+				item.setPath("/share/results/" + file.getHash() + "/" + file.getName());
+			}
 			item.setHash(file.getHash());
 			item.setSize(file.getSize());
 			item.setFolder(false);

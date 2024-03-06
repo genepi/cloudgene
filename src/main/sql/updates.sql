@@ -168,3 +168,6 @@ alter table job add column user_agent VARCHAR (400);
 
 -- 3.0.0-beta1
 alter table `user` add column api_token_expires_on timestamp null default null;
+
+-- 3.0.0-beta5
+alter table `parameter` add column hash varchar(300) null default null;

@@ -21,6 +21,8 @@ public class CloudgeneParameterInput {
 
 	private boolean adminOnly = false;
 
+	private String hash = "";
+	
 	public CloudgeneParameterInput() {
 
 	}
@@ -97,4 +99,11 @@ public class CloudgeneParameterInput {
 		return adminOnly;
 	}
 
+	public void setHash(String hash) {
+		this.hash = hash;
+	}
+
+	public String getHash() {
+		return hash;
+	}
 }

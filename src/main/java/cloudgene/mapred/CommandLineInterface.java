@@ -23,7 +23,7 @@ public class CommandLineInterface extends Toolbox {
 		System.out.println();
 		System.out.println("Cloudgene " + Application.VERSION);
 		System.out.println("http://www.cloudgene.io");
-		System.out.println("(c) 2009-2032 Lukas Forer and Sebastian Schoenherr");
+		System.out.println("(c) 2009-2024 Lukas Forer and Sebastian Schoenherr");
 		System.out.println();
 	}
 

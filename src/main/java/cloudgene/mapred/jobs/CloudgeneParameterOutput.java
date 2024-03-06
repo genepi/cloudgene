@@ -1,11 +1,13 @@
 package cloudgene.mapred.jobs;
 
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 
 import cloudgene.mapred.util.HashUtil;
 import cloudgene.mapred.wdl.WdlParameterOutput;
 import cloudgene.mapred.wdl.WdlParameterOutputType;
+import org.apache.commons.math3.random.RandomGenerator;
 
 public class CloudgeneParameterOutput {
 
@@ -141,13 +143,17 @@ public class CloudgeneParameterOutput {
 	public String getHash() {
 		return hash;
 	}
-	
-	public String createHash() {
-		String hash = "";
-		for (Download download: files) {
-			hash += download.getHash();
+
+	public void initHash() {
+		String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		hash = "";
+		Random random = new Random();
+		int length = 40;
+		for (int i = 0; i < length; i++) {
+			int index = random.nextInt(alphabet.length());
+			char randomChar = alphabet.charAt(index);
+			hash += randomChar;
 		}
-		return HashUtil.getSha256(hash);
 	}
 
 }

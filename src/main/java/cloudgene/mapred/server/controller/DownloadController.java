@@ -82,26 +82,36 @@ public class DownloadController {
 
 	}
 
-	@Get("/get/{paramId}/{hash}")
+	@Get("/browse/{hash}/{filename:.+}")
 	@Secured(SecurityRule.IS_ANONYMOUS)
-	public String downloadScript(String paramId, String hash) {
-
-		int id = -1;
-		try {
-			id = Integer.parseInt(paramId);
-		} catch (NumberFormatException e) {
-			throw new JsonHttpStatusException(HttpStatus.BAD_REQUEST, "Parameter ID is not numeric.");
-		}
+	public MutableHttpResponse<InputStream> downloadByParamHash(String hash, String filename)
+			throws URISyntaxException, IOException {
 
 		ParameterDao parameterDao = new ParameterDao(application.getDatabase());
-		CloudgeneParameterOutput param = parameterDao.findById(id);
+		CloudgeneParameterOutput param = parameterDao.findByHash(hash);
 
 		if (param == null) {
-			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Param " + param + " not found.");
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Param for hash " + hash + " not found.");
 		}
 
-		if (!hash.equals(param.createHash())) {
-			throw new JsonHttpStatusException(HttpStatus.FORBIDDEN, "Download forbidden.");
+		DownloadDao dao = new DownloadDao(application.getDatabase());
+		Download download = dao.findByParameterAndName(param, filename);
+
+		String message = String.format("Job: Anonymously downloading file '%s' (hash %s)", filename, hash);
+		log.info(message);
+		return downloadService.download(download);
+
+	}
+
+	@Get("/get/{hash}")
+	@Secured(SecurityRule.IS_ANONYMOUS)
+	public String downloadScript(String hash) {
+
+		ParameterDao parameterDao = new ParameterDao(application.getDatabase());
+		CloudgeneParameterOutput param = parameterDao.findByHash(hash);
+
+		if (param == null) {
+			throw new JsonHttpStatusException(HttpStatus.NOT_FOUND, "Param for hash " + hash + " not found.");
 		}
 
 		DownloadDao dao = new DownloadDao(application.getDatabase());
