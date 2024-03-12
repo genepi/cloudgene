@@ -18,6 +18,6 @@ jobs:
         java-version: '11'
         distribution: 'adopt'
     - name: Run JUnit Tests
-      run: mvn install
+      run: mvn -B install
     - name: Upload coverage report to Codecov
       uses: codecov/codecov-action@v2 
