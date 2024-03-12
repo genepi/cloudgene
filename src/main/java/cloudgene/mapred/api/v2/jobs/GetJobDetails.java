@@ -3,6 +3,7 @@ package cloudgene.mapred.api.v2.jobs;
 import java.util.List;
 import java.util.Vector;
 
+import cloudgene.mapred.database.ParameterDao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.restlet.data.MediaType;
@@ -147,6 +148,9 @@ public class GetJobDetails extends BaseResource {
 		// delete job from database
 		job.setState(AbstractJob.STATE_DELETED);
 		dao.update(job);
+
+		ParameterDao parameterDao = new ParameterDao(getDatabase());
+		parameterDao.deleteAllByJob(job);
 
 		Settings settings = getSettings();
 
