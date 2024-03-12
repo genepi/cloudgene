@@ -173,7 +173,6 @@ alter table `user` add column api_token_expires_on timestamp null default null;
 -- 2.8.1
 CREATE INDEX idx_downloads_hash ON downloads(hash);
 CREATE INDEX idx_downloads_path ON downloads(path);
-
-CREATE INDEX idx_user_username ON user(username);
-CREATE INDEX idx_user_mail ON user(mail);
-CREATE INDEX idx_user_fullname ON user(full_name);
+CREATE INDEX idx_user_username ON `user`(username);
+CREATE INDEX idx_user_mail ON `user`(mail);
+CREATE INDEX idx_user_fullname ON `user`(full_name);
