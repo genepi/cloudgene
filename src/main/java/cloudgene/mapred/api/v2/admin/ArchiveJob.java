@@ -1,7 +1,9 @@
 package cloudgene.mapred.api.v2.admin;
 
+import cloudgene.mapred.database.ParameterDao;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.restlet.data.Parameter;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -80,6 +82,9 @@ public class ArchiveJob extends BaseResource {
 				}
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
+
+				ParameterDao parameterDao = new ParameterDao(getDatabase());
+				parameterDao.deleteAllByJob(job);
 
 				if (externalWorkspace != null) {
 					try {
