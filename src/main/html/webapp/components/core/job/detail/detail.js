@@ -76,7 +76,7 @@ export default Control.extend({
   '#delete-btn click': function(el, ev) {
     var that = this;
 
-    bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to delete <b>" + that.job.attr('name') + "</b>?", function(result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
@@ -106,7 +106,7 @@ export default Control.extend({
   '#cancel-btn click': function(el, ev) {
     var that = this;
 
-    bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to cancel <b>" + that.job.attr('name') + "</b>?", function(result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
@@ -136,7 +136,7 @@ export default Control.extend({
   '#restart-btn click': function(el, ev) {
     var that = this;
 
-    bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to restart <b>" + that.job.attr('name') + "</b>?", function(result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
