@@ -2,6 +2,7 @@ package cloudgene.mapred.api.v2.server;
 
 import java.util.Map;
 
+import cloudgene.mapred.database.JobDao;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.resource.Get;
@@ -41,10 +42,13 @@ public class GetCounter extends BaseResource {
 		for (String key : counters.keySet()) {
 			jsonWaiting.put(key, counters.get(key));
 		}
+		JobDao jobDao = new JobDao(getDatabase());
+		int waitingJobs = jobDao.findAllByState(AbstractJob.STATE_WAITING).size();
+		jsonWaiting.put("runs", waitingJobs);
 		jsonCounters.put("waiting", jsonWaiting);
 
-		UserDao dao = new UserDao(getDatabase());		
-		jsonCounters.put("users", dao.findAll().size());
+		UserDao dao = new UserDao(getDatabase());
+		jsonCounters.put("users", dao.countAll());
 		
 		
 		return new StringRepresentation(jsonCounters.toString());

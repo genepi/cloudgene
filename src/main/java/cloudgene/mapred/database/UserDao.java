@@ -208,7 +208,28 @@ public class UserDao extends JdbcDataAccessObject {
 		}
 		return result;
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public int countAll() {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select count(*) ");
+		sql.append("from `user` ");
+
+		int result = 0;
+
+		try {
+			result = (Integer) queryForObject(sql.toString(), new IntegerMapper());
+			log.debug("count all users successful. results: " + result);
+
+			return result;
+		} catch (SQLException e) {
+			log.error("count all users failed", e);
+			return 0;
+		}
+	}
+
+
 	@SuppressWarnings("unchecked")
 	public List<User> findByQuery(String query) {
 

@@ -412,6 +412,31 @@ public class JobDao extends JdbcDataAccessObject {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public int countAllByState(int state) {
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select count(*) ");
+		sql.append("from job ");
+		sql.append("where state = ? ");
+
+		Object[] params = new Object[1];
+		params[0] = state;
+
+		int result = 0;
+
+		try {
+			result = (Integer) queryForObject(sql.toString(), params, new IntegerMapper());
+			log.debug("count all old jobs successful. results: " + result);
+
+			return result;
+		} catch (SQLException e) {
+			log.error("count all old jobs failed", e);
+			return 0;
+		}
+	}
+
+
 	public AbstractJob findById(String id) {
 
 		return findById(id, true);
