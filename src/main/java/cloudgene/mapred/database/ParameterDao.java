@@ -183,29 +183,6 @@ public class ParameterDao extends JdbcDataAccessObject {
 		}
 	}
 
-    public boolean deleteAllByJob(AbstractJob job) {
-		try {
-
-			StringBuilder sql = new StringBuilder();
-			sql.append("delete ");
-			sql.append("from parameter ");
-			sql.append("where job_id = ?");
-
-			Object[] params = new Object[1];
-			params[0] = job.getId();
-
-			update(sql.toString(), params);
-
-			log.debug("delete all parameters by job_id '" + job.getId() + "' successful.");
-
-			return true;
-
-		} catch (SQLException e) {
-			log.error("delete all parameters by job_id '" + job.getId() + "' failed.", e);
-			return false;
-		}
-    }
-
     class ParameterInputMapper implements IRowMapper {
 
 		@Override
