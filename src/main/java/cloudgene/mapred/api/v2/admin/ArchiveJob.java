@@ -83,9 +83,6 @@ public class ArchiveJob extends BaseResource {
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 
-				ParameterDao parameterDao = new ParameterDao(getDatabase());
-				parameterDao.deleteAllByJob(job);
-
 				if (externalWorkspace != null) {
 					try {
 						externalWorkspace.delete(job.getId());

@@ -48,7 +48,7 @@ export default Control.extend({
     var card = $(el).closest('.card');
     var job = domData.get.call(card[0], 'job');
 
-    bootbox.confirm("Are you sure you want to delete <b>" + job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to delete <b>" + job.attr('name') + "</b>?", function(result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");
@@ -78,7 +78,7 @@ export default Control.extend({
     var card = $(el).closest('.card');
     var job = domData.get.call(card[0], 'job');
 
-    bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('id') + "</b>?", function(result) {
+    bootbox.confirm("Are you sure you want to cancel <b>" + job.attr('name') + "</b>?", function(result) {
       if (result) {
 
         var okButton = $("button[data-bb-handler='confirm']");

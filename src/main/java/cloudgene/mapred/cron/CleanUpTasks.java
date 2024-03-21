@@ -26,8 +26,6 @@ public class CleanUpTasks {
 	public static int executeRetire(Database database, Settings settings) {
 		JobDao dao = new JobDao(database);
 
-		ParameterDao parameterDao = new ParameterDao(database);
-
 		List<AbstractJob> oldJobs = dao.findAllNotifiedJobs();
 
 		int deleted = 0;
@@ -56,8 +54,6 @@ public class CleanUpTasks {
 				job.setState(AbstractJob.STATE_RETIRED);
 				dao.update(job);
 
-
-				parameterDao.deleteAllByJob(job);
 
 				log.info("Job " + job.getId() + " retired.");
 				deleted++;

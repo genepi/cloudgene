@@ -149,9 +149,6 @@ public class GetJobDetails extends BaseResource {
 		job.setState(AbstractJob.STATE_DELETED);
 		dao.update(job);
 
-		ParameterDao parameterDao = new ParameterDao(getDatabase());
-		parameterDao.deleteAllByJob(job);
-
 		Settings settings = getSettings();
 
 		IExternalWorkspace externalWorkspace = null;
