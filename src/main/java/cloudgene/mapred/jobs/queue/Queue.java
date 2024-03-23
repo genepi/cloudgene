@@ -305,6 +305,10 @@ public abstract class Queue implements Runnable {
 		}
 	}
 
+	public int getSize() {
+		return queue.size();
+	}
+
 	protected class PriorityComparator implements Comparator<AbstractJob> {
 
 		@Override

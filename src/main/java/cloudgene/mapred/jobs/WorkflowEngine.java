@@ -241,6 +241,10 @@ public class WorkflowEngine implements Runnable {
 		return jobs;
 	}
 
+	public int getSize() {
+		return longTimeQueue.getSize() + shortTimeQueue.getSize();
+	}
+
 	class SetupThread extends PriorityRunnable {
 
 		private AbstractJob job;
