@@ -135,7 +135,7 @@ var JobRefresher = Control({
       if (JobRefresher.needsUpdate(currentJob) && that.active) {
         setTimeout(function() {
           that.refresh();
-        }, 5000);
+        }, 20000);
       }
     }, function(response) {
       new ErrorPage(that.element, response);

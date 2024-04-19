@@ -186,7 +186,7 @@ export default Control.extend({
       if (JobRefresher.needsUpdate(currentJob) && that.active) {
         setTimeout(function() {
           that.refresh();
-        }, 5000);
+        }, 20000);
       } else {
         // updates details (results, startTime, endTime, ...)
         JobDetails.findOne({
